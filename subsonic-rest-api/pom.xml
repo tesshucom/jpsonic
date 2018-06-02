@@ -6,8 +6,8 @@
     <name>Subsonic REST API</name>
 
     <parent>
-        <groupId>org.airsonic.player</groupId>
-        <artifactId>airsonic</artifactId>
+        <groupId>com.tesshu.jpsonic.player</groupId>
+        <artifactId>jpsonic</artifactId>
         <version>10.1.1-RELEASE</version>
     </parent>
 

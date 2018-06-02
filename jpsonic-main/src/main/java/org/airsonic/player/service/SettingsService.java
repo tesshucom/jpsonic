@@ -54,8 +54,8 @@ import java.util.regex.Pattern;
 public class SettingsService {
 
     // Airsonic home directory.
-    private static final File AIRSONIC_HOME_WINDOWS = new File("c:/airsonic");
-    private static final File AIRSONIC_HOME_OTHER = new File("/var/airsonic");
+    private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
+    private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
 
     // Global settings.
     private static final String KEY_INDEX_STRING = "IndexString";
@@ -191,7 +191,7 @@ public class SettingsService {
     private static final String DEFAULT_SMTP_PORT = "25";
     private static final String DEFAULT_SMTP_USER = null;
     private static final String DEFAULT_SMTP_PASSWORD = null;
-    private static final String DEFAULT_SMTP_FROM = "airsonic@airsonic.org";
+    private static final String DEFAULT_SMTP_FROM = "jpsonic@tesshu.com";
 
     private static final DataSourceConfigType DEFAULT_DATABASE_CONFIG_TYPE = DataSourceConfigType.LEGACY;
     private static final String DEFAULT_DATABASE_CONFIG_EMBED_DRIVER = null;
@@ -251,11 +251,11 @@ public class SettingsService {
 
     }
 
-    public static synchronized File getAirsonicHome() {
+    public static synchronized File getJpsonicHome() {
 
         File home;
 
-        String overrideHome = System.getProperty("airsonic.home");
+        String overrideHome = System.getProperty("jpsonic.home");
         String oldHome = System.getProperty("libresonic.home");
         if (overrideHome != null) {
             home = new File(overrideHome);
@@ -263,7 +263,7 @@ public class SettingsService {
             home = new File(oldHome);
         } else {
             boolean isWindows = System.getProperty("os.name", "Windows").toLowerCase().startsWith("windows");
-            home = isWindows ? AIRSONIC_HOME_WINDOWS : AIRSONIC_HOME_OTHER;
+            home = isWindows ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
         }
         ensureDirectoryPresent(home);
 
@@ -271,17 +271,17 @@ public class SettingsService {
     }
 
     private static String getFileSystemAppName() {
-        String home = getAirsonicHome().getPath();
-        return home.contains("libresonic") ? "libresonic" : "airsonic";
+        String home = getJpsonicHome().getPath();
+        return home.contains("libresonic") ? "libresonic" : "jpsonic";
     }
 
     public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getAirsonicHome().getPath() + "/db/" + getFileSystemAppName();
+        return "jdbc:hsqldb:file:" + getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
     }
 
     public static File getLogFile() {
-        File airsonicHome = SettingsService.getAirsonicHome();
-        return new File(airsonicHome, getFileSystemAppName() + ".log");
+        File jpsonicHome = SettingsService.getJpsonicHome();
+        return new File(jpsonicHome, getFileSystemAppName() + ".log");
     }
 
 
@@ -317,7 +317,7 @@ public class SettingsService {
             boolean success = home.mkdirs();
             if (!success) {
                 String message = "The directory " + home + " does not exist. Please create it and make it writable. " +
-                        "(You can override the directory location by specifying -Dairsonic.home=... when " +
+                        "(You can override the directory location by specifying -Djpsonic.home=... when " +
                         "starting the servlet container.)";
                 throw new RuntimeException(message);
             }
@@ -325,7 +325,7 @@ public class SettingsService {
     }
 
     static File getPropertyFile() {
-        File propertyFile = getAirsonicHome();
+        File propertyFile = getJpsonicHome();
         return new File(propertyFile, getFileSystemAppName() + ".properties");
     }
 

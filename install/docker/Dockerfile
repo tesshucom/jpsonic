@@ -1,11 +1,11 @@
 FROM alpine:3.6
 
-LABEL description="Airsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
-      url="https://github.com/airsonic/airsonic"
+LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
+      url="https://github.com/tesshucom/jpsonic"
 
-ENV AIRSONIC_PORT=4040 AIRSONIC_DIR=/airsonic CONTEXT_PATH=/
+ENV JPSONIC_PORT=4040 JPSONIC_DIR=/jpsonic CONTEXT_PATH=/
 
-WORKDIR $AIRSONIC_DIR
+WORKDIR $JPSONIC_DIR
 
 RUN apk --no-cache add \
     ffmpeg \
@@ -22,10 +22,10 @@ COPY run.sh /usr/local/bin/run.sh
 
 RUN chmod +x /usr/local/bin/run.sh
 
-COPY target/dependency/airsonic-main.war airsonic.war
+COPY target/dependency/jpsonic-main.war jpsonic.war
 
-EXPOSE $AIRSONIC_PORT
+EXPOSE $JPSONIC_PORT
 
-VOLUME $AIRSONIC_DIR/data $AIRSONIC_DIR/music $AIRSONIC_DIR/playlists $AIRSONIC_DIR/podcasts
+VOLUME $JPSONIC_DIR/data $JPSONIC_DIR/music $JPSONIC_DIR/playlists $JPSONIC_DIR/podcasts
 
 ENTRYPOINT ["tini", "--", "run.sh"]

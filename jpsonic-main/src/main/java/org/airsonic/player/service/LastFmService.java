@@ -68,7 +68,7 @@ public class LastFmService {
         Caller caller = Caller.getInstance();
         caller.setUserAgent("Airsonic");
 
-        File cacheDir = new File(SettingsService.getAirsonicHome(), "lastfmcache");
+        File cacheDir = new File(SettingsService.getJpsonicHome(), "lastfmcache");
         caller.setCache(new LastFmCache(cacheDir, CACHE_TIME_TO_LIVE_MILLIS));
     }
 

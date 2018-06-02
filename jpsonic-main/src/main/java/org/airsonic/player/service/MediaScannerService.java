@@ -404,7 +404,7 @@ public class MediaScannerService {
      * @return The index file for the given index version.
      */
     private File getIndexFile(int version) {
-        File home = SettingsService.getAirsonicHome();
+        File home = SettingsService.getJpsonicHome();
         return new File(home, "airsonic" + version + ".index");
     }
 

@@ -28,8 +28,8 @@ public class JWTSecurityServiceTest {
     @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-                { "http://localhost:8080/airsonic/stream?id=4", "/airsonic/stream?id=4" },
-                { "/airsonic/stream?id=4", "/airsonic/stream?id=4" },
+                { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
+                { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
         });
     }
 

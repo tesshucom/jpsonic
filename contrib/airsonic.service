@@ -1,25 +1,25 @@
 [Unit]
-Description=Airsonic Media Server
+Description=Jpsonic Media Server
 After=remote-fs.target network.target
-AssertPathExists=/var/airsonic
+AssertPathExists=/var/jpsonic
 
 [Service]
 Type=simple
-Environment="JAVA_JAR=/var/airsonic/airsonic.war"
+Environment="JAVA_JAR=/var/jpsonic/jpsonic.war"
 Environment="JAVA_OPTS=-Xmx700m"
-Environment="AIRSONIC_HOME=/var/airsonic"
+Environment="JPSONIC_HOME=/var/jpsonic"
 Environment="PORT=8080"
-Environment="CONTEXT_PATH=/airsonic"
+Environment="CONTEXT_PATH=/jpsonic"
 Environment="JAVA_ARGS="
-EnvironmentFile=-/etc/sysconfig/airsonic
+EnvironmentFile=-/etc/sysconfig/jpsonic
 ExecStart=/usr/bin/java \
           $JAVA_OPTS \
-          -Dairsonic.home=${AIRSONIC_HOME} \
+          -Djpsonic.home=${JPSONIC_HOME} \
           -Dserver.context-path=${CONTEXT_PATH} \
           -Dserver.port=${PORT} \
           -jar ${JAVA_JAR} $JAVA_ARGS
-User=airsonic
-Group=airsonic
+User=jpsonic
+Group=jpsonic
 
 [Install]
 WantedBy=multi-user.target

@@ -7,8 +7,8 @@ public class HomeRule extends ExternalResource {
     @Override
     protected void before() throws Throwable {
         super.before();
-        System.setProperty("airsonic.home", TestCaseUtils.airsonicHomePathForTest());
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
 
-        TestCaseUtils.cleanAirsonicHomeForTest();
+        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 }

@@ -290,7 +290,7 @@ public class CoverArtController implements LastModified {
     }
 
     private synchronized File getImageCacheDirectory(int size) {
-        File dir = new File(SettingsService.getAirsonicHome(), "thumbs");
+        File dir = new File(SettingsService.getJpsonicHome(), "thumbs");
         dir = new File(dir, String.valueOf(size));
         if (!dir.exists()) {
             if (dir.mkdirs()) {

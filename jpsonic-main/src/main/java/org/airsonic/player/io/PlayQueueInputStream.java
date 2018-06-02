@@ -121,7 +121,7 @@ public class PlayQueueInputStream extends InputStream {
             mediaFileService.incrementPlayCount(file);
 
             // Don't scrobble REST players (except Sonos)
-            if (player.getClientId() == null || player.getClientId().equals(SonosHelper.AIRSONIC_CLIENT_ID)) {
+            if (player.getClientId() == null || player.getClientId().equals(SonosHelper.JPSONIC_CLIENT_ID)) {
                 audioScrobblerService.register(file, player.getUsername(), false, null);
             }
 
@@ -146,7 +146,7 @@ public class PlayQueueInputStream extends InputStream {
             }
         } finally {
             // Don't scrobble REST players (except Sonos)
-            if (player.getClientId() == null || player.getClientId().equals(SonosHelper.AIRSONIC_CLIENT_ID)) {
+            if (player.getClientId() == null || player.getClientId().equals(SonosHelper.JPSONIC_CLIENT_ID)) {
                 audioScrobblerService.register(currentFile, player.getUsername(), true, null);
             }
             currentInputStream = null;

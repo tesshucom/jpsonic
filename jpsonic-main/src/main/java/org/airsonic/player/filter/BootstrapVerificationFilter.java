@@ -44,19 +44,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
-    private boolean airsonicHomeVerified = false;
+    private boolean jpsonicHomeVerified = false;
     private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
         // Already verified?
-        if (airsonicHomeVerified) {
+        if (jpsonicHomeVerified) {
             chain.doFilter(req, res);
             return;
         }
 
-        File home = SettingsService.getAirsonicHome();
+        File home = SettingsService.getJpsonicHome();
         if (!directoryExists(home)) {
             error(res, "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, " +
                        "then restart the servlet container.</p>" +
@@ -70,7 +70,7 @@ public class BootstrapVerificationFilter implements Filter {
                        "starting the servlet container.)</p>");
 
         } else {
-            airsonicHomeVerified = true;
+            jpsonicHomeVerified = true;
             logServerInfo(req);
             chain.doFilter(req, res);
         }

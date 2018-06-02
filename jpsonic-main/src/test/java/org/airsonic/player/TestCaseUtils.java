@@ -15,43 +15,43 @@ import java.util.stream.Collectors;
 
 public class TestCaseUtils {
 
-  private static File airsonicHomeDirForTest = null;
+  private static File jpsonicHomeDirForTest = null;
 
   /**
-   * Returns the path of the AIRSONIC_HOME directory to use for tests.
+   * Returns the path of the JPSONIC_HOME directory to use for tests.
    * This will create a temporary directory.
    *
-   * @return AIRSONIC_HOME directory path.
+   * @return JPSONIC_HOME directory path.
    * @throws RuntimeException if it fails to create the temp directory.
    */
-  public static String airsonicHomePathForTest() {
+  public static String jpsonicHomePathForTest() {
 
-    if (airsonicHomeDirForTest == null) {
+    if (jpsonicHomeDirForTest == null) {
       try {
-        airsonicHomeDirForTest = Files.createTempDirectory("airsonic_test_").toFile();
+        jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_").toFile();
       } catch (IOException e) {
-        throw new RuntimeException("Error while creating temporary AIRSONIC_HOME directory for tests");
+        throw new RuntimeException("Error while creating temporary JPSONIC_HOME directory for tests");
       }
-      System.out.println("AIRSONIC_HOME directory will be "+airsonicHomeDirForTest.getAbsolutePath());
+      System.out.println("JPSONIC_HOME directory will be "+jpsonicHomeDirForTest.getAbsolutePath());
     }
-    return airsonicHomeDirForTest.getAbsolutePath();
+    return jpsonicHomeDirForTest.getAbsolutePath();
   }
 
 
   /**
-   * Cleans the AIRSONIC_HOME directory used for tests.
+   * Cleans the JPSONIC_HOME directory used for tests.
    *
    * @throws IOException
      */
-  public static void cleanAirsonicHomeForTest() throws IOException {
+  public static void cleanJpsonicHomeForTest() throws IOException {
 
-    File airsonicHomeDir = new File(airsonicHomePathForTest());
-    if (airsonicHomeDir.exists() && airsonicHomeDir.isDirectory()) {
-      System.out.println("Delete airsonic home (ie. "+airsonicHomeDir.getAbsolutePath()+").");
+    File jpsonicHomeDir = new File(jpsonicHomePathForTest());
+    if (jpsonicHomeDir.exists() && jpsonicHomeDir.isDirectory()) {
+      System.out.println("Delete jpsonic home (ie. "+jpsonicHomeDir.getAbsolutePath()+").");
       try {
-        FileUtils.deleteDirectory(airsonicHomeDir);
+        FileUtils.deleteDirectory(jpsonicHomeDir);
       } catch (IOException e) {
-        System.out.println("Error while deleting airsonic home.");
+        System.out.println("Error while deleting jpsonic home.");
         e.printStackTrace();
         throw e;
       }

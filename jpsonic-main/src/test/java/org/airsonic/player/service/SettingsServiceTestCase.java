@@ -37,9 +37,9 @@ public class SettingsServiceTestCase extends TestCase {
 
     @Override
     protected void setUp() throws Exception {
-        String airsonicHome = TestCaseUtils.airsonicHomePathForTest();
-        System.setProperty("airsonic.home", airsonicHome);
-        new File(airsonicHome, "airsonic.properties").delete();
+        String jpsonicHome = TestCaseUtils.jpsonicHomePathForTest();
+        System.setProperty("jpsonic.home", jpsonicHome);
+        new File(jpsonicHome, "jpsonic.properties").delete();
         settingsService = newSettingsService();
     }
 
@@ -49,8 +49,8 @@ public class SettingsServiceTestCase extends TestCase {
         return settingsService;
     }
 
-    public void testAirsonicHome() {
-        assertEquals("Wrong Airsonic home.", TestCaseUtils.airsonicHomePathForTest(), SettingsService.getAirsonicHome().getAbsolutePath());
+    public void testJpsonicHome() {
+        assertEquals("Wrong Jpsonic home.", TestCaseUtils.jpsonicHomePathForTest(), SettingsService.getJpsonicHome().getAbsolutePath());
     }
 
     public void testDefaultValues() {
