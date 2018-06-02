@@ -4,19 +4,19 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>10.1.1-RELEASE</version>
+    <version>10.2.0-SNAPSHOT</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
         <name>Jpsonic</name>
         <url>https://tesshu.com/</url>
     </organization>
-    <inceptionYear>2016</inceptionYear>
+    <inceptionYear>2018</inceptionYear>
 
     <properties>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
-        <cxf.version>3.1.12</cxf.version>
+        <cxf.version>3.1.15</cxf.version>
     </properties>
 
     <repositories>
@@ -86,7 +86,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.5.8.RELEASE</version>
+                <version>1.5.12.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -112,6 +112,16 @@
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>2.5</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>2.8.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.8.11.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -195,7 +205,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.1.2</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -253,7 +263,7 @@
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>taglibs:string:jar*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
-                                <!-- Needed for jpsonic-booter to load Airsonic correctly -->
+                                <!-- Needed for jpsonic-booter to load Jpsonic correctly -->
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
