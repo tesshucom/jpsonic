@@ -132,14 +132,14 @@ public class RecoverController {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
-            message.setSubject("Airsonic Password");
+            message.setSubject("Jpsonic Password");
             message.setText("Hi there!\n\n" +
-                    "You have requested to reset your Airsonic password.  Please find your new login details below.\n\n" +
+                    "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n" +
                     "Username: " + username + "\n" +
                     "Password: " + password + "\n\n" +
                     "--\n" +
-                    "Your Airsonic server\n" +
-                    "airsonic.github.io/");
+                    "Your Jpsonic server\n" +
+                    "tesshu.com/");
             message.setSentDate(new Date());
 
             Transport trans = session.getTransport(prot);

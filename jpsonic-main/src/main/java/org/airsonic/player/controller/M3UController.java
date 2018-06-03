@@ -111,7 +111,7 @@ public class M3UController  {
             out.print("\ufeff");
         }
         out.println("#EXTM3U");
-        out.println("#EXTINF:-1,Airsonic");
+        out.println("#EXTINF:-1,Jpsonic");
         out.println(jwtSecurityService.addJWTToken(url));
     }
 
