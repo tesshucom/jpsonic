@@ -1,0 +1,38 @@
+/*
+ * CSS styleshet for the "Ripserver" theme.
+ *
+ * Author: tesshu.com
+ */
+@import "default.css";
+
+.bgcolor1, table.music tr:nth-of-type(even) {
+	background-color: #FFFFFF;
+}
+
+.bgcolor2, .ruleTableHeader, .log, table.music tr:nth-of-type(odd) {
+	background-color: #F1F8FF;
+}
+
+.mainframe {
+	background-color: #FFFFFF;
+}
+
+a:link, a:active, a:visited, a:link *, a:active *, a:visited * {
+	color: #0366D6;
+}
+
+a:hover, a:hover * {
+	color: orange;
+}
+
+body {
+	font-family: Meiryo, "Hiragino Kaku Gothic Pro", Osaka, "MS PGothic",
+		sans-serif;
+	scrollbar-face-color: #DEE3E7;
+	scrollbar-shadow-color: #DEE3E7;
+	scrollbar-track-color: #EFEFEF;
+	scrollbar-highlight-color: #FFFFFF;
+	scrollbar-3dlight-color: #FFFFFF;
+	scrollbar-arrow-color: #FFFFFF;
+	scrollbar-darkshadow-color: #FFFFFF;
+}

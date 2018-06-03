@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
 @Service
 public class SettingsService {
 
-    // Airsonic home directory.
+    // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
     private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
 
@@ -137,21 +137,14 @@ public class SettingsService {
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
     private static final int DEFAULT_COVER_ART_CONCURRENCY = 4;
-    private static final String DEFAULT_WELCOME_TITLE = "Welcome to Airsonic!";
+    private static final String DEFAULT_WELCOME_TITLE = "\u30db\u30fc\u30e0";
     private static final String DEFAULT_WELCOME_SUBTITLE = null;
-    private static final String DEFAULT_WELCOME_MESSAGE = "__Welcome to Airsonic!__\n" +
-            "\\\\ \\\\\n" +
-            "Airsonic is a free, web-based media streamer, providing ubiquitous access to your music. \n" +
-            "\\\\ \\\\\n" +
-            "Use it to share your music with friends, or to listen to your own music while at work. You can stream to multiple " +
-            "players simultaneously, for instance to one player in your kitchen and another in your living room.\n" +
-            "\\\\ \\\\\n" +
-            "To change or remove this message, log in with administrator rights and go to {link:Settings > General|generalSettings.view}.";
+    private static final String DEFAULT_WELCOME_MESSAGE = null;
     private static final String DEFAULT_LOGIN_MESSAGE = null;
-    private static final String DEFAULT_LOCALE_LANGUAGE = "en";
-    private static final String DEFAULT_LOCALE_COUNTRY = "";
+    private static final String DEFAULT_LOCALE_LANGUAGE = "ja";
+    private static final String DEFAULT_LOCALE_COUNTRY = "jp";
     private static final String DEFAULT_LOCALE_VARIANT = "";
-    private static final String DEFAULT_THEME_ID = "default";
+    private static final String DEFAULT_THEME_ID = "jpsonic";
     private static final int DEFAULT_INDEX_CREATION_INTERVAL = 1;
     private static final int DEFAULT_INDEX_CREATION_HOUR = 3;
     private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
@@ -177,10 +170,10 @@ public class SettingsService {
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
-    private static final String DEFAULT_DLNA_SERVER_NAME = "Airsonic";
+    private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
-    private static final String DEFAULT_SONOS_SERVICE_NAME = "Airsonic";
+    private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
     private static final String DEFAULT_EXPORT_PLAYLIST_FORMAT = "m3u";
     private static final boolean DEFAULT_IGNORE_SYMLINKS = false;
@@ -191,7 +184,7 @@ public class SettingsService {
     private static final String DEFAULT_SMTP_PORT = "25";
     private static final String DEFAULT_SMTP_USER = null;
     private static final String DEFAULT_SMTP_PASSWORD = null;
-    private static final String DEFAULT_SMTP_FROM = "jpsonic@tesshu.com";
+    private static final String DEFAULT_SMTP_FROM = "airsonic@airsonic.org";
 
     private static final DataSourceConfigType DEFAULT_DATABASE_CONFIG_TYPE = DataSourceConfigType.LEGACY;
     private static final String DEFAULT_DATABASE_CONFIG_EMBED_DRIVER = null;
@@ -841,7 +834,7 @@ public class SettingsService {
                 }
             } catch (IOException x) {
                 LOG.error("Failed to resolve list of themes.", x);
-                themes.add(new Theme("default", "Airsonic default"));
+                themes.add(new Theme("default", "Jpsonic default"));
             }
         }
         return themes.toArray(new Theme[themes.size()]);
@@ -887,12 +880,12 @@ public class SettingsService {
     }
 
     /**
-     * Returns the "brand" name. Normally, this is just "Airsonic".
+     * Returns the "brand" name. Normally, this is just "Jpsonic".
      *
      * @return The brand name.
      */
     public String getBrand() {
-        return "Airsonic";
+        return "Jpsonic";
     }
 
     /**
