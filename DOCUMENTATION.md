@@ -1,10 +1,11 @@
 <!--
 # DOCUMENTATION.md
-# Airsonic/player
+# Jpsonic/player
 -->
 
 Documentation
 =============
 
-Documentation is stored in a [dedicated repository](https://github.com/airsonic/documentation) and can be browsed using [our website](https://airsonic.github.io/docs)
+An [Airsonic document](https://airsonic.github.io/docs/) exists.
 
+Additional Jpsonic documentation is in preparation.
