@@ -30,6 +30,7 @@ import org.airsonic.player.dao.PlayQueueDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.i18n.LocaleResolver;
 import org.airsonic.player.service.*;
 import org.airsonic.player.util.Pair;
 import org.airsonic.player.util.StringUtil;
@@ -135,6 +136,8 @@ public class SubsonicRESTController {
     private PlayQueueDao playQueueDao;
     @Autowired
     private MediaScannerService mediaScannerService;
+    @Autowired
+    private LocaleResolver localeResolver;
 
     private final Map<BookmarkKey, org.airsonic.player.domain.Bookmark> bookmarkCache = new ConcurrentHashMap<BookmarkKey, org.airsonic.player.domain.Bookmark>();
     private final JAXBWriter jaxbWriter = new JAXBWriter();
@@ -431,7 +434,7 @@ public class SubsonicRESTController {
         for (MediaFile similarArtist : similarArtists) {
             result.getSimilarArtist().add(createJaxbArtist(similarArtist, username));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, getUserLocale(request));
+        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, localeResolver.resolveLocale(request));
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());
@@ -468,7 +471,7 @@ public class SubsonicRESTController {
         for (org.airsonic.player.domain.Artist similarArtist : similarArtists) {
             result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, username));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(artist, getUserLocale(request));
+        ArtistBio artistBio = lastFmService.getArtistBio(artist, localeResolver.resolveLocale(request));
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());
@@ -2402,16 +2405,12 @@ public class SubsonicRESTController {
         return !players.isEmpty() ? players.get(0).getId() : null;
     }
 
-    private Locale getUserLocale(HttpServletRequest request) {
-        return settingsService.getUserSettings(securityService.getCurrentUsername(request)).getLocale();
-    }
-
     public enum ErrorCode {
 
         GENERIC(0, "A generic error."),
         MISSING_PARAMETER(10, "Required parameter is missing."),
-        PROTOCOL_MISMATCH_CLIENT_TOO_OLD(20, "Incompatible Airsonic REST protocol version. Client must upgrade."),
-        PROTOCOL_MISMATCH_SERVER_TOO_OLD(30, "Incompatible Airsonic REST protocol version. Server must upgrade."),
+        PROTOCOL_MISMATCH_CLIENT_TOO_OLD(20, "Incompatible Jpsonic REST protocol version. Client must upgrade."),
+        PROTOCOL_MISMATCH_SERVER_TOO_OLD(30, "Incompatible Jpsonic REST protocol version. Server must upgrade."),
         NOT_AUTHENTICATED(40, "Wrong username or password."),
         NOT_AUTHORIZED(50, "User is not authorized for the given operation."),
         NOT_FOUND(70, "Requested data was not found.");
