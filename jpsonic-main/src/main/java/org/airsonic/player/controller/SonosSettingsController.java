@@ -74,7 +74,7 @@ public class SonosSettingsController {
         boolean sonosEnabled = ServletRequestUtils.getBooleanParameter(request, "sonosEnabled", false);
         String sonosServiceName = StringUtils.trimToNull(request.getParameter("sonosServiceName"));
         if (sonosServiceName == null) {
-            sonosServiceName = "Airsonic";
+            sonosServiceName = "Jpsonic";
         }
 
         settingsService.setSonosEnabled(sonosEnabled);
