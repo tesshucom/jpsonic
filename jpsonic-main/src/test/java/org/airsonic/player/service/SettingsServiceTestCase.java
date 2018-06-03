@@ -54,11 +54,11 @@ public class SettingsServiceTestCase extends TestCase {
     }
 
     public void testDefaultValues() {
-        assertEquals("Wrong default language.", "en", settingsService.getLocale().getLanguage());
+        assertEquals("Wrong default language.", "ja", settingsService.getLocale().getLanguage());
         assertEquals("Wrong default index creation interval.", 1, settingsService.getIndexCreationInterval());
         assertEquals("Wrong default index creation hour.", 3, settingsService.getIndexCreationHour());
         assertTrue("Wrong default playlist folder.", settingsService.getPlaylistFolder().endsWith("playlists"));
-        assertEquals("Wrong default theme.", "default", settingsService.getThemeId());
+        assertEquals("Wrong default theme.", "jpsonic", settingsService.getThemeId());
         assertEquals("Wrong default Podcast episode retention count.", 10, settingsService.getPodcastEpisodeRetentionCount());
         assertEquals("Wrong default Podcast episode download count.", 1, settingsService.getPodcastEpisodeDownloadCount());
         assertTrue("Wrong default Podcast folder.", settingsService.getPodcastFolder().endsWith("Podcast"));
