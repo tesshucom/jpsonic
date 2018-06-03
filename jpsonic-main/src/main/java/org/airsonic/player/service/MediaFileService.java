@@ -19,8 +19,11 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.service.MediaFileJPSupport;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
@@ -66,6 +69,8 @@ public class MediaFileService {
     @Autowired
     private MetaDataParserFactory metaDataParserFactory;
     private boolean memoryCacheEnabled = true;
+    @Autowired
+    private MediaFileJPSupport mediaFileJPSupport;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -547,6 +552,7 @@ public class MediaFileService {
 
                 } else {
                     mediaFile.setArtist(file.getName());
+                    mediaFileJPSupport.setReading(mediaFile);
                 }
             }
         }

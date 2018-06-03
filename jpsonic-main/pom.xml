@@ -500,6 +500,14 @@
             <version>2.1.2</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- Japanese reading -->
+        <dependency>
+            <groupId>com.atilika.kuromoji</groupId>
+            <artifactId>kuromoji-ipadic</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

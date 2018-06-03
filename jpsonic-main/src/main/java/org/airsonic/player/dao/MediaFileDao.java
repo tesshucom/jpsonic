@@ -34,6 +34,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 
 /**
  * Provides database services for media files.
@@ -45,7 +47,8 @@ public class MediaFileDao extends AbstractDao {
     private static final Logger logger = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
-                                                "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, version";
+                                                "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
+                                                "version, artist_reading";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
@@ -190,7 +193,7 @@ public class MediaFileDao extends AbstractDao {
                    file.isVariableBitRate(), file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                    file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
-                   file.getChildrenLastUpdated(), file.isPresent(), VERSION);
+                   file.getChildrenLastUpdated(), file.isPresent(), VERSION, file.getArtistReading());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -303,16 +306,35 @@ public class MediaFileDao extends AbstractDao {
             return Collections.emptyList();
         }
         Map<String, Object> args = new HashMap<String, Object>() {{
-            put("type", MediaFile.MediaType.ALBUM.name());
+            put("typeAlbum", MediaFile.MediaType.ALBUM.name());
+            put("typeDir", MediaFile.MediaType.DIRECTORY.name());
             put("folders", MusicFolder.toPathList(musicFolders));
             put("count", count);
             put("offset", offset);
         }};
+        
+        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
+		Function<String, String> addAlias = colmn -> {
+			return "m1.".concat(colmn).concat(", ");
+		};
+	    Collector<String, StringBuilder, String> join = 
+	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 
-        String orderBy = byArtist ? "artist, album" : "album";
-        return namedQuery("select " + QUERY_COLUMNS
-                          + " from media_file where type = :type and folder in (:folders) and present " +
-                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+	    String aliasedColomns = 
+				queryColomns.stream().map(addAlias).collect(join);
+
+        String orderBy = byArtist ? "reading, album" : "album";
+        
+        String query =
+        		"select " + aliasedColomns + " coalesce(m2.artist_reading, lower(m1.artist)) reading"
+                        + " from media_file m1"
+                        + " join media_file m2"
+                        + " on"
+                        + " m1.type = :typeAlbum and m2.type = :typeDir"
+                        + " and m1.artist = m2.artist"
+        				+ " where type = :typeAlbum and folder in (:folders) and present "
+                        + "order by " + orderBy + " limit :count offset :offset";
+		return namedQuery(query, rowMapper, args);
     }
 
     /**
@@ -717,7 +739,8 @@ public class MediaFileDao extends AbstractDao {
                     rs.getTimestamp(27),
                     rs.getTimestamp(28),
                     rs.getBoolean(29),
-                    rs.getInt(30));
+                    rs.getInt(30),
+                    rs.getString(31));
         }
     }
 
