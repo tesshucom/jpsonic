@@ -20,6 +20,7 @@
 package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 
 /**
  * Provides database services for artists.
@@ -44,6 +47,7 @@ public class ArtistDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
+    private final RowMapper rowMapperWithReading = new ArtistMapperWithReading();
 
     /**
      * Returns the artist with the given name.
@@ -127,10 +131,22 @@ public class ArtistDao extends AbstractDao {
             put("folders", MusicFolder.toIdList(musicFolders));
             put("count", count);
             put("offset", offset);
+            put("typeDir", MediaFile.MediaType.DIRECTORY.name());
         }};
 
-        return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                          "order by name limit :count offset :offset", rowMapper, args);
+        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
+		Function<String, String> addAlias = colmn -> {
+			return "a.".concat(colmn).concat(", ");
+		};
+	    Collector<String, StringBuilder, String> join = 
+	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+	    String aliasedColomns = 
+				queryColomns.stream().map(addAlias).collect(join);
+        return namedQuery("select " + aliasedColomns + "coalesce(artist_reading, lower(artist)) reading "
+        		+ "from artist a "
+        		+ "join (select distinct artist, artist_reading from media_file where type = :typeDir) m on m.artist = a.name "
+        		+ "where a.present and folder_id in (:folders) "
+        		+ "order by name limit :count offset :offset", rowMapperWithReading, args);
     }
 
     /**
@@ -209,6 +225,21 @@ public class ArtistDao extends AbstractDao {
                     rs.getTimestamp(5),
                     rs.getBoolean(6),
                     rs.getInt(7));
+        }
+    }
+    
+    private static class ArtistMapperWithReading implements RowMapper<Artist> {
+        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
+        	Artist artist = new Artist(
+                    rs.getInt(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getInt(4),
+                    rs.getTimestamp(5),
+                    rs.getBoolean(6),
+                    rs.getInt(7));
+        	artist.setReading(rs.getString(8));
+            return artist;
         }
     }
 }
