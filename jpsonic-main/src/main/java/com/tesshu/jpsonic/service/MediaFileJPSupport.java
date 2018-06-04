@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.springframework.stereotype.Service;
 
@@ -125,5 +126,13 @@ public class MediaFileJPSupport {
                 ? mediaFile.getName()
                 : Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
     }    
+    
+    public String createIndexableName(Artist artist) {
+        // http://www.unicode.org/reports/tr15/
+        return artist.getReading() == null
+                ? artist.getName()
+                : Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+    }    
+    
 
 }

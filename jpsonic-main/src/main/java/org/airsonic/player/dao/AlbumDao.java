@@ -31,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collector;
 
 /**
  * Provides database services for albums.
@@ -178,16 +180,30 @@ public class AlbumDao extends AbstractDao {
             put("folders", MusicFolder.toIdList(musicFolders));
             put("count", count);
             put("offset", offset);
+            put("typeDir", MediaFile.MediaType.DIRECTORY.name());
         }};
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist),  LOWER(name)" : "LOWER(name)";
+            orderBy = byArtist ? "LOWER(reading),  LOWER(name)" : "LOWER(name)";
         } else {
-            orderBy = byArtist ? "artist, name" : "name";
+            orderBy = byArtist ? "reading, name" : "name";
         }
 
-        return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
-                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
+		Function<String, String> addAlias = colmn -> {
+			return "a.".concat(colmn).concat(", ");
+		};
+	    Collector<String, StringBuilder, String> join = 
+	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+	    String aliasedColomns = 
+				queryColomns.stream().map(addAlias).collect(join);
+        return namedQuery(
+        		"select " + aliasedColomns + "coalesce(artist_reading, a.artist) reading"
+        		+ " from album a"
+        		+ " left join (select distinct artist, artist_reading from media_file where type = :typeDir) m"
+        		+ " on m.artist = a.artist"
+        		+ " where a.present and folder_id in (:folders) "
+        		+ " order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
