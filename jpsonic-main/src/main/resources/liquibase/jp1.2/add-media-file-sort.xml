@@ -1,0 +1,41 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-media-file-artist-sort_001" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="title_sort" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="title_sort" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-media-file-artist-sort_002" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="album_sort" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="album_sort" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-media-file-artist-sort_003" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="artist_sort" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="artist_sort" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
