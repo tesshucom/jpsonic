@@ -199,7 +199,8 @@ public class MusicIndexService {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Collator collator = createCollator();
         for (Artist artist : artists) {
-            String sortableName = createSortableName(artist.getName(), ignoredArticles);
+            String sortableName = createSortableName(
+            		mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
             result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, collator));
         }
 

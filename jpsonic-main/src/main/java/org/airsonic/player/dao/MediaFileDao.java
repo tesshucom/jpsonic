@@ -328,9 +328,9 @@ public class MediaFileDao extends AbstractDao {
         String query =
         		"select " + aliasedColomns + " coalesce(m2.artist_reading, lower(m1.artist)) reading"
                         + " from media_file m1"
-                        + " join media_file m2"
+                        + " left join (select distinct artist, artist_reading from media_file where type = :typeDir) m2"
                         + " on"
-                        + " m1.type = :typeAlbum and m2.type = :typeDir"
+                        + " m1.type = :typeAlbum"
                         + " and m1.artist = m2.artist"
         				+ " where type = :typeAlbum and folder in (:folders) and present "
                         + "order by " + orderBy + " limit :count offset :offset";
