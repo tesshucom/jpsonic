@@ -331,15 +331,13 @@ public class MediaFileDao extends AbstractDao {
 	    String aliasedColomns = 
 				queryColomns.stream().map(addAlias).collect(join);
 
-        String orderBy = byArtist ? "reading, album" : "album";
+        String orderBy = byArtist ? "sort, album" : "album";
         
         String query =
-        		"select " + aliasedColomns + " coalesce(m2.artist_reading, lower(m1.artist)) reading"
+        		"select " + aliasedColomns + " m2.sort"
                         + " from media_file m1"
-                        + " left join (select distinct artist, artist_reading from media_file where type = :typeDir) m2"
-                        + " on"
-                        + " m1.type = :typeAlbum"
-                        + " and m1.artist = m2.artist"
+                        + " left join (select distinct path, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir order by sort) m2"
+                        + " on m1.parent_path = m2.path"
         				+ " where type = :typeAlbum and folder in (:folders) and present "
                         + "order by " + orderBy + " limit :count offset :offset";
 		return namedQuery(query, rowMapper, args);

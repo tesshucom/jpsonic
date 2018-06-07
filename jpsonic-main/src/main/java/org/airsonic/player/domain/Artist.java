@@ -34,7 +34,7 @@ public class Artist {
     private Date lastScanned;
     private boolean present;
     private Integer folderId;
-    private transient String reading;
+    private transient String sort;
 
     public Artist() {
     }
@@ -47,7 +47,7 @@ public class Artist {
         this.lastScanned = lastScanned;
         this.present = present;
         this.folderId = folderId;
-        this.reading = reading;
+        this.sort = sort;
     }
 
     public int getId() {
@@ -106,12 +106,12 @@ public class Artist {
         return folderId;
     }
 
-	public String getReading() {
-		return reading;
+	public String getSort() {
+		return sort;
 	}
 
-	public void setReading(String reading) {
-		this.reading = reading;
+	public void setSort(String sort) {
+		this.sort = sort;
 	}
     
     

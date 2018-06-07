@@ -47,7 +47,7 @@ public class ArtistDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
-    private final RowMapper rowMapperWithReading = new ArtistMapperWithReading();
+    private final RowMapper rowMapperWithSort = new ArtistMapperWithSort();
 
     /**
      * Returns the artist with the given name.
@@ -142,11 +142,11 @@ public class ArtistDao extends AbstractDao {
 	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 	    String aliasedColomns = 
 				queryColomns.stream().map(addAlias).collect(join);
-        return namedQuery("select " + aliasedColomns + "coalesce(artist_reading, lower(artist)) reading "
+        return namedQuery("select " + aliasedColomns + "sort "
         		+ "from artist a "
-        		+ "join (select distinct artist, artist_reading from media_file where type = :typeDir) m on m.artist = a.name "
+        		+ "join (select distinct artist, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir order by sort) m on m.artist = a.name "
         		+ "where a.present and folder_id in (:folders) "
-        		+ "order by name limit :count offset :offset", rowMapperWithReading, args);
+        		+ "order by sort limit :count offset :offset", rowMapperWithSort, args);
     }
 
     /**
@@ -228,7 +228,7 @@ public class ArtistDao extends AbstractDao {
         }
     }
     
-    private static class ArtistMapperWithReading implements RowMapper<Artist> {
+    private static class ArtistMapperWithSort implements RowMapper<Artist> {
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
         	Artist artist = new Artist(
                     rs.getInt(1),
@@ -238,7 +238,7 @@ public class ArtistDao extends AbstractDao {
                     rs.getTimestamp(5),
                     rs.getBoolean(6),
                     rs.getInt(7));
-        	artist.setReading(rs.getString(8));
+        	artist.setSort(rs.getString(8));
             return artist;
         }
     }
