@@ -26,6 +26,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -134,5 +135,18 @@ public class MediaFileJPSupport {
                 : Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
     }    
     
+    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
+    	List<MediaFile> toBeUpdate = new ArrayList<>();
+    	for(MediaFile candidate : candidates) {
+    		if(null != candidate.getArtistReading()) {
+        		String normalizedSort = Normalizer.normalize(candidate.getArtistSort(), Normalizer.Form.NFKC);
+        		if(!candidate.getArtistReading().equals(normalizedSort)) {
+        			candidate.setArtistSort(normalizedSort);
+        			toBeUpdate.add(candidate);
+        		}
+    		}
+    	}
+    	return toBeUpdate;
+    }
 
 }
