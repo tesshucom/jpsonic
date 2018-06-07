@@ -508,6 +508,9 @@ public class MediaFileService {
                 mediaFile.setVariableBitRate(metaData.getVariableBitRate());
                 mediaFile.setHeight(metaData.getHeight());
                 mediaFile.setWidth(metaData.getWidth());
+                mediaFile.setTitleSort(metaData.getTitleSort());
+                mediaFile.setAlbumSort(metaData.getTitleSort());
+                mediaFile.setArtistSort(metaData.getArtistSort());
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -534,9 +537,6 @@ public class MediaFileService {
                     MetaDataParser parser = metaDataParserFactory.getParser(firstChild);
                     if (parser != null) {
                         MetaData metaData = parser.getMetaData(firstChild);
-                        mediaFile.setArtist(metaData.getAlbumArtist());
-                        mediaFile.setAlbumName(metaData.getAlbumName());
-                        mediaFile.setYear(metaData.getYear());
                         mediaFile.setGenre(metaData.getGenre());
                     }
 
@@ -722,6 +722,17 @@ public class MediaFileService {
 
     public int getStarredAlbumCount(String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
+    }
+    
+    public void updateArtistSort() {
+    	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
+    	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
+    	for(MediaFile toBeUpdate :toBeUpdates) {
+    		MediaFile file = mediaFileDao.getMediaFile(toBeUpdate.getId());
+    		file.setArtistSort(toBeUpdate.getArtistSort());
+    		mediaFileDao.createOrUpdateMediaFile(file);
+    	}
+        LOG.info(toBeUpdates.size() + " artistSort reversal was done.");
     }
 
     public void clearMemoryCache() {
