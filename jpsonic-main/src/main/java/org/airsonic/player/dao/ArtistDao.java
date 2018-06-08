@@ -144,7 +144,7 @@ public class ArtistDao extends AbstractDao {
 				queryColomns.stream().map(addAlias).collect(join);
         return namedQuery("select " + aliasedColomns + "sort "
         		+ "from artist a "
-        		+ "join (select distinct artist, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir order by sort) m on m.artist = a.name "
+        		+ "join (select distinct artist, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir ) m on m.artist = a.name "
         		+ "where a.present and folder_id in (:folders) "
         		+ "order by sort limit :count offset :offset", rowMapperWithSort, args);
     }
