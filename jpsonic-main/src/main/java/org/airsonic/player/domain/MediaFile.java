@@ -68,12 +68,15 @@ public class MediaFile {
     private boolean present;
     private int version;
     private String artistReading;
+    private String titleSort;
+    private String albumSort;
+    private String artistSort;
 
 	public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
-                     Date childrenLastUpdated, boolean present, int version, String artistReading) {
+                     Date childrenLastUpdated, boolean present, int version, String artistReading, String titleSort, String albumSort, String artistSort) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -105,6 +108,9 @@ public class MediaFile {
         this.present = present;
         this.version = version;
         this.artistReading = artistReading;
+        this.titleSort = titleSort;
+        this.albumSort = albumSort;
+        this.artistSort = artistSort;
     }
 
     public MediaFile() {
@@ -452,8 +458,32 @@ public class MediaFile {
 	public void setArtistReading(String artistReading) {
 		this.artistReading = artistReading;
 	}
+	
+    public String getTitleSort() {
+		return titleSort;
+	}
 
-    @Override
+	public void setTitleSort(String titleSort) {
+		this.titleSort = titleSort;
+	}
+
+	public String getAlbumSort() {
+		return albumSort;
+	}
+
+	public void setAlbumSort(String albumSort) {
+		this.albumSort = albumSort;
+	}
+
+	public String getArtistSort() {
+		return artistSort;
+	}
+
+	public void setArtistSort(String artistSort) {
+		this.artistSort = artistSort;
+	}
+
+	@Override
     public String toString() {
         return getName();
     }

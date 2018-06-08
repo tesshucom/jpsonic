@@ -20,12 +20,14 @@ package com.tesshu.jpsonic.service;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
+import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -122,17 +124,39 @@ public class MediaFileJPSupport {
      */
     public String createIndexableName(MediaFile mediaFile) {
         // http://www.unicode.org/reports/tr15/
-        return mediaFile.getArtistReading() == null
-                ? mediaFile.getName()
-                : Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
+    	if(null != mediaFile.getArtistSort()) {
+    		return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
+    	}
+    	if(null != mediaFile.getArtistReading()) {
+    		return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
+    	}
+        return mediaFile.getName();
     }    
     
     public String createIndexableName(Artist artist) {
         // http://www.unicode.org/reports/tr15/
-        return artist.getReading() == null
+        return artist.getSort() == null
                 ? artist.getName()
-                : Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+                : Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
     }    
     
+    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
+    	List<MediaFile> toBeUpdate = new ArrayList<>();
+    	for(MediaFile candidate : candidates) {
+    		if(null != candidate.getArtistReading()) {
+        		String cleanedUpSort = cleanUp(candidate.getArtistSort());
+        		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
+        			candidate.setArtistSort(cleanedUpSort);
+        			toBeUpdate.add(candidate);
+        		}
+    		}
+    	}
+    	return toBeUpdate;
+    }
+    
+    private String cleanUp(String dirty) {
+    	return Normalizer.normalize(
+    			Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
+    }
 
 }

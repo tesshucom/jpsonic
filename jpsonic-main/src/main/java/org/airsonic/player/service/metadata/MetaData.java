@@ -38,6 +38,9 @@ public class MetaData {
     private Integer durationSeconds;
     private Integer width;
     private Integer height;
+    private String titleSort;
+	private String albumSort;
+    private String artistSort;
 
     public Integer getDiscNumber() {
         return discNumber;
@@ -142,4 +145,29 @@ public class MetaData {
     public void setHeight(Integer height) {
         this.height = height;
     }
+
+ 	public String getTitleSort() {
+ 		return titleSort;
+ 	}
+
+ 	public void setTitleSort(String titleSort) {
+ 		this.titleSort = titleSort;
+ 	}
+
+ 	public String getAlbumSort() {
+ 		return albumSort;
+ 	}
+
+ 	public void setAlbumSort(String albumSort) {
+ 		this.albumSort = albumSort;
+ 	}
+
+ 	public String getArtistSort() {
+ 		return artistSort;
+ 	}
+
+ 	public void setArtistSort(String artistRort) {
+ 		this.artistSort = artistRort;
+ 	}
+
 }
