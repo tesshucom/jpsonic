@@ -537,6 +537,9 @@ public class MediaFileService {
                     MetaDataParser parser = metaDataParserFactory.getParser(firstChild);
                     if (parser != null) {
                         MetaData metaData = parser.getMetaData(firstChild);
+                        mediaFile.setArtist(metaData.getAlbumArtist());
+                        mediaFile.setAlbumName(metaData.getAlbumName());
+                        mediaFile.setYear(metaData.getYear());
                         mediaFile.setGenre(metaData.getGenre());
                     }
 
