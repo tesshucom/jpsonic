@@ -53,7 +53,7 @@ public class MediaFileDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    private static final int JP_VERSION = 1;
+    private static final int JP_VERSION = 2;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
@@ -680,6 +680,10 @@ public class MediaFileDao extends AbstractDao {
 				+ "on dic.artist = m.artist "
 				+ "where type = ? "
 				+ "order by artist, artist_sort;", artistSortCandidateMapper, MediaFile.MediaType.DIRECTORY.name());
+    }
+    
+    public void clearArtistSort() {
+    	update("update media_file set artist_sort = null where type=?  and present", MediaFile.MediaType.DIRECTORY.name());
     }
 
     public void starMediaFile(int id, String username) {
