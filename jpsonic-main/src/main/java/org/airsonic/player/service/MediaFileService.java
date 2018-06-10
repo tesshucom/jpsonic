@@ -537,6 +537,9 @@ public class MediaFileService {
                     MetaDataParser parser = metaDataParserFactory.getParser(firstChild);
                     if (parser != null) {
                         MetaData metaData = parser.getMetaData(firstChild);
+                        mediaFile.setArtist(metaData.getAlbumArtist());
+                        mediaFile.setAlbumName(metaData.getAlbumName());
+                        mediaFile.setYear(metaData.getYear());
                         mediaFile.setGenre(metaData.getGenre());
                     }
 
@@ -727,6 +730,7 @@ public class MediaFileService {
     public void updateArtistSort() {
     	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
     	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
+    	mediaFileDao.clearArtistSort();
     	for(MediaFile toBeUpdate :toBeUpdates) {
     		MediaFile file = mediaFileDao.getMediaFile(toBeUpdate.getId());
     		file.setArtistSort(toBeUpdate.getArtistSort());

@@ -24,6 +24,7 @@ import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.Normalizer;
@@ -143,7 +144,7 @@ public class MediaFileJPSupport {
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
     	List<MediaFile> toBeUpdate = new ArrayList<>();
     	for(MediaFile candidate : candidates) {
-    		if(null != candidate.getArtistReading()) {
+    		if(!StringUtils.isEmpty(candidate.getArtistReading())) {
         		String cleanedUpSort = cleanUp(candidate.getArtistSort());
         		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
         			candidate.setArtistSort(cleanedUpSort);
