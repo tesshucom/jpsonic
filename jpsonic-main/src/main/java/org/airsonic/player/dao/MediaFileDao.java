@@ -47,19 +47,19 @@ public class MediaFileDao extends AbstractDao {
     private static final Logger logger = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
-                                                "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
-                                                "version, artist_reading, title_sort, album_sort, artist_sort";
+                                                "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, version, " +
+                                                "artist_reading, title_sort, album_sort, artist_sort";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    private static final int JP_VERSION = 2;
+	private static final int JP_VERSION = 2;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
-    private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
-    private final RowMapper<Genre> genreRowMapper = new GenreMapper();
-    private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
+    private final RowMapper musicFileInfoRowMapper = new MusicFileInfoMapper();
+    private final RowMapper genreRowMapper = new GenreMapper();
+	private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
 
     /**
      * Returns the media file for the given path.
@@ -180,8 +180,11 @@ public class MediaFileDao extends AbstractDao {
                        file.getAlbumArtist(), file.getDiscNumber(), file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(),
                        file.isVariableBitRate(), file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                        file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
-                       file.getChanged(), file.getLastScanned(), file.getChildrenLastUpdated(), file.isPresent(), VERSION,
-                       file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(),
+                       file.getChanged(), file.getLastScanned(), file.getChildrenLastUpdated(), file.isPresent(),
+                       VERSION,
+                       file.getTitleSort(),
+                       file.getAlbumSort(),
+                       file.getArtistSort(),
                        file.getPath());
 
         if (n == 0) {
@@ -200,8 +203,8 @@ public class MediaFileDao extends AbstractDao {
                    file.isVariableBitRate(), file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                    file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
-                   file.getChildrenLastUpdated(), file.isPresent(), VERSION, file.getArtistReading(),
-                   file.getTitleSort(), file.getAlbumSort(), file.getArtistSort());
+                   file.getChildrenLastUpdated(), file.isPresent(), VERSION,
+                   file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -320,28 +323,28 @@ public class MediaFileDao extends AbstractDao {
             put("count", count);
             put("offset", offset);
         }};
-        
-        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
+
+
+		List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
 		Function<String, String> addAlias = colmn -> {
 			return "m1.".concat(colmn).concat(", ");
 		};
-	    Collector<String, StringBuilder, String> join = 
-	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+		Collector<String, StringBuilder, String> join =
+				Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 
-	    String aliasedColomns = 
-				queryColomns.stream().map(addAlias).collect(join);
+		String aliasedColomns = queryColomns.stream().map(addAlias).collect(join);
 
-        String orderBy = byArtist ? "sort, album" : "album";
-        
-        String query =
-        		"select " + aliasedColomns + " m2.sort"
-                        + " from media_file m1"
-                        + " left join (select distinct path, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir ) m2"
-                        + " on m1.parent_path = m2.path"
-        				+ " where type = :typeAlbum and folder in (:folders) and present "
-                        + "order by " + orderBy + " limit :count offset :offset";
+		String orderBy = byArtist ? "sort, album" : "album";
+
+		String query =
+				"select " + aliasedColomns + " m2.sort from media_file m1"
+				+ " left join (select distinct path, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir ) m2"
+				+ " on m1.parent_path = m2.path"
+				+ " where type = :typeAlbum and folder in (:folders) and present "
+				+ " order by " + orderBy
+				+ " limit :count offset :offset";
 		return namedQuery(query, rowMapper, args);
-    }
+	}
 
     /**
      * Returns albums within a year range.
@@ -674,17 +677,21 @@ public class MediaFileDao extends AbstractDao {
                                 0, args);
     }
 
-    public List<MediaFile> getArtistSortCandidate(){
-		return query("select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
-				+ "join (select distinct  artist, artist_sort from media_file where artist_sort is not null order by artist) dic "
-				+ "on dic.artist = m.artist "
-				+ "where type = ? "
-				+ "order by artist, artist_sort;", artistSortCandidateMapper, MediaFile.MediaType.DIRECTORY.name());
-    }
-    
-    public void clearArtistSort() {
-    	update("update media_file set artist_sort = null where type=?  and present", MediaFile.MediaType.DIRECTORY.name());
-    }
+	public List<MediaFile> getArtistSortCandidate() {
+		return query(
+				"select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
+						+ "join (select distinct  artist, artist_sort from media_file where artist_sort is not null order by artist) dic "
+						+ "on dic.artist = m.artist "
+						+ "where type = ? "
+						+ "order by artist, artist_sort;",
+						artistSortCandidateMapper,
+						MediaFile.MediaType.DIRECTORY.name());
+	}
+
+	public void clearArtistSort() {
+		update("update media_file set artist_sort = null where type=?  and present",
+				MediaFile.MediaType.DIRECTORY.name());
+	}
 
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
@@ -780,16 +787,16 @@ public class MediaFileDao extends AbstractDao {
             return new Genre(rs.getString(1), rs.getInt(2), rs.getInt(3));
         }
     }
-    
-    private static class ArtistSortCandidateMapper implements RowMapper<MediaFile> {
-    	 public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
-             MediaFile file = new MediaFile();
-             file.setId(rs.getInt(1));
-             file.setArtist(rs.getString(2));
-             file.setArtistReading(rs.getString(3));
-             file.setArtistSort(rs.getString(4));
-             return file;
-         }
-    }
-    
+
+	private static class ArtistSortCandidateMapper implements RowMapper<MediaFile> {
+		public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
+			MediaFile file = new MediaFile();
+			file.setId(rs.getInt(1));
+			file.setArtist(rs.getString(2));
+			file.setArtistReading(rs.getString(3));
+			file.setArtistSort(rs.getString(4));
+			return file;
+		}
+	}
+
 }
