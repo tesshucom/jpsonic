@@ -730,6 +730,7 @@ public class MediaFileService {
     public void updateArtistSort() {
     	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
     	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
+    	mediaFileDao.clearArtistSort();
     	for(MediaFile toBeUpdate :toBeUpdates) {
     		MediaFile file = mediaFileDao.getMediaFile(toBeUpdate.getId());
     		file.setArtistSort(toBeUpdate.getArtistSort());

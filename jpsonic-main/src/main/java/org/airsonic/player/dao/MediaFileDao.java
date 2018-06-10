@@ -681,6 +681,10 @@ public class MediaFileDao extends AbstractDao {
 				+ "where type = ? "
 				+ "order by artist, artist_sort;", artistSortCandidateMapper, MediaFile.MediaType.DIRECTORY.name());
     }
+    
+    public void clearArtistSort() {
+    	update("update media_file set artist_sort = null where type=?  and present", MediaFile.MediaType.DIRECTORY.name());
+    }
 
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
