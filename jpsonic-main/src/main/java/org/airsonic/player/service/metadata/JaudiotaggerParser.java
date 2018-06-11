@@ -100,9 +100,9 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setArtist(StringUtils.isBlank(songArtist) ? albumArtist : songArtist);
                 metaData.setAlbumArtist(StringUtils.isBlank(albumArtist) ? songArtist : albumArtist);
 
-                metaData.setArtistSort(mapGenre(getTagField(tag, FieldKeyExtension.ARTISTSORT)));
-                metaData.setAlbumSort(mapGenre(getTagField(tag, FieldKeyExtension.ALBUMSORT)));
-                metaData.setTitleSort(mapGenre(getTagField(tag, FieldKeyExtension.TITLESORT)));
+                metaData.setArtistSort(getTagField(tag, FieldKeyExtension.ARTISTSORT));
+                metaData.setAlbumSort(getTagField(tag, FieldKeyExtension.ALBUMSORT));
+                metaData.setTitleSort(getTagField(tag, FieldKeyExtension.TITLESORT));
 
             }
 
@@ -121,7 +121,16 @@ public class JaudiotaggerParser extends MetaDataParser {
         return metaData;
     }
 
-    private String getTagField(Tag tag, Enum fieldKey) {
+    private String getTagField(Tag tag, FieldKey fieldKey) {
+        try {
+            return StringUtils.trimToNull(tag.getFirst(fieldKey));
+        } catch (Exception x) {
+            // Ignored.
+            return null;
+        }
+    }
+
+    private String getTagField(Tag tag, FieldKeyExtension fieldKey) {
         try {
             return StringUtils.trimToNull(tag.getFirst(fieldKey.name()));
         } catch (Exception x) {

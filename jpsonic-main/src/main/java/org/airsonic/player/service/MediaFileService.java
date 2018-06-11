@@ -509,7 +509,7 @@ public class MediaFileService {
                 mediaFile.setHeight(metaData.getHeight());
                 mediaFile.setWidth(metaData.getWidth());
                 mediaFile.setTitleSort(metaData.getTitleSort());
-                mediaFile.setAlbumSort(metaData.getTitleSort());
+                mediaFile.setAlbumSort(metaData.getAlbumSort());
                 mediaFile.setArtistSort(metaData.getArtistSort());
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
@@ -726,7 +726,7 @@ public class MediaFileService {
     public int getStarredAlbumCount(String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
     }
-    
+
     public void updateArtistSort() {
     	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
     	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
