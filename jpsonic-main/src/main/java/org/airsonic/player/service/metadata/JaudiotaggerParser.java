@@ -121,7 +121,16 @@ public class JaudiotaggerParser extends MetaDataParser {
         return metaData;
     }
 
-    private String getTagField(Tag tag, Enum fieldKey) {
+    private String getTagField(Tag tag, FieldKey fieldKey) {
+        try {
+            return StringUtils.trimToNull(tag.getFirst(fieldKey));
+        } catch (Exception x) {
+            // Ignored.
+            return null;
+        }
+    }
+
+    private String getTagField(Tag tag, FieldKeyExtension fieldKey) {
         try {
             return StringUtils.trimToNull(tag.getFirst(fieldKey.name()));
         } catch (Exception x) {
