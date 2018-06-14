@@ -41,6 +41,7 @@ public class MetaData {
     private String titleSort;
 	private String albumSort;
     private String artistSort;
+	private String albumArtistSort;
 
     public Integer getDiscNumber() {
         return discNumber;
@@ -170,4 +171,11 @@ public class MetaData {
  		this.artistSort = artistRort;
  	}
 
+	public String getAlbumArtistSort() {
+		return albumArtistSort;
+	}
+
+	public void setAlbumArtistSort(String albumArtistSort) {
+		this.albumArtistSort = albumArtistSort;
+	}
 }
