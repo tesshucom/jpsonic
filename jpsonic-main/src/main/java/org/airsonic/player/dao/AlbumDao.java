@@ -184,26 +184,26 @@ public class AlbumDao extends AbstractDao {
         }};
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(reading),  LOWER(name)" : "LOWER(name)";
+            orderBy = byArtist ? "LOWER(artist_sort),  LOWER(al.name)" : "LOWER(al.name)";
         } else {
-            orderBy = byArtist ? "reading, name" : "name";
+            orderBy = byArtist ? "artist_sort, al.name" : "al.name";
         }
 
         List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
 		Function<String, String> addAlias = colmn -> {
-			return "a.".concat(colmn).concat(", ");
+			return "al.".concat(colmn).concat(", ");
 		};
 	    Collector<String, StringBuilder, String> join = 
 	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 	    String aliasedColomns = 
 				queryColomns.stream().map(addAlias).collect(join);
         return namedQuery(
-        		"select " + aliasedColomns + "coalesce(artist_reading, a.artist) reading"
-        		+ " from album a"
-        		+ " left join (select distinct artist, artist_reading from media_file where type = :typeDir) m"
-        		+ " on m.artist = a.artist"
-        		+ " where a.present and folder_id in (:folders) "
-        		+ " order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+        		"select " + aliasedColomns + "coalesce(ar.sort, ar.reading, ar.name) artist_sort " +
+				"from album al " +
+				"left join artist ar " +
+				"on al.artist = ar.name " +
+				"where al.present and folder_id in (:folders)" +
+				"order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
