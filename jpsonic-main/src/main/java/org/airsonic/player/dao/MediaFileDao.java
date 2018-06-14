@@ -340,7 +340,7 @@ public class MediaFileDao extends AbstractDao {
 
 		String query =
 				"select " + aliasedColomns + " m2.sort from media_file m1"
-				+ " left join (select distinct path, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir ) m2"
+				+ " left join (select distinct path, coalesce(artist_sort, artist_reading, artist) sort from media_file where type = :typeDir ) m2"
 				+ " on m1.parent_path = m2.path"
 				+ " where type = :typeAlbum and folder in (:folders) and present "
 				+ " order by " + orderBy
