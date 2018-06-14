@@ -103,6 +103,7 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setArtistSort(getTagField(tag, FieldKeyExtension.ARTISTSORT));
                 metaData.setAlbumSort(getTagField(tag, FieldKeyExtension.ALBUMSORT));
                 metaData.setTitleSort(getTagField(tag, FieldKeyExtension.TITLESORT));
+                metaData.setAlbumArtistSort(getTagField(tag, FieldKeyExtension.ALBUMARTISTSORT));
 
             }
 

@@ -31,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collector;
 
 /**
  * Provides database services for artists.
@@ -43,11 +41,12 @@ import java.util.stream.Collector;
 public class ArtistDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtistDao.class);
-    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id";
+    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, reading, sort";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
-    private final RowMapper rowMapperWithSort = new ArtistMapperWithSort();
+    private final RowMapper sortCandidateMapper = new SortCandidateMapper();
+
 
     /**
      * Returns the artist with the given name.
@@ -101,14 +100,16 @@ public class ArtistDao extends AbstractDao {
                      "album_count=?," +
                      "last_scanned=?," +
                      "present=?," +
-                     "folder_id=? " +
+                     "folder_id=?," +
+                     "reading=?," +
+                     "sort=? " +
                      "where name=?";
 
-        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getName());
+        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), artist.getName());
 
         if (n == 0) {
             update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                   artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId());
+                   artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort());
         }
 
         int id = queryForInt("select id from artist where name=?", null, artist.getName());
@@ -131,23 +132,11 @@ public class ArtistDao extends AbstractDao {
             put("folders", MusicFolder.toIdList(musicFolders));
             put("count", count);
             put("offset", offset);
-            put("typeDir", MediaFile.MediaType.DIRECTORY.name());
         }};
 
-        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
-		Function<String, String> addAlias = colmn -> {
-			return "a.".concat(colmn).concat(", ");
-		};
-	    Collector<String, StringBuilder, String> join = 
-	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-	    String aliasedColomns = 
-				queryColomns.stream().map(addAlias).collect(join);
-        return namedQuery("select " + aliasedColomns + "sort "
-        		+ "from artist a "
-        		+ "join (select distinct artist, coalesce(artist_sort, artist_reading, lower(artist)) sort from media_file where type = :typeDir ) m on m.artist = a.name "
-        		+ "where a.present and folder_id in (:folders) "
-        		+ "order by sort limit :count offset :offset", rowMapperWithSort, args);
-    }
+        return namedQuery("select " + QUERY_COLUMNS + ", coalesce(sort, reading, lower(name)) sorting from artist where present and folder_id in (:folders) " +
+                "order by sorting limit :count offset :offset", rowMapper, args);
+}
 
     /**
      * Returns the most recently starred artists.
@@ -215,7 +204,21 @@ public class ArtistDao extends AbstractDao {
         return queryForDate("select created from starred_artist where artist_id=? and username=?", null, artistId, username);
     }
 
-    private static class ArtistMapper implements RowMapper<Artist> {
+	public void clearSort() {
+		update("update artist set sort = null");
+	}
+	
+	public List<Artist> getSortCandidate() {
+        return query("select distinct a.name ,m.album_artist_sort from artist a" + 
+        		" join media_file m" + 
+        		" on a.name = m.album_artist" + 
+        		" where a.reading is not null and a.sort is null and a.present and m.type=?" +
+        		" and m.present and m.album_artist_sort is not null and m.artist_sort <> m.album_artist_sort" +
+        		" and not (m.album_artist = m.artist and m.artist_sort <> m.album_artist_sort)",
+        		sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
+	}
+
+	private static class ArtistMapper implements RowMapper<Artist> {
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(
                     rs.getInt(1),
@@ -224,22 +227,19 @@ public class ArtistDao extends AbstractDao {
                     rs.getInt(4),
                     rs.getTimestamp(5),
                     rs.getBoolean(6),
-                    rs.getInt(7));
+                    rs.getInt(7),
+                    rs.getString(8),
+                    rs.getString(9));
         }
     }
-    
-    private static class ArtistMapperWithSort implements RowMapper<Artist> {
+	
+	private static class SortCandidateMapper implements RowMapper<Artist> {
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-        	Artist artist = new Artist(
-                    rs.getInt(1),
-                    rs.getString(2),
-                    rs.getString(3),
-                    rs.getInt(4),
-                    rs.getTimestamp(5),
-                    rs.getBoolean(6),
-                    rs.getInt(7));
-        	artist.setSort(rs.getString(8));
+        	Artist artist = new Artist();
+        	artist.setName(rs.getString(1));
+        	artist.setSort(rs.getString(2));
             return artist;
         }
     }
+
 }

@@ -25,6 +25,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
@@ -71,6 +72,8 @@ public class MediaFileService {
     private boolean memoryCacheEnabled = true;
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
+    @Autowired
+    private ArtistDao artistDao;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -511,6 +514,7 @@ public class MediaFileService {
                 mediaFile.setTitleSort(metaData.getTitleSort());
                 mediaFile.setAlbumSort(metaData.getAlbumSort());
                 mediaFile.setArtistSort(metaData.getArtistSort());
+                mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -736,7 +740,32 @@ public class MediaFileService {
     		file.setArtistSort(toBeUpdate.getArtistSort());
     		mediaFileDao.createOrUpdateMediaFile(file);
     	}
-        LOG.info(toBeUpdates.size() + " artistSort reversal was done.");
+        LOG.info(toBeUpdates.size() + " artistSort(File Structure) reversal was done.");
+        
+        int updated = 0;
+        artistDao.clearSort();
+		for (MediaFile toBeUpdate : toBeUpdates) {
+			Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
+			if (null != artist && null == artist.getSort()) {
+				artist.setSort(toBeUpdate.getArtistSort());
+				artistDao.createOrUpdateArtist(artist);
+				updated++;
+			}
+		}
+        LOG.info(updated + " artistSort(File Structure -> id3) reversal was done.");
+
+        updated = 0;
+		List<Artist> candidatesid3 = artistDao.getSortCandidate();
+		for (Artist candidate : candidatesid3) {
+			Artist artist = artistDao.getArtist(candidate.getName());
+			if(!artist.getReading().equals(mediaFileJPSupport.cleanUp(candidate.getSort()))) {
+				artist.setSort(candidate.getSort());
+				artistDao.createOrUpdateArtist(artist);
+				updated++;
+			}
+		}
+        LOG.info(updated + " albumArtistSort reversal was done.");
+        
     }
 
     public void clearMemoryCache() {

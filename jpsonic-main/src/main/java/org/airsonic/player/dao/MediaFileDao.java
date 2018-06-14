@@ -48,12 +48,12 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, version, " +
-                                                "artist_reading, title_sort, album_sort, artist_sort";
+                                                "artist_reading, title_sort, album_sort, artist_sort, album_artist_sort";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-	private static final int JP_VERSION = 2;
+	private static final int JP_VERSION = 3;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
@@ -170,7 +170,8 @@ public class MediaFileDao extends AbstractDao {
                      "version=?, " +
                      "title_sort=?, " +
                      "album_sort=?, " +
-                     "artist_sort=? " +
+                     "artist_sort=?, " +
+                     "album_artist_sort=? " +
                      "where path=?";
 
         logger.trace("Updating media file {}", Util.debugObject(file));
@@ -185,6 +186,7 @@ public class MediaFileDao extends AbstractDao {
                        file.getTitleSort(),
                        file.getAlbumSort(),
                        file.getArtistSort(),
+                       file.getAlbumArtistSort(),
                        file.getPath());
 
         if (n == 0) {
@@ -204,7 +206,7 @@ public class MediaFileDao extends AbstractDao {
                    file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
                    file.getChildrenLastUpdated(), file.isPresent(), VERSION,
-                   file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort());
+                   file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -768,7 +770,8 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(31),
                     rs.getString(32),
                     rs.getString(33),
-                    rs.getString(34));
+                    rs.getString(34),
+                    rs.getString(35));
         }
     }
 
