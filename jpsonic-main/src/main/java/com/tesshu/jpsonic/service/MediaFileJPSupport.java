@@ -61,12 +61,12 @@ public class MediaFileJPSupport {
      * try reading Japanese and set MediaFile#artistReading.
      * @param mediaFile
      */
-	public void setReading(MediaFile mediaFile) {
+	public void analyzeArtistReading(MediaFile mediaFile) {
 		String artist = mediaFile.getArtist();
 		mediaFile.setArtistReading(createReading(artist));
 	}
 
-	public void setReading(Artist artist) {
+	public void analyzeNameReading(Artist artist) {
 		String name = artist.getName();
 		artist.setReading(createReading(name));
 	}
