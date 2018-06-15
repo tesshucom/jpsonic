@@ -556,10 +556,11 @@ public class MediaFileService {
                     } catch (IOException x) {
                         LOG.error("Failed to find cover art.", x);
                     }
-
+                    //It is necessary to verify search possible
+                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 } else {
                     mediaFile.setArtist(file.getName());
-                    mediaFileJPSupport.setReading(mediaFile);
+                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 }
             }
         }
@@ -734,37 +735,44 @@ public class MediaFileService {
     public void updateArtistSort() {
     	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
     	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
-    	mediaFileDao.clearArtistSort();
+
+    	mediaFileDao.clearSort();
+
+    	int updated = 0;
     	for(MediaFile toBeUpdate :toBeUpdates) {
-    		MediaFile file = mediaFileDao.getMediaFile(toBeUpdate.getId());
-    		file.setArtistSort(toBeUpdate.getArtistSort());
-    		mediaFileDao.createOrUpdateMediaFile(file);
+    		updated += mediaFileDao.updateArtistSort(toBeUpdate.getArtist(), toBeUpdate.getArtistSort());
     	}
-        LOG.info(toBeUpdates.size() + " artistSort(File Structure) reversal was done.");
+        LOG.info(toBeUpdates.size() + " update candidates for file structure artistSort. "+ updated +" rows reversal was done.");
         
-        int updated = 0;
+        int maybe = 0;
         artistDao.clearSort();
 		for (MediaFile toBeUpdate : toBeUpdates) {
 			Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
 			if (null != artist && null == artist.getSort()) {
 				artist.setSort(toBeUpdate.getArtistSort());
 				artistDao.createOrUpdateArtist(artist);
-				updated++;
+				maybe++;
 			}
 		}
-        LOG.info(updated + " artistSort(File Structure -> id3) reversal was done.");
+        LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. "+ maybe +" rows reversal was done.");
 
-        updated = 0;
+        maybe = 0;
 		List<Artist> candidatesid3 = artistDao.getSortCandidate();
 		for (Artist candidate : candidatesid3) {
 			Artist artist = artistDao.getArtist(candidate.getName());
 			if(!artist.getReading().equals(mediaFileJPSupport.cleanUp(candidate.getSort()))) {
 				artist.setSort(candidate.getSort());
 				artistDao.createOrUpdateArtist(artist);
-				updated++;
+				maybe++;
 			}
 		}
-        LOG.info(updated + " albumArtistSort reversal was done.");
+        LOG.info(candidatesid3.size() + " update candidates for id3 albumArtistSort. "+ maybe +" rows reversal was done.");
+        
+        updated = 0;
+    	for(Artist candidate :candidatesid3) {
+    		updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), mediaFileJPSupport.cleanUp(candidate.getSort()));
+    	}
+        LOG.info(candidatesid3.size() + " update candidates for file structure albumArtistSort. "+ updated +" rows reversal was done.");
         
     }
 
