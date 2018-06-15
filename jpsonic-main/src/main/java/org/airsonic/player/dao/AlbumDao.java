@@ -202,7 +202,7 @@ public class AlbumDao extends AbstractDao {
 				"from album al " +
 				"left join artist ar " +
 				"on al.artist = ar.name " +
-				"where al.present and folder_id in (:folders)" +
+				"where al.present and al.folder_id in (:folders)" +
 				"order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
