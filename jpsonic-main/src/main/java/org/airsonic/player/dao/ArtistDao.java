@@ -209,12 +209,16 @@ public class ArtistDao extends AbstractDao {
 	}
 	
 	public List<Artist> getSortCandidate() {
-        return query("select distinct a.name ,m.album_artist_sort from artist a" + 
-        		" join media_file m" + 
-        		" on a.name = m.album_artist" + 
-        		" where a.reading is not null and a.sort is null and a.present and m.type=?" +
-        		" and m.present and m.album_artist_sort is not null and m.artist_sort <> m.album_artist_sort" +
-        		" and not (m.album_artist = m.artist and m.artist_sort <> m.album_artist_sort)",
+        return query("select distinct a.name ,m.album_artist_sort from artist a \n" +
+        		" join media_file m " +
+        		" on a.name = m.album_artist " +
+        		" where  " +
+        		" a.reading is not null and a.sort is null " +
+        		" and a.present and m.present and m.type=? " +
+        		" and m.album_artist_sort is not null " +
+        		" and m.artist_sort <> m.album_artist_sort " +
+        		" and a.reading <> m.album_artist_sort " +
+        		" and m.album_artist = a.name ",
         		sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
 	}
 
