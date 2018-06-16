@@ -748,20 +748,19 @@ public class MediaFileService {
         artistDao.clearSort();
 		for (MediaFile toBeUpdate : toBeUpdates) {
 			Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
-			if (null != artist && null == artist.getSort()) {
-				artist.setSort(toBeUpdate.getArtistSort());
-				artistDao.createOrUpdateArtist(artist);
-				maybe++;
-			}
+			artist.setSort(toBeUpdate.getArtistSort());
+			artistDao.createOrUpdateArtist(artist);
+			maybe++;
 		}
         LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. "+ maybe +" rows reversal was done.");
 
         maybe = 0;
 		List<Artist> candidatesid3 = artistDao.getSortCandidate();
 		for (Artist candidate : candidatesid3) {
+			String sort = mediaFileJPSupport.cleanUp(candidate.getSort());
 			Artist artist = artistDao.getArtist(candidate.getName());
-			if(!artist.getReading().equals(mediaFileJPSupport.cleanUp(candidate.getSort()))) {
-				artist.setSort(candidate.getSort());
+			if(!artist.getReading().equals(sort)) {
+				artist.setSort(sort);
 				artistDao.createOrUpdateArtist(artist);
 				maybe++;
 			}
