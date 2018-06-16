@@ -34,12 +34,14 @@ public class Artist {
     private Date lastScanned;
     private boolean present;
     private Integer folderId;
-    private transient String sort;
+    private String reading;
+    private String sort;
 
     public Artist() {
     }
 
-    public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present, Integer folderId) {
+    public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present, Integer folderId,
+    		String reading, String sort) {
         this.id = id;
         this.name = name;
         this.coverArtPath = coverArtPath;
@@ -47,6 +49,7 @@ public class Artist {
         this.lastScanned = lastScanned;
         this.present = present;
         this.folderId = folderId;
+        this.reading = reading;
         this.sort = sort;
     }
 
@@ -106,6 +109,14 @@ public class Artist {
         return folderId;
     }
 
+	public String getReading() {
+		return reading;
+	}
+
+	public void setReading(String reading) {
+		this.reading = reading;
+	}
+
 	public String getSort() {
 		return sort;
 	}
@@ -113,6 +124,5 @@ public class Artist {
 	public void setSort(String sort) {
 		this.sort = sort;
 	}
-    
     
 }

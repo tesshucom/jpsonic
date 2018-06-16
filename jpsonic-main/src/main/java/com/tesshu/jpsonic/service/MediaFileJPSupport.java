@@ -35,111 +35,77 @@ import java.util.regex.Pattern;
 import java.util.stream.Collector;
 
 /**
- * Provide analysis of Japanese artist name.
+ * Provide analysis of Japanese name.
  * @author tesshu
  */
 @Service
 public class MediaFileJPSupport {
     
+    public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
-    private static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
     private static final String ASTER = "*";
-
-    /**
-     * Determine reading for token.
-     * 
-     * In case of katakana, return katakana.
-     * Alphabets or character strings that can not be analyzed are returned as they are.
-     * As a result Hiragana and Kanji return katakana.
-     */
-    private final Function<Token, String> readingAnalysis = token -> {
-        String reading =
-                KATAKANA.matcher(token.getSurface()).matches()
-                    ? token.getSurface()
-                    : ALPHA.matcher(token.getSurface()).matches()
-                        ? token.getSurface()
-                        : ASTER.equals(token.getReading())
-                            ? token.getSurface()
-                            : token.getReading();
-        return reading;
-    };
-    
     private final Tokenizer tokenizer = new Tokenizer();
+
+    /** Determine reading for token. */
+    private final Function<Token, String> readingAnalysis = token -> {
+    	if(KATAKANA.matcher(token.getSurface()).matches()
+    			|| ALPHA.matcher(token.getSurface()).matches()
+    			|| ASTER.equals(token.getReading())) {
+    		return token.getSurface();
+    	}
+        return token.getReading();
+    };
     
     /**
      * When first letter of MediaFile#artist is other than alphabet,
      * try reading Japanese and set MediaFile#artistReading.
      * @param mediaFile
      */
-    public void setReading(MediaFile mediaFile){
-        String artist = mediaFile.getArtist();
-        if(null == artist || 0 == mediaFile.getName().length()){
-            
-        }
-        
-        /*
-         * Originally classified as # Artist.
-         * In some cases other than Japanese is included, but it is ignored as a result.
-         */
-        if ( !ALPHA.matcher(artist.substring(0, 1)).matches()) {
-            Collector<String, StringBuilder, String> join =
-                    Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-            
-            /*
-             * Split into tokens.
-             * The content depends on the accuracy of the morphological analysis engine.
-             */
-            List<Token> tokens = tokenizer.tokenize(artist);
+	public void analyzeArtistReading(MediaFile mediaFile) {
+		String artist = mediaFile.getArtist();
+		mediaFile.setArtistReading(createReading(artist));
+	}
 
-            /*
-             * Unify tokens string as much as possible in katakana.
-             * (To compare with katakana code points and sort)
-             * This analysis is not aimed at analyzing alphabets and symbols.
-             * Logic for index rather than speech replacement.
-             */
-            String reading = tokens.stream().map(readingAnalysis).collect(join);
+	public void analyzeNameReading(Artist artist) {
+		String name = artist.getName();
+		artist.setReading(createReading(name));
+	}
 
-            mediaFile.setArtistReading(reading);
-        }
-        
-    }
+	public String createReading(String s) {
+		if (StringUtils.isEmpty(s) || ALPHA.matcher(s.substring(0, 1)).matches()) {
+			return null;
+		}
+		Collector<String, StringBuilder, String> join =
+				Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+		List<Token> tokens = tokenizer.tokenize(s);
+		return tokens.stream().map(readingAnalysis).collect(join);
+	}
     
     /**
-     * The reading of Japanese characters is classified
-     * as clear sound, voiced sound, semi-voiced sound.
-     * 
-     * Voiced sound, semi-voiced sound is represented
-     * by the combination of clear sound and special symbol on UNICODE.
-     * 
-     * Japanese indexes are usually created based on the clear sound
-     * from which special symbols have been removed.
-     * 
-     * In "Reading", character codes of clear sound,
-     * voiced sound, semi - voiced sound are mixed.
-     * 
-     * This method returns the normalized Artist name
-     * that can also be used to create the index prefix.
-     * 
+     * This method returns the normalized Artist name that can also be used to create the index prefix.
      * @param mediaFile
      * @return indexable Name
      */
     public String createIndexableName(MediaFile mediaFile) {
         // http://www.unicode.org/reports/tr15/
-    	if(null != mediaFile.getArtistSort()) {
+    	if(!StringUtils.isEmpty(mediaFile.getArtistSort())) {
     		return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
     	}
-    	if(null != mediaFile.getArtistReading()) {
+    	if(!StringUtils.isEmpty(mediaFile.getArtistReading())) {
     		return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
     	}
         return mediaFile.getName();
     }    
     
-    public String createIndexableName(Artist artist) {
-        // http://www.unicode.org/reports/tr15/
-        return artist.getSort() == null
-                ? artist.getName()
-                : Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
-    }    
+	public String createIndexableName(Artist artist) {
+		if (!StringUtils.isEmpty(artist.getSort())) {
+			return Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
+		}
+		if (!StringUtils.isEmpty(artist.getReading())) {
+			return Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+		}
+		return artist.getName();
+	}
     
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
     	List<MediaFile> toBeUpdate = new ArrayList<>();
@@ -155,7 +121,7 @@ public class MediaFileJPSupport {
     	return toBeUpdate;
     }
     
-    private String cleanUp(String dirty) {
+    public String cleanUp(String dirty) {
     	return Normalizer.normalize(
     			Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
     }

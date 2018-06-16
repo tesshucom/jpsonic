@@ -25,6 +25,7 @@ import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 
 import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
@@ -71,6 +72,8 @@ public class MediaFileService {
     private boolean memoryCacheEnabled = true;
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
+    @Autowired
+    private ArtistDao artistDao;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -511,6 +514,7 @@ public class MediaFileService {
                 mediaFile.setTitleSort(metaData.getTitleSort());
                 mediaFile.setAlbumSort(metaData.getAlbumSort());
                 mediaFile.setArtistSort(metaData.getArtistSort());
+                mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -552,10 +556,11 @@ public class MediaFileService {
                     } catch (IOException x) {
                         LOG.error("Failed to find cover art.", x);
                     }
-
+                    //It is necessary to verify search possible
+                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 } else {
                     mediaFile.setArtist(file.getName());
-                    mediaFileJPSupport.setReading(mediaFile);
+                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 }
             }
         }
@@ -730,13 +735,44 @@ public class MediaFileService {
     public void updateArtistSort() {
     	List<MediaFile> candidates =  mediaFileDao.getArtistSortCandidate();
     	List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
-    	mediaFileDao.clearArtistSort();
+
+    	mediaFileDao.clearSort();
+
+    	int updated = 0;
     	for(MediaFile toBeUpdate :toBeUpdates) {
-    		MediaFile file = mediaFileDao.getMediaFile(toBeUpdate.getId());
-    		file.setArtistSort(toBeUpdate.getArtistSort());
-    		mediaFileDao.createOrUpdateMediaFile(file);
+    		updated += mediaFileDao.updateArtistSort(toBeUpdate.getArtist(), toBeUpdate.getArtistSort());
     	}
-        LOG.info(toBeUpdates.size() + " artistSort reversal was done.");
+        LOG.info(toBeUpdates.size() + " update candidates for file structure artistSort. "+ updated +" rows reversal was done.");
+        
+        int maybe = 0;
+        artistDao.clearSort();
+		for (MediaFile toBeUpdate : toBeUpdates) {
+			Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
+			artist.setSort(toBeUpdate.getArtistSort());
+			artistDao.createOrUpdateArtist(artist);
+			maybe++;
+		}
+        LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. "+ maybe +" rows reversal was done.");
+
+        maybe = 0;
+		List<Artist> candidatesid3 = artistDao.getSortCandidate();
+		for (Artist candidate : candidatesid3) {
+			String sort = mediaFileJPSupport.cleanUp(candidate.getSort());
+			Artist artist = artistDao.getArtist(candidate.getName());
+			if(!artist.getReading().equals(sort)) {
+				artist.setSort(sort);
+				artistDao.createOrUpdateArtist(artist);
+				maybe++;
+			}
+		}
+        LOG.info(candidatesid3.size() + " update candidates for id3 albumArtistSort. "+ maybe +" rows reversal was done.");
+        
+        updated = 0;
+    	for(Artist candidate :candidatesid3) {
+    		updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), mediaFileJPSupport.cleanUp(candidate.getSort()));
+    	}
+        LOG.info(candidatesid3.size() + " update candidates for file structure albumArtistSort. "+ updated +" rows reversal was done.");
+        
     }
 
     public void clearMemoryCache() {
