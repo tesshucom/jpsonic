@@ -556,12 +556,12 @@ public class MediaFileService {
                     } catch (IOException x) {
                         LOG.error("Failed to find cover art.", x);
                     }
-                    //It is necessary to verify search possible
-                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 } else {
                     mediaFile.setArtist(file.getName());
-                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 }
+                //It is necessary to verify search possible
+                mediaFileJPSupport.analyzeArtistReading(mediaFile);
+                mediaFileJPSupport.analyzeAlbumReading(mediaFile);
             }
         }
 
@@ -774,6 +774,20 @@ public class MediaFileService {
         LOG.info(candidatesid3.size() + " update candidates for file structure albumArtistSort. "+ updated +" rows reversal was done.");
         
     }
+    
+    public void updateAlbumSort() {
+
+    	List<MediaFile> candidates =  mediaFileDao.getAlbumSortCandidate();
+    	List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
+    	
+    	int updated = 0;
+    	for(MediaFile toBeUpdate :toBeUpdates) {
+    		updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
+    	}
+        LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. "+ updated +" rows reversal was done.");
+    	
+    }
+
 
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
