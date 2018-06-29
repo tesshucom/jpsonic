@@ -366,12 +366,12 @@ public class MediaFileDao extends AbstractDao {
             put("count", count);
             put("offset", offset);
         }};
-		String orderBy = byArtist ? "artist_sort_key, album_sort_key" : "album_sort_key";
+		String orderBy = byArtist
+				? "coalesce(album_artist_sort, artist_sort, artist_reading, artist), coalesce(album_sort, album_reading, album)"
+				: "coalesce(album_sort, album_reading, album)";
 		return namedQuery("select " + QUERY_COLUMNS +
-				", coalesce(album_artist_sort, artist_sort, artist_reading, artist) artist_sort_key" +
-				", coalesce(album_sort, album_reading, album) album_sort_key"
-                + " from media_file where type = :type and folder in (:folders) and present " +
-                "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+                " from media_file where type = :type and folder in (:folders) and present" +
+                " order by " + orderBy + " limit :count offset :offset", rowMapper, args);
 	}
 
     /**
@@ -728,6 +728,15 @@ public class MediaFileDao extends AbstractDao {
 						+ " and album_reading <> dic.album_sort order by album, album_sort",
 						albumSortCandidateMapper,
 						MediaFile.MediaType.ALBUM.name());
+	}
+
+	public List<MediaFile> getSortedAlbums() {
+        return query("select " + QUERY_COLUMNS +
+        		" from media_file" +
+        		" where album_reading is not null" +
+        		" or album_sort is not null" +
+        		" and type = ? and present",
+        		rowMapper, MediaFile.MediaType.ALBUM.name());
 	}
 
 	public void clearSort() {
