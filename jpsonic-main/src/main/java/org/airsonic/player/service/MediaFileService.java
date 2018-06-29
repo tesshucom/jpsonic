@@ -801,13 +801,18 @@ public class MediaFileService {
 
         List<MediaFile> albums = mediaFileDao.getSortedAlbums();
         maybe = 0;
-    	for(MediaFile album :albums) {
-    		Album albumid3 = albumDao.getAlbum(album.getArtist(), album.getAlbumName());
-    		albumid3.setNameSort(null == album.getAlbumSort() ? album.getAlbumReading() : album.getAlbumSort());
-    			albumDao.createOrUpdateAlbum(albumid3);
-    			maybe++;
-    	}
-        LOG.info(albums.size() + " sorted id3 albumss. "+ maybe +" id3 album rows reversal was done.");
+		for (MediaFile album : albums) {
+			Album albumid3 = albumDao.getAlbum(album.getArtist(), album.getAlbumName());
+			if (null != albumid3) {
+				albumid3.setNameSort(null == album.getAlbumSort() ? album.getAlbumReading() : album.getAlbumSort());
+				albumDao.createOrUpdateAlbum(albumid3);
+				maybe++;
+			} else {
+				LOG.info(" > " + album.getAlbumName() + "@" + album.getArtist() + 
+						" does not exist in id 3.");
+			}
+		}
+        LOG.info(albums.size() + " sorted id3 albums. "+ maybe +" id3 album rows reversal was done.");
 
     }
 
