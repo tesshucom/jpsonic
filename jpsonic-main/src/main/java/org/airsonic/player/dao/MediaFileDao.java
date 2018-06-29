@@ -51,7 +51,7 @@ public class MediaFileDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-	private static final int JP_VERSION = 3;
+	private static final int JP_VERSION = 4;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
