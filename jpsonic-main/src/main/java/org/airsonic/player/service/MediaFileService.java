@@ -785,7 +785,30 @@ public class MediaFileService {
     		updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
     	}
         LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. "+ updated +" rows reversal was done.");
-    	
+
+        List<Artist> sortedArtists = artistDao.getSortedArtists();
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        int maybe = 0;
+    	for(Artist artist :sortedArtists) {
+    		List<Album> albums = albumDao.getAlbumsForArtist(artist.getName(), folders);
+    		for(Album album : albums) {
+    			album.setArtistSort(null == artist.getSort() ? artist.getReading() : artist.getSort());
+    			albumDao.createOrUpdateAlbum(album);
+    			maybe++;
+    		}
+    	}
+        LOG.info(sortedArtists.size() + " sorted id3 artists. "+ maybe +" id3 album rows reversal was done.");
+
+        List<MediaFile> albums = mediaFileDao.getSortedAlbums();
+        maybe = 0;
+    	for(MediaFile album :albums) {
+    		Album albumid3 = albumDao.getAlbum(album.getArtist(), album.getAlbumName());
+    		albumid3.setNameSort(null == album.getAlbumSort() ? album.getAlbumReading() : album.getAlbumSort());
+    			albumDao.createOrUpdateAlbum(albumid3);
+    			maybe++;
+    	}
+        LOG.info(albums.size() + " sorted id3 albumss. "+ maybe +" id3 album rows reversal was done.");
+
     }
 
 
