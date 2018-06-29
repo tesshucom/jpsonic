@@ -219,6 +219,9 @@ public class MediaScannerService {
 
             // Update artistSort
             mediaFileService.updateArtistSort();
+            
+            // Update albumSort
+            mediaFileService.updateAlbumSort();
 
             settingsService.setMediaLibraryStatistics(statistics);
             settingsService.setLastScanned(lastScanned);

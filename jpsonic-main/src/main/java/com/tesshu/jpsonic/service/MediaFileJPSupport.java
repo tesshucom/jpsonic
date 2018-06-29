@@ -66,6 +66,11 @@ public class MediaFileJPSupport {
 		mediaFile.setArtistReading(createReading(artist));
 	}
 
+	public void analyzeAlbumReading(MediaFile mediaFile) {
+		String albumName = mediaFile.getAlbumName();
+		mediaFile.setAlbumReading(createReading(albumName));
+	}	
+
 	public void analyzeNameReading(Artist artist) {
 		String name = artist.getName();
 		artist.setReading(createReading(name));
@@ -78,7 +83,7 @@ public class MediaFileJPSupport {
 		Collector<String, StringBuilder, String> join =
 				Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 		List<Token> tokens = tokenizer.tokenize(s);
-		return tokens.stream().map(readingAnalysis).collect(join);
+		return cleanUp(tokens.stream().map(readingAnalysis).collect(join));
 	}
     
     /**
@@ -110,12 +115,22 @@ public class MediaFileJPSupport {
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
     	List<MediaFile> toBeUpdate = new ArrayList<>();
     	for(MediaFile candidate : candidates) {
-    		if(!StringUtils.isEmpty(candidate.getArtistReading())) {
-        		String cleanedUpSort = cleanUp(candidate.getArtistSort());
-        		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
-        			candidate.setArtistSort(cleanedUpSort);
-        			toBeUpdate.add(candidate);
-        		}
+    		String cleanedUpSort = cleanUp(candidate.getArtistSort());
+    		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
+    			candidate.setArtistSort(cleanedUpSort);
+    			toBeUpdate.add(candidate);
+    		}
+    	}
+    	return toBeUpdate;
+    }
+    
+    public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
+    	List<MediaFile> toBeUpdate = new ArrayList<>();
+    	for(MediaFile candidate : candidates) {
+    		String cleanedUpSort = cleanUp(candidate.getAlbumSort());
+    		if(!candidate.getAlbumReading().equals(cleanedUpSort)) {
+    			candidate.setAlbumSort(cleanedUpSort);
+    			toBeUpdate.add(candidate);
     		}
     	}
     	return toBeUpdate;
