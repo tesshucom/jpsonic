@@ -71,13 +71,15 @@ public class MediaFile {
     private String titleSort;
     private String albumSort;
     private String artistSort;
-    private transient String albumArtistSort;
+    private String albumArtistSort;
+    private String albumReading;
 
 	public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
-                     Date childrenLastUpdated, boolean present, int version, String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort) {
+                     Date childrenLastUpdated, boolean present, int version,
+                     String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -112,6 +114,7 @@ public class MediaFile {
         this.titleSort = titleSort;
         this.albumSort = albumSort;
         this.artistSort = artistSort;
+        this.albumReading = albumReading;
     }
 
     public MediaFile() {
@@ -490,6 +493,14 @@ public class MediaFile {
 
 	public void setAlbumArtistSort(String albumArtistSort) {
 		this.albumArtistSort = albumArtistSort;
+	}
+
+	public String getAlbumReading() {
+		return albumReading;
+	}
+
+	public void setAlbumReading(String albumReading) {
+		this.albumReading = albumReading;
 	}
 
 	@Override

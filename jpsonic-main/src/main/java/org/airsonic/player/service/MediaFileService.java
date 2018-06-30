@@ -556,12 +556,12 @@ public class MediaFileService {
                     } catch (IOException x) {
                         LOG.error("Failed to find cover art.", x);
                     }
-                    //It is necessary to verify search possible
-                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 } else {
                     mediaFile.setArtist(file.getName());
-                    mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 }
+                //It is necessary to verify search possible
+                mediaFileJPSupport.analyzeArtistReading(mediaFile);
+                mediaFileJPSupport.analyzeAlbumReading(mediaFile);
             }
         }
 
@@ -774,6 +774,48 @@ public class MediaFileService {
         LOG.info(candidatesid3.size() + " update candidates for file structure albumArtistSort. "+ updated +" rows reversal was done.");
         
     }
+    
+    public void updateAlbumSort() {
+
+    	List<MediaFile> candidates =  mediaFileDao.getAlbumSortCandidate();
+    	List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
+    	
+    	int updated = 0;
+    	for(MediaFile toBeUpdate :toBeUpdates) {
+    		updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
+    	}
+        LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. "+ updated +" rows reversal was done.");
+
+        List<Artist> sortedArtists = artistDao.getSortedArtists();
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        int maybe = 0;
+    	for(Artist artist :sortedArtists) {
+    		List<Album> albums = albumDao.getAlbumsForArtist(artist.getName(), folders);
+    		for(Album album : albums) {
+    			album.setArtistSort(null == artist.getSort() ? artist.getReading() : artist.getSort());
+    			albumDao.createOrUpdateAlbum(album);
+    			maybe++;
+    		}
+    	}
+        LOG.info(sortedArtists.size() + " sorted id3 artists. "+ maybe +" id3 album rows reversal was done.");
+
+        List<MediaFile> albums = mediaFileDao.getSortedAlbums();
+        maybe = 0;
+		for (MediaFile album : albums) {
+			Album albumid3 = albumDao.getAlbum(album.getArtist(), album.getAlbumName());
+			if (null != albumid3) {
+				albumid3.setNameSort(null == album.getAlbumSort() ? album.getAlbumReading() : album.getAlbumSort());
+				albumDao.createOrUpdateAlbum(albumid3);
+				maybe++;
+			} else {
+				LOG.info(" > " + album.getAlbumName() + "@" + album.getArtist() + 
+						" does not exist in id 3.");
+			}
+		}
+        LOG.info(albums.size() + " sorted id3 albums. "+ maybe +" id3 album rows reversal was done.");
+
+    }
+
 
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();

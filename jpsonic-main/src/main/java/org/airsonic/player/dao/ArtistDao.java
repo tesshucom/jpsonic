@@ -134,8 +134,8 @@ public class ArtistDao extends AbstractDao {
             put("offset", offset);
         }};
 
-        return namedQuery("select " + QUERY_COLUMNS + ", coalesce(sort, reading, name) sorting from artist where present and folder_id in (:folders) " +
-                "order by sorting limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
+                "order by coalesce(sort, reading, name) :count offset :offset", rowMapper, args);
 }
 
     /**
@@ -220,6 +220,16 @@ public class ArtistDao extends AbstractDao {
         		" and a.reading <> m.album_artist_sort " +
         		" and m.album_artist = a.name ",
         		sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
+	}
+
+	public List<Artist> getSortedArtists() {
+        return query("select " + QUERY_COLUMNS +
+        		" from artist" +
+        		" where" +
+        		" reading is not null" +
+        		" or sort is not null" +
+        		" and present",
+        		rowMapper);
 	}
 
 	private static class ArtistMapper implements RowMapper<Artist> {

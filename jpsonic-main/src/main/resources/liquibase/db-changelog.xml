@@ -13,4 +13,5 @@
     <include file="jp1.0/changelog.xml" relativeToChangelogFile="true"/>
     <include file="jp1.2/changelog.xml" relativeToChangelogFile="true"/>
     <include file="jp1.2.2/changelog.xml" relativeToChangelogFile="true"/>
+    <include file="jp1.3/changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

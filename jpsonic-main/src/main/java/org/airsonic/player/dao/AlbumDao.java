@@ -31,8 +31,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collector;
 
 /**
  * Provides database services for albums.
@@ -42,7 +40,8 @@ import java.util.stream.Collector;
 @Repository
 public class AlbumDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, " +
-                                          "year, genre, play_count, last_played, comment, created, last_scanned, present, folder_id";
+                                          "year, genre, play_count, last_played, comment, created, last_scanned, present, folder_id, " +
+                                          "artist_sort, name_sort";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
@@ -129,19 +128,23 @@ public class AlbumDao extends AbstractDao {
                      "created=?," +
                      "last_scanned=?," +
                      "present=?, " +
-                     "folder_id=? " +
+                     "folder_id=?, " +
+                     "artist_sort=?, " +
+                     "name_sort=? " +
                      "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(),
                        album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtist(), album.getName());
+                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistSort(), album.getNameSort(),
+                       album.getArtist(), album.getName());
 
         if (n == 0) {
 
             update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")", album.getPath(),
                    album.getName(), album.getArtist(), album.getSongCount(), album.getDurationSeconds(),
                    album.getCoverArtPath(), album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
-                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId());
+                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(),
+                   album.getArtistSort(), album.getNameSort());
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(), album.getName());
@@ -180,30 +183,16 @@ public class AlbumDao extends AbstractDao {
             put("folders", MusicFolder.toIdList(musicFolders));
             put("count", count);
             put("offset", offset);
-            put("typeDir", MediaFile.MediaType.DIRECTORY.name());
         }};
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist_sort),  LOWER(al.name)" : "LOWER(al.name)";
+            orderBy = byArtist ? "LOWER(coalesce(artist_sort, artist)),  LOWER(coalesce(name_sort, name))" : "LOWER(coalesce(name_sort, name))";
         } else {
-            orderBy = byArtist ? "artist_sort, al.name" : "al.name";
+            orderBy = byArtist ? "coalesce(artist_sort, artist), coalesce(name_sort, name)" : "coalesce(name_sort, name)";
         }
 
-        List<String> queryColomns = Arrays.asList(QUERY_COLUMNS.split(","));
-		Function<String, String> addAlias = colmn -> {
-			return "al.".concat(colmn).concat(", ");
-		};
-	    Collector<String, StringBuilder, String> join = 
-	    		Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-	    String aliasedColomns = 
-				queryColomns.stream().map(addAlias).collect(join);
-        return namedQuery(
-        		"select " + aliasedColomns + "coalesce(ar.sort, ar.reading, ar.name) artist_sort " +
-				"from album al " +
-				"left join artist ar " +
-				"on al.artist = ar.name " +
-				"where al.present and al.folder_id in (:folders)" +
-				"order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
+                "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
@@ -420,7 +409,9 @@ public class AlbumDao extends AbstractDao {
                     rs.getTimestamp(13),
                     rs.getTimestamp(14),
                     rs.getBoolean(15),
-                    rs.getInt(16));
+                    rs.getInt(16),
+                    rs.getString(17),
+                    rs.getString(18));
         }
     }
 }
