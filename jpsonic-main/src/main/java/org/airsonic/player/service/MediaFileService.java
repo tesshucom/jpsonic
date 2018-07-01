@@ -515,6 +515,7 @@ public class MediaFileService {
                 mediaFile.setAlbumSort(metaData.getAlbumSort());
                 mediaFile.setArtistSort(metaData.getArtistSort());
                 mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
+                mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
