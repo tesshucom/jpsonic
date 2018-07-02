@@ -248,7 +248,12 @@ public class StreamController  {
                     }
                 }
             }
-
+        } catch (Exception err) {
+        	if("org.apache.catalina.connector.ClientAbortException".equals(err.getClass().getName())) {
+                LOG.info("org.apache.catalina.connector.ClientAbortException: Connection reset");
+                return;
+        	}
+        	LOG.error("Error occurred in handleRequest.", err);
         } finally {
             if (status != null) {
                 securityService.updateUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
