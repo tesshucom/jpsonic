@@ -3,9 +3,15 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.0
+
+  * 2.0
+  * Based upon Airsonic 10.2.0-SNAPSHOT 2018-7 (83ef76a Add Docker health check)
+
 ## v1.3
 
   * It corresponds to ALBUM_SORT
+  * Final release based upon Airsonic 10.1.1-RELEASE
 
 ## v1.2.2
 
@@ -31,6 +37,5 @@
   * Japanese index / Artist sort (File structure)
   * Fixed bug in Lang of biography
   * Default Japanese
-
   * First release as Jpsonic
   * Based upon Airsonic 10.1.1-RELEASE
