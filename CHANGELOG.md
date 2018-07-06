@@ -3,9 +3,17 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.1
+
+  * Update of lucene-core(3.0.3 -> 7.4.0).
+  * Simple Japanese phrase search.
+
 ## v2.0
 
-  * 2.0
+  * Based upon Airsonic 10.2.0-SNAPSHOT 2018-7 (83ef76a Add Docker health check)
+
+## v2.0
+
   * Based upon Airsonic 10.2.0-SNAPSHOT 2018-7 (83ef76a Add Docker health check)
 
 ## v1.3
