@@ -527,11 +527,6 @@
 			<artifactId>lucene-analyzers-kuromoji</artifactId>
 			<version>7.4.0</version>
 		</dependency>
-	
-		<dependency>
-			<groupId>commons-beanutils</groupId>
-			<artifactId>commons-beanutils</artifactId>
-		</dependency>
 
     </dependencies>
 
