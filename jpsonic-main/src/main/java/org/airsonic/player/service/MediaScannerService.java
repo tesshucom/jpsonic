@@ -234,6 +234,7 @@ public class MediaScannerService {
             mediaFileService.setMemoryCacheEnabled(true);
             searchService.stopIndexing();
             scanning = false;
+            mediaFileJPSupport.clear();
         }
     }
 
