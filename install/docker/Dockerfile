@@ -28,6 +28,6 @@ EXPOSE $JPSONIC_PORT
 
 VOLUME $JPSONIC_DIR/data $JPSONIC_DIR/music $JPSONIC_DIR/playlists $JPSONIC_DIR/podcasts
 
-HEALTHCHECK CMD wget -q http://localhost:"$AIRSONIC_PORT""$CONTEXT_PATH"/rest/ping -O /dev/null || exit 1
+HEALTHCHECK CMD wget -q http://localhost:"$JPSONIC_PORT""$CONTEXT_PATH"/rest/ping -O /dev/null || exit 1
 
 ENTRYPOINT ["tini", "--", "run.sh"]
