@@ -22,6 +22,8 @@ package org.airsonic.player.service;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.ibm.icu.text.Transliterator;
+
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.*;
@@ -29,12 +31,13 @@ import org.airsonic.player.util.FileUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.cjk.CJKWidthFilter;
+import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
+import org.apache.lucene.analysis.ja.JapaneseBaseFormFilter;
 import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
+import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
-import org.apache.lucene.analysis.standard.StandardFilter;
-import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
@@ -64,14 +67,11 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Reader;
 import java.io.StringReader;
 import java.util.*;
 import java.util.function.BiConsumer;
 
 import static org.airsonic.player.service.SearchService.IndexType.*;
-import static org.apache.lucene.analysis.standard.StandardAnalyzer.DEFAULT_MAX_TOKEN_LENGTH;
-import static org.apache.lucene.analysis.standard.StandardAnalyzer.STOP_WORDS_SET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -90,6 +90,8 @@ public class SearchService {
 	private static final Version LUCENE_VERSION = Version.LUCENE_7_4_0;
 
 	private static final String LUCENE_DIR = "lucene7.4jp";
+	
+	private static final int MAX_NUM_SEGMENTS = 1;
 
 	@Autowired
 	private MediaFileService mediaFileService;
@@ -191,24 +193,27 @@ public class SearchService {
 	}
 
 	public void stopIndexing() {
+		stopIndexing(artistWriter);
+		stopIndexing(artistId3Writer);
+		stopIndexing(albumWriter);
+		stopIndexing(albumId3Writer);
+		stopIndexing(songWriter);
+	}
+	
+	private void stopIndexing(IndexWriter writer) {
 		try {
-			artistWriter.close();
-			artistId3Writer.close();
-			albumWriter.close();
-			albumId3Writer.close();
-			songWriter.close();
-			LOG.error("Success to create search index.");
+			writer.flush();
+			writer.forceMerge(MAX_NUM_SEGMENTS);
+			LOG.info("Success to merge index : " + writer.getDirectory());
+			writer.close();
+			LOG.info("Success to create search index : " + writer.getDirectory());
 		} catch (Exception x) {
 			LOG.error("Failed to create search index.", x);
 		} finally {
-			FileUtil.closeQuietly(artistId3Writer);
-			FileUtil.closeQuietly(artistWriter);
-			FileUtil.closeQuietly(albumWriter);
-			FileUtil.closeQuietly(albumId3Writer);
-			FileUtil.closeQuietly(songWriter);
+			FileUtil.closeQuietly(writer);
 		}
 	}
-
+	
 	public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
 		SearchResult result = new SearchResult();
 		int offset = criteria.getOffset();
@@ -229,37 +234,33 @@ public class SearchService {
 
 			List<PhraseQuery> phraseQueries = new ArrayList<>();
 			for (MusicFolder musicFolder : musicFolders) {
-				if (indexType == ALBUM_ID3 || indexType == ARTIST_ID3) {
+				if (indexType == ALBUM_ID3 || indexType == ARTIST_ID3)
 					phraseQueries.add(new PhraseQuery(Fields.name.FOLDER_ID, new BytesRef(musicFolder.getId())));
-				} else {
+				else
 					phraseQueries.add(new PhraseQuery(Fields.name.FOLDER, musicFolder.getPath().getPath()));
-				}
 			}
 			for (PhraseQuery phrase : phraseQueries) {
 				booleanQuery.add(phrase, BooleanClause.Occur.MUST);
 			}
 
 			TopDocs topDocs = searcher.search(booleanQuery.build(), offset + count);
-
 			result.setTotalHits(round.apply(topDocs.totalHits));
 			int start = round.apply(Math.min(offset, topDocs.totalHits));
 			int end = round.apply(Math.min(start + count, topDocs.totalHits));
 			for (int i = start; i < end; i++) {
 				Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+				int id = parseId.apply(doc.get(Fields.name.ID));
 				switch (indexType) {
 				case SONG:
 				case ARTIST:
 				case ALBUM:
-					MediaFile mediaFile = mediaFileService.getMediaFile(parseId.apply(doc.get(Fields.name.ID)));
-					CollectionUtils.addIgnoreNull(result.getMediaFiles(), mediaFile);
+					addFileIfAnyMatch(result.getMediaFiles(), id);
 					break;
 				case ARTIST_ID3:
-					Artist artist = artistDao.getArtist(parseId.apply(doc.get(Fields.name.ID)));
-					CollectionUtils.addIgnoreNull(result.getArtists(), artist);
+					addArtistIfAnyMatch(result.getArtists(), id);
 					break;
 				case ALBUM_ID3:
-					Album album = albumDao.getAlbum(parseId.apply(doc.get(Fields.name.ID)));
-					CollectionUtils.addIgnoreNull(result.getAlbums(), album);
+					addAlbumIfAnyMatch(result.getAlbums(), id);
 					break;
 				default:
 					break;
@@ -279,33 +280,46 @@ public class SearchService {
 		return DirectoryReader.open(FSDirectory.open(dir.toPath()));
 	}
 
-	@Deprecated
-	@SuppressWarnings("unused")
-	private String analyzeQuery(String query) throws IOException {
-		StringBuilder result = new StringBuilder();
-		StandardTokenizer tokenizer = new StandardTokenizer(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
+	private String analyzeJPQuery(String query) throws IOException {
+		WhitespaceTokenizer tokenizer  = new WhitespaceTokenizer(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
 		tokenizer.setReader(new StringReader(query));
 		tokenizer.reset();
-		ASCIIFoldingFilter filter = new ASCIIFoldingFilter(tokenizer);
-		while (filter.incrementToken())
-			result.append(filter.getAttribute(CharTermAttribute.class).toString()).append("* ");
-		filter.close();
+		
+		TokenStream tokenStream = new LowerCaseFilter(tokenizer);
+		tokenStream = new CJKWidthFilter(tokenStream);
+		tokenStream = new ASCIIFoldingFilter(tokenStream);
+		tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
+
+		StringBuilder result = new StringBuilder();
+		while (tokenStream.incrementToken())
+			result.append(tokenStream.getAttribute(CharTermAttribute.class).toString()).append("* ");
+
+		tokenStream.close();
 		return result.toString();
 	}
 
-	private String analyzeJPQuery(String query) throws IOException {
-		StringBuilder result = new StringBuilder();
-		JapaneseTokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.NORMAL);
-		TokenStream tokenStream = new LowerCaseFilter(tokenizer);
-		tokenizer.setReader(new StringReader(query));
-		tokenizer.reset();
-		tokenStream = new CJKWidthFilter(tokenStream);
-		tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
-		ASCIIFoldingFilter filter = new ASCIIFoldingFilter(tokenStream);
-		while (filter.incrementToken())
-			result.append(filter.getAttribute(CharTermAttribute.class).toString()).append("* ");
-		filter.close();
-		return result.toString();
+	private void addFileIfAnyMatch(List<MediaFile> dist, int id) {
+		if (!dist.stream().anyMatch(m -> id == m.getId())) {
+			MediaFile mediaFile = mediaFileService.getMediaFile(id);
+			if (!isEmpty(mediaFile))
+				dist.add(mediaFile);
+		}
+	}
+
+	private void addArtistIfAnyMatch(List<Artist> dist, int id) {
+		if (!dist.stream().anyMatch(m -> id == m.getId())) {
+			Artist artist = artistDao.getArtist(id);
+			if (!isEmpty(artist))
+				dist.add(artist);
+		}
+	}
+
+	private void addAlbumIfAnyMatch(List<Album> dist, int id) {
+		if (!dist.stream().anyMatch(m -> id == m.getId())) {
+			Album album = albumDao.getAlbum(id);
+			if (!isEmpty(album))
+				dist.add(album);
+		}
 	}
 
 	public <T> ParamSearchResult<T> searchByName(String name, int offset, int count, List<MusicFolder> folderList,
@@ -525,7 +539,11 @@ public class SearchService {
 			private static final String ID = "id";
 			private static final String TITLE = "title";
 			private static final String ALBUM = "album";
+			private static final String ALBUM_FULL = "albumFull";
 			private static final String ARTIST = "artist";
+			private static final String ARTIST_FULL = "artistFull";
+			private static final String ARTIST_READING = "artistReading";
+			private static final String ARTIST_READING_HIRAGANA = "artistReadingHiragana";
 			private static final String GENRE = "genre";
 			private static final String YEAR = "year";
 			private static final String MEDIA_TYPE = "mediaType";
@@ -552,6 +570,29 @@ public class SearchService {
 			d.add(new SortedDocValuesField(name.ARTIST, new BytesRef(s)));
 		};
 
+		private static final BiConsumer<Document, String> artistFull = (d, s) -> {
+			if (isEmpty(s))
+				return;
+			d.add(new StringField(name.ARTIST_FULL, s.toLowerCase(), Store.YES));
+			d.add(new SortedDocValuesField(name.ARTIST_FULL, new BytesRef(s)));
+		};
+
+		private static final BiConsumer<Document, String> artistReading = (d, s) -> {
+			if (isEmpty(s))
+				return;
+			d.add(new StringField(name.ARTIST_READING, s, Store.YES));
+			d.add(new SortedDocValuesField(name.ARTIST_READING, new BytesRef(s)));
+		};
+		
+		private static final BiConsumer<Document, String> artistReadingHiragana = (d, s) -> {
+			if (isEmpty(s))
+				return;
+			Transliterator transliterator = Transliterator.getInstance("Katakana-Hiragana");
+			String hiragana = transliterator.transliterate(s);
+			d.add(new StringField(name.ARTIST_READING_HIRAGANA, hiragana, Store.YES));
+			d.add(new SortedDocValuesField(name.ARTIST_READING_HIRAGANA, new BytesRef(hiragana)));
+		};
+
 		private static final BiConsumer<Document, String> folder = (d, s) -> {
 			d.add(new StringField(name.FOLDER, s, Store.YES));
 			d.add(new SortedDocValuesField(name.FOLDER, new BytesRef(s)));
@@ -562,6 +603,13 @@ public class SearchService {
 				return;
 			d.add(new TextField(name.ALBUM, s, Store.YES));
 			d.add(new SortedDocValuesField(name.ALBUM, new BytesRef(s)));
+		};
+
+		private static final BiConsumer<Document, String> albumFull = (d, s) -> {
+			if (isEmpty(s))
+				return;
+			d.add(new StringField(name.ALBUM_FULL, s, Store.YES));
+			d.add(new SortedDocValuesField(name.ALBUM_FULL, new BytesRef(s)));
 		};
 
 		private static final BiConsumer<Document, Integer> folderId = (d, i) -> d
@@ -590,57 +638,122 @@ public class SearchService {
 	}
 
 	public static enum IndexType {
-		SONG(new String[] { Fields.name.TITLE, Fields.name.ARTIST }, Fields.name.TITLE) {
+		SONG(
+				new String[] {
+						Fields.name.TITLE,
+						Fields.name.ARTIST,
+						Fields.name.ARTIST_FULL,
+						Fields.name.ARTIST_READING,
+						Fields.name.ARTIST_READING_HIRAGANA
+						},
+				Fields.name.TITLE,
+				Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST_FULL, Fields.name.ARTIST) {
 			public Document createDocument(MediaFile mediaFile) {
 				Document doc = new Document();
 				Fields.id.accept(doc, mediaFile.getId());
+				Fields.artist.accept(doc, mediaFile.getArtist());
+				Fields.artistFull.accept(doc, mediaFile.getArtist());
+				String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+				Fields.artistReading.accept(doc, reading);
+				Fields.artistReadingHiragana.accept(doc, reading);
 				Fields.mediaType.accept(doc, mediaFile.getMediaType().name());
 				Fields.title.accept(doc, mediaFile.getTitle());
-				Fields.artist.accept(doc, mediaFile.getArtist());
 				Fields.genre.accept(doc, mediaFile.getGenre());
 				Fields.year.accept(doc, mediaFile.getYear());
 				Fields.folder.accept(doc, mediaFile.getFolder());
 				return doc;
 			}
 		},
-		ALBUM(new String[] { Fields.name.ALBUM, Fields.name.ARTIST, Fields.name.FOLDER }, Fields.name.ALBUM) {
+		ALBUM(
+				new String[] {
+						Fields.name.ALBUM,
+						Fields.name.ALBUM_FULL,
+						Fields.name.ARTIST,
+						Fields.name.ARTIST_FULL,
+						Fields.name.ARTIST_READING,
+						Fields.name.ARTIST_READING_HIRAGANA,
+						Fields.name.FOLDER },
+				Fields.name.ALBUM_FULL, Fields.name.ALBUM,
+				Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST_FULL, Fields.name.ARTIST) {
 			public Document createDocument(MediaFile mediaFile) {
 				Document doc = new Document();
 				Fields.id.accept(doc, mediaFile.getId());
-				Fields.artist.accept(doc, mediaFile.getArtist());
 				Fields.album.accept(doc, mediaFile.getAlbumName());
+				Fields.albumFull.accept(doc, mediaFile.getAlbumName());
+				Fields.artist.accept(doc, mediaFile.getArtist());
+				Fields.artistFull.accept(doc, mediaFile.getArtist());
+				Fields.artistReading.accept(doc,
+						isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort());
+				Fields.artistReadingHiragana.accept(doc,
+						isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort());
 				Fields.folder.accept(doc, mediaFile.getFolder());
 				return doc;
 			}
 		},
-		ALBUM_ID3(new String[] { Fields.name.ALBUM, Fields.name.ARTIST, Fields.name.FOLDER_ID }, Fields.name.ALBUM) {
+		ALBUM_ID3(
+				new String[] {
+						Fields.name.ALBUM,
+						Fields.name.ALBUM_FULL,
+						Fields.name.ARTIST,
+						Fields.name.ARTIST_FULL,
+						Fields.name.ARTIST_READING,
+						Fields.name.ARTIST_READING_HIRAGANA,
+						Fields.name.FOLDER_ID },
+				Fields.name.ALBUM_FULL, Fields.name.ALBUM,
+				Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST_FULL, Fields.name.ARTIST) {
 			@Override
 			public Document createDocument(Album album) {
 				Document doc = new Document();
 				Fields.id.accept(doc, album.getId());
-				Fields.artist.accept(doc, album.getArtist());
 				Fields.album.accept(doc, album.getName());
+				Fields.albumFull.accept(doc, album.getName());
+				Fields.artist.accept(doc, album.getArtist());
+				Fields.artistFull.accept(doc, album.getArtist());
+				Fields.artistReading.accept(doc, album.getArtistSort());
+				Fields.artistReadingHiragana.accept(doc, album.getArtistSort());
 				Fields.folderId.accept(doc, album.getFolderId());
 				return doc;
 			}
 		},
-		ARTIST(new String[] { Fields.name.ARTIST, Fields.name.FOLDER }, null) {
+		ARTIST(
+				new String[] {
+						Fields.name.ARTIST,
+						Fields.name.ARTIST_FULL,
+						Fields.name.ARTIST_READING,
+						Fields.name.ARTIST_READING_HIRAGANA,
+						Fields.name.FOLDER },
+				Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST_FULL, Fields.name.ARTIST) {
 			@Override
 			public Document createDocument(MediaFile mediaFile) {
 				Document doc = new Document();
-				doc.add(new StoredField(Fields.name.ID, mediaFile.getId()));
+				Fields.id.accept(doc, mediaFile.getId());
 				Fields.artist.accept(doc, mediaFile.getArtist());
+				Fields.artistFull.accept(doc, mediaFile.getArtist());
+				String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+				Fields.artistReading.accept(doc, reading);
+				Fields.artistReadingHiragana.accept(doc, reading);
 				Fields.folder.accept(doc, mediaFile.getFolder());
 				return doc;
 			}
 		},
 
-		ARTIST_ID3(new String[] { Fields.name.ARTIST }, null) {
+		ARTIST_ID3(
+				new String[] { 
+						Fields.name.ARTIST,
+						Fields.name.ARTIST_FULL,
+						Fields.name.ARTIST_READING,
+						Fields.name.ARTIST_READING_HIRAGANA
+						},
+				Fields.name.ARTIST_FULL, Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST) {
 			@Override
 			public Document createDocument(Artist artist, MusicFolder musicFolder) {
 				Document doc = new Document();
 				Fields.id.accept(doc, artist.getId());
 				Fields.artist.accept(doc, artist.getName());
+				Fields.artistFull.accept(doc, artist.getName());
+				String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
+				Fields.artistReading.accept(doc, reading);
+				Fields.artistReadingHiragana.accept(doc, reading);
 				Fields.folderId.accept(doc, musicFolder.getId());
 				return doc;
 			}
@@ -650,11 +763,13 @@ public class SearchService {
 
 		private final Map<String, Float> boosts;
 
-		private IndexType(String[] fields, String boostedField) {
+		private IndexType(String[] fields, String... boostedField) {
 			this.fields = fields;
 			boosts = new HashMap<String, Float>();
-			if (boostedField != null) {
-				boosts.put(boostedField, 2.0F);
+			if (!isEmpty(boostedField) && 0 < boostedField.length) {
+				for (int i = 0; i < boostedField.length; i++) {
+					boosts.put(boostedField[i], Float.valueOf(1.0F - 0.1F * i));
+				}
 			}
 		}
 
@@ -680,42 +795,31 @@ public class SearchService {
 	}
 
 	private Analyzer createAnalyzer() {
-		return new JapaneseAnalyzer();
+		return new JpsonicAnalyzer();
 	}
+		
 
-	@Deprecated
-	@SuppressWarnings("unused")
-	private class AirsonicAnalyzer extends StopwordAnalyzerBase {
-
-		public AirsonicAnalyzer(CharArraySet stopWords) {
-			super(stopWords);
-		}
-
-		public AirsonicAnalyzer() {
-			this(STOP_WORDS_SET);
-		}
+	private class JpsonicAnalyzer extends JapaneseAnalyzer {
 
 		@Override
 		protected TokenStream normalize(String fieldName, TokenStream in) {
-			TokenStream result = new StandardFilter(in);
-			return new ASCIIFoldingFilter(new LowerCaseFilter(result));
+			TokenStream tokenStream = super.normalize(fieldName, in);
+			tokenStream = new ASCIIFoldingFilter(tokenStream);
+			tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
+			return tokenStream;
 		}
 
 		@Override
 		protected TokenStreamComponents createComponents(String fieldName) {
-			StandardTokenizer tokenizer = new StandardTokenizer();
-			tokenizer.setMaxTokenLength(DEFAULT_MAX_TOKEN_LENGTH);
-			TokenStream tokenStream = new StandardFilter(tokenizer);
-			tokenStream = new LowerCaseFilter(tokenStream);
-			tokenStream = new StopFilter(tokenStream, STOP_WORDS_SET);
-			tokenStream = new ASCIIFoldingFilter(tokenStream);
-			return new TokenStreamComponents(tokenizer, tokenStream) {
-				@Override
-				protected void setReader(final Reader reader) {
-					tokenizer.setMaxTokenLength(DEFAULT_MAX_TOKEN_LENGTH);
-					super.setReader(reader);
-				}
-			};
+			Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
+			TokenStream stream = new JapaneseBaseFormFilter(tokenizer);
+			stream = new JapanesePartOfSpeechStopFilter(stream, JapaneseAnalyzer.getDefaultStopTags());
+			stream = new CJKWidthFilter(stream);
+			stream = new StopFilter(stream, JapaneseAnalyzer.getDefaultStopSet());
+			stream = new JapaneseKatakanaStemFilter(stream);
+			stream = new LowerCaseFilter(stream);
+			stream = new ASCIIFoldingFilter(stream);
+			return new TokenStreamComponents(tokenizer, stream);
 		}
 
 	}
