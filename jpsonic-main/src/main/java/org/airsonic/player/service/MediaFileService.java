@@ -516,6 +516,8 @@ public class MediaFileService {
                 mediaFile.setArtistSort(metaData.getArtistSort());
                 mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+                mediaFileJPSupport.analyzeArtistReading(mediaFile);
+                mediaFileJPSupport.analyzeArtistSort(mediaFile);
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -560,7 +562,6 @@ public class MediaFileService {
                 } else {
                     mediaFile.setArtist(file.getName());
                 }
-                //It is necessary to verify search possible
                 mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 mediaFileJPSupport.analyzeAlbumReading(mediaFile);
             }
