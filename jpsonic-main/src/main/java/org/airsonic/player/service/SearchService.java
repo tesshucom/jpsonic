@@ -244,7 +244,6 @@ public class SearchService {
 			}
 
 			TopDocs topDocs = searcher.search(booleanQuery.build(), offset + count);
-
 			result.setTotalHits(round.apply(topDocs.totalHits));
 			int start = round.apply(Math.min(offset, topDocs.totalHits));
 			int end = round.apply(Math.min(start + count, topDocs.totalHits));
@@ -288,7 +287,6 @@ public class SearchService {
 		
 		TokenStream tokenStream = new LowerCaseFilter(tokenizer);
 		tokenStream = new CJKWidthFilter(tokenStream);
-		tokenStream = new LowerCaseFilter(tokenStream);
 		tokenStream = new ASCIIFoldingFilter(tokenStream);
 		tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
 
@@ -575,7 +573,7 @@ public class SearchService {
 		private static final BiConsumer<Document, String> artistFull = (d, s) -> {
 			if (isEmpty(s))
 				return;
-			d.add(new StringField(name.ARTIST_FULL, s, Store.YES));
+			d.add(new StringField(name.ARTIST_FULL, s.toLowerCase(), Store.YES));
 			d.add(new SortedDocValuesField(name.ARTIST_FULL, new BytesRef(s)));
 		};
 
@@ -813,7 +811,7 @@ public class SearchService {
 
 		@Override
 		protected TokenStreamComponents createComponents(String fieldName) {
-			Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.NORMAL);
+			Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
 			TokenStream stream = new JapaneseBaseFormFilter(tokenizer);
 			stream = new JapanesePartOfSpeechStopFilter(stream, JapaneseAnalyzer.getDefaultStopTags());
 			stream = new CJKWidthFilter(stream);
