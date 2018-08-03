@@ -3,6 +3,19 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.2.1
+
+  * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
+  * Added index rebuilding process after scanning.
+  * Based upon Airsonic 10.2.0-SNAPSHOT f6905de(2018-8)
+  * Start build test with travis.
+
+## v2.2
+
+  * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
+  * Added index rebuilding process after scanning.
+  * Based upon Airsonic 10.2.0-SNAPSHOT 8d3c0ec(2018-7)
+
 ## v2.1
 
   * Update of lucene-core(3.0.3 -> 7.4.0).
@@ -10,11 +23,11 @@
 
 ## v2.0
 
-  * Based upon Airsonic 10.2.0-SNAPSHOT 2018-7 (83ef76a Add Docker health check)
+  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
 
 ## v2.0
 
-  * Based upon Airsonic 10.2.0-SNAPSHOT 2018-7 (83ef76a Add Docker health check)
+  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
 
 ## v1.3
 
