@@ -29,12 +29,11 @@ import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.cjk.CJKWidthFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
-import org.apache.lucene.analysis.ja.JapaneseBaseFormFilter;
-import org.apache.lucene.analysis.ja.JapaneseKatakanaStemFilter;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
@@ -70,6 +69,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 import static org.airsonic.player.service.SearchService.IndexType.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -280,15 +280,26 @@ public class SearchService {
 		return DirectoryReader.open(FSDirectory.open(dir.toPath()));
 	}
 
+	public static final Pattern HIRAGANA = Pattern.compile("^[\\u3040-\\u309F]+$");
+	public static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
+	
 	private String analyzeJPQuery(String query) throws IOException {
-		WhitespaceTokenizer tokenizer  = new WhitespaceTokenizer(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
+		Tokenizer tokenizer;
+		if (HIRAGANA.matcher(query).matches()
+				|| KATAKANA.matcher(query).matches()
+				|| query.contains(StringUtils.SPACE)) {
+			tokenizer = new WhitespaceTokenizer(AttributeFactory.DEFAULT_ATTRIBUTE_FACTORY);
+		} else {
+			tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
+		}
 		tokenizer.setReader(new StringReader(query));
 		tokenizer.reset();
 		
 		TokenStream tokenStream = new LowerCaseFilter(tokenizer);
 		tokenStream = new CJKWidthFilter(tokenStream);
 		tokenStream = new ASCIIFoldingFilter(tokenStream);
-		tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
+		tokenStream = new JapanesePartOfSpeechStopFilter(tokenStream, JapaneseAnalyzer.getDefaultStopTags());//hinsi
+		tokenStream = new LowerCaseFilter(tokenStream);
 
 		StringBuilder result = new StringBuilder();
 		while (tokenStream.incrementToken())
@@ -805,18 +816,17 @@ public class SearchService {
 		protected TokenStream normalize(String fieldName, TokenStream in) {
 			TokenStream tokenStream = super.normalize(fieldName, in);
 			tokenStream = new ASCIIFoldingFilter(tokenStream);
-			tokenStream = new JapaneseKatakanaStemFilter(tokenStream);
 			return tokenStream;
 		}
 
 		@Override
 		protected TokenStreamComponents createComponents(String fieldName) {
 			Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
-			TokenStream stream = new JapaneseBaseFormFilter(tokenizer);
+			TokenStream stream = new CJKWidthFilter(tokenizer);
+			// stream = new JapaneseBaseFormFilter(stream);
 			stream = new JapanesePartOfSpeechStopFilter(stream, JapaneseAnalyzer.getDefaultStopTags());
-			stream = new CJKWidthFilter(stream);
-			stream = new StopFilter(stream, JapaneseAnalyzer.getDefaultStopSet());
-			stream = new JapaneseKatakanaStemFilter(stream);
+			// stream = new StopFilter(stream, JapaneseAnalyzer.getDefaultStopSet());
+			// stream = new JapaneseKatakanaStemFilter(stream);
 			stream = new LowerCaseFilter(stream);
 			stream = new ASCIIFoldingFilter(stream);
 			return new TokenStreamComponents(tokenizer, stream);
