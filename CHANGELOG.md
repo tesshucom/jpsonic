@@ -5,8 +5,7 @@
 
 ## v2.2.1
 
-  * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
-  * Added index rebuilding process after scanning.
+  * Security fix (LDAP authentication without a password).
   * Based upon Airsonic 10.2.0-SNAPSHOT f6905de(2018-8)
   * Start build test with travis.
 
