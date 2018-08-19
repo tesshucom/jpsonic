@@ -334,7 +334,7 @@ public class SearchService {
   }
 
   public <T> ParamSearchResult<T> searchByName(
-      String name, int offset, int count, List<MusicFolder> folderList,SearchService Class<T> clazz) {
+      String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz) {
     IndexType indexType = null;
     String field = null;
     if (clazz.isAssignableFrom(Album.class)) {
@@ -411,33 +411,37 @@ public class SearchService {
 
     IndexReader reader = null;
     try {
+
       reader = createIndexReader(SONG);
 
       BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
       booleanQuery.add(
-          new TermQuery(new Term(Fields.name.MEDIA_TYPE,
-              MediaFile.MediaType.MUSIC.name().toLowerCase())),
-          BooleanClause.Occur.MUST);
+          new TermQuery(new Term(Fields.name.MEDIA_TYPE, MediaFile.MediaType.MUSIC.name().toLowerCase())),
+            BooleanClause.Occur.MUST);
+
       if (!isEmpty(criteria.getGenre())) {
-        String genre = normalizeGenre.apply(criteria.getGenre());
-        booleanQuery.add(new TermQuery(new Term(Fields.name.GENRE, genre)),
+        booleanQuery.add(
+            new TermQuery(new Term(Fields.name.GENRE, normalizeGenre.apply(criteria.getGenre()))),
             BooleanClause.Occur.MUST);
       }
       if (!isEmpty(criteria.getFromYear()) || !isEmpty(criteria.getToYear())) {
-        Query rangeQuery = IntPoint.newRangeQuery(Fields.name.YEAR, criteria.getFromYear(),
-            criteria.getToYear());
-        booleanQuery.add(rangeQuery, BooleanClause.Occur.MUST);
+        booleanQuery.add(
+            IntPoint.newRangeQuery(Fields.name.YEAR, criteria.getFromYear(), criteria.getToYear()),
+            BooleanClause.Occur.MUST);
       }
       for (MusicFolder musicFolder : criteria.getMusicFolders()) {
-        booleanQuery.add(new PhraseQuery(Fields.name.FOLDER, musicFolder.getPath().getPath()),
+        booleanQuery.add(
+            new PhraseQuery(Fields.name.FOLDER, musicFolder.getPath().getPath()),
             BooleanClause.Occur.MUST);
       }
 
       IndexSearcher searcher = new IndexSearcher(reader);
+
       TopDocs topDocs = searcher.search(booleanQuery.build(), Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
 
+      
       while (!scoreDocs.isEmpty() && result.size() < criteria.getCount()) {
         int index = random.nextInt(scoreDocs.size());
         Document doc = searcher.doc(scoreDocs.remove(index).doc);
@@ -648,8 +652,8 @@ public class SearchService {
       if (isEmpty(s)) {
         return;
       }
-      d.add(new StringField(name.MEDIA_TYPE, s, Store.YES));
-      d.add(new SortedDocValuesField(name.MEDIA_TYPE, new BytesRef(s)));
+      d.add(new StringField(name.MEDIA_TYPE, s.toLowerCase(), Store.YES));
+      d.add(new SortedDocValuesField(name.MEDIA_TYPE, new BytesRef(s.toLowerCase())));
     };
 
     private static final BiConsumer<Document, String> genre = (d, s) -> {
@@ -661,7 +665,7 @@ public class SearchService {
     };
 
   }
-
+//  SONG(new String[]{FIELD_TITLE, FIELD_ARTIST}, FIELD_TITLE) {
   public static enum IndexType {
     SONG(
         new String[] {
@@ -669,8 +673,7 @@ public class SearchService {
             Fields.name.ARTIST,
             Fields.name.ARTIST_FULL,
             Fields.name.ARTIST_READING,
-            Fields.name.ARTIST_READING_HIRAGANA
-            },
+            Fields.name.ARTIST_READING_HIRAGANA},
         Fields.name.TITLE,
         Fields.name.ARTIST_READING_HIRAGANA, Fields.name.ARTIST_READING, Fields.name.ARTIST_FULL, Fields.name.ARTIST) {
       public Document createDocument(MediaFile mediaFile) {
@@ -680,7 +683,7 @@ public class SearchService {
         Fields.artistFull.accept(doc, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort())
               ? mediaFile.getArtistReading()
-: mediaFile.getArtistSort();
+                  : mediaFile.getArtistSort();
         Fields.artistReading.accept(doc, reading);
         Fields.artistReadingHiragana.accept(doc, reading);
         Fields.mediaType.accept(doc, mediaFile.getMediaType().name());
@@ -801,11 +804,13 @@ public class SearchService {
 
     private final Map<String, Float> boosts;
 
-    private IndexType(String[] fields, String... boostedField) {
+    private IndexType(String[] fields, String... boostedFields) {
       this.fields = fields;
       boosts = new HashMap<String, Float>();
-      if (boostedField != null) {
+      if (boostedFields != null) {
+        for(String boostedField : boostedFields) {
           boosts.put(boostedField, 2.0F);
+        }
       }
     }
 
