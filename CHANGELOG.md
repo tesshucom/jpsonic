@@ -3,6 +3,12 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.2.2
+
+  * Improvement of Japanese Song search accuracy.
+  * Random search fault correction.
+  * Based on airsonic 8ba0bc8 (2018-8)
+
 ## v2.2.1
 
   * Security fix (LDAP authentication without a password).
