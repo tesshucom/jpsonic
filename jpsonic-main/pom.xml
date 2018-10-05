@@ -583,6 +583,7 @@
                 <configuration>
                     <doCheck>false</doCheck>
                     <doUpdate>false</doUpdate>
+                    <revisionOnScmFailure>Unversioned</revisionOnScmFailure>
                 </configuration>
             </plugin>
             <plugin>
