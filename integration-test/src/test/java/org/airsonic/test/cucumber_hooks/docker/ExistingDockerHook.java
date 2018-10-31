@@ -24,8 +24,8 @@ import java.util.Map;
 public class ExistingDockerHook implements AirsonicServer, EnvironmentAware, InitializingBean {
 
     private static final Logger logger = LoggerFactory.getLogger(ExistingDockerHook.class);
-    public static final String AIRSONIC_DOCKER_CONTAINER = "airsonic.docker.container";
-    public static final String AIRSONIC_DOCKER_PORT = "airsonic.docker.port";
+    public static final String JPSONIC_DOCKER_CONTAINER = "jpsonic.docker.container";
+    public static final String JPSONIC_DOCKER_PORT = "jpsonic.docker.port";
 
     private String serverUri = null;
     private final DockerClient docker;
@@ -87,8 +87,8 @@ public class ExistingDockerHook implements AirsonicServer, EnvironmentAware, Ini
 
     @Override
     public void setEnvironment(Environment environment) {
-        containerId = environment.getRequiredProperty(AIRSONIC_DOCKER_CONTAINER);
-        dockerPort = Integer.parseInt(environment.getRequiredProperty(AIRSONIC_DOCKER_PORT));
+        containerId = environment.getRequiredProperty(JPSONIC_DOCKER_CONTAINER);
+        dockerPort = Integer.parseInt(environment.getRequiredProperty(JPSONIC_DOCKER_PORT));
     }
 
     @Override
