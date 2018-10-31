@@ -317,8 +317,8 @@
             <id>integration-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
-                <module>airsonic-sonos-api</module>
-                <module>airsonic-main</module>
+                <module>jpsonic-sonos-api</module>
+                <module>jpsonic-main</module>
                 <module>install/docker</module>
                 <module>integration-test</module>
             </modules>
