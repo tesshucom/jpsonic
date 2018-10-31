@@ -68,7 +68,7 @@ public class DynamicDockerHook implements AirsonicServer, EnvironmentAware, Init
     public void uploadToDefaultMusicFolder(Path localDir, String relativePath) {
         try {
             // TODO ensure localDir is a directory
-            docker.copyToContainer(localDir, containerId, "/airsonic/music/" + relativePath);
+            docker.copyToContainer(localDir, containerId, "/jpsonic/music/" + relativePath);
         } catch (DockerException | IOException | InterruptedException e) {
             throw new RuntimeException(e);
         }
