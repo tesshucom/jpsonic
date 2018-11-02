@@ -273,7 +273,7 @@
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>taglibs:string:jar*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
-                                <!-- Needed for jpsonic-booter to load Airsonic correctly -->
+                                <!-- Needed for jpsonic-booter to load Jpsonic correctly -->
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
@@ -317,8 +317,8 @@
             <id>integration-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
-                <module>airsonic-sonos-api</module>
-                <module>airsonic-main</module>
+                <module>jpsonic-sonos-api</module>
+                <module>jpsonic-main</module>
                 <module>install/docker</module>
                 <module>integration-test</module>
             </modules>
