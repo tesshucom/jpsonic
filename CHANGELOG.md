@@ -3,6 +3,13 @@
 # tesshucom/jpsonic
 # -->
 
+
+## v2.2.4
+
+  * Fixed a bug where part of the start argument was not correctly recognized
+	(jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
+  * Introduction of Airsonic integration test using Docker
+
 ## v2.2.3
 
   * Security update for cxf(CVE-2018-8039)
