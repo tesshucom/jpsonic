@@ -10,7 +10,7 @@ Jpsonic
 What is Jpsonic?
 -----------------
 
-Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music.
+Jpsonic is a free, web-based media streamer, providing ubiquitous access to your music.
 
 Use it to share your music with friends, or to listen to your own music while at work.
 
