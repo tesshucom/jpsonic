@@ -48,17 +48,17 @@ public final class Util {
 
     public static String getDefaultMusicFolder() {
         String def = isWindows() ? "c:\\music" : "/var/music";
-        return System.getProperty("airsonic.defaultMusicFolder", def);
+        return System.getProperty("jpsonic.defaultMusicFolder", def);
     }
 
     public static String getDefaultPodcastFolder() {
         String def = isWindows() ? "c:\\music\\Podcast" : "/var/music/Podcast";
-        return System.getProperty("airsonic.defaultPodcastFolder", def);
+        return System.getProperty("jpsonic.defaultPodcastFolder", def);
     }
 
     public static String getDefaultPlaylistFolder() {
         String def = isWindows() ? "c:\\playlists" : "/var/playlists";
-        return System.getProperty("airsonic.defaultPlaylistFolder", def);
+        return System.getProperty("jpsonic.defaultPlaylistFolder", def);
     }
 
     public static boolean isWindows() {
