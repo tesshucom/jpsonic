@@ -17,6 +17,7 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
         <cxf.version>3.2.6</cxf.version>
+        <slf4j.version>1.8.0-beta2</slf4j.version>
     </properties>
 
     <repositories>
@@ -133,6 +134,38 @@
                 <artifactId>guava</artifactId>
                 <version>27.0-jre</version>
             </dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jcl-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>jul-to-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>log4j-over-slf4j</artifactId>
+				<version>${slf4j.version}</version>
+			</dependency>
+			<dependency>
+				<!-- https://www.slf4j.org/codes.html#noProviders -->
+			    <groupId>org.slf4j</groupId>
+			    <artifactId>slf4j-nop</artifactId>
+				<version>${slf4j.version}</version>
+			    <scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.mattbertolini</groupId>
+				<artifactId>liquibase-slf4j</artifactId>
+				<version>2.0.0</version>
+			</dependency>
         </dependencies>
     </dependencyManagement>
 
