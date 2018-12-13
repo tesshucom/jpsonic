@@ -16,6 +16,7 @@
         <metrics.version>3.1.0</metrics.version>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
+        <jpsonic.version>v2.2.4</jpsonic.version>
     </properties>
 
     <dependencies>
@@ -613,7 +614,7 @@
                                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
-                                <echo file="${project.build.directory}/classes/version.txt">${project.version}</echo>
+                                <echo file="${project.build.directory}/classes/version.txt">${jpsonic.version}</echo>
                             </target>
                         </configuration>
                         <goals>
