@@ -16,6 +16,7 @@
         <metrics.version>3.1.0</metrics.version>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
+        <jpsonic.version>2.2.4-RELEASE</jpsonic.version>
     </properties>
 
     <dependencies>
@@ -192,7 +193,6 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>18.0</version>
         </dependency>
 
         <dependency>
@@ -579,7 +579,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.18.1</version>
                 <configuration>
                     <reuseForks>false</reuseForks>
                 </configuration>
@@ -615,7 +614,7 @@
                                 <echo file="${project.build.directory}/classes/build_number.txt">${buildNumber}</echo>
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
-                                <echo file="${project.build.directory}/classes/version.txt">${project.version}</echo>
+                                <echo file="${project.build.directory}/classes/version.txt">${jpsonic.version}</echo>
                             </target>
                         </configuration>
                         <goals>
