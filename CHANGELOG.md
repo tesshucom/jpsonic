@@ -3,6 +3,14 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.2.5
+
+  * Security update (guava:CVE-2018-10237)
+  * Suppress CVE by false positives(stax:CVE-2017-16224, slf4j:CVE-2018-8088)
+  * Localization of version check. Changed Jpsonic update to notify management screen
+  * Based on airsonic 77ca475 (2018-12)Å@Screen modification, updating of various libraries, modification of test content, etc.
+   - Modification of partial wording accompanying cleanup of overall translation
+   - Image replacement related to adding icons for various devices
 
 ## v2.2.4
 
