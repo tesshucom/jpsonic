@@ -18,8 +18,6 @@ Based on Java technology, Jpsonic runs on most platforms, including Windows, Mac
 
 Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
 
-Airsonic is developed and maintained by Sindre Mehus [sindre@activeobjects.no](mailto:sindre@activeobjects.no)
-
 ![Screenshot](contrib/assets/screenshot.png)
 
 Features
