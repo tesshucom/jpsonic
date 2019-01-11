@@ -3,12 +3,17 @@
 # tesshucom/jpsonic
 # -->
 
+## v2.2.6
+
+  * Security update (jackson-databind:CVE-2018-19360 - CVE-2018-19362, CVE-2018-14718 - CVE-2018-14721)
+  * Based on airsonic adc2241 (2019-1) Fix broken keyboard shortcuts, defrag on HSQLDB, connection pooling for external database etc.
+
 ## v2.2.5
 
   * Security update (guava:CVE-2018-10237)
   * Suppress CVE by false positives(stax:CVE-2017-16224, slf4j:CVE-2018-8088)
   * Localization of version check. Changed Jpsonic update to notify management screen
-  * Based on airsonic 77ca475 (2018-12)Å@Screen modification, updating of various libraries, modification of test content, etc.
+  * Based on airsonic 77ca475 (2018-12) Screen modification, updating of various libraries, modification of test content, etc.
    - Modification of partial wording accompanying cleanup of overall translation
    - Image replacement related to adding icons for various devices
 
