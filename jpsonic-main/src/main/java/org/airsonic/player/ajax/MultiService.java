@@ -63,7 +63,6 @@ public class MultiService {
     private SettingsService settingsService;
     @Autowired
     private LocaleResolver localeResolver;
-    
 
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
