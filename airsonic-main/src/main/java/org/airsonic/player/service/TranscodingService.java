@@ -489,7 +489,7 @@ public class TranscodingService {
      * Returns the directory in which all transcoders are installed.
      */
     public File getTranscodeDirectory() {
-        File dir = new File(SettingsService.getAirsonicHome(), "transcode");
+        File dir = new File(SettingsService.getJpsonicHome(), "transcode");
         if (!dir.exists()) {
             boolean ok = dir.mkdir();
             if (ok) {

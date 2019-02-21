@@ -460,7 +460,7 @@ public class SearchService {
     }
 
     private File getIndexRootDirectory() {
-        return new File(SettingsService.getAirsonicHome(), LUCENE_DIR);
+        return new File(SettingsService.getJpsonicHome(), LUCENE_DIR);
     }
 
     private File getIndexDirectory(IndexType indexType) {

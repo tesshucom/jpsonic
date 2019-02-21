@@ -45,7 +45,7 @@ public class CacheFactory implements InitializingBean {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
 
         // Override configuration to make sure cache is stored in Airsonic home dir.
-        File cacheDir = new File(SettingsService.getAirsonicHome(), "cache");
+        File cacheDir = new File(SettingsService.getJpsonicHome(), "cache");
         configuration.getDiskStoreConfiguration().setPath(cacheDir.getPath());
 
         cacheManager = CacheManager.create(configuration);

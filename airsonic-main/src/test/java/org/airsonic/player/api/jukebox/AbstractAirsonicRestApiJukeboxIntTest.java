@@ -41,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public abstract class AbstractAirsonicRestApiJukeboxIntTest {
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule(); // sets airsonic.home to a temporary dir
+    public static final HomeRule classRule = new HomeRule(); // sets jpsonic.home to a temporary dir
 
     @TestConfiguration
     static class Config {
@@ -58,7 +58,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
         }
     }
 
-    static final String CLIENT_NAME = "airsonic";
+    static final String CLIENT_NAME = "jpsonic";
     static final String JUKEBOX_PLAYER_NAME = CLIENT_NAME + "-jukebox";
     private static final String EXPECTED_FORMAT = "json";
     private static String AIRSONIC_API_VERSION;

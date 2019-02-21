@@ -45,7 +45,7 @@ import static org.airsonic.player.service.NetworkService.getBaseUrl;
 @Service
 public class SonosHelper {
 
-    public static final String AIRSONIC_CLIENT_ID = "sonos";
+    public static final String JPSONIC_CLIENT_ID = "sonos";
 
     @Autowired
     private MediaFileService mediaFileService;
@@ -652,17 +652,17 @@ public class SonosHelper {
     }
 
     private Player createPlayerIfNecessary(String username) {
-        List<Player> players = playerService.getPlayersForUserAndClientId(username, AIRSONIC_CLIENT_ID);
+        List<Player> players = playerService.getPlayersForUserAndClientId(username, JPSONIC_CLIENT_ID);
 
         // If not found, create it.
         if (players.isEmpty()) {
             Player player = new Player();
             player.setUsername(username);
-            player.setClientId(AIRSONIC_CLIENT_ID);
+            player.setClientId(JPSONIC_CLIENT_ID);
             player.setName("Sonos");
             player.setTechnology(PlayerTechnology.EXTERNAL_WITH_PLAYLIST);
             playerService.createPlayer(player);
-            players = playerService.getPlayersForUserAndClientId(username, AIRSONIC_CLIENT_ID);
+            players = playerService.getPlayersForUserAndClientId(username, JPSONIC_CLIENT_ID);
         }
 
         return players.get(0);

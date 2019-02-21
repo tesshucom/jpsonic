@@ -27,9 +27,9 @@ public class LegacyDatabaseStartupTestCase {
             @Override
             protected void before() throws Throwable {
                 super.before();
-                String homeParent = TestCaseUtils.airsonicHomePathForTest();
-                System.setProperty("airsonic.home", TestCaseUtils.airsonicHomePathForTest());
-                TestCaseUtils.cleanAirsonicHomeForTest();
+                String homeParent = TestCaseUtils.jpsonicHomePathForTest();
+                System.setProperty("airsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+                TestCaseUtils.jpsonicHomePathForTest();
                 File dbDirectory = new File(homeParent, "/db");
                 FileUtils.forceMkdir(dbDirectory);
                 org.airsonic.player.util.FileUtils.copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));

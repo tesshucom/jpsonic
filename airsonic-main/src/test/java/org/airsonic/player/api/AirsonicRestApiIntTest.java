@@ -24,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class AirsonicRestApiIntTest {
 
-    private static final String CLIENT_NAME = "airsonic";
+    private static final String CLIENT_NAME = "jpsonic";
     private static final String AIRSONIC_USER = "admin";
     private static final String AIRSONIC_PASSWORD = "admin";
     private static final String EXPECTED_FORMAT = "json";
@@ -35,7 +35,7 @@ public class AirsonicRestApiIntTest {
     private MockMvc mvc;
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule(); // sets airsonic.home to a temporary dir
+    public static final HomeRule classRule = new HomeRule(); // sets jpsonic.home to a temporary dir
 
     @BeforeClass
     public static void setupClass() {
