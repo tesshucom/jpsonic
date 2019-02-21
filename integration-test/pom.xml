@@ -6,8 +6,8 @@
     <name>Airsonic Integration Test</name>
 
     <parent>
-        <groupId>org.airsonic.player</groupId>
-        <artifactId>airsonic</artifactId>
+        <groupId>com.tesshu.jpsonic.player</groupId>
+        <artifactId>jpsonic</artifactId>
         <version>10.2.1-RELEASE</version>
     </parent>
 
@@ -126,7 +126,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.airsonic.player</groupId>
+            <groupId>com.tesshu.jpsonic.player</groupId>
             <artifactId>subsonic-rest-api</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>

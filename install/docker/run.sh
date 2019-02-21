@@ -2,9 +2,9 @@
 
 set -e
 
-mkdir -p $AIRSONIC_DIR/data/transcode
-ln -fs /usr/bin/ffmpeg $AIRSONIC_DIR/data/transcode/ffmpeg
-ln -fs /usr/bin/lame $AIRSONIC_DIR/data/transcode/lame
+mkdir -p $JPSONIC_DIR/data/transcode
+ln -fs /usr/bin/ffmpeg $JPSONIC_DIR/data/transcode/ffmpeg
+ln -fs /usr/bin/lame $JPSONIC_DIR/data/transcode/lame
 
 if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
 
@@ -14,15 +14,15 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
     done < <([[ $JAVA_OPTS ]] && xargs printf '%s\0' <<<"$JAVA_OPTS")
     exec java -Xmx256m \
      -Dserver.host=0.0.0.0 \
-     -Dserver.port=$AIRSONIC_PORT \
+     -Dserver.port=$JPSONIC_PORT \
      -Dserver.contextPath=$CONTEXT_PATH \
-     -Dairsonic.home=$AIRSONIC_DIR/data \
-     -Dairsonic.defaultMusicFolder=$AIRSONIC_DIR/music \
-     -Dairsonic.defaultPodcastFolder=$AIRSONIC_DIR/podcasts \
-     -Dairsonic.defaultPlaylistFolder=$AIRSONIC_DIR/playlists \
+     -Dairsonic.home=$JPSONIC_DIR/data \
+     -Dairsonic.defaultMusicFolder=$JPSONIC_DIR/music \
+     -Dairsonic.defaultPodcastFolder=$JPSONIC_DIR/podcasts \
+     -Dairsonic.defaultPlaylistFolder=$JPSONIC_DIR/playlists \
      -Djava.awt.headless=true \
      "${java_opts_array[@]}" \
-     -jar airsonic.war "$@"
+     -jar jpsonic.war "$@"
 fi
 
 exec "$@"

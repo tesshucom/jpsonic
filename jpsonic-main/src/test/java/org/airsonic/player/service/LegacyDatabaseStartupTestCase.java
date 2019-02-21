@@ -29,7 +29,7 @@ public class LegacyDatabaseStartupTestCase {
                 super.before();
                 String homeParent = TestCaseUtils.jpsonicHomePathForTest();
                 System.setProperty("airsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-                TestCaseUtils.jpsonicHomePathForTest();
+                TestCaseUtils.cleanJpsonicHomeForTest();
                 File dbDirectory = new File(homeParent, "/db");
                 FileUtils.forceMkdir(dbDirectory);
                 org.airsonic.player.util.FileUtils.copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));

@@ -2,14 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.airsonic.player</groupId>
-    <artifactId>airsonic</artifactId>
+    <groupId>com.tesshu.jpsonic.player</groupId>
+    <artifactId>jpsonic</artifactId>
     <version>10.2.1-RELEASE</version>
-    <name>Airsonic</name>
+    <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
-        <name>Airsonic</name>
-        <url>https://airsonic.org/</url>
+        <name>Jpsonic</name>
+        <url>https://tesshu.com/</url>
     </organization>
     <inceptionYear>2016</inceptionYear>
 
@@ -51,9 +51,9 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:git:git://github.com/airsonic/airsonic.git</connection>
-        <developerConnection>scm:git:git@github.com:airsonic/airsonic.git</developerConnection>
-        <url>https://github.com/airsonic/airsonic.git</url>
+        <connection>scm:git:git://github.com/tesshucom/jpsonic.git</connection>
+        <developerConnection>scm:git:git@github.com:tesshucom/jpsonic.git</developerConnection>
+        <url>https://github.com/tesshucom/jpsonic.git</url>
     </scm>
 
 <!--    <ciManagement>
@@ -77,8 +77,8 @@
 
     <modules>
         <module>subsonic-rest-api</module>
-        <module>airsonic-sonos-api</module>
-        <module>airsonic-main</module>
+        <module>jpsonic-sonos-api</module>
+        <module>jpsonic-main</module>
     </modules>
 
     <dependencyManagement>
@@ -274,7 +274,7 @@
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>taglibs:string:jar*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.seamless:seamless-http*</ignoredUnusedDeclaredDependency>
-                                <!-- Needed for airsonic-booter to load Airsonic correctly -->
+                                <!-- Needed for jpsonic-booter to load Jpsonic correctly -->
                                 <ignoredUnusedDeclaredDependency>org.springframework.security:*</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>org.springframework.boot:spring-boot*</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
@@ -309,8 +309,8 @@
             <id>docker</id>
             <modules>
                 <module>subsonic-rest-api</module>
-                <module>airsonic-sonos-api</module>
-                <module>airsonic-main</module>
+                <module>jpsonic-sonos-api</module>
+                <module>jpsonic-main</module>
                 <module>install/docker</module>
             </modules>
         </profile>
@@ -318,8 +318,8 @@
             <id>integration-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
-                <module>airsonic-sonos-api</module>
-                <module>airsonic-main</module>
+                <module>jpsonic-sonos-api</module>
+                <module>jpsonic-main</module>
                 <module>install/docker</module>
                 <module>integration-test</module>
             </modules>

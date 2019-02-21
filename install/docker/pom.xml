@@ -4,18 +4,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <relativePath>../../pom.xml</relativePath>
-        <artifactId>airsonic</artifactId>
+        <artifactId>jpsonic</artifactId>
         <version>10.2.1-RELEASE</version>
-        <groupId>org.airsonic.player</groupId>
+        <groupId>com.tesshu.jpsonic.player</groupId>
     </parent>
     <packaging>pom</packaging>
-    <artifactId>airsonic-docker</artifactId>
-    <name>Airsonic Docker Image</name>
+    <artifactId>jpsonic-docker</artifactId>
+    <name>Jpsonic Docker Image</name>
 
     <dependencies>
         <dependency>
-            <groupId>org.airsonic.player</groupId>
-            <artifactId>airsonic-main</artifactId>
+            <groupId>com.tesshu.jpsonic.player</groupId>
+            <artifactId>jpsonic-main</artifactId>
             <version>10.2.1-RELEASE</version>
             <type>war</type>
         </dependency>
@@ -37,7 +37,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>airsonic/airsonic</repository>
+                    <repository>tesshucom/jpsonic</repository>
                     <tag>${project.version}</tag>
                     <retryCount>0</retryCount>
                 </configuration>

@@ -1,5 +1,5 @@
 # Set the location of the standalone war to use
-#JAVA_JAR=/var/airsonic/airsonic.war
+#JAVA_JAR=/var/jpsonic/jpsonic.war
 
 # Set any java opts separated by spaces
 #JAVA_OPTS=-Xmx700m
@@ -14,7 +14,7 @@
 #PORT=8080
 
 # Change the path that is listened on
-#CONTEXT_PATH=/airsonic
+#CONTEXT_PATH=/jpsonic
 
 # Add any java args. These are different than JAVA_OPTS in that 
 # they are passed directly to the program. The default is empty:
