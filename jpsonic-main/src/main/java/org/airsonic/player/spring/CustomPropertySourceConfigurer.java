@@ -20,7 +20,7 @@ public class CustomPropertySourceConfigurer implements
         ApacheCommonsConfigurationService configurationService = new ApacheCommonsConfigurationService();
         ImmutableConfiguration snapshot = configurationService.getImmutableSnapshot();
 
-        PropertySource ps = new CommonsConfigurationPropertySource("airsonic-pre-init-configs", snapshot);
+        PropertySource ps = new CommonsConfigurationPropertySource("jpsonic-pre-init-configs", snapshot);
 
 
         ctx.getEnvironment().getPropertySources().addLast(ps);

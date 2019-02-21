@@ -16,10 +16,10 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Dserver.host=0.0.0.0 \
      -Dserver.port=$JPSONIC_PORT \
      -Dserver.contextPath=$CONTEXT_PATH \
-     -Dairsonic.home=$JPSONIC_DIR/data \
-     -Dairsonic.defaultMusicFolder=$JPSONIC_DIR/music \
-     -Dairsonic.defaultPodcastFolder=$JPSONIC_DIR/podcasts \
-     -Dairsonic.defaultPlaylistFolder=$JPSONIC_DIR/playlists \
+     -Djpsonic.home=$JPSONIC_DIR/data \
+     -Djpsonic.defaultMusicFolder=$JPSONIC_DIR/music \
+     -Djpsonic.defaultPodcastFolder=$JPSONIC_DIR/podcasts \
+     -Djpsonic.defaultPlaylistFolder=$JPSONIC_DIR/playlists \
      -Djava.awt.headless=true \
      "${java_opts_array[@]}" \
      -jar jpsonic.war "$@"

@@ -4,11 +4,11 @@
 # Set any java opts separated by spaces
 #JAVA_OPTS=-Xmx700m
 
-# Set a different location for airsonic home. 
+# Set a different location for jpsonic home. 
 # If this path is /var/libresonic or even contains "libresonic",
 # the data from a previous libresonic can be used as is (i.e. without
 # renaming libresonic.properties,db/libresonic*,etc
-#AIRSONIC_HOME=/var/airsonic
+#JPSONIC_HOME=/var/jpsonic
 
 # Change the port to listen on
 #PORT=8080

@@ -47,7 +47,7 @@ public class TestCaseUtils {
   }
 
   /**
-   * Cleans the AIRSONIC_HOME directory used for tests.
+   * Cleans the JPSONIC_HOME directory used for tests.
    *
    * @throws IOException
      */

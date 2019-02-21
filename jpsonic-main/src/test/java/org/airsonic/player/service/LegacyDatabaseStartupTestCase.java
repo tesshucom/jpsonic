@@ -28,7 +28,7 @@ public class LegacyDatabaseStartupTestCase {
             protected void before() throws Throwable {
                 super.before();
                 String homeParent = TestCaseUtils.jpsonicHomePathForTest();
-                System.setProperty("airsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+                System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
                 TestCaseUtils.cleanJpsonicHomeForTest();
                 File dbDirectory = new File(homeParent, "/db");
                 FileUtils.forceMkdir(dbDirectory);

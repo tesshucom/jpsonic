@@ -53,9 +53,9 @@ import java.util.regex.Pattern;
 @Service
 public class SettingsService {
 
-    // Airsonic home directory.
-    private static final File JPSONIC_HOME_WINDOWS = new File("c:/airsonic");
-    private static final File JPSONIC_HOME_OTHER = new File("/var/airsonic");
+    // Jpsonic home directory.
+    private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
+    private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
 
     // Global settings.
     private static final String KEY_INDEX_STRING = "IndexString";
@@ -265,7 +265,7 @@ public class SettingsService {
 
         File home;
 
-        String overrideHome = System.getProperty("airsonic.home");
+        String overrideHome = System.getProperty("jpsonic.home");
         String oldHome = System.getProperty("libresonic.home");
         if (overrideHome != null) {
             home = new File(overrideHome);
@@ -282,7 +282,7 @@ public class SettingsService {
 
     private static String getFileSystemAppName() {
         String home = getJpsonicHome().getPath();
-        return home.contains("libresonic") ? "libresonic" : "airsonic";
+        return home.contains("libresonic") ? "libresonic" : "jpsonic";
     }
 
     public static String getDefaultJDBCUrl() {
@@ -327,7 +327,7 @@ public class SettingsService {
             boolean success = home.mkdirs();
             if (!success) {
                 String message = "The directory " + home + " does not exist. Please create it and make it writable. " +
-                        "(You can override the directory location by specifying -Dairsonic.home=... when " +
+                        "(You can override the directory location by specifying -Djpsonic.home=... when " +
                         "starting the servlet container.)";
                 throw new RuntimeException(message);
             }
