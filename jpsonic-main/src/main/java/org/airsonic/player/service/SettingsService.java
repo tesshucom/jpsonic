@@ -156,7 +156,7 @@ public class SettingsService {
     private static final String DEFAULT_LOCALE_LANGUAGE = "en";
     private static final String DEFAULT_LOCALE_COUNTRY = "";
     private static final String DEFAULT_LOCALE_VARIANT = "";
-    private static final String DEFAULT_THEME_ID = "default";
+    private static final String DEFAULT_THEME_ID = "jpsonic";
     private static final int DEFAULT_INDEX_CREATION_INTERVAL = 1;
     private static final int DEFAULT_INDEX_CREATION_HOUR = 3;
     private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
@@ -859,7 +859,7 @@ public class SettingsService {
                 }
             } catch (IOException x) {
                 LOG.error("Failed to resolve list of themes.", x);
-                themes.add(new Theme("default", "Airsonic default"));
+                themes.add(new Theme("default", "Jpsonic default"));
             }
         }
         return themes.toArray(new Theme[themes.size()]);
@@ -905,12 +905,12 @@ public class SettingsService {
     }
 
     /**
-     * Returns the "brand" name. Normally, this is just "Airsonic".
+     * Returns the "brand" name. Normally, this is just "Jpsonic".
      *
      * @return The brand name.
      */
     public String getBrand() {
-        return "Airsonic";
+        return "Jpsonic";
     }
 
     /**

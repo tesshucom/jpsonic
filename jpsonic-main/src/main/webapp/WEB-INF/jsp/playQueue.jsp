@@ -562,7 +562,7 @@
     }
 
     function updateWindowTitle(song) {
-        top.document.title = song.title + " - " + song.artist + " - Airsonic";
+        top.document.title = song.title + " - " + song.artist + " - Jpsonic";
     }
 
     function showNotification(song) {

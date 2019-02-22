@@ -6,7 +6,7 @@
 <wml>
 
     <%@ include file="head.jsp" %>
-    <card id="main" title="Airsonic" newcontext="false">
+    <card id="main" title="Jpsonic" newcontext="false">
         <p><small>
 
             <c:choose>
