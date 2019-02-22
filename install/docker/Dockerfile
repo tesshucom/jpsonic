@@ -1,7 +1,7 @@
 FROM alpine:3.6
 
-LABEL description="Airsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
-      url="https://github.com/airsonic/airsonic"
+LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
+      url="https://github.com/tesshucom/jpsonic"
 
 ENV JPSONIC_PORT=4040 JPSONIC_DIR=/jpsonic CONTEXT_PATH=/
 

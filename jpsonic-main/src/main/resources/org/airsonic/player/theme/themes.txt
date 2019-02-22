@@ -6,7 +6,7 @@
 # Author: Sindre Mehus
 
 # The original Airsonic theme.
-default "Airsonic Default" default_light
+default "Airsonic" default_light
 
 # Theme with dark colors.
 midnight "2 Minutes To Midnight" default_dark
@@ -59,3 +59,6 @@ hitech "High-Tech" default_dark
 
 # BUUF Theme by Fractal Systems - Based on icons by Paul Davey aka Mattahan. All rights reserved.
 buuftheme "BUUF Theme" default_dark
+
+# The Jpsonic theme.
+jpsonic "Jpsonic Default" default_light

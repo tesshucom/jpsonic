@@ -74,7 +74,7 @@ public class DLNASettingsController {
         String dlnaServerName = StringUtils.trimToNull(request.getParameter("dlnaServerName"));
         String dlnaBaseLANURL = StringUtils.trimToNull(request.getParameter("dlnaBaseLANURL"));
         if (dlnaServerName == null) {
-            dlnaServerName = "Airsonic";
+            dlnaServerName = "Jpsonic";
         }
 
         upnpService.setMediaServerEnabled(false);

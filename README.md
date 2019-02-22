@@ -1,24 +1,40 @@
 <!--
 # README.md
-# airsonic/airsonic
+# tesshucom/jpsonic
 -->
-Airsonic
+[![Build Status](https://travis-ci.org/tesshucom/jpsonic.svg?branch=master)](https://travis-ci.org/tesshucom/jpsonic)
+
+Jpsonic
 ========
 
-What is Airsonic?
+What is Jpsonic?
 -----------------
 
-Airsonic is a free, web-based media streamer, providing ubiquitous access to your music. Use it to share your music with friends, or to listen to your own music while at work. You can stream to multiple players simultaneously, for instance to one player in your kitchen and another in your living room.
+Jpsonic is a free, web-based media streamer, providing ubiquitous access to your music.
 
-Airsonic is designed to handle very large music collections (hundreds of gigabytes). Although optimized for MP3 streaming, it works for any audio or video format that can stream over HTTP, for instance AAC and OGG. By using transcoder plug-ins, Airsonic supports on-the-fly conversion and streaming of virtually any audio format, including WMA, FLAC, APE, Musepack, WavPack and Shorten.
+Use it to share your music with friends, or to listen to your own music while at work.
 
-If you have constrained bandwidth, you may set an upper limit for the bitrate of the music streams. Airsonic will then automatically resample the music to a suitable bitrate.
+Based on Java technology, Jpsonic runs on most platforms, including Windows, Mac, Linux and Unix variants.
 
-In addition to being a streaming media server, Airsonic works very well as a local jukebox. The intuitive web interface, as well as search and index facilities, are optimized for efficient browsing through large media libraries. Airsonic also comes with an integrated Podcast receiver, with many of the same features as you find in iTunes.
-
-Based on Java technology, Airsonic runs on most platforms, including Windows, Mac, Linux and Unix variants.
+Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
 
 ![Screenshot](contrib/assets/screenshot.png)
+
+Features
+-----------------
+
+The feature is to be able to index Japanese name artists.
+
+For Japanese index creation, in addition to normal processing, processing dedicated to Japanese is required.
+If only normal processing is done, all Japanese name artists are classified as "#".
+As a result, the Japanese could not fully utilize Subsonic or Airsonic's excellent indexing features.
+
+Jpsonic uses [kuromoji](https://github.com/atilika/kuromoji) and performs morphological analysis when scanning media.
+The user does not need to do any special work.
+Just by setting and using the same as Subsonic and Airsonic, you can use Japanese index.
+
+A detailed explanation in Japanese is [here](https://tesshu.com/jpsonic/what-is-jpsonic).
+
 
 History
 -----
@@ -36,14 +52,32 @@ To reiterate this more clearly:
 Airsonic's goal is to provide a full-featured, stable, self-hosted media server
 based on the Subsonic codebase that is free, open source, and community driven.
 
-Pull Requests are always welcome. Keep in mind that we strive to balance
-stability with new features. As such, all Pull Requests are reviewed before
-being merged to ensure we continue to meet our goals.
+<div style="text-align: center;">
+
+![history](contrib/assets/history.png)
+
+</div>
+
+In Japan, Subsonic is famous but Airsonic is not well known yet.
+Jpsonic was created to strengthen Japanese-compatible functions.
+Many Japanese will notice more about Airsonic, which has excellent engineers and a wonderful community.
+
+
+Cherry Blossoms
+-----
+
+The Japanese loved cherry blossoms for hundreds of years.
+
+Please ask the Japanese people "What is a flower?".
+
+The Japanese will answer "Sakura".
+
+During international exchange, Japan frequently plants cherry blossoms to show respect for partners.
 
 License
 -------
 
-Airsonic is free software and licensed under the [GNU General Public License version 3](http://www.gnu.org/copyleft/gpl.html). The code in this repository (and associated binaries) are free of any "license key" or other restrictions. If you wish to thank the maintainer of this repository, please consider a donation to the [Electronic Frontier Foundation](https://supporters.eff.org/donate).
+Jpsonic is free software and licensed under the [GNU General Public License version 3](http://www.gnu.org/copyleft/gpl.html). The code in this repository (and associated binaries) are free of any "license key" or other restrictions.
 
 The [Subsonic source code](https://github.com/airsonic/subsonic-svn) was released under the GPLv3 through version 6.0-beta1. Beginning with 6.0-beta2, source is no longer provided. Binaries of Subsonic are only available under a commercial license. There is a [Subsonic Premium](http://www.subsonic.org/pages/premium.jsp) service which adds functionality not available in Airsonic. Subsonic also offers RPM, Deb, Exe, and other pre-built packages that Airsonic [currently does not](https://github.com/airsonic/airsonic/issues/65).
 
@@ -51,15 +85,23 @@ The [Subsonic source code](https://github.com/airsonic/subsonic-svn) was release
 Usage
 -----
 
-Airsonic can be downloaded from
-[GitHub](https://github.com/airsonic/airsonic/releases).
+Jpsonic can be downloaded from
+[GitHub](https://github.com/tesshucom/jpsonic/releases).
+
+
+Specifications other than Japanese correspond to Airsonic.
 
 Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic.
 
 
+There may be additional explanations that are not important at the [author's site](https://tesshu.com/jpsonic/) in the future.
+However, most are written in Japanese.
+
+
 Community
 ---------
-We have several places outside of github for community discussion, questions, etc:
+
+The roots Airsonic have several places outside of github for community discussion, questions, etc:
 
 - [#airsonic:matrix.org on Matrix](https://matrix.to/#/#airsonic:matrix.org)
 - [#airsonic on IRC](http://webchat.freenode.net?channels=%23airsonic)

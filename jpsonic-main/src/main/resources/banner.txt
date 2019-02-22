@@ -1,10 +1,9 @@
-${AnsiColor.BLUE}           _      ${AnsiColor.BRIGHT_BLACK}                 _          
-${AnsiColor.BLUE}     /\   (_)     ${AnsiColor.BRIGHT_BLACK}                (_)         
-${AnsiColor.BLUE}    /  \   _ _ __ ${AnsiColor.BRIGHT_BLACK} ___  ___  _ __  _  ___     
-${AnsiColor.BLUE}   / /\ \ | | '__|${AnsiColor.BRIGHT_BLACK}/ __|/ _ \| '_ \| |/ __|    
-${AnsiColor.BLUE}  / ____ \| | |   ${AnsiColor.BRIGHT_BLACK}\__ \ (_) | | | | | (__     
-${AnsiColor.BLUE} /_/    \_\_|_|   ${AnsiColor.BRIGHT_BLACK}|___/\___/|_| |_|_|\___|    
-${AnsiColor.BLUE}                  ${AnsiColor.BRIGHT_BLACK}                             
-${AnsiColor.BLUE}                  ${AnsiColor.BRIGHT_BLACK}      ${application.version}
 
+
+   dMMMMMP dMMMMb  .dMMMb  .aMMMb  dMMMMb  dMP .aMMMb 
+      dMP dMP.dMP dMP" VP dMP"dMP dMP dMP amr dMP"VMP 
+     dMP dMMMMP"  VMMMb  dMP dMP dMP dMP dMP dMP      
+dK .dMP dMP     dP .dMP dMP.aMP dMP dMP dMP dMP.aMP   
+VMMMP" dMP      VMMMP"  VMMMP" dMP dMP dMP  VMMMP"    
+                                  ${application.version}
 

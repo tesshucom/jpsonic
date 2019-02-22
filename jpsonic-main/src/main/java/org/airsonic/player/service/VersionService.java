@@ -49,7 +49,7 @@ import java.util.regex.Pattern;
 
 /**
  * Provides version-related services, including functionality for determining whether a newer
- * version of Airsonic is available.
+ * version of Jpsonic is available.
  *
  * @author Sindre Mehus
  */
@@ -76,26 +76,26 @@ public class VersionService {
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
     /**
-     * Returns the version number for the locally installed Airsonic version.
+     * Returns the version number for the locally installed Jpsonic version.
      *
-     * @return The version number for the locally installed Airsonic version.
+     * @return The version number for the locally installed Jpsonic version.
      */
     public synchronized Version getLocalVersion() {
         if (localVersion == null) {
             try {
                 localVersion = new Version(readLineFromResource("/version.txt"));
-                LOG.info("Resolved local Airsonic version to: " + localVersion);
+                LOG.info("Resolved local Jpsonic version to: " + localVersion);
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Airsonic version.", x);
+                LOG.warn("Failed to resolve local Jpsonic version.", x);
             }
         }
         return localVersion;
     }
 
     /**
-     * Returns the version number for the latest available Airsonic final version.
+     * Returns the version number for the latest available Jpsonic final version.
      *
-     * @return The version number for the latest available Airsonic final version, or <code>null</code>
+     * @return The version number for the latest available Jpsonic final version, or <code>null</code>
      *         if the version number can't be resolved.
      */
     public synchronized Version getLatestFinalVersion() {
@@ -104,9 +104,9 @@ public class VersionService {
     }
 
     /**
-     * Returns the version number for the latest available Airsonic beta version.
+     * Returns the version number for the latest available Jpsonic beta version.
      *
-     * @return The version number for the latest available Airsonic beta version, or <code>null</code>
+     * @return The version number for the latest available Jpsonic beta version, or <code>null</code>
      *         if the version number can't be resolved.
      */
     public synchronized Version getLatestBetaVersion() {
@@ -115,9 +115,9 @@ public class VersionService {
     }
 
     /**
-     * Returns the build date for the locally installed Airsonic version.
+     * Returns the build date for the locally installed Jpsonic version.
      *
-     * @return The build date for the locally installed Airsonic version, or <code>null</code>
+     * @return The build date for the locally installed Jpsonic version, or <code>null</code>
      *         if the build date can't be resolved.
      */
     public synchronized Date getLocalBuildDate() {
@@ -126,16 +126,16 @@ public class VersionService {
                 String date = readLineFromResource("/build_date.txt");
                 localBuildDate = DATE_FORMAT.parse(date);
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Airsonic build date.", x);
+                LOG.warn("Failed to resolve local Jpsonic build date.", x);
             }
         }
         return localBuildDate;
     }
 
     /**
-     * Returns the build number for the locally installed Airsonic version.
+     * Returns the build number for the locally installed Jpsonic version.
      *
-     * @return The build number for the locally installed Airsonic version, or <code>null</code>
+     * @return The build number for the locally installed Jpsonic version, or <code>null</code>
      *         if the build number can't be resolved.
      */
     public synchronized String getLocalBuildNumber() {
@@ -143,16 +143,16 @@ public class VersionService {
             try {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Airsonic build number.", x);
+                LOG.warn("Failed to resolve local Jpsonic build number.", x);
             }
         }
         return localBuildNumber;
     }
 
     /**
-     * Returns whether a new final version of Airsonic is available.
+     * Returns whether a new final version of Jpsonic is available.
      *
-     * @return Whether a new final version of Airsonic is available.
+     * @return Whether a new final version of Jpsonic is available.
      */
     public boolean isNewFinalVersionAvailable() {
         Version latest = getLatestFinalVersion();
@@ -166,9 +166,9 @@ public class VersionService {
     }
 
     /**
-     * Returns whether a new beta version of Airsonic is available.
+     * Returns whether a new beta version of Jpsonic is available.
      *
-     * @return Whether a new beta version of Airsonic is available.
+     * @return Whether a new beta version of Jpsonic is available.
      */
     public boolean isNewBetaVersionAvailable() {
         Version latest = getLatestBetaVersion();
@@ -218,17 +218,17 @@ public class VersionService {
                 lastVersionFetched = now;
                 readLatestVersion();
             } catch (Exception x) {
-                LOG.warn("Failed to resolve latest Airsonic version.", x);
+                LOG.warn("Failed to resolve latest Jpsonic version.", x);
             }
         }
     }
 
     private final String JSON_PATH = "$..tag_name";
     private final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
-    private static final String VERSION_URL = "https://api.github.com/repos/airsonic/airsonic/releases";
+    private static final String VERSION_URL = "https://api.github.com/repos/tesshucom/jpsonic/releases";
 
     /**
-     * Resolves the latest available Airsonic version by inspecting github.
+     * Resolves the latest available Jpsonic version by inspecting github.
      */
     private void readLatestVersion() throws IOException {
 

@@ -1,5 +1,5 @@
 <!--
-Thanks for reporting a problem with Airsonic! Please complete all of the
+Thanks for reporting a problem with Jpsonic! Please complete all of the
 following sections to make it easier to assist you.
 -->
 
@@ -21,12 +21,12 @@ files, ensure you are legally permitted to share copies!*
 
 ## System information
 
- * **Airsonic version**: *the version listed on the About page*
- * **Operating system**: *the operating system you're running Airsonic on.
+ * **Jpsonic version**: *the version listed on the About page*
+ * **Operating system**: *the operating system you're running Jpsonic on.
    Linux, what distribution; Windows or Mac, what version?*
- * **Proxy server**: *if running Airsonic behind a proxy, what server and
+ * **Proxy server**: *if running Jpsonic behind a proxy, what server and
    version? Otherwise,* None
- * **Client**: *what browser and version you use to access the Airsonic web
+ * **Client**: *what browser and version you use to access the Jpsonic web
    interface, or the name and version of another app you're using.*
 
 ## Additional notes
