@@ -1,190 +1,98 @@
 <!--
 # CHANGELOG.md
-# airsonic/airsonic
+# tesshucom/jpsonic
 # -->
 
-## v10.2.1
+## v2.3.0
 
-Security:
-  * CVE-2018-20222 Prevent xxe during parse
+  * Security update (stax:CVE-2018-1000840)
+  * Fix for embedded Jetty compilation for evaluation purposes.
+  * Based on airsonic e4bb808 (2019-2) Pull translations from transifex.
 
-## v10.2.0
+## v2.2.6
 
-Fixes:
-  * Fix #658 again: content type for unscaled images set based on jaudiotagger output
-  * Reverted a93a18a and properly re-encoded with 'native2ascii -encoding UTF-8'
-  * fix issues #638 and #574
-  * Fix #596 SubStandard theme includes old Subsonic Logo
-  * Fix themes using dark background with me\_js
-  * Remove potential cast exception
-  * Fixed github link opening in frame and not loading
-  * Correct corrupted downloaded zip
-  * Fix #778: Defragment embedded HSQLDB database more frequently
-  * PlayQueue: Fix broken keyboard shortcuts
-  * Fix #860 (external database performance) by using connection pooling … (#864)
+  * Security update (jackson-databind:CVE-2018-19360 - CVE-2018-19362, CVE-2018-14718 - CVE-2018-14721)
+  * Based on airsonic adc2241 (2019-1) Fix broken keyboard shortcuts, defrag on HSQLDB, connection pooling for external database etc.
 
+## v2.2.5
 
-Changes:
-  * Made it easier to see current playing song for dark themes
-  * Spring Boot 1.5.18
-  * New add\_album to play queue
-  * Remove margin of media\_control bar
-  * Update to 3.3.0 java-jwt
-  * catch exceptions ClientAbortException display a short message and return, to avoid the massive useless traceback in log
-  * Update cxf to 3.1.15
-  * Issue #164: Show link to MusicBrainz release on album pages
-  * Handle player id as an Integer instead of Strin
-  * Add Docker health check
-  * Use dark media player theme on groove theme (#777)
-  * Change to optional reCAPTCHA v2
-  * Optionally parse podcast episode duration in seconds to [hh:]mm:ss
-  * Add option to disable seeking on transcodes. (Mitigates #548 & #723)
-  * White list jars that are scanned for tlds to prevent spurious logs
-  * Tweaked logging around servlet container and added warning about jetty
-  * Add extended favicons
-  * Display folders as a list in Settings-\>Users and include the path.
-  * Add 32x32 pixeled favicon / updated favicons in webapp
-  * Updated internal maven plugins
+  * Security update (guava:CVE-2018-10237)
+  * Suppress CVE by false positives(stax:CVE-2017-16224, slf4j:CVE-2018-8088)
+  * Localization of version check. Changed Jpsonic update to notify management screen
+  * Based on airsonic 77ca475 (2018-12) Screen modification, updating of various libraries, modification of test content, etc.
+   - Modification of partial wording accompanying cleanup of overall translation
+   - Image replacement related to adding icons for various devices
 
+## v2.2.4
 
-Translation Updates:
-  * Fixed elipse in english translation
+  * Fixed a bug where part of the start argument was not correctly recognized
+	(jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
+  * Introduction of Airsonic integration test using Docker
 
-Security:
-  * Fix #749 Ensure transcode settings are protected
-  * Bump version of guava to deal with CVE-2018-10237
-  * Update jackson version
-  * Fix #764 LDAP Login allows unauthenticated access
+## v2.2.3
 
-Not Fixed:
-  * #685 - transcoding length issue
+  * Security update for cxf(CVE-2018-8039)
+  * Based on airsonic 685f4fa (2018-10)
 
-## v10.1.2
+## v2.2.2
 
-Fixes:
-  * Fix LDAP authentication bypass
+  * Improvement of Japanese Song search accuracy.
+  * Random search fault correction.
+  * Based on airsonic 8ba0bc8 (2018-8)
 
-## v10.1.1
+## v2.2.1
 
-Changes:
-  * Add show-all button on artist landing page
-  * Upgrade jaudiotagger to 2.2.5 supporting Java 9
+  * Security fix (LDAP authentication without a password).
+  * Based upon Airsonic 10.2.0-SNAPSHOT f6905de(2018-8)
+  * Start build test with travis.
 
-Fixes:
-  * DLNA Recent Albums is just listing albums
-  * NPE in docker container
-  * Substandard theme css
-  * Build error causing Jetty to be default container (should be Tomcat)
+## v2.2
 
-Translation Updates:
-  * English language cleanup
+  * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
+  * Added index rebuilding process after scanning.
+  * Based upon Airsonic 10.2.0-SNAPSHOT 8d3c0ec(2018-7)
 
-## v10.1.0
+## v2.1
 
-Changes:
-  * New Jukebox player using javasound api
-  * Localize artist bios from last.fm
-  * Use `ffprobe` and not `ffmpeg` to scrape metadata
-  * Added options for excluding files during scan (symlinks and regex)
-  * Add "opus" and "mka" extension to default extension list
+  * Update of lucene-core(3.0.3 -> 7.4.0).
+  * Simple Japanese phrase search.
 
-Fixes:
-  * Error message readability
-  * Adding album comment
-  * Subsonic API wrong error behavior for getAlbumList
-  * Stop airsonic from creating double slashes in urls.
-  * Search csrf timeout/expiration
-  
-Security:
-  * CVE-2014-3004 - XML playlist parsing
+## v2.0
 
-Translation Updates:
-  * English
+  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
 
-## v10.0.1
+## v2.0
 
-Note that with this release, the jdbc-extra flavored war is now the default and only war.
+  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
 
-  * Translation updates for French, Bulgarian, German, Italian, Spanish,
-  * Docker image tweaks
-  * Some light cleanup/refactorings
-  * Fixed password reset
-  * Fixed broken liquibase when airsonic.defaultMusicFolder is modified
+## v1.3
 
-## v10.0.0
+  * It corresponds to ALBUM_SORT
+  * Final release based upon Airsonic 10.1.1-RELEASE
 
-  * Rebranded to Airsonic
-  * Replaced JWplayer with MediaElement.js (HTML5 player)
-  * Upgraded to Subsonic API version 1.15
-  * Added official Docker image
-  * Added Airsonic to a Translation service (Weblate)
-  * Some translations updates (English, French, German, and Russian)
-  * New login page
-  * Added additional war with builtin support for external databases
-  * Improved playlist handling
-  * DLNA browsing improvements
-  * Small fixes and improvements
+## v1.2.2
 
-## v6.2
+  * It corresponds to ARTIST_SORT, ALBUM_ARTIST_SORT
+  * Fixed a bug that caused case ignoring excessively. (Alphabet is originally A-Za-z)
 
-  * Small fixes
-  * Release only a month behind schedule! We're improving!
+## v1.2.1
 
-## v6.2.beta4
+  * Fixed bug related to sort of id 3
 
-  * Final fixes in Beta! Release soon
+## v1.2
 
-## v6.2.beta3
+  * Supports sorting using not only morphological analysis but also tag analysis
 
-  * API endpoint security tightening
-  * More documentation
-  * Less licensing code
-  * More cowbell
+## v1.1
 
-## v6.2.beta2
+  * Japanese index / Artist sort (id3)
+  * Duplicate records may be included in getAlbunList Fixed a problem
+  * Change DLNA icon
 
-  * Add database settings UI
-  * Documentation improvements
-  * Lots of spit and polish
+## v1.0
 
-## v6.2.beta1
-
-  * Add external database support
-  * Upgrade to new version of Spring
-  * Replace subsonic-booter with Spring Boot
-  * Remove remote-access service and port-forwarding
-  * Remove vestigial Subsonic licensing calls
-  * Add a demo site
-  * Tests and bugfixes and documentation, oh my!
-
-## v6.1
-
-  * First real stable release!
-
-## v6.1.beta2
-
-  * Metaproject: Jenkins builds!
-  * More documentation
-  * Translation updates
-  * Improve shuffling behaviour
-  * Lots of small fixes, many more to come
-
-## v6.1.beta1
-
-  * Meant as a release candidate; failed to make it past the Primary election.
-
-## v6.1-alpha1
-
-  * Search+replace subsonic-->libresonic
-  * Move out of org.sourceforge.subsonic namespace
-  * Develop becomes horribly unstable, you shouldn't be using this.
-
-## v6.0.1
-
-  * First recommended release
-  * Updated Help/About page text
-
-## v6.0
-
-  * First release as Libresonic
-  * Based upon Subsonic 5.3(stable)
+  * Japanese index / Artist sort (File structure)
+  * Fixed bug in Lang of biography
+  * Default Japanese
+  * First release as Jpsonic
+  * Based upon Airsonic 10.1.1-RELEASE
