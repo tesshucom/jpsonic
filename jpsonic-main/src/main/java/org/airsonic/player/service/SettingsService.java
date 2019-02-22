@@ -142,19 +142,12 @@ public class SettingsService {
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
     private static final int DEFAULT_COVER_ART_CONCURRENCY = 4;
-    private static final String DEFAULT_WELCOME_TITLE = "Welcome to Airsonic!";
+    private static final String DEFAULT_WELCOME_TITLE = "\u30db\u30fc\u30e0";
     private static final String DEFAULT_WELCOME_SUBTITLE = null;
-    private static final String DEFAULT_WELCOME_MESSAGE = "__Welcome to Airsonic!__\n" +
-            "\\\\ \\\\\n" +
-            "Airsonic is a free, web-based media streamer, providing ubiquitous access to your music. \n" +
-            "\\\\ \\\\\n" +
-            "Use it to share your music with friends, or to listen to your own music while at work. You can stream to multiple " +
-            "players simultaneously, for instance to one player in your kitchen and another in your living room.\n" +
-            "\\\\ \\\\\n" +
-            "To change or remove this message, log in with administrator rights and go to {link:Settings > General|generalSettings.view}.";
+    private static final String DEFAULT_WELCOME_MESSAGE = null;
     private static final String DEFAULT_LOGIN_MESSAGE = null;
-    private static final String DEFAULT_LOCALE_LANGUAGE = "en";
-    private static final String DEFAULT_LOCALE_COUNTRY = "";
+    private static final String DEFAULT_LOCALE_LANGUAGE = "ja";
+    private static final String DEFAULT_LOCALE_COUNTRY = "jp";
     private static final String DEFAULT_LOCALE_VARIANT = "";
     private static final String DEFAULT_THEME_ID = "jpsonic";
     private static final int DEFAULT_INDEX_CREATION_INTERVAL = 1;
