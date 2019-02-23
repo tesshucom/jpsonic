@@ -40,7 +40,7 @@ import java.util.*;
 public class ArtistDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtistDao.class);
-    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id";
+    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, reading, sort";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
@@ -97,14 +97,16 @@ public class ArtistDao extends AbstractDao {
                      "album_count=?," +
                      "last_scanned=?," +
                      "present=?," +
-                     "folder_id=? " +
+                     "folder_id=?," +
+                     "reading=?," +
+                     "sort=? " +
                      "where name=?";
 
-        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getName());
+        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), artist.getName());
 
         if (n == 0) {
             update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                   artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId());
+                   artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort());
         }
 
         int id = queryForInt("select id from artist where name=?", null, artist.getName());
@@ -208,7 +210,9 @@ public class ArtistDao extends AbstractDao {
                     rs.getInt(4),
                     rs.getTimestamp(5),
                     rs.getBoolean(6),
-                    rs.getInt(7));
+                    rs.getInt(7),
+                    rs.getString(8),
+                    rs.getString(9));
         }
     }
 }

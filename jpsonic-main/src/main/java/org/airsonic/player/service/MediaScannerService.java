@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.service.MediaFileJPSupport;
+
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
@@ -66,6 +68,8 @@ public class MediaScannerService {
     @Autowired
     private AlbumDao albumDao;
     private int scanCount;
+    @Autowired
+    private MediaFileJPSupport mediaFileJPSupport;
 
     @PostConstruct
     public void init() {
@@ -224,6 +228,7 @@ public class MediaScannerService {
             mediaFileService.setMemoryCacheEnabled(true);
             searchService.stopIndexing();
             scanning = false;
+            mediaFileJPSupport.clear();
         }
     }
 
@@ -350,6 +355,8 @@ public class MediaScannerService {
             artist = new Artist();
             artist.setName(file.getAlbumArtist());
         }
+        mediaFileJPSupport.analyzeNameReading(artist);
+        artist.setSort(file.getAlbumArtistSort());
         if (artist.getCoverArtPath() == null) {
             MediaFile parent = mediaFileService.getParentOf(file);
             if (parent != null) {

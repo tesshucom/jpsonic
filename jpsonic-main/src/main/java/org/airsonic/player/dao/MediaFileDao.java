@@ -46,12 +46,13 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
-                                                "version, mb_release_id";
+                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    public static final int VERSION = 4;
+    private static final int JP_VERSION = 4;
+    public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
     private final RowMapper musicFileInfoRowMapper = new MusicFileInfoMapper();
@@ -164,6 +165,12 @@ public class MediaFileDao extends AbstractDao {
                      "children_last_updated=?," +
                      "present=?, " +
                      "version=?, " +
+                     "artist_reading=?, " +
+                     "title_sort=?, " +
+                     "album_sort=?, " +
+                     "artist_sort=?, " +
+                     "album_artist_sort=?, " +
+                     "album_reading=?, " +
                      "mb_release_id=? " +
                      "where path=?";
 
@@ -174,7 +181,14 @@ public class MediaFileDao extends AbstractDao {
                        file.getAlbumArtist(), file.getDiscNumber(), file.getTrackNumber(), file.getYear(), file.getGenre(), file.getBitRate(),
                        file.isVariableBitRate(), file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                        file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
-                       file.getChanged(), file.getLastScanned(), file.getChildrenLastUpdated(), file.isPresent(), VERSION,
+                       file.getChanged(), file.getLastScanned(), file.getChildrenLastUpdated(), file.isPresent(),
+                       VERSION,
+                       file.getArtistReading(),
+                       file.getTitleSort(),
+                       file.getAlbumSort(),
+                       file.getArtistSort(),
+                       file.getAlbumArtistSort(),
+                       file.getAlbumReading(),
                        file.getMusicBrainzReleaseId(), file.getPath());
 
         if (n == 0) {
@@ -193,7 +207,9 @@ public class MediaFileDao extends AbstractDao {
                    file.isVariableBitRate(), file.getDurationSeconds(), file.getFileSize(), file.getWidth(), file.getHeight(),
                    file.getCoverArtPath(), file.getParentPath(), file.getPlayCount(), file.getLastPlayed(), file.getComment(),
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
-                   file.getChildrenLastUpdated(), file.isPresent(), VERSION, file.getMusicBrainzReleaseId());
+                   file.getChildrenLastUpdated(), file.isPresent(), VERSION,
+                   file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort(), file.getAlbumReading(),
+                   file.getMusicBrainzReleaseId());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -721,7 +737,13 @@ public class MediaFileDao extends AbstractDao {
                     rs.getTimestamp(28),
                     rs.getBoolean(29),
                     rs.getInt(30),
-                    rs.getString(31));
+                    rs.getString(31),
+                    rs.getString(32),
+                    rs.getString(33),
+                    rs.getString(34),
+                    rs.getString(35),
+                    rs.getString(36),
+                    rs.getString(37));
         }
     }
 
