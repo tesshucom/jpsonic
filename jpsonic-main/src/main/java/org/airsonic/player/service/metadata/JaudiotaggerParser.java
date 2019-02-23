@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.service.metadata;
 
+import com.tesshu.jpsonic.tagger.tag.FieldKeyExtension;
+
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;
@@ -98,6 +100,10 @@ public class JaudiotaggerParser extends MetaDataParser {
                 String albumArtist = getTagField(tag, FieldKey.ALBUM_ARTIST);
                 metaData.setArtist(StringUtils.isBlank(songArtist) ? albumArtist : songArtist);
                 metaData.setAlbumArtist(StringUtils.isBlank(albumArtist) ? songArtist : albumArtist);
+                metaData.setArtistSort(getTagField(tag, FieldKeyExtension.ARTISTSORT));
+                metaData.setAlbumSort(getTagField(tag, FieldKeyExtension.ALBUMSORT));
+                metaData.setTitleSort(getTagField(tag, FieldKeyExtension.TITLESORT));
+                metaData.setAlbumArtistSort(getTagField(tag, FieldKeyExtension.ALBUMARTISTSORT));
             }
 
             AudioHeader audioHeader = audioFile.getAudioHeader();
@@ -118,6 +124,15 @@ public class JaudiotaggerParser extends MetaDataParser {
     private String getTagField(Tag tag, FieldKey fieldKey) {
         try {
             return StringUtils.trimToNull(tag.getFirst(fieldKey));
+        } catch (Exception x) {
+            // Ignored.
+            return null;
+        }
+    }
+
+    private String getTagField(Tag tag, FieldKeyExtension fieldKey) {
+        try {
+            return StringUtils.trimToNull(tag.getFirst(fieldKey.name()));
         } catch (Exception x) {
             // Ignored.
             return null;

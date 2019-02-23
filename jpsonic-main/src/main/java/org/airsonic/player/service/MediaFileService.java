@@ -19,8 +19,11 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.service.MediaFileJPSupport;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
@@ -66,6 +69,8 @@ public class MediaFileService {
     @Autowired
     private MetaDataParserFactory metaDataParserFactory;
     private boolean memoryCacheEnabled = true;
+    @Autowired
+    private MediaFileJPSupport mediaFileJPSupport;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -503,7 +508,13 @@ public class MediaFileService {
                 mediaFile.setVariableBitRate(metaData.getVariableBitRate());
                 mediaFile.setHeight(metaData.getHeight());
                 mediaFile.setWidth(metaData.getWidth());
+                mediaFile.setTitleSort(metaData.getTitleSort());
+                mediaFile.setAlbumSort(metaData.getAlbumSort());
+                mediaFile.setArtistSort(metaData.getArtistSort());
+                mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+                mediaFileJPSupport.analyzeArtistReading(mediaFile);
+                mediaFileJPSupport.analyzeArtistSort(mediaFile);
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -549,6 +560,8 @@ public class MediaFileService {
                 } else {
                     mediaFile.setArtist(file.getName());
                 }
+                mediaFileJPSupport.analyzeArtistReading(mediaFile);
+                mediaFileJPSupport.analyzeAlbumReading(mediaFile);
             }
         }
 
