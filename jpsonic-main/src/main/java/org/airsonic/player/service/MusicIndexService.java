@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.service.MediaFileJPSupport;
+
 import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.util.FileUtil;
@@ -43,6 +45,8 @@ public class MusicIndexService {
     private SettingsService settingsService;
     @Autowired
     private MediaFileService mediaFileService;
+    @Autowired
+    private MediaFileJPSupport mediaFileJPSupport;
 
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
@@ -177,7 +181,7 @@ public class MusicIndexService {
                     continue;
                 }
 
-                String sortableName = createSortableName(child.getName(), ignoredArticles);
+                String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(child), ignoredArticles);
                 MusicIndex.SortableArtistWithMediaFiles artist = artistMap.get(sortableName);
                 if (artist == null) {
                     artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, collator);
@@ -195,7 +199,7 @@ public class MusicIndexService {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Collator collator = createCollator();
         for (Artist artist : artists) {
-            String sortableName = createSortableName(artist.getName(), ignoredArticles);
+            String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
             result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, collator));
         }
 

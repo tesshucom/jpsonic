@@ -41,7 +41,7 @@ import java.util.*;
 public class AlbumDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, " +
                                           "year, genre, play_count, last_played, comment, created, last_scanned, present, " +
-                                          "folder_id, mb_release_id";
+                                          "folder_id, artist_sort, name_sort, mb_release_id";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
@@ -129,19 +129,21 @@ public class AlbumDao extends AbstractDao {
                      "last_scanned=?," +
                      "present=?, " +
                      "folder_id=?, " +
+                     "artist_sort=?, " +
+                     "name_sort=?, " +
                      "mb_release_id=? " +
                      "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(),
                        album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(), album.getArtist(), album.getName());
+                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistSort(), album.getNameSort(), album.getMusicBrainzReleaseId(), album.getArtist(), album.getName());
 
         if (n == 0) {
 
             update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")", album.getPath(),
                    album.getName(), album.getArtist(), album.getSongCount(), album.getDurationSeconds(),
                    album.getCoverArtPath(), album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
-                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId());
+                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistSort(), album.getNameSort(), album.getMusicBrainzReleaseId());
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(), album.getName());
@@ -183,13 +185,13 @@ public class AlbumDao extends AbstractDao {
         }};
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist),  LOWER(name)" : "LOWER(name)";
+            orderBy = byArtist ? "LOWER(coalesce(artist_sort, artist)),  LOWER(coalesce(name_sort, name))" : "LOWER(coalesce(name_sort, name))";
         } else {
-            orderBy = byArtist ? "artist, name" : "name";
+            orderBy = byArtist ? "coalesce(artist_sort, artist), coalesce(name_sort, name)" : "coalesce(name_sort, name)";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
-                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+                "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
@@ -407,7 +409,9 @@ public class AlbumDao extends AbstractDao {
                     rs.getTimestamp(14),
                     rs.getBoolean(15),
                     rs.getInt(16),
-                    rs.getString(17));
+                    rs.getString(17),
+                    rs.getString(18),
+                    rs.getString(19));
         }
     }
 }

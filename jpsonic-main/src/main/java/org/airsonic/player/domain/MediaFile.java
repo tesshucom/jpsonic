@@ -67,13 +67,21 @@ public class MediaFile {
     private Date childrenLastUpdated;
     private boolean present;
     private int version;
+    private String artistReading;
+    private String titleSort;
+    private String albumSort;
+    private String artistSort;
+    private String albumArtistSort;
+    private String albumReading;
     private String musicBrainzReleaseId;
 
-    public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
+	public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
-                     Date childrenLastUpdated, boolean present, int version, String musicBrainzReleaseId) {
+                     Date childrenLastUpdated, boolean present, int version,
+                     String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading,
+                     String musicBrainzReleaseId) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -104,6 +112,11 @@ public class MediaFile {
         this.childrenLastUpdated = childrenLastUpdated;
         this.present = present;
         this.version = version;
+        this.artistReading = artistReading;
+        this.titleSort = titleSort;
+        this.albumSort = albumSort;
+        this.artistSort = artistSort;
+        this.albumReading = albumReading;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
@@ -452,8 +465,56 @@ public class MediaFile {
         // TODO: Optimize
         return coverArtPath == null ? null : new File(coverArtPath);
     }
+    
+	public String getArtistReading() {
+		return artistReading;
+	}
 
-    @Override
+	public void setArtistReading(String artistReading) {
+		this.artistReading = artistReading;
+	}
+	
+    public String getTitleSort() {
+		return titleSort;
+	}
+
+	public void setTitleSort(String titleSort) {
+		this.titleSort = titleSort;
+	}
+
+	public String getAlbumSort() {
+		return albumSort;
+	}
+
+	public void setAlbumSort(String albumSort) {
+		this.albumSort = albumSort;
+	}
+
+	public String getArtistSort() {
+		return artistSort;
+	}
+
+	public void setArtistSort(String artistSort) {
+		this.artistSort = artistSort;
+	}
+	
+	public String getAlbumArtistSort() {
+		return albumArtistSort;
+	}
+
+	public void setAlbumArtistSort(String albumArtistSort) {
+		this.albumArtistSort = albumArtistSort;
+	}
+
+	public String getAlbumReading() {
+		return albumReading;
+	}
+
+	public void setAlbumReading(String albumReading) {
+		this.albumReading = albumReading;
+	}
+
+	@Override
     public String toString() {
         return getName();
     }

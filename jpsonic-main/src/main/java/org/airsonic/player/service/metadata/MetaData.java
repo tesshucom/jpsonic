@@ -38,6 +38,10 @@ public class MetaData {
     private Integer durationSeconds;
     private Integer width;
     private Integer height;
+    private String titleSort;
+    private String albumSort;
+    private String artistSort;
+    private String albumArtistSort;
     private String musicBrainzReleaseId;
 
     public Integer getDiscNumber() {
@@ -142,6 +146,38 @@ public class MetaData {
 
     public void setHeight(Integer height) {
         this.height = height;
+    }
+
+    public String getTitleSort() {
+        return titleSort;
+    }
+
+    public void setTitleSort(String titleSort) {
+        this.titleSort = titleSort;
+    }
+
+    public String getAlbumSort() {
+        return albumSort;
+    }
+
+    public void setAlbumSort(String albumSort) {
+        this.albumSort = albumSort;
+    }
+
+    public String getArtistSort() {
+        return artistSort;
+    }
+
+    public void setArtistSort(String artistRort) {
+        this.artistSort = artistRort;
+    }
+
+    public String getAlbumArtistSort() {
+        return albumArtistSort;
+    }
+
+    public void setAlbumArtistSort(String albumArtistSort) {
+        this.albumArtistSort = albumArtistSort;
     }
 
     public String getMusicBrainzReleaseId() {
