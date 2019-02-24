@@ -217,6 +217,12 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
+            // Update artistSort
+            mediaFileService.updateArtistSort();
+
+            // Update albumSort
+            mediaFileService.updateAlbumSort();
+
             settingsService.setMediaLibraryStatistics(statistics);
             settingsService.setLastScanned(lastScanned);
             settingsService.save(false);

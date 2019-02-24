@@ -185,13 +185,13 @@ public class AlbumDao extends AbstractDao {
         }};
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist),  LOWER(name)" : "LOWER(name)";
+            orderBy = byArtist ? "LOWER(coalesce(artist_sort, artist)),  LOWER(coalesce(name_sort, name))" : "LOWER(coalesce(name_sort, name))";
         } else {
-            orderBy = byArtist ? "artist, name" : "name";
+            orderBy = byArtist ? "coalesce(artist_sort, artist), coalesce(name_sort, name)" : "coalesce(name_sort, name)";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
-                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+                "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
