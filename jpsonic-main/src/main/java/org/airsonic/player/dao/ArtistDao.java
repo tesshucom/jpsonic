@@ -20,6 +20,7 @@
 package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +45,7 @@ public class ArtistDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
+    private final RowMapper sortCandidateMapper = new SortCandidateMapper();
 
     /**
      * Returns the artist with the given name.
@@ -132,8 +134,8 @@ public class ArtistDao extends AbstractDao {
         }};
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                          "order by name limit :count offset :offset", rowMapper, args);
-    }
+                "order by coalesce(sort, reading, name) limit :count offset :offset", rowMapper, args);
+}
 
     /**
      * Returns the most recently starred artists.
@@ -213,6 +215,43 @@ public class ArtistDao extends AbstractDao {
                     rs.getInt(7),
                     rs.getString(8),
                     rs.getString(9));
+        }
+    }
+
+	public void clearSort() {
+		update("update artist set sort = null");
+	}
+
+	public List<Artist> getSortCandidate() {
+        return query("select distinct a.name ,m.album_artist_sort from artist a \n" +
+        		" join media_file m " +
+        		" on a.name = m.album_artist " +
+        		" where  " +
+        		" a.reading is not null and a.sort is null " +
+        		" and a.present and m.present and m.type=? " +
+        		" and m.album_artist_sort is not null " +
+        		" and m.artist_sort <> m.album_artist_sort " +
+        		" and a.reading <> m.album_artist_sort " +
+        		" and m.album_artist = a.name ",
+        		sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
+	}
+
+	public List<Artist> getSortedArtists() {
+        return query("select " + QUERY_COLUMNS +
+        		" from artist" +
+        		" where" +
+        		" reading is not null" +
+        		" or sort is not null" +
+        		" and present",
+        		rowMapper);
+	}
+
+	private static class SortCandidateMapper implements RowMapper<Artist> {
+        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
+        	Artist artist = new Artist();
+        	artist.setName(rs.getString(1));
+        	artist.setSort(rs.getString(2));
+            return artist;
         }
     }
 }
