@@ -23,45 +23,53 @@ Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
 Features
 -----------------
 
-The feature is to be able to index Japanese name artists.
+Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
+The default language is set to JP so as to be intimate with Japanese people, but you can use other languages ​​depending on your choice.
 
-For Japanese index creation, in addition to normal processing, processing dedicated to Japanese is required.
-If only normal processing is done, all Japanese name artists are classified as "#".
-As a result, the Japanese could not fully utilize Subsonic or Airsonic's excellent indexing features.
+### index
 
-Jpsonic uses [kuromoji](https://github.com/atilika/kuromoji) and performs morphological analysis when scanning media.
-The user does not need to do any special work.
-Just by setting and using the same as Subsonic and Airsonic, you can use Japanese index.
+Many character types such as alphabet / hiragana / katakana / kanji / symbols are used in Japanese.
+Jpsonic correctly classifies them and creates a Japanese index.
+It is a very general and easy-to-understand index for Japanese people, just like Japanese dictionaries, bank branch names, telephone directories and karaoke indexes.
 
-A detailed explanation in Japanese is [here](https://tesshu.com/jpsonic/what-is-jpsonic).
+![Screenshot](contrib/assets/jp-index.png)
 
+### sort
+
+Sort by name is expanded to allow for Japanese character string sorting.
+Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
+
+![Screenshot](contrib/assets/jp-sort.png)
+
+These are solved by two ways of the server's Japanese analysis function and tag reading.
+Therefore, not only can you handle files using CDDB perfectly.
+It is also possible to mix it with "old format files" or "raw Japanese name files / directories that are not tag edited".
+
+### search
+
+In addition to regular Japanese phrase search, artists can also use phonetic search and forward match.
+
+![Screenshot](contrib/assets/jp-search.jpg)
+
+In general, Japanese people are unconsciously doing work of inputting phonetically and then IME conversion to an appropriate character type.
+Jpsonic allows candidate searching during Japanese IME conversion.
 
 History
 -----
 
-The original [Subsonic](http://www.subsonic.org/) is developed by [Sindre Mehus](mailto:sindre@activeobjects.no). Subsonic was open source through version 6.0-beta1, and closed-source from then onwards.
+The original *[Subsonic](http://www.subsonic.org/)* is developed by [Sindre Mehus](mailto:sindre@activeobjects.no). *Subsonic* was open source through version 6.0-beta1, and closed-source from then onwards.
 
-Libresonic was created and maintained by [Eugene E. Kashpureff Jr](mailto:eugene@kashpureff.org). It originated as an unofficial("Kang") of Subsonic which did not contain the Licensing code checks present in the official builds. With the announcement of Subsonic's closed-source future, a decision was made to make a full fork and rebrand to Libresonic.
+*Libresonic* was created and maintained by [Eugene E. Kashpureff Jr](mailto:eugene@kashpureff.org). It originated as an unofficial("Kang") of Subsonic which did not contain the Licensing code checks present in the official builds. With the announcement of Subsonic's closed-source future, a decision was made to make a full fork and rebrand to Libresonic.
 
-Around July 2017, it was discovered that Eugene had different intentions/goals
-for the project than some contributors had.  Although the developers were
-hesitant to create a fork as it would fracture/confuse the community even
-further, it was deemed necessary in order to preserve a community-focused fork.
-To reiterate this more clearly:
+Around July 2017, it was discovered that Eugene had different intentions/goals for the project than some contributors had. 
+*Airsonic* was created in order to provide a full-featured, stable, self-hosted media server based on the Subsonic codebase that is free, open source, and community driven.
 
-Airsonic's goal is to provide a full-featured, stable, self-hosted media server
-based on the Subsonic codebase that is free, open source, and community driven.
-
-<div style="text-align: center;">
+Around July 2018, *Jpsonic* was created in order to strengthen browsing and searching in Japanese which is a weak point since *Subsonic*.
 
 ![history](contrib/assets/history.png)
 
-</div>
-
 In Japan, Subsonic is famous but Airsonic is not well known yet.
-Jpsonic was created to strengthen Japanese-compatible functions.
 Many Japanese will notice more about Airsonic, which has excellent engineers and a wonderful community.
-
 
 Cherry Blossoms
 -----
@@ -86,17 +94,13 @@ Usage
 -----
 
 Jpsonic can be downloaded from
-[GitHub](https://github.com/tesshucom/jpsonic/releases).
-
+[GitHub](https://github.com/jpsonic/jpsonic/releases).
 
 Specifications other than Japanese correspond to Airsonic.
-
 Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic.
-
 
 There may be additional explanations that are not important at the [author's site](https://tesshu.com/jpsonic/) in the future.
 However, most are written in Japanese.
-
 
 Community
 ---------
