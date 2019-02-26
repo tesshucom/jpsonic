@@ -3,6 +3,12 @@
 # jpsonic/jpsonic
 # -->
 
+## 100.0.0
+
+  * Security update (stax:CVE-2018-20222) Prevent xxe during parse
+  * Based on airsonic 10.2.1-RELEASE.
+  * Jpsonic public repository has been created. The version check and release page has been changed to refer public repository.
+
 ## v2.3.0
 
   * Security update (stax:CVE-2018-1000840)
