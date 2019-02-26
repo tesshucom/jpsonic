@@ -1,6 +1,6 @@
 <!--
 # CHANGELOG.md
-# tesshucom/jpsonic
+# jpsonic/jpsonic
 # -->
 
 ## v2.3.0

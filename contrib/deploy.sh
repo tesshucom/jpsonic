@@ -1,6 +1,6 @@
 #!/bin/bash
 # contrib/deploy.sh
-# tesshucom/jpsonic
+# jpsonic/jpsonic
 #
 # Helper script to shorten dev/build/deployment
 #

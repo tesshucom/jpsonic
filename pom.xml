@@ -51,9 +51,9 @@
     </pluginRepositories>
 
     <scm>
-        <connection>scm:git:git://github.com/tesshucom/jpsonic.git</connection>
+        <connection>scm:git:git://github.com/jpsonic/jpsonic.git</connection>
         <developerConnection>scm:git:git@github.com:tesshucom/jpsonic.git</developerConnection>
-        <url>https://github.com/tesshucom/jpsonic.git</url>
+        <url>https://github.com/jpsonic/jpsonic.git</url>
     </scm>
 
 <!--    <ciManagement>

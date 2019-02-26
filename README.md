@@ -1,6 +1,6 @@
 <!--
 # README.md
-# tesshucom/jpsonic
+# jpsonic/jpsonic
 -->
 [![Build Status](https://travis-ci.org/tesshucom/jpsonic.svg?branch=master)](https://travis-ci.org/tesshucom/jpsonic)
 
