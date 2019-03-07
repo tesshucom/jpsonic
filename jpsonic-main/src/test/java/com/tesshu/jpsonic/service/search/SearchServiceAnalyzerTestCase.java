@@ -28,6 +28,30 @@ import org.apache.lucene.analysis.Analyzer;
 
 import junit.framework.TestCase;
 
+/*
+ * "Impact of lucene update"
+ * 
+ * As of 3.1, StandardTokenizer implements Unicode text segmentation, as specified by UAX#29.
+ * Therefore, when emphasizing maintaining behavior of 3.0,
+ * use Classic Tokenizer instead of StandardTokenizer.
+ * "Which one to use" is not a simple matter.
+ * Both are inadequate parsing and because dedicated analysis is
+ * required to obtain the desired processing.
+ * And that is difficult.
+ * 
+ * "Influence point of UAX#29"
+ * 
+ * If you do lucene update simply, erroneous search increases depending on data.
+ * 
+ * "Jpsonic's method"
+ * 
+ * UAX#29 is used for analysis to create index.
+ * Also, only the artist has registered full name.
+ * 
+ * In the analysis at the time of query generation at the time of search execution,
+ * the method is switched by the input pattern.
+ * There are UAX#29 based queries and WhitespaceTokenizer based queries.
+ */
 public class SearchServiceAnalyzerTestCase extends TestCase {
 
 	@Resource
@@ -37,7 +61,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 	@Override
 	public void setUp() {
-		analyzer = AnalyzerUtil.createAirsonicAnalyzer(searchService);
+		analyzer = AnalyzerUtil.createJpsonicAnalyzer(searchService);
 	}
 
 	public void testResource() {
@@ -60,23 +84,45 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 		// artist
 		terms = AnalyzerUtil.toTermString(analyzer, "_ID3_ARTIST_ Céline Frisch: Café Zimmermann");
-		assertEquals(5, terms.size());
-		assertEquals("id3_artist", terms.get(0));
-		assertEquals("celine", terms.get(1));
-		assertEquals("frisch", terms.get(2));
-		assertEquals("cafe", terms.get(3));
-		assertEquals("zimmermann", terms.get(4));
+		assertEquals(7, terms.size());
+		/*
+		 * (lucene 3.0)
+		 * id3_artist
+		 * 
+		 * (UAX#29)
+		 * id
+		 * 3
+		 * artist
+		 */
+		assertEquals("id", terms.get(0));
+		assertEquals("3", terms.get(1));
+		assertEquals("artist", terms.get(2));
+		assertEquals("celine", terms.get(3));
+		assertEquals("frisch", terms.get(4));
+		assertEquals("cafe", terms.get(5));
+		assertEquals("zimmermann", terms.get(6));
 
 		// album
 		terms = AnalyzerUtil.toTermString(analyzer, "_ID3_ALBUM_ Bach: Goldberg Variations, Canons [Disc 1]");
-		assertEquals(7, terms.size());
-		assertEquals("id3_album", terms.get(0));
-		assertEquals("bach", terms.get(1));
-		assertEquals("goldberg", terms.get(2));
-		assertEquals("variations", terms.get(3));
-		assertEquals("canons", terms.get(4));
-		assertEquals("disc", terms.get(5));
-		assertEquals("1", terms.get(6));
+		assertEquals(9, terms.size());
+		/*
+		 * (lucene 3.0)
+		 * id3_album
+		 * 
+		 * (UAX#29)
+		 * id
+		 * 3
+		 * album
+		 */
+		assertEquals("id", terms.get(0));
+		assertEquals("3", terms.get(1));
+		assertEquals("album", terms.get(2));
+		assertEquals("bach", terms.get(3));
+		assertEquals("goldberg", terms.get(4));
+		assertEquals("variations", terms.get(5));
+		assertEquals("canons", terms.get(6));
+		assertEquals("disc", terms.get(7));
+		assertEquals("1", terms.get(8));
 
 		/*
 		 * /MEDIAS/Music/_DIR_ Céline Frisch- Café Zimmermann - Bach- Goldberg Variations, Canons [Disc 1]
@@ -113,21 +159,43 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 		// artist
 		terms = AnalyzerUtil.toTermString(analyzer, "_ID3_ARTIST_ Sarah Walker/Nash Ensemble");
-		assertEquals(5, terms.size());
-		assertEquals("id3_artist", terms.get(0));
-		assertEquals("sarah", terms.get(1));
-		assertEquals("walker", terms.get(2));
-		assertEquals("nash", terms.get(3));
-		assertEquals("ensemble", terms.get(4));
+		assertEquals(7, terms.size());
+		/*
+		 * (lucene 3.0)
+		 * id3_artist
+		 * 
+		 * (UAX#29)
+		 * id
+		 * 3
+		 * artist
+		 */
+		assertEquals("id", terms.get(0));
+		assertEquals("3", terms.get(1));
+		assertEquals("artist", terms.get(2));
+		assertEquals("sarah", terms.get(3));
+		assertEquals("walker", terms.get(4));
+		assertEquals("nash", terms.get(5));
+		assertEquals("ensemble", terms.get(6));
 
 		// album
 		terms = AnalyzerUtil.toTermString(analyzer, "_ID3_ALBUM_ Ravel - Chamber Music With Voice");
-		assertEquals(5, terms.size());
-		assertEquals("id3_album", terms.get(0));
-		assertEquals("ravel", terms.get(1));
-		assertEquals("chamber", terms.get(2));
-		assertEquals("music", terms.get(3));
-		assertEquals("voice", terms.get(4));
+		assertEquals(7, terms.size());
+		/*
+		 * (lucene 3.0)
+		 * id3_album
+		 * 
+		 * (UAX#29)
+		 * id
+		 * 3
+		 * album
+		 */
+		assertEquals("id", terms.get(0));
+		assertEquals("3", terms.get(1));
+		assertEquals("album", terms.get(2));
+		assertEquals("ravel", terms.get(3));
+		assertEquals("chamber", terms.get(4));
+		assertEquals("music", terms.get(5));
+		assertEquals("voice", terms.get(6));
 
 		/*
 		 * /MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice
@@ -176,11 +244,23 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("sentences", terms.get(4));
 	}
 
+	/* air -> jp
+	 * (lucene 3.0 -> lucene 3.1 and above)
+	 */
 	public void testPossessiveCase() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "This is Airsonic's analysis.");
-		assertEquals(2, terms.size());
+		assertEquals(3, terms.size());
+		/*
+		 * (lucene 3.0)
+		 * airsonic
+		 * 
+		 * (UAX#29)
+		 * airsonic
+		 * s
+		 */
 		assertEquals("airsonic", terms.get(0));// removal of apostrophes
-		assertEquals("analysis", terms.get(1));
+		assertEquals("s", terms.get(1)); // apostrophes is a delimiter and is not filtered. , "s" remain.
+		assertEquals("analysis", terms.get(2));
 	}
 
 	public void testPastParticiple() {
@@ -214,19 +294,42 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("2020", terms.get(2));// numbers are not removed
 	}
 
+	/*
+	 * air -> jp
+	 * The case is changed because syntax processing of kanji is possible.
+	 * However, because it is a Japanese parsing analysis, it may be crowded with Chinese. 
+	 */
 	public void testAsianCharacters() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "大丈夫");
-		assertEquals(3, terms.size());
-		assertEquals("大", terms.get(0));// When separating by white space is impossible / Not alphabet
-		assertEquals("丈", terms.get(1));
-		assertEquals("夫", terms.get(2));
+		assertEquals(1, terms.size());
+		assertEquals("大丈夫", terms.get(0));
 	}
 
 	/*
-	 * From here only observing the current situation. Basically, rounding by ICU4J
-	 * is necessary.
+	 * An example of correct Japanese analysis.
 	 */
+	public void testJapaneseCharacters() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "日本語は大丈夫");
+		assertEquals(2, terms.size());
+		assertEquals("日本語", terms.get(0));
+		assertEquals("大丈夫", terms.get(1));
+	}
 
+	/*
+	 * From here only observing the current situation.
+	 * Basically, rounding by ICU4J is necessary.
+	 * Dedicated parsing is required for complete processing.
+	 * 
+	 * In reality, as Jpsonic is doing,
+	 * I think that it is bette
+	 * to use extension tags that are useful for analysis apart
+	 * from the display character string.
+	 *  
+	 *  ex)Julius Cæsar
+	 *  
+	 *  Register "Julius Caesar" in the SORT tag
+	 *  and use it for searching and indexing.
+	 */
 	public void testGreekAcute() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "ΆάΈέΉήΊίΐΌόΎύΰϓΏώ");
 		assertEquals(1, terms.size());// may be difficult

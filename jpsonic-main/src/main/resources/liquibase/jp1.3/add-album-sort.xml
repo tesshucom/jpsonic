@@ -1,0 +1,29 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-album-sort_001" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="album" columnName="artist_sort" />
+            </not>
+        </preConditions>
+        <addColumn tableName="album">
+            <column name="artist_sort" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-album-sort_002" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="album" columnName="name_sort" />
+            </not>
+        </preConditions>
+        <addColumn tableName="album">
+            <column name="name_sort" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

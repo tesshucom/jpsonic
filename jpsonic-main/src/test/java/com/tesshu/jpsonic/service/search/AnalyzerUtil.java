@@ -28,7 +28,7 @@ import java.util.List;
 import org.airsonic.player.service.SearchService;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.TermAttribute;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,8 +45,9 @@ public class AnalyzerUtil {
 			TokenStream stream = analyzer.tokenStream(null, new StringReader(str));
 			stream.reset();
 			while (stream.incrementToken()) {
-				result.add(stream.getAttribute(TermAttribute.class).term());
+				result.add(stream.getAttribute(CharTermAttribute.class).toString());
 			}
+			stream.close();
 		} catch (IOException e) {
 			LOG.error("Error during Token processing.", e);
 		}
@@ -69,4 +70,20 @@ public class AnalyzerUtil {
 		return null;
 	}
 
+	public static Analyzer createJpsonicAnalyzer(SearchService serviceInstance) {
+		try {
+			ClassLoader loader = ClassLoader.getSystemClassLoader();
+			Class<?> innerClazz = loader.loadClass("org.airsonic.player.service.SearchService$JpsonicAnalyzer");
+			Constructor<?> constructor = innerClazz.getDeclaredConstructors()[0];
+			constructor.setAccessible(true);
+			Analyzer analyzer;
+			analyzer = (Analyzer) constructor.newInstance(serviceInstance, null);
+			return analyzer;
+		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			LOG.error("Error when initializing Analyzer.", e);
+		}
+		return null;
+	}
+	
 }
