@@ -72,7 +72,6 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static org.airsonic.player.service.SearchService.IndexType.*;
-import static org.apache.lucene.analysis.standard.StandardAnalyzer.ENGLISH_STOP_WORDS_SET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -843,6 +842,25 @@ public class SearchService {
 
   private class JpsonicAnalyzer extends JapaneseAnalyzer {
 
+    private final CharArraySet JPSONIC_STOP_WORDS_SET;
+    
+    private JpsonicAnalyzer() {
+
+      /* Set the article to stopward */
+      final List<String> stopWords = Arrays.asList(
+          "a", "an", "the", // see StandardAnalyzer.STOP_WORDS_SET
+          "el", "la", "los", "las", "le", "les");// see SettingsService.DEFAULT_IGNORED_ARTICLES
+
+      /* (In short phrase search) Some of the following may cause excessive exclusion. carefully. */
+      // "and", "are", "as", "at", "be", "but", "by", "for", "if", "in",
+      // "into", "is", "it", "no", "not", "of", "on", "or", "such",
+      // "that", "their", "then", "there", "these", "they", "this",
+      // "to", "was", "will", "with"
+
+      final CharArraySet stopSet = new CharArraySet(stopWords, false);
+      JPSONIC_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
+    }
+
     @Override
     protected TokenStream normalize(String fieldName, TokenStream in) {
       TokenStream tokenStream = super.normalize(fieldName, in);
@@ -852,13 +870,13 @@ public class SearchService {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-    	Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
-    	TokenStream stream = new JapanesePartOfSpeechStopFilter(tokenizer, JapaneseAnalyzer.getDefaultStopTags());
-		stream = new LowerCaseFilter(stream);
-		stream = new StopFilter(stream, ENGLISH_STOP_WORDS_SET);
-		stream = new ASCIIFoldingFilter(stream);
-		stream = new CJKWidthFilter(stream);
-		return new TokenStreamComponents(tokenizer, stream);
+      Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
+      TokenStream stream = new JapanesePartOfSpeechStopFilter(tokenizer, JapaneseAnalyzer.getDefaultStopTags());
+      stream = new LowerCaseFilter(stream);
+      stream = new StopFilter(stream, JPSONIC_STOP_WORDS_SET);
+      stream = new ASCIIFoldingFilter(stream);
+      stream = new CJKWidthFilter(stream);
+      return new TokenStreamComponents(tokenizer, stream);
     }
 
   }

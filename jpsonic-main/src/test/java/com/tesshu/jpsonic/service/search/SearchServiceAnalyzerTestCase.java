@@ -29,28 +29,8 @@ import org.apache.lucene.analysis.Analyzer;
 import junit.framework.TestCase;
 
 /*
- * "Impact of lucene update"
- * 
- * As of 3.1, StandardTokenizer implements Unicode text segmentation, as specified by UAX#29.
- * Therefore, when emphasizing maintaining behavior of 3.0,
- * use Classic Tokenizer instead of StandardTokenizer.
- * "Which one to use" is not a simple matter.
- * Both are inadequate parsing and because dedicated analysis is
- * required to obtain the desired processing.
- * And that is difficult.
- * 
- * "Influence point of UAX#29"
- * 
- * If you do lucene update simply, erroneous search increases depending on data.
- * 
- * "Jpsonic's method"
- * 
- * UAX#29 is used for analysis to create index.
- * Also, only the artist has registered full name.
- * 
- * In the analysis at the time of query generation at the time of search execution,
- * the method is switched by the input pattern.
- * There are UAX#29 based queries and WhitespaceTokenizer based queries.
+ * Unlike Subsonic, Jpsonic uses character separation of UAX#29.
+ * Also, due to the importance of query search, the stop word covers only articles.
  */
 public class SearchServiceAnalyzerTestCase extends TestCase {
 
@@ -179,7 +159,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 		// album
 		terms = AnalyzerUtil.toTermString(analyzer, "_ID3_ALBUM_ Ravel - Chamber Music With Voice");
-		assertEquals(7, terms.size());
+		assertEquals(8, terms.size());
 		/*
 		 * (lucene 3.0)
 		 * id3_album
@@ -195,7 +175,8 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("ravel", terms.get(3));
 		assertEquals("chamber", terms.get(4));
 		assertEquals("music", terms.get(5));
-		assertEquals("voice", terms.get(6));
+    assertEquals("with", terms.get(6));// currently not stopward
+		assertEquals("voice", terms.get(7));
 
 		/*
 		 * /MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice
@@ -226,13 +207,15 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals(0, terms.size());// remove symbols
 	}
 
-	public void testHalfWidth() {
-		List<String> terms = AnalyzerUtil.toTermString(analyzer, "THIS IS HALF-WIDTH SENTENCES.");
-		assertEquals(3, terms.size());
-		assertEquals("half", terms.get(0));// all lowercase letters
-		assertEquals("width", terms.get(1));
-		assertEquals("sentences", terms.get(2));
-	}
+  public void testHalfWidth() {
+    List<String> terms = AnalyzerUtil.toTermString(analyzer, "THIS IS HALF-WIDTH SENTENCES.");
+    assertEquals(5, terms.size());
+    assertEquals("this", terms.get(0));// currently not stopward
+    assertEquals("is", terms.get(1));// currently not stopward
+    assertEquals("half", terms.get(2));
+    assertEquals("width", terms.get(3));
+    assertEquals("sentences", terms.get(4));
+  }
 
 	public void testFullWidth() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.");
@@ -249,7 +232,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 	 */
 	public void testPossessiveCase() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "This is Airsonic's analysis.");
-		assertEquals(3, terms.size());
+		assertEquals(5, terms.size());
 		/*
 		 * (lucene 3.0)
 		 * airsonic
@@ -258,21 +241,28 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		 * airsonic
 		 * s
 		 */
-		assertEquals("airsonic", terms.get(0));// removal of apostrophes
-		assertEquals("s", terms.get(1)); // apostrophes is a delimiter and is not filtered. , "s" remain.
-		assertEquals("analysis", terms.get(2));
+    assertEquals("this", terms.get(0));// currently not stopward
+    assertEquals("is", terms.get(1));// currently not stopward
+    assertEquals("airsonic", terms.get(2));// removal of apostrophes
+		assertEquals("s", terms.get(3)); // apostrophes is a delimiter and is not filtered. , "s" remain.
+		assertEquals("analysis", terms.get(4));
 	}
 
 	public void testPastParticiple() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer,
 				"This is formed with a form of the verb \"have\" and a past participl.");
-		assertEquals(6, terms.size());
-		assertEquals("formed", terms.get(0));// leave passive / not "form"
-		assertEquals("form", terms.get(1));
-		assertEquals("verb", terms.get(2));
-		assertEquals("have", terms.get(3));
-		assertEquals("past", terms.get(4));
-		assertEquals("participl", terms.get(5));
+		assertEquals(11, terms.size());
+    assertEquals("this", terms.get(0));// currently not stopward
+    assertEquals("is", terms.get(1));// currently not stopward
+		assertEquals("formed", terms.get(2));// leave passive / not "form"
+    assertEquals("with", terms.get(3));// currently not stopward
+		assertEquals("form", terms.get(4));
+    assertEquals("of", terms.get(5));// currently not stopward
+		assertEquals("verb", terms.get(6));
+		assertEquals("have", terms.get(7));
+    assertEquals("and", terms.get(8));// currently not stopward
+		assertEquals("past", terms.get(9));
+		assertEquals("participl", terms.get(10));
 	}
 
 	public void testNumeral() {
@@ -288,10 +278,11 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 	public void testNumbers() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "Olympic Games in 2020.");
-		assertEquals(3, terms.size());
+		assertEquals(4, terms.size());
 		assertEquals("olympic", terms.get(0));
 		assertEquals("games", terms.get(1));
-		assertEquals("2020", terms.get(2));// numbers are not removed
+    assertEquals("in", terms.get(2));// currently not stopward
+		assertEquals("2020", terms.get(3));// numbers are not removed
 	}
 
 	/*
