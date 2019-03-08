@@ -31,6 +31,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.cjk.CJKWidthFilter;
+import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
@@ -71,6 +72,7 @@ import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import static org.airsonic.player.service.SearchService.IndexType.*;
+import static org.apache.lucene.analysis.standard.StandardAnalyzer.ENGLISH_STOP_WORDS_SET;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -850,12 +852,13 @@ public class SearchService {
 
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
-      Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
-      TokenStream stream = new CJKWidthFilter(tokenizer);
-      stream = new JapanesePartOfSpeechStopFilter(stream, JapaneseAnalyzer.getDefaultStopTags());
-      stream = new LowerCaseFilter(stream);
-      stream = new ASCIIFoldingFilter(stream);
-      return new TokenStreamComponents(tokenizer, stream);
+    	Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
+    	TokenStream stream = new JapanesePartOfSpeechStopFilter(tokenizer, JapaneseAnalyzer.getDefaultStopTags());
+		stream = new LowerCaseFilter(stream);
+		stream = new StopFilter(stream, ENGLISH_STOP_WORDS_SET);
+		stream = new ASCIIFoldingFilter(stream);
+		stream = new CJKWidthFilter(stream);
+		return new TokenStreamComponents(tokenizer, stream);
     }
 
   }
