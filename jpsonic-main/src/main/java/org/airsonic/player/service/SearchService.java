@@ -31,6 +31,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.analysis.cjk.CJKWidthFilter;
+import org.apache.lucene.analysis.core.StopFilter;
 import org.apache.lucene.analysis.core.WhitespaceTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseAnalyzer;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
@@ -294,11 +295,11 @@ public class SearchService {
     tokenizer.setReader(new StringReader(query));
     tokenizer.reset();
     
-    TokenStream tokenStream = new LowerCaseFilter(tokenizer);
-    tokenStream = new CJKWidthFilter(tokenStream);
-    tokenStream = new ASCIIFoldingFilter(tokenStream);
-    tokenStream = new JapanesePartOfSpeechStopFilter(tokenStream, JapaneseAnalyzer.getDefaultStopTags());//hinsi
+    TokenStream tokenStream = new JapanesePartOfSpeechStopFilter(tokenizer, JapaneseAnalyzer.getDefaultStopTags());
     tokenStream = new LowerCaseFilter(tokenStream);
+    tokenStream = new StopFilter(tokenStream, JPSONIC_STOP_WORDS_SET);
+    tokenStream = new ASCIIFoldingFilter(tokenStream);
+    tokenStream = new CJKWidthFilter(tokenStream);
 
     StringBuilder result = new StringBuilder();
     while (tokenStream.incrementToken())
@@ -837,7 +838,24 @@ public class SearchService {
   private Analyzer createAnalyzer() {
     return new JpsonicAnalyzer();
   }
-    
+
+  private static final CharArraySet JPSONIC_STOP_WORDS_SET;
+
+  static {
+    /* Set the article to stopward */
+    final List<String> stopWords = Arrays.asList(
+        "a", "an", "the", // see StandardAnalyzer.STOP_WORDS_SET
+        "el", "la", "los", "las", "le", "les");// see SettingsService.DEFAULT_IGNORED_ARTICLES
+
+    /* (In short phrase search) Some of the following may cause excessive exclusion. carefully. */
+    // "and", "are", "as", "at", "be", "but", "by", "for", "if", "in",
+    // "into", "is", "it", "no", "not", "of", "on", "or", "such",
+    // "that", "their", "then", "there", "these", "they", "this",
+    // "to", "was", "will", "with"
+
+    final CharArraySet stopSet = new CharArraySet(stopWords, false);
+    JPSONIC_STOP_WORDS_SET = CharArraySet.unmodifiableSet(stopSet);
+  }
 
   private class JpsonicAnalyzer extends JapaneseAnalyzer {
 
@@ -851,10 +869,11 @@ public class SearchService {
     @Override
     protected TokenStreamComponents createComponents(String fieldName) {
       Tokenizer tokenizer = new JapaneseTokenizer(null, true, JapaneseTokenizer.Mode.SEARCH);
-      TokenStream stream = new CJKWidthFilter(tokenizer);
-      stream = new JapanesePartOfSpeechStopFilter(stream, JapaneseAnalyzer.getDefaultStopTags());
+      TokenStream stream = new JapanesePartOfSpeechStopFilter(tokenizer, JapaneseAnalyzer.getDefaultStopTags());
       stream = new LowerCaseFilter(stream);
+      stream = new StopFilter(stream, JPSONIC_STOP_WORDS_SET);
       stream = new ASCIIFoldingFilter(stream);
+      stream = new CJKWidthFilter(stream);
       return new TokenStreamComponents(tokenizer, stream);
     }
 

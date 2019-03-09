@@ -29,7 +29,13 @@ import org.apache.lucene.analysis.Analyzer;
 import junit.framework.TestCase;
 
 /*
+ * [Separation]
  * Unlike Subsonic, Jpsonic uses character separation of UAX#29.
+ * 
+ * [Stop word]
+ * Also, due to the importance of query search, the stop word covers only articles.
+ * Subsonic distinguishes uppercase and lowercase letters of Stopward, but Jpsonic does not distinguish.
+ * 
  */
 public class SearchServiceAnalyzerTestCase extends TestCase {
 
@@ -111,7 +117,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 
 		// title
 		terms = AnalyzerUtil.toTermString(analyzer, "Bach: Goldberg Variations, BWV 988 - Variatio 1 A 1 Clav.");
-		assertEquals(10, terms.size());
+		assertEquals(9, terms.size());
 		assertEquals("bach", terms.get(0));
 		assertEquals("goldberg", terms.get(1));
 		assertEquals("variations", terms.get(2));
@@ -119,9 +125,8 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("988", terms.get(4));
 		assertEquals("variatio", terms.get(5));
 		assertEquals("1", terms.get(6));
-		assertEquals("a", terms.get(7));
-		assertEquals("1", terms.get(8));
-		assertEquals("clav", terms.get(9));
+		assertEquals("1", terms.get(7));
+		assertEquals("clav", terms.get(8));
 
 		/*
 		 * /MEDIAS/Music/_DIR_ Ravel/_DIR_ Ravel - Chamber Music With Voice
@@ -251,21 +256,18 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 	public void testPastParticiple() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer,
 				"This is formed with a form of the verb \"have\" and a past participl.");
-		assertEquals(14, terms.size());
+		assertEquals(11, terms.size());
 		assertEquals("this", terms.get(0));// currently not stopward
 		assertEquals("is", terms.get(1));// currently not stopward
 		assertEquals("formed", terms.get(2));// leave passive / not "form"
 		assertEquals("with", terms.get(3));// currently not stopward
-		assertEquals("a", terms.get(4));// currently not stopward
-		assertEquals("form", terms.get(5));
-		assertEquals("of", terms.get(6));// currently not stopward
-		assertEquals("the", terms.get(7));// currently not stopward
-		assertEquals("verb", terms.get(8));
-		assertEquals("have", terms.get(9));
-		assertEquals("and", terms.get(10));// currently not stopward
-		assertEquals("a", terms.get(11));// currently not stopward
-		assertEquals("past", terms.get(12));
-		assertEquals("participl", terms.get(13));
+		assertEquals("form", terms.get(4));
+		assertEquals("of", terms.get(5));// currently not stopward
+		assertEquals("verb", terms.get(6));
+		assertEquals("have", terms.get(7));
+		assertEquals("and", terms.get(8));// currently not stopward
+		assertEquals("past", terms.get(9));
+		assertEquals("participl", terms.get(10));
 	}
 
 	public void testNumeral() {
@@ -316,9 +318,9 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 	 */
 	public void testStopward() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the");
-		assertEquals(3, terms.size());
+		assertEquals(0, terms.size());
 		terms = AnalyzerUtil.toTermString(analyzer, "el la los las le les");
-		assertEquals(6, terms.size());
+		assertEquals(0, terms.size());
 		terms = AnalyzerUtil.toTermString(analyzer,
 				"and are as at be but by for if in into is it no not of on or such that their then there these they this to was will with");
 		assertEquals(30, terms.size());
