@@ -222,6 +222,25 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("夫", terms.get(2));
 	}
 
+	public void testStopward() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the");
+		assertEquals(0, terms.size());
+		terms = AnalyzerUtil.toTermString(analyzer, "el la los las le les");
+		assertEquals(6, terms.size());
+		terms = AnalyzerUtil.toTermString(analyzer,
+				"and are as at be but by for if in into is it no not of on or such that their then there these they this to was will with");
+		assertEquals(0, terms.size());
+	}
+
+	public void testLigature() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "Cæsar");
+		assertEquals(1, terms.size());
+		assertEquals("caesar", terms.get(0));// substitution
+		terms = AnalyzerUtil.toTermString(analyzer, "cœur");
+		assertEquals(1, terms.size());
+		assertEquals("coeur", terms.get(0));// substitution
+	}
+
 	/*
 	 * From here only observing the current situation. Basically, rounding by ICU4J
 	 * is necessary.
@@ -259,13 +278,6 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "Céline");
 		assertEquals(1, terms.size());// no problem depending on how to input
 		assertEquals("celine", terms.get(0));
-	}
-
-	public void testLigature() {
-		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a æ e");
-		assertEquals(2, terms.size());// may be difficult
-		assertEquals("ae", terms.get(0));
-		assertEquals("e", terms.get(1));
 	}
 
 }
