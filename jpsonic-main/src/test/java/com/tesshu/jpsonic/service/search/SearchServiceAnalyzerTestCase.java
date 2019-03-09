@@ -175,7 +175,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("ravel", terms.get(3));
 		assertEquals("chamber", terms.get(4));
 		assertEquals("music", terms.get(5));
-    assertEquals("with", terms.get(6));// currently not stopward
+		assertEquals("with", terms.get(6));// currently not stopward
 		assertEquals("voice", terms.get(7));
 
 		/*
@@ -207,15 +207,15 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals(0, terms.size());// remove symbols
 	}
 
-  public void testHalfWidth() {
-    List<String> terms = AnalyzerUtil.toTermString(analyzer, "THIS IS HALF-WIDTH SENTENCES.");
-    assertEquals(5, terms.size());
-    assertEquals("this", terms.get(0));// currently not stopward
-    assertEquals("is", terms.get(1));// currently not stopward
-    assertEquals("half", terms.get(2));
-    assertEquals("width", terms.get(3));
-    assertEquals("sentences", terms.get(4));
-  }
+	public void testHalfWidth() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "THIS IS HALF-WIDTH SENTENCES.");
+		assertEquals(5, terms.size());
+		assertEquals("this", terms.get(0));// currently not stopward
+		assertEquals("is", terms.get(1));// currently not stopward
+		assertEquals("half", terms.get(2));
+		assertEquals("width", terms.get(3));
+		assertEquals("sentences", terms.get(4));
+	}
 
 	public void testFullWidth() {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer, "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.");
@@ -241,9 +241,9 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		 * airsonic
 		 * s
 		 */
-    assertEquals("this", terms.get(0));// currently not stopward
-    assertEquals("is", terms.get(1));// currently not stopward
-    assertEquals("airsonic", terms.get(2));// removal of apostrophes
+		assertEquals("this", terms.get(0));// currently not stopward
+		assertEquals("is", terms.get(1));// currently not stopward
+		assertEquals("airsonic", terms.get(2));// removal of apostrophes
 		assertEquals("s", terms.get(3)); // apostrophes is a delimiter and is not filtered. , "s" remain.
 		assertEquals("analysis", terms.get(4));
 	}
@@ -252,15 +252,15 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		List<String> terms = AnalyzerUtil.toTermString(analyzer,
 				"This is formed with a form of the verb \"have\" and a past participl.");
 		assertEquals(11, terms.size());
-    assertEquals("this", terms.get(0));// currently not stopward
-    assertEquals("is", terms.get(1));// currently not stopward
+		assertEquals("this", terms.get(0));// currently not stopward
+		assertEquals("is", terms.get(1));// currently not stopward
 		assertEquals("formed", terms.get(2));// leave passive / not "form"
-    assertEquals("with", terms.get(3));// currently not stopward
+		assertEquals("with", terms.get(3));// currently not stopward
 		assertEquals("form", terms.get(4));
-    assertEquals("of", terms.get(5));// currently not stopward
+		assertEquals("of", terms.get(5));// currently not stopward
 		assertEquals("verb", terms.get(6));
 		assertEquals("have", terms.get(7));
-    assertEquals("and", terms.get(8));// currently not stopward
+		assertEquals("and", terms.get(8));// currently not stopward
 		assertEquals("past", terms.get(9));
 		assertEquals("participl", terms.get(10));
 	}
@@ -281,7 +281,7 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals(4, terms.size());
 		assertEquals("olympic", terms.get(0));
 		assertEquals("games", terms.get(1));
-    assertEquals("in", terms.get(2));// currently not stopward
+		assertEquals("in", terms.get(2));// currently not stopward
 		assertEquals("2020", terms.get(3));// numbers are not removed
 	}
 
