@@ -296,25 +296,6 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 		assertEquals("大丈夫", terms.get(0));
 	}
 
-	public void testStopward() {
-		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the");
-		assertEquals(0, terms.size());
-		terms = AnalyzerUtil.toTermString(analyzer, "el la los las le les");
-		assertEquals(6, terms.size());
-		terms = AnalyzerUtil.toTermString(analyzer,
-				"and are as at be but by for if in into is it no not of on or such that their then there these they this to was will with");
-		assertEquals(0, terms.size());
-	}
-
-	public void testLigature() {
-		List<String> terms = AnalyzerUtil.toTermString(analyzer, "Cæsar");
-		assertEquals(1, terms.size());
-		assertEquals("caesar", terms.get(0));// substitution
-		terms = AnalyzerUtil.toTermString(analyzer, "cœur");
-		assertEquals(1, terms.size());
-		assertEquals("coeur", terms.get(0));// substitution
-	}
-
 	/*
 	 * An example of correct Japanese analysis.
 	 */
@@ -331,11 +312,22 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 	 * Jpsonic removes only articles. 
 	 */
 	public void testStopward() {
-		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the el la los las le les");
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the");
+		assertEquals(0, terms.size());
+		terms = AnalyzerUtil.toTermString(analyzer, "el la los las le les");
 		assertEquals(0, terms.size());
 		terms = AnalyzerUtil.toTermString(analyzer,
 				"and are as at be but by for if in into is it no not of on or such that their then there these they this to was will with");
 		assertEquals(30, terms.size());
+	}
+
+	public void testLigature() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "Cæsar");
+		assertEquals(1, terms.size());
+		assertEquals("caesar", terms.get(0));// substitution
+		terms = AnalyzerUtil.toTermString(analyzer, "cœur");
+		assertEquals(1, terms.size());
+		assertEquals("coeur", terms.get(0));// substitution
 	}
 
 	/*
