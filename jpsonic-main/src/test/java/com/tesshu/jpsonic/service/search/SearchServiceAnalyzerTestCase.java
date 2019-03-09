@@ -307,6 +307,19 @@ public class SearchServiceAnalyzerTestCase extends TestCase {
 	}
 
 	/*
+	 * air -> jp
+	 * Airsonic removes all common stops.
+	 * Jpsonic removes only articles. 
+	 */
+	public void testStopward() {
+		List<String> terms = AnalyzerUtil.toTermString(analyzer, "a an the el la los las le les");
+		assertEquals(0, terms.size());
+		terms = AnalyzerUtil.toTermString(analyzer,
+				"and are as at be but by for if in into is it no not of on or such that their then there these they this to was will with");
+		assertEquals(30, terms.size());
+	}
+
+	/*
 	 * From here only observing the current situation.
 	 * Basically, rounding by ICU4J is necessary.
 	 * Dedicated parsing is required for complete processing.
