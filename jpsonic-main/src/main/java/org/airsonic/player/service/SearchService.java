@@ -53,7 +53,6 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
-import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.AttributeFactory;
 import org.apache.lucene.util.BytesRef;
@@ -117,23 +116,6 @@ public class SearchService {
   private static Function<String, String> normalizeGenre = (genre) -> {
     return genre.toLowerCase().replace(" ", "").replace("-", "");
   };
-
-  public SearchService() {
-    removeLocks();
-  }
-
-  private void removeLocks() {
-    for (IndexType indexType : IndexType.values()) {
-      Directory dir = null;
-      try {
-        dir = FSDirectory.open(getIndexDirectory(indexType).toPath());
-      } catch (Exception x) {
-        LOG.warn("Failed to remove Lucene lock file in " + dir, x);
-      } finally {
-        FileUtil.closeQuietly(dir);
-      }
-    }
-  }
 
   private File getIndexDirectory(IndexType indexType) {
     return new File(getIndexRootDirectory(), indexType.toString().toLowerCase());
