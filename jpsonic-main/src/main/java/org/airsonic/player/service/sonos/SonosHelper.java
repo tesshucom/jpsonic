@@ -23,6 +23,8 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.*;
+import com.tesshu.jpsonic.service.search.IndexType;
+
 import org.airsonic.player.controller.CoverArtController;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
@@ -525,7 +527,7 @@ public class SonosHelper {
         return Arrays.asList(artists, albums, songs);
     }
 
-    public MediaList forSearch(String query, int offset, int count, SearchService.IndexType indexType, String username, HttpServletRequest request) {
+    public MediaList forSearch(String query, int offset, int count, IndexType indexType, String username, HttpServletRequest request) {
 
         SearchCriteria searchCriteria = new SearchCriteria();
         searchCriteria.setCount(count);
