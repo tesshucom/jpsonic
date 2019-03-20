@@ -26,7 +26,7 @@ import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.MediaScannerServiceTestCase;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.SearchService.IndexType;
+import com.tesshu.jpsonic.service.search.IndexType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
