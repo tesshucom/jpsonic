@@ -12,9 +12,9 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
 
- Copyright 2018 (C) tesshu.com
+ Copyright 2019 (C) tesshu.com
  */
 package com.tesshu.jpsonic.service;
 
@@ -38,7 +38,6 @@ import java.util.stream.Collector;
 
 /**
  * Provide analysis of Japanese name.
- * @author tesshu
  */
 @Service
 public class MediaFileJPSupport {
