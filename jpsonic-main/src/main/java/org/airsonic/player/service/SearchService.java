@@ -321,7 +321,6 @@ public class SearchService {
       final Query query = QueryFactory.createQuery(criteria);
 
       IndexSearcher searcher = new IndexSearcher(reader);
-
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
@@ -358,7 +357,7 @@ public class SearchService {
     try (IndexReader reader = createIndexReader(ALBUM)) {
 
       IndexSearcher searcher = new IndexSearcher(reader);
-      Query query = QueryFactory.searchByNameMusicFolderPath(musicFolders);
+      Query query = QueryFactory.searchRandomAlbum(musicFolders);
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
@@ -394,7 +393,7 @@ public class SearchService {
 
     try (IndexReader reader = createIndexReader(ALBUM_ID3)) {
       IndexSearcher searcher = new IndexSearcher(reader);
-      Query query = QueryFactory.searchByNameMusicFolderIds(musicFolders);
+      Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
 
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);

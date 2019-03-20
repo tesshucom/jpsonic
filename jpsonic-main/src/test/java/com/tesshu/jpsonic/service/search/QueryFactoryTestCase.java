@@ -26,8 +26,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.NumericUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,88 +37,118 @@ import junit.framework.TestCase;
 /*
  * The query syntax has not changed significantly since Lucene 1.3.
  * (A slight difference)
+ * If you face a problem reaping from 3.x to 7.x
+ * It may be faster to look at the query than to look at the API.
  */
 public class QueryFactoryTestCase extends TestCase {
 
-  public void testWithSearchCriteria() {
+    private static final String SEPA = System.getProperty("file.separator");
+    String path1 = SEPA + "var" + SEPA + "music1";
+    String path2 = SEPA + "var" + SEPA + "music2";
+    MusicFolder music1 = new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new java.util.Date());
+    MusicFolder music2 = new MusicFolder(Integer.valueOf(0), new File(path2), "music2", true, new java.util.Date());
 
-    String sepa = System.getProperty("file.separator");
-    String path1 = sepa + "var" + sepa + "music1";
+  public void testWithSearchCriteriaSingleParam() {
 
     SearchCriteria criteria = new SearchCriteria();
     criteria.setQuery("test1");
 
     List<MusicFolder> musicFolders = new ArrayList<MusicFolder>();
-    musicFolders.add(
-        new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new java.util.Date()));
-
+    musicFolders.add(music1);
     Query querySingle = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("single",
-        //"+(artist:test1* folder:test1*) " +
-        "+((artist:test* artistF:test1* artistR:test* artistRH:test1*) "
-        + "(artist:1* artistR:1*)) "
-        + "+spanOr([folder:" + path1 + "])", querySingle.toString());
+        "+((artist:test artistF:test1 artistR:test artistRH:test1) "
+        + "(artist:1 artistR:1)) "
+        + "+(folder:" + path1 + ")",
+        querySingle.toString());
+  }
 
-    criteria.setQuery("test1 test2");
-    String path2 = sepa + "var" + sepa + "music2";
-    musicFolders.add(
-        new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new java.util.Date()));
+  public void testWithSearchCriteriaMultiParam() {
+
+   SearchCriteria criteria = new SearchCriteria();
+   criteria.setQuery("test1 test2");
+   List<MusicFolder> musicFolders = new ArrayList<MusicFolder>();
+   musicFolders.add(music1);
+   musicFolders.add(music2);
     Query queryMulti = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("multi",
-        //"+((artist:test1* folder:test1*) (artist:test2* folder:test2*)) " +
-        "+((artist:test* artistF:test1 test2* artistR:test* artistRH:test1 test2*) "
-        + "(artist:1* artistR:1*) "
-        + "(artist:test* artistR:test*) (artist:2* artistR:2*)) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+        "+((artist:test artistF:test1 test2 artistR:test artistRH:test1 test2) "
+        + "(artist:1 artistR:1) "
+        + "(artist:test artistR:test) "
+        + "(artist:2 artistR:2)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryMulti.toString());
 
     criteria.setCount(50); // Not used in queries
     criteria.setOffset(0); // Not used in queries
     Query queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("full",
-        //"+((artist:test1* folder:test1*) (artist:test2* folder:test2*)) " +
-        "+((artist:test* artistF:test1 test2* artistR:test* artistRH:test1 test2*) "
-        + "(artist:1* artistR:1*) "
-        + "(artist:test* artistR:test*) "
-        + "(artist:2* artistR:2*)) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+        "+((artist:test artistF:test1 test2 artistR:test artistRH:test1 test2) "
+        + "(artist:1 artistR:1) "
+        + "(artist:test artistR:test) "
+        + "(artist:2 artistR:2)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryFull.toString());
+    
+    criteria.setCount(50); // Not used in queries
+    criteria.setOffset(0); // Not used in queries
+    queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
+    assertEquals("full",
+        "+((artist:test artistF:test1 test2 artistR:test artistRH:test1 test2) "
+        + "(artist:1 artistR:1) "
+        + "(artist:test artistR:test) "
+        + "(artist:2 artistR:2)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        queryFull.toString());
+  }
+
+  public void testWithSearchCriteriaJapaneseParam() {
+
+    SearchCriteria criteria = new SearchCriteria();
+    criteria.setQuery("test1 test2");
+    List<MusicFolder> musicFolders = new ArrayList<MusicFolder>();
+    musicFolders.add(music1);
+    musicFolders.add(music2);
 
     criteria = new SearchCriteria();
     criteria.setQuery("みんなの歌");
     Query queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("japanese",
-        "+((artist:みんな* artistF:みんなの歌* artistR:みんな* artistRH:みんなの歌*) "
-        + "(artist:歌* artistR:歌*)) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])", queryJapanese.toString());
+        "+((artist:みんな artistF:みんなの歌 artistR:みんな artistRH:みんなの歌) "
+        + "(artist:歌 artistR:歌)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        queryJapanese.toString());
 
     criteria.setQuery("いきものがかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
-    assertEquals("japanese",
-        "+(artist:いきものがかり* artistF:いきものがかり* artistR:いきものがかり* artistRH:いきものがかり*) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])", queryJapanese.toString());
+    assertEquals("いきものがかり",
+        "+((artist:いき artistF:いきものがかり artistR:いき artistRH:いきものがかり) "
+        + "(artist:かり artistR:かり)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        queryJapanese.toString());
 
     criteria.setQuery("いきもの　がかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
-    assertEquals("japanese",
-        "+((artist:いき* artistF:いきもの がかり* artistR:いき* artistRH:いきもの がかり*) "
-        + "(artist:がかり* artistR:がかり*)) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+    assertEquals("いきもの　がかり",
+        "+((artist:いき artistF:いきもの がかり artistR:いき artistRH:いきもの がかり) "
+        + "(artist:がかり artistR:がかり)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきものガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
-    assertEquals("japanese",
-        "+((artist:いき* artistF:いきものガカリ* artistR:いき* artistRH:いきものガカリ*) "
-            + "(artist:ガ* artistR:ガ*) (artist:カリ* artistR:カリ*)) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+    assertEquals("いきものガカリ",
+        "+((artist:いき artistF:いきものガカリ artistR:いき artistRH:いきものガカリ) "
+        + "(artist:ガ artistR:ガ) "
+        + "(artist:カリ artistR:カリ)) "
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("イキモノガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
-    assertEquals("japanese",
-        "+(artist:イキモノガカリ* artistF:イキモノガカリ* artistR:イキモノガカリ* artistRH:イキモノガカリ*) "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+    assertEquals("イキモノガカリ",
+        "+(artist:イキモノガカリ artistF:イキモノガカリ artistR:イキモノガカリ artistRH:イキモノガカリ) "
+            + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryJapanese.toString());
 
   }
@@ -145,7 +173,7 @@ public class QueryFactoryTestCase extends TestCase {
         "+mediaType:music "+
         "+genre:classicrock " +
         "+year:[1900 TO 2000] " +
-        "+spanOr([folder:" + path1 + "])",
+        "+(folder:" + path1+ ")",
         querySingle.toString());
 
     String path2 = sapa + "var" + sapa + "music2";
@@ -156,7 +184,7 @@ public class QueryFactoryTestCase extends TestCase {
         "+mediaType:music "
         + "+genre:classicrock "
         + "+year:[1900 TO 2000] "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryMulti.toString());
 
     criteria = new RandomSearchCriteria(
@@ -171,7 +199,7 @@ public class QueryFactoryTestCase extends TestCase {
     assertEquals("NullFrom",
         "+mediaType:music "
         + "+year:[-2147483648 TO 2000] "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryNullFrom.toString());
 
     criteria = new RandomSearchCriteria(
@@ -184,7 +212,7 @@ public class QueryFactoryTestCase extends TestCase {
     assertEquals("NullTo",
         "+mediaType:music "
         + "+year:[1900 TO 2147483647] "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+        + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryNullTo.toString());
 
     criteria = new RandomSearchCriteria(
@@ -196,7 +224,7 @@ public class QueryFactoryTestCase extends TestCase {
     Query queryNullYear = QueryFactory.createQuery(criteria);
     assertEquals("NullYear",
         "+mediaType:music "
-        + "+spanOr([folder:" + path1 + ", folder:" + path2 + "])",
+            + "+(folder:" + path1 + " folder:" + path2 + ")",
         queryNullYear.toString());
 
   }
@@ -204,19 +232,19 @@ public class QueryFactoryTestCase extends TestCase {
   public void testSearchByName() {
     Query querySingle = QueryFactory.searchByName("The Ventures", FieldNames.ARTIST);
     assertEquals("single",
-        "artist:ventures*", querySingle.toString());
+        "artist:ventures", querySingle.toString());
   }
 
   public void testArticle() {
     Query querySingle = QueryFactory.searchByName("THIS IS THE VENTURES", FieldNames.ARTIST);
     assertEquals("article",
-        "artist:this* artist:is* artist:ventures*", querySingle.toString());
+        "+artist:this +artist:is +artist:ventures", querySingle.toString());
   }
 
   public void testAUX29() {
     Query querySingle = QueryFactory.searchByName("I'll be back.", FieldNames.ARTIST);
     assertEquals("aux",
-        "artist:i* artist:ll* artist:be* artist:back*", querySingle.toString());
+        "+artist:i +artist:ll +artist:be +artist:back", querySingle.toString());
   }
 
   public void testSearchByNameMusicFolderPath() {
@@ -228,15 +256,16 @@ public class QueryFactoryTestCase extends TestCase {
     List<MusicFolder> musicFolders = new ArrayList<MusicFolder>();
     musicFolders.add(
         new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new Date()));
-    Query querySingle = QueryFactory.searchByNameMusicFolderPath(musicFolders);
+    Query querySingle = QueryFactory.searchRandomAlbum(musicFolders);
     assertEquals("single",
-        "spanOr([folder:" + path1 + "])", querySingle.toString());
+        "+(folder:" + path1 + ")", querySingle.toString());
 
     musicFolders.add(
         new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new Date()));
-    Query queryMulti = QueryFactory.searchByNameMusicFolderPath(musicFolders);
-    assertEquals("single",
-        "spanOr([folder:" + path1 + ", folder:" + path2 + "])", queryMulti.toString());
+    Query queryMulti = QueryFactory.searchRandomAlbum(musicFolders);
+    assertEquals("multi",
+        "+(folder:" + path1 + " folder:" + path2 + ")",
+        queryMulti.toString());
   }
   
   public void testSearchByNameMusicFolderIds() {
@@ -247,22 +276,17 @@ public class QueryFactoryTestCase extends TestCase {
     List<MusicFolder> musicFolders = new ArrayList<MusicFolder>();
     musicFolders.add(
         new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new Date()));
-    Query querySingle = QueryFactory.searchByNameMusicFolderIds(musicFolders);
-    byte[] bytes = new byte[Integer.BYTES];
-    NumericUtils.intToSortableBytes(Integer.valueOf(0), bytes, 0);
-    BytesRef refId0 = new BytesRef(bytes);
+    Query querySingle = QueryFactory.searchRandomAlbumId3(musicFolders);
     assertEquals("single",
-        "spanOr([folderId:" + refId0 + "])", querySingle.toString());
+        "+(folderId:0)",
+        querySingle.toString());
 
     String path2 = sepa + "var" + sepa + "music2";
     musicFolders.add(
         new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new Date()));
-    bytes = new byte[Integer.BYTES];
-    NumericUtils.intToSortableBytes(Integer.valueOf(1), bytes, 0);
-    BytesRef refId1 = new BytesRef(bytes);
-    Query queryMulti = QueryFactory.searchByNameMusicFolderIds(musicFolders);
+    Query queryMulti = QueryFactory.searchRandomAlbumId3(musicFolders);
     assertEquals("single",
-        "spanOr([folderId:" + refId0 + ", folderId:" + refId1 + "])",
+        "+(folderId:0 folderId:1)",
         queryMulti.toString());
 
   }

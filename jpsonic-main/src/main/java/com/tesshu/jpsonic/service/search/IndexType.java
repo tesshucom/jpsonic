@@ -27,7 +27,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.NumericDocValuesField;
+import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedDocValuesField;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
@@ -225,8 +225,9 @@ public enum IndexType {
 	}
 
 	private static final BiConsumer<Document, Integer> fieldId = (d, i) -> {
-		d.add(new NumericDocValuesField(FieldNames.ID, i));
-		d.add(new StoredField(FieldNames.ID, i));
+    d.add(new IntPoint(FieldNames.ID, i));
+    d.add(new StringField(FieldNames.ID, Integer.toString(i), Store.YES));
+    d.add(new StoredField(FieldNames.ID, i));
 	};
 
 	private static final BiConsumer<Document, String> fieldTitle = (d, s) -> {
@@ -294,14 +295,19 @@ public enum IndexType {
 		d.add(new SortedDocValuesField(FieldNames.ALBUM_FULL, new BytesRef(s)));
 	};
 
-	private static final BiConsumer<Document, Integer> fieldFolderId = (d, i) -> d
-			.add(new NumericDocValuesField(FieldNames.FOLDER_ID, i));
+	private static final BiConsumer<Document, Integer> fieldFolderId = (d, i) -> {
+	  d.add(new IntPoint(FieldNames.FOLDER_ID, i));
+    d.add(new StringField(FieldNames.FOLDER_ID, Integer.toString(i), Store.YES));
+    d.add(new StoredField(FieldNames.FOLDER_ID, i));
+	};
 
 	private static final BiConsumer<Document, Integer> fieldYear = (d, i) -> {
 		if (isEmpty(i)) {
 			return;
 		}
-		d.add(new NumericDocValuesField(FieldNames.YEAR, i));
+    d.add(new IntPoint(FieldNames.YEAR, i));
+    d.add(new StringField(FieldNames.YEAR, Integer.toString(i), Store.YES));
+    d.add(new StoredField(FieldNames.YEAR, i));
 	};
 
 	private static final BiConsumer<Document, String> fieldMediaType = (d, s) -> {
