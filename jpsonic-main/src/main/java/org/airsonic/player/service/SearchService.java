@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.tesshu.jpsonic.service.search.IndexType.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -74,6 +75,8 @@ public class SearchService {
   private IndexWriter songWriter;
 
   private Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
+
+  private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
 
   private static Function<Long, Integer> round = (i) -> {
     // return NumericUtils.floatToSortableInt(i);
@@ -141,20 +144,33 @@ public class SearchService {
   }
 
   public void stopIndexing() {
+
     stopIndexing(artistWriter);
     stopIndexing(artistId3Writer);
     stopIndexing(albumWriter);
     stopIndexing(albumId3Writer);
     stopIndexing(songWriter);
+
+    if (0 < searcherManagerMap.size()) {
+      searcherManagerMap.keySet().stream().forEach(key -> {
+        try {
+          searcherManagerMap.get(key).maybeRefresh();
+        } catch (IOException e) {
+          LOG.error("Failed to refresh IndexSearcher.", e);
+          searcherManagerMap.remove(key);
+        }
+      });
+      LOG.info("SearcherManager has been refreshed.");
+    }
+
   }
 
   private void stopIndexing(IndexWriter writer) {
     try {
       writer.flush();
       writer.forceMerge(MAX_NUM_SEGMENTS);
-      LOG.info("Success to merge index : " + writer.getDirectory());
       writer.close();
-      LOG.info("Success to create search index : " + writer.getDirectory());
+      LOG.info("Success to create and merge search index : [" + writer + "]");
     } catch (Exception x) {
       LOG.error("Failed to create search index.", x);
     } finally {
@@ -176,10 +192,9 @@ public class SearchService {
     }
 
     final Query query = QueryFactory.createQuery(criteria, musicFolders, indexType);
+    IndexSearcher searcher = getSearcher(indexType);
 
-    try (IndexReader reader = createIndexReader(indexType)) {
-
-      IndexSearcher searcher = new IndexSearcher(reader);
+    try {
       TopDocs topDocs = searcher.search(query, offset + count);
       result.setTotalHits(round.apply(topDocs.totalHits));
 
@@ -205,18 +220,48 @@ public class SearchService {
             break;
         }
       }
-
     } catch (IOException e) {
       LOG.error("Failed to execute Lucene search.", e);
+    } finally {
+      release(indexType, searcher);
     }
     return result;
   }
 
-  private IndexReader createIndexReader(IndexType indexType) throws IOException {
-    //TODO Use manager class
-    File dir = getIndexDirectory(indexType);
-    return DirectoryReader.open(FSDirectory.open(dir.toPath()));
+  private IndexSearcher getSearcher(IndexType indexType) {
+    if (!searcherManagerMap.containsKey(indexType)) {
+      synchronized (searcherManagerMap) {
+        File indexDirectory = getIndexDirectory(indexType);
+        try {
+          SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+          searcherManagerMap.put(indexType, manager);
+        } catch (IOException e) {
+          LOG.error("Failed to initialize IndexSearcher.", e);
+          searcherManagerMap.remove(indexType);
+        }
+      }
+    }
+    IndexSearcher searcher = null;
+    try {
+      searcher = searcherManagerMap.get(indexType).acquire();
+    } catch (Exception e) {
+      LOG.error("Failed to acquire IndexSearcher.", e);
+    }
+    return searcher;
   }
+  
+  private void release(IndexType indexType, IndexSearcher indexSearcher) {
+    if(searcherManagerMap.containsKey(indexType)) {
+      try {
+        searcherManagerMap.get(indexType).release(indexSearcher);
+      } catch (IOException e) {
+        LOG.error("Failed to release IndexSearcher.", e);
+        searcherManagerMap.remove(indexType);
+      }
+    }
+  }
+
+  
 
   private void addFileIfAnyMatch(List<MediaFile> dist, int id) {
     if (!dist.stream().anyMatch(m -> id == m.getId())) {
@@ -250,6 +295,8 @@ public class SearchService {
 
     IndexType indexType = null;
     String field = null;
+
+    // we only support album, artist, and song for now
     if (clazz.isAssignableFrom(Album.class)) {
       indexType = IndexType.ALBUM_ID3;
       field = FieldNames.ALBUM;
@@ -262,17 +309,16 @@ public class SearchService {
     }
 
     ParamSearchResult<T> result = new ParamSearchResult<T>();
-    // we only support album, artist, and song for now
-    if (isEmpty(indexType) || isEmpty(field)) {
+    result.setOffset(offset);
+
+    if (isEmpty(indexType) || isEmpty(field) || count <= 0) {
       return result;
     }
 
-    result.setOffset(offset);
+    Query query = QueryFactory.searchByName(name, field);
+    IndexSearcher searcher = getSearcher(indexType);
 
-    try (IndexReader reader = createIndexReader(indexType)) {
-
-      IndexSearcher searcher = new IndexSearcher(reader);
-      Query query = QueryFactory.searchByName(name, field);
+    try {
       Sort sort = new Sort(new SortField(field, SortField.Type.STRING));
       TopDocs topDocs = searcher.search(query, offset + count, sort);
 
@@ -302,6 +348,8 @@ public class SearchService {
       }
     } catch (IOException e) {
       LOG.error("Failed to execute Lucene search.", e);
+    } finally {
+      release(indexType, searcher);
     }
     return result;
   }
@@ -316,11 +364,10 @@ public class SearchService {
 
     List<MediaFile> result = new ArrayList<MediaFile>();
 
-    try (IndexReader reader = createIndexReader(SONG)) {
+    final Query query = QueryFactory.createQuery(criteria);
+    IndexSearcher searcher = getSearcher(SONG);
 
-      final Query query = QueryFactory.createQuery(criteria);
-
-      IndexSearcher searcher = new IndexSearcher(reader);
+    try {
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
@@ -335,11 +382,11 @@ public class SearchService {
           LOG.warn("Failed to get media file " + id);
         }
       }
-
     } catch (Throwable x) {
       LOG.error("Failed to search or random songs.", x);
+    } finally {
+      release(SONG, searcher);
     }
-
     return result;
   }
 
@@ -354,10 +401,10 @@ public class SearchService {
 
     List<MediaFile> result = new ArrayList<MediaFile>();
 
-    try (IndexReader reader = createIndexReader(ALBUM)) {
+    Query query = QueryFactory.searchRandomAlbum(musicFolders);
+    IndexSearcher searcher = getSearcher(ALBUM);
 
-      IndexSearcher searcher = new IndexSearcher(reader);
-      Query query = QueryFactory.searchRandomAlbum(musicFolders);
+    try {
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
@@ -372,11 +419,11 @@ public class SearchService {
           LOG.warn("Failed to get media file " + id, x);
         }
       }
-
     } catch (IOException e) {
       LOG.error("Failed to search for random albums.", e);
+    } finally {
+      release(ALBUM, searcher);
     }
-
     return result;
   }
 
@@ -391,10 +438,10 @@ public class SearchService {
 
     List<Album> result = new ArrayList<Album>();
 
-    try (IndexReader reader = createIndexReader(ALBUM_ID3)) {
-      IndexSearcher searcher = new IndexSearcher(reader);
-      Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
+    Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
+    IndexSearcher searcher = getSearcher(ALBUM_ID3);
 
+    try {
       TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
       List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
       Random random = new Random(System.currentTimeMillis());
@@ -409,11 +456,11 @@ public class SearchService {
           LOG.warn("Failed to get album file " + id, x);
         }
       }
-
     } catch (IOException e) {
       LOG.error("Failed to search for random albums.", e);
+    } finally {
+      release(ALBUM_ID3, searcher);
     }
-
     return result;
   }
 
