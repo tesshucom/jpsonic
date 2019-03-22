@@ -19,8 +19,6 @@
  */
 package org.airsonic.player.service;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.service.search.*;
 
 import org.airsonic.player.dao.*;
@@ -32,6 +30,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +40,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.service.search.IndexType.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -55,413 +58,432 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class SearchService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 
-  private static final String LUCENE_DIR = "lucene7.4jp";
+    private static final String LUCENE_DIR = "lucene7.4jp";
 
-  private static final int MAX_NUM_SEGMENTS = 1;
+    private static final int MAX_NUM_SEGMENTS = 1;
 
-  @Autowired
-  private MediaFileService mediaFileService;
-  @Autowired
-  private ArtistDao artistDao;
-  @Autowired
-  private AlbumDao albumDao;
+    private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
 
-  private IndexWriter artistWriter;
-  private IndexWriter artistId3Writer;
-  private IndexWriter albumWriter;
-  private IndexWriter albumId3Writer;
-  private IndexWriter songWriter;
+    private final Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
 
-  private Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
+    private final Random random = new Random(System.currentTimeMillis());
 
-  private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
+    @Autowired
+    private MediaFileService mediaFileService;
 
-  private static Function<Long, Integer> round = (i) -> {
-    // return NumericUtils.floatToSortableInt(i);
-    return i.intValue();
-  };
+    @Autowired
+    private ArtistDao artistDao;
 
-  private static Function<String, Integer> parseId = (s) -> {
-    return Integer.valueOf(s);
-  };
+    @Autowired
+    private AlbumDao albumDao;
 
-  private File getIndexDirectory(IndexType indexType) {
-    return new File(getIndexRootDirectory(), indexType.toString().toLowerCase());
-  }
+    private IndexWriter artistWriter;
+    private IndexWriter artistId3Writer;
+    private IndexWriter albumWriter;
+    private IndexWriter albumId3Writer;
+    private IndexWriter songWriter;
 
-  private File getIndexRootDirectory() {
-    return new File(SettingsService.getJpsonicHome(), LUCENE_DIR);
-  }
 
-  public void startIndexing() {
-    try {
-      artistWriter = createIndexWriter(ARTIST);
-      artistId3Writer = createIndexWriter(ARTIST_ID3);
-      albumWriter = createIndexWriter(ALBUM);
-      albumId3Writer = createIndexWriter(ALBUM_ID3);
-      songWriter = createIndexWriter(SONG);
-    } catch (Exception x) {
-      LOG.error("Failed to create search index.", x);
+    private final Function<Long, Integer> round = (i) -> {
+        // return
+        // NumericUtils.floatToSortableInt(i);
+        return i.intValue();
+    };
+
+    private final Function<Document, Integer> getId = d -> {
+        return Integer.valueOf(d.get(FieldNames.ID));
+    };
+
+    private final BiConsumer<List<MediaFile>, Integer> addMediaFileIfAnyMatch = (dist, id) -> {
+        if (!dist.stream().anyMatch(m -> id == m.getId())) {
+            MediaFile mediaFile = mediaFileService.getMediaFile(id);
+            if (!isEmpty(mediaFile)) {
+                dist.add(mediaFile);
+            }
+        }
+    };
+
+    private final BiConsumer<List<Artist>, Integer> addArtistId3IfAnyMatch = (dist, id) -> {
+        if (!dist.stream().anyMatch(a -> id == a.getId())) {
+            Artist artist = artistDao.getArtist(id);
+            if (!isEmpty(artist)) {
+                dist.add(artist);
+            }
+        }
+    };
+
+    private final Function<Class<?>, @Nullable IndexType> getIndexType = (assignableClass) -> {
+        IndexType indexType = null;
+        if (assignableClass.isAssignableFrom(Album.class)) {
+            indexType = IndexType.ALBUM_ID3;
+        } else if (assignableClass.isAssignableFrom(Artist.class)) {
+            indexType = IndexType.ARTIST_ID3;
+        } else if (assignableClass.isAssignableFrom(MediaFile.class)) {
+            indexType = IndexType.SONG;
+        }
+        return indexType;
+    };
+
+    private final Function<Class<?>, @Nullable String> getFieldName = (assignableClass) -> {
+        String fieldName = null;
+        if (assignableClass.isAssignableFrom(Album.class)) {
+            fieldName = FieldNames.ALBUM;
+        } else if (assignableClass.isAssignableFrom(Artist.class)) {
+            fieldName = FieldNames.ARTIST;
+        } else if (assignableClass.isAssignableFrom(MediaFile.class)) {
+            fieldName = FieldNames.TITLE;
+        }
+        return fieldName;
+    };
+
+    private final BiConsumer<List<Album>, Integer> addAlbumId3IfAnyMatch = (dist, subjectId) -> {
+        if (!dist.stream().anyMatch(a -> subjectId == a.getId())) {
+            Album album = albumDao.getAlbum(subjectId);
+            if (!isEmpty(album)) {
+                dist.add(album);
+            }
+        }
+    };
+
+    private final boolean addIgnoreNull(Collection<?> collection, Object object) {
+        return CollectionUtils.addIgnoreNull(collection, object);
     }
-  }
 
-  private IndexWriter createIndexWriter(IndexType indexType) throws IOException {
-    File dir = getIndexDirectory(indexType);
-    IndexWriterConfig config = new IndexWriterConfig(analyzer);
-    return new IndexWriter(FSDirectory.open(dir.toPath()), config);
-  }
-
-  public void index(MediaFile mediaFile) {
-    try {
-      if (mediaFile.isFile()) {
-        songWriter.addDocument(SONG.createDocument(mediaFile));
-      } else if (mediaFile.isAlbum()) {
-        albumWriter.addDocument(ALBUM.createDocument(mediaFile));
-      } else {
-        artistWriter.addDocument(ARTIST.createDocument(mediaFile));
-      }
-    } catch (Exception x) {
-      LOG.error("Failed to create search index for " + mediaFile, x);
+    private final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType, int subjectId, Class<T> subjectClass) {
+        if (indexType == SONG) {
+            MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
+            addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
+        } else if (indexType == ARTIST_ID3) {
+            Artist artist = artistDao.getArtist(subjectId);
+            addIgnoreNull(dist.getItems(), subjectClass.cast(artist));
+        } else if (indexType == ALBUM_ID3) {
+            Album album = albumDao.getAlbum(subjectId);
+            addIgnoreNull(dist.getItems(), subjectClass.cast(album));
+        }
     }
-  }
 
-  public void index(Artist artist, MusicFolder musicFolder) {
-    try {
-      artistId3Writer.addDocument(ARTIST_ID3.createDocument(artist, musicFolder));
-    } catch (Exception x) {
-      LOG.error("Failed to create search index for " + artist, x);
+    private final Supplier<File> getRootDirectory = () -> {
+        return new File(SettingsService.getJpsonicHome(), LUCENE_DIR);
+    };
+
+    private final Function<IndexType, File> getDirectory = (indexType) -> {
+        return new File(getRootDirectory.get(),
+            indexType.toString().toLowerCase());
+    };
+
+    private final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType, Document subject) {
+        int documentId = getId.apply(subject);
+        if (subjectIndexType == ARTIST | subjectIndexType == ALBUM | subjectIndexType == SONG) {
+            addMediaFileIfAnyMatch.accept(dist.getMediaFiles(), documentId);
+        } else if (subjectIndexType == ARTIST_ID3) {
+            addArtistId3IfAnyMatch.accept(dist.getArtists(), documentId);
+        } else if (subjectIndexType == ALBUM_ID3) {
+            addAlbumId3IfAnyMatch.accept(dist.getAlbums(), documentId);
+        }
     }
-  }
 
-  public void index(Album album) {
-    try {
-      albumId3Writer.addDocument(ALBUM_ID3.createDocument(album));
-    } catch (Exception x) {
-      LOG.error("Failed to create search index for " + album, x);
+    private final IndexWriter createIndexWriter(IndexType indexType) throws IOException {
+        File dir = getDirectory.apply(indexType);
+        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        return new IndexWriter(FSDirectory.open(dir.toPath()), config);
     }
-  }
 
-  public void stopIndexing() {
-
-    stopIndexing(artistWriter);
-    stopIndexing(artistId3Writer);
-    stopIndexing(albumWriter);
-    stopIndexing(albumId3Writer);
-    stopIndexing(songWriter);
-
-    if (0 < searcherManagerMap.size()) {
-      searcherManagerMap.keySet().stream().forEach(key -> {
+    public final void startIndexing() {
         try {
-          searcherManagerMap.get(key).maybeRefresh();
+            artistWriter = createIndexWriter(ARTIST);
+            artistId3Writer = createIndexWriter(ARTIST_ID3);
+            albumWriter = createIndexWriter(ALBUM);
+            albumId3Writer = createIndexWriter(ALBUM_ID3);
+            songWriter = createIndexWriter(SONG);
+        } catch (Exception x) {
+            LOG.error("Failed to create search index.", x);
+        }
+    }
+
+    public void index(MediaFile mediaFile) {
+        try {
+            if (mediaFile.isFile()) {
+                songWriter.addDocument(SONG.createDocument(mediaFile));
+            } else if (mediaFile.isAlbum()) {
+                albumWriter.addDocument(ALBUM.createDocument(mediaFile));
+            } else {
+                artistWriter.addDocument(ARTIST.createDocument(mediaFile));
+            }
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + mediaFile, x);
+        }
+    }
+
+    public void index(Artist artist, MusicFolder musicFolder) {
+        try {
+            artistId3Writer.addDocument(ARTIST_ID3.createDocument(artist, musicFolder));
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + artist, x);
+        }
+    }
+
+    public void index(Album album) {
+        try {
+            albumId3Writer.addDocument(ALBUM_ID3.createDocument(album));
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + album, x);
+        }
+    }
+
+    private void stopIndexing(IndexWriter writer) {
+        try {
+            writer.flush();
+            writer.forceMerge(MAX_NUM_SEGMENTS);
+            writer.close();
+            LOG.info("Success to create and merge search index : [" + writer + "]");
+        } catch (Exception x) {
+            LOG.error("Failed to create search index.", x);
+        } finally {
+            FileUtil.closeQuietly(writer);
+        }
+    }
+
+    public void stopIndexing() {
+
+        stopIndexing(artistWriter);
+        stopIndexing(artistId3Writer);
+        stopIndexing(albumWriter);
+        stopIndexing(albumId3Writer);
+        stopIndexing(songWriter);
+
+        if (0 < searcherManagerMap.size()) {
+            searcherManagerMap.keySet().stream().forEach(key -> {
+                try {
+                    searcherManagerMap.get(key).maybeRefresh();
+                } catch (IOException e) {
+                    LOG.error("Failed to refresh IndexSearcher.", e);
+                    searcherManagerMap.remove(key);
+                }
+            });
+            LOG.info("SearcherManager has been refreshed.");
+        }
+
+    }
+
+    private IndexSearcher getSearcher(IndexType indexType) {
+        if (!searcherManagerMap.containsKey(indexType)) {
+            synchronized (searcherManagerMap) {
+                File indexDirectory = getDirectory.apply(indexType);
+                try {
+                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+                    searcherManagerMap.put(indexType, manager);
+                } catch (IOException e) {
+                    LOG.error("Failed to initialize IndexSearcher.", e);
+                    searcherManagerMap.remove(indexType);
+                }
+            }
+        }
+        IndexSearcher searcher = null;
+        try {
+            searcher = searcherManagerMap.get(indexType).acquire();
+        } catch (Exception e) {
+            LOG.error("Failed to acquire IndexSearcher.", e);
+        }
+        return searcher;
+    }
+
+    private void release(IndexType indexType, IndexSearcher indexSearcher) {
+        if (searcherManagerMap.containsKey(indexType)) {
+            try {
+                searcherManagerMap.get(indexType).release(indexSearcher);
+            } catch (IOException e) {
+                LOG.error("Failed to release IndexSearcher.", e);
+                searcherManagerMap.remove(indexType);
+            }
+        }
+    }
+
+    public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+
+        final int offset = criteria.getOffset();
+        final int count = criteria.getCount();
+        final SearchResult result = new SearchResult();
+        result.setOffset(offset);
+
+        if (count <= 0) {
+            return result;
+        }
+
+        final Query query = QueryFactory.createQuery(criteria, musicFolders, indexType);
+        IndexSearcher searcher = getSearcher(indexType);
+
+        try {
+
+            TopDocs topDocs = searcher.search(query, offset + count);
+
+            int totalHits = round.apply(topDocs.totalHits);
+            result.setTotalHits(totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                addIfAnyMatch(result, indexType, searcher.doc(topDocs.scoreDocs[i].doc));
+            }
+
         } catch (IOException e) {
-          LOG.error("Failed to refresh IndexSearcher.", e);
-          searcherManagerMap.remove(key);
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            release(indexType, searcher);
         }
-      });
-      LOG.info("SearcherManager has been refreshed.");
+        return result;
     }
 
-  }
+    public <T> ParamSearchResult<T> searchByName(String name, int offset, int count, List<MusicFolder> folderList, Class<T> assignableClass) {
 
-  private void stopIndexing(IndexWriter writer) {
-    try {
-      writer.flush();
-      writer.forceMerge(MAX_NUM_SEGMENTS);
-      writer.close();
-      LOG.info("Success to create and merge search index : [" + writer + "]");
-    } catch (Exception x) {
-      LOG.error("Failed to create search index.", x);
-    } finally {
-      FileUtil.closeQuietly(writer);
-    }
-  }
+        // we only support album, artist, and song for now
+        @Nullable
+        IndexType indexType = getIndexType.apply(assignableClass);
+        @Nullable
+        String fieldName = getFieldName.apply(assignableClass);
 
-  public SearchResult search(
-      SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+        ParamSearchResult<T> result = new ParamSearchResult<T>();
+        result.setOffset(offset);
 
-    final int offset = criteria.getOffset();
-    final int count = criteria.getCount();
-
-    final SearchResult result = new SearchResult();
-    result.setOffset(offset);
-
-    if (count <= 0) {
-      return result;
-    }
-
-    final Query query = QueryFactory.createQuery(criteria, musicFolders, indexType);
-    IndexSearcher searcher = getSearcher(indexType);
-
-    try {
-      TopDocs topDocs = searcher.search(query, offset + count);
-      result.setTotalHits(round.apply(topDocs.totalHits));
-
-      int start = round.apply(Math.min(offset, topDocs.totalHits));
-      int end = round.apply(Math.min(start + count, topDocs.totalHits));
-
-      for (int i = start; i < end; i++) {
-        Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-        int id = parseId.apply(doc.get(FieldNames.ID));
-        switch (indexType) {
-          case SONG:
-          case ARTIST:
-          case ALBUM:
-            addFileIfAnyMatch(result.getMediaFiles(), id);
-            break;
-          case ARTIST_ID3:
-            addArtistIfAnyMatch(result.getArtists(), id);
-            break;
-          case ALBUM_ID3:
-            addAlbumIfAnyMatch(result.getAlbums(), id);
-            break;
-          default:
-            break;
+        if (isEmpty(indexType) || isEmpty(fieldName) || count <= 0) {
+            return result;
         }
-      }
-    } catch (IOException e) {
-      LOG.error("Failed to execute Lucene search.", e);
-    } finally {
-      release(indexType, searcher);
-    }
-    return result;
-  }
 
-  private IndexSearcher getSearcher(IndexType indexType) {
-    if (!searcherManagerMap.containsKey(indexType)) {
-      synchronized (searcherManagerMap) {
-        File indexDirectory = getIndexDirectory(indexType);
+        Query query = QueryFactory.searchByName(name, fieldName);
+        IndexSearcher searcher = getSearcher(indexType);
+
         try {
-          SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
-          searcherManagerMap.put(indexType, manager);
+
+            Sort sort = new Sort(new SortField(fieldName, SortField.Type.STRING));
+            TopDocs topDocs = searcher.search(query, offset + count, sort);
+
+            int totalHits = round.apply(topDocs.totalHits);
+            result.setTotalHits(totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                this.addIgnoreNull(result, indexType, getId.apply(doc), assignableClass);
+            }
+
         } catch (IOException e) {
-          LOG.error("Failed to initialize IndexSearcher.", e);
-          searcherManagerMap.remove(indexType);
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            release(indexType, searcher);
         }
-      }
-    }
-    IndexSearcher searcher = null;
-    try {
-      searcher = searcherManagerMap.get(indexType).acquire();
-    } catch (Exception e) {
-      LOG.error("Failed to acquire IndexSearcher.", e);
-    }
-    return searcher;
-  }
-  
-  private void release(IndexType indexType, IndexSearcher indexSearcher) {
-    if(searcherManagerMap.containsKey(indexType)) {
-      try {
-        searcherManagerMap.get(indexType).release(indexSearcher);
-      } catch (IOException e) {
-        LOG.error("Failed to release IndexSearcher.", e);
-        searcherManagerMap.remove(indexType);
-      }
-    }
-  }
-
-  
-
-  private void addFileIfAnyMatch(List<MediaFile> dist, int id) {
-    if (!dist.stream().anyMatch(m -> id == m.getId())) {
-      MediaFile mediaFile = mediaFileService.getMediaFile(id);
-      if (!isEmpty(mediaFile)) {
-        dist.add(mediaFile);
-      }
-    }
-  }
-
-  private void addArtistIfAnyMatch(List<Artist> dist, int id) {
-    if (!dist.stream().anyMatch(m -> id == m.getId())) {
-      Artist artist = artistDao.getArtist(id);
-      if (!isEmpty(artist)) {
-        dist.add(artist);
-      }
-    }
-  }
-
-  private void addAlbumIfAnyMatch(List<Album> dist, int id) {
-    if (!dist.stream().anyMatch(m -> id == m.getId())) {
-      Album album = albumDao.getAlbum(id);
-      if (!isEmpty(album)) {
-        dist.add(album);
-      }
-    }
-  }
-
-  public <T> ParamSearchResult<T> searchByName(
-      String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz) {
-
-    IndexType indexType = null;
-    String field = null;
-
-    // we only support album, artist, and song for now
-    if (clazz.isAssignableFrom(Album.class)) {
-      indexType = IndexType.ALBUM_ID3;
-      field = FieldNames.ALBUM;
-    } else if (clazz.isAssignableFrom(Artist.class)) {
-      indexType = IndexType.ARTIST_ID3;
-      field = FieldNames.ARTIST;
-    } else if (clazz.isAssignableFrom(MediaFile.class)) {
-      indexType = IndexType.SONG;
-      field = FieldNames.TITLE;
+        return result;
     }
 
-    ParamSearchResult<T> result = new ParamSearchResult<T>();
-    result.setOffset(offset);
+    /**
+     * 
+     * @param count Number of albums to return.
+     * @param searcher
+     * @param query
+     * @param id2ListCallBack Callback to get D from id and store it in List
+     * @return result
+     * @throws IOException
+     */
+    private final <D> List<D> createRandomFiles(
+            int count,
+            IndexSearcher searcher,
+            Query query,
+            BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException{
 
-    if (isEmpty(indexType) || isEmpty(field) || count <= 0) {
-      return result;
-    }
+        List<D> result = new ArrayList<>();
 
-    Query query = QueryFactory.searchByName(name, field);
-    IndexSearcher searcher = getSearcher(indexType);
+        List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                .map(sd -> sd.doc)
+                .collect(Collectors.toList());
 
-    try {
-      Sort sort = new Sort(new SortField(field, SortField.Type.STRING));
-      TopDocs topDocs = searcher.search(query, offset + count, sort);
+        int docsLength = docs.size();
 
-      int start = round.apply(Math.min(offset, topDocs.totalHits));
-      int end = round.apply(Math.min(start + count, topDocs.totalHits));
-
-      for (int i = start; i < end; i++) {
-        Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-        final IndexType type = indexType;
-        switch (type) {
-          case SONG:
-            MediaFile mediaFile =
-                mediaFileService.getMediaFile(parseId.apply(doc.get(FieldNames.ID)));
-            CollectionUtils.addIgnoreNull(result.getItems(), clazz.cast(mediaFile));
-            break;
-          case ARTIST_ID3:
-            Artist artist = artistDao.getArtist(parseId.apply(doc.get(FieldNames.ID)));
-            CollectionUtils.addIgnoreNull(result.getItems(), clazz.cast(artist));
-            break;
-          case ALBUM_ID3:
-            Album album = albumDao.getAlbum(parseId.apply(doc.get(FieldNames.ID)));
-            CollectionUtils.addIgnoreNull(result.getItems(), clazz.cast(album));
-            break;
-          default:
-            break;
+        for (int i = 0; i < docsLength && result.size() < count; i++) {
+            Integer randomPos = random.nextInt(docs.size());
+            Document document = searcher.doc(docs.get(randomPos));
+            docs.remove(randomPos);
+            int id = getId.apply(document);
+            id2ListCallBack.accept(result, id);
         }
-      }
-    } catch (IOException e) {
-      LOG.error("Failed to execute Lucene search.", e);
-    } finally {
-      release(indexType, searcher);
+
+        return result;
     }
-    return result;
-  }
 
-  /**
-   * Returns a number of random songs.
-   *
-   * @param criteria Search criteria.
-   * @return List of random songs.
-   */
-  public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
+    /**
+     * Returns a number of random songs.
+     *
+     * @param criteria Search criteria.
+     * @return List of random songs.
+     */
+    public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
-    List<MediaFile> result = new ArrayList<MediaFile>();
+        final Query query = QueryFactory.createQuery(criteria);
+        IndexSearcher searcher = getSearcher(SONG);
 
-    final Query query = QueryFactory.createQuery(criteria);
-    IndexSearcher searcher = getSearcher(SONG);
-
-    try {
-      TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-      List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
-      Random random = new Random(System.currentTimeMillis());
-
-      while (!scoreDocs.isEmpty() && result.size() < criteria.getCount()) {
-        int index = random.nextInt(scoreDocs.size());
-        Document doc = searcher.doc(scoreDocs.remove(index).doc);
-        int id = parseId.apply(doc.get(FieldNames.ID));
         try {
-          CollectionUtils.addIgnoreNull(result, mediaFileService.getMediaFile(id));
-        } catch (Exception x) {
-          LOG.warn("Failed to get media file " + id);
+            return createRandomFiles(criteria.getCount(), searcher, query, (dist, id)
+                    -> addIgnoreNull(dist, mediaFileService.getMediaFile(id)));
+        } catch (IOException e) {
+            LOG.error("Failed to search or random songs.", e);
+        } finally {
+            release(SONG, searcher);
         }
-      }
-    } catch (Throwable x) {
-      LOG.error("Failed to search or random songs.", x);
-    } finally {
-      release(SONG, searcher);
+
+        return Collections.emptyList();
+
     }
-    return result;
-  }
 
-  /**
-   * Returns a number of random albums.
-   *
-   * @param count        Number of albums to return.
-   * @param musicFolders Only return albums from these folders.
-   * @return List of random albums.
-   */
-  public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
+    /**
+     * Returns a number of random albums.
+     *
+     * @param count Number of albums to return.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
-    List<MediaFile> result = new ArrayList<MediaFile>();
+        Query query = QueryFactory.searchRandomAlbum(musicFolders);
+        IndexSearcher searcher = getSearcher(ALBUM);
 
-    Query query = QueryFactory.searchRandomAlbum(musicFolders);
-    IndexSearcher searcher = getSearcher(ALBUM);
-
-    try {
-      TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-      List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
-      Random random = new Random(System.currentTimeMillis());
-
-      while (!scoreDocs.isEmpty() && result.size() < count) {
-        int index = random.nextInt(scoreDocs.size());
-        Document doc = searcher.doc(scoreDocs.remove(index).doc);
-        int id = parseId.apply(doc.get(FieldNames.ID));
         try {
-          CollectionUtils.addIgnoreNull(result, mediaFileService.getMediaFile(id));
-        } catch (Exception x) {
-          LOG.warn("Failed to get media file " + id, x);
+            return createRandomFiles(count, searcher, query,  (dist, id)
+                    -> addIgnoreNull(dist, mediaFileService.getMediaFile(id)));
+        } catch (IOException e) {
+            LOG.error("Failed to search for random albums.", e);
+        } finally {
+            release(ALBUM, searcher);
         }
-      }
-    } catch (IOException e) {
-      LOG.error("Failed to search for random albums.", e);
-    } finally {
-      release(ALBUM, searcher);
+
+        return Collections.emptyList();
+
     }
-    return result;
-  }
 
-  /**
-   * Returns a number of random albums, using ID3 tag.
-   *
-   * @param count        Number of albums to return.
-   * @param musicFolders Only return albums from these folders.
-   * @return List of random albums.
-   */
-  public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
+    /**
+     * Returns a number of random albums, using ID3 tag.
+     *
+     * @param count        Number of albums to return.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
-    List<Album> result = new ArrayList<Album>();
+        List<Album> result = new ArrayList<Album>();
 
-    Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
-    IndexSearcher searcher = getSearcher(ALBUM_ID3);
+        Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
+        IndexSearcher searcher = getSearcher(ALBUM_ID3);
 
-    try {
-      TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-      List<ScoreDoc> scoreDocs = Lists.newArrayList(topDocs.scoreDocs);
-      Random random = new Random(System.currentTimeMillis());
-
-      while (!scoreDocs.isEmpty() && result.size() < count) {
-        int index = random.nextInt(scoreDocs.size());
-        Document doc = searcher.doc(scoreDocs.remove(index).doc);
-        int id = parseId.apply(doc.get(FieldNames.ID));
         try {
-          CollectionUtils.addIgnoreNull(result, albumDao.getAlbum(id));
-        } catch (Exception x) {
-          LOG.warn("Failed to get album file " + id, x);
+            return createRandomFiles(count, searcher, query,  (dist, id)
+                    -> addIgnoreNull(dist, albumDao.getAlbum(id)));
+        } catch (IOException e) {
+            LOG.error("Failed to search for random albums.", e);
+        } finally {
+            release(ALBUM_ID3, searcher);
         }
-      }
-    } catch (IOException e) {
-      LOG.error("Failed to search for random albums.", e);
-    } finally {
-      release(ALBUM_ID3, searcher);
+
+        return result;
+
     }
-    return result;
-  }
 
 }
