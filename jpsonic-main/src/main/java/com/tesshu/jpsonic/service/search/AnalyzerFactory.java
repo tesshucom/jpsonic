@@ -144,6 +144,8 @@ public final class AnalyzerFactory {
                 analyzerMap.put(FieldNames.ARTIST_FULL, filteredKeyword);
                 analyzerMap.put(FieldNames.ARTIST_READING_HIRAGANA, filteredKeyword);
                 analyzerMap.put(FieldNames.ALBUM_FULL, filteredKeyword);
+                analyzerMap.put(FieldNames.ALBUM_READING_HIRAGANA, filteredKeyword);
+                analyzerMap.put(FieldNames.TITLE_READING_HIRAGANA, filteredKeyword);
 
                 this.analyzer = new PerFieldAnalyzerWrapper(jpDefault, analyzerMap);
 

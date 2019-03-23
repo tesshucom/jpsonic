@@ -80,7 +80,7 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setOffset(0); // Not used in queries
     Query queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.ALBUM);
     assertEquals("album",
-        "+(alb:test* alb:1* alb:test* alb:2* albF:test1test2* albRH:test* albRH:1* albRH:test* albRH:2* "
+        "+(alb:test* alb:1* alb:test* alb:2* albF:test1test2* albRH:test1test2* "
         + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
@@ -89,7 +89,7 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setOffset(0); // Not used in queries
     queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.SONG);
     assertEquals("song",
-        "+(tit:test* tit:1* tit:test* tit:2* titRH:test* titRH:1* titRH:test* titRH:2* "
+        "+(tit:test* tit:1* tit:test* tit:2* titRH:test1test2* "
         + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
