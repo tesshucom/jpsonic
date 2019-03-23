@@ -18,7 +18,6 @@
  */
 package com.tesshu.jpsonic.service.search;
 
-import com.google.common.base.Function;
 import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Album;
@@ -318,16 +317,12 @@ public enum IndexType {
 		d.add(new SortedDocValuesField(FieldNames.MEDIA_TYPE, new BytesRef(s.toLowerCase())));
 	};
 
-	public static Function<String, String> normalizeGenre = (genre) -> {
-		return genre.toLowerCase().replace(" ", "").replace("-", "");
-	};
-
 	private static final BiConsumer<Document, String> fieldGenre = (d, s) -> {
 		if (isEmpty(s)) {
 			return;
 		}
 		d.add(new TextField(FieldNames.GENRE, s, Store.YES));
-		d.add(new SortedDocValuesField(FieldNames.GENRE, new BytesRef(normalizeGenre.apply(s))));
+		d.add(new SortedDocValuesField(FieldNames.GENRE, new BytesRef(s)));
 	};
 
 	private final String[] fields;
