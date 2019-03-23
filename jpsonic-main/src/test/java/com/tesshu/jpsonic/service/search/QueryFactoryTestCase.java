@@ -57,8 +57,8 @@ public class QueryFactoryTestCase extends TestCase {
     musicFolders.add(music1);
     Query querySingle = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("single",
-        "+(artist:test* artist:1* artistF:test1* artistR:test* artistR:1* artistRH:test1*) "
-        + "+(folder:" + path1 + ")",
+        "+(art:test* art:1* artF:test1* artR:test* artR:1* artRH:test1*) "
+        + "+(f:" + path1 + ")",
         querySingle.toString());
   }
 
@@ -71,28 +71,27 @@ public class QueryFactoryTestCase extends TestCase {
    musicFolders.add(music2);
     Query queryMulti = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("artist",
-        "+(artist:test* artist:1* artist:test* artist:2* artistF:test1test2* "
-        + "artistR:test* artistR:1* artistR:test* artistR:2* artistRH:test1test2*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:test* art:1* art:test* art:2* artF:test1test2* "
+        + "artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryMulti.toString());
 
     criteria.setCount(50); // Not used in queries
     criteria.setOffset(0); // Not used in queries
     Query queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.ALBUM);
     assertEquals("album",
-        "+(album:test* album:1* album:test* album:2* albumF:test1test2* artist:test* artist:1* "
-        + "artist:test* artist:2* artistF:test1test2* artistR:test* artistR:1* "
-        + "artistR:test* artistR:2* artistRH:test1test2*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(alb:test* alb:1* alb:test* alb:2* albF:test1test2* albRH:test* albRH:1* albRH:test* albRH:2* "
+        + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
     
     criteria.setCount(50); // Not used in queries
     criteria.setOffset(0); // Not used in queries
     queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.SONG);
     assertEquals("song",
-        "+(title:test* title:1* title:test* title:2* artist:test* artist:1* artist:test* artist:2* "
-        + "artistF:test1test2* artistR:test* artistR:1* artistR:test* artistR:2* artistRH:test1test2*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(tit:test* tit:1* tit:test* tit:2* titRH:test* titRH:1* titRH:test* titRH:2* "
+        + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
   }
 
@@ -108,36 +107,36 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setQuery("みんなの歌");
     Query queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("japanese",
-        "+(artist:みんな* artist:歌* artistF:みんなの歌* artistR:みんな* artistR:歌* artistRH:みんなの歌*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:みんな* art:歌* artF:みんなの歌* artR:みんな* artR:歌* artRH:みんなの歌*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきものがかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきものがかり",
-        "+(artist:いき* artist:かり* artistF:いきものがかり* artistR:いき* artistR:かり* artistRH:いきものがかり*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:いき* art:かり* artF:いきものがかり* artR:いき* artR:かり* artRH:いきものがかり*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきもの がかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきもの がかり",
-        "+(artist:いき* artist:がかり* artistF:いきものがかり* artistR:いき* artistR:がかり* artistRH:いきものがかり*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:いき* art:がかり* artF:いきものがかり* artR:いき* artR:がかり* artRH:いきものがかり*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきものガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきものガカリ",
-        "+(artist:いき* artist:ガ* artist:カリ* artistF:いきものガカリ* artistR:いき* artistR:ガ* artistR:カリ* artistRH:いきものガカリ*) "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:いき* art:ガ* art:カリ* artF:いきものガカリ* artR:いき* artR:ガ* artR:カリ* artRH:いきものガカリ*) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("イキモノガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("イキモノガカリ",
-        "+(artist:イキモノガカリ* artistF:イキモノガカリ* artistR:イキモノガカリ* artistRH:イキモノガカリ*) "
-            + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(art:イキモノガカリ* artF:イキモノガカリ* artR:イキモノガカリ* artRH:イキモノガカリ*) "
+            + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
   }
@@ -159,10 +158,10 @@ public class QueryFactoryTestCase extends TestCase {
         musicFolders);       // musicFolders
     Query querySingle = QueryFactory.createQuery(criteria);
     assertEquals("single",
-        "+mediaType:music "+
-        "+genre:classicrock " +
-        "+year:[1900 TO 2000] " +
-        "+(folder:" + path1+ ")",
+        "+m:music "+
+        "+g:classicrock " +
+        "+y:[1900 TO 2000] " +
+        "+(f:" + path1+ ")",
         querySingle.toString());
 
     String path2 = sapa + "var" + sapa + "music2";
@@ -170,10 +169,10 @@ public class QueryFactoryTestCase extends TestCase {
         new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new Date()));
     Query queryMulti = QueryFactory.createQuery(criteria);
     assertEquals("multi",
-        "+mediaType:music "
-        + "+genre:classicrock "
-        + "+year:[1900 TO 2000] "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+m:music "
+        + "+g:classicrock "
+        + "+y:[1900 TO 2000] "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryMulti.toString());
 
     criteria = new RandomSearchCriteria(
@@ -186,9 +185,9 @@ public class QueryFactoryTestCase extends TestCase {
     Query queryNullFrom = QueryFactory.createQuery(criteria);
 
     assertEquals("NullFrom",
-        "+mediaType:music "
-        + "+year:[-2147483648 TO 2000] "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+m:music "
+        + "+y:[-2147483648 TO 2000] "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryNullFrom.toString());
 
     criteria = new RandomSearchCriteria(
@@ -199,9 +198,9 @@ public class QueryFactoryTestCase extends TestCase {
         musicFolders);       // musicFolders
     Query queryNullTo = QueryFactory.createQuery(criteria);
     assertEquals("NullTo",
-        "+mediaType:music "
-        + "+year:[1900 TO 2147483647] "
-        + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+m:music "
+        + "+y:[1900 TO 2147483647] "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryNullTo.toString());
 
     criteria = new RandomSearchCriteria(
@@ -212,8 +211,8 @@ public class QueryFactoryTestCase extends TestCase {
         musicFolders);       // musicFolders
     Query queryNullYear = QueryFactory.createQuery(criteria);
     assertEquals("NullYear",
-        "+mediaType:music "
-            + "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+m:music "
+            + "+(f:" + path1 + " f:" + path2 + ")",
         queryNullYear.toString());
 
   }
@@ -221,19 +220,19 @@ public class QueryFactoryTestCase extends TestCase {
   public void testSearchByName() {
     Query querySingle = QueryFactory.searchByName("The Ventures", FieldNames.ARTIST);
     assertEquals("single",
-        "+artist:ventures*", querySingle.toString());
+        "+art:ventures*", querySingle.toString());
   }
 
   public void testArticle() {
     Query querySingle = QueryFactory.searchByName("THIS IS THE VENTURES", FieldNames.ARTIST);
     assertEquals("article",
-        "+artist:this* +artist:is* +artist:ventures*", querySingle.toString());
+        "+art:this* +art:is* +art:ventures*", querySingle.toString());
   }
 
   public void testAUX29() {
     Query querySingle = QueryFactory.searchByName("I'll be back.", FieldNames.ARTIST);
     assertEquals("aux",
-        "+artist:i* +artist:ll* +artist:be* +artist:back*", querySingle.toString());
+        "+art:i* +art:ll* +art:be* +art:back*", querySingle.toString());
   }
 
   public void testSearchByNameMusicFolderPath() {
@@ -247,17 +246,17 @@ public class QueryFactoryTestCase extends TestCase {
         new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new Date()));
     Query querySingle = QueryFactory.searchRandomAlbum(musicFolders);
     assertEquals("single",
-        "+(folder:" + path1 + ")", querySingle.toString());
+        "+(f:" + path1 + ")", querySingle.toString());
 
     musicFolders.add(
         new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new Date()));
     Query queryMulti = QueryFactory.searchRandomAlbum(musicFolders);
     assertEquals("multi",
-        "+(folder:" + path1 + " folder:" + path2 + ")",
+        "+(f:" + path1 + " f:" + path2 + ")",
         queryMulti.toString());
   }
   
-  public void testSearchByNameMusicFolderIds() {
+  public void testSearchByNameMusicfIds() {
 
     String sepa = System.getProperty("file.separator");
     String path1 = sepa + "var" + sepa + "music1";
@@ -267,7 +266,7 @@ public class QueryFactoryTestCase extends TestCase {
         new MusicFolder(Integer.valueOf(0), new File(path1), "music1", true, new Date()));
     Query querySingle = QueryFactory.searchRandomAlbumId3(musicFolders);
     assertEquals("single",
-        "+(folderId:0)",
+        "+(fId:0)",
         querySingle.toString());
 
     String path2 = sepa + "var" + sepa + "music2";
@@ -275,7 +274,7 @@ public class QueryFactoryTestCase extends TestCase {
         new MusicFolder(Integer.valueOf(1), new File(path2), "music2", true, new Date()));
     Query queryMulti = QueryFactory.searchRandomAlbumId3(musicFolders);
     assertEquals("single",
-        "+(folderId:0 folderId:1)",
+        "+(fId:0 fId:1)",
         queryMulti.toString());
 
   }
