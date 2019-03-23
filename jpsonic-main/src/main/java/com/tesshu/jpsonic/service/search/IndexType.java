@@ -18,7 +18,6 @@
  */
 package com.tesshu.jpsonic.service.search;
 
-import com.google.common.base.Function;
 import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Album;
@@ -72,6 +71,7 @@ public enum IndexType {
 	
 	SONG(new String[] {
 			FieldNames.TITLE,
+            FieldNames.TITLE_READING_HIRAGANA,
 			FieldNames.ARTIST,
 			FieldNames.ARTIST_FULL,
 			FieldNames.ARTIST_READING,
@@ -89,6 +89,7 @@ public enum IndexType {
 			fieldArtistRH.accept(doc, reading);
 			fieldMediaType.accept(doc, mediaFile.getMediaType().name());
 			fieldTitle.accept(doc, mediaFile.getTitle());
+			fieldTitleRH.accept(doc, mediaFile.getTitle());
 			fieldGenre.accept(doc, mediaFile.getGenre());
 			fieldYear.accept(doc, mediaFile.getYear());
 			fieldFolder.accept(doc, mediaFile.getFolder());
@@ -100,6 +101,7 @@ public enum IndexType {
 	ALBUM(new String[] {
 			FieldNames.ALBUM,
 			FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM_READING_HIRAGANA,
 			FieldNames.ARTIST,
 			FieldNames.ARTIST_FULL,
 			FieldNames.ARTIST_READING,
@@ -111,7 +113,8 @@ public enum IndexType {
 			Document doc = new Document();
 			fieldId.accept(doc, mediaFile.getId());
 			fieldAlbum.accept(doc, mediaFile.getAlbumName());
-			fieldAlbumFull.accept(doc, mediaFile.getAlbumName());
+            fieldAlbumFull.accept(doc, mediaFile.getAlbumName());
+            fieldAlbumRH.accept(doc, mediaFile.getAlbumName());
 			fieldArtist.accept(doc, mediaFile.getArtist());
 			fieldArtistF.accept(doc, mediaFile.getArtist());
 			fieldArtistR.accept(doc, isEmpty(mediaFile.getArtistSort())
@@ -130,6 +133,7 @@ public enum IndexType {
 			new String[] {
 					FieldNames.ALBUM,
 					FieldNames.ALBUM_FULL,
+					FieldNames.ALBUM_READING_HIRAGANA,
 					FieldNames.ARTIST,
 					FieldNames.ARTIST_FULL,
 					FieldNames.ARTIST_READING,
@@ -142,6 +146,7 @@ public enum IndexType {
 			fieldId.accept(doc, album.getId());
 			fieldAlbum.accept(doc, album.getName());
 			fieldAlbumFull.accept(doc, album.getName());
+			fieldAlbumRH.accept(doc, album.getName());
 			fieldArtist.accept(doc, album.getArtist());
 			fieldArtistF.accept(doc, album.getArtist());
 			fieldArtistR.accept(doc, album.getArtistSort());
@@ -201,19 +206,36 @@ public enum IndexType {
 	};
 
 	public static final class FieldNames {
-		public static final String ID =                      "id";
-		public static final String TITLE =                   "title";
-		public static final String ALBUM =                   "album";
-		public static final String ALBUM_FULL =              "albumF";
-		public static final String ARTIST =                  "artist";
-		public static final String ARTIST_FULL =             "artistF";
-		public static final String ARTIST_READING =          "artistR";
-		public static final String ARTIST_READING_HIRAGANA = "artistRH";
-		public static final String GENRE =                   "genre";
-		public static final String YEAR =                    "year";
-		public static final String MEDIA_TYPE =              "mediaType";
-		public static final String FOLDER =                  "folder";
-		public static final String FOLDER_ID =               "folderId";
+	    /*
+	     * The contents of analysis are different for each field.
+	     * Defined in Analyzer.
+	     * 
+	     * Normal analysis              - Normal tokenizing and filtering
+         * Other than Normal analysis   - No tokenize, special filtering
+         * 
+         * Asterisk is unconditional registration.
+	     */
+
+        /* Emphasis on complementation as artists are less data and more important */
+        public static final String ARTIST =                  "art";   // * Normal analysis 
+        public static final String ARTIST_FULL =             "artF";  // Registration when other than hiragana (possibility of various character types)
+        public static final String ARTIST_READING =          "artR";  // * Sort key (possibility of various character types)
+        public static final String ARTIST_READING_HIRAGANA = "artRH"; // Convert to Hiragana and register
+
+        public static final String ALBUM =                   "alb";   // * Normal analysis
+		public static final String ALBUM_FULL =              "albF";  // Registration when other than hiragana
+        public static final String ALBUM_READING_HIRAGANA =  "albRH"; // Register when hiragana only
+
+        public static final String TITLE =                   "tit";   // * Normal analysis
+        //public static final String TITLE_FULL =            "titF";  // Do not register (consider the amount of data)
+        public static final String TITLE_READING_HIRAGANA =  "titRH"; // Register when hiragana only
+
+        public static final String ID =                      "id";
+        public static final String GENRE =                   "g";
+        public static final String YEAR =                    "y";
+        public static final String MEDIA_TYPE =              "m";
+        public static final String FOLDER =                  "f";
+        public static final String FOLDER_ID =               "fId";
 	}
 
 	private static final Pattern HIRAGANA = Pattern.compile("^[\\u3040-\\u309F\\s+]+$");
@@ -225,18 +247,26 @@ public enum IndexType {
 	}
 
 	private static final BiConsumer<Document, Integer> fieldId = (d, i) -> {
-    d.add(new IntPoint(FieldNames.ID, i));
-    d.add(new StringField(FieldNames.ID, Integer.toString(i), Store.YES));
-    d.add(new StoredField(FieldNames.ID, i));
+        d.add(new IntPoint(FieldNames.ID, i));
+        d.add(new StringField(FieldNames.ID, Integer.toString(i), Store.YES));
+        d.add(new StoredField(FieldNames.ID, i));
 	};
 
-	private static final BiConsumer<Document, String> fieldTitle = (d, s) -> {
+    private static final BiConsumer<Document, String> fieldTitle = (d, s) -> {
 		if (isEmpty(s)) {
 			return;
 		}
 		d.add(new TextField(FieldNames.TITLE, s, Store.YES));
 		d.add(new SortedDocValuesField(FieldNames.TITLE, new BytesRef(s)));
 	};
+
+    private static final BiConsumer<Document, String> fieldTitleRH = (d, s) -> {
+        if (isEmpty(s) || !HIRAGANA.matcher(s).matches()) {
+            return;
+        }
+        d.add(new StringField(FieldNames.TITLE_READING_HIRAGANA, s, Store.YES));
+        d.add(new SortedDocValuesField(FieldNames.TITLE_READING_HIRAGANA, new BytesRef(s)));
+    };
 
 	private static final BiConsumer<Document, String> fieldArtist = (d, s) -> {
 		if (isEmpty(s)) {
@@ -266,10 +296,9 @@ public enum IndexType {
 		if (isEmpty(s)) {
 			return;
 		}
-		Transliterator transliterator = Transliterator.getInstance("Katakana-Hiragana");
 		String hiragana = HIRAGANA.matcher(s).matches()
 				? s
-				: transliterator.transliterate(s);
+				: Transliterator.getInstance("Katakana-Hiragana").transliterate(s);
 		d.add(new StringField(FieldNames.ARTIST_READING_HIRAGANA, hiragana, Store.YES));
 		d.add(new SortedDocValuesField(FieldNames.ARTIST_READING_HIRAGANA, new BytesRef(hiragana)));
 	};
@@ -288,12 +317,20 @@ public enum IndexType {
 	};
 
 	private static final BiConsumer<Document, String> fieldAlbumFull = (d, s) -> {
-		if (isEmpty(s)) {
+		if (isEmpty(s) || HIRAGANA.matcher(s).matches()) {
 			return;
 		}
 		d.add(new StringField(FieldNames.ALBUM_FULL, s, Store.YES));
 		d.add(new SortedDocValuesField(FieldNames.ALBUM_FULL, new BytesRef(s)));
 	};
+	
+	private static final BiConsumer<Document, String> fieldAlbumRH = (d, s) -> {
+        if (isEmpty(s) || !HIRAGANA.matcher(s).matches()) {
+            return;
+        }
+        d.add(new StringField(FieldNames.ALBUM_READING_HIRAGANA, s, Store.YES));
+        d.add(new SortedDocValuesField(FieldNames.ALBUM_READING_HIRAGANA, new BytesRef(s)));
+    };
 
 	private static final BiConsumer<Document, Integer> fieldFolderId = (d, i) -> {
 	  d.add(new IntPoint(FieldNames.FOLDER_ID, i));
@@ -318,16 +355,12 @@ public enum IndexType {
 		d.add(new SortedDocValuesField(FieldNames.MEDIA_TYPE, new BytesRef(s.toLowerCase())));
 	};
 
-	public static Function<String, String> normalizeGenre = (genre) -> {
-		return genre.toLowerCase().replace(" ", "").replace("-", "");
-	};
-
 	private static final BiConsumer<Document, String> fieldGenre = (d, s) -> {
 		if (isEmpty(s)) {
 			return;
 		}
 		d.add(new TextField(FieldNames.GENRE, s, Store.YES));
-		d.add(new SortedDocValuesField(FieldNames.GENRE, new BytesRef(normalizeGenre.apply(s))));
+		d.add(new SortedDocValuesField(FieldNames.GENRE, new BytesRef(s)));
 	};
 
 	private final String[] fields;

@@ -24,125 +24,199 @@ import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
-import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.tesshu.jpsonic.service.search.IndexType.normalizeGenre;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Factory class of Lucene Query.
- * This class is a division of what was once part of SearchService
- * and added functionality.
+ * This class is an extract of the functionality that was once part of SearchService.
+ * It is for maintainability and verification.
+ * 
+ * Each corresponds to the SearchService method.
+ * Therefore, when the version of lucene changes greatly,
+ * verification with query grammar is possible.
  **/
-/*
- * Generate queries that have roughly the same meaning as old queries.
- * However, the implementation version differs significantly from legacy services.
- * Improvements have been made to 
- * "parts with minor differences in API" and
- * "query that is originally unsuitable for specification".
- */
 public class QueryFactory {
+    
+    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getAnalyzer();
 
-	private QueryFactory() {
-	}
+    private QueryFactory() {
+    }
 
-	public static Query createQuery(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+    /**
+     * Query generation expression extracted from SearchService#search
+     * @param criteria
+     * @param musicFolders
+     * @param indexType
+     * @return Query
+     */
+    public static Query createQuery(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
 
-		String[] targetFields = Arrays.stream(indexType.getFields())
-				.filter(f -> !f.equals(FieldNames.FOLDER))
-				.toArray(s -> new String[s]);
-		
-		MultiFieldQueryParser parser =
-		    new MultiFieldQueryParser(targetFields, AnalyzerFactory.getInstance().getAnalyzer());
+        /* FOLDER is not included in all searches. */
+        String[] targetFields = Arrays.stream(indexType.getFields())
+            .filter(field -> !field.equals(FieldNames.FOLDER))
+            .toArray(i -> new String[i]);
 
-		BooleanQuery.Builder builder = new BooleanQuery.Builder();
-		try {
-			builder.add(parser.parse(criteria.getQuery()), Occur.MUST);
-		} catch (ParseException e) {
-			LoggerFactory.getLogger(QueryFactory.class).error("Error during query analysis.", e);
-		}
+        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-    BooleanQuery.Builder sub = new BooleanQuery.Builder();
-    musicFolders.forEach(musicFolder -> {
-      if (indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3) {
-        sub.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD);
-      } else {
-        sub.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD);
-      }
-    });
+        BooleanQuery.Builder subFieldsQuery = new BooleanQuery.Builder();
+        Arrays.stream(targetFields).forEach(fieldName -> {
+            TokenStream stream = analyzer.tokenStream(fieldName, criteria.getQuery());
+            try {
+                stream.reset();
+                while (stream.incrementToken()) {
+                    String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
+                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
+                    subFieldsQuery.add(wildcardQuery, Occur.SHOULD);
+                }
+                stream.close();
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            }
+        });
+        mainQuery.add(subFieldsQuery.build(), Occur.MUST );
 
-    return builder.add(sub.build(), Occur.MUST).build();
+        BooleanQuery.Builder subMusicFoldersQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder -> {
+            if (indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3) {
+                subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD);
+            } else {
+                subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD);
+            }
+        });
+        mainQuery.add(subMusicFoldersQuery.build(), Occur.MUST);
 
-	}
+        return mainQuery.build();
 
-	public static Query createQuery(RandomSearchCriteria criteria) {
+    }
 
-		BooleanQuery.Builder builder = new BooleanQuery.Builder();
-		builder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
+    /**
+     * Query generation expression extracted from SearchService#getRandomSongs
+     * @param criteria
+     * @return
+     */
+    public static Query createQuery(RandomSearchCriteria criteria) {
 
-		if (!isEmpty(criteria.getGenre())) {
-			builder.add(new TermQuery(
-					new Term(FieldNames.GENRE, normalizeGenre.apply(criteria.getGenre()))), Occur.MUST);
-		}
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+        booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
 
-		if(!(isEmpty(criteria.getFromYear()) && isEmpty(criteria.getToYear()))) {
-			builder.add(IntPoint.newRangeQuery(
-					FieldNames.YEAR,
-					isEmpty(criteria.getFromYear()) ? Integer.MIN_VALUE : criteria.getFromYear(),
-					isEmpty(criteria.getToYear()) ? Integer.MAX_VALUE : criteria.getToYear()),
-					Occur.MUST);
-		}
+        // String genre = analyzer.normalize(FieldNames.GENRE, criteria.getGenre()).toString();
+        String genre = criteria.getGenre();
+        if (!isEmpty(criteria.getGenre())) {
+            try {
+                if (!isEmpty(genre)) {
+                    TokenStream stream = AnalyzerFactory.getInstance().getAnalyzer().tokenStream(FieldNames.GENRE, genre);
+                    stream.reset();
+                    while (stream.incrementToken()) {
+                        genre = stream.getAttribute(CharTermAttribute.class).toString();
+                    }
+                    stream.close();
+                }
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            }
 
-		BooleanQuery.Builder sub = new BooleanQuery.Builder();
-		criteria.getMusicFolders().forEach(musicFolder -> 
-		sub.add(new TermQuery(new Term(
-		      FieldNames.FOLDER,
-		      musicFolder.getPath().getPath())),
-		      Occur.SHOULD));
+            booleanQuery.add(new TermQuery(new Term(FieldNames.GENRE, genre)), Occur.MUST);
+        }
 
-		return builder.add(sub.build(), Occur.MUST).build();
-	}
+        if (!(isEmpty(criteria.getFromYear()) && isEmpty(criteria.getToYear()))) {
+            booleanQuery.add(IntPoint.newRangeQuery(FieldNames.YEAR, 
+                isEmpty(criteria.getFromYear())
+                    ? Integer.MIN_VALUE
+                    : criteria.getFromYear(),
+                isEmpty(criteria.getToYear())
+                    ? Integer.MAX_VALUE :
+                    criteria.getToYear()),
+                Occur.MUST);
+        }
 
-	public static Query searchByName(String name, String field) {
-		QueryParser queryParser = new QueryParser(field, AnalyzerFactory.getInstance().getAnalyzer());
-		queryParser.setDefaultOperator(QueryParser.Operator.AND);
-		Query parsedQuery = null;
-		    parsedQuery = queryParser.createBooleanQuery(field, QueryParser.escape(name), Occur.MUST);
-		return parsedQuery;
-	}
+        BooleanQuery.Builder subQuery = new BooleanQuery.Builder();
+        criteria.getMusicFolders().forEach(musicFolder ->
+            subQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
+        booleanQuery.add(subQuery.build(), Occur.MUST);
 
-	public static Query searchRandomAlbum(List<MusicFolder> musicFolders) {
-    BooleanQuery.Builder builder = new BooleanQuery.Builder();
-    BooleanQuery.Builder sub = new BooleanQuery.Builder();
-    musicFolders.forEach(musicFolder -> 
-    sub.add(new TermQuery(new Term(
-          FieldNames.FOLDER,
-          musicFolder.getPath().getPath())),
-          Occur.SHOULD));
-    return builder.add(sub.build(), Occur.MUST).build();
-	}
+        return booleanQuery.build();
 
-	public static Query searchRandomAlbumId3(List<MusicFolder> musicFolders) {
-	  BooleanQuery.Builder builder = new BooleanQuery.Builder();
-	  BooleanQuery.Builder sub = new BooleanQuery.Builder();
-	  musicFolders.forEach(musicFolder -> 
-	    sub.add(new TermQuery(new Term(
-	        FieldNames.FOLDER_ID,
-	        musicFolder.getId().toString())),
-	        Occur.SHOULD));
-	    return builder.add(sub.build(), Occur.MUST).build();
-	}
+    }
+
+    /**
+     * Query generation expression extracted from SearchService#searchByName
+     * @param name
+     * @param fieldName
+     * @return
+     */
+    public static Query searchByName(String name, String fieldName) {
+
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+            TokenStream stream = analyzer.tokenStream(fieldName, name);
+            try {
+                stream.reset();
+                while (stream.incrementToken()) {
+                    String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
+                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
+                    booleanQuery.add(wildcardQuery, Occur.MUST);
+                }
+                stream.close();
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            }
+        
+        return booleanQuery.build();
+    }
+
+    /**
+     * Query generation expression extracted from SearchService#searchRandomAlbum
+     * @param musicFolders
+     * @return
+     */
+    public static Query searchRandomAlbum(List<MusicFolder> musicFolders) {
+
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+
+        BooleanQuery.Builder subQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder ->
+            subQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
+        booleanQuery.add(subQuery.build(), Occur.MUST);
+
+        return booleanQuery.build();
+
+    }
+
+    /**
+     * Query generation expression extracted from SearchService#searchRandomAlbumId3
+     * @param musicFolders
+     * @return
+     */
+    public static Query searchRandomAlbumId3(List<MusicFolder> musicFolders) {
+
+        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+
+        BooleanQuery.Builder subQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder ->
+            subQuery.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD));
+        booleanQuery.add(subQuery.build(), Occur.MUST);
+
+        return booleanQuery.build();
+
+    }
 
 }

@@ -30,6 +30,7 @@ import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilterFactory;
 import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,88 +49,109 @@ import java.util.Map;
  */
 public final class AnalyzerFactory {
 
-  private static AnalyzerFactory instance;
+    private static AnalyzerFactory instance;
 
-  private static final Logger LOG = LoggerFactory.getLogger(AnalyzerFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnalyzerFactory.class);
+    
+    private static final Object l = new Object();
 
-  /**
-   * Returns an instance of AnalyzerFactory.
-   * 
-   * @return AnalyzerFactory instance
-   */
-  public static AnalyzerFactory getInstance() {
-    if (null == instance) {
-      synchronized (AnalyzerFactory.class) {
-        if (instance == null) {
-          instance = new AnalyzerFactory();
+    /**
+     * Returns an instance of AnalyzerFactory.
+     * 
+     * @return AnalyzerFactory instance
+     */
+    public static AnalyzerFactory getInstance() {
+        if (null == instance) {
+            synchronized (l) {
+                if (instance == null) {
+                    instance = new AnalyzerFactory();
+                }
+            }
         }
-      }
+        return instance;
     }
-    return instance;
-  }
 
-  private Analyzer analyzer;
+    private Analyzer analyzer;
 
-  private final String stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
+    private final String stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
 
-  private final String stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
+    private final String stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
 
-  private AnalyzerFactory() {
-  }
-
-  private CustomAnalyzer.Builder filters(CustomAnalyzer.Builder builder, boolean isIgnoreCase) {
-    try {
-      builder = builder
-        .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags);
-      if(isIgnoreCase) {
-        builder.addTokenFilter(LowerCaseFilterFactory.class);
-      }
-      builder
-        .addTokenFilter(CJKWidthFilterFactory.class) // before // StopFilter
-        .addTokenFilter(StopFilterFactory.class, "words", stopWords, "ignoreCase", "true")
-        .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false");
-    } catch (IOException e) {
-      LOG.error("Error when initializing analyzer", e);
+    private AnalyzerFactory() {
     }
-    return builder;
-  }
 
-  /**
-   * Return analyzer.
-   * 
-   * @return analyzer for index
-   */
-  public Analyzer getAnalyzer() {
-    if (null == this.analyzer) {
-      try {
-        
-        CustomAnalyzer.Builder builder
-        = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
-        Analyzer analyzer = filters(builder, true).build();
-
-        Analyzer keywordAnalyzer =
-            filters(CustomAnalyzer.builder()
-            .withTokenizer(KeywordTokenizerFactory.class), true)
-            .build();
-        Analyzer folderAnalyzer =
-            filters(CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class), false)
-            .build();
-
-        Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-        analyzerMap.put(FieldNames.GENRE, keywordAnalyzer);
-        analyzerMap.put(FieldNames.FOLDER, folderAnalyzer);
-        analyzerMap.put(FieldNames.MEDIA_TYPE, keywordAnalyzer);
-        analyzerMap.put(FieldNames.ARTIST_FULL, keywordAnalyzer);
-        analyzerMap.put(FieldNames.ARTIST_READING_HIRAGANA, keywordAnalyzer);
-        analyzerMap.put(FieldNames.ALBUM_FULL, keywordAnalyzer);
-   
-        this.analyzer = new PerFieldAnalyzerWrapper(analyzer, analyzerMap);
-
-      } catch (IOException e) {
-        LOG.error("Error when initializing Analyzer", e);
-      }
+    private CustomAnalyzer.Builder filters(CustomAnalyzer.Builder builder) {
+        try {
+            builder
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags)
+                .addTokenFilter(LowerCaseFilterFactory.class)
+                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
+                .addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
+                .addTokenFilter(StopFilterFactory.class, "words", stopWords, "ignoreCase", "true");
+        } catch (IOException e) {
+            LOG.error("Error when initializing filters", e);
+        }
+        return builder;
     }
-    return this.analyzer;
-  }
+
+    private CustomAnalyzer.Builder whiteSpaceFilters(CustomAnalyzer.Builder builder) {
+        try {
+            builder
+                .addTokenFilter(PatternReplaceFilterFactory.class, "pattern", "(\\s)", "replacement", "", "replace", "all");
+        } catch (IOException e) {
+            LOG.error("Error when initializing filters", e);
+        }
+        return builder;
+    }
+
+    private CustomAnalyzer.Builder genrefilters(CustomAnalyzer.Builder builder) {
+        try {
+            builder
+                .addTokenFilter(LowerCaseFilterFactory.class)
+                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
+                .addTokenFilter(PatternReplaceFilterFactory.class, "pattern", "(\\s|-)", "replacement", "", "replace", "all");
+        } catch (IOException e) {
+            LOG.error("Error when initializing filters", e);
+        }
+        return builder;
+    }
+
+    /**
+     * Return analyzer.
+     * 
+     * @return analyzer for index
+     */
+    public Analyzer getAnalyzer() {
+        if (null == this.analyzer) {
+            try {
+
+                Analyzer jpDefault =
+                        filters(CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class))
+                        .build();
+                Analyzer bareKeyword = CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class)
+                        .build();
+                Analyzer filteredKeyword =
+                        filters(whiteSpaceFilters(CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class)))
+                        .build();
+                Analyzer genre =
+                        genrefilters(CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class))
+                        .build();
+
+                Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
+                analyzerMap.put(FieldNames.FOLDER, bareKeyword);
+                analyzerMap.put(FieldNames.GENRE, genre);
+                analyzerMap.put(FieldNames.MEDIA_TYPE, filteredKeyword);
+                analyzerMap.put(FieldNames.ARTIST_FULL, filteredKeyword);
+                analyzerMap.put(FieldNames.ARTIST_READING_HIRAGANA, filteredKeyword);
+                analyzerMap.put(FieldNames.ALBUM_FULL, filteredKeyword);
+
+                this.analyzer = new PerFieldAnalyzerWrapper(jpDefault, analyzerMap);
+
+            } catch (IOException e) {
+                LOG.error("Error when initializing Analyzer.", e);
+            }
+        }
+        return this.analyzer;
+    }
 
 }

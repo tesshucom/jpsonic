@@ -296,7 +296,6 @@ public class SearchServiceTestCase {
     Assert.assertEquals("(32) Artist whose name contains \\\"_ID3_ARTIST_\\\" is 3 records.", 3L, count);
     count = result.getArtists().stream().filter(a -> a.getName().startsWith("_ID3_ALBUMARTIST_")).count();
     Assert.assertEquals("(33) Artist whose name is \"_ID3_ARTIST_\" is 1 records.", 1L, count);
-    result.getArtists().forEach(a -> System.out.println(a.getName()));
 
     /*
      * Below is a simple loop test.
