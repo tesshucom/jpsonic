@@ -83,9 +83,10 @@ public enum IndexType {
         @SuppressWarnings("serial")
         private final Map<String, Float> boosts = new HashMap<String, Float>() {
             {
-                put(FieldNames.ARTIST_FULL, 1.1F);
+                put(FieldNames.TITLE_READING_HIRAGANA, 1.4F);
+                put(FieldNames.TITLE, 1.3F);
                 put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
-                put(FieldNames.TITLE_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
             }
         };
 
@@ -128,10 +129,10 @@ public enum IndexType {
         @SuppressWarnings("serial")
         private final Map<String, Float> boosts = new HashMap<String, Float>() {
             {
+                put(FieldNames.ALBUM_READING_HIRAGANA, 1.4F);
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.3F);
+                put(FieldNames.ALBUM_FULL, 1.2F);
                 put(FieldNames.ARTIST_FULL, 1.1F);
-                put(FieldNames.ALBUM_FULL, 1.1F);
-                put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
-                put(FieldNames.ALBUM_READING_HIRAGANA, 1.2F);
             }
         };
 
@@ -190,10 +191,10 @@ public enum IndexType {
         @SuppressWarnings("serial")
         private final Map<String, Float> boosts = new HashMap<String, Float>() {
             {
+                put(FieldNames.ALBUM_READING_HIRAGANA, 1.4F);
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.3F);
+                put(FieldNames.ALBUM_FULL, 1.2F);
                 put(FieldNames.ARTIST_FULL, 1.1F);
-                put(FieldNames.ALBUM_FULL, 1.1F);
-                put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
-                put(FieldNames.ALBUM_READING_HIRAGANA, 1.2F);
             }
         };
 
@@ -229,8 +230,8 @@ public enum IndexType {
         @SuppressWarnings("serial")
         private final Map<String, Float> boosts = new HashMap<String, Float>() {
             {
-                put(FieldNames.ARTIST_FULL, 1.1F);
                 put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
             }
         };
 
@@ -266,8 +267,8 @@ public enum IndexType {
         @SuppressWarnings("serial")
         private final Map<String, Float> boosts = new HashMap<String, Float>() {
             {
-                put(FieldNames.ARTIST_FULL, 1.1F);
                 put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
             }
         };
 
