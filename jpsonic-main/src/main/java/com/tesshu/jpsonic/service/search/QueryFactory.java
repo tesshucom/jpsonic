@@ -68,7 +68,7 @@ public class QueryFactory {
      * @param indexType
      * @return Query
      */
-    public static Query createQuery(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+    public static Query search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
 
         /* FOLDER is not included in all searches. */
         String[] targetFields = Arrays.stream(indexType.getFields())
@@ -118,7 +118,7 @@ public class QueryFactory {
      * @param criteria
      * @return
      */
-    public static Query createQuery(RandomSearchCriteria criteria) {
+    public static Query getRandomSongs(RandomSearchCriteria criteria) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
         booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
@@ -192,7 +192,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
-    public static Query searchRandomAlbum(List<MusicFolder> musicFolders) {
+    public static Query getRandomAlbums(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 
@@ -210,7 +210,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
-    public static Query searchRandomAlbumId3(List<MusicFolder> musicFolders) {
+    public static Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 
