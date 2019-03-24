@@ -57,7 +57,7 @@ public class QueryFactoryTestCase extends TestCase {
     musicFolders.add(music1);
     Query querySingle = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("single",
-        "+(art:test* art:1* artF:test1* artR:test* artR:1* artRH:test1*) "
+        "+(art:test* art:1* (artF:test1*)^1.1 artR:test* artR:1* (artRH:test1*)^1.2) "
         + "+(f:" + path1 + ")",
         querySingle.toString());
   }
@@ -71,8 +71,8 @@ public class QueryFactoryTestCase extends TestCase {
    musicFolders.add(music2);
     Query queryMulti = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("artist",
-        "+(art:test* art:1* art:test* art:2* artF:test1test2* "
-        + "artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        "+(art:test* art:1* art:test* art:2* (artF:test1test2*)^1.1 "
+        + "artR:test* artR:1* artR:test* artR:2* (artRH:test1test2*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryMulti.toString());
 
@@ -80,8 +80,8 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setOffset(0); // Not used in queries
     Query queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.ALBUM);
     assertEquals("album",
-        "+(alb:test* alb:1* alb:test* alb:2* albF:test1test2* albRH:test1test2* "
-        + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        "+(alb:test* alb:1* alb:test* alb:2* (albF:test1test2*)^1.1 (albRH:test1test2*)^1.2 "
+        + "art:test* art:1* art:test* art:2* (artF:test1test2*)^1.1 artR:test* artR:1* artR:test* artR:2* (artRH:test1test2*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
     
@@ -89,8 +89,8 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setOffset(0); // Not used in queries
     queryFull = QueryFactory.createQuery(criteria, musicFolders, IndexType.SONG);
     assertEquals("song",
-        "+(tit:test* tit:1* tit:test* tit:2* titRH:test1test2* "
-        + "art:test* art:1* art:test* art:2* artF:test1test2* artR:test* artR:1* artR:test* artR:2* artRH:test1test2*) "
+        "+(tit:test* tit:1* tit:test* tit:2* (titRH:test1test2*)^1.2 "
+        + "art:test* art:1* art:test* art:2* (artF:test1test2*)^1.1 artR:test* artR:1* artR:test* artR:2* (artRH:test1test2*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryFull.toString());
   }
@@ -107,36 +107,36 @@ public class QueryFactoryTestCase extends TestCase {
     criteria.setQuery("みんなの歌");
     Query queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("japanese",
-        "+(art:みんな* art:歌* artF:みんなの歌* artR:みんな* artR:歌* artRH:みんなの歌*) "
+        "+(art:みんな* art:歌* (artF:みんなの歌*)^1.1 artR:みんな* artR:歌* (artRH:みんなの歌*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきものがかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきものがかり",
-        "+(art:いき* art:かり* artF:いきものがかり* artR:いき* artR:かり* artRH:いきものがかり*) "
+        "+(art:いき* art:かり* (artF:いきものがかり*)^1.1 artR:いき* artR:かり* (artRH:いきものがかり*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきもの がかり");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきもの がかり",
-        "+(art:いき* art:がかり* artF:いきものがかり* artR:いき* artR:がかり* artRH:いきものがかり*) "
+        "+(art:いき* art:がかり* (artF:いきものがかり*)^1.1 artR:いき* artR:がかり* (artRH:いきものがかり*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("いきものガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("いきものガカリ",
-        "+(art:いき* art:ガ* art:カリ* artF:いきものガカリ* artR:いき* artR:ガ* artR:カリ* artRH:いきものガカリ*) "
+        "+(art:いき* art:ガ* art:カリ* (artF:いきものガカリ*)^1.1 artR:いき* artR:ガ* artR:カリ* (artRH:いきものガカリ*)^1.2) "
         + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
     criteria.setQuery("イキモノガカリ");
     queryJapanese = QueryFactory.createQuery(criteria, musicFolders, IndexType.ARTIST);
     assertEquals("イキモノガカリ",
-        "+(art:イキモノガカリ* artF:イキモノガカリ* artR:イキモノガカリ* artRH:イキモノガカリ*) "
-            + "+(f:" + path1 + " f:" + path2 + ")",
+        "+(art:イキモノガカリ* (artF:イキモノガカリ*)^1.1 artR:イキモノガカリ* (artRH:イキモノガカリ*)^1.2) "
+        + "+(f:" + path1 + " f:" + path2 + ")",
         queryJapanese.toString());
 
   }
