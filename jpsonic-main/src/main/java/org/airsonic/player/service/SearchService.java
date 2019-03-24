@@ -25,6 +25,7 @@ import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
@@ -60,7 +61,9 @@ public class SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 
-    private static final String LUCENE_DIR = "lucene7.4jp";
+    private static final String LUCENE_DIR = "lucene7.7.1jp";
+
+    private static final String[] TO_BE_DELETED_DIRS = {"lucene7.4jp"};
 
     private static final int MAX_NUM_SEGMENTS = 1;
 
@@ -265,6 +268,23 @@ public class SearchService {
             LOG.info("SearcherManager has been refreshed.");
         }
 
+        deleteUnnecessaryDir();
+
+    }
+
+    public void deleteUnnecessaryDir(){
+        // Output to the log if it fails. Notification to upper rank is unnecessary.
+        Arrays.stream(TO_BE_DELETED_DIRS).forEach(dir -> {
+            File toBeDeletedDir = new File(SettingsService.getJpsonicHome(), dir);
+            if (toBeDeletedDir.exists()) {
+                try {
+                    FileUtils.deleteDirectory(toBeDeletedDir);
+                    LOG.warn("Unnecessary directory \"" + toBeDeletedDir.getAbsolutePath() + "\" has been deleted.");
+                } catch (IOException e) {
+                    LOG.warn("Unnecessary directory \"" + toBeDeletedDir.getAbsolutePath() +"\" could not be deleted.", e);
+                }
+            }
+        });
     }
 
     private IndexSearcher getSearcher(IndexType indexType) {
