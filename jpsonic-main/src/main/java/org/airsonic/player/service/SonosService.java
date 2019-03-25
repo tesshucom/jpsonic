@@ -21,6 +21,8 @@ package org.airsonic.player.service;
 
 import com.sonos.services._1.*;
 import com.sonos.services._1_1.SonosSoap;
+import com.tesshu.jpsonic.service.search.IndexType;
+
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
@@ -264,13 +266,13 @@ public class SonosService implements SonosSoap {
     public SearchResponse search(Search parameters) {
         String id = parameters.getId();
 
-        SearchService.IndexType indexType;
+        IndexType indexType;
         if (ID_SEARCH_ARTISTS.equals(id)) {
-            indexType = SearchService.IndexType.ARTIST;
+            indexType = IndexType.ARTIST;
         } else if (ID_SEARCH_ALBUMS.equals(id)) {
-            indexType = SearchService.IndexType.ALBUM;
+            indexType = IndexType.ALBUM;
         } else if (ID_SEARCH_SONGS.equals(id)) {
-            indexType = SearchService.IndexType.SONG;
+            indexType = IndexType.SONG;
         } else {
             throw new IllegalArgumentException("Invalid search category: " + id);
         }
