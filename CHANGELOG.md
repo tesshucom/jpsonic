@@ -3,6 +3,20 @@
 # jpsonic/jpsonic
 # -->
 
+## 100.1.0
+
+  * Security update (checkstyle:CVE-2019-9658) There is no impact on already running servers
+  * Based on airsonic 10.2.1-RELEASE.
+  * [fix] Fixed a bug that search cannot be performed if Music Folder exist with a specific string pattern.
+  * [fix] Fixed a bug that year can not be specified in random search.
+  * [update] lucene has been updated to 7.7.1.
+  * [update] Adjusted the Boost value at search. 
+    The order of the search results is weighted in the following priority order.
+    (1) Hiragana input assistance for each Artist / Album / Song / (2) full name assistance for each (3) parsed words.
+    (1) and (3) are indexed as necessary to take into account the amount of data in order to eliminate Japanese ambiguity.
+  * [update] Fix for speed improvement Index reading cache, deletion of unnecessary copies, etc.
+    Covers redundant, time-consuming Japanese processing and performs as fast as Airsonic and Subsonic.
+
 ## 100.0.0
 
   * Security update (stax:CVE-2018-20222) Prevent xxe during parse
