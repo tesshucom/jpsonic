@@ -337,6 +337,9 @@ public class SearchService {
         try {
 
             TopDocs topDocs = searcher.search(query, offset + count);
+            if(isEmpty(topDocs)) {
+                return result;
+            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -377,6 +380,9 @@ public class SearchService {
 
             Sort sort = new Sort(new SortField(fieldName, SortField.Type.STRING));
             TopDocs topDocs = searcher.search(query, offset + count, sort);
+            if(isEmpty(topDocs)) {
+                return result;
+            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -412,6 +418,11 @@ public class SearchService {
             BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException{
 
         List<D> result = new ArrayList<>();
+
+        TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
+        if(isEmpty(topDocs)) {
+            return Collections.emptyList();
+        }
 
         List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
