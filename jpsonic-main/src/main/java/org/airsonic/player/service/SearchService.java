@@ -331,7 +331,7 @@ public class SearchService {
             return result;
         }
 
-        final Query query = QueryFactory.createQuery(criteria, musicFolders, indexType);
+        final Query query = QueryFactory.search(criteria, musicFolders, indexType);
         IndexSearcher searcher = getSearcher(indexType);
 
         try {
@@ -438,7 +438,7 @@ public class SearchService {
      */
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
-        final Query query = QueryFactory.createQuery(criteria);
+        final Query query = QueryFactory.getRandomSongs(criteria);
         IndexSearcher searcher = getSearcher(SONG);
 
         try {
@@ -463,7 +463,7 @@ public class SearchService {
      */
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
-        Query query = QueryFactory.searchRandomAlbum(musicFolders);
+        Query query = QueryFactory.getRandomAlbums(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM);
 
         try {
@@ -490,7 +490,7 @@ public class SearchService {
 
         List<Album> result = new ArrayList<Album>();
 
-        Query query = QueryFactory.searchRandomAlbumId3(musicFolders);
+        Query query = QueryFactory.getRandomAlbumsId3(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM_ID3);
 
         try {

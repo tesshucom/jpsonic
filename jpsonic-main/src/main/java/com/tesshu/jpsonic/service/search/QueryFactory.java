@@ -32,6 +32,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.lucene.search.BoostQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
@@ -60,13 +61,14 @@ public class QueryFactory {
     }
 
     /**
-     * Query generation expression extracted from SearchService#search
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}
+     * 
      * @param criteria
      * @param musicFolders
      * @param indexType
      * @return Query
      */
-    public static Query createQuery(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+    public static Query search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
 
         /* FOLDER is not included in all searches. */
         String[] targetFields = Arrays.stream(indexType.getFields())
@@ -83,7 +85,11 @@ public class QueryFactory {
                 while (stream.incrementToken()) {
                     String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
                     WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
-                    subFieldsQuery.add(wildcardQuery, Occur.SHOULD);
+                    if(indexType.getBoosts().containsKey(fieldName)) {
+                        subFieldsQuery.add(new BoostQuery(wildcardQuery, indexType.getBoosts().get(fieldName)), Occur.SHOULD);
+                    }else {
+                        subFieldsQuery.add(wildcardQuery, Occur.SHOULD);
+                    }
                 }
                 stream.close();
             } catch (IOException e) {
@@ -108,16 +114,15 @@ public class QueryFactory {
     }
 
     /**
-     * Query generation expression extracted from SearchService#getRandomSongs
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getRandomSongs(RandomSearchCriteria)}
      * @param criteria
      * @return
      */
-    public static Query createQuery(RandomSearchCriteria criteria) {
+    public static Query getRandomSongs(RandomSearchCriteria criteria) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
         booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
 
-        // String genre = analyzer.normalize(FieldNames.GENRE, criteria.getGenre()).toString();
         String genre = criteria.getGenre();
         if (!isEmpty(criteria.getGenre())) {
             try {
@@ -158,7 +163,7 @@ public class QueryFactory {
     }
 
     /**
-     * Query generation expression extracted from SearchService#searchByName
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#searchByName(String, int, int, List, Class)}
      * @param name
      * @param fieldName
      * @return
@@ -171,8 +176,7 @@ public class QueryFactory {
                 stream.reset();
                 while (stream.incrementToken()) {
                     String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
-                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
-                    booleanQuery.add(wildcardQuery, Occur.MUST);
+                    booleanQuery.add(new WildcardQuery(new Term(fieldName, txt)), Occur.MUST);
                 }
                 stream.close();
             } catch (IOException e) {
@@ -184,11 +188,11 @@ public class QueryFactory {
     }
 
     /**
-     * Query generation expression extracted from SearchService#searchRandomAlbum
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getRandomAlbums(int, List)}
      * @param musicFolders
      * @return
      */
-    public static Query searchRandomAlbum(List<MusicFolder> musicFolders) {
+    public static Query getRandomAlbums(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 
@@ -202,11 +206,11 @@ public class QueryFactory {
     }
 
     /**
-     * Query generation expression extracted from SearchService#searchRandomAlbumId3
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getRandomAlbumsId3(int, List)}
      * @param musicFolders
      * @return
      */
-    public static Query searchRandomAlbumId3(List<MusicFolder> musicFolders) {
+    public static Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 

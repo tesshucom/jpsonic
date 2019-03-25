@@ -33,6 +33,9 @@ import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.util.BytesRef;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
@@ -77,7 +80,22 @@ public enum IndexType {
 			FieldNames.ARTIST_READING,
 			FieldNames.ARTIST_READING_HIRAGANA }) {
 
-		public Document createDocument(MediaFile mediaFile) {
+        @SuppressWarnings("serial")
+        private final Map<String, Float> boosts = new HashMap<String, Float>() {
+            {
+                put(FieldNames.TITLE_READING_HIRAGANA, 1.4F);
+                put(FieldNames.TITLE, 1.3F);
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
+            }
+        };
+
+        @Override
+        public Map<String, Float> getBoosts() {
+            return boosts;
+        }
+
+	    public Document createDocument(MediaFile mediaFile) {
 			Document doc = new Document();
 			fieldId.accept(doc, mediaFile.getId());
 			fieldArtist.accept(doc, mediaFile.getArtist());
@@ -108,7 +126,22 @@ public enum IndexType {
 			FieldNames.ARTIST_READING_HIRAGANA,
 			FieldNames.FOLDER }) {
 
-		@Override
+        @SuppressWarnings("serial")
+        private final Map<String, Float> boosts = new HashMap<String, Float>() {
+            {
+                put(FieldNames.ALBUM_READING_HIRAGANA, 1.4F);
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.3F);
+                put(FieldNames.ALBUM_FULL, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
+            }
+        };
+
+        @Override
+        public Map<String, Float> getBoosts() {
+            return boosts;
+        }
+
+        @Override
 		public Document createDocument(MediaFile mediaFile) {
 			Document doc = new Document();
 			fieldId.accept(doc, mediaFile.getId());
@@ -126,7 +159,7 @@ public enum IndexType {
 			fieldFolder.accept(doc, mediaFile.getFolder());
 			return doc;
 		}
-
+		
 	},
 
 	ALBUM_ID3(
@@ -155,6 +188,21 @@ public enum IndexType {
 			return doc;
 		}
 
+        @SuppressWarnings("serial")
+        private final Map<String, Float> boosts = new HashMap<String, Float>() {
+            {
+                put(FieldNames.ALBUM_READING_HIRAGANA, 1.4F);
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.3F);
+                put(FieldNames.ALBUM_FULL, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
+            }
+        };
+
+        @Override
+        public Map<String, Float> getBoosts() {
+            return boosts;
+        }
+	
 	},
 
 	ARTIST(new String[] {
@@ -179,6 +227,19 @@ public enum IndexType {
 			return doc;
 		}
 
+        @SuppressWarnings("serial")
+        private final Map<String, Float> boosts = new HashMap<String, Float>() {
+            {
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
+            }
+        };
+
+        @Override
+        public Map<String, Float> getBoosts() {
+            return boosts;
+        }
+
 	},
 
 	ARTIST_ID3(
@@ -202,6 +263,19 @@ public enum IndexType {
 			fieldFolderId.accept(doc, musicFolder.getId());
 			return doc;
 		}
+
+        @SuppressWarnings("serial")
+        private final Map<String, Float> boosts = new HashMap<String, Float>() {
+            {
+                put(FieldNames.ARTIST_READING_HIRAGANA, 1.2F);
+                put(FieldNames.ARTIST_FULL, 1.1F);
+            }
+        };
+
+        @Override
+        public Map<String, Float> getBoosts() {
+            return boosts;
+        }		
 
 	};
 
@@ -368,6 +442,10 @@ public enum IndexType {
 	private IndexType(String[] fieldNames) {
 		this.fields = fieldNames;
 	}
+
+	public Map<String, Float> getBoosts(){
+	    return Collections.emptyMap();
+	};
 
 	public Document createDocument(Album album) {
 		throw new UnsupportedOperationException();
