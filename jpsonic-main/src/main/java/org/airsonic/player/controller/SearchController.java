@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.service.search.IndexType;
+
 import org.airsonic.player.command.SearchCommand;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.PlayerService;
@@ -86,13 +88,13 @@ public class SearchController {
             criteria.setCount(MATCH_COUNT);
             criteria.setQuery(query);
 
-            SearchResult artists = searchService.search(criteria, musicFolders, SearchService.IndexType.ARTIST);
+            SearchResult artists = searchService.search(criteria, musicFolders, IndexType.ARTIST);
             command.setArtists(artists.getMediaFiles());
 
-            SearchResult albums = searchService.search(criteria, musicFolders, SearchService.IndexType.ALBUM);
+            SearchResult albums = searchService.search(criteria, musicFolders, IndexType.ALBUM);
             command.setAlbums(albums.getMediaFiles());
 
-            SearchResult songs = searchService.search(criteria, musicFolders, SearchService.IndexType.SONG);
+            SearchResult songs = searchService.search(criteria, musicFolders, IndexType.SONG);
             command.setSongs(songs.getMediaFiles());
 
             command.setPlayer(playerService.getPlayer(request, response));
