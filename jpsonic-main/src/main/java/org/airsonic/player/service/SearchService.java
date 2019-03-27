@@ -287,26 +287,29 @@ public class SearchService {
         });
     }
 
-    private IndexSearcher getSearcher(IndexType indexType) {
+    private /* @Nullable */ IndexSearcher getSearcher(IndexType indexType) {
         if (!searcherManagerMap.containsKey(indexType)) {
             synchronized (searcherManagerMap) {
                 File indexDirectory = getDirectory.apply(indexType);
                 try {
-                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
-                    searcherManagerMap.put(indexType, manager);
+                    if (indexDirectory.exists()) {
+                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+                        searcherManagerMap.put(indexType, manager);
+                    } else {
+                        LOG.warn("{} does not exist.", indexDirectory.getAbsolutePath());
+                    }
                 } catch (IOException e) {
-                    LOG.error("Failed to initialize IndexSearcher.", e);
-                    searcherManagerMap.remove(indexType);
+                    LOG.error("Failed to initialize SearcherManager.", e);
                 }
             }
         }
-        IndexSearcher searcher = null;
         try {
-            searcher = searcherManagerMap.get(indexType).acquire();
+            return searcherManagerMap.get(indexType).acquire();
         } catch (Exception e) {
-            LOG.error("Failed to acquire IndexSearcher.", e);
+            searcherManagerMap.remove(indexType);
+            LOG.warn("Failed to acquire IndexSearcher.", e);
         }
-        return searcher;
+        return null;
     }
 
     private void release(IndexType indexType, IndexSearcher indexSearcher) {
@@ -333,13 +336,13 @@ public class SearchService {
 
         final Query query = QueryFactory.search(criteria, musicFolders, indexType);
         IndexSearcher searcher = getSearcher(indexType);
+        if(isEmpty(searcher)) {
+            return result;
+        }
 
         try {
 
             TopDocs topDocs = searcher.search(query, offset + count);
-            if(isEmpty(topDocs)) {
-                return result;
-            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -375,14 +378,14 @@ public class SearchService {
 
         Query query = QueryFactory.searchByName(name, fieldName);
         IndexSearcher searcher = getSearcher(indexType);
+        if(isEmpty(searcher)) {
+            return result;
+        }
 
         try {
 
             Sort sort = new Sort(new SortField(fieldName, SortField.Type.STRING));
             TopDocs topDocs = searcher.search(query, offset + count, sort);
-            if(isEmpty(topDocs)) {
-                return result;
-            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -417,18 +420,12 @@ public class SearchService {
             Query query,
             BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException{
 
-        List<D> result = new ArrayList<>();
-
-        TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-        if(isEmpty(topDocs)) {
-            return Collections.emptyList();
-        }
-
         List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
         int docsLength = docs.size();
+        List<D> result = new ArrayList<>();
 
         for (int i = 0; i < docsLength && result.size() < count; i++) {
             Integer randomPos = random.nextInt(docs.size());
@@ -451,6 +448,9 @@ public class SearchService {
 
         final Query query = QueryFactory.getRandomSongs(criteria);
         IndexSearcher searcher = getSearcher(SONG);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(criteria.getCount(), searcher, query, (dist, id)
@@ -476,6 +476,9 @@ public class SearchService {
 
         Query query = QueryFactory.getRandomAlbums(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(count, searcher, query,  (dist, id)
@@ -499,10 +502,11 @@ public class SearchService {
      */
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
-        List<Album> result = new ArrayList<Album>();
-
         Query query = QueryFactory.getRandomAlbumsId3(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM_ID3);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(count, searcher, query,  (dist, id)
@@ -513,7 +517,7 @@ public class SearchService {
             release(ALBUM_ID3, searcher);
         }
 
-        return result;
+        return Collections.emptyList();
 
     }
 
