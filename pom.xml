@@ -94,7 +94,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>3.6.2</version>
+                <version>3.6.3</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -131,7 +131,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>27.0.1-jre</version>
+                <version>27.1-jre</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
