@@ -4,11 +4,6 @@
 -->
 Airsonic
 ========
-[![Build Status](https://travis-ci.org/airsonic/airsonic.svg?branch=master)](https://travis-ci.org/airsonic/airsonic)
-<a href="https://scan.coverity.com/projects/airsonic">
-  <img alt="Coverity Scan Build Status"
-       src="https://scan.coverity.com/projects/17971/badge.svg"/>
-</a>
 
 What is Airsonic?
 -----------------
