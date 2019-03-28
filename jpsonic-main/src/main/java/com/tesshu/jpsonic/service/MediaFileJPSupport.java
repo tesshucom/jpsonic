@@ -25,7 +25,7 @@ import com.ibm.icu.text.Transliterator;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -39,7 +39,7 @@ import java.util.stream.Collector;
 /**
  * Provide analysis of Japanese name.
  */
-@Service
+@Component
 public class MediaFileJPSupport {
     
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
@@ -166,4 +166,5 @@ public class MediaFileJPSupport {
     	return Normalizer.normalize(
     			Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
     }
+
 }
