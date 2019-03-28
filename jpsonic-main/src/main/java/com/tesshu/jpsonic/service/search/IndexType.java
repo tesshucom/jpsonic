@@ -56,83 +56,83 @@ import java.util.Map;
  */
 public enum IndexType {
 
-	SONG(
+    SONG(
         fieldNames(
-			FieldNames.TITLE,
+            FieldNames.TITLE,
             FieldNames.TITLE_READING_HIRAGANA,
-			FieldNames.ARTIST,
-			FieldNames.ARTIST_FULL,
-			FieldNames.ARTIST_READING,
-			FieldNames.ARTIST_READING_HIRAGANA ),
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_FULL,
+            FieldNames.ARTIST_READING,
+            FieldNames.ARTIST_READING_HIRAGANA ),
         boosts(
             entry(FieldNames.TITLE_READING_HIRAGANA, 1.4F),
             entry(FieldNames.TITLE, 1.3F),
             entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
             entry(FieldNames.ARTIST_FULL, 1.1F))),
 
-	ALBUM(
+    ALBUM(
         fieldNames(
-			FieldNames.ALBUM,
-			FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM,
+            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM_READING_HIRAGANA,
-			FieldNames.ARTIST,
-			FieldNames.ARTIST_FULL,
-			FieldNames.ARTIST_READING,
-			FieldNames.ARTIST_READING_HIRAGANA,
-			FieldNames.FOLDER ),
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_FULL,
+            FieldNames.ARTIST_READING,
+            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.FOLDER ),
         boosts(
             entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
             entry(FieldNames.ARTIST_READING_HIRAGANA, 1.3F),
             entry(FieldNames.ALBUM_FULL, 1.2F),
             entry(FieldNames.ARTIST_FULL, 1.1F))),
 
-	ALBUM_ID3(
+    ALBUM_ID3(
         fieldNames(
-			FieldNames.ALBUM,
-			FieldNames.ALBUM_FULL,
-			FieldNames.ALBUM_READING_HIRAGANA,
-			FieldNames.ARTIST,
-			FieldNames.ARTIST_FULL,
-			FieldNames.ARTIST_READING,
-			FieldNames.ARTIST_READING_HIRAGANA,
-			FieldNames.FOLDER_ID ),
+            FieldNames.ALBUM,
+            FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM_READING_HIRAGANA,
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_FULL,
+            FieldNames.ARTIST_READING,
+            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.FOLDER_ID ),
         boosts(
             entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
             entry(FieldNames.ARTIST_READING_HIRAGANA, 1.3F),
             entry(FieldNames.ALBUM_FULL, 1.2F),
             entry(FieldNames.ARTIST_FULL, 1.1F))),
 
-	ARTIST(
-	    fieldNames(
-			FieldNames.ARTIST,
-			FieldNames.ARTIST_FULL,
-			FieldNames.ARTIST_READING,
-			FieldNames.ARTIST_READING_HIRAGANA,
-			FieldNames.FOLDER ),
-	    boosts(
+    ARTIST(
+        fieldNames(
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_FULL,
+            FieldNames.ARTIST_READING,
+            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.FOLDER ),
+        boosts(
                 entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
                 entry(FieldNames.ARTIST_FULL, 1.1F))),
 
-	ARTIST_ID3(
+    ARTIST_ID3(
         fieldNames(
-			FieldNames.ARTIST,
-			FieldNames.ARTIST_FULL,
-			FieldNames.ARTIST_READING,
-			FieldNames.ARTIST_READING_HIRAGANA ),
-		boosts(
-	        entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-	        entry(FieldNames.ARTIST_FULL, 1.1F)));
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_FULL,
+            FieldNames.ARTIST_READING,
+            FieldNames.ARTIST_READING_HIRAGANA ),
+        boosts(
+            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
+            entry(FieldNames.ARTIST_FULL, 1.1F)));
 
     public static final class FieldNames {
-	    /*
-	     * The contents of analysis are different for each field.
-	     * Defined in Analyzer.
-	     * 
-	     * Normal analysis              - Normal tokenizing and filtering
+        /*
+         * The contents of analysis are different for each field.
+         * Defined in Analyzer.
+         * 
+         * Normal analysis              - Normal tokenizing and filtering
          * Other than Normal analysis   - No tokenize, special filtering
          * 
          * Asterisk is unconditional registration.
-	     */
+         */
 
         /* Emphasis on complementation as artists are less data and more important */
         public static final String ARTIST =                  "art";   // * Normal analysis 
@@ -141,7 +141,7 @@ public enum IndexType {
         public static final String ARTIST_READING_HIRAGANA = "artRH"; // Convert to Hiragana and register
 
         public static final String ALBUM =                   "alb";   // * Normal analysis
-		public static final String ALBUM_FULL =              "albF";  // Registration when other than hiragana
+        public static final String ALBUM_FULL =              "albF";  // Registration when other than hiragana
         public static final String ALBUM_READING_HIRAGANA =  "albRH"; // Register when hiragana only
 
         public static final String TITLE =                   "tit";   // * Normal analysis
@@ -154,7 +154,7 @@ public enum IndexType {
         public static final String MEDIA_TYPE =              "m";
         public static final String FOLDER =                  "f";
         public static final String FOLDER_ID =               "fId";
-	}
+    }
 
     @SafeVarargs
     private static final Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
@@ -167,7 +167,7 @@ public enum IndexType {
         return new AbstractMap.SimpleEntry<>(k, v);
     }
 
-	private static final String[] fieldNames(String... names) {
+    private static final String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
     }
 
