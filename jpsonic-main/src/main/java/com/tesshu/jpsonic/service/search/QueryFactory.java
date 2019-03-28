@@ -37,6 +37,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -53,12 +54,10 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Therefore, when the version of lucene changes greatly,
  * verification with query grammar is possible.
  **/
+@Component
 public class QueryFactory {
-    
-    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getAnalyzer();
 
-    private QueryFactory() {
-    }
+    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getAnalyzer();
 
     /**
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}
@@ -68,7 +67,7 @@ public class QueryFactory {
      * @param indexType
      * @return Query
      */
-    public static Query search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
+    public Query search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
 
         /* FOLDER is not included in all searches. */
         String[] targetFields = Arrays.stream(indexType.getFields())
@@ -118,7 +117,7 @@ public class QueryFactory {
      * @param criteria
      * @return
      */
-    public static Query getRandomSongs(RandomSearchCriteria criteria) {
+    public Query getRandomSongs(RandomSearchCriteria criteria) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
         booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
@@ -168,7 +167,7 @@ public class QueryFactory {
      * @param fieldName
      * @return
      */
-    public static Query searchByName(String name, String fieldName) {
+    public Query searchByName(String name, String fieldName) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
             TokenStream stream = analyzer.tokenStream(fieldName, name);
@@ -192,7 +191,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
-    public static Query getRandomAlbums(List<MusicFolder> musicFolders) {
+    public Query getRandomAlbums(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 
@@ -210,7 +209,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
-    public static Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
+    public Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
 

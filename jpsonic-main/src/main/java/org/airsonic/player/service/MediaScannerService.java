@@ -160,6 +160,7 @@ public class MediaScannerService {
             public void run() {
                 doScanLibrary();
                 playlistService.importPlaylists();
+                mediaFileDao.checkpoint();
             }
         };
 
