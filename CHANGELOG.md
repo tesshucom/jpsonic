@@ -4,17 +4,19 @@
 # -->
 
 ## v101.0.0
-##### Based on *airsonic 10.3.0-SNAPSHOT e330eeb*
+#### Based on *airsonic 10.3.0-SNAPSHOT e330eeb*
 
-> e330eeb
+> [e330eeb]
+> 
 > Fixes to improve DB reliability, Organize JavaScript, update some libraries, etc.
+> 
+> Suppress CVE by false positives(spring:CVE-2018-1258)
 
-  * Suppress CVE by false positives(spring:CVE-2018-1258)
   * [fix] Fixed to prevent Java errors on the screen if a search is made when there is no search index data.
-  * [fix] Fixed a bug that year can not be specified in random search.
+  * [fix] Fixed double search issue with random search.
 
 ## v100.1.0
-##### Based on *airsonic 10.2.1-RELEASE*
+#### Based on *airsonic 10.2.1-RELEASE*
 
   * Security update (checkstyle:CVE-2019-9658) There is no impact on already running servers
   * [fix] Fixed a bug that search cannot be performed if Music Folder exist with a specific string pattern.
@@ -28,7 +30,7 @@
     Covers redundant, time-consuming Japanese processing and performs as fast as Airsonic and Subsonic.
 
 ## v100.0.0
-#### Based on airsonic 10.2.1-RELEASE
+#### Based on *airsonic 10.2.1-RELEASE*
 
   * Security update (stax:CVE-2018-20222) Prevent xxe during parse
   * Based on airsonic 10.2.1-RELEASE.
