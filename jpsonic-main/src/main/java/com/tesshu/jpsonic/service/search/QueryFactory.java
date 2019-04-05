@@ -29,7 +29,6 @@ import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BoostQuery;
@@ -57,7 +56,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Component
 public class QueryFactory {
 
-    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getAnalyzer();
+    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getQueryAnalyzer();
 
     /**
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}
@@ -72,6 +71,7 @@ public class QueryFactory {
         /* FOLDER is not included in all searches. */
         String[] targetFields = Arrays.stream(indexType.getFields())
             .filter(field -> !field.equals(FieldNames.FOLDER))
+            .filter(field -> !field.equals(FieldNames.FOLDER_ID))
             .toArray(i -> new String[i]);
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -82,7 +82,7 @@ public class QueryFactory {
             try {
                 stream.reset();
                 while (stream.incrementToken()) {
-                    String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
+                    String txt = stream.getAttribute(CharTermAttribute.class).toString();
                     WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
                     if(indexType.getBoosts().containsKey(fieldName)) {
                         subFieldsQuery.add(new BoostQuery(wildcardQuery, indexType.getBoosts().get(fieldName)), Occur.SHOULD);
@@ -120,7 +120,7 @@ public class QueryFactory {
     public Query getRandomSongs(RandomSearchCriteria criteria) {
 
         BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
-        booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name().toLowerCase())), Occur.MUST);
+        booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
 
         String genre = criteria.getGenre();
         if (!isEmpty(criteria.getGenre())) {
@@ -137,7 +137,6 @@ public class QueryFactory {
                 // error case difficult to predict..
                 LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
             }
-
             booleanQuery.add(new TermQuery(new Term(FieldNames.GENRE, genre)), Occur.MUST);
         }
 
@@ -167,23 +166,42 @@ public class QueryFactory {
      * @param fieldName
      * @return
      */
-    public Query searchByName(String name, String fieldName) {
+    public Query searchByName(String name, List<MusicFolder> musicFolders, IndexType nameType) {
 
-        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
+        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
+        BooleanQuery.Builder subFieldsQuery = new BooleanQuery.Builder();
+
+        Arrays.stream(nameType.getFields()).forEach(fieldName -> {
             TokenStream stream = analyzer.tokenStream(fieldName, name);
             try {
                 stream.reset();
                 while (stream.incrementToken()) {
-                    String txt = QueryParser.escape(stream.getAttribute(CharTermAttribute.class).toString()).concat("*");
-                    booleanQuery.add(new WildcardQuery(new Term(fieldName, txt)), Occur.MUST);
+                    String txt = stream.getAttribute(CharTermAttribute.class).toString();
+                    WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
+                    if (nameType.getBoosts().containsKey(fieldName)) {
+                        subFieldsQuery.add(new BoostQuery(wildcardQuery, nameType.getBoosts().get(fieldName)), Occur.SHOULD);
+                    } else {
+                        subFieldsQuery.add(wildcardQuery, Occur.SHOULD);
+                    }
                 }
                 stream.close();
             } catch (IOException e) {
                 // error case difficult to predict..
                 LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
             }
-        
-        return booleanQuery.build();
+        });
+
+        mainQuery.add(subFieldsQuery.build(), Occur.MUST);
+        BooleanQuery.Builder subMusicFoldersQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder -> {
+            if (nameType == IndexType.NAME_TITLE) {
+                subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD);
+            } else {
+                subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD);
+            }
+        });
+        mainQuery.add(subMusicFoldersQuery.build(), Occur.MUST);
+        return mainQuery.build();
     }
 
     /**

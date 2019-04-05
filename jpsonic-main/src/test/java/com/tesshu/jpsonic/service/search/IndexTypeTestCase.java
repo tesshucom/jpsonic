@@ -18,6 +18,10 @@
  */
 package com.tesshu.jpsonic.service.search;
 
+import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -28,8 +32,101 @@ import junit.framework.TestCase;
 public class IndexTypeTestCase extends TestCase {
 
     @Test
-    public void testNull() {
+    public void testAlbumBoosts() {
         assertEquals(4, IndexType.ALBUM.getBoosts().size());
+        assertEquals(IndexType.ALBUM.getBoosts().get(FieldNames.ALBUM_READING_HIRAGANA), 1.4F);
+        assertEquals(IndexType.ALBUM.getBoosts().get(FieldNames.ALBUM_FULL), 1.3F);
+        assertEquals(IndexType.ALBUM.getBoosts().get(FieldNames.ARTIST_READING_HIRAGANA), 1.2F);
+        assertEquals(IndexType.ALBUM.getBoosts().get(FieldNames.ARTIST_FULL), 1.1F);
     }
 
+    @Test
+    public void testAlbumFields() {
+        assertEquals(8, IndexType.ALBUM.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.ALBUM.getFields())
+                .filter(f -> FieldNames.ALBUM.equals(f))
+                .filter(f -> FieldNames.ALBUM_FULL.equals(f))
+                .filter(f -> FieldNames.ALBUM_READING_HIRAGANA.equals(f))
+                .filter(f -> FieldNames.ARTIST.equals(f))
+                .filter(f -> FieldNames.ARTIST_FULL.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING_HIRAGANA.equals(f))
+                .filter(f -> FieldNames.FOLDER.equals(f)).count());
+    }
+    
+    @Test
+    public void testAlbumId3Boosts() {
+        assertEquals(4, IndexType.ALBUM_ID3.getBoosts().size());
+        assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNames.ALBUM_READING_HIRAGANA), 1.4F);
+        assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNames.ALBUM_FULL), 1.3F);
+        assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNames.ARTIST_READING_HIRAGANA), 1.2F);
+        assertEquals(IndexType.ALBUM_ID3.getBoosts().get(FieldNames.ARTIST_FULL), 1.1F);
+    }
+
+    @Test
+    public void testAlbumId3Fields() {
+        assertEquals(8, IndexType.ALBUM_ID3.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.ALBUM_ID3.getFields())
+            .filter(f -> FieldNames.ARTIST.equals(f))
+            .filter(f -> FieldNames.ARTIST_FULL.equals(f))
+            .filter(f -> FieldNames.ARTIST_READING.equals(f))
+            .filter(f -> FieldNames.ARTIST_READING_HIRAGANA.equals(f)).count());
+    }
+
+    @Test
+    public void testArtistBoosts() {
+        assertEquals(2, IndexType.ARTIST.getBoosts().size());
+        assertEquals(IndexType.ARTIST.getBoosts().get(FieldNames.ARTIST_READING_HIRAGANA), 1.2F);
+        assertEquals(IndexType.ARTIST.getBoosts().get(FieldNames.ARTIST_FULL), 1.1F);
+    }
+
+    @Test
+    public void testArtistFields() {
+        assertEquals(5, IndexType.ARTIST.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.ARTIST.getFields())
+            .filter(f -> FieldNames.ARTIST.equals(f))
+            .filter(f -> FieldNames.ARTIST_FULL.equals(f))
+            .filter(f -> FieldNames.ARTIST_READING.equals(f))
+            .filter(f -> FieldNames.ARTIST_READING_HIRAGANA.equals(f))
+            .filter(f -> FieldNames.FOLDER.equals(f)).count());
+    }
+
+    @Test
+    public void testArtistId3Boosts() {
+        assertEquals(2, IndexType.ARTIST_ID3.getBoosts().size());
+        assertEquals(IndexType.ARTIST_ID3.getBoosts().get(FieldNames.ARTIST_READING_HIRAGANA), 1.2F);
+        assertEquals(IndexType.ARTIST_ID3.getBoosts().get(FieldNames.ARTIST_FULL), 1.1F);
+    }
+
+    @Test
+    public void testArtistId3Fields() {
+        assertEquals(4, IndexType.ARTIST_ID3.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.ARTIST_ID3.getFields())
+                .filter(f -> FieldNames.ARTIST.equals(f))
+                .filter(f -> FieldNames.ARTIST_FULL.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING_HIRAGANA.equals(f)).count());
+    }
+    
+    @Test
+    public void testSongBoosts() {
+        assertEquals(4, IndexType.SONG.getBoosts().size());
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE_READING_HIRAGANA), 1.4F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE), 1.3F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST_READING_HIRAGANA), 1.2F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST_FULL), 1.1F);
+    }
+
+    @Test
+    public void testSongFields() {
+        assertEquals(6, IndexType.SONG.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.SONG.getFields())
+                .filter(f -> FieldNames.TITLE.equals(f))
+                .filter(f -> FieldNames.TITLE_READING_HIRAGANA.equals(f))
+                .filter(f -> FieldNames.ARTIST.equals(f))
+                .filter(f -> FieldNames.ARTIST_FULL.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING.equals(f))
+                .filter(f -> FieldNames.ARTIST_READING_HIRAGANA.equals(f)).count());
+    }
+    
 }

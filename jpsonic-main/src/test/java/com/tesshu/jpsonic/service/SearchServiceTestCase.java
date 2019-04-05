@@ -230,7 +230,7 @@ public class SearchServiceTestCase {
     ParamSearchResult<Artist>
     artistResult = searchService.searchByName("lker/Nash", 0, Integer.MAX_VALUE, allMusicFolders, Artist.class);
     Assert.assertEquals(
-        "(21) Specify 'lker/Nash' as the name, and get an artist.", 0, artistResult.getItems().size());
+        "(21) Specify 'lker/Nash' as the name, and get an artist.", 1, artistResult.getItems().size());
 
     //  testGetRandomSongs()
 
