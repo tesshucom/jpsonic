@@ -355,10 +355,6 @@ public class MediaFileService {
     /**
      * Returns random songs matching search criteria.
      *
-     * @param criteria Random search criteria.
-     * @param count    Max number of songs to return.
-     * @return Random songs
-     * @see SearchService.getRandomSongs
      */
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, String username) {
         return mediaFileDao.getRandomSongs(criteria, username);
