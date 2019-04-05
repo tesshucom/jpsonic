@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.search.*;
+import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 
 import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
@@ -382,15 +383,32 @@ public class SearchService {
             return result;
         }
 
-        Query query = queryFactory.searchByName(name, fieldName);
+        IndexType nameType = null;
+        switch (fieldName) {
+            case FieldNames.ARTIST:
+                nameType = IndexType.NAME_ARTIST;
+                break;
+            case FieldNames.ALBUM:
+                nameType = IndexType.NAME_ALBUM;
+                break;
+            case FieldNames.TITLE:
+                nameType = IndexType.NAME_TITLE;
+                break;
+            default:
+                break;
+        }
+
+        Query query = queryFactory.searchByName(name, folderList, nameType);
         IndexSearcher searcher = getSearcher(indexType);
         if(isEmpty(searcher)) {
             return result;
         }
 
         try {
-
-            Sort sort = new Sort(new SortField(fieldName, SortField.Type.STRING));
+            SortField[] sortFields = Arrays.stream(nameType.getFields())
+                    .map(n -> new SortField(n, SortField.Type.STRING))
+                    .toArray(i -> new SortField[i]);
+            Sort sort = new Sort(sortFields);
             TopDocs topDocs = searcher.search(query, offset + count, sort);
 
             int totalHits = round.apply(topDocs.totalHits);
