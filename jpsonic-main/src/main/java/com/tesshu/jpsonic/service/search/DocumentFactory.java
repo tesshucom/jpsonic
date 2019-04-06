@@ -10,7 +10,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.util.BytesRef;
@@ -37,8 +36,7 @@ public class DocumentFactory {
     };
 
     private BiConsumer<Document, Integer> idField = (doc, value) -> {
-        doc.add(new IntPoint(FieldNames.ID, value));
-        doc.add(new StoredField(FieldNames.ID, value));
+        doc.add(new StringField(FieldNames.ID, Integer.toString(value), Store.YES));
     };
 
     private Consumer<Document, String, String> keyField = (doc, fieldName, value) -> {

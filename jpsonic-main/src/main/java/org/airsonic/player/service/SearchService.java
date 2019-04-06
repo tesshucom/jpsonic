@@ -214,12 +214,13 @@ public class SearchService {
 
     public void index(MediaFile mediaFile) {
         try {
+            Term term = new Term(FieldNames.ID, Integer.toString(mediaFile.getId()));
             if (mediaFile.isFile()) {
-                songWriter.addDocument(documentFactory.createDocument(SONG, mediaFile));
+                songWriter.updateDocument(term, documentFactory.createDocument(SONG, mediaFile));
             } else if (mediaFile.isAlbum()) {
-                albumWriter.addDocument(documentFactory.createDocument(ALBUM, mediaFile));
+                albumWriter.updateDocument(term, documentFactory.createDocument(ALBUM, mediaFile));
             } else {
-                artistWriter.addDocument(documentFactory.createDocument(ARTIST, mediaFile));
+                artistWriter.updateDocument(term, documentFactory.createDocument(ARTIST, mediaFile));
             }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + mediaFile, x);
@@ -228,7 +229,8 @@ public class SearchService {
 
     public void index(Artist artist, MusicFolder musicFolder) {
         try {
-            artistId3Writer.addDocument(documentFactory.createDocument(artist, musicFolder));
+            Term term = new Term(FieldNames.ID, Integer.toString(artist.getId()));
+            artistId3Writer.updateDocument(term, documentFactory.createDocument(artist, musicFolder));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + artist, x);
         }
@@ -236,7 +238,8 @@ public class SearchService {
 
     public void index(Album album) {
         try {
-            albumId3Writer.addDocument(documentFactory.createDocument(album));
+            Term term = new Term(FieldNames.ID, Integer.toString(album.getId()));
+            albumId3Writer.updateDocument(term, documentFactory.createDocument(album));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
         }
