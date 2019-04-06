@@ -448,15 +448,13 @@ public class SearchService {
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
-        int docsLength = docs.size();
         List<D> result = new ArrayList<>();
-
-        for (int i = 0; i < docsLength && result.size() < count; i++) {
-            Integer randomPos = random.nextInt(docs.size());
+        while (!docs.isEmpty() && result.size() < count) {
+            int randomPos = random.nextInt(docs.size());
             Document document = searcher.doc(docs.get(randomPos));
-            docs.remove(randomPos);
-            int id = getId.apply(document);
-            id2ListCallBack.accept(result, id);
+            id2ListCallBack.accept(result, getId.apply(document));
+            System.out.println(docs.remove(randomPos));
+            System.out.println(docs.size());
         }
 
         return result;
