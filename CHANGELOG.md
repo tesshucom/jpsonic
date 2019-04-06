@@ -3,6 +3,17 @@
 # jpsonic/jpsonic
 # -->
 
+## v101.0.1
+#### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
+
+> [c3a1980]
+> 
+> A lot of JavaScript improvements, Launch on Jetty. Improving log output when running Jetty etc.
+
+  * [fix] Fixed the problem of duplicate results in random search.
+  * [fix] Fixed the problem that double registration occurs when creating search index.
+  * [fix] Fixed a bug that DNLA which was occured in v101.0.0 can not be used.
+
 ## v101.0.0
 #### Based on *airsonic 10.3.0-SNAPSHOT e330eeb*
 
