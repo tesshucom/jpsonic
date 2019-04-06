@@ -456,8 +456,7 @@ public class SearchService {
             int randomPos = random.nextInt(docs.size());
             Document document = searcher.doc(docs.get(randomPos));
             id2ListCallBack.accept(result, getId.apply(document));
-            System.out.println(docs.remove(randomPos));
-            System.out.println(docs.size());
+            docs.remove(randomPos);
         }
 
         return result;
