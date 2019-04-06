@@ -29,7 +29,6 @@ import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.HttpRange;
 import org.airsonic.player.util.StringUtil;
 import org.airsonic.player.util.Util;
-import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,7 +107,7 @@ public class StreamController  {
                 playQueue.addFiles(false, playlistService.getFilesInPlaylist(playlistId));
                 player.setPlayQueue(playQueue);
                 Util.setContentLength(response, playQueue.length());
-                LOG.info("Incoming Podcast request for playlist " + playlistId);
+                LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
             }
 
             response.setHeader("Access-Control-Allow-Origin", "*");
@@ -165,7 +164,7 @@ public class StreamController  {
 
                 range = getRange(request, file);
                 if (settingsService.isEnableSeek() && range != null && !file.isVideo()) {
-                    LOG.info("Got HTTP range: " + range);
+                    LOG.info("{}: Got HTTP range: {}", request.getRemoteAddr(), range);
                     response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                     Util.setContentLength(response, range.isClosed() ? range.size() : fileLength - range.getFirstBytePos());
                     long lastBytePos = range.getLastBytePos() != null ? range.getLastBytePos() : fileLength - 1;
@@ -249,9 +248,22 @@ public class StreamController  {
                     }
                 }
             }
-        } catch (ClientAbortException err) {
-            LOG.info("org.apache.catalina.connector.ClientAbortException: Connection reset");
-            return;
+        } catch (IOException e) {
+
+            // This happens often and outside of the control of the server, so
+            // we catch Tomcat/Jetty "connection aborted by client" exceptions
+            // and display a short error message.
+            boolean shouldCatch = false;
+            shouldCatch |= Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
+            shouldCatch |= Util.isInstanceOfClassName(e, "org.eclipse.jetty.io.EofException");
+            if (shouldCatch) {
+                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(), Util.getURLForRequest(request), e.getCause().toString());
+                return;
+            }
+
+            // Rethrow the exception in all other cases
+            throw e;
+
         } finally {
             if (status != null) {
                 securityService.updateUserByteCounts(user, status.getBytesTransfered(), 0L, 0L);
@@ -426,5 +438,4 @@ public class StreamController  {
         out.write(buf);
         out.flush();
     }
-
 }
