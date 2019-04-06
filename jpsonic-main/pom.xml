@@ -16,7 +16,7 @@
         <metrics.version>3.1.0</metrics.version>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>100.1.0-RELEASE</jpsonic.version>
+        <jpsonic.version>100.1.1-SNAPSHOT</jpsonic.version>
     </properties>
 
     <dependencies>
