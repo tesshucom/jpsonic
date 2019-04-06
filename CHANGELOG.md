@@ -3,10 +3,19 @@
 # jpsonic/jpsonic
 # -->
 
+
+## v101.0.1
+#### Based on *airsonic 10.2.1-RELEASE*
+
+> This patch version applies the bug fixes made for 101.0.1 (SNAPSHOT base) as well.
+
+  * [fix] Fixed the problem of duplicate results in random search.
+  * [fix] Fixed the problem that double registration occurs when creating search index.
+
 ## 100.1.0
+#### Based on *airsonic 10.2.1-RELEASE*
 
   * Security update (checkstyle:CVE-2019-9658) There is no impact on already running servers
-  * Based on airsonic 10.2.1-RELEASE.
   * [fix] Fixed a bug that search cannot be performed if Music Folder exist with a specific string pattern.
   * [fix] Fixed a bug that year can not be specified in random search.
   * [update] lucene has been updated to 7.7.1.
@@ -18,9 +27,9 @@
     Covers redundant, time-consuming Japanese processing and performs as fast as Airsonic and Subsonic.
 
 ## 100.0.0
+#### Based on *airsonic 10.2.1-RELEASE*
 
   * Security update (stax:CVE-2018-20222) Prevent xxe during parse
-  * Based on airsonic 10.2.1-RELEASE.
   * Jpsonic public repository has been created. The version check and release page has been changed to refer public repository.
 
 ## v2.3.0
