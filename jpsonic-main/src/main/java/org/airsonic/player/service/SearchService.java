@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.search.*;
+import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 
 import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
@@ -81,6 +82,12 @@ public class SearchService {
 
     @Autowired
     private AlbumDao albumDao;
+
+    @Autowired
+    private DocumentFactory documentFactory;
+
+    @Autowired
+    private QueryFactory queryFactory;
 
     private IndexWriter artistWriter;
     private IndexWriter artistId3Writer;
@@ -208,11 +215,11 @@ public class SearchService {
     public void index(MediaFile mediaFile) {
         try {
             if (mediaFile.isFile()) {
-                songWriter.addDocument(SONG.createDocument(mediaFile));
+                songWriter.addDocument(documentFactory.createDocument(SONG, mediaFile));
             } else if (mediaFile.isAlbum()) {
-                albumWriter.addDocument(ALBUM.createDocument(mediaFile));
+                albumWriter.addDocument(documentFactory.createDocument(ALBUM, mediaFile));
             } else {
-                artistWriter.addDocument(ARTIST.createDocument(mediaFile));
+                artistWriter.addDocument(documentFactory.createDocument(ARTIST, mediaFile));
             }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + mediaFile, x);
@@ -221,7 +228,7 @@ public class SearchService {
 
     public void index(Artist artist, MusicFolder musicFolder) {
         try {
-            artistId3Writer.addDocument(ARTIST_ID3.createDocument(artist, musicFolder));
+            artistId3Writer.addDocument(documentFactory.createDocument(artist, musicFolder));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + artist, x);
         }
@@ -229,7 +236,7 @@ public class SearchService {
 
     public void index(Album album) {
         try {
-            albumId3Writer.addDocument(ALBUM_ID3.createDocument(album));
+            albumId3Writer.addDocument(documentFactory.createDocument(album));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
         }
@@ -287,26 +294,29 @@ public class SearchService {
         });
     }
 
-    private IndexSearcher getSearcher(IndexType indexType) {
+    private /* @Nullable */ IndexSearcher getSearcher(IndexType indexType) {
         if (!searcherManagerMap.containsKey(indexType)) {
             synchronized (searcherManagerMap) {
                 File indexDirectory = getDirectory.apply(indexType);
                 try {
-                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
-                    searcherManagerMap.put(indexType, manager);
+                    if (indexDirectory.exists()) {
+                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+                        searcherManagerMap.put(indexType, manager);
+                    } else {
+                        LOG.warn("{} does not exist.", indexDirectory.getAbsolutePath());
+                    }
                 } catch (IOException e) {
-                    LOG.error("Failed to initialize IndexSearcher.", e);
-                    searcherManagerMap.remove(indexType);
+                    LOG.error("Failed to initialize SearcherManager.", e);
                 }
             }
         }
-        IndexSearcher searcher = null;
         try {
-            searcher = searcherManagerMap.get(indexType).acquire();
+            return searcherManagerMap.get(indexType).acquire();
         } catch (Exception e) {
-            LOG.error("Failed to acquire IndexSearcher.", e);
+            searcherManagerMap.remove(indexType);
+            LOG.warn("Failed to acquire IndexSearcher.", e);
         }
-        return searcher;
+        return null;
     }
 
     private void release(IndexType indexType, IndexSearcher indexSearcher) {
@@ -331,15 +341,15 @@ public class SearchService {
             return result;
         }
 
-        final Query query = QueryFactory.search(criteria, musicFolders, indexType);
+        final Query query = queryFactory.search(criteria, musicFolders, indexType);
         IndexSearcher searcher = getSearcher(indexType);
+        if(isEmpty(searcher)) {
+            return result;
+        }
 
         try {
 
             TopDocs topDocs = searcher.search(query, offset + count);
-            if(isEmpty(topDocs)) {
-                return result;
-            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -373,16 +383,33 @@ public class SearchService {
             return result;
         }
 
-        Query query = QueryFactory.searchByName(name, fieldName);
+        IndexType nameType = null;
+        switch (fieldName) {
+            case FieldNames.ARTIST:
+                nameType = IndexType.NAME_ARTIST;
+                break;
+            case FieldNames.ALBUM:
+                nameType = IndexType.NAME_ALBUM;
+                break;
+            case FieldNames.TITLE:
+                nameType = IndexType.NAME_TITLE;
+                break;
+            default:
+                break;
+        }
+
+        Query query = queryFactory.searchByName(name, folderList, nameType);
         IndexSearcher searcher = getSearcher(indexType);
+        if(isEmpty(searcher)) {
+            return result;
+        }
 
         try {
-
-            Sort sort = new Sort(new SortField(fieldName, SortField.Type.STRING));
+            SortField[] sortFields = Arrays.stream(nameType.getFields())
+                    .map(n -> new SortField(n, SortField.Type.STRING))
+                    .toArray(i -> new SortField[i]);
+            Sort sort = new Sort(sortFields);
             TopDocs topDocs = searcher.search(query, offset + count, sort);
-            if(isEmpty(topDocs)) {
-                return result;
-            }
 
             int totalHits = round.apply(topDocs.totalHits);
             result.setTotalHits(totalHits);
@@ -417,18 +444,12 @@ public class SearchService {
             Query query,
             BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException{
 
-        List<D> result = new ArrayList<>();
-
-        TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-        if(isEmpty(topDocs)) {
-            return Collections.emptyList();
-        }
-
         List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
         int docsLength = docs.size();
+        List<D> result = new ArrayList<>();
 
         for (int i = 0; i < docsLength && result.size() < count; i++) {
             Integer randomPos = random.nextInt(docs.size());
@@ -449,8 +470,11 @@ public class SearchService {
      */
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
-        final Query query = QueryFactory.getRandomSongs(criteria);
+        final Query query = queryFactory.getRandomSongs(criteria);
         IndexSearcher searcher = getSearcher(SONG);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(criteria.getCount(), searcher, query, (dist, id)
@@ -474,8 +498,11 @@ public class SearchService {
      */
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
-        Query query = QueryFactory.getRandomAlbums(musicFolders);
+        Query query = queryFactory.getRandomAlbums(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(count, searcher, query,  (dist, id)
@@ -499,10 +526,11 @@ public class SearchService {
      */
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
-        List<Album> result = new ArrayList<Album>();
-
-        Query query = QueryFactory.getRandomAlbumsId3(musicFolders);
+        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
         IndexSearcher searcher = getSearcher(ALBUM_ID3);
+        if(isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
 
         try {
             return createRandomFiles(count, searcher, query,  (dist, id)
@@ -513,7 +541,7 @@ public class SearchService {
             release(ALBUM_ID3, searcher);
         }
 
-        return result;
+        return Collections.emptyList();
 
     }
 
