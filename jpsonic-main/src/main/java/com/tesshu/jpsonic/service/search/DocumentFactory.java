@@ -71,11 +71,11 @@ public class DocumentFactory {
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
         termField.accept(doc, FieldNames.ALBUM_FULL, mediaFile.getAlbumName());
+        String reading = isEmpty(mediaFile.getAlbumSort()) ? mediaFile.getAlbumReading() : mediaFile.getAlbumSort();
         termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, mediaFile.getAlbumSort());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_FULL, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_READING, mediaFile.getArtistSort());
-        termField.accept(doc, FieldNames.ARTIST_READING_HIRAGANA, mediaFile.getArtistSort());
+        reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+        termField.accept(doc, FieldNames.ARTIST_READING, reading);
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -84,9 +84,8 @@ public class DocumentFactory {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_FULL, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_READING, mediaFile.getArtistSort());
-        termField.accept(doc, FieldNames.ARTIST_READING_HIRAGANA, mediaFile.getArtistSort());
+        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+        termField.accept(doc, FieldNames.ARTIST_READING, reading);
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -98,9 +97,7 @@ public class DocumentFactory {
         termField.accept(doc, FieldNames.ALBUM_FULL, album.getName());
         termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, album.getNameSort());
         termField.accept(doc, FieldNames.ARTIST, album.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_FULL, album.getArtist());
         termField.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
-        termField.accept(doc, FieldNames.ARTIST_READING_HIRAGANA, album.getArtistSort());
         numberField.accept(doc, FieldNames.FOLDER_ID, album.getFolderId());
         return doc;
     }
@@ -109,10 +106,8 @@ public class DocumentFactory {
         Document doc = new Document();
         idField.accept(doc, artist.getId());
         termField.accept(doc, FieldNames.ARTIST, artist.getName());
-        termField.accept(doc, FieldNames.ARTIST_FULL, artist.getName());
         String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        termField.accept(doc, FieldNames.ARTIST_READING_HIRAGANA, reading);
         numberField.accept(doc, FieldNames.FOLDER_ID, musicFolder.getId());
         return doc;
     }
@@ -132,10 +127,8 @@ public class DocumentFactory {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_FULL, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        termField.accept(doc, FieldNames.ARTIST_READING_HIRAGANA, reading);
         keyField.accept(doc, FieldNames.MEDIA_TYPE, mediaFile.getMediaType().name());
         termField.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
         termField.accept(doc, FieldNames.TITLE_READING_HIRAGANA, isEmpty(mediaFile.getTitleSort()) ? mediaFile.getTitle() : mediaFile.getTitleSort());

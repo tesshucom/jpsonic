@@ -386,30 +386,16 @@ public class SearchService {
             return result;
         }
 
-        IndexType nameType = null;
-        switch (fieldName) {
-            case FieldNames.ARTIST:
-                nameType = IndexType.NAME_ARTIST;
-                break;
-            case FieldNames.ALBUM:
-                nameType = IndexType.NAME_ALBUM;
-                break;
-            case FieldNames.TITLE:
-                nameType = IndexType.NAME_TITLE;
-                break;
-            default:
-                break;
-        }
-
-        Query query = queryFactory.searchByName(name, folderList, nameType);
+        Query query = queryFactory.searchByName(name, folderList, indexType);
         IndexSearcher searcher = getSearcher(indexType);
         if(isEmpty(searcher)) {
             return result;
         }
 
         try {
-            SortField[] sortFields = Arrays.stream(nameType.getFields())
+            SortField[] sortFields = Arrays.stream(indexType.getFields())
                     .map(n -> new SortField(n, SortField.Type.STRING))
+                    .filter(n -> !FieldNames.FOLDER.equals(n.toString()) && !FieldNames.FOLDER_ID.equals(n.toString()))
                     .toArray(i -> new SortField[i]);
             Sort sort = new Sort(sortFields);
             TopDocs topDocs = searcher.search(query, offset + count, sort);
