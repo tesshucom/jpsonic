@@ -20,6 +20,7 @@ package com.tesshu.jpsonic.service.search;
 
 import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 import com.tesshu.jpsonic.service.search.analysis.HiraganaTermStemFilterFactory;
+import com.tesshu.jpsonic.service.search.analysis.Id3ArtistTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
 
@@ -131,8 +132,12 @@ public final class AnalyzerFactory {
         return builder;
     }
 
-    private Builder createToHiraganaAnalyzerBuilder() throws IOException {
-        return createSingleTokenAnalyzerBuilder().addTokenFilter(ToHiraganaFilterFactory.class);
+    private Builder createId3ArtistAnalyzerBuilder() throws IOException {  
+        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(Id3ArtistTokenizerFactory.class);
+        builder = basicFilters(builder)
+                .addTokenFilter(PunctuationStemFilterFactory.class)
+                .addTokenFilter(ToHiraganaFilterFactory.class);
+        return builder;
     }
 
     /**
@@ -146,8 +151,8 @@ public final class AnalyzerFactory {
 
                 Analyzer path = createPathAnalyzerBuilder().build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
+                Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer multiTerm = createMultiTokenAnalyzerBuilder().build();
-                Analyzer toHiragana = createToHiraganaAnalyzerBuilder().build();
                 Analyzer onlyHiragana = createOnlyHiraganaAnalyzerBuilder().build();
                 Analyzer otherThanHiragana = createOtherThanHiraganaAnalyzerBuilder().build();
 
@@ -155,10 +160,9 @@ public final class AnalyzerFactory {
                 analyzerMap.put(FieldNames.FOLDER, path);
                 analyzerMap.put(FieldNames.GENRE, key);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
-                analyzerMap.put(FieldNames.ARTIST_READING_HIRAGANA, toHiragana);
+                analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ALBUM_READING_HIRAGANA, onlyHiragana);
                 analyzerMap.put(FieldNames.TITLE_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.ARTIST_FULL, otherThanHiragana);
                 analyzerMap.put(FieldNames.ALBUM_FULL, otherThanHiragana);
 
                 this.analyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);
@@ -181,8 +185,8 @@ public final class AnalyzerFactory {
 
                 Analyzer path = createPathAnalyzerBuilder().build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
+                Analyzer id3Artist = addWildCard(createId3ArtistAnalyzerBuilder()).build();
                 Analyzer multiTerm = addWildCard(createMultiTokenAnalyzerBuilder()).build();
-                Analyzer toHiragana = addWildCard(createToHiraganaAnalyzerBuilder()).build();
                 Analyzer onlyHiragana = addWildCard(createOnlyHiraganaAnalyzerBuilder()).build();
                 Analyzer otherThanHiragana = addWildCard(createOtherThanHiraganaAnalyzerBuilder()).build();
 
@@ -190,10 +194,9 @@ public final class AnalyzerFactory {
                 analyzerMap.put(FieldNames.FOLDER, path);
                 analyzerMap.put(FieldNames.GENRE, key);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
-                analyzerMap.put(FieldNames.ARTIST_READING_HIRAGANA, toHiragana);
+                analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ALBUM_READING_HIRAGANA, onlyHiragana);
                 analyzerMap.put(FieldNames.TITLE_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.ARTIST_FULL, otherThanHiragana);
                 analyzerMap.put(FieldNames.ALBUM_FULL, otherThanHiragana);
 
                 this.queryAnalyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);

@@ -58,96 +58,56 @@ public enum IndexType {
 
     SONG(
         fieldNames(
-            FieldNames.TITLE,
             FieldNames.TITLE_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.TITLE,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA ),
+            FieldNames.ARTIST),
         boosts(
-            entry(FieldNames.TITLE_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.TITLE, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.TITLE_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.TITLE, 2.3F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM(
         fieldNames(
-            FieldNames.ALBUM,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.ARTIST,
             FieldNames.FOLDER ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.ALBUM_FULL, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.ALBUM_FULL, 2.3F),
+            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
         fieldNames(
-            FieldNames.ALBUM,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.ARTIST,
             FieldNames.FOLDER_ID ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.ALBUM_FULL, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
-
+            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.ALBUM_FULL, 2.3F),
+            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
     ARTIST(
         fieldNames(
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
-            FieldNames.FOLDER ),
+            FieldNames.ARTIST,
+            FieldNames.FOLDER),
         boosts(
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ARTIST_ID3(
         fieldNames(
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA ),
+            FieldNames.ARTIST),
         boosts(
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
-
-    NAME_TITLE(
-            fieldNames(
-                FieldNames.TITLE_READING_HIRAGANA,
-                FieldNames.TITLE),
-            boosts(
-                entry(FieldNames.TITLE_READING_HIRAGANA, 1.1F))),
-
-    NAME_ALBUM(
-            fieldNames(
-                FieldNames.ALBUM_READING_HIRAGANA,
-                FieldNames.ALBUM_FULL,
-                FieldNames.ALBUM),
-            boosts(
-                entry(FieldNames.ALBUM_READING_HIRAGANA, 1.2F),
-                entry(FieldNames.ALBUM_FULL, 1.1F))),
-
-    NAME_ARTIST(
-            fieldNames(
-                FieldNames.ARTIST_READING_HIRAGANA,
-                FieldNames.ARTIST_READING,
-                FieldNames.ARTIST_FULL,
-                FieldNames.ARTIST),
-            boosts(
-                entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-                entry(FieldNames.ARTIST_FULL, 1.1F)))
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ;
 
@@ -167,9 +127,7 @@ public enum IndexType {
 
         /* Emphasis on complementation as artists are less data and more important */
         public static final String ARTIST =                  "art";   // * Normal analysis 
-        public static final String ARTIST_FULL =             "artF";  // Registration when other than hiragana (possibility of various character types)
         public static final String ARTIST_READING =          "artR";  // * Sort key (possibility of various character types)
-        public static final String ARTIST_READING_HIRAGANA = "artRH"; // Convert to Hiragana and register
 
         public static final String ALBUM =                   "alb";   // * Normal analysis
         public static final String ALBUM_FULL =              "albF";  // Registration when other than hiragana
