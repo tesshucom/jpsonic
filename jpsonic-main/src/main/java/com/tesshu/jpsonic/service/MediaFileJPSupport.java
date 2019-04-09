@@ -80,8 +80,7 @@ public class MediaFileJPSupport {
 
 	public void analyzeArtistSort(MediaFile mediaFile) {
 		if (StringUtils.isEmpty(mediaFile.getArtistReading())
-				|| StringUtils.isEmpty(mediaFile.getArtistSort())
-				|| mediaFile.getArtistSort().equals(mediaFile.getArtistReading())) {
+				|| mediaFile.getArtistReading().equals(mediaFile.getArtistSort())) {
 			mediaFile.setArtistSort(null);
 			return;
 		}
@@ -98,7 +97,7 @@ public class MediaFileJPSupport {
 	}
 
 	public String createReading(String s) {
-		if (StringUtils.isEmpty(s) || ALPHA.matcher(s.substring(0, 1)).matches()) {
+		if (StringUtils.isEmpty(s)) {
 			return null;
 		}
 		if(readingMap.containsKey(s)) {
