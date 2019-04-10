@@ -118,24 +118,26 @@ public class MediaFileJPSupport {
      */
     public String createIndexableName(MediaFile mediaFile) {
         // http://www.unicode.org/reports/tr15/
-    	if(!StringUtils.isEmpty(mediaFile.getArtistSort())) {
-    		return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
-    	}
-    	if(!StringUtils.isEmpty(mediaFile.getArtistReading())) {
-    		return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
-    	}
+        if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
+            return mediaFile.getName();
+        } else if (!StringUtils.isEmpty(mediaFile.getArtistSort())) {
+            return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
+        } else if (!StringUtils.isEmpty(mediaFile.getArtistReading())) {
+            return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
+        }
         return mediaFile.getName();
     }
 
-	public String createIndexableName(Artist artist) {
-		if (!StringUtils.isEmpty(artist.getSort())) {
-			return Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
-		}
-		if (!StringUtils.isEmpty(artist.getReading())) {
-			return Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
-		}
-		return artist.getName();
-	}
+    public String createIndexableName(Artist artist) {
+        if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
+            return artist.getName();
+        } else if (!StringUtils.isEmpty(artist.getSort())) {
+            return Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
+        } else if (!StringUtils.isEmpty(artist.getReading())) {
+            return Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+        }
+        return artist.getName();
+    }
 
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
     	List<MediaFile> toBeUpdate = new ArrayList<>();
