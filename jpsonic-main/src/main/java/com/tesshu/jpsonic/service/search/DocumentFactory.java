@@ -71,10 +71,9 @@ public class DocumentFactory {
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
         termField.accept(doc, FieldNames.ALBUM_FULL, mediaFile.getAlbumName());
-        String reading = isEmpty(mediaFile.getAlbumSort()) ? mediaFile.getAlbumReading() : mediaFile.getAlbumSort();
-        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, mediaFile.getAlbumSort());
+        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, mediaFile.getAlbumName());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
@@ -95,7 +94,7 @@ public class DocumentFactory {
         idField.accept(doc, album.getId());
         termField.accept(doc, FieldNames.ALBUM, album.getName());
         termField.accept(doc, FieldNames.ALBUM_FULL, album.getName());
-        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, album.getNameSort());
+        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, album.getName());
         termField.accept(doc, FieldNames.ARTIST, album.getArtist());
         termField.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
         numberField.accept(doc, FieldNames.FOLDER_ID, album.getFolderId());
@@ -131,7 +130,7 @@ public class DocumentFactory {
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         keyField.accept(doc, FieldNames.MEDIA_TYPE, mediaFile.getMediaType().name());
         termField.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
-        termField.accept(doc, FieldNames.TITLE_READING_HIRAGANA, isEmpty(mediaFile.getTitleSort()) ? mediaFile.getTitle() : mediaFile.getTitleSort());
+        termField.accept(doc, FieldNames.TITLE_READING_HIRAGANA, mediaFile.getTitle());
         nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
         numberField.accept(doc, FieldNames.YEAR, mediaFile.getYear());
         pathField.accept(doc, mediaFile.getFolder());
