@@ -67,7 +67,7 @@ public class DocumentFactoryTestCase {
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "name", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_FULL", "name", document.get(FieldNames.ALBUM_FULL));
-        assertEquals("FieldNames.ALBUM_READING_HIRAGANA", "nameSort", document.get(FieldNames.ALBUM_READING_HIRAGANA));
+        assertEquals("FieldNames.ALBUM_READING_HIRAGANA", "name", document.get(FieldNames.ALBUM_READING_HIRAGANA));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
         assertEquals("FieldNames.FOLDER_ID", "10", document.get(FieldNames.FOLDER_ID));
@@ -109,7 +109,7 @@ public class DocumentFactoryTestCase {
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "albumName", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_FULL", "albumName", document.get(FieldNames.ALBUM_FULL));
-        assertEquals("FieldNames.ALBUM_READING_HIRAGANA", "albumSort", document.get(FieldNames.ALBUM_READING_HIRAGANA));
+        assertEquals("FieldNames.ALBUM_READING_HIRAGANA", "albumName", document.get(FieldNames.ALBUM_READING_HIRAGANA));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
         assertEquals("FieldNames.FOLDER_ID", "folder", document.get(FieldNames.FOLDER));
@@ -146,7 +146,7 @@ public class DocumentFactoryTestCase {
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
         assertEquals("FieldNames.TITLE", "title", document.get(FieldNames.TITLE));
-        assertEquals("FieldNames.TITLE_READING_HIRAGANA", "titleSort", document.get(FieldNames.TITLE_READING_HIRAGANA));
+        assertEquals("FieldNames.TITLE_READING_HIRAGANA", "title", document.get(FieldNames.TITLE_READING_HIRAGANA));
         assertEquals("FieldNames.MEDIA_TYPE", "MUSIC", document.get(FieldNames.MEDIA_TYPE));
         assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
         assertEquals("FieldNames.YEAR", "2000", document.get(FieldNames.YEAR));
