@@ -49,9 +49,9 @@ public class Id3ArtistTokenizer extends CharTokenizer {
          * see http://id3.org/
          * ; v2.2 
          * / v2.3
-         * \0 v2.4 (Unnecessary)
+         * \0 v2.4 (Required for security)
          */
-        int id3delim = ';' | '/';
+        int id3delim = ';' | '/' | '\0';
 
         if (id3delim == c) {
             return false;
