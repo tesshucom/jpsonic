@@ -26,6 +26,7 @@ import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.util.FileUtil;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
@@ -46,7 +47,6 @@ import java.util.*;
 @Service
 public class MediaScannerService {
 
-    private static final int INDEX_VERSION = 15;
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
     private MediaLibraryStatistics statistics;
@@ -400,29 +400,29 @@ public class MediaScannerService {
      * Deletes old versions of the index file.
      */
     private void deleteOldIndexFiles() {
-        for (int i = 2; i < INDEX_VERSION; i++) {
-            File file = getIndexFile(i);
+        File current = getIndexFile();
+        LOG.info("Currently used index file (" + (FileUtil.exists(current) ? "exists" : "not exists") + "): " + current.getAbsolutePath());
+        Arrays.stream(SettingsService.getJpsonicHome().listFiles((f, n) ->
+            SearchService.INDEX_FILE_NAME_PATTERN.matcher(n).matches())).forEach(maybeOld -> {
             try {
-                if (FileUtil.exists(file)) {
-                    if (file.delete()) {
-                        LOG.info("Deleted old index file: " + file.getPath());
-                    }
+                if (FileUtil.exists(maybeOld) && !maybeOld.getName().equals(current.getName())) {
+                    LOG.info("Found old index file: " + maybeOld.getAbsolutePath());
+                    FileUtils.deleteDirectory(maybeOld);
+                    LOG.info("Tried to delete old index file : " + maybeOld.getPath());
                 }
             } catch (Exception x) {
-                LOG.warn("Failed to delete old index file: " + file.getPath(), x);
+                LOG.warn("Failed to delete old index file: " + current.getPath(), x);
             }
-        }
+        });
     }
 
     /**
-     * Returns the index file for the given index version.
-     *
-     * @param version The index version.
-     * @return The index file for the given index version.
+     * Returns the index file.
+     * @return The index file.
      */
-    private File getIndexFile(int version) {
+    private File getIndexFile() {
         File home = SettingsService.getJpsonicHome();
-        return new File(home, "airsonic" + version + ".index");
+        return new File(home, searchService.getVersion());
     }
 
     public void setSettingsService(SettingsService settingsService) {
