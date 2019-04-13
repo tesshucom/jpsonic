@@ -26,7 +26,6 @@ import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.*;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
@@ -45,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.service.search.IndexType.*;
@@ -62,11 +62,15 @@ public class SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 
-    private static final String LUCENE_DIR = "lucene7.7.1jp";
-
-    private static final String[] TO_BE_DELETED_DIRS = {"lucene7.4jp"};
-
     private static final int MAX_NUM_SEGMENTS = 1;
+
+    private static final String INDEX_FILE_PREFIX = "lucene";
+
+    private static final String INDEX_PRODUCT_VERSION = "7.7.1";
+
+    private static final String INDEX_FILE_SUFFIX = "jp";
+
+    public static final Pattern INDEX_FILE_NAME_PATTERN = Pattern.compile("^" + INDEX_FILE_PREFIX + ".*$");
 
     private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
 
@@ -174,8 +178,14 @@ public class SearchService {
         }
     }
 
+    public String getVersion() {
+        return INDEX_FILE_PREFIX + INDEX_PRODUCT_VERSION + INDEX_FILE_SUFFIX
+                + "-" + IndexType.getVersion()
+                + "-" + DocumentFactory.getVersion();
+    }
+
     private final Supplier<File> getRootDirectory = () -> {
-        return new File(SettingsService.getJpsonicHome(), LUCENE_DIR);
+        return new File(SettingsService.getJpsonicHome(), getVersion());
     };
 
     private final Function<IndexType, File> getDirectory = (indexType) -> {
@@ -278,23 +288,6 @@ public class SearchService {
             LOG.info("SearcherManager has been refreshed.");
         }
 
-        deleteUnnecessaryDir();
-
-    }
-
-    public void deleteUnnecessaryDir(){
-        // Output to the log if it fails. Notification to upper rank is unnecessary.
-        Arrays.stream(TO_BE_DELETED_DIRS).forEach(dir -> {
-            File toBeDeletedDir = new File(SettingsService.getJpsonicHome(), dir);
-            if (toBeDeletedDir.exists()) {
-                try {
-                    FileUtils.deleteDirectory(toBeDeletedDir);
-                    LOG.warn("Unnecessary directory \"" + toBeDeletedDir.getAbsolutePath() + "\" has been deleted.");
-                } catch (IOException e) {
-                    LOG.warn("Unnecessary directory \"" + toBeDeletedDir.getAbsolutePath() +"\" could not be deleted.", e);
-                }
-            }
-        });
     }
 
     private /* @Nullable */ IndexSearcher getSearcher(IndexType indexType) {
@@ -306,18 +299,19 @@ public class SearchService {
                         SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
                         searcherManagerMap.put(indexType, manager);
                     } else {
-                        LOG.warn("{} does not exist.", indexDirectory.getAbsolutePath());
+                        LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
                     }
                 } catch (IOException e) {
                     LOG.error("Failed to initialize SearcherManager.", e);
                 }
             }
-        }
-        try {
-            return searcherManagerMap.get(indexType).acquire();
-        } catch (Exception e) {
-            searcherManagerMap.remove(indexType);
-            LOG.warn("Failed to acquire IndexSearcher.", e);
+        }else {
+            try {
+                return searcherManagerMap.get(indexType).acquire();
+            } catch (Exception e) {
+                searcherManagerMap.remove(indexType);
+                LOG.warn("Failed to acquire IndexSearcher.", e);
+            }
         }
         return null;
     }
