@@ -25,6 +25,14 @@ public class DocumentFactory {
     @FunctionalInterface
     private interface Consumer<T, U, V> {
         void accept(T t, U u, V v);
+    };
+
+    /**
+     * Returns the version string.
+     * @since 1.0
+     **/
+    public static final String getVersion() {
+        return "1.0";
     }
 
     private Consumer<Document, String, String> termField = (doc, fieldName, value) -> {
@@ -66,6 +74,7 @@ public class DocumentFactory {
         doc.add(new SortedDocValuesField(FieldNames.FOLDER, new BytesRef(value)));
     };
 
+    @SuppressWarnings("deprecation")
     private Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
@@ -89,6 +98,7 @@ public class DocumentFactory {
         return doc;
     }
 
+    @SuppressWarnings("deprecation")
     public Document createDocument(Album album) {
         Document doc = new Document();
         idField.accept(doc, album.getId());
@@ -122,6 +132,7 @@ public class DocumentFactory {
         throw new UnsupportedOperationException();
     }
 
+    @SuppressWarnings("deprecation")
     private Document createSongDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
