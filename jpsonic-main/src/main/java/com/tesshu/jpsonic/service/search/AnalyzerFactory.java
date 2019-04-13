@@ -145,6 +145,7 @@ public final class AnalyzerFactory {
      * 
      * @return analyzer for index
      */
+    @SuppressWarnings("deprecation")
     public Analyzer getAnalyzer() {
         if (null == this.analyzer) {
             try {
@@ -179,6 +180,7 @@ public final class AnalyzerFactory {
      * 
      * @return analyzer for index
      */
+    @SuppressWarnings("deprecation")
     public Analyzer getQueryAnalyzer() {
         if (null == this.queryAnalyzer) {
             try {
