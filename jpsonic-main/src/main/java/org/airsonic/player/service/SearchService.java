@@ -62,8 +62,6 @@ public class SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchService.class);
 
-    private static final int MAX_NUM_SEGMENTS = 1;
-
     private static final String INDEX_FILE_PREFIX = "lucene";
 
     private static final String INDEX_PRODUCT_VERSION = "7.7.1";
@@ -258,7 +256,6 @@ public class SearchService {
     private void stopIndexing(IndexWriter writer) {
         try {
             writer.flush();
-            writer.forceMerge(MAX_NUM_SEGMENTS);
             writer.close();
             LOG.info("Success to create and merge search index : [" + writer + "]");
         } catch (Exception x) {
