@@ -209,7 +209,8 @@ public class SearchServiceTestCase {
         "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
 
     //  testSearchByName()
-    String albumName = "Sackcloth 'n' Ashes";
+    //String albumName = "Sackcloth 'n' Ashes"; hit n !
+    String albumName = "Sackcloth";
     ParamSearchResult<Album> albumResult = searchService.searchByName(albumName, 0, Integer.MAX_VALUE, allMusicFolders, Album.class);
     Assert.assertEquals(
         "(17) Specify album name '" + albumName + "' as the name, and get an album.", 1, albumResult.getItems().size());

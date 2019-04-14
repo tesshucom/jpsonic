@@ -30,161 +30,161 @@ import java.util.Map;
  * This class is a division of what was once part of SearchService
  * and added functionality.
  */
-/*
- * The following fields are not fully supported,
- * and are expected to be registered only when necessary.
- * Data entry rules may change
- * from version to version to reduce data usage charges.
- * 
- * _FULL
- * May be used to avoid Japanese-specific token analysis ambiguity.
- * 
- * _READING Basically
- * "reading". However, it may be tag input value instead of server analysis.
- *  It is not necessarily a general "reading".
- *  
- * _READING_HIRAGANA
- * This is a field that is expected to be "reading" in Hiragana.
- * Since Japanese-language analysis on servers mainly deals only with the first candidate,
- * there is a limit in pursuing accuracy by itself.
- * However, carrying a huge dictionary to pursue accuracy
- * and coding academically cleverly is wasteful.
- * (small is justice in this server)
- * Short phrases consisting of only hiragana / Katakana are high in analysis difficulty,
- * so they may be complemented in this field
- * without relying on analysis results.
- */
 public enum IndexType {
 
     SONG(
         fieldNames(
-            FieldNames.TITLE,
             FieldNames.TITLE_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.TITLE,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA ),
+            FieldNames.ARTIST),
         boosts(
-            entry(FieldNames.TITLE_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.TITLE, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.TITLE_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.TITLE, 2.3F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM(
         fieldNames(
-            FieldNames.ALBUM,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.ARTIST,
             FieldNames.FOLDER ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.ALBUM_FULL, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.ALBUM_FULL, 2.3F),
+            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
         fieldNames(
-            FieldNames.ALBUM,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
+            FieldNames.ALBUM_FULL,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
+            FieldNames.ARTIST,
             FieldNames.FOLDER_ID ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 1.4F),
-            entry(FieldNames.ALBUM_FULL, 1.3F),
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
+            entry(FieldNames.ALBUM_FULL, 2.3F),
+            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ARTIST(
         fieldNames(
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA,
-            FieldNames.FOLDER ),
+            FieldNames.ARTIST,
+            FieldNames.FOLDER),
         boosts(
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ARTIST_ID3(
         fieldNames(
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_FULL,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_READING_HIRAGANA ),
+            FieldNames.ARTIST),
         boosts(
-            entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-            entry(FieldNames.ARTIST_FULL, 1.1F))),
-
-    NAME_TITLE(
-            fieldNames(
-                FieldNames.TITLE_READING_HIRAGANA,
-                FieldNames.TITLE),
-            boosts(
-                entry(FieldNames.TITLE_READING_HIRAGANA, 1.1F))),
-
-    NAME_ALBUM(
-            fieldNames(
-                FieldNames.ALBUM_READING_HIRAGANA,
-                FieldNames.ALBUM_FULL,
-                FieldNames.ALBUM),
-            boosts(
-                entry(FieldNames.ALBUM_READING_HIRAGANA, 1.2F),
-                entry(FieldNames.ALBUM_FULL, 1.1F))),
-
-    NAME_ARTIST(
-            fieldNames(
-                FieldNames.ARTIST_READING_HIRAGANA,
-                FieldNames.ARTIST_READING,
-                FieldNames.ARTIST_FULL,
-                FieldNames.ARTIST),
-            boosts(
-                entry(FieldNames.ARTIST_READING_HIRAGANA, 1.2F),
-                entry(FieldNames.ARTIST_FULL, 1.1F)))
+            entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ;
 
     public static final class FieldNames {
-        
+
         private FieldNames(){};
-        
-        /*
-         * The contents of analysis are different for each field.
-         * Defined in Analyzer.
-         * 
-         * Normal analysis              - Normal tokenizing and filtering
-         * Other than Normal analysis   - No tokenize, special filtering
-         * 
-         * Asterisk is unconditional registration.
-         */
 
-        /* Emphasis on complementation as artists are less data and more important */
-        public static final String ARTIST =                  "art";   // * Normal analysis 
-        public static final String ARTIST_FULL =             "artF";  // Registration when other than hiragana (possibility of various character types)
-        public static final String ARTIST_READING =          "artR";  // * Sort key (possibility of various character types)
-        public static final String ARTIST_READING_HIRAGANA = "artRH"; // Convert to Hiragana and register
-
-        public static final String ALBUM =                   "alb";   // * Normal analysis
-        public static final String ALBUM_FULL =              "albF";  // Registration when other than hiragana
-        public static final String ALBUM_READING_HIRAGANA =  "albRH"; // Register when hiragana only
-
-        public static final String TITLE =                   "tit";   // * Normal analysis
-        //public static final String TITLE_FULL =            "titF";  // Do not register (consider the amount of data)
-        public static final String TITLE_READING_HIRAGANA =  "titRH"; // Register when hiragana only
-
+        /**
+         * A field same to a legacy server, id field.
+         * @since 1.0
+         **/
         public static final String ID =                      "id";
-        public static final String GENRE =                   "g";
-        public static final String YEAR =                    "y";
-        public static final String MEDIA_TYPE =              "m";
-        public static final String FOLDER =                  "f";
+
+        /**
+         * A field same to a legacy server, id field.
+         * @since 1.0
+         **/
         public static final String FOLDER_ID =               "fId";
+
+        /**
+         * A field same to a legacy server, numeric field.
+         * @since 1.0
+         **/
+        public static final String YEAR =                    "y";
+
+        /**
+         * A field same to a legacy server, key field that holds the normalized string.
+         * @since 1.0
+         **/
+        public static final String GENRE =                   "g";
+
+        /**
+         * A field same to a legacy server, key field that holds the normalized string.
+         * @since 1.0
+         **/
+        public static final String MEDIA_TYPE =              "m";
+
+        /**
+         * A field same to a legacy server, special key field to hold the path string.
+         * @since 1.0
+         **/
+        public static final String FOLDER =                  "f";
+
+        /**
+         * A field same to a legacy server, usually with common word parsing.
+         * @since 1.0
+         **/
+        public static final String ARTIST =                  "art";   
+
+        /**
+         * A field same to a legacy server, usually with common word parsing.
+         * @since 1.0
+         **/
+        public static final String ALBUM =                   "alb";
+
+        /**
+         * A field same to a legacy server, usually with common word parsing.
+         * @since 1.0
+         **/
+        public static final String TITLE =                   "tit";
+
+        /**
+         * Jpsonic specific reading field.
+         * Parse rules are expected to correspond to breaks according to id3
+         * and also to customary multi artists.
+         * @since 1.0
+         */
+        public static final String ARTIST_READING =          "artR";
+
+        /**
+         * Jpsonic specific reading field.
+         * Instead of a general-purpose role such as artist reading,
+         * a string that is difficult for Japanese machine processing is registered as an aid.
+         * Words that consists entirely of hiragana is a typical example.
+         * @since 1.0
+         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         */
+        public static final String ALBUM_READING_HIRAGANA =  "albRH";
+
+        /**
+         * Jpsonic specific reading field.
+         * Instead of a general-purpose role such as artist reading,
+         * a string that is difficult for Japanese machine processing is registered as an aid.
+         * Words that consists entirely of hiragana is a typical example.
+         * @since 1.0
+         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         */
+        public static final String TITLE_READING_HIRAGANA =  "titRH";
+
+        /**
+         * Jpsonic specific full name field.
+         * This is an area set for Japan-specific aid purposes.
+         * Content/length such as album name is likely to reduce the accuracy of analysis.
+         * 
+         * @since 1.0
+         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         */
+        @Deprecated
+        public static final String ALBUM_FULL =              "albF";
+
     }
 
     @SafeVarargs
@@ -200,6 +200,14 @@ public enum IndexType {
 
     private static final String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
+    }
+
+    /**
+     * Returns the version string.
+     * @since 1.0
+     **/
+    public static final String getVersion() {
+        return "1.0";
     }
 
     private final Map<String, Float> boosts;
