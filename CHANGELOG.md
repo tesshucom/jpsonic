@@ -3,6 +3,19 @@
 # jpsonic/jpsonic
 # -->
 
+## v101.1.0
+#### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
+
+  * Security update (spring:CVE-2019-3795)
+  * [update] Compatible with ID3v2.4. For files in ID3v2.4 format, will be load additional readable fields.
+  * [update] Analysis improvement of artist reading.
+             (1) Change the Tokenize method from Japanase analysis to ID3v2.4 word delimiter. Mis-analysis is reduced.
+             (2) Changed not to exclude character types. This means that you can use the reading field with other than Japanese.
+  * [update] Improved the process of scan replacement. Fixed to create a complete index in one scan.
+  * [update] Added automatic generation change of search index. 
+             When updating with definition changes, if the existing index data is old, will be delete it without reading it.
+             You can recover only to the normal state by scanning once.
+
 ## v101.0.1
 #### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
 
