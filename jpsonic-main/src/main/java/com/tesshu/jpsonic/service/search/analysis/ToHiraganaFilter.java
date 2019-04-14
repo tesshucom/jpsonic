@@ -1,48 +1,128 @@
 package com.tesshu.jpsonic.service.search.analysis;
 
+import com.ibm.icu.text.Replaceable;
 import com.ibm.icu.text.Transliterator;
+import com.ibm.icu.text.UTF16;
+import com.ibm.icu.text.UnicodeSet;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 import java.io.IOException;
-import java.lang.Character.UnicodeBlock;
-import java.util.regex.Pattern;
 
-public class ToHiraganaFilter extends TokenFilter {
+public final class ToHiraganaFilter extends TokenFilter {
+
+    /**
+     * Wrap a {@link CharTermAttribute} with the Replaceable API.
+     */
+    static final class ReplaceableTermAttribute implements Replaceable {
+        private char buffer[];
+        private int length;
+        private CharTermAttribute token;
+
+        @Override
+        public int char32At(int pos) {
+            return UTF16.charAt(buffer, 0, length, pos);
+        }
+
+        @Override
+        public char charAt(int pos) {
+            return buffer[pos];
+        }
+
+        @Override
+        public void copy(int start, int limit, int dest) {
+            char text[] = new char[limit - start];
+            getChars(start, limit, text, 0);
+            replace(dest, dest, text, 0, limit - start);
+        }
+
+        @Override
+        public void getChars(int srcStart, int srcLimit, char[] dst, int dstStart) {
+            System.arraycopy(buffer, srcStart, dst, dstStart, srcLimit - srcStart);
+        }
+
+        @Override
+        public boolean hasMetaData() {
+            return false;
+        }
+
+        @Override
+        public int length() {
+            return length;
+        }
+
+        @Override
+        public void replace(int start, int limit, char[] text, int charsStart, int charsLen) {
+            final int newLength = shiftForReplace(start, limit, charsLen);
+            System.arraycopy(text, charsStart, buffer, start, charsLen);
+            token.setLength(length = newLength);
+        }
+
+        @Override
+        public void replace(int start, int limit, String text) {
+            final int charsLen = text.length();
+            final int newLength = shiftForReplace(start, limit, charsLen);
+            text.getChars(0, charsLen, buffer, start);
+            token.setLength(length = newLength);
+        }
+
+        void setText(final CharTermAttribute token) {
+            this.token = token;
+            this.buffer = token.buffer();
+            this.length = token.length();
+        }
+
+        /** shift text (if necessary) for a replacement operation */
+        private int shiftForReplace(int start, int limit, int charsLen) {
+            final int replacementLength = limit - start;
+            final int newLength = length - replacementLength + charsLen;
+            if (newLength > length)
+                buffer = token.resizeBuffer(newLength);
+            if (replacementLength != charsLen && limit < length)
+                System.arraycopy(buffer, limit, buffer, start + charsLen, length - limit);
+            return newLength;
+        }
+    }
+
+    private final Transliterator transform;
+
+    private final Transliterator.Position position = new Transliterator.Position();
 
     private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
-    private static final Pattern ALPHANUMERIC_CHARACTERS = Pattern.compile("^[a-zA-Z0-9]+$");
+    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
 
-    public ToHiraganaFilter(TokenStream in) {
-        super(in);
-    }
-
-    private boolean containsKatakana(char[] buffer) {
-        for (int i = 0; i < buffer.length; i++) {
-            if (UnicodeBlock.of(buffer[i]) == Character.UnicodeBlock.KATAKANA) {
-                return true;
-            }
+    /**
+     * Create a Filter that transforms text on the given stream.
+     * 
+     * @param input {@link TokenStream} to filter.
+     */
+    @SuppressWarnings("deprecation")
+    public ToHiraganaFilter(TokenStream input) {
+        super(input);
+        this.transform = Transliterator.getInstance("Katakana-Hiragana");
+        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
+            final UnicodeSet sourceSet = transform.getSourceSet();
+            if (sourceSet != null && !sourceSet.isEmpty())
+                transform.setFilter(sourceSet);
         }
-        return false;
     }
 
     @Override
-    public final boolean incrementToken() throws IOException {
+    public boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
-            if (ALPHANUMERIC_CHARACTERS.matcher(termAtt).matches()) {
-                input.end();
-                return false;
-            } else if (containsKatakana(termAtt.buffer())) {
-                String s = Transliterator.getInstance("Katakana-Hiragana").transliterate(termAtt.toString());
-                clearAttributes();
-                termAtt.append(s);
-            }
+            replaceableAttribute.setText(termAtt);
+            final int length = termAtt.length();
+            position.start = 0;
+            position.limit = length;
+            position.contextStart = 0;
+            position.contextLimit = length;
+            transform.filteredTransliterate(replaceableAttribute, position, false);
             return true;
-        } else
+        } else {
             return false;
+        }
     }
-
 }

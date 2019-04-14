@@ -166,20 +166,26 @@ public class QueryFactory {
      * @param fieldName
      * @return
      */
-    public Query searchByName(String name, List<MusicFolder> musicFolders, IndexType nameType) {
+    public Query searchByName(String name, List<MusicFolder> musicFolders, IndexType indexType) {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
         BooleanQuery.Builder subFieldsQuery = new BooleanQuery.Builder();
+        
+        /* FOLDER is not included in all searches. */
+        String[] targetFields = Arrays.stream(indexType.getFields())
+            .filter(field -> !field.equals(FieldNames.FOLDER))
+            .filter(field -> !field.equals(FieldNames.FOLDER_ID))
+            .toArray(i -> new String[i]);
 
-        Arrays.stream(nameType.getFields()).forEach(fieldName -> {
+        Arrays.stream(targetFields).forEach(fieldName -> {
             TokenStream stream = analyzer.tokenStream(fieldName, name);
             try {
                 stream.reset();
                 while (stream.incrementToken()) {
                     String txt = stream.getAttribute(CharTermAttribute.class).toString();
                     WildcardQuery wildcardQuery = new WildcardQuery(new Term(fieldName, txt));
-                    if (nameType.getBoosts().containsKey(fieldName)) {
-                        subFieldsQuery.add(new BoostQuery(wildcardQuery, nameType.getBoosts().get(fieldName)), Occur.SHOULD);
+                    if (indexType.getBoosts().containsKey(fieldName)) {
+                        subFieldsQuery.add(new BoostQuery(wildcardQuery, indexType.getBoosts().get(fieldName)), Occur.SHOULD);
                     } else {
                         subFieldsQuery.add(wildcardQuery, Occur.SHOULD);
                     }
@@ -194,7 +200,7 @@ public class QueryFactory {
         mainQuery.add(subFieldsQuery.build(), Occur.MUST);
         BooleanQuery.Builder subMusicFoldersQuery = new BooleanQuery.Builder();
         musicFolders.forEach(musicFolder -> {
-            if (nameType == IndexType.NAME_TITLE) {
+            if (indexType == IndexType.SONG) {
                 subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD);
             } else {
                 subMusicFoldersQuery.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD);

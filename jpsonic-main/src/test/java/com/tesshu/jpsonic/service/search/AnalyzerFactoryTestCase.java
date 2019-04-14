@@ -66,7 +66,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
         });
 
         String[] oneTokenOtherthanHiraFields = {
-                FieldNames.ARTIST_FULL,
                 FieldNames.ALBUM_FULL, };
         Arrays.stream(oneTokenOtherthanHiraFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
@@ -81,8 +80,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
         String[] oneTokenHiraFields = {
                 FieldNames.ALBUM_READING_HIRAGANA,
-                FieldNames.TITLE_READING_HIRAGANA,
-                FieldNames.ARTIST_READING_HIRAGANA, };
+                FieldNames.TITLE_READING_HIRAGANA };
         Arrays.stream(oneTokenHiraFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("oneTokenHira(Eng) : " + n, 0, terms.size());
@@ -106,18 +104,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
             List<String> terms = toTermString(n, queryMix);
             assertEquals("oneTokenHira(Mix) : " + n, 0, terms.size());
         });
-
-        /*
-         * Hiragana is expected because of the analysis result or the item that contains
-         * the data of CDDB, but (currently) accept all non-alphanumeric characters.
-         * They are not necessarily Hiragana.
-         */
-        List<String> terms = toTermString(FieldNames.ARTIST_READING_HIRAGANA, queryMix);
-        assertEquals("oneTokenHira(Mix) : " + FieldNames.ARTIST_READING_HIRAGANA, 1, terms.size());
-        terms = toTermString(FieldNames.ARTIST_READING_HIRAGANA, queryHira);
-        assertEquals("oneTokenHira(Hira) : " + FieldNames.ARTIST_READING_HIRAGANA, 1, terms.size());
-        terms = toTermString(FieldNames.ARTIST_READING_HIRAGANA, queryEng);
-        assertEquals("oneTokenHira(Eng) : " + FieldNames.ARTIST_READING_HIRAGANA, 0, terms.size());
 
     }
 
@@ -143,17 +129,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, apply1, terms.get(0));
                     break;
-                case FieldNames.ARTIST_READING_HIRAGANA:
+                case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, apply2, terms.get(0));
                     break;
                 case FieldNames.ARTIST:
-                case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
                     assertEquals("apply : " + n, 2, terms.size());
@@ -222,13 +206,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
             List<String> noStopTerms = toTermString(n, queryNoStop);
             List<String> jpStopTerms = toTermString(n, queryJpStop);
             switch (n) {
-                case FieldNames.ARTIST_READING_HIRAGANA:
-                    assertEquals("no case : " + n, 0, articleTerms.size());
-                    assertEquals("no case : " + n, 0, indexArticleTerms.size());
-                    assertEquals("no case : " + n, 0, noStopTerms.size());
-                    assertEquals("through : " + n, 1, jpStopTerms.size());
-                    assertEquals("through : " + n, throughJpStop, jpStopTerms.get(0));
-                    break;
                 case FieldNames.TITLE_READING_HIRAGANA:
                 case FieldNames.ALBUM_READING_HIRAGANA:
                     assertEquals("no case : " + n, 0, articleTerms.size());
@@ -248,7 +225,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, jpStopTerms.size());
                     assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
                     assertEquals("through : " + n, 1, articleTerms.size());
                     assertEquals("through : " + n, throughArticle, articleTerms.get(0));
@@ -326,17 +302,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, expected1, terms.get(0));
                     break;
-                case FieldNames.ARTIST_READING_HIRAGANA:
+                case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, expected2, terms.get(0));
                     break;
                 case FieldNames.ARTIST:
-                case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
                     assertEquals("apply : " + n, 2, terms.size());
@@ -374,14 +348,12 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
-                case FieldNames.ARTIST_READING_HIRAGANA:
+                case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, expected1, terms.get(0));
                     break;
                 case FieldNames.ARTIST:
-                case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
                     assertEquals("apply : " + n, 2, terms.size());
@@ -417,29 +389,23 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected2, terms.get(0));
+                case FieldNames.ARTIST_READING:
+                    assertEquals("token through filtered : " + n, 1, terms.size());
+                    assertEquals("token through filtered : " + n, expected2, terms.get(0));
                     break;
                 case FieldNames.ARTIST:
-                case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
-                    assertEquals("apply : " + n, 2, terms.size());
-                    assertEquals("apply : " + n, expected2a, terms.get(0));
-                    assertEquals("apply : " + n, expected2b, terms.get(1));
-                    break;
-                case FieldNames.ARTIST_READING_HIRAGANA:
-                    terms = toTermString(n, queryJp);
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expectedJp, terms.get(0));
+                    assertEquals("tokend : " + n, 2, terms.size());
+                    assertEquals("tokend : " + n, expected2a, terms.get(0));
+                    assertEquals("tokend : " + n, expected2b, terms.get(1));
                     break;
                 case FieldNames.TITLE_READING_HIRAGANA:
                 case FieldNames.ALBUM_READING_HIRAGANA:
                     terms = toTermString(n, queryJp);
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expectedJp, terms.get(0));
+                    assertEquals("token through filtered : " + n, 1, terms.size());
+                    assertEquals("token through filtered : " + n, expectedJp, terms.get(0));
                     break;
                 default:
                     break;
@@ -461,7 +427,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
         String expected3 = "abc123あいう";
         String notPass = "あいう";
 
-        String[] otherThanHiraganaFields = { FieldNames.ARTIST_FULL, FieldNames.ALBUM_FULL };
+        String[] otherThanHiraganaFields = { FieldNames.ALBUM_FULL };
         Arrays.stream(otherThanHiraganaFields).forEach(n -> {
             List<String> terms = toTermString(n, passable1);
             assertEquals("all Alpha : " + n, 1, terms.size());
@@ -507,8 +473,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * ARTIST_READING_HIRAGANA rejects alphanumeric input only.
-     * They are supported by other fields.
      * Katakana is converted to hiragana.
      * This is primarily intended for CDDB input.
      * (It is not decided whether to register in CDDB with Katakana/Hiragana)
@@ -522,12 +486,14 @@ public class AnalyzerFactoryTestCase extends TestCase {
         String passable2 = "ABC123アイウ";
         String expected2 = "abc123あいう";
 
-        String n = FieldNames.ARTIST_READING_HIRAGANA;
+        String n = FieldNames.ARTIST_READING;
 
         List<String> terms = toTermString(n, notChange1);
-        assertEquals("all Alpha : " + n, 0, terms.size());
+        assertEquals("all Alpha : " + n, 2, terms.size());
+        assertEquals("all Alpha : " + n, "blue", terms.get(0));
+        assertEquals("all Alpha : " + n, "hearts", terms.get(1));
         terms = toTermString(n, notChange2);
-        assertEquals("AlphaNum : " + n, 0, terms.size());
+        assertEquals("AlphaNum : " + n, 1, terms.size());
         terms = toTermString(n, passable1);
         assertEquals("AlphaNumHiragana : " + n, 1, terms.size());
         assertEquals("AlphaNumHiragana : " + n, expected1, terms.get(0));
@@ -586,7 +552,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("normal : " + n, 1, queryTerms.size());
                     assertEquals("normal : " + n, terms.get(0), queryTerms.get(0));
                     break;
-                case FieldNames.ARTIST_FULL:
                 case FieldNames.ALBUM_FULL:
                     assertEquals("normal : " + n, 1, terms.size());
                     assertEquals("normal : " + n, expected1, terms.get(0));
@@ -604,7 +569,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("wild : " + n, expected2aWild, queryTerms.get(0));
                     assertEquals("wild : " + n, expected2bWild, queryTerms.get(1));
                     break;
-                case FieldNames.ARTIST_READING_HIRAGANA:
                 case FieldNames.TITLE_READING_HIRAGANA:
                 case FieldNames.ALBUM_READING_HIRAGANA:
                     assertEquals("trancate : " + n, 0, terms.size());

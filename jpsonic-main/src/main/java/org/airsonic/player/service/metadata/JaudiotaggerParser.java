@@ -30,6 +30,9 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.AudioHeader;
 import org.jaudiotagger.tag.FieldKey;
 import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.id3.AbstractID3Tag;
+import org.jaudiotagger.tag.id3.ID3v24Frames;
+import org.jaudiotagger.tag.id3.ID3v24Tag;
 import org.jaudiotagger.tag.images.Artwork;
 import org.jaudiotagger.tag.reference.GenreTypes;
 import org.slf4j.Logger;
@@ -95,15 +98,96 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDiscNumber(parseInteger(getTagField(tag, FieldKey.DISC_NO)));
                 metaData.setTrackNumber(parseTrackNumber(getTagField(tag, FieldKey.TRACK)));
                 metaData.setMusicBrainzReleaseId(getTagField(tag, FieldKey.MUSICBRAINZ_RELEASEID));
-
-                String songArtist = getTagField(tag, FieldKey.ARTIST);
-                String albumArtist = getTagField(tag, FieldKey.ALBUM_ARTIST);
-                metaData.setArtist(StringUtils.isBlank(songArtist) ? albumArtist : songArtist);
-                metaData.setAlbumArtist(StringUtils.isBlank(albumArtist) ? songArtist : albumArtist);
                 metaData.setArtistSort(getTagField(tag, FieldKeyExtension.ARTISTSORT));
                 metaData.setAlbumSort(getTagField(tag, FieldKeyExtension.ALBUMSORT));
                 metaData.setTitleSort(getTagField(tag, FieldKeyExtension.TITLESORT));
                 metaData.setAlbumArtistSort(getTagField(tag, FieldKeyExtension.ALBUMARTISTSORT));
+
+                metaData.setArtist(getTagField(tag, FieldKey.ARTIST));
+                metaData.setAlbumArtist(getTagField(tag, FieldKey.ALBUM_ARTIST));
+
+                if (tag instanceof AbstractID3Tag && 0 < audioFile.getTag().getFieldCount()) {
+
+                    AbstractID3Tag id3Tag = (AbstractID3Tag)tag;
+                    if (ID3v24Tag.RELEASE == id3Tag.getRelease()
+                            && ID3v24Tag.MAJOR_VERSION == id3Tag.getMajorVersion()
+                            && ID3v24Tag.REVISION == id3Tag.getRevision()) {
+
+                        audioFile.getTag().getFields().forEachRemaining(f -> {
+                            switch (f.getId()) {
+                                case ID3v24Frames.FRAME_ID_ALBUM:
+                                    if (null == metaData.getAlbumName()) {
+                                        metaData.setAlbumName(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_TITLE:
+                                    if (null == metaData.getTitle()) {
+                                        metaData.setTitle(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_YEAR:
+                                    if (null == metaData.getYear()) {
+                                        metaData.setYear(parseYear(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_GENRE:
+                                    if (null == metaData.getGenre()) {
+                                        metaData.setGenre(mapGenre(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_SET:
+                                    if (null == metaData.getDiscNumber()) {
+                                        metaData.setDiscNumber(parseInteger(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_TRACK:
+                                    if (null == metaData.getTrackNumber()) {
+                                        metaData.setTrackNumber(parseTrackNumber(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ARTIST:
+                                    if (null == metaData.getArtist()) {
+                                        metaData.setArtist(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ACCOMPANIMENT:
+                                    if (null == metaData.getAlbumArtist()) {
+                                        metaData.setAlbumArtist(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ARTIST_SORT_ORDER:
+                                    if (null == metaData.getArtistSort()) {
+                                        metaData.setArtistSort(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ALBUM_SORT_ORDER:
+                                    if (null == metaData.getAlbumSort()) {
+                                        metaData.setAlbumSort(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_TITLE_SORT_ORDER:
+                                    if (null == metaData.getTitleSort()) {
+                                        metaData.setTitleSort(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ALBUM_ARTIST_SORT_ORDER_ITUNES:
+                                    if (null == metaData.getAlbumArtistSort()) {
+                                        metaData.setAlbumArtistSort(f.toString());
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
+                }
+                if (StringUtils.isBlank(metaData.getArtist())) {
+                    metaData.setArtist(metaData.getAlbumArtist());
+                }
+                if (StringUtils.isBlank(metaData.getAlbumArtist())) {
+                    metaData.setAlbumArtist(metaData.getArtist());
+                }
+
             }
 
             AudioHeader audioHeader = audioFile.getAudioHeader();
@@ -138,7 +222,7 @@ public class JaudiotaggerParser extends MetaDataParser {
             return null;
         }
     }
-
+    
     /**
      * Returns all tags supported by id3v1.
      */
