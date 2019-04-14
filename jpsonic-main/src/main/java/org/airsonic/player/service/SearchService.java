@@ -257,7 +257,7 @@ public class SearchService {
         try {
             writer.flush();
             writer.close();
-            LOG.info("Success to create and merge search index : [" + writer + "]");
+            LOG.info("Success to create or update search index : [" + writer + "]");
         } catch (Exception x) {
             LOG.error("Failed to create search index.", x);
         } finally {
