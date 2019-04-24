@@ -238,16 +238,6 @@ public class MediaFileService {
     }
 
     /**
-     * Returns all genres in the music collection.
-     *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
-     * @return Sorted list of genres.
-     */
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
-
-    /**
      * Returns the most frequently played albums.
      *
      * @param offset       Number of albums to skip.
@@ -321,19 +311,6 @@ public class MediaFileService {
      */
     public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear, List<MusicFolder> musicFolders) {
         return mediaFileDao.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
-    }
-
-    /**
-     * Returns albums in a genre.
-     *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param genre        The genre name.
-     * @param musicFolders Only return albums in these folders.
-     * @return Albums in the genre.
-     */
-    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
     }
 
     /**

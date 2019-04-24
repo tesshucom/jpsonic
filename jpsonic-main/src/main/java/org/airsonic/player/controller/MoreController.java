@@ -22,8 +22,8 @@ package org.airsonic.player.controller;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.User;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,7 +57,7 @@ public class MoreController  {
     @Autowired
     private PlayerService playerService;
     @Autowired
-    private MediaFileService mediaFileService;
+    private SearchService searchService;
 
     @RequestMapping(method = RequestMethod.GET)
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -78,7 +78,7 @@ public class MoreController  {
         result.addObject("model", map);
         map.put("user", user);
         map.put("uploadDirectory", uploadDirectory);
-        map.put("genres", mediaFileService.getGenres(false));
+        map.put("genres", searchService.getGenres(false));
         map.put("currentYear", Calendar.getInstance().get(Calendar.YEAR));
         map.put("musicFolders", musicFolders);
         map.put("clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb());
