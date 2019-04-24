@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
+@SuppressWarnings("deprecation")
 public class AnalyzerFactoryTestCase extends TestCase {
 
     private static Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();

@@ -18,24 +18,29 @@
  */
 package com.tesshu.jpsonic.service.search;
 
+import static org.junit.Assert.assertEquals;
+
 import com.tesshu.jpsonic.service.search.IndexType;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
+import org.airsonic.player.util.HomeRule;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.search.Query;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3.
@@ -43,14 +48,30 @@ import junit.framework.TestCase;
  * If you face a problem reaping from 3.x to 7.x
  * It may be faster to look at the query than to look at the API.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"/applicationContext-jpsonic.xml" })
-public class QueryFactoryTestCase extends TestCase {
+@ContextConfiguration(locations = {
+        "/applicationContext-service.xml",
+        "/applicationContext-cache.xml",
+        "/applicationContext-testdb.xml",
+        "/applicationContext-mockSonos.xml"})
+public class QueryFactoryTestCase {
+
+    @ClassRule
+    public static final SpringClassRule classRule = new SpringClassRule() {
+        HomeRule homeRule = new HomeRule();
+
+        @Override
+        public Statement apply(Statement base, Description description) {
+            Statement spring = super.apply(base, description);
+            return homeRule.apply(spring, description);
+        }
+    };
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private QueryFactory queryFactory;
-    
-    
+
     private final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
     private final String QUERY_PATTERN_ALPHANUMERIC_ONLY = "ABC 123";
     private final String QUERY_PATTERN_HIRAGANA_ONLY = "ねこ いぬ";
