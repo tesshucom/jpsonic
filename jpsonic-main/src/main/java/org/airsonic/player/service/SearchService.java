@@ -24,6 +24,7 @@ import com.tesshu.jpsonic.service.search.IndexType;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
@@ -110,11 +111,56 @@ public interface SearchService {
     /**
      * @since 101.1.0
      */
-    public String INDEX_FILE_PREFIX = "lucene";
+    String INDEX_FILE_PREFIX = "lucene";
 
     /**
      * @since 101.1.0
      */
-    public String getVersion();
+    String getVersion();
+    
+    /**
+     * Returns all genres in the music collection.
+     *
+     * @since 101.2.0
+     * @param sortByAlbum Whether to sort by album count, rather than song count.
+     * @return Sorted list of genres.
+     */
+    List<Genre> getGenres(boolean sortByAlbum);
+
+    /**
+     * Returns albums in a genre.
+     *
+     * @since 101.2.0
+     * @param offset       Number of albums to skip.
+     * @param count        Maximum number of albums to return.
+     * @param genre        The genre name.
+     * @param musicFolders Only return albums in these folders.
+     * @return Albums in the genre.
+     */
+    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders);
+
+    /**
+     * Returns albums in a genre.
+     *
+     * @since 101.2.0
+     * @param offset       Number of albums to skip.
+     * @param count        Maximum number of albums to return.
+     * @param genre        The genre name.
+     * @param musicFolders Only return albums from these folders.
+     * @return Albums in the genre.
+     */
+    public List<Album> getAlbumId3sByGenre(final int offset, final int count, final String genre, final List<MusicFolder> musicFolders);
+
+    /**
+     * Returns albums in a genre.
+     *
+     * @since 101.2.0
+     * @param offset       Number of songs to skip.
+     * @param count        Maximum number of songs to return.
+     * @param genre        The genre name.
+     * @param musicFolders Only return songs from these folders.
+     * @return songs in the genre.
+     */
+    public List<MediaFile> getSongsByGenre(final String genre, final int offset, final int count, final List<MusicFolder> musicFolders);
 
 }

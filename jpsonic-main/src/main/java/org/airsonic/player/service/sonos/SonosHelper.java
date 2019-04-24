@@ -411,7 +411,7 @@ public class SonosHelper {
 
     private MediaList forGenres(int offset, int count) {
         List<MediaCollection> mediaCollections = new ArrayList<MediaCollection>();
-        List<Genre> genres = mediaFileService.getGenres(true);
+        List<Genre> genres = searchService.getGenres(true);
         for (int i = 0; i < genres.size(); i++) {
             Genre genre = genres.get(i);
             MediaCollection mediaCollection = new MediaCollection();
@@ -435,9 +435,9 @@ public class SonosHelper {
 
     public List<MediaCollection> forGenre(int genreIndex, String username, HttpServletRequest request) {
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
-        Genre genre = mediaFileService.getGenres(true).get(genreIndex);
+        Genre genre = searchService.getGenres(true).get(genreIndex);
         List<MediaCollection> result = new ArrayList<MediaCollection>();
-        for (MediaFile album : mediaFileService.getAlbumsByGenre(0, Integer.MAX_VALUE, genre.getName(), musicFolders)) {
+        for (MediaFile album : searchService.getAlbumsByGenre(0, Integer.MAX_VALUE, genre.getName(), musicFolders)) {
             result.add(forDirectory(album, request, username));
         }
         return result;

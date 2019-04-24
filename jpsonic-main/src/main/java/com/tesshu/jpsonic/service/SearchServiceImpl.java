@@ -61,6 +61,9 @@ public class SearchServiceImpl implements SearchService {
     private AlbumDao albumDao;
 
     @Autowired
+    private MediaFileDao mediaFileDao;
+
+    @Autowired
     private MediaFileService mediaFileService;
 
     /**
@@ -347,12 +350,6 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    /**
-     * Returns a number of random songs.
-     *
-     * @param criteria Search criteria.
-     * @return List of random songs.
-     */
     @Override
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
@@ -375,13 +372,6 @@ public class SearchServiceImpl implements SearchService {
 
     }
 
-    /**
-     * Returns a number of random albums.
-     *
-     * @param count Number of albums to return.
-     * @param musicFolders Only return albums from these folders.
-     * @return List of random albums.
-     */
     @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
@@ -404,13 +394,6 @@ public class SearchServiceImpl implements SearchService {
 
     }
 
-    /**
-     * Returns a number of random albums, using ID3 tag.
-     *
-     * @param count        Number of albums to return.
-     * @param musicFolders Only return albums from these folders.
-     * @return List of random albums.
-     */
     @Override
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
@@ -431,6 +414,26 @@ public class SearchServiceImpl implements SearchService {
 
         return Collections.emptyList();
 
+    }
+
+    @Override
+    public List<Genre> getGenres(boolean sortByAlbum) {
+        return mediaFileDao.getGenres(sortByAlbum);
+    }
+
+    @Override
+    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
+    }
+
+    @Override
+    public List<Album> getAlbumId3sByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
+        return albumDao.getAlbumsByGenre(offset, count, genre, musicFolders);
+    }
+
+    @Override
+    public List<MediaFile> getSongsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders) {
+        return mediaFileDao.getSongsByGenre(genre, offset, count, musicFolders);
     }
 
 }

@@ -396,7 +396,7 @@ public class PlayQueueService {
             int toYear = fromYear + 9;
             albums = mediaFileService.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
         } else if ("genre".equals(albumListType)) {
-            albums = mediaFileService.getAlbumsByGenre(offset, count, genre, musicFolders);
+            albums = searchService.getAlbumsByGenre(offset, count, genre, musicFolders);
         } else {
             albums = Collections.emptyList();
         }
