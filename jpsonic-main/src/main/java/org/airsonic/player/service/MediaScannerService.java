@@ -38,6 +38,7 @@ import javax.annotation.PostConstruct;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Provides services for scanning the music library.
@@ -402,8 +403,9 @@ public class MediaScannerService {
     private void deleteOldIndexFiles() {
         File current = getIndexFile();
         LOG.info("Currently used index file (" + (FileUtil.exists(current) ? "exists" : "not exists") + "): " + current.getAbsolutePath());
+        final Pattern INDEX_FILE_NAME_PATTERN = Pattern.compile("^" + SearchService.INDEX_FILE_PREFIX + ".*$");
         Arrays.stream(SettingsService.getJpsonicHome().listFiles((f, n) ->
-            SearchService.INDEX_FILE_NAME_PATTERN.matcher(n).matches())).forEach(maybeOld -> {
+            INDEX_FILE_NAME_PATTERN.matcher(n).matches())).forEach(maybeOld -> {
             try {
                 if (FileUtil.exists(maybeOld) && !maybeOld.getName().equals(current.getName())) {
                     LOG.info("Found old index file: " + maybeOld.getAbsolutePath());

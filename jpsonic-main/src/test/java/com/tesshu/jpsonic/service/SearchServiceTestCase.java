@@ -23,7 +23,6 @@ import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaScannerService;
-import org.airsonic.player.service.MediaScannerServiceTestCase;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import com.tesshu.jpsonic.service.search.IndexType;
@@ -68,12 +67,12 @@ public class SearchServiceTestCase {
 
   @ClassRule
   public static final SpringClassRule classRule = new SpringClassRule() {
-    HomeRule airsonicRule = new HomeRule();
+    HomeRule homeRule = new HomeRule();
 
     @Override
     public Statement apply(Statement base, Description description) {
       Statement spring = super.apply(base, description);
-      return airsonicRule.apply(spring, description);
+      return homeRule.apply(spring, description);
     }
   };
 
@@ -306,7 +305,7 @@ public class SearchServiceTestCase {
     String[] randomWords4Search = createRandomWords(countForEachMethod);
     String[] randomWords4SearchByName = createRandomWords(countForEachMethod);
 
-    Timer globalTimer = metrics.timer(MetricRegistry.name(MediaScannerServiceTestCase.class, "Timer.global"));
+    Timer globalTimer = metrics.timer(MetricRegistry.name(SearchServiceTestCase.class, "Timer.global"));
     Timer.Context globalTimerContext = globalTimer.time();
 
     System.out.println("--- Random search (" + countForEachMethod * 5 + " times) ---");
