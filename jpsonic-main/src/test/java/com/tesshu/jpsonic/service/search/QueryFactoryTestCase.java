@@ -25,15 +25,16 @@ import com.tesshu.jpsonic.service.search.IndexType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.util.HomeRule;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.lucene.search.Query;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
@@ -53,16 +54,18 @@ import java.util.List;
         "/applicationContext-cache.xml",
         "/applicationContext-testdb.xml",
         "/applicationContext-mockSonos.xml"})
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class QueryFactoryTestCase {
-
+    
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+        ErrorCollector rule = new ErrorCollector() {
+        };
 
         @Override
         public Statement apply(Statement base, Description description) {
             Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
+            return rule.apply(spring, description);
         }
     };
 
@@ -120,17 +123,17 @@ public class QueryFactoryTestCase {
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
-                "+((albF:ネコabc*)^2.3 (alb:ネコ*)^2.2 (alb:abc*)^2.2 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+                "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((albF:abc123*)^2.3 (alb:abc*)^2.2 (alb:123*)^2.2 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((albRH:ねこいぬ*)^2.4 (alb:ねこ*)^2.2 (alb:いぬ*)^2.2 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((albF:abcねこ*)^2.3 (alb:abc*)^2.2 (alb:ねこ*)^2.2 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
     }
 
@@ -148,7 +151,7 @@ public class QueryFactoryTestCase {
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((tit:abc*)^2.3 (tit:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((titRH:ねこいぬ*)^2.4 (tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (titEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
@@ -182,17 +185,17 @@ public class QueryFactoryTestCase {
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((albF:ネコabc*)^2.3 (alb:ネコ*)^2.2 (alb:abc*)^2.2 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((albF:abc123*)^2.3 (alb:abc*)^2.2 (alb:123*)^2.2 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((albRH:ねこいぬ*)^2.4 (alb:ねこ*)^2.2 (alb:いぬ*)^2.2 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((albF:abcねこ*)^2.3 (alb:abc*)^2.2 (alb:ねこ*)^2.2 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 query.toString());
     }
 
@@ -211,13 +214,13 @@ public class QueryFactoryTestCase {
     @Test
     public void testSearchByNameAlbum() {
         Query query = queryFactory.searchByName(QUERY_PATTERN_INCLUDING_KATAKANA, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((albF:ネコabc*)^2.3 (alb:ネコ*)^2.2 (alb:abc*)^2.2 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         query = queryFactory.searchByName(QUERY_PATTERN_ALPHANUMERIC_ONLY, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((albF:abc123*)^2.3 (alb:abc*)^2.2 (alb:123*)^2.2 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         query = queryFactory.searchByName(QUERY_PATTERN_HIRAGANA_ONLY, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((albRH:ねこいぬ*)^2.4 (alb:ねこ*)^2.2 (alb:いぬ*)^2.2 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         query = queryFactory.searchByName(QUERY_PATTERN_OTHERS, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((albF:abcねこ*)^2.3 (alb:abc*)^2.2 (alb:ねこ*)^2.2 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
     @Test
@@ -227,7 +230,7 @@ public class QueryFactoryTestCase {
         query = queryFactory.searchByName(QUERY_PATTERN_ALPHANUMERIC_ONLY, MULTI_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((tit:abc*)^2.3 (tit:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         query = queryFactory.searchByName(QUERY_PATTERN_HIRAGANA_ONLY, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((titRH:ねこいぬ*)^2.4 (tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (titEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         query = queryFactory.searchByName(QUERY_PATTERN_OTHERS, MULTI_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_OTHERS, "+((tit:abc*)^2.3 (tit:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }

@@ -19,7 +19,7 @@
 package com.tesshu.jpsonic.service.search;
 
 import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
-import com.tesshu.jpsonic.service.search.analysis.HiraganaTermStemFilterFactory;
+import com.tesshu.jpsonic.service.search.analysis.HiraganaStopFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.Id3ArtistTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
@@ -80,9 +80,9 @@ public final class AnalyzerFactory {
 
     private Analyzer queryAnalyzer;
     
-    private final String stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
+    public static final String STOP_TAGS = "org/apache/lucene/analysis/ja/stoptags.txt";
 
-    private final String stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
+    public static final String STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
 
     private AnalyzerFactory() {
     }
@@ -94,8 +94,8 @@ public final class AnalyzerFactory {
 
     private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder) throws IOException {
         builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
-                .addTokenFilter(StopFilterFactory.class, "words", stopWords, "ignoreCase", "true")
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags)
+                .addTokenFilter(StopFilterFactory.class, "words", STOP_WARDS, "ignoreCase", "true")
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class);
         return builder;
@@ -111,25 +111,27 @@ public final class AnalyzerFactory {
         return builder;
     }
 
-    private Builder createOnlyHiraganaAnalyzerBuilder() throws IOException {
-        return createSingleTokenAnalyzerBuilder()
-                .addTokenFilter(HiraganaTermStemFilterFactory.class, "passableOnlyAllHiragana", "true");
-    }
-
-    private Builder createOtherThanHiraganaAnalyzerBuilder() throws IOException {
-        return createSingleTokenAnalyzerBuilder()
-                .addTokenFilter(HiraganaTermStemFilterFactory.class, "passableOnlyAllHiragana", "false");
-    }
-
     private Builder createPathAnalyzerBuilder() throws IOException {
         return CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class);
     }
 
-    private Builder createSingleTokenAnalyzerBuilder() throws IOException {
-        CustomAnalyzer.Builder builder = createPathAnalyzerBuilder();
-        builder = basicFilters(builder);
-        builder = builder.addTokenFilter(PunctuationStemFilterFactory.class);
-        return builder;
+    private Builder createExceptionalAnalyzerBuilder() throws IOException {
+        return createPathAnalyzerBuilder()
+            .addTokenFilter(CJKWidthFilterFactory.class)
+            .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
+            .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
+            .addTokenFilter(LowerCaseFilterFactory.class)
+            .addTokenFilter(PunctuationStemFilterFactory.class);
+    }
+
+    private Builder createArtistExceptionalBuilder() throws IOException {
+        return createExceptionalAnalyzerBuilder()
+                .addTokenFilter(HiraganaStopFilterFactory.class, "passableOnlyAllHiragana", "false");
+    }
+
+    private Builder createExceptionalBuilder() throws IOException {
+        return createExceptionalAnalyzerBuilder()
+                .addTokenFilter(HiraganaStopFilterFactory.class, "passableOnlyAllHiragana", "true");
     }
 
     private Builder createId3ArtistAnalyzerBuilder() throws IOException {  
@@ -145,7 +147,6 @@ public final class AnalyzerFactory {
      * 
      * @return analyzer for index
      */
-    @SuppressWarnings("deprecation")
     public Analyzer getAnalyzer() {
         if (null == this.analyzer) {
             try {
@@ -154,17 +155,17 @@ public final class AnalyzerFactory {
                 Analyzer key = createKeyAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer multiTerm = createMultiTokenAnalyzerBuilder().build();
-                Analyzer onlyHiragana = createOnlyHiraganaAnalyzerBuilder().build();
-                Analyzer otherThanHiragana = createOtherThanHiraganaAnalyzerBuilder().build();
+                Analyzer artistExceptional = createArtistExceptionalBuilder().build();
+                Analyzer exceptional = createExceptionalBuilder().build();
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.FOLDER, path);
                 analyzerMap.put(FieldNames.GENRE, key);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
-                analyzerMap.put(FieldNames.ALBUM_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.TITLE_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.ALBUM_FULL, otherThanHiragana);
+                analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
+                analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
+                analyzerMap.put(FieldNames.TITLE_EX, exceptional);
 
                 this.analyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);
 
@@ -180,7 +181,6 @@ public final class AnalyzerFactory {
      * 
      * @return analyzer for index
      */
-    @SuppressWarnings("deprecation")
     public Analyzer getQueryAnalyzer() {
         if (null == this.queryAnalyzer) {
             try {
@@ -189,17 +189,17 @@ public final class AnalyzerFactory {
                 Analyzer key = createKeyAnalyzerBuilder().build();
                 Analyzer id3Artist = addWildCard(createId3ArtistAnalyzerBuilder()).build();
                 Analyzer multiTerm = addWildCard(createMultiTokenAnalyzerBuilder()).build();
-                Analyzer onlyHiragana = addWildCard(createOnlyHiraganaAnalyzerBuilder()).build();
-                Analyzer otherThanHiragana = addWildCard(createOtherThanHiraganaAnalyzerBuilder()).build();
+                Analyzer artistExceptional = addWildCard(createArtistExceptionalBuilder()).build();
+                Analyzer exceptional = addWildCard(createExceptionalBuilder()).build();
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.FOLDER, path);
                 analyzerMap.put(FieldNames.GENRE, key);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
-                analyzerMap.put(FieldNames.ALBUM_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.TITLE_READING_HIRAGANA, onlyHiragana);
-                analyzerMap.put(FieldNames.ALBUM_FULL, otherThanHiragana);
+                analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
+                analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
+                analyzerMap.put(FieldNames.TITLE_EX, exceptional);
 
                 this.queryAnalyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);
 
