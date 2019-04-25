@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
-@SuppressWarnings("deprecation")
 public class AnalyzerFactoryTestCase extends TestCase {
 
     private static Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
@@ -41,8 +40,8 @@ public class AnalyzerFactoryTestCase extends TestCase {
     private static Analyzer queryAnalyzer = AnalyzerFactory.getInstance().getQueryAnalyzer();
 
     /*
-     * Fields with the same name as legacy servers are
-     * expected to have roughly similar uses / actions.
+     * Fields with the same name as legacy servers are expected to have roughly
+     * similar uses / actions.
      * 
      * Many of the Fields added by Jpsonic perform 1token processing.
      */
@@ -50,60 +49,53 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
         String queryEng = "The quick brown fox jumps over the lazy dog.";
 
+        // 3
+        // FieldNames.ID, FieldNames.FOLDER_ID, FieldNames.YEAR
+
+        // 3
         String[] oneTokenFields = { FieldNames.GENRE, FieldNames.MEDIA_TYPE, FieldNames.FOLDER, };
         Arrays.stream(oneTokenFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("oneTokenFields : " + n, 1, terms.size());
         });
 
-        String[] multiTokenFields = {
-                FieldNames.ARTIST,
-                FieldNames.ARTIST_READING,
-                FieldNames.ALBUM,
-                FieldNames.TITLE };
+        // 4
+        String[] multiTokenFields = { FieldNames.ARTIST, FieldNames.ARTIST_READING, FieldNames.ALBUM, FieldNames.TITLE };
         Arrays.stream(multiTokenFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("multiToken : " + n, 7, terms.size());
         });
 
-        String[] oneTokenOtherthanHiraFields = {
-                FieldNames.ALBUM_FULL, };
-        Arrays.stream(oneTokenOtherthanHiraFields).forEach(n -> {
-            List<String> terms = toTermString(n, queryEng);
-            assertEquals("oneTokenOtherthanHira(Eng) : " + n, 1, terms.size());
-        });
-
+        // 2
         String queryHira = "くいっくぶらうん";
-        Arrays.stream(oneTokenOtherthanHiraFields).forEach(n -> {
-            List<String> terms = toTermString(n, queryHira);
-            assertEquals("oneTokenOtherthanHira(Hira) : " + n, 0, terms.size());
-        });
-
-        String[] oneTokenHiraFields = {
-                FieldNames.ALBUM_READING_HIRAGANA,
-                FieldNames.TITLE_READING_HIRAGANA };
-        Arrays.stream(oneTokenHiraFields).forEach(n -> {
+        String[] oneTokenHiraStopOnlyFields = { FieldNames.ALBUM_EX, FieldNames.TITLE_EX };
+        Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("oneTokenHira(Eng) : " + n, 0, terms.size());
         });
-        Arrays.stream(oneTokenHiraFields).forEach(n -> {
+        Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryHira);
             assertEquals("oneTokenHira(Hira) : " + n, 1, terms.size());
         });
+        String queryStops = "LaLa";
+        Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
+            List<String> terms = toTermString(n, queryStops);
+            assertEquals("oneTokenHira(Eng) : " + n, 1, terms.size());
+        });
 
-        String[] oneTokenHiraMixFields = {
-                FieldNames.ALBUM_READING_HIRAGANA,
-                FieldNames.TITLE_READING_HIRAGANA, };
-
-        String queryMix = "クイックブラウン飛び越えた";
-
-        /*
-         * Currently, it is not registered except for Hiragana because it is a support
-         * field of Hiragana only
-         */
-        Arrays.stream(oneTokenHiraMixFields).forEach(n -> {
-            List<String> terms = toTermString(n, queryMix);
-            assertEquals("oneTokenHira(Mix) : " + n, 0, terms.size());
+        // 1
+        String[] oneTokenStopOnlyFields = { FieldNames.ARTIST_EX };
+        Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
+            List<String> terms = toTermString(n, queryEng);
+            assertEquals("oneTokenHira(Eng) : " + n, 0, terms.size());
+        });
+        Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
+            List<String> terms = toTermString(n, queryHira);
+            assertEquals("oneTokenHira(Hira) : " + n, 0, terms.size());
+        });
+        Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
+            List<String> terms = toTermString(n, queryStops);
+            assertEquals("oneTokenHira(Eng) : " + n, 1, terms.size());
         });
 
     }
@@ -113,15 +105,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
      */
     public void testCJKWidth() {
         String query = "ＡＢＣａｂｃｱｲｳ";
-        String apply1 = "abcabcアイウ";
+        // String apply1 = "abcabcアイウ";
         String apply1a = "abcabc";
         String apply1b = "アイウ";
         String apply2 = "abcabcあいう";
+        String query2 = "ぁぃぅ";
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
+                case FieldNames.ARTIST_EX:
                     assertEquals("no case : " + n, 0, terms.size());
                     break;
                 case FieldNames.FOLDER:
@@ -130,9 +122,11 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ALBUM_FULL:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, apply1, terms.get(0));
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
+                    terms = toTermString(n, query2);
+                    assertEquals("no case : " + n, 1, terms.size());
+                    assertEquals("no case " + n, query2, terms.get(0));
                     break;
                 case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
@@ -153,32 +147,26 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
     /*
      * Currently, Stoppward applies only to Tokenized fields.
-     * (Most of the 1token fields are for Japanese full text,
-     * so there is no practical impact)
      */
     public void testStopward() {
 
         /*
          * article
          */
-        String queryArticle =
-                "a an the";
+        String queryArticle = "a an the";
 
         /*
-         * It is not included in the Java default stopword.
-         * Default set as Airsonic index stop word.
+         * It is not included in the Java default stopword. Default set as Airsonic
+         * index stop word.
          */
-        String queryIndexArticle =
-                "el la los las le les";
+        String queryIndexArticle = "el la los las le les";
 
         /*
-         * Non-article in the default Stopward.
-         * In cases, it may be used for song names of 2 to 3 words.
-         * Stop words are essential for newspapers and documents, but
+         * Non-article in the default Stopward. In cases, it may be used for song names
+         * of 2 to 3 words. Stop words are essential for newspapers and documents, but
          * they are over-processed for song titles.
          */
-        String queryNoStop =
-                "and are as at be but by for if in into is it no not of on "
+        String queryNoStop = "and are as at be but by for if in into is it no not of on " //
                 + "or such that their then there these they this to was will with";
 
         /*
@@ -186,20 +174,14 @@ public class AnalyzerFactoryTestCase extends TestCase {
          * over-deletion in some cases. However, unlike the English stopward. Japanese
          * Stopward is placed less frequently at the beginning of sentences.
          */
-        String queryJpStop =
-                "の に は を た が で て と し れ さ ある いる も する から な こと として い "
-                + "や れる など なっ ない この ため その あっ よう また もの という あり まで "
-                + "られ なる へ か だ これ によって により おり より による ず なり られる において "
-                + "ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き "
-                + "つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して "
-                + "特に せる 及び これら とき では にて ほか ながら うち そして とともに ただし かつて "
-                + "それぞれ または お ほど ものの に対する ほとんど と共に といった です とも"
-                + " ところ ここ";
-
-        String throughArticle = queryArticle.replaceAll(" ", "");
-        String throughIndexArticle = queryIndexArticle.replaceAll(" ", "");
-        String throughNoStop = queryNoStop.replaceAll(" ", "");
-        String throughJpStop = queryJpStop.replaceAll(" ", "");
+        String queryJpStop = "の に は を た が で て と し れ さ ある いる も する から な こと として い " //
+                + "や れる など なっ ない この ため その あっ よう また もの という あり まで " //
+                + "られ なる へ か だ これ によって により おり より による ず なり られる において " //
+                + "ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き " //
+                + "つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して " //
+                + "特に せる 及び これら とき では にて ほか ながら うち そして とともに ただし かつて " //
+                + "それぞれ または お ほど ものの に対する ほとんど と共に といった です とも" //
+                + " ところ ここ"; //
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> articleTerms = toTermString(n, queryArticle);
@@ -207,13 +189,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
             List<String> noStopTerms = toTermString(n, queryNoStop);
             List<String> jpStopTerms = toTermString(n, queryJpStop);
             switch (n) {
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
-                    assertEquals("no case : " + n, 0, articleTerms.size());
-                    assertEquals("no case : " + n, 0, indexArticleTerms.size());
-                    assertEquals("no case : " + n, 0, noStopTerms.size());
-                    assertEquals("no case : " + n, 0, jpStopTerms.size());
-                    break;
                 case FieldNames.FOLDER:
                 case FieldNames.GENRE:
                 case FieldNames.MEDIA_TYPE:
@@ -225,16 +200,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
                     assertEquals("through : " + n, 1, jpStopTerms.size());
                     assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
-                    break;
-                case FieldNames.ALBUM_FULL:
-                    assertEquals("through : " + n, 1, articleTerms.size());
-                    assertEquals("through : " + n, throughArticle, articleTerms.get(0));
-                    assertEquals("through : " + n, 1, indexArticleTerms.size());
-                    assertEquals("through : " + n, throughIndexArticle, indexArticleTerms.get(0));
-                    assertEquals("through : " + n, 1, noStopTerms.size());
-                    assertEquals("through : " + n, throughNoStop, noStopTerms.get(0));
-                    assertEquals("through : " + n, 1, jpStopTerms.size());
-                    assertEquals("through : " + n, throughJpStop, jpStopTerms.get(0));
                     break;
                 case FieldNames.ARTIST:
                 case FieldNames.ARTIST_READING:
@@ -249,11 +214,30 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     break;
             }
         });
+
+        Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            // to be affected by other filters
+            List<String> articleTerms = toTermString(n, queryArticle.replaceAll(" ", ""));
+            List<String> indexArticleTerms = toTermString(n, queryIndexArticle.replaceAll(" ", ""));
+            List<String> noStopTerms = toTermString(n, queryNoStop.replaceAll(" ", ""));
+            List<String> jpStopTerms = toTermString(n, queryJpStop.replaceAll(" ", ""));
+            switch (n) {
+                case FieldNames.ARTIST_EX:
+                case FieldNames.ALBUM_EX:
+                case FieldNames.TITLE_EX:
+                    assertEquals("through : " + n, 1, articleTerms.size());
+                    assertEquals("through : " + n, 1, indexArticleTerms.size());
+                    assertEquals("apply : " + n, 0, noStopTerms.size());
+                    assertEquals("through : " + n, 1, jpStopTerms.size());
+                    break;
+                default:
+                    break;
+            }
+        });
     }
 
     /*
-     * Applies to all
-     * except FOLDER, GENRE, MEDIA_TYPE.
+     * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     public void testJapanesePartOfSpeechStop() {
 
@@ -276,16 +260,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * Applies to all
-     * except FOLDER, GENRE, MEDIA_TYPE.
-     * In UAX#29, determination of non-practical word boundaries is not considered.
-     * Languages ​​that use special strings require practical verification.
+     * Applies to all except FOLDER, GENRE, MEDIA_TYPE. In UAX#29, determination of
+     * non-practical word boundaries is not considered. Languages ​​that use special
+     * strings require practical verification.
      */
     public void testASCIIFoldingStop() {
 
         // Filter operation check only. Verify only some settings.
         String query = "Cæsarシーザー";
-        String expected1 = "caesarシーザー";
+        // String expected1 = "caesarシーザー";
         String expected1a = "caesar";
         String expected1b = "シーザー";
         String expected2 = "caesarしいざあ";
@@ -293,8 +276,9 @@ public class AnalyzerFactoryTestCase extends TestCase {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
+                case FieldNames.ARTIST_EX:
                     assertEquals("no case : " + n, 0, terms.size());
                     break;
                 case FieldNames.FOLDER:
@@ -302,10 +286,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                 case FieldNames.MEDIA_TYPE:
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNames.ALBUM_FULL:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected1, terms.get(0));
                     break;
                 case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
@@ -325,8 +305,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * Applies to all
-     * except FOLDER, GENRE, MEDIA_TYPE.
+     * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     public void testLowerCase() {
 
@@ -339,8 +318,9 @@ public class AnalyzerFactoryTestCase extends TestCase {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
+                case FieldNames.ARTIST_EX:
                     assertEquals("no case : " + n, 0, terms.size());
                     break;
                 case FieldNames.FOLDER:
@@ -349,7 +329,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ALBUM_FULL:
                 case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, expected1, terms.get(0));
@@ -368,8 +347,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * Applies to all
-     * except FOLDER, GENRE, MEDIA_TYPE.
+     * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
     public void testPunctuationStem() {
 
@@ -380,6 +358,8 @@ public class AnalyzerFactoryTestCase extends TestCase {
         String expected2b = "c";
         String queryJp = "ふ︴い";
         String expectedJp = "ふい";
+        String queryStop = "the︴これら";
+        String expectedStop = "theこれら";
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
@@ -390,7 +370,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
-                case FieldNames.ALBUM_FULL:
                 case FieldNames.ARTIST_READING:
                     assertEquals("token through filtered : " + n, 1, terms.size());
                     assertEquals("token through filtered : " + n, expected2, terms.get(0));
@@ -402,11 +381,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("tokend : " + n, expected2a, terms.get(0));
                     assertEquals("tokend : " + n, expected2b, terms.get(1));
                     break;
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
                     terms = toTermString(n, queryJp);
                     assertEquals("token through filtered : " + n, 1, terms.size());
                     assertEquals("token through filtered : " + n, expectedJp, terms.get(0));
+                case FieldNames.ARTIST_EX:
+                    terms = toTermString(n, queryStop);
+                    assertEquals("token through filtered : " + n, 1, terms.size());
+                    assertEquals("token through filtered : " + n, expectedStop, terms.get(0));
                     break;
                 default:
                     break;
@@ -415,42 +398,11 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * ARTIST_FULL and ALBUM_FULL do not accept hiragana-only input.
-     * (Since Hiragana supports other Field)
-     */
-    public void testHiraganaTermStemOtherThanHiragana() {
-
-        String passable1 = "THE BLUE HEARTS";
-        String expected1 = "thebluehearts";
-        String passable2 = "ABC123";
-        String expected2 = "abc123";
-        String passable3 = "ABC123あいう";
-        String expected3 = "abc123あいう";
-        String notPass = "あいう";
-
-        String[] otherThanHiraganaFields = { FieldNames.ALBUM_FULL };
-        Arrays.stream(otherThanHiraganaFields).forEach(n -> {
-            List<String> terms = toTermString(n, passable1);
-            assertEquals("all Alpha : " + n, 1, terms.size());
-            assertEquals("all Alpha : " + n, expected1, terms.get(0));
-            terms = toTermString(n, passable2);
-            assertEquals("AlphaNum : " + n, 1, terms.size());
-            assertEquals("AlphaNum : " + n, expected2, terms.get(0));
-            terms = toTermString(n, passable3);
-            assertEquals("AlphaNumHiragana : " + n, 1, terms.size());
-            assertEquals("AlphaNumHiragana : " + n, expected3, terms.get(0));
-            terms = toTermString(n, notPass);
-            assertEquals("Hiragana : " + n, 0, terms.size());
-        });
-    }
-
-    /*
-     * ALBUM_READING_HIRAGANA and TITLE_READING_HIRAGANA only allow Hiragana.
-     * Because hiragana-only high-precision word analysis is difficult,
-     * the purpose is to support the full text.
-     * (Hiragana-only album names and song names may be used
-     * to give a particularly soft impression,
-     * but are generally not used very often.)
+     * ALBUM_EX and TITLE_EX only allow Hiragana.
+     * Because hiragana-only high-precision word analysis is difficult, the purpose
+     * is to support the full text. (Hiragana-only album names and song names may be
+     * used to give a particularly soft impression, but are generally not used very
+     * often.)
      */
     public void testHiraganaTermStemOnlyHiragana() {
 
@@ -459,7 +411,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
         String notPass3 = "ABC123あいう";
         String passable = "あいう";
 
-        String[] otherThanHiraganaFields = { FieldNames.ALBUM_READING_HIRAGANA, FieldNames.TITLE_READING_HIRAGANA };
+        String[] otherThanHiraganaFields = { FieldNames.ALBUM_EX, FieldNames.TITLE_EX };
         Arrays.stream(otherThanHiraganaFields).forEach(n -> {
             List<String> terms = toTermString(n, notPass1);
             assertEquals("all Alpha : " + n, 0, terms.size());
@@ -474,8 +426,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     }
 
     /*
-     * Katakana is converted to hiragana.
-     * This is primarily intended for CDDB input.
+     * Katakana is converted to hiragana. This is primarily intended for CDDB input.
      * (It is not decided whether to register in CDDB with Katakana/Hiragana)
      */
     public void testToHiragana() {
@@ -530,10 +481,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
      * All fields except FOLDER ignore characters required escape.
      */
     public void testWildCard() {
-   
+
         String query = "ORANGE RANGE";
-        String expected1 = "orangerange";
-        String expected1Wild = "orangerange*";
+        // String expected1 = "orangerange";
+        // String expected1Wild = "orangerange*";
         String expected2a = "orange";
         String expected2b = "range";
         String expected2aWild = "orange*";
@@ -553,12 +504,6 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("normal : " + n, 1, queryTerms.size());
                     assertEquals("normal : " + n, terms.get(0), queryTerms.get(0));
                     break;
-                case FieldNames.ALBUM_FULL:
-                    assertEquals("normal : " + n, 1, terms.size());
-                    assertEquals("normal : " + n, expected1, terms.get(0));
-                    assertEquals("wild : " + n, 1, queryTerms.size());
-                    assertEquals("wild : " + n, expected1Wild, queryTerms.get(0));
-                    break;
                 case FieldNames.ARTIST:
                 case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
@@ -570,8 +515,8 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("wild : " + n, expected2aWild, queryTerms.get(0));
                     assertEquals("wild : " + n, expected2bWild, queryTerms.get(1));
                     break;
-                case FieldNames.TITLE_READING_HIRAGANA:
-                case FieldNames.ALBUM_READING_HIRAGANA:
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
                     assertEquals("trancate : " + n, 0, terms.size());
                     assertEquals("trancate : " + n, 0, queryTerms.size());
                     terms = toTermString(n, queryJp2);
@@ -580,6 +525,14 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("normal : " + n, expectedJp2, terms.get(0));
                     assertEquals("wild : " + n, 1, queryTerms.size());
                     assertEquals("wild : " + n, expectedJp2Wild, queryTerms.get(0));
+                    break;
+                case FieldNames.ARTIST_EX:
+                    assertEquals("trancate : " + n, 0, terms.size());
+                    assertEquals("trancate : " + n, 0, queryTerms.size());
+                    terms = toTermString(n, queryJp2);
+                    queryTerms = toQueryTermString(n, queryJp2);
+                    assertEquals("trancate : " + n, 0, terms.size());
+                    assertEquals("trancate : " + n, 0, queryTerms.size());
                     break;
                 default:
                     break;
