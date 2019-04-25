@@ -34,47 +34,47 @@ public enum IndexType {
 
     SONG(
         fieldNames(
-            FieldNames.TITLE_READING_HIRAGANA,
             FieldNames.TITLE,
+            FieldNames.TITLE_EX,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST),
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_EX),
         boosts(
-            entry(FieldNames.TITLE_READING_HIRAGANA, 2.4F),
             entry(FieldNames.TITLE, 2.3F),
+            entry(FieldNames.TITLE_EX, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM(
         fieldNames(
-            FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM,
+            FieldNames.ALBUM_EX,
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
+            FieldNames.ARTIST_EX,
             FieldNames.FOLDER ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
-            entry(FieldNames.ALBUM_FULL, 2.3F),
-            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ALBUM, 2.3F),
+            entry(FieldNames.ALBUM_EX, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
         fieldNames(
-            FieldNames.ALBUM_READING_HIRAGANA,
-            FieldNames.ALBUM_FULL,
             FieldNames.ALBUM,
+            FieldNames.ALBUM_EX,
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
+            FieldNames.ARTIST_EX,
             FieldNames.FOLDER_ID ),
         boosts(
-            entry(FieldNames.ALBUM_READING_HIRAGANA, 2.4F),
-            entry(FieldNames.ALBUM_FULL, 2.3F),
-            entry(FieldNames.ALBUM, 2.2F),
+            entry(FieldNames.ALBUM, 2.3F),
+            entry(FieldNames.ALBUM_EX, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ARTIST(
         fieldNames(
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
+            FieldNames.ARTIST_EX,
             FieldNames.FOLDER),
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
@@ -82,7 +82,8 @@ public enum IndexType {
     ARTIST_ID3(
         fieldNames(
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST),
+            FieldNames.ARTIST,
+            FieldNames.ARTIST_EX),
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
@@ -155,35 +156,25 @@ public enum IndexType {
         public static final String ARTIST_READING =          "artR";
 
         /**
-         * Jpsonic specific reading field.
-         * Instead of a general-purpose role such as artist reading,
-         * a string that is difficult for Japanese machine processing is registered as an aid.
-         * Words that consists entirely of hiragana is a typical example.
-         * @since 1.0
-         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         * Jpsonic specific assistance field.
+         * Deal with rare cases consisting only of stop-word.
+         * @since 1.1
          */
-        public static final String ALBUM_READING_HIRAGANA =  "albRH";
+        public static final String ARTIST_EX =          "artEX";
 
         /**
-         * Jpsonic specific reading field.
-         * Instead of a general-purpose role such as artist reading,
-         * a string that is difficult for Japanese machine processing is registered as an aid.
-         * Words that consists entirely of hiragana is a typical example.
-         * @since 1.0
-         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         * Jpsonic specific assistance field.
+         * Deal with rare cases consisting only of stop-word or full text Hiragana.
+         * @since 1.1
          */
-        public static final String TITLE_READING_HIRAGANA =  "titRH";
+        public static final String ALBUM_EX =          "albEX";
 
         /**
-         * Jpsonic specific full name field.
-         * This is an area set for Japan-specific aid purposes.
-         * Content/length such as album name is likely to reduce the accuracy of analysis.
-         * 
-         * @since 1.0
-         * @deprecated Due to a change in analysis method, it may be discontinued in later versions.
+         * Jpsonic specific assistance field.
+         * Deal with rare cases consisting only of stop-word or full text Hiragana.
+         * @since 1.1
          */
-        @Deprecated
-        public static final String ALBUM_FULL =              "albF";
+        public static final String TITLE_EX =          "titEX";
 
     }
 
@@ -207,7 +198,7 @@ public enum IndexType {
      * @since 1.0
      **/
     public static final String getVersion() {
-        return "1.0";
+        return "1.1";
     }
 
     private final Map<String, Float> boosts;

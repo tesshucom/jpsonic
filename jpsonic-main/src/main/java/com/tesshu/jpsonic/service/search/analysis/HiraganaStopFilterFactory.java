@@ -7,13 +7,13 @@ import org.apache.lucene.analysis.util.TokenFilterFactory;
 
 import java.util.Map;
 
-public class HiraganaTermStemFilterFactory extends TokenFilterFactory implements MultiTermAwareComponent {
+public class HiraganaStopFilterFactory extends TokenFilterFactory implements MultiTermAwareComponent {
 
     private static final String PASSABLE_ONLY_ALL_HIRAGANA = "passableOnlyAllHiragana";
 
     private final boolean passableOnlyAllHiragana;
 
-    public HiraganaTermStemFilterFactory(Map<String, String> args) {
+    public HiraganaStopFilterFactory(Map<String, String> args) {
         super(args);
         passableOnlyAllHiragana = getBoolean(args, PASSABLE_ONLY_ALL_HIRAGANA, false);
         if (!args.isEmpty()) {
@@ -22,8 +22,8 @@ public class HiraganaTermStemFilterFactory extends TokenFilterFactory implements
     }
 
     @Override
-    public HiraganaTermStemFilter create(TokenStream input) {
-        return new HiraganaTermStemFilter(input, passableOnlyAllHiragana);
+    public HiraganaStopFilter create(TokenStream input) {
+        return new HiraganaStopFilter(input, passableOnlyAllHiragana);
     }
 
     @Override
