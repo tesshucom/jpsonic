@@ -62,15 +62,18 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Component
 public class SearchServiceTermination {
 
+    /* Search by id only. */
     @Autowired
     private ArtistDao artistDao;
 
+    /* Search by id only. */
     @Autowired
     private AlbumDao albumDao;
 
+    /* Search by id only. Don't use MediaFileDao! */
     @Autowired
     private MediaFileService mediaFileService;
-
+    
     public final Function<Long, Integer> round = (i) -> {
         // return
         // NumericUtils.floatToSortableInt(i);
@@ -142,6 +145,15 @@ public class SearchServiceTermination {
 
     public final boolean addIgnoreNull(Collection<?> collection, Object object) {
         return CollectionUtils.addIgnoreNull(collection, object);
+    }
+
+    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType, int subjectId) {
+        if (indexType == ALBUM) {
+            return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
+        } else if (indexType == ALBUM_ID3) {
+            return addIgnoreNull(collection, albumDao.getAlbum(subjectId));
+        }
+        return false;
     }
 
     public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType, int subjectId, Class<T> subjectClass) {

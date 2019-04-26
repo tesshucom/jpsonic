@@ -796,8 +796,8 @@ public class MediaFileService {
     			album.setArtistSort(null == artist.getSort() ? artist.getReading() : artist.getSort());
                 // update db
     			albumDao.createOrUpdateAlbum(album);
-                // update index
-    			searchService.index(album);
+                // update artistSort only.
+    			searchService.updateArtistSort(album);
     			maybe++;
     		}
     	}

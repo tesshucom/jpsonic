@@ -108,45 +108,55 @@ public class SearchServiceTestCase {
   @Autowired
   ResourceLoader resourceLoader;
 
-  @Before
-  public void warmUp() {
 
+  @Before
+  public void setup() throws Exception {
+      populateDatabase();
   }
 
+  private static boolean dataBasePopulated;
+
+  private void populateDatabase() {
+      if (!dataBasePopulated) {
+
+          /* It seems that there is a case that does not work well
+           * if you test immediately after initialization in 1 method.
+           * It may be improved later.
+           */
+          try {
+            Thread.sleep(500);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+
+          MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
+          settingsService.clearMusicFolderCache();
+          TestCaseUtils.execScan(mediaScannerService);
+          
+          System.out.println("--- Report of records count per table ---");
+          Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
+          records.keySet().stream()
+              .filter(s -> s.equals("MEDIA_FILE") // 20
+                  | s.equals("ARTIST") // 5
+                  | s.equals("MUSIC_FOLDER")// 3
+                  | s.equals("ALBUM"))// 5
+              .forEach(tableName
+                  -> System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
+
+          // Music Folder Music must have 3 children
+          List<MediaFile> listeMusicChildren = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
+          Assert.assertEquals(3, listeMusicChildren.size());
+          // Music Folder Music2 must have 1 children
+          List<MediaFile> listeMusic2Children = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
+          Assert.assertEquals(1, listeMusic2Children.size());
+          System.out.println("--- *********************** ---");
+
+          dataBasePopulated = true;
+      }
+  }
+  
   @Test
   public void testSearchTypical() {
-
-      /* It seems that there is a case that does not work well
-       * if you test immediately after initialization in 1 method.
-       * It may be improved later.
-       */
-      try {
-        Thread.sleep(500);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-
-      MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
-      settingsService.clearMusicFolderCache();
-      TestCaseUtils.execScan(mediaScannerService);
-      
-      System.out.println("--- Report of records count per table ---");
-      Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-      records.keySet().stream()
-          .filter(s -> s.equals("MEDIA_FILE") // 20
-              | s.equals("ARTIST") // 5
-              | s.equals("MUSIC_FOLDER")// 3
-              | s.equals("ALBUM"))// 5
-          .forEach(tableName
-              -> System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
-
-      // Music Folder Music must have 3 children
-      List<MediaFile> listeMusicChildren = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
-      Assert.assertEquals(3, listeMusicChildren.size());
-      // Music Folder Music2 must have 1 children
-      List<MediaFile> listeMusic2Children = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
-      Assert.assertEquals(1, listeMusic2Children.size());
-      System.out.println("--- *********************** ---");
 
     /*
      * A simple test that is expected to easily detect
@@ -378,5 +388,90 @@ public class SearchServiceTestCase {
     }
     return randomStrings;
   }
+  
+
+    @Test
+    public void testGenre() {
+
+        List<MusicFolder> allMusicFolders = musicFolderDao.getAllMusicFolders();
+
+        // #### song ####
+        String genre = "Baroque Instrumental";
+        List<MediaFile> songs = searchService.getSongsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("song - genre : " + genre, 2, songs.size());
+
+        genre = "Impressionist Era";
+        songs = searchService.getSongsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("song - genre : " + genre, 2, songs.size());
+
+        genre = "Gothik Folk Psychobilly";
+        songs = searchService.getSongsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("song - genre : " + genre, 3, songs.size());
+
+        genre = "Metal";
+        songs = searchService.getSongsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("song - genre : " + genre, 1, songs.size());
+        Assert.assertEquals("album name", "_ID3_ALBUM_ Chrome Hoof", songs.get(0).getAlbumName());
+
+        genre = "Alternative/Indie";
+        songs = searchService.getSongsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("song - genre : " + genre, 1, songs.size());
+        Assert.assertEquals("album name", "_ID3_ALBUM_ Chrome Hoof", songs.get(0).getAlbumName());
+
+        // #### file struct album ####
+        genre = "Baroque Instrumental";
+        List<MediaFile> albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albums.size());
+
+        genre = "Impressionist Era";
+        albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albums.size());
+
+        genre = "Gothik Folk Psychobilly";
+        albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albums.size());
+
+        genre = "Metal";
+        albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albums.size());
+        Assert.assertEquals("album name" + genre, "_ID3_ALBUM_ Chrome Hoof", albums.get(0).getAlbumName());
+
+        /* "Metal" and "Alternative/Indie" exist in child of _ID3_ALBUM_ Chrome Hoof */
+        genre = "Alternative/Indie";
+        albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 0, albums.size());
+
+        genre = "TestAlbum";
+        albums = searchService.getAlbumsByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 0, albums.size());
+
+        // #### id3 album ####
+        genre = "Baroque Instrumental";
+        List<Album> albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albumid3s.size());
+
+        genre = "Impressionist Era";
+        albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albumid3s.size());
+
+        genre = "Gothik Folk Psychobilly";
+        albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albumid3s.size());
+
+        genre = "Metal";
+        albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 1, albumid3s.size());
+        Assert.assertEquals("album name" + genre, "_ID3_ALBUM_ Chrome Hoof", albumid3s.get(0).getName());
+
+        /* "Metal" and "Alternative/Indie" exist in child of _ID3_ALBUM_ Chrome Hoof */
+        genre = "Alternative/Indie";
+        albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 0, albumid3s.size());
+
+        genre = "TestAlbum";
+        albumid3s = searchService.getAlbumId3sByGenre(genre, 0, Integer.MAX_VALUE, allMusicFolders);
+        Assert.assertEquals("albums - genre : " + genre, 0, albumid3s.size());
+
+    }
 
 }

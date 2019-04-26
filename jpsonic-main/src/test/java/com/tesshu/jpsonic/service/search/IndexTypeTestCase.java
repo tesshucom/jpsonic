@@ -50,7 +50,7 @@ public class IndexTypeTestCase extends TestCase {
                 .filter(f -> FieldNames.ARTIST_EX.equals(f))
                 .filter(f -> FieldNames.FOLDER.equals(f)).count());
     }
-    
+
     @Test
     public void testAlbumId3Boosts() {
         assertEquals(3, IndexType.ALBUM_ID3.getBoosts().size());
@@ -101,7 +101,7 @@ public class IndexTypeTestCase extends TestCase {
                 .filter(f -> FieldNames.ARTIST.equals(f))
                 .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
-    
+
     @Test
     public void testSongBoosts() {
         assertEquals(3, IndexType.SONG.getBoosts().size());
@@ -120,5 +120,5 @@ public class IndexTypeTestCase extends TestCase {
                 .filter(f -> FieldNames.ARTIST.equals(f))
                 .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
-    
+
 }

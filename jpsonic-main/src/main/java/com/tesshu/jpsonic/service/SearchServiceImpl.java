@@ -25,14 +25,17 @@ import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 
 import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.util.FileUtil;
-import org.apache.lucene.analysis.*;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.SortedDocValuesField;
+import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.*;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +60,18 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
-    @Autowired
-    private AlbumDao albumDao;
-
+    @Deprecated
     @Autowired
     private MediaFileDao mediaFileDao;
 
     @Autowired
-    private MediaFileService mediaFileService;
+    private DocumentFactory documentFactory;
+
+    @Autowired
+    private QueryFactory queryFactory;
+
+    @Autowired
+    private SearchServiceTermination termination;
 
     /**
      * @since 101.1.0
@@ -78,23 +85,7 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
 
-    private final Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
-
     private final Random random = new Random(System.currentTimeMillis());
-
-    @Autowired
-    private SearchServiceTermination termination;
-
-    public void setSearchServiceTermination(SearchServiceTermination termination) {
-        this.termination = termination;
-    }
-
-    @Autowired
-    private DocumentFactory documentFactory;
-
-    @Autowired
-    private QueryFactory queryFactory;
-
     private IndexWriter artistWriter;
     private IndexWriter artistId3Writer;
     private IndexWriter albumWriter;
@@ -110,7 +101,7 @@ public class SearchServiceImpl implements SearchService {
 
     private final IndexWriter createIndexWriter(IndexType indexType) throws IOException {
         File dir = termination.getDirectory.apply(getVersion(), indexType);
-        IndexWriterConfig config = new IndexWriterConfig(analyzer);
+        IndexWriterConfig config = new IndexWriterConfig(AnalyzerFactory.getInstance().getAnalyzer());
         return new IndexWriter(FSDirectory.open(dir.toPath()), config);
     }
 
@@ -158,6 +149,20 @@ public class SearchServiceImpl implements SearchService {
         try {
             Term term = new Term(FieldNames.ID, Integer.toString(album.getId()));
             albumId3Writer.updateDocument(term, documentFactory.createDocument(album));
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + album, x);
+        }
+    }
+
+    @Override
+    public void updateArtistSort(Album album) {
+        try {
+            if (isEmpty(album.getArtistSort())) {
+                Term term = new Term(FieldNames.ID, Integer.toString(album.getId()));
+                Field field = new TextField(FieldNames.ARTIST_READING, album.getArtistSort(), Store.YES);
+                Field field2 = new SortedDocValuesField(FieldNames.ARTIST_READING, new BytesRef(album.getArtistSort()));
+                albumId3Writer.updateDocValues(term, field, field2);
+            }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
         }
@@ -360,8 +365,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         try {
-            return createRandomFiles(criteria.getCount(), searcher, query, (dist, id)
-                    -> termination.addIgnoreNull(dist, mediaFileService.getMediaFile(id)));
+            return createRandomFiles(criteria.getCount(), searcher, query, (dist, id) -> termination.addIgnoreNull(dist, ALBUM, id));
         } catch (IOException e) {
             LOG.error("Failed to search or random songs.", e);
         } finally {
@@ -382,8 +386,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         try {
-            return createRandomFiles(count, searcher, query,  (dist, id)
-                    -> termination.addIgnoreNull(dist, mediaFileService.getMediaFile(id)));
+            return createRandomFiles(count, searcher, query, (dist, id) -> termination.addIgnoreNull(dist, ALBUM, id));
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
@@ -404,8 +407,7 @@ public class SearchServiceImpl implements SearchService {
         }
 
         try {
-            return createRandomFiles(count, searcher, query,  (dist, id)
-                    -> termination.addIgnoreNull(dist, albumDao.getAlbum(id)));
+            return createRandomFiles(count, searcher, query, (dist, id) -> termination.addIgnoreNull(dist, ALBUM_ID3, id));
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
@@ -422,18 +424,95 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
+    public List<Album> getAlbumId3sByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders) {
+
+        if (isEmpty(genre)) {
+            return Collections.emptyList();
+        }
+
+        Query query = queryFactory.getAlbumId3sByGenre(genre, musicFolders);
+        IndexSearcher searcher = getSearcher(ALBUM_ID3);
+        if (isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
+
+        List<Album> result = new ArrayList<>();
+        try {
+            SortField[] sortFields = Arrays.stream(ALBUM_ID3.getFields())
+                    .filter(n -> n.equals(FieldNames.FOLDER_ID))
+                    .map(n -> new SortField(n, SortField.Type.STRING))
+                    .toArray(i -> new SortField[i]);
+            Sort sort = new Sort(sortFields);
+            TopDocs topDocs = searcher.search(query, offset + count, sort);
+
+            int totalHits = termination.round.apply(topDocs.totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                termination.addAlbumId3IfAnyMatch.accept(result, termination.getId.apply(doc));
+            }
+
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            release(ALBUM, searcher);
+        }
+        return result;
+
+    }
+
+    private List<MediaFile> getMediasByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders,
+            IndexSearcher searcher, SortField[] sortFields) {
+
+        if (isEmpty(genre)) {
+            return Collections.emptyList();
+        }
+
+        Query query = queryFactory.getMediasByGenre(genre, musicFolders);
+        if (isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
+
+        List<MediaFile> result = new ArrayList<>();
+        try {
+            Sort sort = new Sort(sortFields);
+            TopDocs topDocs = searcher.search(query, offset + count, sort);
+
+            int totalHits = termination.round.apply(topDocs.totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                termination.addMediaFileIfAnyMatch.accept(result, termination.getId.apply(doc));
+            }
+
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            release(ALBUM, searcher);
+        }
+        return result;
+
     }
 
     @Override
-    public List<Album> getAlbumId3sByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return albumDao.getAlbumsByGenre(offset, count, genre, musicFolders);
+    public List<MediaFile> getAlbumsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders) {
+        SortField[] sortFields = Arrays.stream(ALBUM.getFields())
+                .filter(n -> n.equals(FieldNames.FOLDER))
+                .map(n -> new SortField(n, SortField.Type.STRING))
+                .toArray(i -> new SortField[i]);
+        return getMediasByGenre(genre, offset, count, musicFolders, getSearcher(ALBUM), sortFields);
     }
 
     @Override
     public List<MediaFile> getSongsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getSongsByGenre(genre, offset, count, musicFolders);
+        SortField[] sortFields = Arrays.stream(SONG.getFields())
+                .map(n -> new SortField(n, SortField.Type.STRING))
+                .toArray(i -> new SortField[i]);
+        return getMediasByGenre(genre, offset, count, musicFolders, getSearcher(SONG), sortFields);
     }
 
 }
