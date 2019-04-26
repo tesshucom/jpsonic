@@ -72,6 +72,7 @@ public class QueryFactory {
         String[] targetFields = Arrays.stream(indexType.getFields())
             .filter(field -> !field.equals(FieldNames.FOLDER))
             .filter(field -> !field.equals(FieldNames.FOLDER_ID))
+            .filter(field -> !field.equals(FieldNames.GENRE))
             .toArray(i -> new String[i]);
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -245,5 +246,76 @@ public class QueryFactory {
         return booleanQuery.build();
 
     }
+    
+    /**
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
+     * @param musicFolders
+     */
+    public Query getAlbumId3sByGenre(String genre, List<MusicFolder> musicFolders) {
 
+        // main
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+
+        // sub - genre
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+        try {
+            if (!isEmpty(genre)) {
+                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+                stream.reset();
+                while (stream.incrementToken()) {
+                    genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                }
+                stream.close();
+            }
+        } catch (IOException e) {
+            // error case difficult to predict..
+            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+        }
+        query.add(genreQuery.build(), Occur.MUST);
+
+        // sub - folder
+        BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder -> folderQuery.add(new TermQuery(new Term(FieldNames.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD));
+        query.add(folderQuery.build(), Occur.MUST);
+
+        return query.build();
+
+    }
+
+    /**
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getSongsByGenre(String, int, int, List)}
+     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumsByGenre(int, int, String, List)}
+     * @param musicFolders
+     * @return
+     */
+    public Query getMediasByGenre(String genre, List<MusicFolder> musicFolders) {
+
+        // main
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+
+        // sub - genre
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+        try {
+            if (!isEmpty(genre)) {
+                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+                stream.reset();
+                while (stream.incrementToken()) {
+                    genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                }
+                stream.close();
+            }
+        } catch (IOException e) {
+            // error case difficult to predict..
+            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+        }
+        query.add(genreQuery.build(), Occur.MUST);
+
+        // sub - folder
+        BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
+        musicFolders.forEach(musicFolder -> folderQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
+        query.add(folderQuery.build(), Occur.MUST);
+
+        return query.build();
+
+    }
 }

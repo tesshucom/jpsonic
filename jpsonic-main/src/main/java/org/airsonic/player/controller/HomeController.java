@@ -227,7 +227,7 @@ public class HomeController  {
 
     private List<Album> getByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
         List<Album> result = new ArrayList<>();
-        for (MediaFile file : searchService.getAlbumsByGenre(offset, count, genre, musicFolders)) {
+        for (MediaFile file : searchService.getAlbumsByGenre(genre, offset, count, musicFolders)) {
             result.add(createAlbum(file));
         }
         return result;

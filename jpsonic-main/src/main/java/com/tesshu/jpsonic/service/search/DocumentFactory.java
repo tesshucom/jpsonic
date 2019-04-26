@@ -83,6 +83,7 @@ public class DocumentFactory {
         termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
+        nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -106,6 +107,7 @@ public class DocumentFactory {
         termField.accept(doc, FieldNames.ARTIST, album.getArtist());
         termField.accept(doc, FieldNames.ARTIST_EX, album.getArtist());
         termField.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
+        nullableKeyField.accept(doc, FieldNames.GENRE, album.getGenre());
         numberField.accept(doc, FieldNames.FOLDER_ID, album.getFolderId());
         return doc;
     }

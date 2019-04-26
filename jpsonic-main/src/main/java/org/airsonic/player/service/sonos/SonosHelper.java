@@ -437,7 +437,7 @@ public class SonosHelper {
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         Genre genre = searchService.getGenres(true).get(genreIndex);
         List<MediaCollection> result = new ArrayList<MediaCollection>();
-        for (MediaFile album : searchService.getAlbumsByGenre(0, Integer.MAX_VALUE, genre.getName(), musicFolders)) {
+        for (MediaFile album : searchService.getAlbumsByGenre(genre.getName(), 0, Integer.MAX_VALUE, musicFolders)) {
             result.add(forDirectory(album, request, username));
         }
         return result;

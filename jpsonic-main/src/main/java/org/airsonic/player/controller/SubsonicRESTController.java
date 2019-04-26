@@ -1100,7 +1100,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumsByGenre(offset, size, getRequiredStringParameter(request, "genre"), musicFolders);
+            albums = searchService.getAlbumsByGenre(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = mediaFileService.getAlbumsByYear(offset, size, getRequiredIntParameter(request, "fromYear"),
                     getRequiredIntParameter(request, "toYear"), musicFolders);
@@ -1144,7 +1144,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = albumDao.getAlphabetialAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumId3sByGenre(offset, size, getRequiredStringParameter(request, "genre"), musicFolders);
+            albums = searchService.getAlbumId3sByGenre(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = albumDao.getAlbumsByYear(offset, size, getRequiredIntParameter(request, "fromYear"),
                                               getRequiredIntParameter(request, "toYear"), musicFolders);

@@ -269,4 +269,20 @@ public class QueryFactoryTestCase {
         assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
+    @Test
+    public void testGetMediasByGenre() {
+        Query query = queryFactory.getMediasByGenre("Instrumental pop", SINGLE_FOLDERS);
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumentalpop) +(f:" + PATH1 +")", query.toString());
+        query = queryFactory.getMediasByGenre("Rock & Roll", MULTI_FOLDERS);
+        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(g:RockRoll) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+    }
+
+    @Test
+    public void testGetAlbumId3sByGenre() {
+        Query query = queryFactory.getAlbumId3sByGenre("Instrumental pop", SINGLE_FOLDERS);
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumentalpop) +(fId:" + FID1 +")", query.toString());
+        query = queryFactory.getAlbumId3sByGenre("Rock & Roll", MULTI_FOLDERS);
+        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(g:RockRoll) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+    }
+
 }
