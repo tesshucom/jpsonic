@@ -137,7 +137,7 @@ public interface SearchService {
      * @param musicFolders Only return albums in these folders.
      * @return Albums in the genre.
      */
-    public List<MediaFile> getAlbumsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
+    List<MediaFile> getAlbumsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
 
     /**
      * Returns albums in a genre.
@@ -149,10 +149,10 @@ public interface SearchService {
      * @param musicFolders Only return albums from these folders.
      * @return Albums in the genre.
      */
-    public List<Album> getAlbumId3sByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
+    List<Album> getAlbumId3sByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
 
     /**
-     * Returns albums in a genre.
+     * Returns songs in a genre.
      *
      * @since 101.2.0
      * @param offset       Number of songs to skip.
@@ -161,7 +161,7 @@ public interface SearchService {
      * @param musicFolders Only return songs from these folders.
      * @return songs in the genre.
      */
-    public List<MediaFile> getSongsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
+    List<MediaFile> getSongsByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders);
 
     /**
      * Update only artistSort.
@@ -169,6 +169,14 @@ public interface SearchService {
      * @param album contents of update.
      * @since 101.2.0
      */
-    public void updateArtistSort(Album album);
+    void updateArtistSort(Album album);
+
+    /**
+     * Update Genres.
+     * 
+     * @param album contents of update.
+     * @since 101.2.0
+     */
+    void updateGenres();
 
 }

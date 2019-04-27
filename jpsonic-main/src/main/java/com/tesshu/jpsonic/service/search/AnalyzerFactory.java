@@ -19,6 +19,7 @@
 package com.tesshu.jpsonic.service.search;
 
 import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.HiraganaStopFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.Id3ArtistTokenizerFactory;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
@@ -105,6 +106,12 @@ public final class AnalyzerFactory {
         return createPathAnalyzerBuilder().addTokenFilter(PunctuationStemFilterFactory.class);
     }
 
+    private Builder createGenreAnalyzerBuilder() throws IOException {
+        return CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class)
+                .addTokenFilter(CJKWidthFilterFactory.class)
+                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false");
+    }
+
     private Builder createMultiTokenAnalyzerBuilder() throws IOException {
         CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
         builder = basicFilters(builder);
@@ -154,13 +161,14 @@ public final class AnalyzerFactory {
                 Analyzer path = createPathAnalyzerBuilder().build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
+                Analyzer genre = createGenreAnalyzerBuilder().build();
                 Analyzer multiTerm = createMultiTokenAnalyzerBuilder().build();
                 Analyzer artistExceptional = createArtistExceptionalBuilder().build();
                 Analyzer exceptional = createExceptionalBuilder().build();
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.FOLDER, path);
-                analyzerMap.put(FieldNames.GENRE, key);
+                analyzerMap.put(FieldNames.GENRE, genre);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
@@ -187,6 +195,7 @@ public final class AnalyzerFactory {
 
                 Analyzer path = createPathAnalyzerBuilder().build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
+                Analyzer genre = createGenreAnalyzerBuilder().build();
                 Analyzer id3Artist = addWildCard(createId3ArtistAnalyzerBuilder()).build();
                 Analyzer multiTerm = addWildCard(createMultiTokenAnalyzerBuilder()).build();
                 Analyzer artistExceptional = addWildCard(createArtistExceptionalBuilder()).build();
@@ -194,7 +203,7 @@ public final class AnalyzerFactory {
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.FOLDER, path);
-                analyzerMap.put(FieldNames.GENRE, key);
+                analyzerMap.put(FieldNames.GENRE, genre);
                 analyzerMap.put(FieldNames.MEDIA_TYPE, key);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);

@@ -318,4 +318,37 @@ public class QueryFactory {
         return query.build();
 
     }
+
+    public Query getMediasForGenreCount(String genre, boolean isAudio) {
+        // main
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+
+        // @see org.airsonic.player.domain.MediaFile#isAudio
+        if(isAudio) {
+            BooleanQuery.Builder audioQuery = new BooleanQuery.Builder();
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+            query.add(audioQuery.build(), Occur.MUST);
+        }
+
+        // sub - genre
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+        try {
+            TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+            stream.reset();
+            while (stream.incrementToken()) {
+                genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+            }
+            stream.close();
+        } catch (IOException e) {
+            // error case difficult to predict..
+            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+        }
+        query.add(genreQuery.build(), Occur.MUST);
+
+        return query.build();
+
+    }
+
 }

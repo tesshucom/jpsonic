@@ -60,7 +60,6 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
-    @Deprecated
     @Autowired
     private MediaFileDao mediaFileDao;
 
@@ -424,6 +423,68 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public void updateGenres() {
+
+        Map<String, Genre> genres = new HashMap<String, Genre>();
+
+        // song count
+        IndexSearcher searcher = getSearcher(SONG);
+        try {
+            if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
+                TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
+                BytesRef bytesRef = termEnum.next();
+                while (!isEmpty(bytesRef)) {
+                    String name = bytesRef.utf8ToString();
+                    genres.put(name, new Genre(name));
+                    bytesRef = termEnum.next();
+                }
+                Iterator<Genre> values = genres.values().iterator();
+                while (values.hasNext()) {
+                    String name = values.next().getName();
+                    Query query = queryFactory.getMediasForGenreCount(name, true);
+                    int count = searcher.count(query);
+                    genres.get(name).setSongCount(count);
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to update song count for genres.", e);
+        } finally {
+            release(SONG, searcher);
+        }
+
+        // album count
+        searcher = getSearcher(ALBUM);
+        try {
+            if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
+                TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
+                BytesRef bytesRef = termEnum.next();
+                while (!isEmpty(bytesRef)) {
+                    String name = bytesRef.utf8ToString();
+                    if (!genres.containsKey(name)) {
+                        genres.put(name, new Genre(name));
+                    }
+                    bytesRef = termEnum.next();
+                }
+                Iterator<Genre> values = genres.values().iterator();
+                while (values.hasNext()) {
+                    String name = values.next().getName();
+                    Query query = queryFactory.getMediasForGenreCount(name, false);
+                    int count = searcher.count(query);
+                    genres.get(name).setAlbumCount(count);
+                }
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to update song count for genres.", e);
+        } finally {
+            release(ALBUM, searcher);
+        }
+
+        // update db
+        mediaFileDao.updateGenres(genres.values().stream()
+                .collect(Collectors.toList()));
+    }
+
+    @Override
     public List<Album> getAlbumId3sByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders) {
 
         if (isEmpty(genre)) {
@@ -457,20 +518,21 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            release(ALBUM, searcher);
+            release(ALBUM_ID3, searcher);
         }
         return result;
 
     }
 
     private List<MediaFile> getMediasByGenre(String genre, int offset, int count, List<MusicFolder> musicFolders,
-            IndexSearcher searcher, SortField[] sortFields) {
+            IndexType indexType, SortField[] sortFields) {
 
         if (isEmpty(genre)) {
             return Collections.emptyList();
         }
 
         Query query = queryFactory.getMediasByGenre(genre, musicFolders);
+        IndexSearcher searcher = getSearcher(indexType);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
@@ -492,7 +554,7 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            release(ALBUM, searcher);
+            release(indexType, searcher);
         }
         return result;
 
@@ -504,7 +566,7 @@ public class SearchServiceImpl implements SearchService {
                 .filter(n -> n.equals(FieldNames.FOLDER))
                 .map(n -> new SortField(n, SortField.Type.STRING))
                 .toArray(i -> new SortField[i]);
-        return getMediasByGenre(genre, offset, count, musicFolders, getSearcher(ALBUM), sortFields);
+        return getMediasByGenre(genre, offset, count, musicFolders, ALBUM, sortFields);
     }
 
     @Override
@@ -512,7 +574,7 @@ public class SearchServiceImpl implements SearchService {
         SortField[] sortFields = Arrays.stream(SONG.getFields())
                 .map(n -> new SortField(n, SortField.Type.STRING))
                 .toArray(i -> new SortField[i]);
-        return getMediasByGenre(genre, offset, count, musicFolders, getSearcher(SONG), sortFields);
+        return getMediasByGenre(genre, offset, count, musicFolders, SONG, sortFields);
     }
 
 }

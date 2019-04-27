@@ -89,15 +89,17 @@ public class DocumentFactoryTestCase {
         album.setNameSort("nameSort");
         album.setArtist("artist");
         album.setArtistSort("artistSort");
+        album.setGenre("genre");
         album.setFolderId(10);
         Document document = documentFactory.createDocument(album);
-        assertEquals("fields.size", 14, document.getFields().size());
+        assertEquals("fields.size", 16, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "name", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_EX", "name", document.get(FieldNames.ALBUM_EX));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_EX", "artist", document.get(FieldNames.ARTIST_EX));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
+        assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
         assertEquals("FieldNames.FOLDER_ID", "10", document.get(FieldNames.FOLDER_ID));
     }
 
@@ -133,15 +135,17 @@ public class DocumentFactoryTestCase {
         album.setAlbumSort("albumSort");
         album.setArtist("artist");
         album.setArtistSort("artistSort");
+        album.setGenre("genre");
         album.setFolder("folder");
         Document document = documentFactory.createDocument(IndexType.ALBUM, album);
-        assertEquals("fields.size", 13, document.getFields().size());
+        assertEquals("fields.size", 15, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "albumName", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_EX", "albumName", document.get(FieldNames.ALBUM_EX));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_EX", "artist", document.get(FieldNames.ARTIST_EX));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
+        assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
         assertEquals("FieldNames.FOLDER", "folder", document.get(FieldNames.FOLDER));
     }
 
@@ -197,6 +201,7 @@ public class DocumentFactoryTestCase {
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));
         assertNull("FieldNames.ARTIST_EX", document.get(FieldNames.ARTIST_EX));
         assertNull("FieldNames.ARTIST_READING", document.get(FieldNames.ARTIST_READING));
+        assertNull("FieldNames.GENRE", document.get(FieldNames.GENRE));
         assertNull("FieldNames.FOLDER_ID", document.get(FieldNames.FOLDER_ID));
     }
 
@@ -227,6 +232,7 @@ public class DocumentFactoryTestCase {
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));
         assertNull("FieldNames.ARTIST_EX", document.get(FieldNames.ARTIST_EX));
         assertNull("FieldNames.ARTIST_READING", document.get(FieldNames.ARTIST_READING));
+        assertNull("FieldNames.GENRE", document.get(FieldNames.GENRE));
     }
 
     @Test
@@ -272,7 +278,7 @@ public class DocumentFactoryTestCase {
     }
 
     @Test
-    public void testNullMediaSong() {
+    public void testCreateNullMediaSong() {
         MediaFile song = new MediaFile();
         song.setMediaType(MediaType.MUSIC);
         song.setFolder("folder");
