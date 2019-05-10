@@ -15,7 +15,7 @@
 
     <properties>
         <failOnDependencyWarning>true</failOnDependencyWarning>
-        <project.build.sourceEncoding>iso-8859-1</project.build.sourceEncoding>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.2.6</cxf.version>
         <jackson.version>2.9.8</jackson.version>
     </properties>
@@ -87,7 +87,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.5.18.RELEASE</version>
+                <version>1.5.20.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -132,6 +132,49 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>27.1-jre</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jdt</groupId>
+                <artifactId>ecj</artifactId>
+                <version>3.14.0</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!-- Remove once spring boot is updated -->
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-jasper</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-annotations-api</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-jdbc</artifactId>
+                <version>8.5.40</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-juli</artifactId>
+                <version>8.5.40</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -242,7 +285,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
-                    <encoding>ISO-8859-1</encoding>
+                    <encoding>UTF-8</encoding>
                     <verbose>false</verbose>
                     <compilerVersion>1.8</compilerVersion>
                     <showWarnings>true</showWarnings>

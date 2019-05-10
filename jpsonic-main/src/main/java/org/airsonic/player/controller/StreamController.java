@@ -257,7 +257,7 @@ public class StreamController  {
             shouldCatch |= Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
             shouldCatch |= Util.isInstanceOfClassName(e, "org.eclipse.jetty.io.EofException");
             if (shouldCatch) {
-                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(), Util.getURLForRequest(request), e.getCause().toString());
+                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(), Util.getAnonymizedURLForRequest(request), e.getCause().toString());
                 return;
             }
 
@@ -311,7 +311,7 @@ public class StreamController  {
             return file.getFileSize();
         }
 
-        return duration * maxBitRate * 1000L / 8L;
+        return duration * (long)maxBitRate * 1000L / 8L;
     }
 
     private HttpRange getRange(HttpServletRequest request, MediaFile file) {
