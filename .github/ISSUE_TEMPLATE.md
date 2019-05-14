@@ -24,6 +24,7 @@ files, ensure you are legally permitted to share copies!*
  * **Jpsonic version**: *the version listed on the About page*
  * **Operating system**: *the operating system you're running Jpsonic on.
    Linux, what distribution; Windows or Mac, what version?*
+ * **Java version**: *the Java version your using to run Jpsonic.*
  * **Proxy server**: *if running Jpsonic behind a proxy, what server and
    version? Otherwise,* None
  * **Client**: *what browser and version you use to access the Jpsonic web
