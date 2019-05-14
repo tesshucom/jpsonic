@@ -103,6 +103,20 @@ public class IndexTypeTestCase extends TestCase {
     }
 
     @Test
+    public void testGenreBoosts() {
+        assertEquals(1, IndexType.GENRE.getBoosts().size());
+        assertEquals(IndexType.GENRE.getBoosts().get(FieldNames.GENRE_KEY), 1.1F);
+    }
+
+    @Test
+    public void testGenreFields() {
+        assertEquals(2, IndexType.GENRE.getFields().length);
+        assertEquals(0, Arrays.stream(IndexType.GENRE.getFields())
+            .filter(f -> FieldNames.GENRE.equals(f))
+            .filter(f -> FieldNames.GENRE_KEY.equals(f)).count());
+    }
+
+    @Test
     public void testSongBoosts() {
         assertEquals(3, IndexType.SONG.getBoosts().size());
         assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE), 2.3F);

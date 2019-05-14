@@ -74,7 +74,7 @@ public class DocumentFactory {
         doc.add(new SortedDocValuesField(FieldNames.FOLDER, new BytesRef(value)));
     };
 
-    private Document createAlbumDocument(MediaFile mediaFile) {
+    public Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
@@ -88,7 +88,7 @@ public class DocumentFactory {
         return doc;
     }
 
-    private Document createArtistDocument(MediaFile mediaFile) {
+    public Document createArtistDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
@@ -96,6 +96,13 @@ public class DocumentFactory {
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         pathField.accept(doc, mediaFile.getFolder());
+        return doc;
+    }
+
+    public Document createGenreDocument(MediaFile mediaFile) {
+        Document doc = new Document();
+        keyField.accept(doc, FieldNames.GENRE_KEY, mediaFile.getGenre());
+        keyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
         return doc;
     }
 
@@ -123,18 +130,7 @@ public class DocumentFactory {
         return doc;
     }
 
-    public Document createDocument(IndexType indexType, MediaFile mediaFile) {
-        if (IndexType.ALBUM == indexType) {
-            return createAlbumDocument(mediaFile);
-        } else if (IndexType.ARTIST == indexType) {
-            return createArtistDocument(mediaFile);
-        } else if (IndexType.SONG == indexType) {
-            return createSongDocument(mediaFile);
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    private Document createSongDocument(MediaFile mediaFile) {
+    public Document createSongDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());

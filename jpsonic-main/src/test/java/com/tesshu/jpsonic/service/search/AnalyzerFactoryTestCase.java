@@ -105,7 +105,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
      */
     public void testCJKWidth() {
         String query = "ＡＢＣａｂｃｱｲｳ";
-        // String apply1 = "abcabcアイウ";
+        String apply1 = "ABCabcアイウ";
         String apply1a = "abcabc";
         String apply1b = "アイウ";
         String apply2 = "abcabcあいう";
@@ -117,10 +117,14 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("no case : " + n, 0, terms.size());
                     break;
                 case FieldNames.FOLDER:
-                case FieldNames.GENRE:
                 case FieldNames.MEDIA_TYPE:
+                case FieldNames.GENRE_KEY:
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
+                    break;
+                case FieldNames.GENRE:
+                    assertEquals("apply : " + n, 1, terms.size());
+                    assertEquals("apply : " + n, apply1, terms.get(0));
                     break;
                 case FieldNames.TITLE_EX:
                 case FieldNames.ALBUM_EX:
@@ -190,8 +194,8 @@ public class AnalyzerFactoryTestCase extends TestCase {
             List<String> jpStopTerms = toTermString(n, queryJpStop);
             switch (n) {
                 case FieldNames.FOLDER:
-                case FieldNames.GENRE:
                 case FieldNames.MEDIA_TYPE:
+                case FieldNames.GENRE_KEY:
                     assertEquals("through : " + n, 1, articleTerms.size());
                     assertEquals("through : " + n, queryArticle, articleTerms.get(0));
                     assertEquals("through : " + n, 1, indexArticleTerms.size());
@@ -200,6 +204,18 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
                     assertEquals("through : " + n, 1, jpStopTerms.size());
                     assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
+                    break;
+                case FieldNames.GENRE:
+                    assertEquals("through : " + n, 1, articleTerms.size());
+                    assertEquals("through : " + n, queryArticle, articleTerms.get(0));
+                    assertEquals("through : " + n, 1, indexArticleTerms.size());
+                    assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
+                    assertEquals("through : " + n, 1, noStopTerms.size());
+                    assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
+                    //false positives?
+                    assertEquals("??????? : " + n, 2, jpStopTerms.size());
+                    assertEquals("??????? : " + n, "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら", jpStopTerms.get(0));
+                    assertEquals("??????? : " + n, " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ", jpStopTerms.get(1));
                     break;
                 case FieldNames.ARTIST:
                 case FieldNames.ARTIST_READING:
@@ -243,16 +259,24 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
         // Filter operation check only. Verify only some settings.
         String query = "{'“『【【】】[○◎@ $〒→+]";
+        String expected1 = "{'\"『【【】】[○◎@ $〒→+]";
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
+                // Do nothing
                 case FieldNames.FOLDER:
-                case FieldNames.GENRE:
+                case FieldNames.GENRE_KEY:
                 case FieldNames.MEDIA_TYPE:
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
+                case FieldNames.GENRE:
+                    // Some character strings are replaced within the range that does not affect display
+                    assertEquals("through : " + n, 1, terms.size());
+                    assertEquals("apply : " + n, expected1, terms.get(0));
+                    break;
                 default:
+                    // Strings not relevant to the search are removed
                     assertEquals("apply : " + n, 0, terms.size());
                     break;
             }
@@ -272,6 +296,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
         String expected1a = "caesar";
         String expected1b = "シーザー";
         String expected2 = "caesarしいざあ";
+        String expected3 = "Caesarシーザー";
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
@@ -282,7 +307,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
                     assertEquals("no case : " + n, 0, terms.size());
                     break;
                 case FieldNames.FOLDER:
-                case FieldNames.GENRE:
+                case FieldNames.GENRE_KEY:
                 case FieldNames.MEDIA_TYPE:
                     assertEquals("through : " + n, 1, terms.size());
                     assertEquals("through : " + n, query, terms.get(0));
@@ -290,6 +315,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
                 case FieldNames.ARTIST_READING:
                     assertEquals("apply : " + n, 1, terms.size());
                     assertEquals("apply : " + n, expected2, terms.get(0));
+                    break;
+                case FieldNames.GENRE:
+                    assertEquals("apply : " + n, 1, terms.size());
+                    assertEquals("apply : " + n, expected3, terms.get(0));
                     break;
                 case FieldNames.ARTIST:
                 case FieldNames.ALBUM:
@@ -465,13 +494,15 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, escapeRequires);
-            if (FieldNames.FOLDER.equals(n)) {
+            // TODO These fields handle escape strings as they are.
+            if (FieldNames.FOLDER.equals(n) || FieldNames.GENRE_KEY.equals(n) || FieldNames.GENRE.equals(n)) {
                 assertEquals("through : " + n, 1, terms.size());
                 assertEquals("through : " + n, escapeRequires, terms.get(0));
                 terms = toTermString(n, fileUsable);
                 assertEquals("through : " + n, 1, terms.size());
                 assertEquals("through : " + n, fileUsable, terms.get(0));
             } else {
+                // Strings that require escape for most fields are removed during parsing.
                 assertEquals("trancate : " + n, 0, terms.size());
             }
         });

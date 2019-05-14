@@ -305,7 +305,7 @@ public class SubsonicRESTController {
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
 
-        for (MediaFile mediaFile : searchService.getSongsByGenre(genre, offset, count, musicFolders)) {
+        for (MediaFile mediaFile : searchService.getSongsByGenres(genre, offset, count, musicFolders)) {
             songs.getSong().add(createJaxbChild(player, mediaFile, username));
         }
         Response res = createResponse();
@@ -1100,7 +1100,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumsByGenre(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
+            albums = searchService.getAlbumsByGenres(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = mediaFileService.getAlbumsByYear(offset, size, getRequiredIntParameter(request, "fromYear"),
                     getRequiredIntParameter(request, "toYear"), musicFolders);
@@ -1144,7 +1144,7 @@ public class SubsonicRESTController {
         } else if ("alphabeticalByName".equals(type)) {
             albums = albumDao.getAlphabetialAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
-            albums = searchService.getAlbumId3sByGenre(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
+            albums = searchService.getAlbumId3sByGenres(getRequiredStringParameter(request, "genre"), offset, size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = albumDao.getAlbumsByYear(offset, size, getRequiredIntParameter(request, "fromYear"),
                                               getRequiredIntParameter(request, "toYear"), musicFolders);
@@ -1172,12 +1172,17 @@ public class SubsonicRESTController {
 
         int size = getIntParameter(request, "size", 10);
         size = Math.max(0, Math.min(size, 500));
+        // TODO #252
+        List<String> genres = null;
         String genre = getStringParameter(request, "genre");
+        if (null != genre) {
+            genres = Arrays.asList(genre);
+        }
         Integer fromYear = getIntParameter(request, "fromYear");
         Integer toYear = getIntParameter(request, "toYear");
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
-        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genre, fromYear, toYear, musicFolders);
+        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders);
 
         Songs result = new Songs();
         for (MediaFile mediaFile : searchService.getRandomSongs(criteria)) {
