@@ -263,7 +263,7 @@
     </form>
 </c:if>
 
-<a href="https://airsonic.github.io/docs/apps/" target="_blank"><img alt="Apps" src="<c:url value="/icons/default_light/apps.png"/>" style="float: right;margin-left: 3em; margin-right: 3em"/></a>
+<a href="https://airsonic.github.io/docs/apps/" target="_blank" rel="noopener noreferrer"><img alt="Apps" src="<c:url value="/icons/default_light/apps.png"/>" style="float: right;margin-left: 3em; margin-right: 3em"/></a>
 
 <h2>
     <img src="<spring:theme code="androidImage"/>" alt=""/>
@@ -304,7 +304,7 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <input type="checkbox" checked name="unzip" id="unzip" class="checkbox"/>
+                    <input type="checkbox" checked name="unzip" id="unzip"/>
                     <label for="unzip"><fmt:message key="more.upload.unzip"/></label>
                 </td>
             </tr>

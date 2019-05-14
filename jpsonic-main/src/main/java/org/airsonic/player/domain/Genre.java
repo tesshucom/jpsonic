@@ -53,11 +53,11 @@ public class Genre {
         return albumCount;
     }
 
-    public void incrementAlbumCount() {
-        albumCount++;
+    public void setAlbumCount(int albumCount) {
+        this.albumCount = albumCount;
     }
 
-    public void incrementSongCount() {
-        songCount++;
+    public void setSongCount(int songCount) {
+        this.songCount = songCount;
     }
 }

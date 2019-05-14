@@ -120,29 +120,36 @@ public class QueryFactory {
      */
     public Query getRandomSongs(RandomSearchCriteria criteria) {
 
-        BooleanQuery.Builder booleanQuery = new BooleanQuery.Builder();
-        booleanQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+        query.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
 
-        String genre = criteria.getGenre();
-        if (!isEmpty(criteria.getGenre())) {
-            try {
-                if (!isEmpty(genre)) {
-                    TokenStream stream = AnalyzerFactory.getInstance().getAnalyzer().tokenStream(FieldNames.GENRE, genre);
-                    stream.reset();
-                    while (stream.incrementToken()) {
-                        genre = stream.getAttribute(CharTermAttribute.class).toString();
+
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+        List<String> genres = criteria.getGenres();
+        if(!isEmpty(genres)) {
+            genres.forEach(genre -> {
+                if (!isEmpty(criteria.getGenres())) {
+                    try {
+                        if (!isEmpty(genre)) {
+                            TokenStream stream = AnalyzerFactory.getInstance().getAnalyzer().tokenStream(FieldNames.GENRE, genre);
+                            stream.reset();
+                            while (stream.incrementToken()) {
+                                genre = stream.getAttribute(CharTermAttribute.class).toString();
+                            }
+                            stream.close();
+                        }
+                    } catch (IOException e) {
+                        // error case difficult to predict..
+                        LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
                     }
-                    stream.close();
+                    genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, genre)), Occur.SHOULD);
                 }
-            } catch (IOException e) {
-                // error case difficult to predict..
-                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
-            }
-            booleanQuery.add(new TermQuery(new Term(FieldNames.GENRE, genre)), Occur.MUST);
+            });
+            query.add(genreQuery.build(), Occur.MUST);
         }
 
         if (!(isEmpty(criteria.getFromYear()) && isEmpty(criteria.getToYear()))) {
-            booleanQuery.add(IntPoint.newRangeQuery(FieldNames.YEAR, 
+            query.add(IntPoint.newRangeQuery(FieldNames.YEAR, 
                 isEmpty(criteria.getFromYear())
                     ? Integer.MIN_VALUE
                     : criteria.getFromYear(),
@@ -155,9 +162,9 @@ public class QueryFactory {
         BooleanQuery.Builder subQuery = new BooleanQuery.Builder();
         criteria.getMusicFolders().forEach(musicFolder ->
             subQuery.add(new TermQuery(new Term(FieldNames.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
-        booleanQuery.add(subQuery.build(), Occur.MUST);
+        query.add(subQuery.build(), Occur.MUST);
 
-        return booleanQuery.build();
+        return query.build();
 
     }
 
@@ -246,32 +253,32 @@ public class QueryFactory {
         return booleanQuery.build();
 
     }
-    
+
     /**
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
      * @param musicFolders
      */
-    public Query getAlbumId3sByGenre(String genre, List<MusicFolder> musicFolders) {
+    public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) {
 
         // main
         BooleanQuery.Builder query = new BooleanQuery.Builder();
 
         // sub - genre
-        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-        try {
-            if (!isEmpty(genre)) {
-                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+        if (!isEmpty(genres)) {
+            BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+            try {
+                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genres);
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
                 }
                 stream.close();
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
             }
-        } catch (IOException e) {
-            // error case difficult to predict..
-            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            query.add(genreQuery.build(), Occur.MUST);
         }
-        query.add(genreQuery.build(), Occur.MUST);
 
         // sub - folder
         BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
@@ -288,27 +295,27 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
-    public Query getMediasByGenre(String genre, List<MusicFolder> musicFolders) {
+    public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) {
 
         // main
         BooleanQuery.Builder query = new BooleanQuery.Builder();
 
         // sub - genre
-        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-        try {
-            if (!isEmpty(genre)) {
-                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
-                stream.reset();
-                while (stream.incrementToken()) {
-                    genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
-                }
-                stream.close();
+        if (!isEmpty(genres)) {
+            BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+            try {
+                    TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genres);
+                    stream.reset();
+                    while (stream.incrementToken()) {
+                        genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                    }
+                    stream.close();
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
             }
-        } catch (IOException e) {
-            // error case difficult to predict..
-            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            query.add(genreQuery.build(), Occur.MUST);
         }
-        query.add(genreQuery.build(), Occur.MUST);
 
         // sub - folder
         BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
@@ -318,4 +325,66 @@ public class QueryFactory {
         return query.build();
 
     }
+
+    public Query getMediasForGenreCount(String genre, boolean isAudio) {
+        // main
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+
+        // @see org.airsonic.player.domain.MediaFile#isAudio
+        if(isAudio) {
+            BooleanQuery.Builder audioQuery = new BooleanQuery.Builder();
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+            query.add(audioQuery.build(), Occur.MUST);
+        }
+
+        // sub - genre
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+        try {
+            TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+            stream.reset();
+            while (stream.incrementToken()) {
+                genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+            }
+            stream.close();
+        } catch (IOException e) {
+            // error case difficult to predict..
+            LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+        }
+        query.add(genreQuery.build(), Occur.MUST);
+
+        return query.build();
+
+    }
+
+    public Query toPreAnalyzedGenres(List<String> genres) {
+
+        // main
+        BooleanQuery.Builder query = new BooleanQuery.Builder();
+
+        // sub - genre
+        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
+
+        genres.forEach(genre -> {
+
+            try {
+                if (!isEmpty(genre)) {
+                    TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+                    stream.reset();
+                    while (stream.incrementToken()) {
+                        genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                    }
+                    stream.close();
+                }
+            } catch (IOException e) {
+                // error case difficult to predict..
+                LoggerFactory.getLogger(QueryFactory.class).warn("Error during query analysis.", e);
+            }
+        });
+        query.add(genreQuery.build(), Occur.MUST);
+
+        return query.build();
+    }
+    
 }

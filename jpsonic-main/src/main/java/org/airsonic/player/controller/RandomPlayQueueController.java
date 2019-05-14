@@ -19,12 +19,15 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.service.search.IndexManager;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -48,6 +51,8 @@ import java.util.*;
 @RequestMapping("/randomPlayQueue.view")
 public class RandomPlayQueueController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
+
     @Autowired
     private PlayerService playerService;
     @Autowired
@@ -56,6 +61,8 @@ public class RandomPlayQueueController {
     private SecurityService securityService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private IndexManager indexManager;
 
     @RequestMapping(method = RequestMethod.POST)
     protected String handleRandomPlayQueue(
@@ -211,10 +218,21 @@ public class RandomPlayQueueController {
         // Do we add to the current playlist or do we replace it?
         boolean shouldAddToPlayList = request.getParameter("addToPlaylist") != null;
 
+        List<String> genres = null;
+        if (null != genre) {
+            List<String> preAnalyzeds = indexManager.toPreAnalyzedGenres(Arrays.asList(genre));
+            if (0 != preAnalyzeds.size()) {
+                genres = preAnalyzeds;
+            } else {
+                // #267 Invalid search for genre containing specific string
+                LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+            }
+        }
+
         // Search the database using these criteria
         RandomSearchCriteria criteria = new RandomSearchCriteria(
                 size,
-                genre,
+                genres,
                 fromYear,
                 toYear,
                 musicFolders,

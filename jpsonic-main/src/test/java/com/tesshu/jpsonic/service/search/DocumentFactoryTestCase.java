@@ -71,16 +71,6 @@ public class DocumentFactoryTestCase {
     @Autowired
     private DocumentFactory documentFactory;
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAlbum3Unsupported() {
-        documentFactory.createDocument(IndexType.ALBUM_ID3, new MediaFile());
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void testArtistd3Unsupported() {
-        documentFactory.createDocument(IndexType.ARTIST_ID3, new MediaFile());
-    }
-
     @Test
     public void testCreateAlbum() {
         Album album = new Album();
@@ -89,15 +79,17 @@ public class DocumentFactoryTestCase {
         album.setNameSort("nameSort");
         album.setArtist("artist");
         album.setArtistSort("artistSort");
+        album.setGenre("genre");
         album.setFolderId(10);
         Document document = documentFactory.createDocument(album);
-        assertEquals("fields.size", 14, document.getFields().size());
+        assertEquals("fields.size", 16, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "name", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_EX", "name", document.get(FieldNames.ALBUM_EX));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_EX", "artist", document.get(FieldNames.ARTIST_EX));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
+        assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
         assertEquals("FieldNames.FOLDER_ID", "10", document.get(FieldNames.FOLDER_ID));
     }
 
@@ -133,15 +125,17 @@ public class DocumentFactoryTestCase {
         album.setAlbumSort("albumSort");
         album.setArtist("artist");
         album.setArtistSort("artistSort");
+        album.setGenre("genre");
         album.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.ALBUM, album);
-        assertEquals("fields.size", 13, document.getFields().size());
+        Document document = documentFactory.createAlbumDocument(album);
+        assertEquals("fields.size", 15, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ALBUM", "albumName", document.get(FieldNames.ALBUM));
         assertEquals("FieldNames.ALBUM_EX", "albumName", document.get(FieldNames.ALBUM_EX));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
         assertEquals("FieldNames.ARTIST_EX", "artist", document.get(FieldNames.ARTIST_EX));
         assertEquals("FieldNames.ARTIST_READING", "artistSort", document.get(FieldNames.ARTIST_READING));
+        assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
         assertEquals("FieldNames.FOLDER", "folder", document.get(FieldNames.FOLDER));
     }
 
@@ -152,7 +146,7 @@ public class DocumentFactoryTestCase {
         artist.setArtist("artist");
         artist.setArtistSort("artistSort");
         artist.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.ARTIST, artist);
+        Document document = documentFactory.createArtistDocument(artist);
         assertEquals("fields.size", 9, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
@@ -173,7 +167,7 @@ public class DocumentFactoryTestCase {
         song.setGenre("genre");
         song.setYear(2000);
         song.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.SONG, song);
+        Document document = documentFactory.createSongDocument(song);
         assertEquals("fields.size", 20, document.getFields().size());
         assertEquals("FieldNames.ID", "1", document.get(FieldNames.ID));
         assertEquals("FieldNames.ARTIST", "artist", document.get(FieldNames.ARTIST));
@@ -188,6 +182,17 @@ public class DocumentFactoryTestCase {
     }
 
     @Test
+    public void testCreateGenreDocument() {
+        MediaFile song = new MediaFile();
+        song.setId(1);
+        song.setGenre("genre");
+        Document document = documentFactory.createGenreDocument(song);
+        assertEquals("fields.size", 4, document.getFields().size());
+        assertEquals("FieldNames.GENRE_KEY", "genre", document.get(FieldNames.GENRE_KEY));
+        assertEquals("FieldNames.GENRE", "genre", document.get(FieldNames.GENRE));
+    }
+
+    @Test
     public void testCreateNullAlbum() {
         Document document = documentFactory.createDocument(new Album());
         assertEquals("fields.size", 1, document.getFields().size());
@@ -197,6 +202,7 @@ public class DocumentFactoryTestCase {
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));
         assertNull("FieldNames.ARTIST_EX", document.get(FieldNames.ARTIST_EX));
         assertNull("FieldNames.ARTIST_READING", document.get(FieldNames.ARTIST_READING));
+        assertNull("FieldNames.GENRE", document.get(FieldNames.GENRE));
         assertNull("FieldNames.FOLDER_ID", document.get(FieldNames.FOLDER_ID));
     }
 
@@ -219,7 +225,7 @@ public class DocumentFactoryTestCase {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.ALBUM);
         mediaFile.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.ALBUM, mediaFile);
+        Document document = documentFactory.createAlbumDocument(mediaFile);
         assertEquals("fields.size", 3, document.getFields().size());
         assertEquals("FieldNames.ID", "0", document.get(FieldNames.ID)); // Because domain getter is int type
         assertNull("FieldNames.ALBUM", document.get(FieldNames.ALBUM));
@@ -227,6 +233,7 @@ public class DocumentFactoryTestCase {
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));
         assertNull("FieldNames.ARTIST_EX", document.get(FieldNames.ARTIST_EX));
         assertNull("FieldNames.ARTIST_READING", document.get(FieldNames.ARTIST_READING));
+        assertNull("FieldNames.GENRE", document.get(FieldNames.GENRE));
     }
 
     @Test
@@ -234,7 +241,7 @@ public class DocumentFactoryTestCase {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.DIRECTORY);
         mediaFile.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.ARTIST, mediaFile);
+        Document document = documentFactory.createArtistDocument(mediaFile);
         assertEquals("fields.size", 3, document.getFields().size());
         assertEquals("FieldNames.ID", "0", document.get(FieldNames.ID)); // Because domain getter is int type
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));
@@ -246,14 +253,14 @@ public class DocumentFactoryTestCase {
     public void testMediaFileAlbumNullFolder() {
         MediaFile mediaFile = new MediaFile();
         assertNull("Folder is a required item.", mediaFile.getFolder());
-        documentFactory.createDocument(IndexType.ALBUM, mediaFile);
+        documentFactory.createAlbumDocument(mediaFile);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testMediaFileArtistNullFolder() {
         MediaFile mediaFile = new MediaFile();
         assertNull("Folder is a required item.", mediaFile.getFolder());
-        documentFactory.createDocument(IndexType.ARTIST, mediaFile);
+        documentFactory.createArtistDocument(mediaFile);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -261,22 +268,22 @@ public class DocumentFactoryTestCase {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setMediaType(MediaType.MUSIC);
         assertNull("Folder is a required item.", mediaFile.getFolder());
-        documentFactory.createDocument(IndexType.SONG, mediaFile);
+        documentFactory.createSongDocument(mediaFile);
     }
 
     @Test(expected = NullPointerException.class)
     public void testMediaFileSongNullPointer() {
         MediaFile mediaFile = new MediaFile();
         assertNull("MediaType is a required item.", mediaFile.getMediaType());
-        documentFactory.createDocument(IndexType.SONG, mediaFile);
+        documentFactory.createSongDocument(mediaFile);
     }
 
     @Test
-    public void testNullMediaSong() {
+    public void testCreateNullMediaSong() {
         MediaFile song = new MediaFile();
         song.setMediaType(MediaType.MUSIC);
         song.setFolder("folder");
-        Document document = documentFactory.createDocument(IndexType.SONG, song);
+        Document document = documentFactory.createSongDocument(song);
         assertEquals("fields.size", 5, document.getFields().size());
         assertEquals("FieldNames.ID", "0", document.get(FieldNames.ID)); // Because domain getter is int type
         assertNull("FieldNames.ARTIST", document.get(FieldNames.ARTIST));

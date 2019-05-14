@@ -100,7 +100,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     public  List<MediaFile> getChildren(Genre item) {
         List<MusicFolder> allFolders = getDispatcher().getSettingsService().getAllMusicFolders();
-        return searchService.getSongsByGenre(item.getName(), 0, Integer.MAX_VALUE, allFolders);
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, allFolders);
     }
 
     public void addChild(DIDLContent didl, MediaFile child) throws Exception {

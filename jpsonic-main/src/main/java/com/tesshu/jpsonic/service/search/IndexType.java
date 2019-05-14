@@ -87,6 +87,13 @@ public enum IndexType {
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
+    GENRE(
+        fieldNames(
+                FieldNames.GENRE_KEY,
+                FieldNames.GENRE),
+        boosts(
+            entry(FieldNames.GENRE_KEY, 1.1F))),
+
     ;
 
     public static final class FieldNames {
@@ -112,7 +119,7 @@ public enum IndexType {
         public static final String YEAR =                    "y";
 
         /**
-         * A field same to a legacy server, key field that holds the normalized string.
+         * Multi Field to be tokenized by referring to id3 specification.
          * @since 1.0
          **/
         public static final String GENRE =                   "g";
@@ -175,6 +182,13 @@ public enum IndexType {
          * @since 1.1
          */
         public static final String TITLE_EX =          "titEX";
+
+        /**
+         * Jpsonic specific assistance field.
+         * Key field that holds the normalized string.
+         * @since 1.1
+         */
+        public static final String GENRE_KEY =          "gk";
 
     }
 
