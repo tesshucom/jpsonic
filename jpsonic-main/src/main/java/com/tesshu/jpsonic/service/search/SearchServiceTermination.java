@@ -31,6 +31,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.index.Term;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -141,6 +142,22 @@ public class SearchServiceTermination {
 
     public final BiFunction<String, IndexType, File> getDirectory = (version, indexType) -> {
         return new File(getRootDirectory.apply(version), indexType.toString().toLowerCase());
+    };
+
+    public final Term createPrimarykey(Album album) {
+      return new Term(FieldNames.ID, Integer.toString(album.getId()));
+    };
+
+    public final Term createPrimarykey(Artist artist) {
+      return new Term(FieldNames.ID, Integer.toString(artist.getId()));
+    };
+
+    public final Term createPrimarykey(MediaFile mediaFile) {
+      return new Term(FieldNames.ID, Integer.toString(mediaFile.getId()));
+    };
+
+    public final Term createPrimarykey(String genre) {
+      return new Term(FieldNames.GENRE_KEY, genre);
     };
 
     public final boolean addIgnoreNull(Collection<?> collection, Object object) {

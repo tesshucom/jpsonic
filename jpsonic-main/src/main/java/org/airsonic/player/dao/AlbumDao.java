@@ -359,6 +359,10 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
+    public List<Album> getExpungementCandidate() {
+        return query("select " + QUERY_COLUMNS + " from album where not present", rowMapper);
+    }
+
     public void expunge() {
         int minId = queryForInt("select min(id) from album where not present", 0);
         int maxId = queryForInt("select max(id) from album where not present", 0);

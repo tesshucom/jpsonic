@@ -23,7 +23,6 @@ package com.tesshu.jpsonic.service;
 import com.tesshu.jpsonic.service.search.*;
 import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 
-import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.apache.lucene.document.Document;
@@ -49,9 +48,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
-
-    @Autowired
-    private MediaFileDao mediaFileDao;
 
     @Autowired
     private QueryFactory queryFactory;
@@ -92,6 +88,11 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public void stopIndexing() {
         deligate.stopIndexing();
+    }
+
+    @Override
+    public List<Genre> getGenres(boolean sortByAlbum) {
+        return deligate.getGenres(sortByAlbum);
     }
 
     @Override
@@ -272,11 +273,6 @@ public class SearchServiceImpl implements SearchService {
 
         return Collections.emptyList();
 
-    }
-
-    @Override
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
     }
 
     @Override

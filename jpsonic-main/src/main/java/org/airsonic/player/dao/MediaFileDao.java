@@ -763,6 +763,10 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
+    public List<MediaFile> getExpungementCandidate() {
+        return query("select " + QUERY_COLUMNS + " from media_file where not present", rowMapper);
+    }
+
     public void expunge() {
         int minId = queryForInt("select min(id) from media_file where not present", 0);
         int maxId = queryForInt("select max(id) from media_file where not present", 0);
