@@ -3,6 +3,18 @@
 # jpsonic/jpsonic
 # -->
 
+## v102.0.0
+#### Based on *airsonic 10.3.1-RELEASE*
+
+> [10.3.1-RELEASE]
+> 
+> Bug fixes, resource saving fixes, security fixes, codebase modernization, docker image update, support for Java 9 and greater etc.
+
+  * Security update (jetty:CVE-2019-10241, CVE-2019-10246)
+  * [fix] Fixed a bug that property may be overwritten with values ​​other than firstChild when updating artistSort of AlbumId3.
+  * [update] Added processing to delete unnecessary data from lucene index when scanning.
+  * [update] Added multi genre support.
+
 ## v101.1.0
 #### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
 
