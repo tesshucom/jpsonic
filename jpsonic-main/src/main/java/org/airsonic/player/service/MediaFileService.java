@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import com.tesshu.jpsonic.service.search.IndexManager;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -75,7 +76,7 @@ public class MediaFileService {
     @Autowired
     private ArtistDao artistDao;
     @Autowired
-    private SearchService searchService;
+    private IndexManager indexManager;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -238,16 +239,6 @@ public class MediaFileService {
     }
 
     /**
-     * Returns all genres in the music collection.
-     *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
-     * @return Sorted list of genres.
-     */
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
-
-    /**
      * Returns the most frequently played albums.
      *
      * @param offset       Number of albums to skip.
@@ -321,19 +312,6 @@ public class MediaFileService {
      */
     public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear, List<MusicFolder> musicFolders) {
         return mediaFileDao.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
-    }
-
-    /**
-     * Returns albums in a genre.
-     *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param genre        The genre name.
-     * @param musicFolders Only return albums in these folders.
-     * @return Albums in the genre.
-     */
-    public List<MediaFile> getAlbumsByGenre(int offset, int count, String genre, List<MusicFolder> musicFolders) {
-        return mediaFileDao.getAlbumsByGenre(offset, count, genre, musicFolders);
     }
 
     /**
@@ -745,7 +723,7 @@ public class MediaFileService {
             updated += mediaFileDao.updateArtistSort(toBeUpdate.getArtist(), toBeUpdate.getArtistSort());
             // update index
             MediaFile artist = mediaFileDao.getMediaFile(toBeUpdate.getId());
-            searchService.index(artist);
+            indexManager.index(artist);
         }
         LOG.info(toBeUpdates.size() + " update candidates for file structure artistSort. " + updated + " rows reversal.");
 
@@ -758,7 +736,7 @@ public class MediaFileService {
             artistDao.createOrUpdateArtist(artist);
             maybe++;
             // update index
-            folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> searchService.index(artist, m));
+            folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
         }
         LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. " + maybe + " rows reversal.");
 
@@ -773,7 +751,7 @@ public class MediaFileService {
                 artistDao.createOrUpdateArtist(artist);
                 maybe++;
                 // update index
-                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> searchService.index(artist, m));
+                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
             }
         }
         LOG.info(candidatesid3.size() + " update candidates for id3 albumArtistSort. " + maybe + " rows reversal.");
@@ -785,7 +763,7 @@ public class MediaFileService {
                 // update db
                 updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), mediaFileJPSupport.cleanUp(candidate.getSort()));
                 // update index
-                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> searchService.index(artist, m));
+                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
                 maybe++;
             } else {
                 LOG.info(" > " + candidate.getName() + "@" + candidate.getSort() + " does not exist in id 3.");
@@ -807,7 +785,7 @@ public class MediaFileService {
     		updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
     		// update index
             MediaFile album = mediaFileDao.getMediaFile(toBeUpdate.getId());
-            searchService.index(album);
+            indexManager.index(album);
     	}
         LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. "+ updated +" rows reversal.");
 
@@ -819,8 +797,8 @@ public class MediaFileService {
     			album.setArtistSort(null == artist.getSort() ? artist.getReading() : artist.getSort());
                 // update db
     			albumDao.createOrUpdateAlbum(album);
-                // update index
-    			searchService.index(album);
+                // update artistSort only.
+    			indexManager.updateArtistSort(album);
     			maybe++;
     		}
     	}
@@ -835,7 +813,7 @@ public class MediaFileService {
                 // update db
 				albumDao.createOrUpdateAlbum(albumid3);
 	            // update index
-                searchService.index(album);
+				indexManager.index(album);
 				maybe++;
 			} else {
 				LOG.info(" > " + album.getAlbumName() + "@" + album.getArtist() + 

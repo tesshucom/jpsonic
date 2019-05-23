@@ -33,7 +33,7 @@ import java.util.List;
 public class RandomSearchCriteria {
 
     private final int count;
-    private final String genre;
+    private final List<String> genres;
     private final Integer fromYear;
     private final Integer toYear;
     private final List<MusicFolder> musicFolders;
@@ -51,14 +51,14 @@ public class RandomSearchCriteria {
      * Creates a new instance.
      *
      * @param count        Maximum number of songs to return.
-     * @param genre        Only return songs of the given genre. May be <code>null</code>.
+     * @param genres       Only return songs of the given genre. May be <code>null</code>.
      * @param fromYear     Only return songs released after (or in) this year. May be <code>null</code>.
      * @param toYear       Only return songs released before (or in) this year. May be <code>null</code>.
      * @param musicFolders Only return songs from these music folder. May NOT be <code>null</code>.
      */
-    public RandomSearchCriteria(int count, String genre, Integer fromYear, Integer toYear, List<MusicFolder> musicFolders) {
+    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear, List<MusicFolder> musicFolders) {
         this(
-            count, genre, fromYear, toYear, musicFolders,
+            count, genres, fromYear, toYear, musicFolders,
             null, null, null, null, null, null, true, true, null
         );
     }
@@ -67,7 +67,7 @@ public class RandomSearchCriteria {
      * Creates a new instance.
      *
      * @param count              Maximum number of songs to return.
-     * @param genre              Only return songs of the given genre. May be <code>null</code>.
+     * @param genres             Only return songs of the given genre. May be <code>null</code>.
      * @param fromYear           Only return songs released after (or in) this year. May be <code>null</code>.
      * @param toYear             Only return songs released before (or in) this year. May be <code>null</code>.
      * @param musicFolders       Only return songs from these music folder. May NOT be <code>null</code>.
@@ -83,7 +83,7 @@ public class RandomSearchCriteria {
      */
     public RandomSearchCriteria(
             int count,
-            String genre,
+            List<String> genres,
             Integer fromYear,
             Integer toYear,
             List<MusicFolder> musicFolders,
@@ -99,7 +99,7 @@ public class RandomSearchCriteria {
     ) {
 
         this.count = count;
-        this.genre = genre;
+        this.genres = genres;
         this.fromYear = fromYear;
         this.toYear = toYear;
         this.musicFolders = musicFolders;
@@ -118,8 +118,8 @@ public class RandomSearchCriteria {
         return count;
     }
 
-    public String getGenre() {
-        return genre;
+    public List<String> getGenres() {
+        return genres;
     }
 
     public Integer getFromYear() {

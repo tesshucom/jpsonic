@@ -556,7 +556,7 @@ public class MediaFileDao extends AbstractDao {
         args.put("username", username);
         args.put("fromYear", criteria.getFromYear());
         args.put("toYear", criteria.getToYear());
-        args.put("genre", criteria.getGenre());
+        args.put("genres", criteria.getGenres());
         args.put("minLastPlayed", criteria.getMinLastPlayedDate());
         args.put("maxLastPlayed", criteria.getMaxLastPlayedDate());
         args.put("minAlbumRating", criteria.getMinAlbumRating());
@@ -587,8 +587,8 @@ public class MediaFileDao extends AbstractDao {
             query += " and media_file.folder in (:folders)";
         }
 
-        if (criteria.getGenre() != null) {
-            query += " and media_file.genre = :genre";
+        if (criteria.getGenres() != null) {
+            query += " and media_file.genre in (:genres)";
         }
 
         if (criteria.getFormat() != null) {
@@ -760,6 +760,10 @@ public class MediaFileDao extends AbstractDao {
             update("update media_file set present=false, children_last_updated=? where id between ? and ? and last_scanned != ? and present",
                    childrenLastUpdated, id, id + batchSize, lastScanned);
         }
+    }
+
+    public List<MediaFile> getExpungementCandidate() {
+        return query("select " + QUERY_COLUMNS + " from media_file where not present", rowMapper);
     }
 
     public void expunge() {

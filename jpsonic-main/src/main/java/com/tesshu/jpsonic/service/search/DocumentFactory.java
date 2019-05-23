@@ -32,7 +32,7 @@ public class DocumentFactory {
      * @since 1.0
      **/
     public static final String getVersion() {
-        return "1.0";
+        return "1.1";
     }
 
     private Consumer<Document, String, String> termField = (doc, fieldName, value) -> {
@@ -74,39 +74,47 @@ public class DocumentFactory {
         doc.add(new SortedDocValuesField(FieldNames.FOLDER, new BytesRef(value)));
     };
 
-    @SuppressWarnings("deprecation")
-    private Document createAlbumDocument(MediaFile mediaFile) {
+    public Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
-        termField.accept(doc, FieldNames.ALBUM_FULL, mediaFile.getAlbumName());
-        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, mediaFile.getAlbumName());
+        termField.accept(doc, FieldNames.ALBUM_EX, mediaFile.getAlbumName());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
+        nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
     }
 
-    private Document createArtistDocument(MediaFile mediaFile) {
+    public Document createArtistDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         pathField.accept(doc, mediaFile.getFolder());
         return doc;
     }
 
-    @SuppressWarnings("deprecation")
+    public Document createGenreDocument(MediaFile mediaFile) {
+        Document doc = new Document();
+        keyField.accept(doc, FieldNames.GENRE_KEY, mediaFile.getGenre());
+        keyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
+        return doc;
+    }
+
     public Document createDocument(Album album) {
         Document doc = new Document();
         idField.accept(doc, album.getId());
         termField.accept(doc, FieldNames.ALBUM, album.getName());
-        termField.accept(doc, FieldNames.ALBUM_FULL, album.getName());
-        termField.accept(doc, FieldNames.ALBUM_READING_HIRAGANA, album.getName());
+        termField.accept(doc, FieldNames.ALBUM_EX, album.getName());
         termField.accept(doc, FieldNames.ARTIST, album.getArtist());
+        termField.accept(doc, FieldNames.ARTIST_EX, album.getArtist());
         termField.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
+        nullableKeyField.accept(doc, FieldNames.GENRE, album.getGenre());
         numberField.accept(doc, FieldNames.FOLDER_ID, album.getFolderId());
         return doc;
     }
@@ -115,33 +123,23 @@ public class DocumentFactory {
         Document doc = new Document();
         idField.accept(doc, artist.getId());
         termField.accept(doc, FieldNames.ARTIST, artist.getName());
+        termField.accept(doc, FieldNames.ARTIST_EX, artist.getName());
         String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         numberField.accept(doc, FieldNames.FOLDER_ID, musicFolder.getId());
         return doc;
     }
 
-    public Document createDocument(IndexType indexType, MediaFile mediaFile) {
-        if (IndexType.ALBUM == indexType) {
-            return createAlbumDocument(mediaFile);
-        } else if (IndexType.ARTIST == indexType) {
-            return createArtistDocument(mediaFile);
-        } else if (IndexType.SONG == indexType) {
-            return createSongDocument(mediaFile);
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    @SuppressWarnings("deprecation")
-    private Document createSongDocument(MediaFile mediaFile) {
+    public Document createSongDocument(MediaFile mediaFile) {
         Document doc = new Document();
         idField.accept(doc, mediaFile.getId());
         termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
         termField.accept(doc, FieldNames.ARTIST_READING, reading);
         keyField.accept(doc, FieldNames.MEDIA_TYPE, mediaFile.getMediaType().name());
         termField.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
-        termField.accept(doc, FieldNames.TITLE_READING_HIRAGANA, mediaFile.getTitle());
+        termField.accept(doc, FieldNames.TITLE_EX, mediaFile.getTitle());
         nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
         numberField.accept(doc, FieldNames.YEAR, mediaFile.getYear());
         pathField.accept(doc, mediaFile.getFolder());

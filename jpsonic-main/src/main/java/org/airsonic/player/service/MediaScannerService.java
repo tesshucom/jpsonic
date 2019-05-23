@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import com.tesshu.jpsonic.service.search.IndexManager;
 
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -38,6 +39,7 @@ import javax.annotation.PostConstruct;
 
 import java.io.File;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Provides services for scanning the music library.
@@ -57,6 +59,8 @@ public class MediaScannerService {
     private SettingsService settingsService;
     @Autowired
     private SearchService searchService;
+    @Autowired
+    private IndexManager indexManager;
     @Autowired
     private PlaylistService playlistService;
     @Autowired
@@ -177,7 +181,6 @@ public class MediaScannerService {
 
             // Maps from artist name to album count.
             Map<String, Integer> albumCount = new HashMap<String, Integer>();
-            Genres genres = new Genres();
 
             scanCount = 0;
             statistics.reset();
@@ -190,14 +193,14 @@ public class MediaScannerService {
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : settingsService.getAllMusicFolders()) {
                 MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath(), false);
-                scanFile(root, musicFolder, lastScanned, albumCount, genres, false);
+                scanFile(root, musicFolder, lastScanned, albumCount, false);
             }
 
             // Scan podcast folder.
             File podcastFolder = new File(settingsService.getPodcastFolder());
             if (podcastFolder.exists()) {
                 scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                         lastScanned, albumCount, genres, true);
+                         lastScanned, albumCount, true);
             }
 
             LOG.info("Scanned media library with " + scanCount + " entries.");
@@ -215,9 +218,6 @@ public class MediaScannerService {
                 statistics.incrementAlbums(albums);
             }
 
-            // Update genres
-            mediaFileDao.updateGenres(genres.getGenres());
-
             // Update artistSort
             mediaFileService.updateArtistSort();
 
@@ -227,20 +227,26 @@ public class MediaScannerService {
             settingsService.setMediaLibraryStatistics(statistics);
             settingsService.setLastScanned(lastScanned);
             settingsService.save(false);
+
+            searchService.stopIndexing();
+
+            // Update genres after stopIndexing (After closing IndexWriter, reader is available)
+            indexManager.updateGenres();
+
             LOG.info("Completed media library scan.");
 
         } catch (Throwable x) {
             LOG.error("Failed to scan media library.", x);
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
-            searchService.stopIndexing();
+
             scanning = false;
             mediaFileJPSupport.clear();
         }
     }
 
     private void scanFile(MediaFile file, MusicFolder musicFolder, Date lastScanned,
-                          Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
+                          Map<String, Integer> albumCount, boolean isPodcast) {
         scanCount++;
         if (scanCount % 250 == 0) {
             LOG.info("Scanned media library with " + scanCount + " entries.");
@@ -258,10 +264,10 @@ public class MediaScannerService {
 
         if (file.isDirectory()) {
             for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false)) {
-                scanFile(child, musicFolder, lastScanned, albumCount, genres, isPodcast);
+                scanFile(child, musicFolder, lastScanned, albumCount, isPodcast);
             }
             for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false)) {
-                scanFile(child, musicFolder, lastScanned, albumCount, genres, isPodcast);
+                scanFile(child, musicFolder, lastScanned, albumCount, isPodcast);
             }
         } else {
             if (!isPodcast) {
@@ -271,7 +277,6 @@ public class MediaScannerService {
             statistics.incrementSongs(1);
         }
 
-        updateGenres(file, genres);
         mediaFileDao.markPresent(file.getPath(), lastScanned);
         artistDao.markPresent(file.getAlbumArtist(), lastScanned);
 
@@ -280,19 +285,6 @@ public class MediaScannerService {
         }
         if (file.getFileSize() != null) {
             statistics.incrementTotalLengthInBytes(file.getFileSize());
-        }
-    }
-
-    private void updateGenres(MediaFile file, Genres genres) {
-        String genre = file.getGenre();
-        if (genre == null) {
-            return;
-        }
-        if (file.isAlbum()) {
-            genres.incrementAlbumCount(genre);
-        }
-        else if (file.isAudio()) {
-            genres.incrementSongCount(genre);
         }
     }
 
@@ -402,8 +394,9 @@ public class MediaScannerService {
     private void deleteOldIndexFiles() {
         File current = getIndexFile();
         LOG.info("Currently used index file (" + (FileUtil.exists(current) ? "exists" : "not exists") + "): " + current.getAbsolutePath());
+        final Pattern INDEX_FILE_NAME_PATTERN = Pattern.compile("^" + SearchService.INDEX_FILE_PREFIX + ".*$");
         Arrays.stream(SettingsService.getJpsonicHome().listFiles((f, n) ->
-            SearchService.INDEX_FILE_NAME_PATTERN.matcher(n).matches())).forEach(maybeOld -> {
+            INDEX_FILE_NAME_PATTERN.matcher(n).matches())).forEach(maybeOld -> {
             try {
                 if (FileUtil.exists(maybeOld) && !maybeOld.getName().equals(current.getName())) {
                     LOG.info("Found old index file: " + maybeOld.getAbsolutePath());

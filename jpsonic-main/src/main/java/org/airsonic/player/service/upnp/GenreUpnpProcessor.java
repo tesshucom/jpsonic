@@ -22,12 +22,14 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.SearchService;
 import org.airsonic.player.util.Util;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,6 +40,9 @@ import java.util.List;
  */
 @Service
 public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
+
+    @Autowired
+    private SearchService searchService;
 
     public GenreUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_GENRE_PREFIX);
@@ -81,7 +86,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
     }
 
     public List<Genre> getAllItems() {
-        return getDispatcher().getMediaFileService().getGenres(false);
+        return searchService.getGenres(false);
     }
 
     public Genre getItemById(String id) {
@@ -95,7 +100,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     public  List<MediaFile> getChildren(Genre item) {
         List<MusicFolder> allFolders = getDispatcher().getSettingsService().getAllMusicFolders();
-        return getDispatcher().getMediaFileProcessor().getMediaFileDao().getSongsByGenre(item.getName(), 0, Integer.MAX_VALUE, allFolders);
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, allFolders);
     }
 
     public void addChild(DIDLContent didl, MediaFile child) throws Exception {
