@@ -4,7 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value="/script/scripts-2.0.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
     <script type="text/javascript" language="javascript">
         function enableLdapFields() {
             $("#ldap").is(":checked") ? $("#ldapTable").show() : $("#ldapTable").hide();
@@ -96,7 +96,7 @@
     <table class="indent">
         <tr>
             <td colspan="2">
-                <form:checkbox path="captchaEnabled" id="enablecaptcha" cssclass="checkbox"/>
+                <form:checkbox path="captchaEnabled" id="enablecaptcha"/>
                 <label for="enablecaptcha">
                     <fmt:message key="advancedsettings.enableCaptcha"/>
                 </label>
@@ -122,7 +122,7 @@
     </table>
 
     <table class="indent"><tr><td>
-        <form:checkbox path="ldapEnabled" id="ldap" cssClass="checkbox" onclick="enableLdapFields()"/>
+        <form:checkbox path="ldapEnabled" id="ldap" onclick="enableLdapFields()"/>
         <label for="ldap"><fmt:message key="advancedsettings.ldapenabled"/></label>
         <c:import url="helpToolTip.jsp"><c:param name="topic" value="ldap"/></c:import>
     </td></tr></table>

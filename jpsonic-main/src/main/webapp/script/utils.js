@@ -1,8 +1,3 @@
-
-//
-// REMEMBER TO UPDATE VERSION WHEN CHANGING THIS SCRIPT, IN ORDER FOR BROWSERS TO REFRESH IT.
-//
-
 var entityMap = {
     "&": "&amp;",
     "<": "&lt;",
@@ -16,9 +11,6 @@ function escapeHtml(string) {
     return String(string).replace(/[&<>"'\/]/g, function (s) {
         return entityMap[s];
     });
-}
-
-function noop() {
 }
 
 function popup(mylink, windowname) {
@@ -39,3 +31,12 @@ function popupSize(mylink, windowname, width, height) {
     return false;
 }
 
+function updateQueryStringParameter(uri, key, value) {
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    if (uri.match(re)) {
+        return uri.replace(re, '$1' + key + "=" + value + '$2');
+    } else {
+        var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+        return uri + separator + key + "=" + value;
+    }
+}
