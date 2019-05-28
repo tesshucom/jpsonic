@@ -11,7 +11,7 @@
 > Bug fixes, resource saving fixes, security fixes, codebase modernization, docker image update, support for Java 9 and greater etc.
 
   * Security update (jetty:CVE-2019-10241, CVE-2019-10246)
-  * [fix] Fixed a bug that property may be overwritten with values ​​other than firstChild when updating artistSort of AlbumId3.
+  * [fix] Fixed a bug that property may be overwritten with values other than firstChild when updating artistSort of AlbumId3.
   * [update] Added processing to delete unnecessary data from lucene index when scanning.
   * [update] Added multi genre support.
 
