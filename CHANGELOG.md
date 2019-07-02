@@ -3,6 +3,20 @@
 # jpsonic/jpsonic
 # -->
 
+## v103.0.0
+#### Based on *airsonic 10.4.0-SNAPSHOT 2bfaea2*
+
+> [2bfaea2]
+> 
+> Security fixes, codebase modernization etc.
+
+  * Security update (spring:CVE-2019-11272&CVE-2019-11272, tomcat:CVE-2019-10072, jackson:CVE-2019-12814)
+  * Migrate travis environment from oraclejdk to openjdk.
+  * Remove Flash related implementation.
+  * Various minor fixes related to javascript.
+  * Streaming test enhancements
+  etc
+
 ## v102.0.0
 #### Based on *airsonic 10.3.1-RELEASE*
 
