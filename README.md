@@ -24,7 +24,7 @@ Features
 -----------------
 
 Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
-The default language is set to JP so as to be intimate with Japanese people, but you can use other languages â€‹â€‹depending on your choice.
+The default language is set to JP so as to be intimate with Japanese people, but you can use other languages â€‹â?‹depending on your choice.
 
 ### index
 
@@ -89,6 +89,11 @@ Jpsonic is free software and licensed under the [GNU General Public License vers
 
 The [Subsonic source code](https://github.com/airsonic/subsonic-svn) was released under the GPLv3 through version 6.0-beta1. Beginning with 6.0-beta2, source is no longer provided. Binaries of Subsonic are only available under a commercial license. There is a [Subsonic Premium](http://www.subsonic.org/pages/premium.jsp) service which adds functionality not available in Airsonic. Subsonic also offers RPM, Deb, Exe, and other pre-built packages that Airsonic [currently does not](https://github.com/airsonic/airsonic/issues/65).
 
+The cover zooming feature is provided by [jquery.fancyzoom](https://github.com/keegnotrub/jquery.fancyzoom),
+released under [MIT License](http://www.opensource.org/licenses/mit-license.php).
+
+The icons are from the amazing [feather](https://feathericons.com/) project,
+and are licensed under [MIT license](https://github.com/feathericons/feather/blob/master/LICENSE).
 
 Usage
 -----

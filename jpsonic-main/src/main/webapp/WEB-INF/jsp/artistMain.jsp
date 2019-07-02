@@ -18,7 +18,7 @@
   ~  Copyright 2014 (C) Sindre Mehus
   --%>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%--@elvariable id="model" type="java.util.Map"--%>
 
 <html><head>
@@ -28,8 +28,7 @@
     <script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/dwr/interface/starService.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/dwr/interface/multiService.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/script/fancyzoom/FancyZoom.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/script/fancyzoom/FancyZoomHTML.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/script/jquery.fancyzoom.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
 
 </head><body class="mainframe bgcolor1" onload="init();">
@@ -39,7 +38,9 @@
     var topSongs;
 
     function init() {
-        setupZoom('<c:url value="/"/>');
+        $("a.fancy").fancyZoom({
+            minBorder: 30
+        });
 
         <c:if test="${model.showArtistInfo}">
         loadArtistInfo();
@@ -68,7 +69,10 @@
             if (artistInfo.artistBio && artistInfo.artistBio.biography) {
                 $("#artistBio").append(artistInfo.artistBio.biography);
                 if (artistInfo.artistBio.largeImageUrl) {
-                    $("#artistImage").attr("src", artistInfo.artistBio.largeImageUrl);
+                    $("#artistImage").attr({
+                          "src": artistInfo.artistBio.largeImageUrl,
+                          "class": "fancy"
+                    });
                     $("#artistImageZoom").attr("href", artistInfo.artistBio.largeImageUrl);
                     $("#artistImage").show();
                     $("#artistInfoTable").show();
@@ -160,8 +164,8 @@
 
 <div style="float:left">
     <h1>
-        <img id="starImage" src="<spring:theme code="${not empty model.dir.starredDate ? 'ratingOnImage' : 'ratingOffImage'}"/>"
-             onclick="toggleStar(${model.dir.id}, '#starImage'); return false;" style="cursor:pointer" alt="">
+        <img id="starImage" style="height:18px" src="<spring:theme code="${not empty model.dir.starredDate ? 'ratingOnImage' : 'ratingOffImage'}"/>"
+             onclick="toggleStar(${model.dir.id}, '#starImage'); return false;" style="cursor:pointer;height:18px;" alt="">
 
         <span style="vertical-align: middle">
             <c:forEach items="${model.ancestors}" var="ancestor">
@@ -317,7 +321,7 @@
     <tbody id="topSongsBody">
     <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
         <td class="fit">
-            <img id="starSong" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" src="<spring:theme code="ratingOffImage"/>"
+            <img id="starSong" style="height:18px;" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" src="<spring:theme code="ratingOffImage"/>"
                  style="cursor:pointer" alt="" title=""></td>
         <td class="fit">
             <img id="play" src="<spring:theme code="playImage"/>" alt="<fmt:message key="common.play"/>" title="<fmt:message key="common.play"/>"

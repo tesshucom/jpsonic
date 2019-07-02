@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <%--@elvariable id="model" type="java.util.Map"--%>
 
 <html><head>
@@ -9,8 +9,7 @@
     <script type="text/javascript" src="<c:url value="/dwr/interface/starService.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/dwr/interface/playlistService.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/dwr/interface/multiService.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/script/fancyzoom/FancyZoom.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/script/fancyzoom/FancyZoomHTML.js"/>"></script>
+    <script type="text/javascript" src="<c:url value="/script/jquery.fancyzoom.js"/>"></script>
     <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
 
 </head><body class="mainframe bgcolor1" onload="init();">
@@ -24,7 +23,9 @@
 
 <script type="text/javascript" language="javascript">
     function init() {
-        setupZoom('<c:url value="/"/>');
+        $("a.fancy").fancyZoom({
+            minBorder: 30
+        });
 
         $("#dialog-select-playlist").dialog({resizable: true, height: 350, autoOpen: false,
             buttons: {
@@ -163,7 +164,7 @@
 <div style="float:left">
     <h1>
         <img id="starImage" src="<spring:theme code="${not empty model.dir.starredDate ? 'ratingOnImage' : 'ratingOffImage'}"/>"
-             onclick="toggleStar(${model.dir.id}, '#starImage'); return false;" style="cursor:pointer" alt="">
+             onclick="toggleStar(${model.dir.id}, '#starImage'); return false;" style="cursor:pointer;height:18px;" alt="">
 
         <span style="vertical-align: middle">
             <c:forEach items="${model.ancestors}" var="ancestor">
@@ -238,7 +239,7 @@
     </c:if>
 
     <c:if test="${model.user.shareRole}">
-        <span class="header"><a href="${shareUrl}"><img src="<spring:theme code="shareSmallImage"/>" alt=""></a>
+        <span class="header"><a href="${shareUrl}"><img src="<spring:theme code="shareSmallImage"/>" style="height:18px;" alt=""></a>
             <a href="${shareUrl}"><fmt:message key="main.sharealbum"/></a> </span> |
     </c:if>
 
@@ -436,7 +437,7 @@
                     </tr>
                 </c:forEach>
                 <c:if test="${model.viewAsList}">
-                    <c:forEach items="${model.sieblingAlbums}" var="album" varStatus="loopStatus">
+                    <c:forEach items="${model.siblingAlbums}" var="album" varStatus="loopStatus">
                         <tr>
                             <c:import url="playButtons.jsp">
                                 <c:param name="id" value="${album.id}"/>
@@ -460,7 +461,7 @@
 
 <c:if test="${not model.viewAsList}">
     <div style="float: left">
-        <c:forEach items="${model.sieblingAlbums}" var="album" varStatus="loopStatus">
+        <c:forEach items="${model.siblingAlbums}" var="album" varStatus="loopStatus">
             <div class="albumThumb">
                 <c:import url="coverArt.jsp">
                     <c:param name="albumId" value="${album.id}"/>

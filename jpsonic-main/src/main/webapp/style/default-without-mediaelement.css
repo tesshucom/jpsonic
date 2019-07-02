@@ -205,7 +205,7 @@ input[type=submit]:active, input[type=button]:active {
 }
 
 input[type=checkbox] {
-	border: 0;
+  border: 0;
 }
 
 input:hover, textarea:hover, select:hover {
@@ -272,7 +272,7 @@ img {
 }
 
 .monospace {
-	font-family: monospace;
+  font-family: monospace;
 }
 
 .dropshadow {
@@ -374,8 +374,14 @@ img {
     background-image:url("../icons/default_light/back.png");
 }
 
-.forward {
-    background-image:url("../icons/default_light/forward.png");
+.forward:before {
+    background-image:url("../icons/default_light/chevron.svg");
+    background-size: 16px 16px;
+    width: 16px;
+    height: 16px;
+    content: "";
+    display: inline-block;
+    vertical-align: -20%;
 }
 
 .albumComment {
@@ -440,3 +446,9 @@ img {
     width : 200px;
     height : 4px;
 }
+
+/* Javascript-zoom related styles */
+#zoom { position: absolute; display: none; z-index: 499; -webkit-box-shadow: 0px 5px 25px #000; -moz-box-shadow: 0px 5px 25px #000; box-shadow: 0px 5px 25px #000; }
+#zoom_img { display: block; cursor: pointer; width: 100%; border: 0; margin: 0; padding: 0; }
+#zoom_close { position: absolute; display: none; cursor: pointer; left: -15px; top: -15px; width: 30px; height: 30px; background: url(/script/closebox.png) no-repeat; }
+#zoom_spin { position: absolute; display: none; z-index: 525; width: 50px; height: 50px; background: url(/script/spin.png) no-repeat; }

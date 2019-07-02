@@ -19,8 +19,6 @@
  */
 package org.airsonic.player.service.metadata;
 
-import com.tesshu.jpsonic.tagger.tag.FieldKeyExtension;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;
@@ -39,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.File;
 import java.util.SortedSet;
@@ -188,6 +187,74 @@ public class JaudiotaggerParser extends MetaDataParser {
                     metaData.setAlbumArtist(metaData.getArtist());
                 }
 
+<<<<<<< HEAD:jpsonic-main/src/main/java/org/airsonic/player/service/metadata/JaudiotaggerParser.java
+=======
+                metaData.setArtist(getTagField(tag, FieldKey.ARTIST));
+                metaData.setAlbumArtist(getTagField(tag, FieldKey.ALBUM_ARTIST));
+
+                if (tag instanceof AbstractID3Tag && 0 < audioFile.getTag().getFieldCount()) {
+
+                    AbstractID3Tag id3Tag = (AbstractID3Tag)tag;
+                    if (ID3v24Tag.RELEASE == id3Tag.getRelease()
+                            && ID3v24Tag.MAJOR_VERSION == id3Tag.getMajorVersion()
+                            && ID3v24Tag.REVISION == id3Tag.getRevision()) {
+
+                        audioFile.getTag().getFields().forEachRemaining(f -> {
+                            switch (f.getId()) {
+                                case ID3v24Frames.FRAME_ID_ALBUM:
+                                    if (StringUtils.isBlank(metaData.getAlbumName())) {
+                                        metaData.setAlbumName(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_TITLE:
+                                    if (StringUtils.isBlank(metaData.getTitle())) {
+                                        metaData.setTitle(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_YEAR:
+                                    if (ObjectUtils.isEmpty(metaData.getYear())) {
+                                        metaData.setYear(parseYear(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_GENRE:
+                                    if (StringUtils.isBlank(metaData.getGenre())) {
+                                        metaData.setGenre(mapGenre(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_SET:
+                                    if (ObjectUtils.isEmpty(metaData.getDiscNumber())) {
+                                        metaData.setDiscNumber(parseInteger(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_TRACK:
+                                    if (ObjectUtils.isEmpty(metaData.getTrackNumber())) {
+                                        metaData.setTrackNumber(parseTrackNumber(f.toString()));
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ARTIST:
+                                    if (StringUtils.isBlank(metaData.getArtist())) {
+                                        metaData.setArtist(f.toString());
+                                    }
+                                    break;
+                                case ID3v24Frames.FRAME_ID_ACCOMPANIMENT:
+                                    if (StringUtils.isBlank(metaData.getAlbumArtist())) {
+                                        metaData.setAlbumArtist(f.toString());
+                                    }
+                                    break;
+                                default:
+                                    break;
+                            }
+                        });
+                    }
+                }
+                if (StringUtils.isBlank(metaData.getArtist())) {
+                    metaData.setArtist(metaData.getAlbumArtist());
+                }
+                if (StringUtils.isBlank(metaData.getAlbumArtist())) {
+                    metaData.setAlbumArtist(metaData.getArtist());
+                }
+
+>>>>>>> upstream/master:airsonic-main/src/main/java/org/airsonic/player/service/metadata/JaudiotaggerParser.java
             }
 
             AudioHeader audioHeader = audioFile.getAudioHeader();

@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.LastModified;
 
 import javax.servlet.http.HttpServletRequest;
@@ -87,7 +87,7 @@ public class DownloadController implements LastModified {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET)
+    @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         User user = securityService.getCurrentUser(request);
@@ -235,7 +235,7 @@ public class DownloadController implements LastModified {
         for (MediaFile mediaFile : filesToDownload) {
             zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
             if (coverArtFile != null && coverArtFile.exists()) {
-                if (mediaFile.getFile().getCanonicalPath() == coverArtFile.getCanonicalPath()) {
+                if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
                     cover_embedded = true;
                 }
             }
