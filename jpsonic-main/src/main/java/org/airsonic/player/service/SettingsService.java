@@ -83,7 +83,6 @@ public class SettingsService {
     private static final String KEY_PODCAST_EPISODE_DOWNLOAD_COUNT = "PodcastEpisodeDownloadCount";
     private static final String KEY_DOWNLOAD_BITRATE_LIMIT = "DownloadBitrateLimit";
     private static final String KEY_UPLOAD_BITRATE_LIMIT = "UploadBitrateLimit";
-    private static final String KEY_ENABLE_SEEK = "EnableSeek1";
     private static final String KEY_DOWNSAMPLING_COMMAND = "DownsamplingCommand4";
     private static final String KEY_HLS_COMMAND = "HlsCommand3";
     private static final String KEY_JUKEBOX_COMMAND = "JukeboxCommand2";
@@ -409,7 +408,7 @@ public class SettingsService {
         setProperty(KEY_PLAYLIST_FOLDER, playlistFolder);
     }
 
-    public String getMusicFileTypes() {
+    public synchronized String getMusicFileTypes() {
         return getProperty(KEY_MUSIC_FILE_TYPES, DEFAULT_MUSIC_FILE_TYPES);
     }
 
@@ -425,7 +424,7 @@ public class SettingsService {
         return cachedMusicFileTypesArray;
     }
 
-    public String getVideoFileTypes() {
+    public synchronized String getVideoFileTypes() {
         return getProperty(KEY_VIDEO_FILE_TYPES, DEFAULT_VIDEO_FILE_TYPES);
     }
 
@@ -441,7 +440,7 @@ public class SettingsService {
         return cachedVideoFileTypesArray;
     }
 
-    public String getCoverArtFileTypes() {
+    public synchronized String getCoverArtFileTypes() {
         return getProperty(KEY_COVER_ART_FILE_TYPES, DEFAULT_COVER_ART_FILE_TYPES);
     }
 
@@ -617,14 +616,6 @@ public class SettingsService {
         setLong(KEY_UPLOAD_BITRATE_LIMIT, limit);
     }
 
-    public boolean isEnableSeek() {
-        return getBoolean(KEY_ENABLE_SEEK, DEFAULT_ENABLE_SEEK);
-    }
-
-    public void setEnableSeek(boolean enableSeek) {
-        setBoolean(KEY_ENABLE_SEEK, enableSeek);
-    }
-
     public String getDownsamplingCommand() {
         return getProperty(KEY_DOWNSAMPLING_COMMAND, DEFAULT_DOWNSAMPLING_COMMAND);
     }
@@ -766,7 +757,7 @@ public class SettingsService {
     }
 
     private void compileExcludePattern() {
-        if (getExcludePatternString() != null && getExcludePatternString().trim().length() > 0) {
+        if (getExcludePatternString() != null && !getExcludePatternString().trim().isEmpty()) {
             excludePattern = Pattern.compile(getExcludePatternString());
         } else {
             excludePattern = null;
