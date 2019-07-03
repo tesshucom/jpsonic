@@ -66,12 +66,10 @@ public class UserSettingsController {
     private SettingsService settingsService;
     @Autowired
     private TranscodingService transcodingService;
-    @Autowired
-    private UserSettingsValidator userSettingsValidator;
 
     @InitBinder
-    protected void initBinder(WebDataBinder binder) {
-        binder.addValidators(userSettingsValidator);
+    protected void initBinder(WebDataBinder binder, HttpServletRequest request) {
+        binder.addValidators(new UserSettingsValidator(securityService, settingsService, request));
     }
 
     @GetMapping
@@ -87,6 +85,7 @@ public class UserSettingsController {
                 UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
                 command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
                 command.setAllowedMusicFolderIds(Util.toIntArray(getAllowedMusicFolderIds(user)));
+                command.setCurrentUser(securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
             } else {
                 command.setNewUser(true);
                 command.setStreamRole(true);

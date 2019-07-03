@@ -1,6 +1,24 @@
-package com.tesshu.jpsonic.service.search;
+/*
+ This file is part of Airsonic.
 
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+ Airsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Airsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2016 (C) Airsonic Authors
+ Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ */
+
+package org.airsonic.player.service.search;
 
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -46,21 +64,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.service.search.IndexType.ALBUM;
-import static com.tesshu.jpsonic.service.search.IndexType.ALBUM_ID3;
-import static com.tesshu.jpsonic.service.search.IndexType.ARTIST;
-import static com.tesshu.jpsonic.service.search.IndexType.ARTIST_ID3;
-import static com.tesshu.jpsonic.service.search.IndexType.GENRE;
-import static com.tesshu.jpsonic.service.search.IndexType.SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-/*
+/**
  * Function class that is strongly linked to the lucene index implementation.
  * Legacy has an implementation in SearchService.
  * 
  * If the index CRUD and search functionality are in the same class,
  * there is often a dependency conflict on the class used.
- * 
  * Although the interface of SearchService is left to maintain the legacy implementation,
  * it is desirable that methods of index operations other than search essentially use this class directly.
  */
@@ -89,7 +100,10 @@ public class IndexManager {
     private DocumentFactory documentFactory;
 
     @Autowired
-    private SearchServiceTermination termination;
+    private SearchServiceUtilities util;
+
+    @Autowired
+    private AnalyzerFactory analyzerFactory;
 
     /**
      * @since 101.1.0
@@ -102,15 +116,15 @@ public class IndexManager {
     public String INDEX_PRODUCT_VERSION = "7.7.1";
 
     private final IndexWriter createIndexWriter(IndexType indexType) throws IOException {
-        File dir = termination.getDirectory.apply(getVersion(), indexType);
-        IndexWriterConfig config = new IndexWriterConfig(AnalyzerFactory.getInstance().getAnalyzer());
+        File dir = util.getDirectory.apply(getVersion(), indexType);
+        IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
         return new IndexWriter(FSDirectory.open(dir.toPath()), config);
     }
 
     public /* @Nullable */ IndexSearcher getSearcher(IndexType indexType) {
         if (!searcherManagerMap.containsKey(indexType)) {
             synchronized (searcherManagerMap) {
-                File indexDirectory = termination.getDirectory.apply(getVersion(), indexType);
+                File indexDirectory = util.getDirectory.apply(getVersion(), indexType);
                 try {
                     if (indexDirectory.exists()) {
                         SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
@@ -142,8 +156,8 @@ public class IndexManager {
 
     public void index(Album album) {
         try {
-            Term primarykey = termination.createPrimarykey(album);
-            indexWriterMap.get(ALBUM_ID3).updateDocument(primarykey, documentFactory.createDocument(album));
+            Term primarykey = util.createPrimarykey(album);
+            indexWriterMap.get(IndexType.ALBUM_ID3).updateDocument(primarykey, documentFactory.createDocument(album));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
         }
@@ -151,8 +165,8 @@ public class IndexManager {
 
     public void index(Artist artist, MusicFolder musicFolder) {
         try {
-            Term primarykey = termination.createPrimarykey(artist);
-            indexWriterMap.get(ARTIST_ID3).updateDocument(primarykey, documentFactory.createDocument(artist, musicFolder));
+            Term primarykey = util.createPrimarykey(artist);
+            indexWriterMap.get(IndexType.ARTIST_ID3).updateDocument(primarykey, documentFactory.createDocument(artist, musicFolder));
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + artist, x);
         }
@@ -161,17 +175,17 @@ public class IndexManager {
     public void index(MediaFile mediaFile) {
         
         try {
-            Term primarykey = termination.createPrimarykey(mediaFile);
+            Term primarykey = util.createPrimarykey(mediaFile);
             if (mediaFile.isFile()) {
-                indexWriterMap.get(SONG).updateDocument(primarykey, documentFactory.createSongDocument(mediaFile));
+                indexWriterMap.get(IndexType.SONG).updateDocument(primarykey, documentFactory.createSongDocument(mediaFile));
             } else if (mediaFile.isAlbum()) {
-                indexWriterMap.get(ALBUM).updateDocument(primarykey, documentFactory.createAlbumDocument(mediaFile));
+                indexWriterMap.get(IndexType.ALBUM).updateDocument(primarykey, documentFactory.createAlbumDocument(mediaFile));
             } else {
-                indexWriterMap.get(ARTIST).updateDocument(primarykey, documentFactory.createArtistDocument(mediaFile));
+                indexWriterMap.get(IndexType.ARTIST).updateDocument(primarykey, documentFactory.createArtistDocument(mediaFile));
             }
             if (!isEmpty(mediaFile.getGenre())) {
-                primarykey = termination.createPrimarykey(mediaFile.getGenre());
-                indexWriterMap.get(GENRE).updateDocument(primarykey, documentFactory.createGenreDocument(mediaFile));
+                primarykey = util.createPrimarykey(mediaFile.getGenre());
+                indexWriterMap.get(IndexType.GENRE).updateDocument(primarykey, documentFactory.createGenreDocument(mediaFile));
             }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + mediaFile, x);
@@ -198,30 +212,30 @@ public class IndexManager {
                 || MediaType.PODCAST == m.getMediaType()
                 || MediaType.AUDIOBOOK == m.getMediaType()
                 || MediaType.VIDEO == m.getMediaType())
-            .map(m -> termination.createPrimarykey(m))
+            .map(m -> util.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(SONG).deleteDocuments(primarykeys);
+            indexWriterMap.get(IndexType.SONG).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
 
         primarykeys = mediaFiles.stream()
             .filter(m -> MediaType.ALBUM == m.getMediaType())
-            .map(m -> termination.createPrimarykey(m))
+            .map(m -> util.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(ALBUM).deleteDocuments(primarykeys);
+            indexWriterMap.get(IndexType.ALBUM).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
 
         List<Artist> artists = artistDao.getExpungementCandidate();
         primarykeys = artists.stream()
-            .map(m -> termination.createPrimarykey(m))
+            .map(m -> util.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(ARTIST_ID3).deleteDocuments(primarykeys);
+            indexWriterMap.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
@@ -229,10 +243,10 @@ public class IndexManager {
         List<Album> albums = albumDao.getExpungementCandidate();
 
         primarykeys = albums.stream()
-            .map(m -> termination.createPrimarykey(m))
+            .map(m -> util.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(ARTIST_ID3).deleteDocuments(primarykeys);
+            indexWriterMap.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete albumId3 doc.", e);
         }
@@ -242,13 +256,13 @@ public class IndexManager {
     public final void startIndexing() {
         try {
 
-            indexWriterMap.put(ARTIST, createIndexWriter(ARTIST));
-            indexWriterMap.put(ARTIST_ID3, createIndexWriter(ARTIST_ID3));
-            indexWriterMap.put(ALBUM, createIndexWriter(ALBUM));
-            indexWriterMap.put(ALBUM_ID3, createIndexWriter(ALBUM_ID3));
-            indexWriterMap.put(SONG, createIndexWriter(SONG));
-            indexWriterMap.put(GENRE, createIndexWriter(GENRE));
-            indexWriterMap.get(GENRE).deleteAll();
+            indexWriterMap.put(IndexType.ARTIST, createIndexWriter(IndexType.ARTIST));
+            indexWriterMap.put(IndexType.ARTIST_ID3, createIndexWriter(IndexType.ARTIST_ID3));
+            indexWriterMap.put(IndexType.ALBUM, createIndexWriter(IndexType.ALBUM));
+            indexWriterMap.put(IndexType.ALBUM_ID3, createIndexWriter(IndexType.ALBUM_ID3));
+            indexWriterMap.put(IndexType.SONG, createIndexWriter(IndexType.SONG));
+            indexWriterMap.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
+            indexWriterMap.get(IndexType.GENRE).deleteAll();
 
         } catch (IOException e) {
             LOG.error("Failed to create search index.", e);
@@ -259,12 +273,12 @@ public class IndexManager {
 
         expunge();
 
-        stopIndexing(ARTIST);
-        stopIndexing(ARTIST_ID3);
-        stopIndexing(ALBUM);
-        stopIndexing(ALBUM_ID3);
-        stopIndexing(SONG);
-        stopIndexing(GENRE);
+        stopIndexing(IndexType.ARTIST);
+        stopIndexing(IndexType.ARTIST_ID3);
+        stopIndexing(IndexType.ALBUM);
+        stopIndexing(IndexType.ALBUM_ID3);
+        stopIndexing(IndexType.SONG);
+        stopIndexing(IndexType.GENRE);
 
     }
 
@@ -313,7 +327,7 @@ public class IndexManager {
         }
 
         final Query query = queryFactory.toPreAnalyzedGenres(genres);
-        IndexSearcher searcher = getSearcher(GENRE);
+        IndexSearcher searcher = getSearcher(IndexType.GENRE);
         if(isEmpty(searcher)) {
             return Collections.emptyList();
         }
@@ -321,7 +335,7 @@ public class IndexManager {
         List<String> result = new ArrayList<>();
         try {
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            int totalHits = termination.round.apply(topDocs.totalHits);
+            int totalHits = util.round.apply(topDocs.totalHits);
             for (int i = 0; i < totalHits; i++) {
                 IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc).getFields(FieldNames.GENRE_KEY);
                 if (!isEmpty(fields)) {
@@ -336,7 +350,7 @@ public class IndexManager {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            release(GENRE, searcher);
+            release(IndexType.GENRE, searcher);
         }
         return result;
     }
@@ -347,7 +361,7 @@ public class IndexManager {
                 Term term = new Term(FieldNames.ID, Integer.toString(album.getId()));
                 Field field = new TextField(FieldNames.ARTIST_READING, album.getArtistSort(), Store.YES);
                 Field field2 = new SortedDocValuesField(FieldNames.ARTIST_READING, new BytesRef(album.getArtistSort()));
-                indexWriterMap.get(ALBUM_ID3).updateDocValues(term, field, field2);
+                indexWriterMap.get(IndexType.ALBUM_ID3).updateDocValues(term, field, field2);
             }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
@@ -365,7 +379,7 @@ public class IndexManager {
         Map<String, Genre> genres = new HashMap<String, Genre>();
 
         // song count
-        IndexSearcher searcher = getSearcher(SONG);
+        IndexSearcher searcher = getSearcher(IndexType.SONG);
         try {
             if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
                 TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
@@ -386,11 +400,11 @@ public class IndexManager {
         } catch (IOException e) {
             LOG.error("Failed to update song count for genres.", e);
         } finally {
-            release(SONG, searcher);
+            release(IndexType.SONG, searcher);
         }
 
         // album count
-        searcher = getSearcher(ALBUM);
+        searcher = getSearcher(IndexType.ALBUM);
         try {
             if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
                 TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
@@ -413,7 +427,7 @@ public class IndexManager {
         } catch (IOException e) {
             LOG.error("Failed to update song count for genres.", e);
         } finally {
-            release(ALBUM, searcher);
+            release(IndexType.ALBUM, searcher);
         }
 
         // update db

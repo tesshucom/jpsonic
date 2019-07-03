@@ -16,13 +16,11 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.search;
+package org.airsonic.player.service.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNull;
-
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
 
 import java.io.File;
 import java.util.Date;

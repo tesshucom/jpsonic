@@ -21,12 +21,12 @@ package org.airsonic.player.service;
 
 import com.sonos.services._1.*;
 import com.sonos.services._1_1.SonosSoap;
-import com.tesshu.jpsonic.service.search.IndexType;
 
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
+import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.service.sonos.SonosServiceRegistration;
 import org.airsonic.player.service.sonos.SonosSoapFault;

@@ -1,24 +1,24 @@
 /*
- This file is part of Jpsonic.
+ This file is part of Airsonic.
 
- Jpsonic is free software: you can redistribute it and/or modify
+ Airsonic is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- Jpsonic is distributed in the hope that it will be useful,
+ Airsonic is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+ along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
 
- Copyright 2019 (C) tesshu.com
+ Copyright 2016 (C) Airsonic Authors
+ Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package com.tesshu.jpsonic.service.search;
 
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+package org.airsonic.player.service.search;
 
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -43,11 +43,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static com.tesshu.jpsonic.service.search.IndexType.ALBUM;
-import static com.tesshu.jpsonic.service.search.IndexType.ALBUM_ID3;
-import static com.tesshu.jpsonic.service.search.IndexType.ARTIST;
-import static com.tesshu.jpsonic.service.search.IndexType.ARTIST_ID3;
-import static com.tesshu.jpsonic.service.search.IndexType.SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -57,11 +52,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * there are many redundant descriptions different from essential data processing.
  * This class is a transfer class for saving those redundant descriptions.
  * 
- * Methods and function such as unimportant data interchange and conversion are consolidated.
- * Processing with exceptions should not be described.
+ * Exception handling is not termination,
+ * so do not include exception handling in this class.
  */
 @Component
-public class SearchServiceTermination {
+public class SearchServiceUtilities {
 
     /* Search by id only. */
     @Autowired
@@ -165,22 +160,22 @@ public class SearchServiceTermination {
     }
 
     public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType, int subjectId) {
-        if (indexType == ALBUM) {
+        if (indexType == IndexType.ALBUM) {
             return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
-        } else if (indexType == ALBUM_ID3) {
+        } else if (indexType == IndexType.ALBUM_ID3) {
             return addIgnoreNull(collection, albumDao.getAlbum(subjectId));
         }
         return false;
     }
 
     public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType, int subjectId, Class<T> subjectClass) {
-        if (indexType == SONG) {
+        if (indexType == IndexType.SONG) {
             MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
-        } else if (indexType == ARTIST_ID3) {
+        } else if (indexType == IndexType.ARTIST_ID3) {
             Artist artist = artistDao.getArtist(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(artist));
-        } else if (indexType == ALBUM_ID3) {
+        } else if (indexType == IndexType.ALBUM_ID3) {
             Album album = albumDao.getAlbum(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(album));
         }
@@ -188,11 +183,11 @@ public class SearchServiceTermination {
 
     public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType, Document subject) {
         int documentId = getId.apply(subject);
-        if (subjectIndexType == ARTIST | subjectIndexType == ALBUM | subjectIndexType == SONG) {
+        if (subjectIndexType == IndexType.ARTIST | subjectIndexType == IndexType.ALBUM | subjectIndexType == IndexType.SONG) {
             addMediaFileIfAnyMatch.accept(dist.getMediaFiles(), documentId);
-        } else if (subjectIndexType == ARTIST_ID3) {
+        } else if (subjectIndexType == IndexType.ARTIST_ID3) {
             addArtistId3IfAnyMatch.accept(dist.getArtists(), documentId);
-        } else if (subjectIndexType == ALBUM_ID3) {
+        } else if (subjectIndexType == IndexType.ALBUM_ID3) {
             addAlbumId3IfAnyMatch.accept(dist.getAlbums(), documentId);
         }
     }

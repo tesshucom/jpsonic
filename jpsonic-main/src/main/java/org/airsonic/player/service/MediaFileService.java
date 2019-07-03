@@ -20,7 +20,6 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
-import com.tesshu.jpsonic.service.search.IndexManager;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -33,6 +32,7 @@ import org.airsonic.player.service.metadata.JaudiotaggerParser;
 import org.airsonic.player.service.metadata.MetaData;
 import org.airsonic.player.service.metadata.MetaDataParser;
 import org.airsonic.player.service.metadata.MetaDataParserFactory;
+import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;

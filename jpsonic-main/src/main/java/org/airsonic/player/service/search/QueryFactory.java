@@ -1,30 +1,29 @@
 /*
- This file is part of Jpsonic.
+ This file is part of Airsonic.
 
- Jpsonic is free software: you can redistribute it and/or modify
+ Airsonic is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
 
- Jpsonic is distributed in the hope that it will be useful,
+ Airsonic is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+ along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
 
- Copyright 2019 (C) tesshu.com
+ Copyright 2016 (C) Airsonic Authors
+ Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package com.tesshu.jpsonic.service.search;
 
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+package org.airsonic.player.service.search;
 
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.document.IntPoint;
@@ -36,6 +35,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -48,15 +48,18 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Factory class of Lucene Query.
  * This class is an extract of the functionality that was once part of SearchService.
  * It is for maintainability and verification.
- * 
  * Each corresponds to the SearchService method.
- * Therefore, when the version of lucene changes greatly,
+ * The API syntax for query generation depends on the lucene version.
  * verification with query grammar is possible.
+ * On the other hand, the generated queries are relatively small by version.
+ * Therefore, test cases of this class are useful for large version upgrades.
  **/
 @Component
 public class QueryFactory {
 
-    private static Analyzer analyzer =  AnalyzerFactory.getInstance().getQueryAnalyzer();
+    @Autowired
+    private AnalyzerFactory analyzerFactory;
+
 
     /**
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}
@@ -79,7 +82,7 @@ public class QueryFactory {
 
         BooleanQuery.Builder subFieldsQuery = new BooleanQuery.Builder();
         Arrays.stream(targetFields).forEach(fieldName -> {
-            TokenStream stream = analyzer.tokenStream(fieldName, criteria.getQuery());
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(fieldName, criteria.getQuery());
             try {
                 stream.reset();
                 while (stream.incrementToken()) {
@@ -131,7 +134,7 @@ public class QueryFactory {
                 if (!isEmpty(criteria.getGenres())) {
                     try {
                         if (!isEmpty(genre)) {
-                            TokenStream stream = AnalyzerFactory.getInstance().getAnalyzer().tokenStream(FieldNames.GENRE, genre);
+                            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genre);
                             stream.reset();
                             while (stream.incrementToken()) {
                                 genre = stream.getAttribute(CharTermAttribute.class).toString();
@@ -186,7 +189,7 @@ public class QueryFactory {
             .toArray(i -> new String[i]);
 
         Arrays.stream(targetFields).forEach(fieldName -> {
-            TokenStream stream = analyzer.tokenStream(fieldName, name);
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(fieldName, name);
             try {
                 stream.reset();
                 while (stream.incrementToken()) {
@@ -267,7 +270,7 @@ public class QueryFactory {
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
             try {
-                TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genres);
+                TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genres);
                 stream.reset();
                 while (stream.incrementToken()) {
                     genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
@@ -304,7 +307,7 @@ public class QueryFactory {
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
             try {
-                    TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genres);
+                    TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genres);
                     stream.reset();
                     while (stream.incrementToken()) {
                         genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
@@ -342,7 +345,7 @@ public class QueryFactory {
         // sub - genre
         BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
         try {
-            TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genre);
             stream.reset();
             while (stream.incrementToken()) {
                 genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
@@ -370,7 +373,7 @@ public class QueryFactory {
 
             try {
                 if (!isEmpty(genre)) {
-                    TokenStream stream = analyzer.tokenStream(FieldNames.GENRE, genre);
+                    TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genre);
                     stream.reset();
                     while (stream.incrementToken()) {
                         genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
@@ -386,5 +389,5 @@ public class QueryFactory {
 
         return query.build();
     }
-    
+
 }

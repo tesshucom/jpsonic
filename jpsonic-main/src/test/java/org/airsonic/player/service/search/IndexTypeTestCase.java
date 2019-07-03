@@ -16,9 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.search;
-
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+package org.airsonic.player.service.search;
 
 import java.util.Arrays;
 
