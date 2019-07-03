@@ -23,12 +23,12 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.*;
-import com.tesshu.jpsonic.service.search.IndexType;
 
 import org.airsonic.player.controller.CoverArtController;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
+import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.util.StringUtil;
 import org.airsonic.player.util.Util;
 import org.springframework.beans.factory.annotation.Autowired;

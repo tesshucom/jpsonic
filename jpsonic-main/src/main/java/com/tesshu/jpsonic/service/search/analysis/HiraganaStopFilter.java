@@ -1,7 +1,6 @@
 package com.tesshu.jpsonic.service.search.analysis;
 
-import com.tesshu.jpsonic.service.search.AnalyzerFactory;
-
+import org.airsonic.player.service.search.AnalyzerFactory;// The dependency direction is not correct
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;

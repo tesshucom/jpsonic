@@ -16,11 +16,9 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.search;
+package org.airsonic.player.service.search;
 
 import static org.junit.Assert.assertEquals;
-
-import com.tesshu.jpsonic.service.search.IndexType;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
