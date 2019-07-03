@@ -19,12 +19,12 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.service.search.IndexManager;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.search.IndexManager;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

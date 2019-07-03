@@ -16,9 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.search;
-
-import com.tesshu.jpsonic.service.search.IndexType.FieldNames;
+package org.airsonic.player.service.search;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.slf4j.LoggerFactory;
@@ -35,9 +32,7 @@ import junit.framework.TestCase;
 
 public class AnalyzerFactoryTestCase extends TestCase {
 
-    private static Analyzer analyzer = AnalyzerFactory.getInstance().getAnalyzer();
-
-    private static Analyzer queryAnalyzer = AnalyzerFactory.getInstance().getQueryAnalyzer();
+    private AnalyzerFactory analyzerFactory = new AnalyzerFactory();
 
     /*
      * Fields with the same name as legacy servers are expected to have roughly
@@ -677,14 +672,14 @@ public class AnalyzerFactoryTestCase extends TestCase {
         assertEquals("glasses", terms.get(5));
     }
 
-    public static List<String> toTermString(String str) {
+    public List<String> toTermString(String str) {
         return toTermString(null, str);
     }
 
-    public static List<String> toTermString(String field, String str) {
+    public List<String> toTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = analyzer.tokenStream(field, new StringReader(str));
+            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString());
@@ -696,10 +691,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
         return result;
     }
 
-    public static List<String> toQueryTermString(String field, String str) {
+    public List<String> toQueryTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = queryAnalyzer.tokenStream(field, new StringReader(str));
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field, new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString());

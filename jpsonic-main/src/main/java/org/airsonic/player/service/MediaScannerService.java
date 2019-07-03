@@ -20,12 +20,11 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
-import com.tesshu.jpsonic.service.search.IndexManager;
-
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
+import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;

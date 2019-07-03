@@ -3,6 +3,16 @@
 # jpsonic/jpsonic
 # -->
 
+## v103.0.1
+#### Based on *airsonic 10.4.0-SNAPSHOT c834bde*
+
+> [c834bde]
+> 
+> Only player modification and search design changes.
+
+  * fix problems moving to the next song automatically
+  * fix Progress bar
+
 ## v103.0.0
 #### Based on *airsonic 10.4.0-SNAPSHOT 2bfaea2*
 

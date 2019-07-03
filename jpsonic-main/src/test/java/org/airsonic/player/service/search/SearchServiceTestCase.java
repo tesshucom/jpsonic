@@ -12,7 +12,7 @@
  along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service;
+package org.airsonic.player.service.search;
 
 import org.airsonic.player.dao.*;
 import org.airsonic.player.domain.MediaFile;
@@ -26,8 +26,6 @@ import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 
-import com.tesshu.jpsonic.service.search.IndexManager;
-import com.tesshu.jpsonic.service.search.IndexType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
