@@ -3,6 +3,12 @@
 # jpsonic/jpsonic
 # -->
 
+## v104.0.0
+#### Based on *airsonic 10.4.0-RELEASE*
+
+  * [update] Theme update. Changed the main theme image to SVG and updated CSS.
+  * [update] Temporary workaround for the issue of stopping the scan when the wrong pattern data is read at scan time.
+
 ## v103.0.1
 #### Based on *airsonic 10.4.0-SNAPSHOT c834bde*
 
