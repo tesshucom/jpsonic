@@ -18,13 +18,13 @@ Based on Java technology, Jpsonic runs on most platforms, including Windows, Mac
 
 Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
 
-![Screenshot](contrib/assets/screenshot.png)
+![Screenshot](contrib/assets/screenshot.jpg)
 
 Features
 -----------------
 
 Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
-The default language is set to JP so as to be intimate with Japanese people, but you can use other languages â€‹â?‹depending on your choice.
+The default language is set to JP so as to be intimate with Japanese people, but you can use other languages depending on your choice.
 
 ### index
 
@@ -51,8 +51,9 @@ In addition to regular Japanese phrase search, artists can also use phonetic sea
 
 ![Screenshot](contrib/assets/jp-search.jpg)
 
-In general, Japanese people are unconsciously doing work of inputting phonetically and then IME conversion to an appropriate character type.
-Jpsonic allows candidate searching during Japanese IME conversion.
+Generally, Japanese people unconsciously input 'Reading' and then convert them into appropriate character types by IME conversion.
+Jpsonic enables searching during Japanese translation.
+
 
 History
 -----
