@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -731,12 +732,20 @@ public class MediaFileService {
         artistDao.clearSort();
         for (MediaFile toBeUpdate : toBeUpdates) {
             Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
-            artist.setSort(toBeUpdate.getArtistSort());
-            // update db
-            artistDao.createOrUpdateArtist(artist);
-            maybe++;
-            // update index
-            folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
+            if (ObjectUtils.isEmpty(artist)) {
+                LOG.error("Usually a non-reachable code. {} not found.({})", toBeUpdate.getArtist(),
+                        toBeUpdate.getPath());
+            } else {
+                artist.setSort(toBeUpdate.getArtistSort());
+                // update db
+                artistDao.createOrUpdateArtist(artist);
+                maybe++;
+                // update index
+                folders.stream()
+                        .filter(m -> artist.getFolderId().equals(m.getId()))
+                        .findFirst()
+                        .ifPresent(m -> indexManager.index(artist, m));
+            }
         }
         LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. " + maybe + " rows reversal.");
 

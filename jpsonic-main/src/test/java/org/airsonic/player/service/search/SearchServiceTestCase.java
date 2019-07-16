@@ -1,20 +1,20 @@
-/*
- This file is part of Jpsonic.
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
- Copyright 2019 (C) tesshu.com
- */
+
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.dao.*;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.MusicFolderDao;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
@@ -22,138 +22,33 @@ import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
-import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
-
+import org.airsonic.player.service.search.IndexType;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
-import org.airsonic.player.TestCaseUtils;
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.Genre;
-import org.airsonic.player.util.HomeRule;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import org.subsonic.restapi.ArtistID3;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
+public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
-
-@ContextConfiguration(locations = {
-        "/applicationContext-service.xml",
-        "/applicationContext-cache.xml",
-        "/applicationContext-testdb.xml",
-        "/applicationContext-mockSonos.xml" })
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class SearchServiceTestCase {
-
-    @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
+    @Autowired
+    private AlbumDao albumDao;
 
     private final MetricRegistry metrics = new MetricRegistry();
 
     @Autowired
-    private MediaScannerService mediaScannerService;
-
-    @Autowired
-    private MediaFileDao mediaFileDao;
-
-    @Autowired
     private MusicFolderDao musicFolderDao;
-
-    @Autowired
-    private DaoHelper daoHelper;
-
-    @Autowired
-    private AlbumDao albumDao;
 
     @Autowired
     private SearchService searchService;
 
     @Autowired
     private IndexManager indexManager;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Autowired
-    ResourceLoader resourceLoader;
-
+    
     @Before
     public void setup() throws Exception {
-        populateDatabase();
-    }
-
-    private static boolean dataBasePopulated;
-
-    private int c = 1;
-
-    private synchronized void populateDatabase() {
-
-        /* It seems that there is a case that does not work well
-         * if you test immediately after initialization in 1 method.
-         * It may be improved later.
-         */
-        try {
-            Thread.sleep(300 * c++);
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-
-        if (!dataBasePopulated) {
-
-            MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
-            settingsService.clearMusicFolderCache();
-            TestCaseUtils.execScan(mediaScannerService);
-            System.out.println("--- Report of records count per table ---");
-            Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-            records.keySet().stream().filter(s -> s.equals("MEDIA_FILE") // 20
-                    | s.equals("ARTIST") // 5
-                    | s.equals("MUSIC_FOLDER")// 3
-                    | s.equals("ALBUM"))// 5
-                    .forEach(tableName -> System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
-            // Music Folder Music must have 3 children
-            List<MediaFile> listeMusicChildren = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
-            Assert.assertEquals(3, listeMusicChildren.size());
-            // Music Folder Music2 must have 1 children
-            List<MediaFile> listeMusic2Children = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
-            Assert.assertEquals(1, listeMusic2Children.size());
-            System.out.println("--- *********************** ---");
-            dataBasePopulated = true;
-        }
+        populateDatabaseOnlyOnce();
     }
 
     @Test

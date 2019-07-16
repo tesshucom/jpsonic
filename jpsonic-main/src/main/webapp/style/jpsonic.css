@@ -3,31 +3,13 @@
  *
  * Author: tesshu.com
  */
-@import "default.css";
-
-.bgcolor1, table.music tr:nth-of-type(even) {
-	background-color: #FFFFFF;
-}
-
-.bgcolor2, .ruleTableHeader, .log, table.music tr:nth-of-type(odd) {
-	background-color: #F1F8FF;
-}
-
-.mainframe {
-	background-color: #FFFFFF;
-}
-
-a:link, a:active, a:visited, a:link *, a:active *, a:visited * {
-	color: #0366D6;
-}
-
-a:hover, a:hover * {
-	color: orange;
+html {
+	background: #eaf4ff;
 }
 
 body {
-	font-family: Meiryo, "Hiragino Kaku Gothic Pro", Osaka, "MS PGothic",
-		sans-serif;
+	font-family: -apple-system, blinkMacSystemFont, 'Helvetica Neue',
+		'Segoe UI', YuGothicM, YuGothic, Meiryo, sans-serif;
 	scrollbar-face-color: #DEE3E7;
 	scrollbar-shadow-color: #DEE3E7;
 	scrollbar-track-color: #EFEFEF;
@@ -35,4 +17,873 @@ body {
 	scrollbar-3dlight-color: #FFFFFF;
 	scrollbar-arrow-color: #FFFFFF;
 	scrollbar-darkshadow-color: #FFFFFF;
+	scrollbar-face-color: #DEE3E7;
+	scrollbar-highlight-color: #FFFFFF;
+	scrollbar-shadow-color: #DEE3E7;
+	scrollbar-3dlight-color: #D1D7DC;
+	scrollbar-arrow-color: #006699;
+	scrollbar-track-color: #EFEFEF;
+	scrollbar-darkshadow-color: #98AAB1;
+	padding: 0;
+	border: 0;
+	margin: 0.75em;
+	font-size: 10pt;
+	line-height: 1.5em;
+	color: black;
+}
+
+.bgcolor2.playlistframe {
+	background-color: #79a2d4;
+	margin: 0;
+	padding: 0;
+	border: 1px solid #eaebee;
+	border-radius: 10px 10px 0px 0px/10px 10px 0px 0px;
+}
+
+.bgcolor2.playlistframe h2 {
+	color: white;
+	padding: 10px 10px 10px 10px;
+}
+
+.bgcolor2, .ruleTableHeader, .log {
+	background-color: #eaf4ff;
+}
+
+.mainframe {
+	background-color: #eaf4ff;
+}
+
+.mainframe.bgcolor1 {
+	background-color: #ffffff;
+	margin: 0px 4px 0px 4px;
+	padding: 1em;
+	border: 1px solid #eaebee;
+	border-radius: 10px 0px 0px 10px/10px 0px 0px 10px;
+}
+
+body.bgcolor1.rightframe {
+	background-color: #ffffff;
+	margin: 0px 4px 0px 4px;
+	padding: 0.5em;
+}
+
+/* The secondary background color (darker gray). */
+.bgcolor2 {
+	background-color: #eaf4ff
+}
+
+.ruleTableHeader {
+	background-color: #eaf4ff
+}
+
+/* ó‘Ô/ƒwƒ‹ƒv‚Ì•\*/
+.log {
+	background-color: #eaf4ff
+}
+
+div.bgcolor1 {
+	background-color: #ffffff;
+	margin: 0px 0px 0px 0px;
+	padding: 4px 0px 4px 0px;
+	border: 1px solid #eaebee;
+	border-radius: 10px 10px 10px 10px/10px 10px 10px 10px;
+	line-height: 1.8em
+}
+
+div.bgcolor1 a {
+	font-weight: 500;
+	display: inline-block;
+	margin: 0.1em 0.1em 0.1em 0.5em;
+	letter-spacing: 3px;
+	min-width: 1.7em;
+	height: 1.7em;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 1.7em;
+	background: #eaf4ff;
+	color: #006699;
+}
+
+div.bgcolor1 a:hover {
+	text-decoration: none;
+	background: #DD6900;
+	color: white;
+	transition: .3s;
+}
+
+table.bgcolor1 {
+	background-color: #79a2d4;
+	border-radius: 10px 10px 0px 0px/10px 10px 0px 0px;
+	border-right: 1px solid #eaebee;
+	border-bottom: 1px solid #eaebee;
+	border-left: 1px solid #eaebee border-bottom: 1px solid #eaebee;
+	;
+}
+
+.mainframe h1 {
+	margin-bottom: 0.8em;
+}
+
+.mainframe h2 {
+	text-align: middle;
+	margin-top: 1.2em;
+	margin-bottom: 0.8em;
+}
+
+.mainframe h2>img {
+	height: 25px;
+}
+
+h2.bgcolor1 {
+	padding: 0.5em 0em 0.5em;
+	color: #ffffff;
+	background-color: #79a2d4;
+	border-radius: 10px 10px 0px 0px/10px 10px 0px 0px;
+	border-right: 1px solid #eaebee;
+	border-bottom: 1px solid #eaebee;
+	border-left: 1px solid #eaebee;;
+	margin: 10px 0em 0em 0em;
+}
+
+table.bgcolor1 h2 {
+	margin-top: 10px;
+	font-weight: 500;
+	display: inline-block;
+	letter-spacing: 0px;
+	min-width: 1.4em;
+	height: 1.4em;
+	border-radius: 50%;
+	text-align: center;
+	line-height: 1.3em;
+	background: #eaf4ff;
+	color: #006699;
+}
+
+p.dense {
+	margin: 0;
+	font-size: 0.9em;
+	padding: 0.1em 0em 0.1em 0em;
+	height: 1.7em;
+	min-width: 200px;
+	line-height: 1.7em;
+	background: #ffffff;
+	border-right: 1px solid #eaebee;
+	border-bottom: 1px solid #eaebee;
+	border-left: 1px solid #eaebee;
+	overflow: hidden;
+}
+
+p.dense:hover {
+	background-color: rgba(246, 248, 250, 1);
+	transition: .3s;
+}
+
+p.dense img {
+	height: 18px;
+}
+
+a:link, a:active, a:visited, a:link *, a:active *, a:visited * {
+	color: #0366D6;
+}
+
+a:hover, a:hover * {
+	color: #0366D6;
+}
+
+.bgcolor2.topframe table td img {
+	padding: 0 0.9em 0 0.9em;
+}
+
+.bgcolor2.topframe table td a {
+	font-size: 0.9em;
+}
+
+.headerSelected {
+	border-bottom: 3px solid darkorange;
+}
+
+/* Put stuff here if you need to customize any of the frames. */
+.mainframe {
+	padding-left: 1em
+}
+
+.topframe {
+	
+}
+
+.leftframe {
+	
+}
+
+.rightframe {
+	
+}
+
+.topframe::-webkit-scrollbar:vertical {
+	display: none
+}
+
+.leftframe::-webkit-scrollbar:horizontal {
+	display: none
+}
+
+/* Background color for form controls (use default). */
+input, select {
+	
+}
+
+/* The primary foreground color (black). */
+
+/* The secondary foreground color used for h1, h2, details etc (gray). */
+h1, h2, .detail, .albumComment {
+	color: #696969;
+}
+
+/* Foreground color used for bold and tr. */
+b, tr {
+	color: #333333;
+}
+
+/* Link color */
+a:link, a:active, a:visited, a:link *, a:active *, a:visited * {
+	color: #006699
+}
+
+/* Link hover color */
+a:hover, a:hover * {
+	text-decoration: none;
+	color: #DD6900
+}
+
+/* Color for warning messages. */
+.warning {
+	color: red;
+}
+
+/* Simple dark border. */
+.border1, .ruleTableHeader, .ruleTableCell, .log {
+	border: 1px solid black;
+}
+
+#loginframe {
+	padding: 20px 50px;
+	margin: 100px 50px;
+	display: list-item;
+	list-style: none;
+	text-align: center;
+}
+
+#loginframe>* {
+	margin: 0 auto;
+	display: block;
+}
+
+#loginframe .loginmessagetop {
+	margin-bottom: 1em;
+	max-width: 30rem;
+}
+
+#loginframe input[type=text], #loginframe input[type=submit],
+	#loginframe input[type=password] {
+	width: 20rem;
+	margin-bottom: 0.5em;
+}
+
+#loginframe input[type=submit] {
+	margin: 1rem auto;
+	padding: 0.3rem;
+	background: #2f7bd9;
+	color: #f2f2f2;
+	transition: color 0.2s ease, background 0.2s ease;
+}
+
+#loginframe input[type=submit]:hover {
+	background: #f2f2f2;
+	color: #2d2d2d;
+}
+
+#loginremember {
+	display: inline-flex;
+	align-items: center;
+	margin-right: 10px;
+}
+
+#loginframe .loginmessagebottom {
+	margin-top: 1em;
+	max-width: 50em;
+}
+
+/***************************************************************************************
+ * The rest of the CSS is typically not changed in other themes (but not necessarily so).
+ ***************************************************************************************/
+p {
+	padding: 0;
+	border: 0;
+	margin: 0 0 1em 0;
+}
+
+h1 {
+	white-space: nowrap;
+	font-size: 150%;
+	padding: 0;
+	border: 0;
+	margin: 0;
+}
+
+h2 {
+	white-space: nowrap;
+	font-size: 108%;
+	margin: 0.8em 0 0.2em 0;
+}
+
+form {
+	font-size: 100%;
+	line-height: 140%;
+	padding: 0;
+	border: 0;
+	margin: 0;
+}
+
+input, textarea, select {
+	font-size: 90%;
+	padding: 3px;
+	border-radius: 3px;
+	border: 1px solid lightgray;
+}
+
+input[type=submit], input[type=button] {
+	background: white;
+	padding-left: 1em;
+	padding-right: 1em;
+	color: black;
+}
+
+input[type=submit]:hover, input[type=button]:hover {
+	text-decoration: none;
+}
+
+input[type=submit]:active, input[type=button]:active {
+	background: #e9e9e9;
+}
+
+input[type=checkbox] {
+	border: 0;
+}
+
+input:hover, textarea:hover, select:hover {
+	border: 1px solid darkgray;
+}
+
+label {
+	font-size: 100%;
+	line-height: 140%;
+}
+
+table {
+	font-size: 100%;
+	line-height: 140%;
+	padding: 0;
+	border: 0;
+	margin: 0em 0em 0.4em 0em;
+}
+
+/* Table with some white space above it.*/
+table.log.indent {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	border: 1px solid #eaebee;
+	border-collapse: separate;
+	border-radius: 10px;
+	border-spacing: 0;
+	table-layout: fixed;
+	width: 100%;
+	word-wrap: break-word;
+}
+
+table.log.indent td {
+	font-size: 0.4em;
+	word-wrap: break-word;
+	white-space: normal;
+}
+
+table.log.indent tr:nth-child(even) {
+	background-color: rgba(100, 100, 100, 0.1);
+}
+
+table.music {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	border: 1px solid #eaebee;
+	border-collapse: separate;
+	border-radius: 10px;
+	border-spacing: 0;
+	width: 99%;
+}
+
+table.music.indent {
+	margin-top: 1em;
+	margin-bottom: 1em;
+	border: 1px solid #eaebee;
+	border-collapse: separate;
+	border-radius: 10px;
+	border-spacing: 0;
+	width: 99%;
+}
+
+.mainframe.bgcolor1 table.music.indent:nth-of-type(3) tr td img {
+	width: 18px;
+	height: 18px;
+}
+
+.bgcolor2.playlistframe table.music.indent {
+	margin: 10px;
+	background-color: #ffffff;
+}
+
+table.music tbody td {
+	padding: 0.3em;
+	border-bottom: 1px solid #eaebee;
+}
+
+table.music tbody tr:last-child td {
+	border-bottom: 1px solid #eaebee;
+}
+
+table.music tbody tr {
+	border-bottom: none;
+}
+
+table.music tbody tr:last-child th, table.music tbody tr:last-child td {
+	border-bottom: none;
+}
+
+table.music thead tr:first-child th:first-child {
+	border-radius: 10px 0 0 0;
+}
+
+table.music thead tr:first-child th:last-child {
+	border-radius: 0 10px 0 0;
+}
+
+table.music tbody tr:last-child th:first-child {
+	border-radius: 0 0 0 10px;
+}
+
+table.music tbody tr:last-child th:last-child {
+	border-radius: 0 0 10px 0;
+}
+
+.bgcolor2.playlistframe table.music.indent tbody tr {
+	border-bottom: none;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+.bgcolor2.playlistframe table.music.indent tbody tr td {
+	padding: 0.3em;
+	border-bottom: 1px solid #eaebee;
+}
+
+.bgcolor2.playlistframe table.music.indent tbody tr:last-child td {
+	border-bottom: none;
+	background-color: rgba(0, 0, 0, 0);
+}
+
+table.music tbody tr:hover, .bgcolor2.playlistframe table.music.indent tbody tr:hover
+	{
+	background-color: rgba(246, 248, 250, 1);
+}
+
+.mainframe.bgcolor1 table tbody td:first-child {
+	padding-right: 20px;
+}
+
+.mainframe.bgcolor1 table.music tbody td {
+	padding-right: 0.3em;
+}
+
+.mainframe.bgcolor1 table.music tbody tr td:first-child {
+	padding-left: 1em;
+}
+
+.mainframe.bgcolor1 table.music tbody tr td:last-child {
+	padding-right: 1em;
+}
+
+td.fit {
+	width: 1px;
+	padding-left: 4px;
+	padding-right: 4px;
+	fill: currentColor;
+}
+
+td.truncate {
+	max-width: 50px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+td.rightalign {
+	text-align: right;
+	padding-right: 20px;
+}
+
+a {
+	font-size: 100%;
+	text-decoration: none
+}
+
+img {
+	border-style: none;
+	border: 0;
+	margin: 0;
+	padding: 0;
+	vertical-align: middle;
+}
+
+img#hide-left-frame {
+	width: 25px;
+}
+
+img#show-left-frame {
+	width: 25px;
+}
+
+[id^="currentImage"] {
+	height: 16px;
+}
+
+[id^="titleUrl"] {
+	vertical-align: middle;
+}
+
+.albumThumb img {
+	border-radius: 8px 8px 0px 0px;
+}
+
+.fancy img {
+	border-radius: 8px 8px 8px 8px;
+}
+
+.monospace {
+	font-family: monospace;
+}
+
+.dropshadow {
+	box-shadow: 2px 2px 6px #333333;
+}
+
+.shadow {
+	box-shadow: 0 0 20px 3px #555555;
+}
+
+.coverart {
+	background-color: white;
+	color: #323232;
+	border-radius: 8px;
+}
+
+.coverart .caption1 {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 6px 8px 4px 8px;
+	line-height: 100%;
+	font-weight: 400;
+}
+
+.coverart .caption1 a:link, .coverart .caption1 a:visited {
+	color: #323232;
+}
+
+.coverart .caption2 {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0px 8px 5px 8px;
+	font-size: 90%;
+	color: #aaaaaa;
+	line-height: 100%;
+	font-weight: 300;
+}
+
+.coverart .caption3 {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	padding: 0px 8px 5px 8px;
+	font-size: 90%;
+	color: #aaaaaa;
+	line-height: 100%;
+	font-weight: 300;
+}
+
+::-webkit-scrollbar {
+	width: 6px;
+	height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: rgba(128, 128, 128, 0.5);
+	border-radius: 6px;
+}
+
+.header, .headerSelected {
+	padding-left: 0.25em;
+	padding-right: 0.25em;
+	vertical-align: middle;
+}
+
+.similar-artist-divider {
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+}
+
+.detail {
+	white-space: nowrap;
+	font-size: 90%;
+	line-height: 1.25em;
+}
+
+div.detail img {
+	padding: 0 2px 0 2px;
+}
+
+.rightframe .detail {
+	white-space: normal;
+}
+
+.songTitle {
+	font-style: italic;
+}
+
+.topHeader, .topHeader a {
+	font-size: 102%;
+	padding: 0.15em 0 0 0;
+	margin: 0;
+	border: 0;
+	white-space: nowrap;
+}
+
+.back, .forward {
+	background-position: center left;
+	background-repeat: no-repeat;
+	padding-left: 12px;
+	line-height: 16px;
+}
+
+.back {
+	background-image: url("../icons/default_light/back.png");
+}
+
+.forward:before {
+	background-image: url("../icons/default_light/chevron.svg");
+	background-size: 16px 16px;
+	width: 16px;
+	height: 16px;
+	content: "";
+	display: inline-block;
+	vertical-align: -20%;
+}
+
+.albumComment {
+	width: 50em;
+	font-size: 90%;
+	line-height: 1.4em;
+	padding-top: 0.25em;
+}
+
+.albumThumb {
+	display: inline-block;
+	vertical-align: top;
+	padding-bottom: 20px;
+	padding-right: 20px;
+}
+
+.albumOverflowButton {
+	display: inline-block;
+	cursor: pointer;
+	vertical-align: bottom;
+	margin-left: 15px;
+	margin-bottom: 20px
+}
+
+.log {
+	white-space: nowrap;
+	font-size: 90%;
+	line-height: 1em;
+}
+
+/* Table with simple lines between the cells. */
+.ruleTable {
+	border-collapse: collapse;
+}
+
+.ruleTableHeader, .ruleTableCell {
+	margin: 5px;
+	padding: 5px;
+}
+
+.ruleTableHeader {
+	font-weight: bold;
+}
+
+.context-menu-item {
+	color: black;
+}
+
+/*
+ * Styles related to java jukebox controls
+ */
+.javaJukeBoxPlayerControlBarSongTime {
+	width: 50px;
+	font-size: 80%;
+	text-align: right;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+#javaJukeboxSongPositionSlider {
+	width: 200px;
+	height: 4px;
+}
+
+/* Javascript-zoom related styles */
+#zoom {
+	position: absolute;
+	display: none;
+	z-index: 499;
+	-webkit-box-shadow: 0px 5px 25px #000;
+	-moz-box-shadow: 0px 5px 25px #000;
+	box-shadow: 0px 5px 25px #000;
+}
+
+#zoom_img {
+	display: block;
+	cursor: pointer;
+	width: 100%;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#zoom_close {
+	position: absolute;
+	display: none;
+	cursor: pointer;
+	left: -15px;
+	top: -15px;
+	width: 30px;
+	height: 30px;
+	background: url(/script/closebox.png) no-repeat;
+}
+
+#zoom_spin {
+	position: absolute;
+	display: none;
+	z-index: 525;
+	width: 50px;
+	height: 50px;
+	background: url(/script/spin.png) no-repeat;
+}
+
+.mejs__overlay-loading-bg-img {
+	background-image: url("jpsonic-controls.svg");
+}
+
+.mejs__button>button {
+	background-image: url("jpsonic-controls.svg");
+}
+
+.mejs__overlay-button {
+	background-image: url("jpsonic-controls.svg");
+}
+
+.mejs__container {
+	background: transparent;
+}
+
+.mejs__container .me_cannotplay a {
+	background: transparent;
+}
+
+.mejs__controls:not([style*="display: none"]) {
+  background: transparent;
+  background: -webkit-linear-gradient(transparent, transparent);
+  background: linear-gradient(transparent, transparent)
+}
+
+.mejs__time {
+	color: #666666;
+}
+
+.mejs__time-total {
+	background: rgba(126, 171, 223, 0.5);
+}
+
+.mejs__time-buffering {
+	background: linear-gradient(-45deg, rgba(0, 0, 0, 0.15) 75%, transparent
+		75%, transparent 50%, rgba(0, 0, 0, 0.85) 50%, rgba(0, 0, 0, 0.85) 75%,
+		transparent 75%, transparent);
+}
+
+.mejs__time-loaded {
+	background: rgba(126, 171, 223, 0.7);
+}
+
+.mejs__time-current, .mejs__time-handle-content {
+	background: rgba(126, 171, 223, 1);
+}
+
+.mejs__time-hovered {
+	background: rgba(0, 0, 0, .4);
+}
+
+.mejs__time-hovered.negative {
+	background: rgba(255, 255, 255, 0.4);
+}
+
+.mejs__volume-button>.mejs__volume-slider {
+	background: rgba(50, 50, 50, 0.3);
+}
+
+.mejs__volume-current {
+	background: rgba(126, 171, 223, 1);
+}
+
+.mejs__volume-handle {
+	background: rgba(126, 171, 223, 1);
+}
+
+.mejs__horizontal-volume-total {
+	background: rgba(126, 171, 223, 0.5);
+}
+
+.mejs__horizontal-volume-current {
+	background: rgba(126, 171, 223, 1);
+}
+
+.mejs__captions-button>.mejs__captions-selector, .mejs__chapters-button>.mejs__chapters-selector
+	{
+	background: rgba(50, 50, 50, 0.3);
+}
+
+.mejs__captions-selector-list-item, .mejs__chapters-selector-list-item {
+	color: #000;
+}
+
+.mejs__captions-selector-list-item:hover,
+	.mejs__chapters-selector-list-item:hover {
+	background-color: rgb(100, 100, 100) !important;
+	background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.mejs__captions-layer {
+	color: #000;
+}
+
+.mejs__captions-layer a {
+	color: #000;
 }
