@@ -68,19 +68,19 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
             );
 
         List<MediaFile> songs = searchService.getRandomSongs(simpleStringCriteria.apply("+"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("-"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("&&"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("+"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("||"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply(" ("));// space & bracket
         Assert.assertEquals(0, songs.size());
@@ -88,35 +88,35 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply(")"));
         Assert.assertEquals(0, songs.size());
 
-        songs = searchService.getRandomSongs(simpleStringCriteria.apply("{}"));
-        Assert.assertEquals(0, songs.size());
+        songs = searchService.getRandomSongs(simpleStringCriteria.apply("{ }"));
+        Assert.assertEquals(1, songs.size());
 
-        songs = searchService.getRandomSongs(simpleStringCriteria.apply("[]"));
-        Assert.assertEquals(0, songs.size());
+        songs = searchService.getRandomSongs(simpleStringCriteria.apply("[ ]"));
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("^"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("\""));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("~"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("*"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("?"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply(":"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("\\"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("/"));
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
 
     }
 
@@ -130,14 +130,16 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
         List<MusicFolder> folders = getMusicFolders();
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
-                Arrays.asList("-(GENRE)-"), // genre,
+                Arrays.asList("-GENRE -"), // genre,
                 null, // fromYear
                 null, // toYear
                 folders // musicFolders
         );
 
         List<MediaFile> songs = searchService.getRandomSongs(criteria);
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
+        Assert.assertEquals("Consistency with Tag Parser 1", songs.get(0).getTitle());
+        Assert.assertEquals("-GENRE -", songs.get(0).getGenre());
 
         criteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
                 Arrays.asList(" genre"), // genre,
@@ -147,9 +149,7 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
         );
 
         songs = searchService.getRandomSongs(criteria);
-        Assert.assertEquals(1, songs.size());
-        Assert.assertEquals("Consistency with Tag Parser 1", songs.get(0).getTitle());
-        Assert.assertEquals("-GENRE -", songs.get(0).getGenre());
+        Assert.assertEquals(0, songs.size());
 
     }
 
@@ -199,7 +199,9 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
         );
 
         List<MediaFile> songs = searchService.getRandomSongs(criteria);
-        Assert.assertEquals(0, songs.size());
+        Assert.assertEquals(1, songs.size());
+        Assert.assertEquals("Other special strings 1", songs.get(0).getTitle());
+        Assert.assertEquals("{'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's", songs.get(0).getGenre());
 
         criteria = new RandomSearchCriteria(Integer.MAX_VALUE, // count
                 Arrays.asList("widthcaesar"), // genre,
@@ -209,9 +211,7 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
         );
 
         songs = searchService.getRandomSongs(criteria);
-        Assert.assertEquals(1, songs.size());
-        Assert.assertEquals("Other special strings 1", songs.get(0).getTitle());
-        Assert.assertEquals("{'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's", songs.get(0).getGenre());
+        Assert.assertEquals(0, songs.size());
 
     }
 }

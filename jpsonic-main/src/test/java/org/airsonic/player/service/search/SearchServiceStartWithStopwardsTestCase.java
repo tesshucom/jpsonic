@@ -58,10 +58,17 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
         SearchResult result = searchService.search(criteria, folders, IndexType.ARTIST_ID3);
         Assert.assertEquals("Williams hit by \"will\" ", 1, result.getTotalHits());
 
+        criteria.setQuery("willa");
+        result = searchService.search(criteria, folders, IndexType.ARTIST_ID3);
+        Assert.assertEquals("Williams hit by \"willa\" ", 0, result.getTotalHits());
+
         criteria.setQuery("the");
         result = searchService.search(criteria, folders, IndexType.SONG);
-        Assert.assertEquals("Theater hit by \"the\" ", 1, result.getTotalHits());
+        Assert.assertEquals("Theater hit by \"the\" ", 0, result.getTotalHits());
 
+        criteria.setQuery("thea");
+        result = searchService.search(criteria, folders, IndexType.SONG);
+        Assert.assertEquals("Theater hit by \"thea\" ", 1, result.getTotalHits());
     }
 
 }
