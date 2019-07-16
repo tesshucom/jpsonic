@@ -4,9 +4,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <relativePath>../../pom.xml</relativePath>
+<<<<<<< HEAD
         <artifactId>jpsonic</artifactId>
         <version>10.4.0-SNAPSHOT</version>
         <groupId>com.tesshu.jpsonic.player</groupId>
+=======
+        <artifactId>airsonic</artifactId>
+        <version>10.4.0-RELEASE</version>
+        <groupId>org.airsonic.player</groupId>
+>>>>>>> v10.4.0
     </parent>
     <packaging>pom</packaging>
     <artifactId>jpsonic-docker</artifactId>
@@ -14,9 +20,15 @@
 
     <dependencies>
         <dependency>
+<<<<<<< HEAD
             <groupId>com.tesshu.jpsonic.player</groupId>
             <artifactId>jpsonic-main</artifactId>
             <version>10.4.0-SNAPSHOT</version>
+=======
+            <groupId>org.airsonic.player</groupId>
+            <artifactId>airsonic-main</artifactId>
+            <version>10.4.0-RELEASE</version>
+>>>>>>> v10.4.0
             <type>war</type>
         </dependency>
     </dependencies>

@@ -1,22 +1,8 @@
-/*
- This file is part of Jpsonic.
 
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
- */
 package org.airsonic.player.service.search;
+
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,13 +12,18 @@ import java.util.List;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.TestCase;
-
-public class AnalyzerFactoryTestCase extends TestCase {
+/**
+ * Test case for Analyzer.
+ * These cases have the purpose of observing the current situation
+ * and observing the impact of upgrading Lucene.
+ */
+public class AnalyzerFactoryTestCase {
 
     private AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+
 
     /*
      * Fields with the same name as legacy servers are expected to have roughly
@@ -40,6 +31,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
      * 
      * Many of the Fields added by Jpsonic perform 1token processing.
      */
+    @Test
     public void testTokenize() {
 
         String queryEng = "The quick brown fox jumps over the lazy dog.";
@@ -98,6 +90,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
+    @Test
     public void testCJKWidth() {
         String query = "ＡＢＣａｂｃｱｲｳ";
         String apply1 = "ABCabcアイウ";
@@ -146,7 +139,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
     /*
      * Currently, Stoppward applies only to Tokenized fields.
+     * 
+     * XXX Contents are different from Airsonic because the specifications are different.
      */
+    @Test
     public void testStopward() {
 
         /*
@@ -250,6 +246,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
+    @Test
     public void testJapanesePartOfSpeechStop() {
 
         // Filter operation check only. Verify only some settings.
@@ -283,6 +280,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
      * non-practical word boundaries is not considered. Languages ​​that use special
      * strings require practical verification.
      */
+    @Test
     public void testASCIIFoldingStop() {
 
         // Filter operation check only. Verify only some settings.
@@ -330,7 +328,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
     /*
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
+     * 
+     * XXX Contents are different from Airsonic because the specifications are different.
      */
+    @Test
     public void testLowerCase() {
 
         // Filter operation check only. Verify only some settings.
@@ -373,6 +374,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Applies to all except FOLDER, GENRE, MEDIA_TYPE.
      */
+    @Test
     public void testPunctuationStem() {
 
         // Filter operation check only. Verify only some settings.
@@ -428,6 +430,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
      * used to give a particularly soft impression, but are generally not used very
      * often.)
      */
+    @Test
     public void testHiraganaTermStemOnlyHiragana() {
 
         String notPass1 = "THE BLUE HEARTS";
@@ -453,6 +456,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
      * Katakana is converted to hiragana. This is primarily intended for CDDB input.
      * (It is not decided whether to register in CDDB with Katakana/Hiragana)
      */
+    @Test
     public void testToHiragana() {
 
         String notChange1 = "THE BLUE HEARTS";
@@ -482,6 +486,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * All fields except FOLDER ignore characters required escape.
      */
+    @Test
     public void testLuceneEscapeRequires() {
 
         String escapeRequires = "+-&&||!(){}[]^\"~*?:\\/";
@@ -506,6 +511,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * All fields except FOLDER ignore characters required escape.
      */
+    @Test
     public void testWildCard() {
 
         String query = "ORANGE RANGE";
@@ -569,6 +575,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Use JapaneseTokenizer to analyze English queries.
      */
+    @Test
     public void testResource() {
 
         /*
@@ -610,7 +617,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Subsonic can avoid Stopward if it is upper case. It is unclear whether it is
      * a specification or not. Jpsonic's Stopward is not case sensitive.
+     * 
+     * XXX Contents are different from Airsonic because the specifications are different.
      */
+    @Test
     public void testFullWidth() {
         String query = "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.";
         List<String> terms = toTermString(query);
@@ -622,6 +632,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
         assertEquals("sentences", terms.get(4));
     }
 
+    @Test
     public void testPossessiveCase() {
         String query = "This is Jpsonic's analysis.";
         List<String> terms = toTermString(query);
@@ -639,7 +650,10 @@ public class AnalyzerFactoryTestCase extends TestCase {
 
     /*
      * Do not convert to present form; present tense
+     * 
+     * XXX Contents are different from Airsonic because the specifications are different.
      */
+    @Test
     public void testPastParticiple() {
         String query = "This is formed with a form of the verb \"have\" and a past participl.";
         List<String> terms = toTermString(query);
@@ -660,6 +674,7 @@ public class AnalyzerFactoryTestCase extends TestCase {
     /*
      * Do not convert to singular
      */
+    @Test
     public void testNumeral() {
         String query = "books boxes cities leaves men glasses";
         List<String> terms = toTermString(query);
@@ -672,36 +687,461 @@ public class AnalyzerFactoryTestCase extends TestCase {
         assertEquals("glasses", terms.get(5));
     }
 
-    public List<String> toTermString(String str) {
+    
+    /**
+     * Test for the number of character separators per field.
+     */
+    @Test
+    public void testTokenCounts() {
+
+        /*
+         * Analyzer used in legacy uses the same Tokenizer for all fields.
+         * (Some fields are converted to their own input string for integrity.)
+         * As a result, specifications for strings are scattered and difficult to understand.
+         * Using PerFieldAnalyzerWrapper,
+         * it is possible to use different Analyzer (Tokenizer/Filter) for each field.
+         * This allows consistent management of parsing definitions.
+         * It is also possible to apply definitions such as "id3 delimiters Tokenizer" to specific fields.
+         */
+
+        // The number of words excluding articles is 7.
+        String query = "The quick brown fox jumps over the lazy dog.";
+
+        Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            List<String> terms = toTermString(n, query);
+            switch (n) {
+
+                /*
+                 * In the legacy, these field divide input into 7. It is not necessary to delimit
+                 * this field originally.
+                 */
+                case FieldNames.MEDIA_TYPE:
+                    assertEquals("oneTokenFields : " + n, 7, terms.size());
+                    break;
+
+                /*
+                 * These should be divided into 7.
+                 */
+                case FieldNames.ARTIST:
+                case FieldNames.ALBUM:
+                case FieldNames.TITLE:
+                    assertEquals("multiTokenFields : " + n, 7, terms.size());
+                    break;
+
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
+                case FieldNames.ARTIST_EX:
+                    assertEquals("prohibit : " + n, 0, terms.size());
+                    break;
+
+                case FieldNames.FOLDER:
+                case FieldNames.GENRE_KEY:
+                case FieldNames.GENRE:
+                    assertEquals("remain : " + n, 1, terms.size());
+                    break;
+                    
+
+                /*
+                 * ID,  YEAR
+                 * This is not a problem because the input value does not contain a delimiter.
+                 */
+                default:
+                    assertEquals("oneTokenFields : " + n, 7, terms.size());
+                    break;
+            }
+        });
+
+    }
+
+    /**
+     * Detailed tests on Punctuation.
+     * In addition to the common delimiters, there are many delimiters.
+     */
+    @Test
+    public void testPunctuation1() {
+
+        String query = "B︴C";
+        String expected1 = "b";
+        String expected2 = "c";
+        String expected3 = "bc";
+
+        Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            List<String> terms = toTermString(n, query);
+            switch (n) {
+
+                /*
+                 * In the legacy, these field divide input into 2.
+                 * It is not necessary to delimit
+                 * this field originally.
+                 */
+                case FieldNames.MEDIA_TYPE:
+                    assertEquals("tokenized : " + n, 2, terms.size());
+                    assertEquals("tokenized : " + n, expected1, terms.get(0));
+                    assertEquals("tokenized : " + n, expected2, terms.get(1));
+                    break;
+
+                /*
+                 * What should the fields of this be?
+                 * Generally discarded.
+                 */
+                case FieldNames.ARTIST:
+                case FieldNames.ALBUM:
+                case FieldNames.TITLE:
+                    assertEquals("tokenized : " + n, 2, terms.size());
+                    assertEquals("tokenized : " + n, expected1, terms.get(0));
+                    assertEquals("tokenized : " + n, expected2, terms.get(1));
+                    break;
+
+                case FieldNames.TITLE_EX:
+                case FieldNames.ALBUM_EX:
+                case FieldNames.ARTIST_EX:
+                    assertEquals("tokenized : " + n, 0, terms.size());
+                    break;
+
+                case FieldNames.ARTIST_READING:
+                    assertEquals("tokenized : " + n, 1, terms.size());
+                    assertEquals("tokenized : " + n, expected3, terms.get(0));
+                    break;
+
+                case FieldNames.FOLDER:
+                case FieldNames.GENRE:
+                case FieldNames.GENRE_KEY:
+                    assertEquals("tokenized : " + n, 1, terms.size());
+                    assertEquals("tokenized : " + n, query, terms.get(0));
+                    break;
+
+                    /*
+                 * ID, FOLDER_ID, YEAR
+                 * This is not a problem because the input value does not contain a delimiter.
+                 */
+                default:
+                    assertEquals("tokenized : " + n, 2, terms.size());
+                    break;
+            }
+        });
+    }
+
+    /*
+     * Detailed tests on Punctuation.
+     * Many of the symbols are delimiters or target to be removed.
+     */
+    @Test
+    public void testPunctuation2() {
+
+        String query = "{'“『【【】】[︴○◎@ $〒→+]";
+        Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            List<String> terms = toTermString(n, query);
+            switch (n) {
+                case FieldNames.MEDIA_TYPE:
+                case FieldNames.ARTIST:
+                case FieldNames.ALBUM:
+                case FieldNames.TITLE:
+                    assertEquals("removed : " + n, 0, terms.size());
+                    break;
+                case FieldNames.FOLDER:
+                case FieldNames.GENRE:
+                case FieldNames.GENRE_KEY:
+                    assertEquals("remain : " + n, 1, terms.size());
+                    break;
+
+                
+                default:
+                    assertEquals("removed : " + n, 0, terms.size());
+            }
+        });
+    }
+
+    /**
+     * Combined case of Stop and full-width.
+     */
+    @Test
+    public void testStopwardAndFullWidth() {
+
+        /*
+         * Legacy can avoid Stopward if it is full width.
+         * It is unclear whether it is a specification or not.
+         * (Problems due to a defect in filter application order?
+         * or
+         * Is it popular in English speaking countries?)
+         */
+        String queryFullWidth = "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.";
+        List<String> terms = toTermString(queryFullWidth);
+        assertEquals(5, terms.size());
+        assertEquals("this", terms.get(0));// removal target is ignored
+        assertEquals("is", terms.get(1));
+        assertEquals("full", terms.get(2));
+        assertEquals("width", terms.get(3));
+        assertEquals("sentences", terms.get(4));
+
+    }
+
+    /**
+     * Tests on ligature and diacritical marks.
+     * In UAX#29, determination of non-practical word boundaries is not considered.
+     * Languages ​​that use special strings require "practical word" sample.
+     * Unit testing with only ligature and diacritical marks is not possible.
+     */
+    @Test
+    public void testAsciiFoldingStop() {
+
+        String queryLigature = "Cæsar";
+        String expectedLigature1 = "caesar";
+        String expectedLigature2 = "Caesar";
+
+        String queryDiacritical = "Café";
+        String expectedDiacritical1 = "cafe";
+        String expectedDiacritical2 = "Cafe";
+
+        Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
+            List<String> termsLigature = toTermString(n, queryLigature);
+            List<String> termsDiacritical = toTermString(n, queryDiacritical);
+            switch (n) {
+
+                /*
+                 * It is decomposed into the expected string.
+                 */
+                case FieldNames.MEDIA_TYPE:
+                case FieldNames.ARTIST:
+                case FieldNames.ALBUM:
+                case FieldNames.TITLE:
+                    assertEquals("Cæsar : " + n, 1, termsLigature.size());
+                    assertEquals("Cæsar : " + n, expectedLigature1, termsLigature.get(0));
+                    assertEquals("Café : " + n, 1, termsDiacritical.size());
+                    assertEquals("Café : " + n, expectedDiacritical1, termsDiacritical.get(0));
+                    break;
+
+                case FieldNames.ALBUM_EX:
+                case FieldNames.TITLE_EX:
+                case FieldNames.ARTIST_EX:
+                    assertEquals("remove : " + n, 0, termsLigature.size());
+                    break;
+
+                case FieldNames.FOLDER:
+                case FieldNames.GENRE_KEY:
+                    assertEquals("Cæsar : " + n, 1, termsLigature.size());
+                    assertEquals("remain : " + n, queryLigature, termsLigature.get(0));
+                    assertEquals("Café : " + n, 1, termsDiacritical.size());
+                    assertEquals("Café : " + n, queryDiacritical, termsDiacritical.get(0));
+                    break;
+
+                case FieldNames.GENRE:
+                    assertEquals("Cæsar : " + n, 1, termsLigature.size());
+                    assertEquals("Cæsar : " + n, expectedLigature2, termsLigature.get(0));
+                    assertEquals("Café : " + n, 1, termsDiacritical.size());
+                    assertEquals("Café : " + n, expectedDiacritical2, termsDiacritical.get(0));
+                    break;
+
+                // Legacy has common behavior for all fields.
+                default:
+                    assertEquals("Cæsar : " + n, 1, termsLigature.size());
+                    assertEquals("Cæsar : " + n, expectedLigature1, termsLigature.get(0));
+                    assertEquals("Café : " + n, 1, termsDiacritical.size());
+                    assertEquals("Café : " + n, expectedDiacritical1, termsDiacritical.get(0));
+                    break;
+
+            }
+        });
+
+    }
+ 
+    /**
+     * Create an example that makes UAX 29 differences easy to understand.
+     * 
+     * XXX Contents are different from Airsonic because the specifications are different.
+     */
+    @Test
+    public void testUax29() {
+
+        /*
+         * Case using test resource name
+         */
+
+        // Semicolon, comma and hyphen.
+        String query = "Bach: Goldberg Variations, BWV 988 - Aria";
+        List<String> terms = toTermString(query);
+        assertEquals(6, terms.size());
+        assertEquals("bach", terms.get(0));
+        assertEquals("goldberg", terms.get(1));
+        assertEquals("variations", terms.get(2));
+        assertEquals("bwv", terms.get(3));
+        assertEquals("988", terms.get(4));
+        assertEquals("aria", terms.get(5));
+
+        // Underscores around words, ascii and semicolon.
+        query = "_ID3_ARTIST_ Céline Frisch: Café Zimmermann";
+        terms = toTermString(query);
+        assertEquals(7, terms.size());
+        assertEquals("id", terms.get(0));
+        assertEquals("3", terms.get(1));
+        assertEquals("artist", terms.get(2));
+        assertEquals("celine", terms.get(3));
+        assertEquals("frisch", terms.get(4));
+        assertEquals("cafe", terms.get(5));
+        assertEquals("zimmermann", terms.get(6));
+
+        // Underscores around words and slashes.
+        query = "_ID3_ARTIST_ Sarah Walker/Nash Ensemble";
+        terms = toTermString(query);
+        assertEquals(7, terms.size());
+        assertEquals("id", terms.get(0));
+        assertEquals("3", terms.get(1));
+        assertEquals("artist", terms.get(2));
+        assertEquals("sarah", terms.get(3));
+        assertEquals("walker", terms.get(4));
+        assertEquals("nash", terms.get(5));
+        assertEquals("ensemble", terms.get(6));
+
+        // Space
+        assertEquals(asList("abc", "def"), toTermString(" ABC DEF "));
+        assertEquals(asList("abc", "1", "def"), toTermString(" ABC1 DEF "));
+
+        // trim and delimiter
+        assertEquals(asList("abc", "def"), toTermString("+ABC+DEF+"));
+        assertEquals(asList("abc", "def"), toTermString("|ABC|DEF|"));
+        assertEquals(asList("abc", "def"), toTermString("!ABC!DEF!"));
+        assertEquals(asList("abc", "def"), toTermString("(ABC(DEF("));
+        assertEquals(asList("abc", "def"), toTermString(")ABC)DEF)"));
+        assertEquals(asList("abc", "def"), toTermString("{ABC{DEF{"));
+        assertEquals(asList("abc", "def"), toTermString("}ABC}DEF}"));
+        assertEquals(asList("abc", "def"), toTermString("[ABC[DEF["));
+        assertEquals(asList("abc", "def"), toTermString("]ABC]DEF]"));
+        assertEquals(asList("abc", "def"), toTermString("^ABC^DEF^"));
+        assertEquals(asList("abc", "def"), toTermString("\\ABC\\DEF\\"));
+        assertEquals(asList("abc", "def"), toTermString("\"ABC\"DEF\""));
+        assertEquals(asList("abc", "def"), toTermString("~ABC~DEF~"));
+        assertEquals(asList("abc", "def"), toTermString("*ABC*DEF*"));
+        assertEquals(asList("abc", "def"), toTermString("?ABC?DEF?"));
+        assertEquals(asList("abc", "def"), toTermString(":ABC:DEF:"));
+        assertEquals(asList("abc", "def"), toTermString("-ABC-DEF-"));
+        assertEquals(asList("abc", "def"), toTermString("/ABC/DEF/"));
+        assertEquals(asList("abc", "def"), toTermString("_ABC_DEF_"));
+        assertEquals(asList("abc", "def"), toTermString(",ABC,DEF,"));
+        assertEquals(asList("abc", "def"), toTermString(".ABC.DEF."));
+        assertEquals(asList("abc", "def"), toTermString("&ABC&DEF&"));
+        assertEquals(asList("abc", "def"), toTermString("@ABC@DEF@"));
+        assertEquals(asList("abc", "def"), toTermString("'ABC'DEF'"));
+
+        // trim and delimiter and number
+        assertEquals(asList("abc", "1", "def"), toTermString("+ABC1+DEF+"));
+        assertEquals(asList("abc", "1", "def"), toTermString("|ABC1|DEF|"));
+        assertEquals(asList("abc", "1", "def"), toTermString("!ABC1!DEF!"));
+        assertEquals(asList("abc", "1", "def"), toTermString("(ABC1(DEF("));
+        assertEquals(asList("abc", "1", "def"), toTermString(")ABC1)DEF)"));
+        assertEquals(asList("abc", "1", "def"), toTermString("{ABC1{DEF{"));
+        assertEquals(asList("abc", "1", "def"), toTermString("}ABC1}DEF}"));
+        assertEquals(asList("abc", "1", "def"), toTermString("[ABC1[DEF["));
+        assertEquals(asList("abc", "1", "def"), toTermString("]ABC1]DEF]"));
+        assertEquals(asList("abc", "1", "def"), toTermString("^ABC1^DEF^"));
+        assertEquals(asList("abc", "1", "def"), toTermString("\\ABC1\\DEF\\"));
+        assertEquals(asList("abc", "1", "def"), toTermString("\"ABC1\"DEF\""));
+        assertEquals(asList("abc", "1", "def"), toTermString("~ABC1~DEF~"));
+        assertEquals(asList("abc", "1", "def"), toTermString("*ABC1*DEF*"));
+        assertEquals(asList("abc", "1", "def"), toTermString("?ABC1?DEF?"));
+        assertEquals(asList("abc", "1", "def"), toTermString(":ABC1:DEF:"));
+        assertEquals(asList("abc", "1", "def"), toTermString(",ABC1,DEF,"));
+        assertEquals(asList("abc", "1", "def"), toTermString("-ABC1-DEF-"));
+        assertEquals(asList("abc", "1", "def"), toTermString("/ABC1/DEF/"));
+        assertEquals(asList("abc", "1", "def"), toTermString("_ABC1_DEF_"));
+        assertEquals(asList("abc", "1", "def"), toTermString(".ABC1.DEF."));
+        assertEquals(asList("abc", "1", "def"), toTermString("&ABC1&DEF&"));
+        assertEquals(asList("abc", "1", "def"), toTermString("@ABC1@DEF@"));
+        assertEquals(asList("abc", "1", "def"), toTermString("'ABC1'DEF'"));
+
+    }
+
+    /**
+     * Special handling of single quotes.
+     */
+    @Test
+    public void testSingleQuotes() {
+
+        /*
+         * A somewhat cultural that seems to be related to a specific language.
+         * 
+         * XXX Contents are different from Airsonic because the specifications are different.
+         */
+        String query = "This is Airsonic's analysis.";
+        List<String> terms = toTermString(query);
+        assertEquals(5, terms.size());
+        assertEquals("this", terms.get(0));
+        assertEquals("is", terms.get(1));
+        assertEquals("airsonic", terms.get(2));
+        assertEquals("s", terms.get(3));
+        assertEquals("analysis", terms.get(4));
+
+        query = "We’ve been here before.";
+        terms = toTermString(query);
+        assertEquals(5, terms.size());
+        assertEquals("we", terms.get(0));
+        assertEquals("ve", terms.get(1));
+        assertEquals("been", terms.get(2));
+        assertEquals("here", terms.get(3));
+        assertEquals("before", terms.get(4));
+
+        query = "LʼHomme";
+        terms = toTermString(query);
+        assertEquals(2, terms.size());
+        assertEquals("l", terms.get(0));
+        assertEquals("homme", terms.get(1));
+
+        query = "L'Homme";
+        terms = toTermString(query);
+        assertEquals(2, terms.size());
+        assertEquals("l", terms.get(0));
+        assertEquals("homme", terms.get(1));
+
+        query = "aujourd'hui";
+        terms = toTermString(query);
+        assertEquals(2, terms.size());
+        assertEquals("aujourd", terms.get(0));
+        assertEquals("hui", terms.get(1));
+
+        query = "fo'c'sle";
+        terms = toTermString(query);
+        assertEquals(3, terms.size());
+        assertEquals("fo", terms.get(0));
+        assertEquals("c", terms.get(1));
+        assertEquals("sle", terms.get(2));
+
+    }
+
+    private List<String> toTermString(String str) {
         return toTermString(null, str);
     }
 
-    public List<String> toTermString(String field, String str) {
+    private List<String> toTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str));
+            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field,
+                    new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
-                result.add(stream.getAttribute(CharTermAttribute.class).toString());
+                result.add(stream.getAttribute(CharTermAttribute.class).toString()
+                        .replaceAll("^term\\=", ""));
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class).error("Error during Token processing.", e);
+            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class)
+                    .error("Error during Token processing.", e);
         }
         return result;
     }
 
-    public List<String> toQueryTermString(String field, String str) {
+    @SuppressWarnings("unused")
+    private List<String> toQueryTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field, new StringReader(str));
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field,
+                    new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
-                result.add(stream.getAttribute(CharTermAttribute.class).toString());
+                result.add(stream.getAttribute(CharTermAttribute.class).toString()
+                        .replaceAll("^term\\=", ""));
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class).error("Error during Token processing.", e);
+            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class)
+                    .error("Error during Token processing.", e);
         }
         return result;
     }
