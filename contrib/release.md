@@ -24,7 +24,7 @@ Release Steps
 
 7. Sign sha256sums file
 
-        gpg2 --clearsign airsonic-main/target/artifacts-checksums.sha
+        gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
 
 8. push up branch and tag
 
