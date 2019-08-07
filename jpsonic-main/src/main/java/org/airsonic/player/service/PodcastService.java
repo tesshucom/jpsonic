@@ -36,6 +36,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.config.CookieSpecs;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -176,7 +177,8 @@ public class PodcastService {
      */
     public PodcastChannel getChannel(int channelId) {
         PodcastChannel channel = podcastDao.getChannel(channelId);
-        addMediaFileIdToChannels(Arrays.asList(channel));
+        if (channel.getTitle() != null)
+            addMediaFileIdToChannels(Arrays.asList(channel));
         return channel;
     }
 
@@ -271,6 +273,10 @@ public class PodcastService {
     private List<PodcastChannel> addMediaFileIdToChannels(List<PodcastChannel> channels) {
         for (PodcastChannel channel : channels) {
             try {
+                if (channel.getTitle() == null) {
+                    LOG.warn("Podcast channel id {} has null title", channel.getId());
+                    continue;
+                }
                 File dir = getChannelDirectory(channel);
                 MediaFile mediaFile = mediaFileService.getMediaFile(dir);
                 if (mediaFile != null) {
@@ -551,6 +557,10 @@ public class PodcastService {
             RequestConfig requestConfig = RequestConfig.custom()
                     .setConnectTimeout(2 * 60 * 1000) // 2 minutes
                     .setSocketTimeout(10 * 60 * 1000) // 10 minutes
+                    // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
+                    .setCircularRedirectsAllowed(true)
+                    // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
+                    .setCookieSpec(CookieSpecs.STANDARD)
                     .build();
             HttpGet method = new HttpGet(episode.getUrl());
             method.setConfig(requestConfig);
