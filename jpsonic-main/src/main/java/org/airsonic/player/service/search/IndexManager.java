@@ -29,24 +29,21 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.FileUtil;
+import org.apache.commons.io.FileUtils;
+import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Field.Store;
-import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.index.MultiFields;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.BytesRef;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,10 +55,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -80,10 +78,6 @@ public class IndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
-    private static final Map<IndexType, SearcherManager> searcherManagerMap = new ConcurrentHashMap<>();
-
-    private static final Map<IndexType, IndexWriter> indexWriterMap = new ConcurrentHashMap<>();
-
     @Autowired
     private MediaFileDao mediaFileDao;
 
@@ -92,55 +86,188 @@ public class IndexManager {
 
     @Autowired
     private AlbumDao albumDao;
-
+    
     @Autowired
     private QueryFactory queryFactory;
 
     @Autowired
-    private DocumentFactory documentFactory;
-
-    @Autowired
     private SearchServiceUtilities util;
+
+    /**
+     * Schema version of Airsonic index.
+     * It may be incremented in the following cases:
+     * 
+     *  - Incompatible update case in Lucene index implementation
+     *  - When schema definition is changed due to modification of AnalyzerFactory,
+     *    DocumentFactory or the class that they use.
+     *
+     */
+    private static final int INDEX_VERSION = 16;
+
+    /**
+     * Literal name of index top directory.
+     */
+    private static final String INDEX_ROOT_DIR_NAME = "index";
+
+    /**
+     * File supplier for index directory.
+     */
+    private Supplier<File> indexDirectory = () ->
+        new File(SettingsService.getJpsonicHome(), INDEX_ROOT_DIR_NAME);
+
+    /**
+     * File supplier for index version file.
+     * Index version file represents the version of index directory that has already been created.
+     */
+    private Supplier<File> indexVersionFile = () ->
+        new File(indexDirectory.get(), "jpsonic".concat(Integer.toString(INDEX_VERSION).concat(".index")));
+
+    /**
+     * Returns the directory of the specified index
+     */
+    private Function<IndexType, File> getIndexDirectory = (indexType) ->
+        new File(indexDirectory.get(), indexType.toString().toLowerCase());
 
     @Autowired
     private AnalyzerFactory analyzerFactory;
 
-    /**
-     * @since 101.1.0
-     */
-    public String INDEX_FILE_SUFFIX = "jp";
+    @Autowired
+    private DocumentFactory documentFactory;
 
-    /**
-     * @since 101.1.0
-     */
-    public String INDEX_PRODUCT_VERSION = "7.7.1";
+    private Map<IndexType, SearcherManager> searchers = new HashMap<>();
 
-    private final IndexWriter createIndexWriter(IndexType indexType) throws IOException {
-        File dir = util.getDirectory.apply(getVersion(), indexType);
-        IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
-        return new IndexWriter(FSDirectory.open(dir.toPath()), config);
+    private Map<IndexType, IndexWriter> writers = new HashMap<>();
+
+    public void index(Album album) {
+        Term primarykey = documentFactory.createPrimarykey(album);
+        Document document = documentFactory.createAlbumId3Document(album);
+        try {
+            writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + album, x);
+        }
     }
 
-    public /* @Nullable */ IndexSearcher getSearcher(IndexType indexType) {
-        if (!searcherManagerMap.containsKey(indexType)) {
-            synchronized (searcherManagerMap) {
-                File indexDirectory = util.getDirectory.apply(getVersion(), indexType);
-                try {
-                    if (indexDirectory.exists()) {
-                        SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
-                        searcherManagerMap.put(indexType, manager);
-                    } else {
-                        LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
-                    }
-                } catch (IOException e) {
-                    LOG.error("Failed to initialize SearcherManager.", e);
+    public void index(Artist artist, MusicFolder musicFolder) {
+        Term primarykey = documentFactory.createPrimarykey(artist);
+        Document document = documentFactory.createArtistId3Document(artist, musicFolder);
+        try {
+            writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + artist, x);
+        }
+    }
+
+    public void index(MediaFile mediaFile) {
+        Term primarykey = documentFactory.createPrimarykey(mediaFile);
+        try {
+            if (mediaFile.isFile()) {
+                Document document = documentFactory.createSongDocument(mediaFile);
+                writers.get(IndexType.SONG).updateDocument(primarykey, document);
+            } else if (mediaFile.isAlbum()) {
+                Document document = documentFactory.createAlbumDocument(mediaFile);
+                writers.get(IndexType.ALBUM).updateDocument(primarykey, document);
+            } else {
+                Document document = documentFactory.createArtistDocument(mediaFile);
+                writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
+            }
+            if (!isEmpty(mediaFile.getGenre())) {
+                primarykey = documentFactory.createPrimarykey(Integer.toString(mediaFile.getGenre().hashCode()));
+                Document document = documentFactory.createGenreDocument(mediaFile);
+                writers.get(IndexType.GENRE).updateDocument(primarykey, document);
+            }
+        } catch (Exception x) {
+            LOG.error("Failed to create search index for " + mediaFile, x);
+        }
+    }
+
+    public final void startIndexing() {
+        try {
+            for (IndexType IndexType : IndexType.values()) {
+                writers.put(IndexType, createIndexWriter(IndexType));
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to create search index.", e);
+        }
+    }
+
+    /**
+     * 
+     * @param indexType
+     * @return
+     * @throws IOException
+     */
+    private IndexWriter createIndexWriter(IndexType indexType) throws IOException {
+        File indexDirectory = getIndexDirectory.apply(indexType);
+        IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
+        return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
+    }
+
+    /**
+     * Close Writer of all indexes and update SearcherManager.
+     * Called at the end of the Scan flow.
+     */
+    public void stopIndexing() {
+        expunge();
+        Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
+    }
+
+    /**
+     * Close Writer of specified index and refresh SearcherManager.
+     * @param type
+     */
+    private void stopIndexing(IndexType type) {
+        boolean isUpdate = false;
+        // close
+        try (IndexWriter writer = writers.get(type)) {
+            isUpdate = -1 == writers.get(type).commit();
+            writer.close();
+            writers.remove(type);
+            LOG.trace("Success to create or update search index : [" + type + "]");
+        } catch (IOException e) {
+            writers.remove(type);
+            LOG.error("Failed to create search index.", e);
+        }
+
+        // refresh reader as index may have been written
+        if (isUpdate && searchers.containsKey(type)) {
+            try {
+                searchers.get(type).maybeRefresh();
+                LOG.trace("SearcherManager has been refreshed : [" + type + "]");
+            } catch (IOException e) {
+                LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
+                searchers.remove(type);
+            }
+        }
+
+    }
+
+    /**
+     * Return the IndexSearcher of the specified index.
+     * At initial startup, it may return null
+     * if the user performs any search before performing a scan.
+     * 
+     * @param indexType
+     * @return
+     */
+    public @Nullable IndexSearcher getSearcher(IndexType indexType) {
+        if (!searchers.containsKey(indexType)) {
+            File indexDirectory = getIndexDirectory.apply(indexType);
+            try {
+                if (indexDirectory.exists()) {
+                    SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
+                    searchers.put(indexType, manager);
+                } else {
+                    LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
                 }
+            } catch (IOException e) {
+                LOG.error("Failed to initialize SearcherManager.", e);
             }
         }
         try {
-            SearcherManager manager = searcherManagerMap.get(indexType);
+            SearcherManager manager = searchers.get(indexType);
             if (!isEmpty(manager)) {
-                return searcherManagerMap.get(indexType).acquire();
+                return searchers.get(indexType).acquire();
             }
         } catch (Exception e) {
             LOG.warn("Failed to acquire IndexSearcher.", e);
@@ -148,62 +275,100 @@ public class IndexManager {
         return null;
     }
 
-    public String getVersion() {
-        return SearchService.INDEX_FILE_PREFIX + INDEX_PRODUCT_VERSION + INDEX_FILE_SUFFIX
-                + "-" + IndexType.getVersion()
-                + "-" + DocumentFactory.getVersion();
-    }
-
-    public void index(Album album) {
-        try {
-            Term primarykey = util.createPrimarykey(album);
-            indexWriterMap.get(IndexType.ALBUM_ID3).updateDocument(primarykey, documentFactory.createDocument(album));
-        } catch (Exception x) {
-            LOG.error("Failed to create search index for " + album, x);
-        }
-    }
-
-    public void index(Artist artist, MusicFolder musicFolder) {
-        try {
-            Term primarykey = util.createPrimarykey(artist);
-            indexWriterMap.get(IndexType.ARTIST_ID3).updateDocument(primarykey, documentFactory.createDocument(artist, musicFolder));
-        } catch (Exception x) {
-            LOG.error("Failed to create search index for " + artist, x);
-        }
-    }
-
-    public void index(MediaFile mediaFile) {
-        
-        try {
-            Term primarykey = util.createPrimarykey(mediaFile);
-            if (mediaFile.isFile()) {
-                indexWriterMap.get(IndexType.SONG).updateDocument(primarykey, documentFactory.createSongDocument(mediaFile));
-            } else if (mediaFile.isAlbum()) {
-                indexWriterMap.get(IndexType.ALBUM).updateDocument(primarykey, documentFactory.createAlbumDocument(mediaFile));
-            } else {
-                indexWriterMap.get(IndexType.ARTIST).updateDocument(primarykey, documentFactory.createArtistDocument(mediaFile));
-            }
-            if (!isEmpty(mediaFile.getGenre())) {
-                primarykey = util.createPrimarykey(mediaFile.getGenre());
-                indexWriterMap.get(IndexType.GENRE).updateDocument(primarykey, documentFactory.createGenreDocument(mediaFile));
-            }
-        } catch (Exception x) {
-            LOG.error("Failed to create search index for " + mediaFile, x);
-        }
-    }
-
     public void release(IndexType indexType, IndexSearcher indexSearcher) {
-        if (searcherManagerMap.containsKey(indexType)) {
+        if (searchers.containsKey(indexType)) {
             try {
-                searcherManagerMap.get(indexType).release(indexSearcher);
+                searchers.get(indexType).release(indexSearcher);
             } catch (IOException e) {
                 LOG.error("Failed to release IndexSearcher.", e);
-                searcherManagerMap.remove(indexType);
+                searchers.remove(indexType);
+            }
+        } else {
+            // irregular case
+            try {
+                indexSearcher.getIndexReader().close();
+            } catch (Exception e) {
+                LOG.warn("Failed to release. IndexSearcher has been closed.", e);
             }
         }
     }
 
-    public void expunge() {
+    /**
+     * Check the version of the index and clean it up if necessary.
+     * Legacy type indexes (files or directories starting with lucene) are deleted.
+     * If there is no index directory, initialize the directory.
+     * If the index directory exists and is not the current version,
+     * initialize the directory.
+     */
+    public void deleteOldIndexFiles() {
+
+        // Delete legacy files unconditionally
+        Arrays.stream(SettingsService.getJpsonicHome()
+                .listFiles((file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches())).forEach(old -> {
+                    if (FileUtil.exists(old)) {
+                        LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
+                        try {
+                            if (old.isFile()) {
+                                FileUtils.deleteQuietly(old);
+                            } else {
+                                FileUtils.deleteDirectory(old);
+                            }
+                        } catch (IOException e) {
+                            // Log only if failed
+                            LOG.warn("Failed to delete the old Index : ".concat(old.getAbsolutePath()), e);
+                        }
+                    }
+                });
+
+        // Check if Index is current version
+        if (indexDirectory.get().exists()) {
+
+            if (indexVersionFile.get().exists()) {
+
+                // Index of current version already exists
+                LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+
+            } else {
+
+                // Delete if not current version and create current version directory
+                try {
+                    FileUtils.deleteDirectory(indexDirectory.get());
+                } catch (IOException e) {
+                    LOG.warn("Failed to delete the old Index : ", indexDirectory.get().getAbsolutePath());
+                }
+
+                initializeIndexDirectory();
+
+            }
+        } else {
+
+            // Create current version directory at first start without index
+            initializeIndexDirectory();
+
+        }
+
+    }
+
+    /**
+     * Create index directory for initialization.
+     * Create a directory with a fixed name,
+     * and immediately below create an index version file that represents the current version.
+     */
+    private void initializeIndexDirectory() {
+        try {
+            if (indexDirectory.get().mkdir() && indexVersionFile.get().createNewFile()) {
+                LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);
+            } else {
+                LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
+            }
+        } catch (IOException e) {
+            LOG.error("Failed to create index directory :  (index version "
+                    .concat(Integer.toString(INDEX_VERSION))
+                    .concat("). "), e);
+        }
+    }
+
+    private void expunge() {
 
         List<MediaFile> mediaFiles = mediaFileDao.getExpungementCandidate();
 
@@ -212,30 +377,30 @@ public class IndexManager {
                 || MediaType.PODCAST == m.getMediaType()
                 || MediaType.AUDIOBOOK == m.getMediaType()
                 || MediaType.VIDEO == m.getMediaType())
-            .map(m -> util.createPrimarykey(m))
+            .map(m -> documentFactory.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(IndexType.SONG).deleteDocuments(primarykeys);
+            writers.get(IndexType.SONG).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
 
         primarykeys = mediaFiles.stream()
             .filter(m -> MediaType.ALBUM == m.getMediaType())
-            .map(m -> util.createPrimarykey(m))
+            .map(m -> documentFactory.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(IndexType.ALBUM).deleteDocuments(primarykeys);
+            writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
 
         List<Artist> artists = artistDao.getExpungementCandidate();
         primarykeys = artists.stream()
-            .map(m -> util.createPrimarykey(m))
+            .map(m -> documentFactory.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
+            writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
@@ -243,69 +408,12 @@ public class IndexManager {
         List<Album> albums = albumDao.getExpungementCandidate();
 
         primarykeys = albums.stream()
-            .map(m -> util.createPrimarykey(m))
+            .map(m -> documentFactory.createPrimarykey(m))
             .toArray(i -> new Term[i]);
         try {
-            indexWriterMap.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
+            writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete albumId3 doc.", e);
-        }
-
-    }
-
-    public final void startIndexing() {
-        try {
-
-            indexWriterMap.put(IndexType.ARTIST, createIndexWriter(IndexType.ARTIST));
-            indexWriterMap.put(IndexType.ARTIST_ID3, createIndexWriter(IndexType.ARTIST_ID3));
-            indexWriterMap.put(IndexType.ALBUM, createIndexWriter(IndexType.ALBUM));
-            indexWriterMap.put(IndexType.ALBUM_ID3, createIndexWriter(IndexType.ALBUM_ID3));
-            indexWriterMap.put(IndexType.SONG, createIndexWriter(IndexType.SONG));
-            indexWriterMap.put(IndexType.GENRE, createIndexWriter(IndexType.GENRE));
-            indexWriterMap.get(IndexType.GENRE).deleteAll();
-
-        } catch (IOException e) {
-            LOG.error("Failed to create search index.", e);
-        }
-    }
-
-    public void stopIndexing() {
-
-        expunge();
-
-        stopIndexing(IndexType.ARTIST);
-        stopIndexing(IndexType.ARTIST_ID3);
-        stopIndexing(IndexType.ALBUM);
-        stopIndexing(IndexType.ALBUM_ID3);
-        stopIndexing(IndexType.SONG);
-        stopIndexing(IndexType.GENRE);
-
-    }
-
-    private void stopIndexing(IndexType type) {
-
-        long count = -1;
-        // close
-        try {
-            count = indexWriterMap.get(type).commit();
-            indexWriterMap.get(type).close();
-            indexWriterMap.remove(type);
-            LOG.info("Success to create or update search index : [" + type + "]");
-        } catch (IOException e) {
-            LOG.error("Failed to create search index.", e);
-        } finally {
-            FileUtil.closeQuietly(indexWriterMap.get(type));
-        }
-
-        // refresh
-        if (-1 != count && searcherManagerMap.containsKey(type)) {
-            try {
-                searcherManagerMap.get(type).maybeRefresh();
-                LOG.info("SearcherManager has been refreshed : [" + type + "]");
-            } catch (IOException e) {
-                LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
-                searcherManagerMap.remove(type);
-            }
         }
 
     }
@@ -326,7 +434,6 @@ public class IndexManager {
             return Collections.emptyList();
         }
 
-        final Query query = queryFactory.toPreAnalyzedGenres(genres);
         IndexSearcher searcher = getSearcher(IndexType.GENRE);
         if(isEmpty(searcher)) {
             return Collections.emptyList();
@@ -334,8 +441,9 @@ public class IndexManager {
 
         List<String> result = new ArrayList<>();
         try {
+            final Query query = queryFactory.toPreAnalyzedGenres(genres);
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            int totalHits = util.round.apply(topDocs.totalHits);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
             for (int i = 0; i < totalHits; i++) {
                 IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc).getFields(FieldNames.GENRE_KEY);
                 if (!isEmpty(fields)) {
@@ -358,81 +466,13 @@ public class IndexManager {
     public void updateArtistSort(Album album) {
         try {
             if (isEmpty(album.getArtistSort())) {
-                Term term = new Term(FieldNames.ID, Integer.toString(album.getId()));
-                Field field = new TextField(FieldNames.ARTIST_READING, album.getArtistSort(), Store.YES);
-                Field field2 = new SortedDocValuesField(FieldNames.ARTIST_READING, new BytesRef(album.getArtistSort()));
-                indexWriterMap.get(IndexType.ALBUM_ID3).updateDocValues(term, field, field2);
+                Term primarykey = documentFactory.createPrimarykey(album);
+                List<Field> updates = documentFactory.createWordsFields.apply(FieldNames.ARTIST_READING, album.getArtistSort());
+                writers.get(IndexType.ALBUM_ID3).updateDocValues(primarykey, updates.toArray(new Field[updates.size()]));
             }
         } catch (Exception x) {
             LOG.error("Failed to create search index for " + album, x);
         }
-    }
-
-    /**
-     * Update Genres.
-     * 
-     * @param album contents of update.
-     * @since 101.2.0
-     */
-    public void updateGenres() {
-
-        Map<String, Genre> genres = new HashMap<String, Genre>();
-
-        // song count
-        IndexSearcher searcher = getSearcher(IndexType.SONG);
-        try {
-            if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
-                TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
-                BytesRef bytesRef = termEnum.next();
-                while (!isEmpty(bytesRef)) {
-                    String name = bytesRef.utf8ToString();
-                    genres.put(name, new Genre(name));
-                    bytesRef = termEnum.next();
-                }
-                Iterator<Genre> values = genres.values().iterator();
-                while (values.hasNext()) {
-                    String name = values.next().getName();
-                    Query query = queryFactory.getMediasForGenreCount(name, true);
-                    int count = searcher.count(query);
-                    genres.get(name).setSongCount(count);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Failed to update song count for genres.", e);
-        } finally {
-            release(IndexType.SONG, searcher);
-        }
-
-        // album count
-        searcher = getSearcher(IndexType.ALBUM);
-        try {
-            if (0 != searcher.getIndexReader().getDocCount(FieldNames.GENRE)) {
-                TermsEnum termEnum = MultiFields.getTerms(searcher.getIndexReader(), FieldNames.GENRE).iterator();
-                BytesRef bytesRef = termEnum.next();
-                while (!isEmpty(bytesRef)) {
-                    String name = bytesRef.utf8ToString();
-                    if (!genres.containsKey(name)) {
-                        genres.put(name, new Genre(name));
-                    }
-                    bytesRef = termEnum.next();
-                }
-                Iterator<Genre> values = genres.values().iterator();
-                while (values.hasNext()) {
-                    String name = values.next().getName();
-                    Query query = queryFactory.getMediasForGenreCount(name, false);
-                    int count = searcher.count(query);
-                    genres.get(name).setAlbumCount(count);
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Failed to update song count for genres.", e);
-        } finally {
-            release(IndexType.ALBUM, searcher);
-        }
-
-        // update db
-        mediaFileDao.updateGenres(genres.values().stream()
-                .collect(Collectors.toList()));
     }
 
     /*

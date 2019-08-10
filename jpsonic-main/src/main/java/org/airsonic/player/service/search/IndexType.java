@@ -52,8 +52,8 @@ public enum IndexType {
             FieldNames.ALBUM_EX,
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
-            FieldNames.ARTIST_EX,
-            FieldNames.FOLDER ),
+            FieldNames.ARTIST_EX),
+            // FieldNames.FOLDER), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
             entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ALBUM_EX, 2.3F),
@@ -65,8 +65,8 @@ public enum IndexType {
             FieldNames.ALBUM_EX,
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
-            FieldNames.ARTIST_EX,
-            FieldNames.FOLDER_ID ),
+            FieldNames.ARTIST_EX),
+            // FieldNames.FOLDER_ID), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
             entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ALBUM_EX, 2.3F),
@@ -76,8 +76,8 @@ public enum IndexType {
         fieldNames(
             FieldNames.ARTIST_READING,
             FieldNames.ARTIST,
-            FieldNames.ARTIST_EX,
-            FieldNames.FOLDER),
+            FieldNames.ARTIST_EX),
+            // FieldNames.FOLDER), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
@@ -91,13 +91,20 @@ public enum IndexType {
 
     GENRE(
         fieldNames(
-                FieldNames.GENRE_KEY,
-                FieldNames.GENRE),
+            FieldNames.GENRE_KEY,
+            FieldNames.GENRE),
         boosts(
             entry(FieldNames.GENRE_KEY, 1.1F))),
-
+    
     ;
 
+    /**
+     * Define the field's applied boost value when searching IndexType.
+     * 
+     * @param entry {@link #entry(String, float)}.
+     *              When specifying multiple values, enumerate entries.
+     * @return Map of boost values ​​to be applied to the field
+     */
     @SafeVarargs
     private static final Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
         Map<String, Float> m = new HashMap<>();
@@ -105,35 +112,55 @@ public enum IndexType {
         return Collections.unmodifiableMap(m);
     }
 
+    /**
+     * Create an entry representing the boost value for the field.
+     * 
+     * @param k Field name defined by FieldNames
+     * @param v Boost value
+     * @return
+     */
     private static final SimpleEntry<String, Float> entry(String k, float v) {
         return new AbstractMap.SimpleEntry<>(k, v);
     }
 
+    /**
+     * Defines the field that the input value is to search for
+     * when searching IndexType.
+     * If you specify multiple values, list the field names.
+     * 
+     * @param names
+     * @return
+     */
     private static final String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
     }
 
-    /**
-     * Returns the version string.
-     * @since 1.0
-     **/
-    public static final String getVersion() {
-        return "1.1";
-    }
-
     private final Map<String, Float> boosts;
 
-    private final String[] fields;;
+    private final String[] fields;
 
     private IndexType(String[] fieldNames, Map<String, Float> boosts) {
         this.fields = fieldNames;
         this.boosts = boosts;
     }
 
+    /**
+     * Returns a map of fields and boost values.
+     * 
+     * @return Map of fields and boost values
+     * @since legacy
+     * @see BoostQuery
+     */
     public Map<String, Float> getBoosts() {
         return boosts;
     }
 
+    /**
+     * Return some of the fields defined in the index.
+     * 
+     * @return Fields mainly used in multi-field search
+     * @since legacy
+     */
     public String[] getFields() {
         return fields;
     }

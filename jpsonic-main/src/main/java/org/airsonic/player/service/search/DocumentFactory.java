@@ -25,142 +25,247 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.IntPoint;
 import org.apache.lucene.document.SortedDocValuesField;
-import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.StoredField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexOptions;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+/**
+ * A factory that generates the documents to be stored in the index.
+ */
 @Component
 public class DocumentFactory {
+
+    private static final FieldType TYPE_ID;
+
+    private static final FieldType TYPE_ID_NO_STORE;
+
+    private static final FieldType TYPE_KEY;
+
+    static {
+
+        TYPE_ID = new FieldType();
+        TYPE_ID.setIndexOptions(IndexOptions.NONE);
+        TYPE_ID.setTokenized(false);
+        TYPE_ID.setOmitNorms(true);
+        TYPE_ID.setStored(true);
+        TYPE_ID.freeze();
+
+        TYPE_ID_NO_STORE = new FieldType();
+        TYPE_ID_NO_STORE.setIndexOptions(IndexOptions.DOCS);
+        TYPE_ID_NO_STORE.setTokenized(false);
+        TYPE_ID_NO_STORE.setOmitNorms(true);
+        TYPE_ID_NO_STORE.setStored(false);
+        TYPE_ID_NO_STORE.freeze();
+
+        TYPE_KEY = new FieldType();
+        TYPE_KEY.setIndexOptions(IndexOptions.DOCS);
+        TYPE_KEY.setTokenized(false);
+        TYPE_KEY.setOmitNorms(true);
+        TYPE_KEY.setStored(false);
+        TYPE_KEY.freeze();
+
+    }
 
     @FunctionalInterface
     private interface Consumer<T, U, V> {
         void accept(T t, U u, V v);
     };
 
-    /**
-     * Returns the version string.
-     * @since 1.0
-     **/
-    public static final String getVersion() {
-        return "1.1";
-    }
-
-    private Consumer<Document, String, String> termField = (doc, fieldName, value) -> {
-        if (isEmpty(value)) {
-            return;
-        }
-        doc.add(new TextField(fieldName, value, Store.YES));
-        doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
+    private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
+        doc.add(new StoredField(FieldNames.ID, Integer.toString(value), TYPE_ID));
     };
 
-    private BiConsumer<Document, Integer> idField = (doc, value) -> {
-        doc.add(new StringField(FieldNames.ID, Integer.toString(value), Store.YES));
+    private BiConsumer<@NonNull Document, @NonNull Integer> fieldFolderId = (doc, value) -> {
+        doc.add(new StoredField(FieldNames.FOLDER_ID, Integer.toString(value), TYPE_ID_NO_STORE));
     };
 
-    private Consumer<Document, String, String> keyField = (doc, fieldName, value) -> {
-        doc.add(new TextField(fieldName, value, Store.YES));
-        doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
+    private Consumer<@NonNull Document, @NonNull String, @NonNull String> fieldKey = (doc, field, value) -> {
+        doc.add(new StoredField(field, value, TYPE_KEY));
     };
 
-    private Consumer<Document, String, String> nullableKeyField = (doc, fieldName, value) -> {
-        if (isEmpty(value)) {
-            return;
-        }
-        doc.add(new TextField(fieldName, value, Store.YES));
-        doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
-    };
+    private BiConsumer<@NonNull  Document, @NonNull String> fieldMediatype = (doc, value) ->
+        fieldKey.accept(doc, FieldNames.MEDIA_TYPE, value);
 
-    private Consumer<Document, String, Integer> numberField = (doc, fieldName, value) -> {
+    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> 
+        fieldKey.accept(doc, FieldNames.FOLDER, value);
+
+    private Consumer<@NonNull Document, @NonNull String, @Nullable Integer> fieldYear = (doc, fieldName, value) -> {
         if (isEmpty(value)) {
             return;
         }
         doc.add(new IntPoint(fieldName, value));
-        doc.add(new StringField(fieldName, Integer.toString(value), Store.NO));//
-        doc.add(new SortedDocValuesField(fieldName, new BytesRef(value)));
     };
 
-    private BiConsumer<Document, String> pathField = (doc, value) -> {
-        doc.add(new TextField(FieldNames.FOLDER, value, Store.YES));
-        doc.add(new SortedDocValuesField(FieldNames.FOLDER, new BytesRef(value)));
+    public BiFunction<@NonNull String, @Nullable String, List<Field>>  createWordsFields = (fieldName, value) ->
+        Arrays.asList(new TextField(fieldName, value, Store.NO), new SortedDocValuesField(fieldName, new BytesRef(value)));
+
+    private Consumer<@NonNull Document, @NonNull String, @Nullable String> fieldWords = (doc, fieldName, value) -> {
+        if (isEmpty(value)) {
+            return;
+        }
+        createWordsFields.apply(fieldName, value).forEach(f -> doc.add(f));
     };
 
+    private BiConsumer<@NonNull Document, @Nullable String> fieldGenre = (doc, value) -> {
+        if (isEmpty(value)) {
+            return;
+        }
+        fieldWords.accept(doc, FieldNames.GENRE, value);
+    };
+
+    private Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> {
+        doc.add(new TextField(fieldName, value, Store.YES));
+    };
+
+    public Term createPrimarykey(Album album) {
+        return new Term(FieldNames.ID, Integer.toString(album.getId()));
+    };
+
+    public Term createPrimarykey(Artist artist) {
+        return new Term(FieldNames.ID, Integer.toString(artist.getId()));
+    };
+
+    public Term createPrimarykey(MediaFile mediaFile) {
+        return new Term(FieldNames.ID, Integer.toString(mediaFile.getId()));
+    };
+
+    public Term createPrimarykey(String genre) {
+        return new Term(FieldNames.GENRE_KEY, genre);
+    };
+
+    /**
+     * Create a document.
+     * 
+     * @param mediaFile target of document
+     * @return document
+     * @since legacy
+     */
     public Document createAlbumDocument(MediaFile mediaFile) {
         Document doc = new Document();
-        idField.accept(doc, mediaFile.getId());
-        termField.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
-        termField.accept(doc, FieldNames.ALBUM_EX, mediaFile.getAlbumName());
-        termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
+        fieldId.accept(doc, mediaFile.getId());
+        fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
-        pathField.accept(doc, mediaFile.getFolder());
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldGenre.accept(doc, mediaFile.getGenre());
+        fieldWords.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
+        fieldWords.accept(doc, FieldNames.ALBUM_EX, mediaFile.getAlbumName());
+        fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
 
+    /**
+     * Create a document.
+     * 
+     * @param mediaFile target of document
+     * @return document
+     * @since legacy
+     */
     public Document createArtistDocument(MediaFile mediaFile) {
         Document doc = new Document();
-        idField.accept(doc, mediaFile.getId());
-        termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
+        fieldId.accept(doc, mediaFile.getId());
+        fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
         String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        pathField.accept(doc, mediaFile.getFolder());
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldFolderPath.accept(doc, mediaFile.getFolder());
+        return doc;
+    }
+
+    /**
+     * Create a document.
+     * 
+     * @param album target of document
+     * @return document
+     * @since legacy
+     */
+    public Document createAlbumId3Document(Album album) {
+        Document doc = new Document();
+        fieldId.accept(doc, album.getId());
+        fieldWords.accept(doc, FieldNames.ARTIST, album.getArtist());
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, album.getArtist());
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
+        fieldGenre.accept(doc, album.getGenre());
+        fieldWords.accept(doc, FieldNames.ALBUM, album.getName());
+        fieldWords.accept(doc, FieldNames.ALBUM_EX, album.getName());
+        fieldFolderId.accept(doc, album.getFolderId());
+        return doc;
+    }
+
+    /**
+     * Create a document.
+     * 
+     * @param artist target of document
+     * @param musicFolder target folder exists
+     * @return document
+     * @since legacy
+     */
+    /*
+     *  XXX 3.x -> 8.x :
+     *  Only null check specification of createArtistId3Document is different from legacy.
+     *  (The reason is only to simplify the function.)
+     *  
+     *  Since the field of domain object Album is nonnull,
+     *  null check was not performed.
+     *  
+     *  In implementation ARTIST and ALBUM became nullable,
+     *  but null is not input at this point in data flow.
+     */
+    public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
+        Document doc = new Document();
+        fieldId.accept(doc, artist.getId());
+        fieldWords.accept(doc, FieldNames.ARTIST, artist.getName());
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, artist.getName());
+        String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldFolderId.accept(doc, musicFolder.getId());
+        return doc;
+    }
+
+    /**
+     * Create a document.
+     * 
+     * @param mediaFile target of document
+     * @return document
+     * @since legacy
+     */
+    public Document createSongDocument(MediaFile mediaFile) {
+        Document doc = new Document();
+        fieldId.accept(doc, mediaFile.getId());
+        fieldMediatype.accept(doc, mediaFile.getMediaType().name());
+        fieldWords.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
+        fieldWords.accept(doc, FieldNames.TITLE_EX, mediaFile.getTitle());
+        fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
+        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldGenre.accept(doc, mediaFile.getGenre());
+        fieldYear.accept(doc, FieldNames.YEAR, mediaFile.getYear());
+        fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
 
     public Document createGenreDocument(MediaFile mediaFile) {
         Document doc = new Document();
-        keyField.accept(doc, FieldNames.GENRE_KEY, mediaFile.getGenre());
-        keyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
-        return doc;
-    }
-
-    public Document createDocument(Album album) {
-        Document doc = new Document();
-        idField.accept(doc, album.getId());
-        termField.accept(doc, FieldNames.ALBUM, album.getName());
-        termField.accept(doc, FieldNames.ALBUM_EX, album.getName());
-        termField.accept(doc, FieldNames.ARTIST, album.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_EX, album.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
-        nullableKeyField.accept(doc, FieldNames.GENRE, album.getGenre());
-        numberField.accept(doc, FieldNames.FOLDER_ID, album.getFolderId());
-        return doc;
-    }
-
-    public Document createDocument(Artist artist, MusicFolder musicFolder) {
-        Document doc = new Document();
-        idField.accept(doc, artist.getId());
-        termField.accept(doc, FieldNames.ARTIST, artist.getName());
-        termField.accept(doc, FieldNames.ARTIST_EX, artist.getName());
-        String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
-        termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        numberField.accept(doc, FieldNames.FOLDER_ID, musicFolder.getId());
-        return doc;
-    }
-
-    public Document createSongDocument(MediaFile mediaFile) {
-        Document doc = new Document();
-        idField.accept(doc, mediaFile.getId());
-        termField.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        termField.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        termField.accept(doc, FieldNames.ARTIST_READING, reading);
-        keyField.accept(doc, FieldNames.MEDIA_TYPE, mediaFile.getMediaType().name());
-        termField.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
-        termField.accept(doc, FieldNames.TITLE_EX, mediaFile.getTitle());
-        nullableKeyField.accept(doc, FieldNames.GENRE, mediaFile.getGenre());
-        numberField.accept(doc, FieldNames.YEAR, mediaFile.getYear());
-        pathField.accept(doc, mediaFile.getFolder());
+        fieldGenreKey.accept(doc, FieldNames.GENRE_KEY, mediaFile.getGenre());
+        fieldGenre.accept(doc, mediaFile.getGenre());
         return doc;
     }
 

@@ -38,6 +38,7 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -92,148 +93,148 @@ public class QueryFactoryTestCase {
     List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
     @Test
-    public void testSearchArtist() {
+    public void testSearchArtist() throws IOException {
         SearchCriteria criteria = new SearchCriteria();
         criteria.setOffset(10);
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, SINGLE_FOLDERS, IndexType.ARTIST);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + ")", query.toString());
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((artR:ねこ*)^1.1 art:ねこ*) ((artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((artR:abc*)^1.1 art:abc*) ((artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }
 
     @Test
-    public void testSearchAlbum() {
+    public void testSearchAlbum() throws IOException {
         SearchCriteria criteria = new SearchCriteria();
         criteria.setOffset(10);
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
-                "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+                "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((alb:ねこ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
     }
 
     @Test
-    public void testSearchSong() {
+    public void testSearchSong() throws IOException {
         SearchCriteria criteria = new SearchCriteria();
         criteria.setOffset(10);
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((tit:ネコ*)^2.3 (tit:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((tit:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((tit:abc*)^2.3 (tit:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((tit:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (titEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((tit:ねこ*)^2.3 (titEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((tit:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((tit:abc*)^2.3 (tit:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((tit:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
     }
 
     @Test
-    public void testSearchArtistId3() {
+    public void testSearchArtistId3() throws IOException {
         SearchCriteria criteria = new SearchCriteria();
         criteria.setOffset(10);
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((artR:ねこ*)^1.1 art:ねこ*) ((artR:いぬ*)^1.1 art:いぬ*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((artR:abc*)^1.1 art:abc*) ((artR:ねこ*)^1.1 art:ねこ*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
     @Test
-    public void testSearchAlbumId3() {
+    public void testSearchAlbumId3() throws IOException {
         SearchCriteria criteria = new SearchCriteria();
         criteria.setOffset(10);
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((alb:ねこ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 query.toString());
     }
 
     @Test
-    public void testSearchByNameArtist() {
-        Query query = queryFactory.searchByName(QUERY_PATTERN_INCLUDING_KATAKANA, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_ALPHANUMERIC_ONLY, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_HIRAGANA_ONLY, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_OTHERS, MULTI_FOLDERS, IndexType.ARTIST_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+    public void testSearchByNameArtist() throws IOException {
+        Query query = queryFactory.searchByName(FieldNames.ARTIST, QUERY_PATTERN_INCLUDING_KATAKANA);
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "art:ネコ art:abc*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ARTIST, QUERY_PATTERN_ALPHANUMERIC_ONLY);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "art:abc art:123*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ARTIST, QUERY_PATTERN_HIRAGANA_ONLY);
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "art:ねこ art:いぬ*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ARTIST, QUERY_PATTERN_OTHERS);
+        assertEquals(QUERY_PATTERN_OTHERS, "art:abc art:ねこ*", query.toString());
     }
 
     @Test
-    public void testSearchByNameAlbum() {
-        Query query = queryFactory.searchByName(QUERY_PATTERN_INCLUDING_KATAKANA, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((alb:ネコ*)^2.3 (alb:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_ALPHANUMERIC_ONLY, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((alb:abc*)^2.3 (alb:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_HIRAGANA_ONLY, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((alb:ねこ*)^2.3 (alb:いぬ*)^2.3 (albEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_OTHERS, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((alb:abc*)^2.3 (alb:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+    public void testSearchByNameAlbum() throws IOException {
+        Query query = queryFactory.searchByName(FieldNames.ALBUM, QUERY_PATTERN_INCLUDING_KATAKANA);
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "alb:ネコ alb:abc*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ALBUM, QUERY_PATTERN_ALPHANUMERIC_ONLY);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "alb:abc alb:123*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ALBUM, QUERY_PATTERN_HIRAGANA_ONLY);
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "alb:ねこ alb:いぬ*", query.toString());
+        query = queryFactory.searchByName(FieldNames.ALBUM, QUERY_PATTERN_OTHERS);
+        assertEquals(QUERY_PATTERN_OTHERS, "alb:abc alb:ねこ*", query.toString());
     }
 
     @Test
-    public void testSearchByNameTitle() {
-        Query query = queryFactory.searchByName(QUERY_PATTERN_INCLUDING_KATAKANA, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+((tit:ネコ*)^2.3 (tit:abc*)^2.3 (artR:ねこ*)^1.1 (artR:abc*)^1.1 art:ネコ* art:abc*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_ALPHANUMERIC_ONLY, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+((tit:abc*)^2.3 (tit:123*)^2.3 (artR:abc*)^1.1 (artR:123*)^1.1 art:abc* art:123*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_HIRAGANA_ONLY, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+((tit:ねこ*)^2.3 (tit:いぬ*)^2.3 (titEX:ねこいぬ*)^2.3 (artR:ねこ*)^1.1 (artR:いぬ*)^1.1 art:ねこ* art:いぬ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
-        query = queryFactory.searchByName(QUERY_PATTERN_OTHERS, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_OTHERS, "+((tit:abc*)^2.3 (tit:ねこ*)^2.3 (artR:abc*)^1.1 (artR:ねこ*)^1.1 art:abc* art:ねこ*) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+    public void testSearchByNameTitle() throws IOException {
+        Query query = queryFactory.searchByName(FieldNames.TITLE, QUERY_PATTERN_INCLUDING_KATAKANA);
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "tit:ネコ tit:abc*", query.toString());
+        query = queryFactory.searchByName(FieldNames.TITLE, QUERY_PATTERN_ALPHANUMERIC_ONLY);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "tit:abc tit:123*", query.toString());
+        query = queryFactory.searchByName(FieldNames.TITLE, QUERY_PATTERN_HIRAGANA_ONLY);
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "tit:ねこ tit:いぬ*", query.toString());
+        query = queryFactory.searchByName(FieldNames.TITLE, QUERY_PATTERN_OTHERS);
+        assertEquals(QUERY_PATTERN_OTHERS, "tit:abc tit:ねこ*", query.toString());
     }
 
     @Test
-    public void testGetRandomSongs() {
+    public void testGetRandomSongs() throws IOException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), Integer.valueOf(1900), Integer.valueOf(2000), SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria), "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 +")", query.toString());
@@ -258,21 +259,21 @@ public class QueryFactoryTestCase {
     @Test
     public void testGetRandomAlbums() {
         Query query = queryFactory.getRandomAlbums(SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(f:" + PATH1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(f:" + PATH1 +")", query.toString());
         query = queryFactory.getRandomAlbums(MULTI_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }
 
     @Test
     public void testGetRandomAlbumsId3() {
         Query query = queryFactory.getRandomAlbumsId3(SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(fId:" + FID1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(fId:" + FID1 +")", query.toString());
         query = queryFactory.getRandomAlbumsId3(MULTI_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
 
     @Test
-    public void testGetMediasByGenre() {
+    public void testGetMediasByGenre() throws IOException {
         Query query = queryFactory.getMediasByGenres("Instrumental pop", SINGLE_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(f:" + PATH1 +")", query.toString());
         query = queryFactory.getMediasByGenres("Rock & Roll", MULTI_FOLDERS);
@@ -284,7 +285,7 @@ public class QueryFactoryTestCase {
     }
 
     @Test
-    public void testGetAlbumId3sByGenre() {
+    public void testGetAlbumId3sByGenre() throws IOException {
         Query query = queryFactory.getAlbumId3sByGenres("Instrumental pop", SINGLE_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(fId:" + FID1 +")", query.toString());
         query = queryFactory.getAlbumId3sByGenres("Rock & Roll", MULTI_FOLDERS);
@@ -294,7 +295,7 @@ public class QueryFactoryTestCase {
     }
 
     @Test
-    public void testGetMediasForGenreCount() {
+    public void testGetMediasForGenreCount() throws IOException {
         Query query = queryFactory.getMediasForGenreCount("Instrumental pop", true);
         assertEquals("song count", "+(m:MUSIC m:AUDIOBOOK m:PODCAST) +(g:Instrumental pop)", query.toString());
         query = queryFactory.getMediasForGenreCount("Pop;Pop/Funk", false);
@@ -302,7 +303,7 @@ public class QueryFactoryTestCase {
     }
 
     @Test
-    public void testToPreAnalyzedGenres() {
+    public void testToPreAnalyzedGenres() throws IOException {
         Query query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock"));
         assertEquals("genre", "+(g:Classic Rock)", query.toString());
         query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock", "Rock & Roll"));

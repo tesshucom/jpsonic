@@ -39,14 +39,13 @@ public class IndexTypeTestCase extends TestCase {
 
     @Test
     public void testAlbumFields() {
-        assertEquals(6, IndexType.ALBUM.getFields().length);
+        assertEquals(5, IndexType.ALBUM.getFields().length);
         assertEquals(0, Arrays.stream(IndexType.ALBUM.getFields())
                 .filter(f -> FieldNames.ALBUM.equals(f))
                 .filter(f -> FieldNames.ALBUM_EX.equals(f))
                 .filter(f -> FieldNames.ARTIST_READING.equals(f))
                 .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f))
-                .filter(f -> FieldNames.FOLDER.equals(f)).count());
+                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
@@ -59,14 +58,13 @@ public class IndexTypeTestCase extends TestCase {
 
     @Test
     public void testAlbumId3Fields() {
-        assertEquals(6, IndexType.ALBUM_ID3.getFields().length);
+        assertEquals(5, IndexType.ALBUM_ID3.getFields().length);
         assertEquals(0, Arrays.stream(IndexType.ALBUM_ID3.getFields())
                 .filter(f -> FieldNames.ALBUM.equals(f))
                 .filter(f -> FieldNames.ALBUM_EX.equals(f))
                 .filter(f -> FieldNames.ARTIST_READING.equals(f))
                 .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f))
-                .filter(f -> FieldNames.FOLDER_ID.equals(f)).count());
+                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
@@ -77,12 +75,11 @@ public class IndexTypeTestCase extends TestCase {
 
     @Test
     public void testArtistFields() {
-        assertEquals(4, IndexType.ARTIST.getFields().length);
+        assertEquals(3, IndexType.ARTIST.getFields().length);
         assertEquals(0, Arrays.stream(IndexType.ARTIST.getFields())
             .filter(f -> FieldNames.ARTIST_READING.equals(f))
             .filter(f -> FieldNames.ARTIST.equals(f))
-            .filter(f -> FieldNames.ARTIST_EX.equals(f))
-            .filter(f -> FieldNames.FOLDER.equals(f)).count());
+            .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test

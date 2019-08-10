@@ -38,13 +38,13 @@ import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Analyzer provider.
@@ -57,43 +57,84 @@ import java.util.Map;
 @Component
 public final class AnalyzerFactory {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnalyzerFactory.class);
-
     private Analyzer analyzer;
 
     private Analyzer queryAnalyzer;
-    
+
     public static final String STOP_TAGS = "org/apache/lucene/analysis/ja/stoptags.txt";
 
     public static final String STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
 
-    private CustomAnalyzer.Builder addWildCard(CustomAnalyzer.Builder builder) throws IOException {
-        builder.addTokenFilter(PatternReplaceFilterFactory.class, "pattern", "(^(?!.*\\*$).+$)", "replacement", "$1*", "replace", "first");
+    /*
+     * XXX 3.x -> 8.x : Convert UAX#29 Underscore Analysis to Legacy Analysis
+     * 
+     * Because changes in underscores before and after words
+     * have a major effect on user's forward match search.
+     * 
+     * XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
+     * 
+     * @see AnalyzerFactoryTestCase
+     *
+     */
+    @SuppressWarnings("unused")
+    private void addTokenFilterForUnderscoreRemovalAroundToken (Builder builder)  throws IOException{
+        builder
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "^\\_", "replacement", "", "replace", "all")
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\_$", "replacement", "", "replace", "all");
+    }
+
+    /*
+     * XXX 3.x -> 8.x : Handle brackets correctly
+     * 
+     * Process the input value of Genre search for search of domain value.
+     * 
+     * The tag parser performs special character conversion
+     * when converting input values ​​from a file.
+     * Therefore, the domain value may be different from the original value.
+     * This filter allows searching by user readable value (file tag value).
+     * 
+     * @see org.jaudiotagger.tag.id3.framebody.FrameBodyTCON#convertID3v23GenreToGeneric
+     * (TCON stands for Genre with ID3 v2.3-v2.4)
+     * Such processing exists because brackets in the Gener string have a special meaning.
+     */
+    private void addTokenFilterForTokenToDomainValue (Builder builder)  throws IOException{
+        builder
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\(", "replacement", "", "replace", "all")
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\)$", "replacement", "", "replace", "all")
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\)", "replacement", " ", "replace", "all")
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\{\\}", "replacement", "\\{ \\}", "replace", "all")
+            .addTokenFilter(PatternReplaceFilterFactory.class,
+                    "pattern", "\\[\\]", "replacement", "\\[ \\]", "replace", "all");
+    }
+
+    private Builder createDefaultAnalyzerBuilder() throws IOException {
+        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
+        builder = basicFilters(builder);
         return builder;
+    }
+
+    private Builder createGenreAnalyzerBuilder() throws IOException {
+        Builder builder = CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class);
+        addTokenFilterForTokenToDomainValue(builder);
+        return builder.addTokenFilter(CJKWidthFilterFactory.class)
+        .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal",
+        "false");
     }
 
     private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder) throws IOException {
         builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
-                .addTokenFilter(StopFilterFactory.class, "words", STOP_WARDS, "ignoreCase", "true")
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
-                .addTokenFilter(LowerCaseFilterFactory.class);
-        return builder;
-    }
-
-    private Builder createMediaAnalyzerBuilder() throws IOException {
-        return createKeyAnalyzerBuilder().addTokenFilter(PunctuationStemFilterFactory.class);
-    }
-
-    private Builder createGenreAnalyzerBuilder() throws IOException {
-        return CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class)
-                .addTokenFilter(CJKWidthFilterFactory.class)
-                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false");
-    }
-
-    private Builder createMultiTokenAnalyzerBuilder() throws IOException {
-        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
-        builder = basicFilters(builder);
+                .addTokenFilter(LowerCaseFilterFactory.class)
+                .addTokenFilter(StopFilterFactory.class, "words", STOP_WARDS, "ignoreCase", "true")
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
+                // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
+        //addTokenFilterForUnderscoreRemovalAroundToken(builder); // XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
         return builder;
     }
 
@@ -129,75 +170,80 @@ public final class AnalyzerFactory {
     }
 
     /**
-     * Return analyzer.
+     * Returns the Analyzer to use when generating the index.
+     * 
+     * Whether this analyzer is applied to input values ​​depends on
+     * the definition of the document's fields.
      * 
      * @return analyzer for index
+     * @see DocumentFactory
      */
-    public Analyzer getAnalyzer() {
-        if (null == this.analyzer) {
+    public Analyzer getAnalyzer() throws IOException {
+        if (isEmpty(analyzer)) {
             try {
 
+                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder().build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
-                Analyzer media = createMediaAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer genre = createGenreAnalyzerBuilder().build();
-                Analyzer multiTerm = createMultiTokenAnalyzerBuilder().build();
                 Analyzer artistExceptional = createArtistExceptionalBuilder().build();
                 Analyzer exceptional = createExceptionalBuilder().build();
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.FOLDER, key);
                 analyzerMap.put(FieldNames.GENRE_KEY, key);
                 analyzerMap.put(FieldNames.GENRE, genre);
-                analyzerMap.put(FieldNames.MEDIA_TYPE, media);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);
 
-                this.analyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);
+                this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, analyzerMap);
 
             } catch (IOException e) {
-                LOG.error("Error when initializing Analyzer.", e);
+                throw new IOException("Error when initializing Analyzer.", e);
             }
         }
-        return this.analyzer;
+        return analyzer;
     }
 
     /**
-     * Return analyzer.
+     * Returns the analyzer to use when generating a query for index search.
      * 
-     * @return analyzer for index
+     * String processing handled by QueryFactory
+     * is limited to Lucene's modifier.
+     * 
+     * The processing of the operands is expressed
+     * in the AnalyzerFactory implementation.
+     * Rules for tokenizing/converting input values ​
+     * should not be described in QueryFactory.
+     * 
+     * @return analyzer for query
+     * @see QueryFactory
      */
-    public Analyzer getQueryAnalyzer() {
-        if (null == this.queryAnalyzer) {
+    public Analyzer getQueryAnalyzer() throws IOException {
+        if (isEmpty(queryAnalyzer)) {
             try {
 
-                Analyzer key = createKeyAnalyzerBuilder().build();
-                Analyzer media = createMediaAnalyzerBuilder().build();
+                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder().build();
                 Analyzer genre = createGenreAnalyzerBuilder().build();
-                Analyzer id3Artist = addWildCard(createId3ArtistAnalyzerBuilder()).build();
-                Analyzer multiTerm = addWildCard(createMultiTokenAnalyzerBuilder()).build();
-                Analyzer artistExceptional = addWildCard(createArtistExceptionalBuilder()).build();
-                Analyzer exceptional = addWildCard(createExceptionalBuilder()).build();
+                Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
+                Analyzer artistExceptional = createArtistExceptionalBuilder().build();
+                Analyzer exceptional = createExceptionalBuilder().build();
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.FOLDER, key);
-                analyzerMap.put(FieldNames.GENRE_KEY, key);
                 analyzerMap.put(FieldNames.GENRE, genre);
-                analyzerMap.put(FieldNames.MEDIA_TYPE, media);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);
 
-                this.queryAnalyzer = new PerFieldAnalyzerWrapper(multiTerm, analyzerMap);
+                this.queryAnalyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, analyzerMap);
 
             } catch (IOException e) {
-                LOG.error("Error when initializing Analyzer.", e);
+                throw new IOException("Error when initializing Analyzer.", e);
             }
         }
-        return this.queryAnalyzer;
+        return queryAnalyzer;
     }
 
 }

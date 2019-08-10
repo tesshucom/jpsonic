@@ -108,7 +108,8 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     s.equals("MEDIA_FILE")
                     | s.equals("ARTIST")
                     | s.equals("MUSIC_FOLDER")
-                    | s.equals("ALBUM"))
+                    | s.equals("ALBUM")
+                    | s.equals("GENRE"))
                     .forEach(tableName ->
                         System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
             System.out.println("--- *********************** ---");

@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
+import static org.airsonic.player.service.search.IndexType.*;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -44,73 +45,36 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private QueryFactory queryFactory;
-    
     @Autowired
-    private IndexManager deligate;
-
+    private IndexManager indexManager;
     @Autowired
     private SearchServiceUtilities util;
 
+    // TODO Should be changed to SecureRandom?
     private final Random random = new Random(System.currentTimeMillis());
 
     @Override
-    public String getVersion() {
-        return deligate.getVersion();
-    }
+    public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
+            IndexType indexType) {
 
-    @Override
-    public final void startIndexing() {
-        deligate.startIndexing();
-    }
-
-    @Override
-    public void index(MediaFile mediaFile) {
-        deligate.index(mediaFile);
-    }
-
-    @Override
-    public void index(Artist artist, MusicFolder musicFolder) {
-        deligate.index(artist, musicFolder);
-    }
-
-    @Override
-    public void index(Album album) {
-        deligate.index(album);
-    }
-
-    @Override
-    public void stopIndexing() {
-        deligate.stopIndexing();
-    }
-
-    @Override
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return deligate.getGenres(sortByAlbum);
-    }
-
-    @Override
-    public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType) {
-
-        final int offset = criteria.getOffset();
-        final int count = criteria.getCount();
-        final SearchResult result = new SearchResult();
+        SearchResult result = new SearchResult();
+        int offset = criteria.getOffset();
+        int count = criteria.getCount();
         result.setOffset(offset);
 
-        if (count <= 0) {
+        if (count <= 0)
             return result;
-        }
 
-        final Query query = queryFactory.search(criteria, musicFolders, indexType);
-        IndexSearcher searcher = deligate.getSearcher(indexType);
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
         if(isEmpty(searcher)) {
             return result;
         }
 
         try {
+            Query query = queryFactory.search(criteria, musicFolders, indexType);
 
             TopDocs topDocs = searcher.search(query, offset + count);
-
-            int totalHits = util.round.apply(topDocs.totalHits);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
@@ -122,60 +86,13 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            deligate.release(indexType, searcher);
-        }
-        return result;
-    }
-
-    @Override
-    public <T> ParamSearchResult<T> searchByName(String name, int offset, int count, List<MusicFolder> folderList, Class<T> assignableClass) {
-
-        // we only support album, artist, and song for now
-        @Nullable
-        IndexType indexType = util.getIndexType.apply(assignableClass);
-        @Nullable
-        String fieldName = util.getFieldName.apply(assignableClass);
-
-        ParamSearchResult<T> result = new ParamSearchResult<T>();
-        result.setOffset(offset);
-
-        if (isEmpty(indexType) || isEmpty(fieldName) || count <= 0) {
-            return result;
-        }
-
-        Query query = queryFactory.searchByName(name, folderList, indexType);
-        IndexSearcher searcher = deligate.getSearcher(indexType);
-        if(isEmpty(searcher)) {
-            return result;
-        }
-
-        try {
-            SortField[] sortFields = Arrays.stream(indexType.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING))
-                    .filter(n -> !FieldNames.FOLDER.equals(n.toString()) && !FieldNames.FOLDER_ID.equals(n.toString()))
-                    .toArray(i -> new SortField[i]);
-            Sort sort = new Sort(sortFields);
-            TopDocs topDocs = searcher.search(query, offset + count, sort);
-
-            int totalHits = util.round.apply(topDocs.totalHits);
-            result.setTotalHits(totalHits);
-            int start = Math.min(offset, totalHits);
-            int end = Math.min(start + count, totalHits);
-
-            for (int i = start; i < end; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addIgnoreNull(result, indexType, util.getId.apply(doc), assignableClass);
-            }
-
-        } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
-        } finally {
-            deligate.release(indexType, searcher);
+            indexManager.release(indexType, searcher);
         }
         return result;
     }
 
     /**
+     * Common processing of random method.
      * 
      * @param count Number of albums to return.
      * @param searcher
@@ -184,13 +101,12 @@ public class SearchServiceImpl implements SearchService {
      * @return result
      * @throws IOException
      */
-    private final <D> List<D> createRandomFiles(
-            int count,
-            IndexSearcher searcher,
-            Query query,
-            BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException{
+    private final <D> List<D> createRandomDocsList(
+            int count, IndexSearcher searcher, Query query, BiConsumer<List<D>, Integer> id2ListCallBack)
+            throws IOException {
 
-        List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+        List<Integer> docs = Arrays
+                .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
                 .map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
@@ -208,104 +124,127 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
-        final Query query = queryFactory.getRandomSongs(criteria);
-        IndexSearcher searcher = deligate.getSearcher(IndexType.SONG);
-        if(isEmpty(searcher)) {
+        IndexSearcher searcher = indexManager.getSearcher(SONG);
+        if (isEmpty(searcher)) {
+            // At first start
             return Collections.emptyList();
         }
 
         try {
-            return createRandomFiles(criteria.getCount(), searcher, query, (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM, id));
+
+            Query query = queryFactory.getRandomSongs(criteria);
+            return createRandomDocsList(criteria.getCount(), searcher, query,
+                    (dist, id) -> util.addIgnoreNull(dist, SONG, id));
+
         } catch (IOException e) {
             LOG.error("Failed to search or random songs.", e);
         } finally {
-            deligate.release(IndexType.SONG, searcher);
+            indexManager.release(IndexType.SONG, searcher);
         }
-
         return Collections.emptyList();
-
     }
 
     @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
-        Query query = queryFactory.getRandomAlbums(musicFolders);
-        IndexSearcher searcher = deligate.getSearcher(IndexType.ALBUM);
-        if(isEmpty(searcher)) {
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
+        if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 
+        Query query = queryFactory.getRandomAlbums(musicFolders);
+
         try {
-            return createRandomFiles(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM, id));
+
+            return createRandomDocsList(count, searcher, query,
+                    (dist, id) -> util.addIgnoreNull(dist, ALBUM, id));
+
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
-            deligate.release(IndexType.ALBUM, searcher);
+            indexManager.release(IndexType.ALBUM, searcher);
         }
-
         return Collections.emptyList();
-
     }
 
     @Override
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
-        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
-        IndexSearcher searcher = deligate.getSearcher(IndexType.ALBUM_ID3);
-        if(isEmpty(searcher)) {
-            return Collections.emptyList();
-        }
-
-        try {
-            return createRandomFiles(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM_ID3, id));
-        } catch (IOException e) {
-            LOG.error("Failed to search for random albums.", e);
-        } finally {
-            deligate.release(IndexType.ALBUM_ID3, searcher);
-        }
-
-        return Collections.emptyList();
-
-    }
-
-    @Override
-    public List<Album> getAlbumId3sByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
-
-        if (isEmpty(genres)) {
-            return Collections.emptyList();
-        }
-
-        Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
-        IndexSearcher searcher = deligate.getSearcher(IndexType.ALBUM_ID3);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 
-        List<Album> result = new ArrayList<>();
+        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
         try {
-            SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                    .filter(n -> n.equals(FieldNames.FOLDER_ID))
+
+            return createRandomDocsList(count, searcher, query,
+                    (dist, id) -> util.addIgnoreNull(dist, ALBUM_ID3, id));
+
+        } catch (IOException e) {
+            LOG.error("Failed to search for random albums.", e);
+        } finally {
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+        return Collections.emptyList();
+    }
+
+    @Override
+    public <T> ParamSearchResult<T> searchByName(String name, int offset, int count,
+            List<MusicFolder> folderList, Class<T> assignableClass) {
+
+        // we only support album, artist, and song for now
+        @Nullable
+        IndexType indexType = util.getIndexType.apply(assignableClass);
+        @Nullable
+        String fieldName = util.getFieldName.apply(assignableClass);
+
+        ParamSearchResult<T> result = new ParamSearchResult<T>();
+        result.setOffset(offset);
+
+        if (isEmpty(indexType) || isEmpty(fieldName) || count <= 0) {
+            return result;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        if(isEmpty(searcher)) {
+            return result;
+        }
+
+        try {
+
+            Query query = queryFactory.searchByName(fieldName, name);
+
+            SortField[] sortFields = Arrays
+                    .stream(indexType.getFields())
                     .map(n -> new SortField(n, SortField.Type.STRING))
                     .toArray(i -> new SortField[i]);
             Sort sort = new Sort(sortFields);
+
             TopDocs topDocs = searcher.search(query, offset + count, sort);
 
-            int totalHits = util.round.apply(topDocs.totalHits);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
+            result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
             for (int i = start; i < end; i++) {
                 Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addAlbumId3IfAnyMatch.accept(result, util.getId.apply(doc));
+                util.addIgnoreNull(result, indexType, util.getId.apply(doc), assignableClass);
             }
 
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            deligate.release(IndexType.ALBUM_ID3, searcher);
+            indexManager.release(indexType, searcher);
         }
         return result;
+    }
 
+    @Override
+    public List<Genre> getGenres(boolean sortByAlbum) {
+        return indexManager.getGenres(sortByAlbum);
     }
 
     private List<MediaFile> getMediasByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
@@ -315,18 +254,18 @@ public class SearchServiceImpl implements SearchService {
             return Collections.emptyList();
         }
 
-        Query query = queryFactory.getMediasByGenres(genres, musicFolders);
-        IndexSearcher searcher = deligate.getSearcher(indexType);
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 
         List<MediaFile> result = new ArrayList<>();
         try {
+            Query query = queryFactory.getMediasByGenres(genres, musicFolders);
             Sort sort = new Sort(sortFields);
             TopDocs topDocs = searcher.search(query, offset + count, sort);
 
-            int totalHits = util.round.apply(topDocs.totalHits);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
@@ -338,7 +277,7 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            deligate.release(indexType, searcher);
+            indexManager.release(indexType, searcher);
         }
         return result;
 
@@ -347,10 +286,47 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
         SortField[] sortFields = Arrays.stream(IndexType.ALBUM.getFields())
-                .filter(n -> n.equals(FieldNames.FOLDER))
                 .map(n -> new SortField(n, SortField.Type.STRING))
                 .toArray(i -> new SortField[i]);
         return getMediasByGenres(genres, offset, count, musicFolders, IndexType.ALBUM, sortFields);
+    }
+
+    @Override
+    public List<Album> getAlbumId3sByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
+
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+        if (isEmpty(searcher)) {
+            return Collections.emptyList();
+        }
+
+        List<Album> result = new ArrayList<>();
+        try {
+            SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
+                    .map(n -> new SortField(n, SortField.Type.STRING))
+                    .toArray(i -> new SortField[i]);
+            Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
+            TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
+
+            int totalHits = util.round.apply(topDocs.totalHits.value);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                util.addAlbumId3IfAnyMatch.accept(result, util.getId.apply(doc));
+            }
+
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+        return result;
+
     }
 
     @Override
