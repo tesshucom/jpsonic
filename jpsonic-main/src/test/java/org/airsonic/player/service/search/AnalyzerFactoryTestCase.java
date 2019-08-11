@@ -670,12 +670,12 @@ public class AnalyzerFactoryTestCase {
          */
         String query = "This is Jpsonic's analysis.";
         List<String> terms = toTermString(query);
-        assertEquals(5, terms.size());
+        assertEquals(4, terms.size());
         assertEquals("this", terms.get(0));
         assertEquals("is", terms.get(1));
         assertEquals("jpsonic", terms.get(2));
-        assertEquals("s", terms.get(3));
-        assertEquals("analysis", terms.get(4));
+        // assertEquals("s", terms.get(3)); issues#290
+        assertEquals("analysis", terms.get(3));
 
         query = "We’ve been here before.";
         terms = toTermString(query);
