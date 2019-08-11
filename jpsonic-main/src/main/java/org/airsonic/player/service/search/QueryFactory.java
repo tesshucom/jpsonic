@@ -363,33 +363,6 @@ public class QueryFactory {
 
     }
 
-    public Query getMediasForGenreCount(String genre, boolean isAudio) throws IOException {
-        // main
-        BooleanQuery.Builder query = new BooleanQuery.Builder();
-
-        // @see org.airsonic.player.domain.MediaFile#isAudio
-        if(isAudio) {
-            BooleanQuery.Builder audioQuery = new BooleanQuery.Builder();
-            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
-            audioQuery.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-            query.add(audioQuery.build(), Occur.MUST);
-        }
-
-        // sub - genre
-        BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-        TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genre);
-        stream.reset();
-        while (stream.incrementToken()) {
-            genreQuery.add(new TermQuery(new Term(FieldNames.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
-        }
-        stream.close();
-        query.add(genreQuery.build(), Occur.MUST);
-
-        return query.build();
-
-    }
-
     public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
 
         // main

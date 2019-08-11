@@ -295,14 +295,6 @@ public class QueryFactoryTestCase {
     }
 
     @Test
-    public void testGetMediasForGenreCount() throws IOException {
-        Query query = queryFactory.getMediasForGenreCount("Instrumental pop", true);
-        assertEquals("song count", "+(m:MUSIC m:AUDIOBOOK m:PODCAST) +(g:Instrumental pop)", query.toString());
-        query = queryFactory.getMediasForGenreCount("Pop;Pop/Funk", false);
-        assertEquals("album count", "+(g:Pop g:Pop/Funk)", query.toString());
-    }
-
-    @Test
     public void testToPreAnalyzedGenres() throws IOException {
         Query query = queryFactory.toPreAnalyzedGenres(Arrays.asList("Classic Rock"));
         assertEquals("genre", "+(g:Classic Rock)", query.toString());
