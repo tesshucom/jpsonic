@@ -36,47 +36,47 @@ public enum IndexType {
 
     SONG(
         fieldNames(
-            FieldNames.TITLE,
             FieldNames.TITLE_EX,
+            FieldNames.TITLE,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_EX),
+            FieldNames.ARTIST_EX,
+            FieldNames.ARTIST),
         boosts(
-            entry(FieldNames.TITLE, 2.3F),
             entry(FieldNames.TITLE_EX, 2.3F),
+            entry(FieldNames.TITLE, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM(
         fieldNames(
-            FieldNames.ALBUM,
             FieldNames.ALBUM_EX,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_EX),
+            FieldNames.ARTIST_EX,
+            FieldNames.ARTIST),
             // FieldNames.FOLDER), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
-            entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ALBUM_EX, 2.3F),
+            entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
         fieldNames(
-            FieldNames.ALBUM,
             FieldNames.ALBUM_EX,
+            FieldNames.ALBUM,
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_EX),
+            FieldNames.ARTIST_EX,
+            FieldNames.ARTIST),
             // FieldNames.FOLDER_ID), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
-            entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ALBUM_EX, 2.3F),
+            entry(FieldNames.ALBUM, 2.3F),
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
     ARTIST(
         fieldNames(
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_EX),
+            FieldNames.ARTIST_EX,
+            FieldNames.ARTIST),
             // FieldNames.FOLDER), // XXX 3.x -> 8.x : Remove folder from multi-field search condition
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
@@ -84,8 +84,8 @@ public enum IndexType {
     ARTIST_ID3(
         fieldNames(
             FieldNames.ARTIST_READING,
-            FieldNames.ARTIST,
-            FieldNames.ARTIST_EX),
+            FieldNames.ARTIST_EX,
+            FieldNames.ARTIST),
         boosts(
             entry(FieldNames.ARTIST_READING, 1.1F))),
 
