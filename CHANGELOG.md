@@ -3,6 +3,23 @@
 # jpsonic/jpsonic
 # -->
 
+## v105.0.0
+#### Based on *airsonic 10.5.0-SNAPSHOT 3c5735e*
+
+> [3c5735e]
+> 
+> Minor screen and player fixes, bug fix.
+
+  * Minor screen and player fixes.
+  * Fixed a bug that wrong path may be used when searching.
+  * Added JSP pre-compilation.
+  * [update] Update lucene to 8.2.0. 
+  * [update] Refactoring the search function. Japanese processing is expensive, but you can still search faster than Subsonic.
+  * [update] Changed random function used when creating random list to use higher entropy function.
+    It depends on the platform.
+    NativePRNG is tried and SHA1PRNG is used if it is not supported.
+    If neither is available, use the same random function as before.
+
 ## v104.0.0
 #### Based on *airsonic 10.4.0-RELEASE*
 
@@ -125,7 +142,7 @@
 ## v2.2.4
 
   * Fixed a bug where part of the start argument was not correctly recognized
-	(jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
+    (jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
   * Introduction of Airsonic integration test using Docker
 
 ## v2.2.3
