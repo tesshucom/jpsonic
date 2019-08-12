@@ -61,7 +61,7 @@ public class DocumentFactory {
     static {
 
         TYPE_ID = new FieldType();
-        TYPE_ID.setIndexOptions(IndexOptions.NONE);
+        TYPE_ID.setIndexOptions(IndexOptions.DOCS);
         TYPE_ID.setTokenized(false);
         TYPE_ID.setOmitNorms(true);
         TYPE_ID.setStored(true);

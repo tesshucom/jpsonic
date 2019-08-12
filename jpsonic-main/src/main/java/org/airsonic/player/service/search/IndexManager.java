@@ -220,7 +220,7 @@ public class IndexManager {
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
-            isUpdate = -1 == writers.get(type).commit();
+            isUpdate = -1 != writers.get(type).commit();
             writer.close();
             writers.remove(type);
             LOG.trace("Success to create or update search index : [" + type + "]");
