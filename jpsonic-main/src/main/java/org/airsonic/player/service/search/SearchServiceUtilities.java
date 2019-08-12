@@ -31,11 +31,16 @@ import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
@@ -54,6 +59,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Component
 public class SearchServiceUtilities {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
+
     /* Search by id only. */
     @Autowired
     private ArtistDao artistDao;
@@ -70,6 +77,28 @@ public class SearchServiceUtilities {
      */
     @Autowired
     private MediaFileService mediaFileService;
+
+    private Random random;
+
+    private Random secureRandom;
+
+    {
+        try {
+            secureRandom = SecureRandom.getInstance("NativePRNG");
+            LOG.info("NativePRNG is used to create a random list of songs.");
+        } catch (NoSuchAlgorithmException e) {
+            try {
+                secureRandom = SecureRandom.getInstance("SHA1PRNG");
+                LOG.info("SHA1PRNG is used to create a random list of songs.");
+            } catch (NoSuchAlgorithmException e1) {
+                random = new Random(System.currentTimeMillis());
+                LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
+            }
+        }
+    }
+
+    public Function<Integer, Integer> nextInt = (range) -> 
+        isEmpty(secureRandom) ? random.nextInt(range) : secureRandom.nextInt(range);  
 
     public final Function<Long, Integer> round = (i) -> {
         // return
