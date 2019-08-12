@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>10.4.0-RELEASE</version>
+        <version>10.5.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>104.0.0-RELEASE</jpsonic.version>
+        <jpsonic.version>105.0.0-RELEASE</jpsonic.version>
     </properties>
 
     <dependencies>
@@ -132,12 +132,12 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>7.7.1</version>
+            <version>8.2.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>7.7.1</version>
+            <version>8.2.0</version>
         </dependency>
 
         <dependency>
@@ -203,6 +203,12 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+		<dependency>
+			<groupId>org.checkerframework</groupId>
+			<artifactId>checker-qual</artifactId>
+			<scope>compile</scope>
+			<version>2.5.2</version>
+		</dependency>
 
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -575,7 +581,7 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-kuromoji</artifactId>
-            <version>7.7.1</version>
+            <version>8.2.0</version>
         </dependency>
     </dependencies>
 
@@ -694,6 +700,27 @@
             <plugin>
                 <groupId>net.nicoulaj.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-jspc-maven-plugin</artifactId>
+                <version>9.4.19.v20190610</version>
+                <executions>
+                    <execution>
+                        <id>jspc</id>
+                        <goals>
+                            <goal>jspc</goal>
+                        </goals>
+                        <phase>compile</phase>
+                        <configuration>
+                            <!-- Since we are using spring boot - we do not have a web.xml so there is no sense
+                            enabling merging. Furthermore, we output the webXmlFragment to the target/classes
+                            directory such that it will be on the classpath for use during runtime -->
+                            <mergeFragment>false</mergeFragment>
+                            <webXmlFragment>${project.build.outputDirectory}/precompiled-jsp-web.xml</webXmlFragment>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

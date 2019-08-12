@@ -31,57 +31,66 @@ class FieldNames {
 
     /**
      * A field same to a legacy server, id field.
-     * @since 1.0
+     * 
+     * @since legacy
      **/
-    public static final String ID =                      "id";
+    public static final String ID = "id";
 
     /**
      * A field same to a legacy server, id field.
-     * @since 1.0
+     * 
+     * @since legacy
      **/
-    public static final String FOLDER_ID =               "fId";
+    public static final String FOLDER_ID = "fId";
 
     /**
      * A field same to a legacy server, numeric field.
-     * @since 1.0
+     * 
+     * @since legacy
      **/
-    public static final String YEAR =                    "y";
+    public static final String YEAR = "y";
 
     /**
-     * Multi Field to be tokenized by referring to id3 specification.
-     * @since 1.0
+     * A field same to a legacy server, key field.
+     * 
+     * @since legacy
      **/
-    public static final String GENRE =                   "g";
+    public static final String GENRE = "g";
 
     /**
-     * A field same to a legacy server, key field that holds the normalized string.
-     * @since 1.0
+     * A field same to a legacy server, key field.
+     * 
+     * @since legacy
      **/
-    public static final String MEDIA_TYPE =              "m";
+    public static final String MEDIA_TYPE = "m";
 
     /**
-     * A field same to a legacy server, special key field to hold the path string.
-     * @since 1.0
+     * A field same to a legacy server, key field.
+     * 
+     * @since legacy
      **/
-    public static final String FOLDER =                  "f";
-
-    /**
-     * A field same to a legacy server, usually with common word parsing.
-     * @since 1.0
-     **/
-    public static final String ARTIST =                  "art";   
-
-    /**
-     * A field same to a legacy server, usually with common word parsing.
-     * @since 1.0
-     **/
-    public static final String ALBUM =                   "alb";
+    public static final String FOLDER = "f";
 
     /**
      * A field same to a legacy server, usually with common word parsing.
-     * @since 1.0
+     * 
+     * @since legacy
      **/
-    public static final String TITLE =                   "tit";
+    public static final String ARTIST = "art";
+
+    /**
+     * A field same to a legacy server, usually with common word parsing.
+     * 
+     * @since legacy
+     **/
+    public static final String ALBUM = "alb";
+
+    /**
+     * A field same to a legacy server, usually with common word parsing.
+     * 
+     * @since legacy
+     **/
+    public static final String TITLE = "tit";
 
     /**
      * Jpsonic specific reading field.
@@ -89,34 +98,34 @@ class FieldNames {
      * and also to customary multi artists.
      * @since 1.0
      */
-    public static final String ARTIST_READING =          "artR";
+    public static final String ARTIST_READING = "artR";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word.
      * @since 1.1
      */
-    public static final String ARTIST_EX =          "artEX";
+    public static final String ARTIST_EX = "artEX";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word or full text Hiragana.
      * @since 1.1
      */
-    public static final String ALBUM_EX =          "albEX";
+    public static final String ALBUM_EX = "albEX";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word or full text Hiragana.
      * @since 1.1
      */
-    public static final String TITLE_EX =          "titEX";
+    public static final String TITLE_EX = "titEX";
 
     /**
      * Jpsonic specific assistance field.
      * Key field that holds the normalized string.
      * @since 1.1
      */
-    public static final String GENRE_KEY =          "gk";
+    public static final String GENRE_KEY = "gk";
 
 }

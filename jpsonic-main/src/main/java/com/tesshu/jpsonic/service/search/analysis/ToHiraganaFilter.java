@@ -57,7 +57,8 @@ public final class ToHiraganaFilter extends TokenFilter {
         public void replace(int start, int limit, char[] text, int charsStart, int charsLen) {
             final int newLength = shiftForReplace(start, limit, charsLen);
             System.arraycopy(text, charsStart, buffer, start, charsLen);
-            token.setLength(length = newLength);
+            length = newLength;
+            token.setLength(length);
         }
 
         @Override
@@ -65,7 +66,8 @@ public final class ToHiraganaFilter extends TokenFilter {
             final int charsLen = text.length();
             final int newLength = shiftForReplace(start, limit, charsLen);
             text.getChars(0, charsLen, buffer, start);
-            token.setLength(length = newLength);
+            length = newLength;
+            token.setLength(length);
         }
 
         void setText(final CharTermAttribute token) {

@@ -133,4 +133,7 @@ les
 とも
 ところ
 ここ
+
+# possession(issues#290)
+s
 ##### End of file

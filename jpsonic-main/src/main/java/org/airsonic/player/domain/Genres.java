@@ -19,45 +19,41 @@
  */
 package org.airsonic.player.domain;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
- * Represents a musical genre.
+ * Represents a list of genres.
  *
  * @author Sindre Mehus
  * @version $Revision: 1.2 $ $Date: 2005/12/25 13:48:46 $
  */
-public class Genre {
+public class Genres {
 
-    private final String name;
-    private int songCount;
-    private int albumCount;
+    private final Map<String, Genre> genres = new HashMap<String, Genre>();
 
-    public Genre(String name) {
-        this.name = name;
+    public void incrementAlbumCount(String genreName) {
+        Genre genre = getOrCreateGenre(genreName);
+        genre.incrementAlbumCount();
     }
 
-    public Genre(String name, int songCount, int albumCount) {
-        this.name = name;
-        this.songCount = songCount;
-        this.albumCount = albumCount;
+    public void incrementSongCount(String genreName) {
+        Genre genre = getOrCreateGenre(genreName);
+        genre.incrementSongCount();
     }
 
-    public String getName() {
-        return name;
+    private Genre getOrCreateGenre(String genreName) {
+        Genre genre = genres.get(genreName);
+        if (genre == null) {
+            genre = new Genre(genreName);
+            genres.put(genreName, genre);
+        }
+        return genre;
     }
 
-    public int getSongCount() {
-        return songCount;
-    }
-
-    public int getAlbumCount() {
-        return albumCount;
-    }
-
-    public void incrementAlbumCount() {
-        albumCount++;
-    }
-
-    public void incrementSongCount() {
-        songCount++;
+    public List<Genre> getGenres() {
+        return new ArrayList<Genre>(genres.values());
     }
 }

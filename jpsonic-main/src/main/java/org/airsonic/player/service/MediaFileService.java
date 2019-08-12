@@ -822,7 +822,7 @@ public class MediaFileService {
                 // update db
 				albumDao.createOrUpdateAlbum(albumid3);
 	            // update index
-				indexManager.index(album);
+				indexManager.updateArtistSort(albumid3);
 				maybe++;
 			} else {
 				LOG.info(" > " + album.getAlbumName() + "@" + album.getArtist() + 

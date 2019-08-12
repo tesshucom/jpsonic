@@ -1,1 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" id="svg2"><g id="layer1" transform="translate(-204.74 -942.092)"><g id="g4420" transform="matrix(1.49997 0 0 1.49997 -100.838 -479.339)"><path style="fill:#7eabdf;fill-opacity:1" class="st0" id="rect3533" d="M204.244 948.162h6.25v6.25h-6.25z"/><path style="fill:#7eabdf;fill-opacity:1" class="st0" id="rect3535" d="M213.619 948.162h6.25v6.25h-6.25z"/><path style="fill:#7eabdf;fill-opacity:1" class="st0" id="rect3539" d="M204.244 957.537h6.25v6.25h-6.25z"/><path style="fill:#7eabdf;fill-opacity:1" class="st0" id="rect3541" d="M213.619 957.537h6.25v6.25h-6.25z"/></g></g><style id="style4608">.st0{fill:#4b4b4b}</style><style id="style4626">.st0{fill:#4b4b4b}</style><style id="style4898">.st0{fill:#4b4b4b}</style><style id="style4930">.st0{fill:#4b4b4b}</style><style id="style5128">.st0{fill:#4b4b4b}</style><style id="style5151">.st0{fill:#4b4b4b}</style><style id="style5178">.st0{fill:#4b4b4b}</style><style id="style5222">.st0{fill:#4b4b4b}</style><style id="style5271">.st0{fill:#4b4b4b}</style><style id="style5355">.st0{fill:#4b4b4b}</style><style id="style5415">.st0{fill:#4b4b4b}</style><style id="style5436">.st0{fill:#4b4b4b}</style><style id="style5472">.st0{fill:#4b4b4b}</style><style id="style5569">.st0{fill:#4b4b4b}</style><style id="style5590">.st0{fill:#4b4b4b}</style><style id="style5646">.st0{fill:#4b4b4b}</style><style id="style5719">.st0{fill:#4b4b4b}</style><style id="style7357">.st0{fill:#4b4b4b}</style><style id="style7387">.st0{fill:#4b4b4b}</style><style id="style3529">.st0{fill:#4b4b4b}</style><style id="style3571">.st0{fill:#4b4b4b}</style></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25">
+	<g transform="translate(-204.74 -942.092)">
+		<g transform="matrix(1.49997 0 0 1.49997 -100.838 -479.339)">
+			<path style="fill:#7eabdf" class="st0" d="M204.244 948.162h6.25v6.25h-6.25z"/>
+			<path style="fill:#7eabdf" class="st0" d="M213.619 948.162h6.25v6.25h-6.25z"/>
+			<path style="fill:#7eabdf" class="st0" d="M204.244 957.537h6.25v6.25h-6.25z"/>
+			<path style="fill:#7eabdf" class="st0" d="M213.619 957.537h6.25v6.25h-6.25z"/>
+		</g>
+	</g>
+</svg>
