@@ -2,12 +2,9 @@ language: java
 cache:
   directories:
     - $HOME/.m2
-env:
-  - TEST_SUITE=integration-test
-  - TEST_SUITE=unit-test
 
 script:
-  - mvn verify -B -P ${TEST_SUITE}
+  - mvn verify -B -P unit-test
 
 matrix:
   include:
@@ -17,5 +14,5 @@ matrix:
         # The OpenJDK9's CA bundle is outdated, so we're using the system's ones.
         - rm "${JAVA_HOME}/lib/security/cacerts"
         - ln -s /etc/ssl/certs/java/cacerts "${JAVA_HOME}/lib/security/cacerts"
-  # - jdk: openjdk11 (default)
+  - jdk: openjdk11
   - jdk: openjdk12
