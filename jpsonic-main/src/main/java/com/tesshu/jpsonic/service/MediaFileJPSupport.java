@@ -46,15 +46,15 @@ public class MediaFileJPSupport {
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private final Tokenizer tokenizer = new Tokenizer();
-	private Map<String, String> readingMap = new HashMap<>();
+    private Map<String, String> readingMap = new HashMap<>();
 
     /** Determine reading for token. */
     private final Function<Token, String> readingAnalysis = token -> {
-    	if(KATAKANA.matcher(token.getSurface()).matches()
-    			|| ALPHA.matcher(token.getSurface()).matches()
-    			|| ASTER.equals(token.getReading())) {
-    		return token.getSurface();
-    	}
+        if(KATAKANA.matcher(token.getSurface()).matches()
+                || ALPHA.matcher(token.getSurface()).matches()
+                || ASTER.equals(token.getReading())) {
+            return token.getSurface();
+        }
         return token.getReading();
     };
     
@@ -63,53 +63,53 @@ public class MediaFileJPSupport {
      * try reading Japanese and set MediaFile#artistReading.
      * @param mediaFile
      */
-	public void analyzeArtistReading(MediaFile mediaFile) {
-		String artist = mediaFile.getArtist();
-		mediaFile.setArtistReading(createReading(artist));
-	}
+    public void analyzeArtistReading(MediaFile mediaFile) {
+        String artist = mediaFile.getArtist();
+        mediaFile.setArtistReading(createReading(artist));
+    }
 
-	public void analyzeAlbumReading(MediaFile mediaFile) {
-		String albumName = mediaFile.getAlbumName();
-		mediaFile.setAlbumReading(createReading(albumName));
-	}
+    public void analyzeAlbumReading(MediaFile mediaFile) {
+        String albumName = mediaFile.getAlbumName();
+        mediaFile.setAlbumReading(createReading(albumName));
+    }
 
-	public void analyzeNameReading(Artist artist) {
-		String name = artist.getName();
-		artist.setReading(createReading(name));
-	}
+    public void analyzeNameReading(Artist artist) {
+        String name = artist.getName();
+        artist.setReading(createReading(name));
+    }
 
-	public void analyzeArtistSort(MediaFile mediaFile) {
-		if (StringUtils.isEmpty(mediaFile.getArtistReading())
-				|| mediaFile.getArtistReading().equals(mediaFile.getArtistSort())) {
-			mediaFile.setArtistSort(null);
-			return;
-		}
-		String sort = createReading(mediaFile.getArtistSort());
-		if (!StringUtils.isEmpty(sort) && !sort.equals(mediaFile.getArtistReading())) {
-			mediaFile.setArtistSort(sort);
-		} else {
-			mediaFile.setArtistSort(null);
-		}
-	}
+    public void analyzeArtistSort(MediaFile mediaFile) {
+        if (StringUtils.isEmpty(mediaFile.getArtistReading())
+                || mediaFile.getArtistReading().equals(mediaFile.getArtistSort())) {
+            mediaFile.setArtistSort(null);
+            return;
+        }
+        String sort = createReading(mediaFile.getArtistSort());
+        if (!StringUtils.isEmpty(sort) && !sort.equals(mediaFile.getArtistReading())) {
+            mediaFile.setArtistSort(sort);
+        } else {
+            mediaFile.setArtistSort(null);
+        }
+    }
 
-	public void clear() {
-		readingMap.clear();
-	}
+    public void clear() {
+        readingMap.clear();
+    }
 
-	public String createReading(String s) {
-		if (StringUtils.isEmpty(s)) {
-			return null;
-		}
-		if(readingMap.containsKey(s)) {
-			return readingMap.get(s);
-		}
-		Collector<String, StringBuilder, String> join =
-				Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-		List<Token> tokens = tokenizer.tokenize(s);
-		String reading = cleanUp(tokens.stream().map(readingAnalysis).collect(join));
-		readingMap.put(s, reading);
-		return reading;
-	}
+    public String createReading(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return null;
+        }
+        if(readingMap.containsKey(s)) {
+            return readingMap.get(s);
+        }
+        Collector<String, StringBuilder, String> join =
+                Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+        List<Token> tokens = tokenizer.tokenize(s);
+        String reading = cleanUp(tokens.stream().map(readingAnalysis).collect(join));
+        readingMap.put(s, reading);
+        return reading;
+    }
 
     /**
      * This method returns the normalized Artist name that can also be used to create the index prefix.
@@ -140,32 +140,32 @@ public class MediaFileJPSupport {
     }
 
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
-    	List<MediaFile> toBeUpdate = new ArrayList<>();
-    	for(MediaFile candidate : candidates) {
-    		String cleanedUpSort = cleanUp(candidate.getArtistSort());
-    		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
-    			candidate.setArtistSort(cleanedUpSort);
-    			toBeUpdate.add(candidate);
-    		}
-    	}
-    	return toBeUpdate;
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for(MediaFile candidate : candidates) {
+            String cleanedUpSort = cleanUp(candidate.getArtistSort());
+            if(!candidate.getArtistReading().equals(cleanedUpSort)) {
+                candidate.setArtistSort(cleanedUpSort);
+                toBeUpdate.add(candidate);
+            }
+        }
+        return toBeUpdate;
     }
 
     public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
-    	List<MediaFile> toBeUpdate = new ArrayList<>();
-    	for(MediaFile candidate : candidates) {
-    		String cleanedUpSort = cleanUp(candidate.getAlbumSort());
-    		if(!candidate.getAlbumReading().equals(cleanedUpSort)) {
-    			candidate.setAlbumSort(cleanedUpSort);
-    			toBeUpdate.add(candidate);
-    		}
-    	}
-    	return toBeUpdate;
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for(MediaFile candidate : candidates) {
+            String cleanedUpSort = cleanUp(candidate.getAlbumSort());
+            if(!candidate.getAlbumReading().equals(cleanedUpSort)) {
+                candidate.setAlbumSort(cleanedUpSort);
+                toBeUpdate.add(candidate);
+            }
+        }
+        return toBeUpdate;
     }
 
     public String cleanUp(String dirty) {
-    	return Normalizer.normalize(
-    			Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
+        return Normalizer.normalize(
+                Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
     }
 
 }

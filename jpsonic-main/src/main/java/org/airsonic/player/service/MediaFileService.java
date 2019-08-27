@@ -493,6 +493,8 @@ public class MediaFileService {
                 mediaFile.setArtistSort(metaData.getArtistSort());
                 mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+                mediaFile.setComposer(metaData.getComposer());
+                mediaFile.setComposerSort(metaData.getComposerSort());
                 mediaFileJPSupport.analyzeArtistReading(mediaFile);
                 mediaFileJPSupport.analyzeArtistSort(mediaFile);
             }
