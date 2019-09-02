@@ -524,9 +524,11 @@
         if (songs.length == 0) {
             $("#songCountAndDuration").text("");
             $("#empty").show();
+            $("#playlistHeader").hide();
         } else {
             $("#songCountAndDuration").html(songs.length + " <fmt:message key="playlist2.songs"/> &ndash; " + playQueue.durationAsString);
             $("#empty").hide();
+            $("#playlistHeader").show();
         }
 
         // Delete all the rows except for the "pattern" row
@@ -988,7 +990,7 @@
 <table class="music indent">
 
     <c:if test="${model.visibility.composerVisible || model.visibility.genreVisible}">
-        <thead>
+        <thead id="playlistHeader">
             <tr>
                 <th class="fit"></th>
                 <th class="fit"></th>

@@ -82,8 +82,10 @@
 
             if (songs.length == 0) {
                 $("#empty").show();
+                $("#playlistHeader").hide();
             } else {
                 $("#empty").hide();
+                $("#playlistHeader").show();
             }
 
             $("#songCount").text(playlist.fileCount);
@@ -228,7 +230,7 @@
 <table class="music playlist">
 
     <c:if test="${0 ne fn:length( playlist.fileCount ) && model.visibility.composerVisible || model.visibility.genreVisible}">
-        <thead>
+        <thead id="playlistHeader">
             <tr>
                 <th class="fit"></th>
                 <th class="fit"></th>
