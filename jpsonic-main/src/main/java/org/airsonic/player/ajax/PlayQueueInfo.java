@@ -111,6 +111,7 @@ public class PlayQueueInfo {
         private final Integer trackNumber;
         private final String title;
         private final String artist;
+        private final String composer;
         private final String album;
         private final String genre;
         private final Integer year;
@@ -132,6 +133,7 @@ public class PlayQueueInfo {
                 Integer trackNumber,
                 String title,
                 String artist,
+                String composer,
                 String album,
                 String genre,
                 Integer year,
@@ -152,6 +154,7 @@ public class PlayQueueInfo {
             this.trackNumber = trackNumber;
             this.title = title;
             this.artist = artist;
+            this.composer = composer;
             this.album = album;
             this.genre = genre;
             this.year = year;
@@ -183,6 +186,10 @@ public class PlayQueueInfo {
 
         public String getArtist() {
             return artist;
+        }
+
+        public String getComposer() {
+            return composer;
         }
 
         public String getAlbum() {

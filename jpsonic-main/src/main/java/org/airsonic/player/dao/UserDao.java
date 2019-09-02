@@ -51,7 +51,7 @@ public class UserDao extends AbstractDao {
             "last_fm_enabled, last_fm_username, last_fm_password, transcode_scheme, show_now_playing, selected_music_folder_id, " +
             "party_mode_enabled, now_playing_allowed, avatar_scheme, system_avatar_id, changed, show_artist_info, auto_hide_play_queue, " +
             "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, " +
-            "keyboard_shortcuts_enabled, pagination_size";
+            "keyboard_shortcuts_enabled, pagination_size, main_composer, playlist_composer";
 
     private static final Integer ROLE_ID_ADMIN = 1;
     private static final Integer ROLE_ID_DOWNLOAD = 2;
@@ -225,7 +225,7 @@ public class UserDao extends AbstractDao {
                                                    settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
                                                    settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
                                                    settings.isShowSideBar(), settings.getListReloadDelay(), settings.isKeyboardShortcutsEnabled(),
-                                                   settings.getPaginationSize()
+                                                   settings.getPaginationSize(), main.isComposerVisible(), playlist.isComposerVisible()
         });
     }
 
@@ -388,6 +388,9 @@ public class UserDao extends AbstractDao {
             settings.setListReloadDelay((Integer) rs.getObject(col++));
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
+
+            settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
+            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
 
             return settings;
         }

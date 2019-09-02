@@ -1,5 +1,5 @@
 /*
- * CSS styleshet for the "Ripserver" theme.
+ * CSS styleshet for the "Jpsonic" theme.
  *
  * Author: tesshu.com
  */
@@ -280,18 +280,18 @@ a:hover, a:hover * {
 
 #loginframe .loginmessagetop {
 	margin-bottom: 1em;
-	max-width: 30rem;
+	max-width: 30em;
 }
 
 #loginframe input[type=text], #loginframe input[type=submit],
 	#loginframe input[type=password] {
-	width: 20rem;
+	width: 20em;
 	margin-bottom: 0.5em;
 }
 
 #loginframe input[type=submit] {
-	margin: 1rem auto;
-	padding: 0.3rem;
+	margin: 1em auto;
+	padding: 0.3em;
 	background: #2f7bd9;
 	color: #f2f2f2;
 	transition: color 0.2s ease, background 0.2s ease;
@@ -497,14 +497,31 @@ table.music tbody tr:hover, .bgcolor2.playlistframe table.music.indent tbody tr:
 	padding-right: 20px;
 }
 
+table.music thead th {
+	text-align: left;
+	padding-left: 0.3em;
+	background-color: #ebf4ff;
+	border-bottom: 1px solid #eaebee;
+	color: #006699;
+}
+
+table.music thead th:first-child {
+	border-radius: 10px 0px 0px 0px/10px 0px 0px 0px;
+}
+table.music thead th:last-child {
+	border-radius: 0px 10px 0px 0px/0px 10px 0px 0px;
+}
+
 .mainframe.bgcolor1 table.music tbody td {
 	padding-right: 0.3em;
 }
 
+.mainframe.bgcolor1 table.music.playlist thead th:first-child,
 .mainframe.bgcolor1 table.music tbody tr td:first-child {
 	padding-left: 1em;
 }
 
+.mainframe.bgcolor1 table.music.playlist thead th:last-child,
 .mainframe.bgcolor1 table.music tbody tr td:last-child {
 	padding-right: 1em;
 }
@@ -529,6 +546,26 @@ td.rightalign {
 	text-align: right;
 	padding-right: 20px;
 }
+
+.truncate.mainTitle{min-width:10em;}
+.truncate.mainAlbum{max-width:15%;}
+.truncate.mainArtist{max-width:15%;}
+.truncate.mainComposer{max-width:15%;}
+.truncate.mainGenre{min-width:4em;}
+
+.truncate.playlistTitle		{max-width:25%;width:25%;}
+.truncate.playlistAlbum		{max-width:15%;width:15%;}
+.truncate.playlistArtist	{max-width:15%;width:15%;}
+.truncate.playlistComposer	{max-width:15%;width:15%;}
+.truncate.playlistGenre		{min-width:4em;}
+
+.truncate.searchAlbumAlbum{max-width:45%;width:45%;}
+.truncate.searchAlbumAlbumartist1{max-width:36%;width:36%;}
+.truncate.searchAlbumAlbumartist2{max-width:18%;width:18%;}
+.truncate.searchSongTitle{max-width:25%;width:25%;}
+.truncate.searchSongAlbum{max-width:20%;width:20%;}
+.truncate.searchSongArtist{max-width:18%;width:18%;}
+.truncate.searchSongComposer{max-width:18%;width:18%;}
 
 a {
 	font-size: 100%;

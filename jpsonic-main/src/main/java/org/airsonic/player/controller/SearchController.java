@@ -78,6 +78,8 @@ public class SearchController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setUser(user);
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
+        command.setComposerVisible(userSettings.getMainVisibility().isComposerVisible());
+        command.setGenreVisible(userSettings.getMainVisibility().isGenreVisible());
 
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
         String query = StringUtils.trimToNull(command.getQuery());

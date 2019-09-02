@@ -171,8 +171,8 @@ public class PlaylistService {
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
         List<PlaylistInfo.Entry> result = new ArrayList<PlaylistInfo.Entry>();
         for (MediaFile file : files) {
-            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getAlbumName(),
-                    file.getDurationString(), file.getStarredDate() != null, file.isPresent()));
+            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(), file.getAlbumName(),
+                    file.getGenre(), file.getDurationString(), file.getStarredDate() != null, file.isPresent()));
         }
 
         return result;

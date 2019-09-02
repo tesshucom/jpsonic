@@ -724,7 +724,7 @@ public class PlayQueueService {
             String format = formatFormat(player, file);
             String username = securityService.getCurrentUsername(request);
             boolean starred = mediaFileService.getMediaFileStarredDate(file.getId(), username) != null;
-            entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(),
+            entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(), file.getComposer(),
                     file.getAlbumName(), file.getGenre(), file.getYear(), formatBitRate(file),
                     file.getDurationSeconds(), file.getDurationString(), format, formatContentType(format),
                     formatFileSize(file.getFileSize(), locale), starred, albumUrl, streamUrl, remoteStreamUrl,
@@ -753,6 +753,7 @@ public class PlayQueueService {
                     streamTrackNumber, // Track number
                     streamUrl,         // Track title (use radio stream URL for now)
                     "",                // Track artist
+                    "",                // Track composer
                     radioName,         // Album name (use radio name)
                     "Internet Radio",  // Genre
                     0,                 // Year

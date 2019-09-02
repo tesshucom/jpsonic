@@ -26,4 +26,28 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-composer_003" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="main_composer" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="main_composer" type="boolean" defaultValueBoolean="true" >
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>  
+    <changeSet id="add-composer_004" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="playlist_composer" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="playlist_composer" type="boolean" defaultValueBoolean="true" >
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

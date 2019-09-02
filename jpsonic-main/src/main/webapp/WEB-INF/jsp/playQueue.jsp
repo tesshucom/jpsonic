@@ -593,6 +593,9 @@
                 $("#artist" + id).text(song.artist);
                 $("#artist" + id).attr("title", song.artist);
             }
+            if ($("#composer" + id)) {
+                $("#composer" + id).text(song.composer);
+            }
             if ($("#genre" + id)) {
                 $("#genre" + id).text(song.genre);
             }
@@ -982,8 +985,30 @@
 <div style="clear:both"></div>
 <p id="empty"><em><fmt:message key="playlist.empty"/></em></p>
 
-<table class="music indent" style="cursor:pointer">
-    <tbody id="playlistBody">
+<table class="music indent">
+
+    <c:if test="${model.visibility.composerVisible || model.visibility.genreVisible}">
+        <thead>
+            <tr>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <c:if test="${model.visibility.trackNumberVisible}"><th class="fit"></th></c:if>
+                <th class="truncate"><fmt:message key="common.fields.songtitle" /></th>
+                <c:if test="${model.visibility.albumVisible}"><th class="truncate"><fmt:message key="common.fields.album" /></th></c:if>
+                <c:if test="${model.visibility.artistVisible}"><th class="truncate"><fmt:message key="common.fields.artist" /></th></c:if>
+                <c:if test="${model.visibility.composerVisible}"><th class="truncate"><fmt:message key="common.fields.composer" /></th></c:if>
+                <c:if test="${model.visibility.genreVisible}"><th class="truncate"><fmt:message key="common.fields.genre" /></th></c:if>
+                <c:if test="${model.visibility.yearVisible}"><th class="fit"></th></c:if>
+                <c:if test="${model.visibility.formatVisible}"><th class="fit"></th></c:if>
+                <c:if test="${model.visibility.fileSizeVisible}"><th class="fit"></th></c:if>
+                <c:if test="${model.visibility.durationVisible}"><th class="fit"></th></c:if>
+                <c:if test="${model.visibility.bitRateVisible}"><th class="fit"></th></c:if>
+            </tr>
+        </thead>
+    </c:if>
+
+    <tbody id="playlistBody" style="cursor:pointer">
         <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
             <td class="fit">
                 <img id="starSong" onclick="onStar(this.id.substring(8) - 1)" src="<spring:theme code="ratingOffImage"/>"
@@ -1014,6 +1039,9 @@
             </c:if>
             <c:if test="${model.visibility.artistVisible}">
                 <td class="truncate"><span id="artist" class="detail">Artist</span></td>
+            </c:if>
+            <c:if test="${model.visibility.composerVisible}">
+                <td class="truncate"><span id="composer" class="detail">Composer</span></td>
             </c:if>
             <c:if test="${model.visibility.genreVisible}">
                 <td class="truncate"><span id="genre" class="detail">Genre</span></td>

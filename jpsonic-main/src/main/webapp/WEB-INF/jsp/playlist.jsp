@@ -121,6 +121,8 @@
                 $("#albumUrl" + id).attr("href", "main.view?id=" + song.id);
                 $("#artist" + id).text(song.artist);
                 $("#artist" + id).attr("title", song.artist);
+                $("#composer" + id).text(song.composer);
+                $("#genre" + id).text(song.genre);
                 $("#songDuration" + id).text(song.durationAsString);
 
                 // Note: show() method causes page to scroll to top.
@@ -223,35 +225,63 @@
 
 <p id="empty" style="display: none;"><em><fmt:message key="playlist2.empty"/></em></p>
 
-<table class="music" style="cursor:pointer">
-    <tbody id="playlistBody">
-    <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
-        <td class="fit">
-            <img id="starSong" onclick="onStar(this.id.substring(8) - 1)" src="<spring:theme code="ratingOffImage"/>"
-                 style="cursor:pointer;height:18px;" alt="" title=""></td>
-        <td class="fit">
-            <img id="play" src="<spring:theme code="playImage"/>" alt="<fmt:message key="common.play"/>" title="<fmt:message key="common.play"/>"
-                 style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onPlay(this.id.substring(4) - 1)"></td>
-        <td class="fit">
-            <img id="add" src="<spring:theme code="addImage"/>" alt="<fmt:message key="common.add"/>" title="<fmt:message key="common.add"/>"
-                 style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAdd(this.id.substring(3) - 1)"></td>
-        <td class="fit" style="padding-right:30px">
-            <img id="addNext" src="<spring:theme code="addNextImage"/>" alt="<fmt:message key="main.addnext"/>" title="<fmt:message key="main.addnext"/>"
-                 style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAddNext(this.id.substring(7) - 1)"></td>
+<table class="music playlist">
 
-        <td class="fit rightalign"><span id="index">1</span></td>
-        <td class="fit"><span id="missing" class="playlist-missing"><fmt:message key="playlist.missing"/></span></td>
-        <td class="truncate"><span id="title" class="songTitle">Title</span></td>
-        <td class="truncate"><a id="albumUrl" target="main"><span id="album" class="detail">Album</span></a></td>
-        <td class="truncate"><span id="artist" class="detail">Artist</span></td>
-        <td class="fit rightalign"><span id="songDuration" class="detail">Duration</span></td>
+    <c:if test="${0 ne fn:length( playlist.fileCount ) && model.visibility.composerVisible || model.visibility.genreVisible}">
+        <thead>
+            <tr>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="fit"></th>
+                <th class="truncate playlistTitle"><fmt:message key="common.fields.songtitle" /></th>
+                <th class="truncate playlistAlbum"><fmt:message key="common.fields.album" /></th>
+                <th class="truncate playlistArtist"><fmt:message key="common.fields.artist" /></th>
+                <c:if test="${model.visibility.composerVisible}"><th class="truncate playlistComposer"><fmt:message key="common.fields.composer" /></th></c:if>
+                <c:if test="${model.visibility.genreVisible}"><th class="truncate playlistGenre"><fmt:message key="common.fields.genre" /></th></c:if>
+                <th class="fit"></th>
+                <c:if test="${model.editAllowed}"><th class="fit"></th></c:if>
+            </tr>
+        </thead>
+    </c:if>
 
-        <c:if test="${model.editAllowed}">
+    <tbody id="playlistBody" style="cursor:pointer">
+        <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
             <td class="fit">
-                <img id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" src="<spring:theme code="removeImage"/>"
-                     style="cursor:pointer;height:18px;" alt="<fmt:message key="playlist.remove"/>" title="<fmt:message key="playlist.remove"/>"></td>
-        </c:if>
-    </tr>
+                <img id="starSong" onclick="onStar(this.id.substring(8) - 1)" src="<spring:theme code="ratingOffImage"/>"
+                     style="cursor:pointer;height:18px;" alt="" title=""></td>
+            <td class="fit">
+                <img id="play" src="<spring:theme code="playImage"/>" alt="<fmt:message key="common.play"/>" title="<fmt:message key="common.play"/>"
+                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onPlay(this.id.substring(4) - 1)"></td>
+            <td class="fit">
+                <img id="add" src="<spring:theme code="addImage"/>" alt="<fmt:message key="common.add"/>" title="<fmt:message key="common.add"/>"
+                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAdd(this.id.substring(3) - 1)"></td>
+            <td class="fit" style="padding-right:30px">
+                <img id="addNext" src="<spring:theme code="addNextImage"/>" alt="<fmt:message key="main.addnext"/>" title="<fmt:message key="main.addnext"/>"
+                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAddNext(this.id.substring(7) - 1)"></td>
+    
+            <td class="fit rightalign"><span id="index">1</span></td>
+            <td class="fit"><span id="missing" class="playlist-missing"><fmt:message key="playlist.missing"/></span></td>
+            <td class="truncate"><span id="title" class="songTitle">Title</span></td>
+            <td class="truncate"><a id="albumUrl" target="main"><span id="album" class="detail">Album</span></a></td>
+            <td class="truncate"><span id="artist" class="detail">Artist</span></td>
+            <c:if test="${model.visibility.composerVisible}">
+                <td class="truncate"><span id="composer" class="detail">Composer</span></td>
+            </c:if>
+            <c:if test="${model.visibility.genreVisible}">
+                <td class="truncate"><span id="genre" class="detail">Genre</span></td>
+            </c:if>
+    
+            <td class="fit rightalign"><span id="songDuration" class="detail">Duration</span></td>
+    
+            <c:if test="${model.editAllowed}">
+                <td class="fit">
+                    <img id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" src="<spring:theme code="removeImage"/>"
+                         style="cursor:pointer;height:18px;" alt="<fmt:message key="playlist.remove"/>" title="<fmt:message key="playlist.remove"/>"></td>
+            </c:if>
+        </tr>
     </tbody>
 </table>
 

@@ -109,6 +109,28 @@
 <c:if test="${not empty model.songs}">
     <h2><fmt:message key="search.hits.songs"/></h2>
     <table class="music indent">
+    
+        <c:if test="${0 ne fn:length( model.songs ) && (model.visibility.composerVisible || model.visibility.genreVisible) }">
+           <thead>
+           	   <tr>
+                   <th class="fit"></th>
+                   <th class="fit"></th>
+                   <th class="fit"></th>
+                   <th class="fit"></th>
+                   <th class="fit"></th>
+                   <th class="truncate mainTitle"><fmt:message key="common.fields.songtitle" /></th>
+                   <th class="truncate mainAlbum"><fmt:message key="common.fields.album" /></th>
+                   <th class="truncate mainArtist"><fmt:message key="common.fields.artist" /></th>
+                   <c:if test="${model.visibility.composerVisible}">
+                       <th class="truncate mainComposer"><fmt:message key="common.fields.composer" /></th>
+                   </c:if>
+                   <c:if test="${model.visibility.genreVisible}">
+                       <th class="truncate mainGenre"><fmt:message key="common.fields.genre" /></th>
+                   </c:if>
+               </tr>
+            </thead>
+        </c:if>
+
         <c:forEach items="${model.songs}" var="song">
 
             <sub:url value="/main.view" var="mainUrl">
@@ -126,17 +148,17 @@
                     <c:param name="asTable" value="true"/>
                 </c:import>
 
-                <td class="truncate">
-                        ${fn:escapeXml(song.title)}
-                </td>
+                <td class="truncate">${fn:escapeXml(song.title)}</td>
+                <td class="truncate"><a href="${mainUrl}"><span class="detail">${fn:escapeXml(song.albumName)}</span></a></td>
+                <td class="truncate"><span class="detail">${fn:escapeXml(song.artist)}</span></td>
 
-                <td class="truncate">
-                    <a href="${mainUrl}"><span class="detail">${fn:escapeXml(song.albumName)}</span></a>
-                </td>
+                <c:if test="${model.visibility.composerVisible}">
+                    <td class="truncate"><span class="detail">${fn:escapeXml(song.composer)}</span></td>
+                </c:if>
+                <c:if test="${model.visibility.genreVisible}">
+                    <td class="truncate"><span class="detail">${fn:escapeXml(song.genre)}</span></td>
+                </c:if>
 
-                <td class="truncate">
-                    <span class="detail">${fn:escapeXml(song.artist)}</span>
-                </td>
             </tr>
 
         </c:forEach>
