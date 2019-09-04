@@ -49,7 +49,7 @@
             for (var i = 0; i < playlists.length; i++) {
                 var playlist = playlists[i];
                 var overflow = i > 9;
-                $("<p class='dense'><a target='main' href='playlist.view?id=" +
+                $("<p class='dense" + (i == playlists.length -1 ? " last" : "") + "'><a target='main' href='playlist.view?id=" +
                         playlist.id + "'>" + escapeHtml(playlist.name) + "&nbsp;(" + playlist.fileCount + ")</a></p>").appendTo(overflow ? "#playlistOverflow" : "#playlists");
             }
 
@@ -124,8 +124,8 @@
 <c:if test="${not empty model.radios}">
     <h2 class="bgcolor1" style="padding-left: 2px"><fmt:message key="left.radio"/></h2>
     <iframe id="radio-playlist-data" style="display:none;"></iframe>
-    <c:forEach items="${model.radios}" var="radio">
-        <p class="dense" style="padding-left: 2px">
+    <c:forEach items="${model.radios}" var="radio" varStatus="loop">
+        <p class="dense<c:if test="${loop.last}"> last</c:if>" style="padding-left: 2px">
         <a target="hidden" href="${radio.streamUrl}" class="radio-play" data-id="${radio.id}">
             <img src="<spring:theme code="playImage"/>" alt="<fmt:message key="common.play"/>" title="<fmt:message key="common.play"/>"></a>
             <span style="vertical-align: middle">
@@ -154,8 +154,8 @@
         </tr>
     </table>
 
-    <c:forEach items="${entry.value}" var="artist">
-        <p class="dense" style="padding-left:2px">
+    <c:forEach items="${entry.value}" var="artist" varStatus="loop">
+        <p class="dense<c:if test="${loop.last}"> last</c:if>" style="padding-left:2px">
             <span title="${artist.name}">
                 <sub:url value="main.view" var="mainUrl">
                     <c:forEach items="${artist.mediaFiles}" var="mediaFile">

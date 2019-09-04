@@ -173,6 +173,9 @@ p.dense {
 	overflow: hidden;
 }
 
+p.dense.last {
+	border-radius: 0px 0px 10px 10px/0px 0px 10px 10px;
+}
 p.dense:hover {
 	background-color: rgba(246, 248, 250, 1);
 	transition: .3s;
@@ -347,8 +350,12 @@ form {
 input, textarea, select {
 	font-size: 90%;
 	padding: 3px;
-	border-radius: 3px;
+	border-radius: 10px;
 	border: 1px solid lightgray;
+}
+
+input:focus, textarea:focus, select:focus {
+  outline: none;
 }
 
 input[type=submit], input[type=button] {
@@ -547,17 +554,17 @@ td.rightalign {
 	padding-right: 20px;
 }
 
-.truncate.mainTitle{min-width:10em;}
-.truncate.mainAlbum{max-width:15%;}
-.truncate.mainArtist{max-width:15%;}
-.truncate.mainComposer{max-width:15%;}
-.truncate.mainGenre{min-width:4em;}
+.truncate.mainTitle{min-width:20em;width:30%;}
+.truncate.mainAlbum{}
+.truncate.mainArtist{}
+.truncate.mainComposer{}
+.truncate.mainGenre{min-width:6em;}
 
-.truncate.playlistTitle		{max-width:25%;width:25%;}
-.truncate.playlistAlbum		{max-width:15%;width:15%;}
-.truncate.playlistArtist	{max-width:15%;width:15%;}
-.truncate.playlistComposer	{max-width:15%;width:15%;}
-.truncate.playlistGenre		{min-width:4em;}
+.truncate.playlistTitle		{min-width:20em;width:30%;}
+.truncate.playlistAlbum		{}
+.truncate.playlistArtist	{}
+.truncate.playlistComposer	{}
+.truncate.playlistGenre		{min-width:6em;}
 
 .truncate.searchAlbumAlbum{max-width:45%;width:45%;}
 .truncate.searchAlbumAlbumartist1{max-width:36%;width:36%;}
