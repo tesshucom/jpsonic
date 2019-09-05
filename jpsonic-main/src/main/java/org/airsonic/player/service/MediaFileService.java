@@ -495,8 +495,9 @@ public class MediaFileService {
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
                 mediaFile.setComposer(metaData.getComposer());
                 mediaFile.setComposerSort(metaData.getComposerSort());
-                mediaFileJPSupport.analyzeArtistReading(mediaFile);
-                mediaFileJPSupport.analyzeArtistSort(mediaFile);
+                mediaFileJPSupport.analyzeArtist(mediaFile);
+                mediaFileJPSupport.analyzeAlbum(mediaFile);
+
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
@@ -524,7 +525,9 @@ public class MediaFileService {
                     if (parser != null) {
                         MetaData metaData = parser.getMetaData(firstChild);
                         mediaFile.setArtist(metaData.getAlbumArtist());
+                        mediaFile.setArtistSort(metaData.getAlbumArtistSort());
                         mediaFile.setAlbumName(metaData.getAlbumName());
+                        mediaFile.setAlbumSort(metaData.getAlbumSort());
                         mediaFile.setYear(metaData.getYear());
                         mediaFile.setGenre(metaData.getGenre());
                     }
@@ -542,8 +545,8 @@ public class MediaFileService {
                 } else {
                     mediaFile.setArtist(file.getName());
                 }
-                mediaFileJPSupport.analyzeArtistReading(mediaFile);
-                mediaFileJPSupport.analyzeAlbumReading(mediaFile);
+                mediaFileJPSupport.analyzeArtist(mediaFile);
+                mediaFileJPSupport.analyzeAlbum(mediaFile);
             }
         }
 
@@ -754,10 +757,9 @@ public class MediaFileService {
         maybe = 0;
         List<Artist> candidatesid3 = artistDao.getSortCandidate();
         for (Artist candidate : candidatesid3) {
-            String sort = mediaFileJPSupport.cleanUp(candidate.getSort());
             Artist artist = artistDao.getArtist(candidate.getName());
-            if (!artist.getReading().equals(sort)) {
-                artist.setSort(sort);
+            if (!artist.getReading().equals(candidate.getSort())) {
+                artist.setSort(candidate.getSort());
                 // update db
                 artistDao.createOrUpdateArtist(artist);
                 maybe++;
@@ -772,7 +774,7 @@ public class MediaFileService {
             Artist artist = artistDao.getArtist(candidate.getName());
             if (null != artist) {
                 // update db
-                updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), mediaFileJPSupport.cleanUp(candidate.getSort()));
+                updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), candidate.getSort());
                 // update index
                 folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
                 maybe++;

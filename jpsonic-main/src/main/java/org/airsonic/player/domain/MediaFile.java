@@ -118,6 +118,7 @@ public class MediaFile {
         this.titleSort = titleSort;
         this.albumSort = albumSort;
         this.artistSort = artistSort;
+        this.albumArtistSort = albumArtistSort;
         this.albumReading = albumReading;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.composer = composer;

@@ -266,13 +266,13 @@ public class PlayQueue {
                         return trackA.compareTo(trackB);
 
                     case ARTIST:
-                        String artistA = StringUtils.trimToEmpty(a.getArtist());
-                        String artistB = StringUtils.trimToEmpty(b.getArtist());
+                        String artistA = StringUtils.trimToEmpty(a.getArtistReading());
+                        String artistB = StringUtils.trimToEmpty(b.getArtistReading());
                         return artistA.compareTo(artistB);
 
                     case ALBUM:
-                        String albumA = StringUtils.trimToEmpty(a.getAlbumName());
-                        String albumB = StringUtils.trimToEmpty(b.getAlbumName());
+                        String albumA = StringUtils.trimToEmpty(a.getAlbumReading());
+                        String albumB = StringUtils.trimToEmpty(b.getAlbumReading());
                         return albumA.compareTo(albumB);
                     default:
                         return 0;

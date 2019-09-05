@@ -368,13 +368,12 @@ public class MediaFileDao extends AbstractDao {
         args.put("folders", MusicFolder.toPathList(musicFolders));
         args.put("count", count);
         args.put("offset", offset);
-		String orderBy = byArtist
-				? "coalesce(album_artist_sort, artist_sort, artist_reading, artist), coalesce(album_sort, album_reading, album)"
-				: "coalesce(album_sort, album_reading, album)";
-		return namedQuery("select " + QUERY_COLUMNS +
-                " from media_file where type = :type and folder in (:folders) and present" +
-                " order by " + orderBy + " limit :count offset :offset", rowMapper, args);
-	}
+
+        String orderBy = byArtist ? "artist_reading, album_reading" : "album_reading";
+        return namedQuery("select " + QUERY_COLUMNS
+                          + " from media_file where type = :type and folder in (:folders) and present " +
+                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+    }
 
     /**
      * Returns albums within a year range.

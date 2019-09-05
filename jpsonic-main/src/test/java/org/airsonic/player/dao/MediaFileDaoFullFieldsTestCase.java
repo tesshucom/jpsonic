@@ -19,7 +19,6 @@
 package org.airsonic.player.dao;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
@@ -27,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
@@ -36,19 +37,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  */
-public class MediaFileDaoTestCase extends AbstractAirsonicHomeTest {
+public class MediaFileDaoFullFieldsTestCase extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;
 
     @Autowired
     MediaFileDao dao;
 
+    @Autowired
+    AlbumDao albumDao;
+
+    @Autowired
+    ArtistDao artistDao;
+
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath.apply("Metadata/fullFields"));
-            musicFolders.add(new MusicFolder(1, musicDir, "fullFields", true, new Date()));
+            musicFolders.add(new MusicFolder(1, new File(resolveBaseMediaPath.apply("Metadata")), "fullFields", true, new Date()));
         }
         return musicFolders;
     }
@@ -59,7 +65,7 @@ public class MediaFileDaoTestCase extends AbstractAirsonicHomeTest {
     }
 
     @Test
-    public void testCreateMusicFolder() {
+    public void testFullFields() {
 
         String path = resolveBaseMediaPath.apply("Metadata/fullFields/v2.3+v1.1.mp3");
         if (System.getProperty("os.name").startsWith("Win")) {
@@ -68,19 +74,20 @@ public class MediaFileDaoTestCase extends AbstractAirsonicHomeTest {
 
         MediaFile mediaFile = dao.getMediaFile(path);
 
+        assertEquals("タイトル", mediaFile.getName());
         assertEquals("タイトル", mediaFile.getTitle());
         assertEquals("タイトル(読み)", mediaFile.getTitleSort());
 
         assertEquals("アーティスト", mediaFile.getArtist());
-        assertEquals("アーティスト", mediaFile.getArtistReading());
-        assertEquals("アーティスト(ヨミ)", mediaFile.getArtistSort());
+        assertEquals("アーティスト(読み)", mediaFile.getArtistReading());
+        assertEquals("アーティスト(読み)", mediaFile.getArtistSort());
 
         assertEquals("アルバム", mediaFile.getAlbumName());
-        assertNull(mediaFile.getAlbumReading());
+        assertEquals("アルバム(ヨミ)", mediaFile.getAlbumReading());
         assertEquals("アルバム(読み)", mediaFile.getAlbumSort());
 
         assertEquals("アルバムアーティスト", mediaFile.getAlbumArtist());
-        assertNull(mediaFile.getAlbumArtistSort());
+        assertEquals("アルバムアーティスト名(読み)", mediaFile.getAlbumArtistSort());
 
         assertEquals("作曲者", mediaFile.getComposer());
         assertEquals("作曲者(読み)", mediaFile.getComposerSort());
@@ -90,6 +97,15 @@ public class MediaFileDaoTestCase extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(1), mediaFile.getTrackNumber());
         assertEquals(Integer.valueOf(2019), mediaFile.getYear());
 
+        Album album = albumDao.getAlbum(0);
+        assertEquals("アルバムアーティスト", album.getArtist());
+        assertEquals("アルバムアーティスト名(読み)", album.getArtistSort());// By washing process
+        assertEquals("アルバム", album.getName());
+        assertEquals("アルバム(読み)", album.getNameSort());// By washing process
+
+        Artist artist = artistDao.getArtist(0);
+        assertEquals("アルバムアーティスト", artist.getName());
+        assertEquals("アルバムアーティスト", artist.getReading());// By washing process
     }
 
 }

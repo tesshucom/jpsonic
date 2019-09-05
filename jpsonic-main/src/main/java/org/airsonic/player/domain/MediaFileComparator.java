@@ -59,7 +59,12 @@ public class MediaFileComparator implements Comparator<MediaFile> {
         }
 
         if (a.isDirectory() && b.isDirectory()) {
-            int n = a.getName().compareToIgnoreCase(b.getName());
+            int n = 0;
+            if (a.isAlbum() && b.isAlbum()) {
+                n = a.getAlbumReading().compareToIgnoreCase(b.getAlbumReading());
+            } else {
+                n = a.getName().compareToIgnoreCase(b.getName());
+            }
             return n == 0 ? a.getPath().compareToIgnoreCase(b.getPath()) : n; // To make it consistent to MediaFile.equals()
         }
 

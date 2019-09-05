@@ -20,11 +20,9 @@ package com.tesshu.jpsonic.service;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
-import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.text.Normalizer;
@@ -35,6 +33,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Provide analysis of Japanese name.
@@ -48,7 +48,9 @@ public class MediaFileJPSupport {
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
 
-    /** Determine reading for token. */
+    private final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new,
+            StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+
     private final Function<Token, String> readingAnalysis = token -> {
         if(KATAKANA.matcher(token.getSurface()).matches()
                 || ALPHA.matcher(token.getSurface()).matches()
@@ -57,58 +59,56 @@ public class MediaFileJPSupport {
         }
         return token.getReading();
     };
-    
-    /**
-     * When first letter of MediaFile#artist is other than alphabet,
-     * try reading Japanese and set MediaFile#artistReading.
-     * @param mediaFile
-     */
-    public void analyzeArtistReading(MediaFile mediaFile) {
-        String artist = mediaFile.getArtist();
-        mediaFile.setArtistReading(createReading(artist));
+
+    String createReading(String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        if (readingMap.containsKey(s)) {
+            return readingMap.get(s);
+        }
+        List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
+        String reading = tokens.stream().map(readingAnalysis).collect(join);
+        readingMap.put(s, reading);
+        return reading;
     }
 
-    public void analyzeAlbumReading(MediaFile mediaFile) {
-        String albumName = mediaFile.getAlbumName();
-        mediaFile.setAlbumReading(createReading(albumName));
+    String analyzeSort(String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        return Normalizer.normalize(s, Normalizer.Form.NFKC);
     }
 
+    public void analyzeArtist(MediaFile mediaFile) {
+        if(!isEmpty(mediaFile.getArtistSort())) {
+            mediaFile.setArtistSort(analyzeSort(mediaFile.getArtistSort()));
+        }
+        mediaFile.setArtistReading(
+                isEmpty(mediaFile.getArtistSort())
+                    ? createReading(mediaFile.getArtist())
+                    : mediaFile.getArtistSort());
+    }
+
+    public void analyzeAlbum(MediaFile mediaFile) {
+        if (!isEmpty(mediaFile.getAlbumSort())) {
+            mediaFile.setAlbumSort(analyzeSort(mediaFile.getAlbumSort()));
+        }
+        mediaFile.setAlbumReading(createReading(
+                isEmpty(mediaFile.getAlbumSort())
+                    ? mediaFile.getAlbumName()
+                    : mediaFile.getAlbumSort()));
+    }
+
+    /** @deprecated Duplicate processing. Will be deleted after adding test. */
+    @Deprecated
     public void analyzeNameReading(Artist artist) {
         String name = artist.getName();
         artist.setReading(createReading(name));
     }
 
-    public void analyzeArtistSort(MediaFile mediaFile) {
-        if (StringUtils.isEmpty(mediaFile.getArtistReading())
-                || mediaFile.getArtistReading().equals(mediaFile.getArtistSort())) {
-            mediaFile.setArtistSort(null);
-            return;
-        }
-        String sort = createReading(mediaFile.getArtistSort());
-        if (!StringUtils.isEmpty(sort) && !sort.equals(mediaFile.getArtistReading())) {
-            mediaFile.setArtistSort(sort);
-        } else {
-            mediaFile.setArtistSort(null);
-        }
-    }
-
     public void clear() {
         readingMap.clear();
-    }
-
-    public String createReading(String s) {
-        if (StringUtils.isEmpty(s)) {
-            return null;
-        }
-        if(readingMap.containsKey(s)) {
-            return readingMap.get(s);
-        }
-        Collector<String, StringBuilder, String> join =
-                Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-        List<Token> tokens = tokenizer.tokenize(s);
-        String reading = cleanUp(tokens.stream().map(readingAnalysis).collect(join));
-        readingMap.put(s, reading);
-        return reading;
     }
 
     /**
@@ -120,10 +120,10 @@ public class MediaFileJPSupport {
         // http://www.unicode.org/reports/tr15/
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
             return mediaFile.getName();
-        } else if (!StringUtils.isEmpty(mediaFile.getArtistSort())) {
-            return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
-        } else if (!StringUtils.isEmpty(mediaFile.getArtistReading())) {
-            return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
+        } else if (!isEmpty(mediaFile.getArtistReading())) {
+            return mediaFile.getArtistReading();
+        } else if (!isEmpty(mediaFile.getArtistSort())) {
+            return mediaFile.getArtistSort();
         }
         return mediaFile.getName();
     }
@@ -131,20 +131,19 @@ public class MediaFileJPSupport {
     public String createIndexableName(Artist artist) {
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
             return artist.getName();
-        } else if (!StringUtils.isEmpty(artist.getSort())) {
-            return Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
-        } else if (!StringUtils.isEmpty(artist.getReading())) {
-            return Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+        } else if (!isEmpty(artist.getReading())) {
+            return artist.getReading();
+        } else if (!isEmpty(artist.getSort())) {
+            return artist.getSort();
         }
         return artist.getName();
     }
 
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
         List<MediaFile> toBeUpdate = new ArrayList<>();
-        for(MediaFile candidate : candidates) {
-            String cleanedUpSort = cleanUp(candidate.getArtistSort());
-            if(!candidate.getArtistReading().equals(cleanedUpSort)) {
-                candidate.setArtistSort(cleanedUpSort);
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
+                candidate.setArtistSort(candidate.getArtistSort());
                 toBeUpdate.add(candidate);
             }
         }
@@ -153,19 +152,13 @@ public class MediaFileJPSupport {
 
     public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
         List<MediaFile> toBeUpdate = new ArrayList<>();
-        for(MediaFile candidate : candidates) {
-            String cleanedUpSort = cleanUp(candidate.getAlbumSort());
-            if(!candidate.getAlbumReading().equals(cleanedUpSort)) {
-                candidate.setAlbumSort(cleanedUpSort);
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
+                candidate.setAlbumSort(candidate.getAlbumSort());
                 toBeUpdate.add(candidate);
             }
         }
         return toBeUpdate;
-    }
-
-    public String cleanUp(String dirty) {
-        return Normalizer.normalize(
-                Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
     }
 
 }
