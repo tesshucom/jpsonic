@@ -19,10 +19,10 @@
  */
 package org.airsonic.player.domain;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.IOException;
 import java.util.*;
+
+import static org.apache.commons.lang.StringUtils.defaultIfBlank;
 
 /**
  * A play queue is a list of music files that are associated to a remote player.
@@ -266,13 +266,15 @@ public class PlayQueue {
                         return trackA.compareTo(trackB);
 
                     case ARTIST:
-                        String artistA = StringUtils.trimToEmpty(a.getArtistReading());
-                        String artistB = StringUtils.trimToEmpty(b.getArtistReading());
+                        String artistA = defaultIfBlank(a.getArtistReading(), a.getArtist());
+                        String artistB = defaultIfBlank(b.getArtistReading(), b.getArtist());
                         return artistA.compareTo(artistB);
 
                     case ALBUM:
-                        String albumA = StringUtils.trimToEmpty(a.getAlbumReading());
-                        String albumB = StringUtils.trimToEmpty(b.getAlbumReading());
+                        a.setAlbumReading(null);
+                        a.setAlbumName(null);
+                        String albumA = defaultIfBlank(a.getAlbumReading(), a.getAlbumName());
+                        String albumB = defaultIfBlank(b.getAlbumReading(), b.getAlbumName());
                         return albumA.compareTo(albumB);
                     default:
                         return 0;

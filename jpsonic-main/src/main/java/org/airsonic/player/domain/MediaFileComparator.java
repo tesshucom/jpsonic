@@ -21,6 +21,8 @@ package org.airsonic.player.domain;
 
 import java.util.Comparator;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 /**
  * Comparator for sorting media files.
  */
@@ -60,7 +62,7 @@ public class MediaFileComparator implements Comparator<MediaFile> {
 
         if (a.isDirectory() && b.isDirectory()) {
             int n = 0;
-            if (a.isAlbum() && b.isAlbum()) {
+            if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
                 n = a.getAlbumReading().compareToIgnoreCase(b.getAlbumReading());
             } else {
                 n = a.getName().compareToIgnoreCase(b.getName());

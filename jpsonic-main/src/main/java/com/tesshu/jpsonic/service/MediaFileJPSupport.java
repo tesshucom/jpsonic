@@ -84,10 +84,10 @@ public class MediaFileJPSupport {
         if(!isEmpty(mediaFile.getArtistSort())) {
             mediaFile.setArtistSort(analyzeSort(mediaFile.getArtistSort()));
         }
-        mediaFile.setArtistReading(
+        mediaFile.setArtistReading(createReading(
                 isEmpty(mediaFile.getArtistSort())
-                    ? createReading(mediaFile.getArtist())
-                    : mediaFile.getArtistSort());
+                    ? mediaFile.getArtist()
+                    : mediaFile.getArtistSort()));
     }
 
     public void analyzeAlbum(MediaFile mediaFile) {
@@ -120,10 +120,10 @@ public class MediaFileJPSupport {
         // http://www.unicode.org/reports/tr15/
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
             return mediaFile.getName();
-        } else if (!isEmpty(mediaFile.getArtistReading())) {
-            return mediaFile.getArtistReading();
         } else if (!isEmpty(mediaFile.getArtistSort())) {
             return mediaFile.getArtistSort();
+        } else if (!isEmpty(mediaFile.getArtistReading())) {
+            return mediaFile.getArtistReading();
         }
         return mediaFile.getName();
     }
@@ -131,10 +131,10 @@ public class MediaFileJPSupport {
     public String createIndexableName(Artist artist) {
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
             return artist.getName();
-        } else if (!isEmpty(artist.getReading())) {
-            return artist.getReading();
         } else if (!isEmpty(artist.getSort())) {
             return artist.getSort();
+        } else if (!isEmpty(artist.getReading())) {
+            return artist.getReading();
         }
         return artist.getName();
     }
