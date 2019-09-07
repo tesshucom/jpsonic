@@ -807,32 +807,38 @@ public class MediaFileService {
     	for(Artist artist :sortedArtists) {
     		List<Album> albums = albumDao.getAlbumsForArtist(artist.getName(), folders);
     		for(Album album : albums) {
-    			album.setArtistSort(null == artist.getSort() ? artist.getReading() : artist.getSort());
-                // update db
-    			albumDao.createOrUpdateAlbum(album);
-                // update artistSort only.
-    			indexManager.updateArtistSort(album);
-    			maybe++;
+    		    String sort = null == artist.getSort() ? artist.getReading() : artist.getSort();
+    		    if(sort != null && !sort.equals(album.getArtistSort())) {
+                    album.setArtistSort(sort);
+                    // update db
+                    albumDao.createOrUpdateAlbum(album);
+                    // update artistSort only.
+                    indexManager.updateArtistSort(album);
+                    maybe++;
+    		    }
     		}
     	}
         LOG.info(sortedArtists.size() + " sorted id3 artists. "+ maybe +" id3 album rows reversal.");
 
         List<MediaFile> albums = mediaFileDao.getSortedAlbums();
         maybe = 0;
-		for (MediaFile album : albums) {
-			Album albumid3 = albumDao.getAlbum(album.getArtist(), album.getAlbumName());
-			if (null != albumid3) {
-				albumid3.setNameSort(null == album.getAlbumSort() ? album.getAlbumReading() : album.getAlbumSort());
-                // update db
-				albumDao.createOrUpdateAlbum(albumid3);
-	            // update index
-				indexManager.updateArtistSort(albumid3);
-				maybe++;
-			} else {
-				LOG.info(" > " + album.getAlbumName() + "@" + album.getArtist() + 
-						" does not exist in id3.");
-			}
-		}
+        for (MediaFile album : albums) {
+            if (null != album.getAlbumArtist()) {
+                Album albumid3 = albumDao.getAlbum(album.getAlbumArtist(), album.getAlbumName());
+                if (null != albumid3) {
+                    if (null != album.getAlbumSort() && !album.getAlbumSort().equals(albumid3.getNameSort())) {
+                        albumid3.setNameSort(album.getAlbumSort());
+                        // update db
+                        albumDao.createOrUpdateAlbum(albumid3);
+                        // update index
+                        indexManager.updateArtistSort(albumid3);
+                        maybe++;
+                    }
+                } else {
+                    LOG.info(" > " + album.getAlbumName() + "@" + album.getAlbumArtist() + " does not exist in id3.");
+                }
+            }
+        }
         LOG.info(albums.size() + " sorted id3 albums. "+ maybe +" id3 album rows reversal.");
 
     }

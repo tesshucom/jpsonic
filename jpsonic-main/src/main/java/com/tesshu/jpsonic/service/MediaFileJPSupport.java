@@ -20,6 +20,7 @@ package com.tesshu.jpsonic.service;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
+import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -100,11 +101,14 @@ public class MediaFileJPSupport {
                     : mediaFile.getAlbumSort()));
     }
 
-    /** @deprecated Duplicate processing. Will be deleted after adding test. */
-    @Deprecated
-    public void analyzeNameReading(Artist artist) {
-        String name = artist.getName();
-        artist.setReading(createReading(name));
+    public void analyzeArtist(MediaFile artist, Artist dist) {
+        if (!isEmpty(artist.getAlbumArtistSort())) {
+            dist.setSort(analyzeSort(artist.getAlbumArtistSort()));
+        }
+        dist.setReading(createReading(
+                isEmpty(artist.getAlbumArtistSort())
+                    ? artist.getAlbumArtist()
+                    : artist.getAlbumArtistSort()));
     }
 
     public void clear() {
@@ -116,27 +120,36 @@ public class MediaFileJPSupport {
      * @param mediaFile
      * @return indexable Name
      */
-    public String createIndexableName(MediaFile mediaFile) {
+    private String createIndexableName(String s) {
+        String indexableName = s;
+        indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         // http://www.unicode.org/reports/tr15/
+        indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
+        return indexableName;
+    }
+
+    public String createIndexableName(MediaFile mediaFile) {
+        String indexableName = mediaFile.getName();
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
-            return mediaFile.getName();
+            indexableName = mediaFile.getName();
         } else if (!isEmpty(mediaFile.getArtistSort())) {
-            return mediaFile.getArtistSort();
+            indexableName = createReading(mediaFile.getArtistSort());
         } else if (!isEmpty(mediaFile.getArtistReading())) {
-            return mediaFile.getArtistReading();
+            indexableName = mediaFile.getArtistReading();
         }
-        return mediaFile.getName();
+        return createIndexableName(indexableName);
     }
 
     public String createIndexableName(Artist artist) {
+        String indexableName = artist.getName();
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
-            return artist.getName();
+            indexableName = artist.getName();
         } else if (!isEmpty(artist.getSort())) {
-            return artist.getSort();
+            indexableName = createReading(artist.getSort());
         } else if (!isEmpty(artist.getReading())) {
-            return artist.getReading();
+            indexableName = artist.getReading();
         }
-        return artist.getName();
+        return createIndexableName(indexableName);
     }
 
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {

@@ -98,7 +98,7 @@ public class MediaFileDaoNoSortFieldsTestCase extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(1), mediaFile.getTrackNumber());
         assertEquals(Integer.valueOf(2019), mediaFile.getYear());
 
-        Album album = albumDao.getAlbumForFile(mediaFile);
+        Album album = albumDao.getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
 
         assertEquals("アルバムアーティスト", album.getArtist());
         assertEquals("アルバムアーティスト名(読み)", album.getArtistSort());// By washing process
@@ -107,7 +107,8 @@ public class MediaFileDaoNoSortFieldsTestCase extends AbstractAirsonicHomeTest {
 
         Artist artist = artistDao.getArtist(album.getArtist());
         assertEquals("アルバムアーティスト", artist.getName());
-        assertEquals("アルバムアーティスト", artist.getReading());// By washing process
+        assertEquals("アルバムアーティストメイ(ヨミ)", artist.getReading());// By washing process
+        assertEquals("アルバムアーティスト名(読み)", artist.getSort());// By washing process
 
     }
 }
