@@ -46,6 +46,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.regex.Pattern;
 
 /**
  * Provides services for instantiating and caching media files and cover art.
@@ -56,6 +57,8 @@ import java.util.*;
 public class MediaFileService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
+
+    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     @Autowired
     private Ehcache mediaFileMemoryCache;
@@ -214,7 +217,13 @@ public class MediaFileService {
         }
 
         if (sort) {
-            Comparator<MediaFile> comparator = new MediaFileComparator(settingsService.isSortAlbumsByYear());
+
+            boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
+                    && (!settingsService.isProhibitSortVarious() || ObjectUtils.isEmpty(parent)
+                            || ObjectUtils.isEmpty(parent.getArtist())
+                            || !isVarious.matcher(parent.getArtist().toLowerCase()).matches());
+
+            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear);
             // Note: Intentionally not using Collections.sort() since it can be problematic on Java 7.
             // http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#jdk7
             Set<MediaFile> set = new TreeSet<MediaFile>(comparator);

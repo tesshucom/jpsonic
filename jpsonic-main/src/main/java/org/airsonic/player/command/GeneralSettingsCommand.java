@@ -37,6 +37,7 @@ public class GeneralSettingsCommand {
     private String ignoredArticles;
     private String shortcuts;
     private boolean sortAlbumsByYear;
+    private boolean prohibitSortVarious;
     private boolean gettingStartedEnabled;
     private String welcomeTitle;
     private String welcomeSubtitle;
@@ -176,6 +177,14 @@ public class GeneralSettingsCommand {
 
     public void setSortAlbumsByYear(boolean sortAlbumsByYear) {
         this.sortAlbumsByYear = sortAlbumsByYear;
+    }
+
+    public boolean isProhibitSortVarious() {
+        return prohibitSortVarious;
+    }
+
+    public void setProhibitSortVarious(boolean prohibitSortVarious) {
+        this.prohibitSortVarious = prohibitSortVarious;
     }
 
     public boolean isGettingStartedEnabled() {

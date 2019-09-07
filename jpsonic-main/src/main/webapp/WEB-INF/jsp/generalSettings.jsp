@@ -118,6 +118,14 @@
             <td>
             </td>
             <td>
+                <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
+                <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
                 <form:checkbox path="gettingStartedEnabled" id="gettingStartedEnabled"/>
                 <label for="gettingStartedEnabled"><fmt:message key="generalsettings.showgettingstarted"/></label>
             </td>
