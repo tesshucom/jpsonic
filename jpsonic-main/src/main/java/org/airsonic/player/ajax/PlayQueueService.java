@@ -658,7 +658,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST);
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum());
         return convert(request, player, false);
     }
 
@@ -666,7 +666,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM);
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum());
         return convert(request, player, false);
     }
 

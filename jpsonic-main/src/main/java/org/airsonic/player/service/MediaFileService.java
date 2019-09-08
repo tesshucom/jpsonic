@@ -222,8 +222,10 @@ public class MediaFileService {
                     && (!settingsService.isProhibitSortVarious() || ObjectUtils.isEmpty(parent)
                             || ObjectUtils.isEmpty(parent.getArtist())
                             || !isVarious.matcher(parent.getArtist().toLowerCase()).matches());
+            
+            boolean isSortAlphanum = settingsService.isSortAlphanum();
 
-            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear);
+            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear, isSortAlphanum);
             // Note: Intentionally not using Collections.sort() since it can be problematic on Java 7.
             // http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#jdk7
             Set<MediaFile> set = new TreeSet<MediaFile>(comparator);
