@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -162,8 +163,8 @@ public class DocumentFactory {
         fieldId.accept(doc, mediaFile.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
         fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldWords.accept(doc, FieldNames.ARTIST_READING,
+                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
         fieldGenre.accept(doc, mediaFile.getGenre());
         fieldWords.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
         fieldWords.accept(doc, FieldNames.ALBUM_EX, mediaFile.getAlbumName());
@@ -183,8 +184,8 @@ public class DocumentFactory {
         fieldId.accept(doc, mediaFile.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
         fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldWords.accept(doc, FieldNames.ARTIST_READING,
+                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
         fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -233,8 +234,7 @@ public class DocumentFactory {
         fieldId.accept(doc, artist.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, artist.getName());
         fieldWords.accept(doc, FieldNames.ARTIST_EX, artist.getName());
-        String reading = isEmpty(artist.getSort()) ? artist.getReading() : artist.getSort();
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldWords.accept(doc, FieldNames.ARTIST_READING, defaultIfEmpty(artist.getSort(), artist.getReading()));
         fieldFolderId.accept(doc, musicFolder.getId());
         return doc;
     }
@@ -254,8 +254,10 @@ public class DocumentFactory {
         fieldWords.accept(doc, FieldNames.TITLE_EX, mediaFile.getTitle());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
         fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        String reading = isEmpty(mediaFile.getArtistSort()) ? mediaFile.getArtistReading() : mediaFile.getArtistSort();
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, reading);
+        fieldWords.accept(doc, FieldNames.ARTIST_READING,
+                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
+        fieldWords.accept(doc, FieldNames.COMPOSER, mediaFile.getComposer());
+        fieldWords.accept(doc, FieldNames.COMPOSER_READING, mediaFile.getComposerSort());
         fieldGenre.accept(doc, mediaFile.getGenre());
         fieldYear.accept(doc, FieldNames.YEAR, mediaFile.getYear());
         fieldFolderPath.accept(doc, mediaFile.getFolder());

@@ -193,6 +193,7 @@ public final class AnalyzerFactory {
                 analyzerMap.put(FieldNames.GENRE_KEY, key);
                 analyzerMap.put(FieldNames.GENRE, genre);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
+                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);
@@ -233,6 +234,7 @@ public final class AnalyzerFactory {
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.GENRE, genre);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
+                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);

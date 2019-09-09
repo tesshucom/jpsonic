@@ -69,6 +69,7 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
         searchCriteria.setQuery(query);
         searchCriteria.setCount(Integer.MAX_VALUE);
         searchCriteria.setOffset(0);
+        searchCriteria.setContainsComposer(true);
 
         /*
          * _ID3_ALBUMARTIST_ Sarah Walker/Nash Ensemble

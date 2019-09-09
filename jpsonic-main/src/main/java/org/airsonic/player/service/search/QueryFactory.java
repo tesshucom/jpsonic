@@ -42,6 +42,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -177,7 +178,17 @@ public class QueryFactory {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        Query multiFieldQuery = createMultiFieldWildQuery(indexType.getFields(), criteria.getQuery(), indexType);
+        String[] fields = indexType.getFields();
+
+        if (criteria.isContainsComposer()) {
+            List<String> ifields = new ArrayList<>();
+            Arrays.asList(fields).forEach(e -> ifields.add(e));
+            ifields.add(FieldNames.COMPOSER);
+            ifields.add(FieldNames.COMPOSER_READING);
+            fields = ifields.toArray(new String[ifields.size()]);
+        }
+
+        Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
