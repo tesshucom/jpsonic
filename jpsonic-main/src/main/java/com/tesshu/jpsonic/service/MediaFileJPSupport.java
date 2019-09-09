@@ -24,10 +24,14 @@ import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.service.SettingsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +46,10 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 @Component
 public class MediaFileJPSupport {
-    
+
+    @Autowired
+    private SettingsService settingsService;
+
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
@@ -60,7 +67,16 @@ public class MediaFileJPSupport {
         }
         return token.getReading();
     };
+    
+    private List<String> ignoredArticles;
 
+    private List<String> getIgnoredArticles() {
+        if (ObjectUtils.isEmpty(ignoredArticles)) {
+            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        }
+        return ignoredArticles;
+    }
+    
     String createReading(String s) {
         if (isEmpty(s)) {
             return null;
@@ -70,6 +86,16 @@ public class MediaFileJPSupport {
         }
         List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
         String reading = tokens.stream().map(readingAnalysis).collect(join);
+
+        /* @see MusicIndexService#createSortableName */
+        String lower = reading.toLowerCase();
+        for (String article : getIgnoredArticles()) {
+            if (lower.startsWith(article.toLowerCase() + " ")) {
+                // reading = lower.substring(article.length() + 1) + ", " + article;
+                reading = reading.substring(article.length() + 1);
+            }
+        }
+
         readingMap.put(s, reading);
         return reading;
     }

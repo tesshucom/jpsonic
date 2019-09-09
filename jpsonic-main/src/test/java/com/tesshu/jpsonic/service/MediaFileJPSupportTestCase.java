@@ -7,11 +7,14 @@ import java.util.function.Function;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class MediaFileJPSupportTestCase {
+public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest{
 
-    MediaFileJPSupport support = new MediaFileJPSupport();
+    @Autowired
+    private MediaFileJPSupport support;
 
     @Test
     public void testCreateReading() {
@@ -30,6 +33,8 @@ public class MediaFileJPSupportTestCase {
         assertEquals("BAD COMMUNICATION", support.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
         assertEquals("イヌトネコ", support.createReading("犬とネコ"));
         assertEquals(" 「」()()[][];!!??##123", support.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", support.createReading("Cæsar"));
+        assertEquals("Alfee", support.createReading("The Alfee"));
     }
 
     @Test
@@ -51,6 +56,8 @@ public class MediaFileJPSupportTestCase {
         assertEquals("読み", support.analyzeSort("読み"));
         assertEquals("(読み)", support.analyzeSort("(読み)"));
         assertEquals(" 「」()()[][];!!??##123", support.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", support.createReading("Cæsar"));
+        assertEquals("Alfee", support.createReading("The Alfee"));
     }
 
     private BiFunction<String, String, MediaFile> toMediaFile = (artist, artistSort) -> {
