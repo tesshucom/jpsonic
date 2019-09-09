@@ -244,8 +244,6 @@ public class AnalyzerFactoryTestCase {
                     assertEquals("??????? : " + n, "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら", jpStopTerms.get(0));
                     assertEquals("??????? : " + n, " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ", jpStopTerms.get(1));
                     break;
-                case FieldNames.ARTIST:
-                case FieldNames.ARTIST_READING:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
                     assertEquals("apply : " + n, 0, articleTerms.size());
@@ -253,6 +251,19 @@ public class AnalyzerFactoryTestCase {
                     assertEquals("through : " + n, 30, noStopTerms.size());
                     assertEquals("apply : " + n, 0, jpStopTerms.size());
                     break;
+                case FieldNames.ARTIST:
+                    assertEquals("apply : " + n, 0, articleTerms.size());
+                    assertEquals("apply : " + n, 0, indexArticleTerms.size());
+                    assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
+                    assertEquals("apply : " + n, 53, jpStopTerms.size());//false positives?
+                    break;
+                case FieldNames.ARTIST_READING:
+                    assertEquals("apply : " + n, 0, articleTerms.size());
+                    assertEquals("apply : " + n, 0, indexArticleTerms.size());
+                    assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
+                    assertEquals("apply : " + n, 109, jpStopTerms.size());
+                    break;
+                
                 default:
                     break;
             }
@@ -277,6 +288,19 @@ public class AnalyzerFactoryTestCase {
                     break;
             }
         });
+    }
+    
+    /**
+     * Detailed tests on Artist Stopward.
+     */
+    @Test
+    public void testArtistStopward() {
+        assertEquals(0, toTermString(FieldNames.ARTIST,  "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST,  "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST,  "with").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "with").size());
     }
 
     /**
