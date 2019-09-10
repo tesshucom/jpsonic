@@ -153,6 +153,7 @@
         mediaInfo.metadata.title = song.title;
         mediaInfo.metadata.albumName = song.album;
         mediaInfo.metadata.artist = song.artist;
+        mediaInfo.metadata.composer = song.composer;
         mediaInfo.metadata.trackNumber = song.trackNumber;
         mediaInfo.metadata.images = [new chrome.cast.Image(song.remoteCoverArtUrl)];
         mediaInfo.metadata.releaseYear = song.year;

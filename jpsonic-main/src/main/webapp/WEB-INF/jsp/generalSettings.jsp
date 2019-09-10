@@ -107,8 +107,7 @@
         <tr><td colspan="2">&nbsp;</td></tr>
 
         <tr>
-            <td>
-            </td>
+            <td><fmt:message key="generalsettings.sortsettings"/></td>
             <td>
                 <form:checkbox path="sortAlbumsByYear" id="sortAlbumsByYear"/>
                 <label for="sortAlbumsByYear"><fmt:message key="generalsettings.sortalbumsbyyear"/></label>
@@ -118,8 +117,16 @@
             <td>
             </td>
             <td>
-                <form:checkbox path="gettingStartedEnabled" id="gettingStartedEnabled"/>
-                <label for="gettingStartedEnabled"><fmt:message key="generalsettings.showgettingstarted"/></label>
+                <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
+                <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
+                <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
             </td>
         </tr>
 
@@ -152,6 +159,13 @@
                 <form:textarea path="loginMessage" rows="5" cols="70"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="loginmessage"/></c:import>
                 <fmt:message key="main.wiki"/>
+            </td>
+        </tr>
+        <tr>
+            <td><fmt:message key="generalsettings.gettingstarted"/></td>
+            <td>
+                <form:checkbox path="gettingStartedEnabled" id="gettingStartedEnabled"/>
+                <label for="gettingStartedEnabled"><fmt:message key="generalsettings.showgettingstarted"/></label>
             </td>
         </tr>
 

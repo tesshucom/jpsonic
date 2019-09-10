@@ -96,36 +96,40 @@ class FieldNames {
      * Jpsonic specific reading field.
      * Parse rules are expected to correspond to breaks according to id3
      * and also to customary multi artists.
-     * @since 1.0
      */
     public static final String ARTIST_READING = "artR";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word.
-     * @since 1.1
      */
     public static final String ARTIST_EX = "artEX";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word or full text Hiragana.
-     * @since 1.1
      */
     public static final String ALBUM_EX = "albEX";
 
     /**
      * Jpsonic specific assistance field.
      * Deal with rare cases consisting only of stop-word or full text Hiragana.
-     * @since 1.1
      */
     public static final String TITLE_EX = "titEX";
 
     /**
      * Jpsonic specific assistance field.
      * Key field that holds the normalized string.
-     * @since 1.1
      */
     public static final String GENRE_KEY = "gk";
+
+    /**
+     * Jpsonic specific assistance field.
+     */
+    public static final String COMPOSER = "cmp";
+    /**
+     * Jpsonic specific assistance field.
+     */
+    public static final String COMPOSER_READING = "cmpR";
 
 }

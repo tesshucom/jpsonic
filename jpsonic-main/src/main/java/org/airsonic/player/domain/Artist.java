@@ -41,7 +41,7 @@ public class Artist {
     }
 
     public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present, Integer folderId,
-    		String reading, String sort) {
+            String reading, String sort) {
         this.id = id;
         this.name = name;
         this.coverArtPath = coverArtPath;
@@ -109,20 +109,20 @@ public class Artist {
         return folderId;
     }
 
-	public String getReading() {
-		return reading;
-	}
+    public String getReading() {
+        return reading;
+    }
 
-	public void setReading(String reading) {
-		this.reading = reading;
-	}
+    public void setReading(String reading) {
+        this.reading = reading;
+    }
 
-	public String getSort() {
-		return sort;
-	}
+    public String getSort() {
+        return sort;
+    }
 
-	public void setSort(String sort) {
-		this.sort = sort;
-	}
+    public void setSort(String sort) {
+        this.sort = sort;
+    }
     
 }

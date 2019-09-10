@@ -24,11 +24,14 @@ import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
-import org.apache.commons.lang3.StringUtils;
+import org.airsonic.player.service.SettingsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,136 +39,165 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 /**
  * Provide analysis of Japanese name.
  */
 @Component
 public class MediaFileJPSupport {
-    
+
+    @Autowired
+    private SettingsService settingsService;
+
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private final Tokenizer tokenizer = new Tokenizer();
-	private Map<String, String> readingMap = new HashMap<>();
+    private Map<String, String> readingMap = new HashMap<>();
 
-    /** Determine reading for token. */
+    private final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new,
+            StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+
     private final Function<Token, String> readingAnalysis = token -> {
-    	if(KATAKANA.matcher(token.getSurface()).matches()
-    			|| ALPHA.matcher(token.getSurface()).matches()
-    			|| ASTER.equals(token.getReading())) {
-    		return token.getSurface();
-    	}
+        if (KATAKANA.matcher(token.getSurface()).matches()
+                || ALPHA.matcher(token.getSurface()).matches()
+                || ASTER.equals(token.getReading())) {
+            return token.getSurface();
+        }
         return token.getReading();
     };
     
-    /**
-     * When first letter of MediaFile#artist is other than alphabet,
-     * try reading Japanese and set MediaFile#artistReading.
-     * @param mediaFile
-     */
-	public void analyzeArtistReading(MediaFile mediaFile) {
-		String artist = mediaFile.getArtist();
-		mediaFile.setArtistReading(createReading(artist));
-	}
+    private List<String> ignoredArticles;
 
-	public void analyzeAlbumReading(MediaFile mediaFile) {
-		String albumName = mediaFile.getAlbumName();
-		mediaFile.setAlbumReading(createReading(albumName));
-	}
+    private List<String> getIgnoredArticles() {
+        if (ObjectUtils.isEmpty(ignoredArticles)) {
+            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        }
+        return ignoredArticles;
+    }
+    
+    String createReading(String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        if (readingMap.containsKey(s)) {
+            return readingMap.get(s);
+        }
+        List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
+        String reading = tokens.stream().map(readingAnalysis).collect(join);
 
-	public void analyzeNameReading(Artist artist) {
-		String name = artist.getName();
-		artist.setReading(createReading(name));
-	}
+        /* @see MusicIndexService#createSortableName */
+        String lower = reading.toLowerCase();
+        for (String article : getIgnoredArticles()) {
+            if (lower.startsWith(article.toLowerCase() + " ")) {
+                // reading = lower.substring(article.length() + 1) + ", " + article;
+                reading = reading.substring(article.length() + 1);
+            }
+        }
 
-	public void analyzeArtistSort(MediaFile mediaFile) {
-		if (StringUtils.isEmpty(mediaFile.getArtistReading())
-				|| mediaFile.getArtistReading().equals(mediaFile.getArtistSort())) {
-			mediaFile.setArtistSort(null);
-			return;
-		}
-		String sort = createReading(mediaFile.getArtistSort());
-		if (!StringUtils.isEmpty(sort) && !sort.equals(mediaFile.getArtistReading())) {
-			mediaFile.setArtistSort(sort);
-		} else {
-			mediaFile.setArtistSort(null);
-		}
-	}
+        readingMap.put(s, reading);
+        return reading;
+    }
 
-	public void clear() {
-		readingMap.clear();
-	}
+    String analyzeSort(String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        return Normalizer.normalize(s, Normalizer.Form.NFKC);
+    }
 
-	public String createReading(String s) {
-		if (StringUtils.isEmpty(s)) {
-			return null;
-		}
-		if(readingMap.containsKey(s)) {
-			return readingMap.get(s);
-		}
-		Collector<String, StringBuilder, String> join =
-				Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
-		List<Token> tokens = tokenizer.tokenize(s);
-		String reading = cleanUp(tokens.stream().map(readingAnalysis).collect(join));
-		readingMap.put(s, reading);
-		return reading;
-	}
+    public void analyzeArtist(MediaFile mediaFile) {
+        if (!isEmpty(mediaFile.getArtistSort())) {
+            mediaFile.setArtistSort(analyzeSort(mediaFile.getArtistSort()));
+        }
+        mediaFile.setArtistReading(createReading(
+                isEmpty(mediaFile.getArtistSort())
+                    ? mediaFile.getArtist()
+                    : mediaFile.getArtistSort()));
+    }
+
+    public void analyzeArtist(MediaFile artist, Artist dist) {
+        if (!isEmpty(artist.getAlbumArtistSort())) {
+            dist.setSort(analyzeSort(artist.getAlbumArtistSort()));
+        }
+        dist.setReading(createReading(
+                isEmpty(artist.getAlbumArtistSort())
+                    ? artist.getAlbumArtist()
+                    : artist.getAlbumArtistSort()));
+    }
+
+    public void analyzeAlbum(MediaFile mediaFile) {
+        if (!isEmpty(mediaFile.getAlbumSort())) {
+            mediaFile.setAlbumSort(analyzeSort(mediaFile.getAlbumSort()));
+        }
+        mediaFile.setAlbumReading(createReading(
+                isEmpty(mediaFile.getAlbumSort())
+                    ? mediaFile.getAlbumName()
+                    : mediaFile.getAlbumSort()));
+    }
+
+    public void clear() {
+        readingMap.clear();
+    }
 
     /**
      * This method returns the normalized Artist name that can also be used to create the index prefix.
      * @param mediaFile
      * @return indexable Name
      */
-    public String createIndexableName(MediaFile mediaFile) {
+    private String createIndexableName(String s) {
+        String indexableName = s;
+        indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         // http://www.unicode.org/reports/tr15/
+        indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
+        return indexableName;
+    }
+
+    public String createIndexableName(MediaFile mediaFile) {
+        String indexableName = mediaFile.getName();
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
-            return mediaFile.getName();
-        } else if (!StringUtils.isEmpty(mediaFile.getArtistSort())) {
-            return Normalizer.normalize(mediaFile.getArtistSort(), Normalizer.Form.NFD);
-        } else if (!StringUtils.isEmpty(mediaFile.getArtistReading())) {
-            return Normalizer.normalize(mediaFile.getArtistReading(), Normalizer.Form.NFD);
+            indexableName = mediaFile.getName();
+        } else if (!isEmpty(mediaFile.getArtistSort())) {
+            indexableName = createReading(mediaFile.getArtistSort());
+        } else if (!isEmpty(mediaFile.getArtistReading())) {
+            indexableName = mediaFile.getArtistReading();
         }
-        return mediaFile.getName();
+        return createIndexableName(indexableName);
     }
 
     public String createIndexableName(Artist artist) {
+        String indexableName = artist.getName();
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
-            return artist.getName();
-        } else if (!StringUtils.isEmpty(artist.getSort())) {
-            return Normalizer.normalize(artist.getSort(), Normalizer.Form.NFD);
-        } else if (!StringUtils.isEmpty(artist.getReading())) {
-            return Normalizer.normalize(artist.getReading(), Normalizer.Form.NFD);
+            indexableName = artist.getName();
+        } else if (!isEmpty(artist.getSort())) {
+            indexableName = createReading(artist.getSort());
+        } else if (!isEmpty(artist.getReading())) {
+            indexableName = artist.getReading();
         }
-        return artist.getName();
+        return createIndexableName(indexableName);
     }
 
     public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
-    	List<MediaFile> toBeUpdate = new ArrayList<>();
-    	for(MediaFile candidate : candidates) {
-    		String cleanedUpSort = cleanUp(candidate.getArtistSort());
-    		if(!candidate.getArtistReading().equals(cleanedUpSort)) {
-    			candidate.setArtistSort(cleanedUpSort);
-    			toBeUpdate.add(candidate);
-    		}
-    	}
-    	return toBeUpdate;
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
+                candidate.setArtistSort(candidate.getArtistSort());
+                toBeUpdate.add(candidate);
+            }
+        }
+        return toBeUpdate;
     }
 
     public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
-    	List<MediaFile> toBeUpdate = new ArrayList<>();
-    	for(MediaFile candidate : candidates) {
-    		String cleanedUpSort = cleanUp(candidate.getAlbumSort());
-    		if(!candidate.getAlbumReading().equals(cleanedUpSort)) {
-    			candidate.setAlbumSort(cleanedUpSort);
-    			toBeUpdate.add(candidate);
-    		}
-    	}
-    	return toBeUpdate;
-    }
-
-    public String cleanUp(String dirty) {
-    	return Normalizer.normalize(
-    			Transliterator.getInstance("Hiragana-Katakana").transliterate(dirty), Normalizer.Form.NFKC);
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
+                candidate.setAlbumSort(candidate.getAlbumSort());
+                toBeUpdate.add(candidate);
+            }
+        }
+        return toBeUpdate;
     }
 
 }

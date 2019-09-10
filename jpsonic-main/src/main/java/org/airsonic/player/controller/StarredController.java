@@ -83,6 +83,7 @@ public class StarredController {
 
         map.put("user", user);
         map.put("partyModeEnabled", userSettings.isPartyModeEnabled());
+        map.put("visibility", userSettings.getMainVisibility());
         map.put("player", playerService.getPlayer(request, response));
         map.put("coverArtSize", CoverArtScheme.MEDIUM.getSize());
         map.put("artists", artists);

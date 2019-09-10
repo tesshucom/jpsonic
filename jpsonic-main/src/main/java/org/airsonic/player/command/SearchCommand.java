@@ -41,6 +41,8 @@ public class SearchCommand {
     private User user;
     private boolean partyModeEnabled;
     private Player player;
+    private boolean isComposerVisible;
+    private boolean isGenreVisible;
 
     public String getQuery() {
         return query;
@@ -104,6 +106,22 @@ public class SearchCommand {
 
     public void setPlayer(Player player) {
         this.player = player;
+    }
+
+    public boolean isComposerVisible() {
+        return isComposerVisible;
+    }
+
+    public void setComposerVisible(boolean isComposerVisible) {
+        this.isComposerVisible = isComposerVisible;
+    }
+
+    public boolean isGenreVisible() {
+        return isGenreVisible;
+    }
+
+    public void setGenreVisible(boolean isGenreVisible) {
+        this.isGenreVisible = isGenreVisible;
     }
 
     public static class Match {

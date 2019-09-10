@@ -23,8 +23,26 @@ Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
 Features
 -----------------
 
-Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
-The default language is set to JP so as to be intimate with Japanese people, but you can use other languages depending on your choice.
+ - Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
+ - The default language is set to JP so as to be intimate with Japanese people, but you can use other languages depending on your choice.
+ - Available tags have been expanded. Supports generic tags.
+
+|tag name |tag id|Subsonic/Airsonic |Jpsonic |Music Center (SONY) |itunes (APPLE)
+|:---|:---|:---:|:---:|:---:|:---:|
+|title |TIT2 |● |● |● |●
+|title sort|TSOT | |● |● |●
+|artist|TPE1 |● |● |● |●
+|artist sort|TSOP | |● |● |●
+|album |TALB |● |● |● |●
+|album sort|TSOA | |● |● |●
+|album artist|TPE2 |● |● |● |●
+|album artist sort|TSO2 | |● |● |●
+|genre|TCON |● |● |● |●
+|Release year|TYER |● |● |● |●
+|composer|TCOM | |● |● |●
+|composer sort|TSOC | |● | |●
+|track no|TRCK |● |● |● |●
+|disk no|TPOS |● |● |● |●
 
 ### index
 
@@ -36,8 +54,9 @@ It is a very general and easy-to-understand index for Japanese people, just like
 
 ### sort
 
-Sort by name is expanded to allow for Japanese character string sorting.
-Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
+ - Advanced sorting is available with options. (Albums of artists starting with "various" are not sorted by year / sorted considering serial numbers)
+ - Sort by name is expanded to allow for Japanese character string sorting.
+ - Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
 
 ![Screenshot](contrib/assets/jp-sort.png)
 

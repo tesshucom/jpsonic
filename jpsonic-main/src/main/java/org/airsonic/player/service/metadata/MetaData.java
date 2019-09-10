@@ -43,6 +43,8 @@ public class MetaData {
     private String artistSort;
     private String albumArtistSort;
     private String musicBrainzReleaseId;
+    private String composer;
+    private String composerSort;
 
     public Integer getDiscNumber() {
         return discNumber;
@@ -187,4 +189,21 @@ public class MetaData {
     public void setMusicBrainzReleaseId(String musicBrainzReleaseId) {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
+
+    public String getComposer() {
+        return composer;
+    }
+
+    public void setComposer(String composer) {
+        this.composer = composer;
+    }
+
+    public String getComposerSort() {
+        return composerSort;
+    }
+
+    public void setComposerSort(String composerSort) {
+        this.composerSort = composerSort;
+    }
+
 }

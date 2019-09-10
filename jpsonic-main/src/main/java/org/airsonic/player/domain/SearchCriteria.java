@@ -32,6 +32,7 @@ public class SearchCriteria {
     private String query;
     private int offset;
     private int count;
+    private boolean isContainsComposer;
 
     public void setQuery(String query) {
         this.query = query;
@@ -56,4 +57,13 @@ public class SearchCriteria {
     public void setCount(int count) {
         this.count = count;
     }
+
+    public boolean isContainsComposer() {
+        return isContainsComposer;
+    }
+
+    public void setContainsComposer(boolean containsComposer) {
+        this.isContainsComposer = containsComposer;
+    }
+
 }

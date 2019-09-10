@@ -75,6 +75,7 @@ public class PlaylistController {
 
         map.put("playlist", playlist);
         map.put("user", user);
+        map.put("visibility", userSettings.getMainVisibility());
         map.put("player", player);
         map.put("editAllowed", username.equals(playlist.getUsername()) || securityService.isAdmin(username));
         map.put("partyMode", userSettings.isPartyModeEnabled());

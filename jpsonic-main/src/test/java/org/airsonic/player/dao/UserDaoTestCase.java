@@ -206,6 +206,12 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         settings.setShowSideBar(true);
         settings.getMainVisibility().setBitRateVisible(true);
         settings.getPlaylistVisibility().setYearVisible(true);
+
+        settings.getMainVisibility().setComposerVisible(true);
+        settings.getMainVisibility().setGenreVisible(true);
+        settings.getPlaylistVisibility().setComposerVisible(true);
+        settings.getPlaylistVisibility().setGenreVisible(true);
+
         settings.setLastFmEnabled(true);
         settings.setLastFmUsername("last_user");
         settings.setLastFmPassword("last_pass");
@@ -232,6 +238,12 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         assertEquals("Error in getUserSettings().", "midnight", userSettings.getThemeId());
         assertEquals("Error in getUserSettings().", true, userSettings.getMainVisibility().isBitRateVisible());
         assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isYearVisible());
+
+        assertEquals("Error in getUserSettings().", true, userSettings.getMainVisibility().isComposerVisible());
+        assertEquals("Error in getUserSettings().", true, userSettings.getMainVisibility().isGenreVisible());
+        assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isComposerVisible());
+        assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isGenreVisible());
+        
         assertEquals("Error in getUserSettings().", true, userSettings.isLastFmEnabled());
         assertEquals("Error in getUserSettings().", "last_user", userSettings.getLastFmUsername());
         assertEquals("Error in getUserSettings().", "last_pass", userSettings.getLastFmPassword());

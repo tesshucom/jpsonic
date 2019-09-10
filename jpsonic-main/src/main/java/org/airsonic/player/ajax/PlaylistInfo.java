@@ -50,16 +50,20 @@ public class PlaylistInfo {
         private final int id;
         private final String title;
         private final String artist;
+        private final String composer;
         private final String album;
+        private final String genre;
         private final String durationAsString;
         private final boolean starred;
         private final boolean present;
 
-        public Entry(int id, String title, String artist, String album, String durationAsString, boolean starred, boolean present) {
+        public Entry(int id, String title, String artist, String composer, String album, String genre, String durationAsString, boolean starred, boolean present) {
             this.id = id;
             this.title = title;
             this.artist = artist;
+            this.composer = composer;
             this.album = album;
+            this.genre = genre;
             this.durationAsString = durationAsString;
             this.starred = starred;
             this.present = present;
@@ -77,8 +81,16 @@ public class PlaylistInfo {
             return artist;
         }
 
+        public String getComposer() {
+            return composer;
+        }
+
         public String getAlbum() {
             return album;
+        }
+
+        public String getGenre() {
+            return genre;
         }
 
         public String getDurationAsString() {

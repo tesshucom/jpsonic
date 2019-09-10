@@ -46,19 +46,20 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
-                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id";
+                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id," +
+                                                "composer, composer_sort";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    private static final int JP_VERSION = 4;
+    private static final int JP_VERSION = 5;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
     private final RowMapper musicFileInfoRowMapper = new MusicFileInfoMapper();
     private final RowMapper genreRowMapper = new GenreMapper();
-	private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
-	private final RowMapper<MediaFile> albumSortCandidateMapper = new AlbumSortCandidateMapper();
+    private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
+    private final RowMapper<MediaFile> albumSortCandidateMapper = new AlbumSortCandidateMapper();
 
     /**
      * Returns the media file for the given path.
@@ -171,7 +172,9 @@ public class MediaFileDao extends AbstractDao {
                      "artist_sort=?, " +
                      "album_artist_sort=?, " +
                      "album_reading=?, " +
-                     "mb_release_id=? " +
+                     "mb_release_id=?, " +
+                     "composer=?, " +
+                     "composer_sort=? " +
                      "where path=?";
 
         logger.trace("Updating media file {}", Util.debugObject(file));
@@ -189,7 +192,10 @@ public class MediaFileDao extends AbstractDao {
                        file.getArtistSort(),
                        file.getAlbumArtistSort(),
                        file.getAlbumReading(),
-                       file.getMusicBrainzReleaseId(), file.getPath());
+                       file.getMusicBrainzReleaseId(),
+                       file.getComposer(),
+                       file.getComposerSort(),
+                       file.getPath());
 
         if (n == 0) {
 
@@ -209,7 +215,7 @@ public class MediaFileDao extends AbstractDao {
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
                    file.getChildrenLastUpdated(), file.isPresent(), VERSION,
                    file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort(), file.getAlbumReading(),
-                   file.getMusicBrainzReleaseId());
+                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -234,13 +240,13 @@ public class MediaFileDao extends AbstractDao {
      * @param album The artist to update.
      * @param albumSort Update value.
      */
-	@Transactional
-	public int updateAlbumSort(String album, String albumSort) {
-		logger.trace("Updating media file at {}", album);
-		String sql = "update media_file set album_sort = ? where album = ? and type = ?";
-		logger.trace("Updating media file {}", album);
-		return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
-	}
+    @Transactional
+    public int updateAlbumSort(String album, String albumSort) {
+        logger.trace("Updating media file at {}", album);
+        String sql = "update media_file set album_sort = ? where album = ? and type = ?";
+        logger.trace("Updating media file {}", album);
+        return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
+    }
     
     /**
      * Update albumArtistSorts all.
@@ -362,13 +368,12 @@ public class MediaFileDao extends AbstractDao {
         args.put("folders", MusicFolder.toPathList(musicFolders));
         args.put("count", count);
         args.put("offset", offset);
-		String orderBy = byArtist
-				? "coalesce(album_artist_sort, artist_sort, artist_reading, artist), coalesce(album_sort, album_reading, album)"
-				: "coalesce(album_sort, album_reading, album)";
-		return namedQuery("select " + QUERY_COLUMNS +
-                " from media_file where type = :type and folder in (:folders) and present" +
-                " order by " + orderBy + " limit :count offset :offset", rowMapper, args);
-	}
+
+        String orderBy = byArtist ? "artist_reading, album_reading" : "album_reading";
+        return namedQuery("select " + QUERY_COLUMNS
+                          + " from media_file where type = :type and folder in (:folders) and present " +
+                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+    }
 
     /**
      * Returns albums within a year range.
@@ -461,7 +466,7 @@ public class MediaFileDao extends AbstractDao {
         args.put("type", MediaFile.MediaType.MUSIC.name());
         args.put("folders", MusicFolder.toPathList(musicFolders));
         return namedQueryOne("select " + QUERY_COLUMNS + " from media_file where artist = :artist " +
-                             "and title = :title and type = :type and present and folder in (:folders)" ,
+                             "and title = :title and type = :type and present and folder in (:folders)",
                              rowMapper, args);
     }
 
@@ -690,48 +695,48 @@ public class MediaFileDao extends AbstractDao {
                                 0, args);
     }
 
-	public List<MediaFile> getArtistSortCandidate() {
-		return query(
-				"select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
-						+ "join (select distinct  artist, artist_sort from media_file where artist_sort is not null  and present order by artist) dic "
-						+ "on dic.artist = m.artist "
-						+ "where type = ? and present "
-						+ "and artist_reading is not null "
-						+ "order by artist, artist_sort",
-						artistSortCandidateMapper,
-						MediaFile.MediaType.DIRECTORY.name());
-	}
+    public List<MediaFile> getArtistSortCandidate() {
+        return query(
+                "select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
+                        + "join (select distinct  artist, artist_sort from media_file where artist_sort is not null  and present order by artist) dic "
+                        + "on dic.artist = m.artist "
+                        + "where type = ? and present "
+                        + "and artist_reading is not null "
+                        + "order by artist, artist_sort",
+                        artistSortCandidateMapper,
+                        MediaFile.MediaType.DIRECTORY.name());
+    }
 
-	public List<MediaFile> getAlbumSortCandidate() {
-		return query(
-				" select m.id as id, m.album as album, m.album_reading, dic.album_sort as album_sort"
-						+ " from media_file m"
-						+ " join (select distinct  album, album_sort from media_file where album_sort is not null and present order by album) dic"
-						+ " on dic.album = m.album"
-						+ " where type = ? and present"
-						+ " and album_reading is not null"
-						+ " and album_reading <> dic.album_sort order by album, album_sort",
-						albumSortCandidateMapper,
-						MediaFile.MediaType.ALBUM.name());
-	}
+    public List<MediaFile> getAlbumSortCandidate() {
+        return query(
+                " select m.id as id, m.album as album, m.album_reading, dic.album_sort as album_sort"
+                        + " from media_file m"
+                        + " join (select distinct  album, album_sort from media_file where album_sort is not null and present order by album) dic"
+                        + " on dic.album = m.album"
+                        + " where type = ? and present"
+                        + " and album_reading is not null"
+                        + " and album_reading <> dic.album_sort order by album, album_sort",
+                        albumSortCandidateMapper,
+                        MediaFile.MediaType.ALBUM.name());
+    }
 
-	public List<MediaFile> getSortedAlbums() {
+    public List<MediaFile> getSortedAlbums() {
         return query("select " + QUERY_COLUMNS +
-        		" from media_file" +
-        		" where album_reading is not null" +
-        		" or album_sort is not null" +
-        		" and type = ? and present",
-        		rowMapper, MediaFile.MediaType.ALBUM.name());
-	}
+                " from media_file" +
+                " where album_reading is not null" +
+                " or album_sort is not null" +
+                " and type = ? and present",
+                rowMapper, MediaFile.MediaType.ALBUM.name());
+    }
 
-	public void clearSort() {
-		update("update media_file set artist_sort = null where type in(?, ?) and present",
-				MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-		update("update media_file set album_artist_sort = null where type in(?, ?) and present",
-				MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-		update("update media_file set album_sort = null where type in(?, ?) and present",
-				MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-	}
+    public void clearSort() {
+        update("update media_file set artist_sort = null where type in(?, ?) and present",
+                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
+        update("update media_file set album_artist_sort = null where type in(?, ?) and present",
+                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
+        update("update media_file set album_sort = null where type in(?, ?) and present",
+                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
+    }
 
     public void starMediaFile(int id, String username) {
         unstarMediaFile(id, username);
@@ -815,7 +820,9 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(34),
                     rs.getString(35),
                     rs.getString(36),
-                    rs.getString(37));
+                    rs.getString(37),
+                    rs.getString(38),
+                    rs.getString(39));
         }
     }
 
@@ -835,26 +842,26 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
-	private static class ArtistSortCandidateMapper implements RowMapper<MediaFile> {
-		public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
-			MediaFile file = new MediaFile();
-			file.setId(rs.getInt(1));
-			file.setArtist(rs.getString(2));
-			file.setArtistReading(rs.getString(3));
-			file.setArtistSort(rs.getString(4));
-			return file;
-		}
-	}
+    private static class ArtistSortCandidateMapper implements RowMapper<MediaFile> {
+        public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
+            MediaFile file = new MediaFile();
+            file.setId(rs.getInt(1));
+            file.setArtist(rs.getString(2));
+            file.setArtistReading(rs.getString(3));
+            file.setArtistSort(rs.getString(4));
+            return file;
+        }
+    }
 
-	private static class AlbumSortCandidateMapper implements RowMapper<MediaFile> {
-		public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
-			MediaFile file = new MediaFile();
-			file.setId(rs.getInt(1));
-			file.setAlbumName(rs.getString(2));
-			file.setAlbumReading(rs.getString(3));
-			file.setAlbumSort(rs.getString(4));
-			return file;
-		}
-	}
+    private static class AlbumSortCandidateMapper implements RowMapper<MediaFile> {
+        public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
+            MediaFile file = new MediaFile();
+            file.setId(rs.getInt(1));
+            file.setAlbumName(rs.getString(2));
+            file.setAlbumReading(rs.getString(3));
+            file.setAlbumSort(rs.getString(4));
+            return file;
+        }
+    }
 
 }

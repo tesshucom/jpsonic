@@ -305,9 +305,12 @@ public class MediaScannerService {
             album = new Album();
             album.setPath(file.getParentPath());
             album.setName(file.getAlbumName());
+            album.setNameSort(file.getAlbumSort());
             album.setArtist(artist);
+            album.setArtistSort(file.getArtistSort());
             album.setCreated(file.getChanged());
         }
+
         if (file.getMusicBrainzReleaseId() != null) {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
@@ -360,8 +363,10 @@ public class MediaScannerService {
             artist = new Artist();
             artist.setName(file.getAlbumArtist());
         }
-        mediaFileJPSupport.analyzeNameReading(artist);
-        artist.setSort(file.getAlbumArtistSort());
+        if (file.getAlbumArtistSort() != null) {
+            artist.setSort(file.getAlbumArtistSort());
+            mediaFileJPSupport.analyzeArtist(file, artist);
+        }
         if (artist.getCoverArtPath() == null) {
             MediaFile parent = mediaFileService.getParentOf(file);
             if (parent != null) {

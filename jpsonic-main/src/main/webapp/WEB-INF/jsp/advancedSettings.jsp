@@ -74,9 +74,9 @@
                     <fmt:message key="advancedsettings.smtpEncryption.starttls" var="starttls"/>
                     <fmt:message key="advancedsettings.smtpEncryption.ssl" var="ssl"/>
 
-                    <form:option value="None" label="None"/>
-                    <form:option value="STARTTLS" label="STARTTLS"/>
-                    <form:option value="SSL/TLS" label="SSL/TLS"/>
+                    <form:option value="None" label="${none}"/>
+                    <form:option value="STARTTLS" label="${starttls}"/>
+                    <form:option value="SSL/TLS" label="${ssl}"/>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="smtpEncryption"/></c:import>
             </td>

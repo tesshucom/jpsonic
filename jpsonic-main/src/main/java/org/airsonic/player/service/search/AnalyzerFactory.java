@@ -65,6 +65,8 @@ public final class AnalyzerFactory {
 
     public static final String STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
 
+    public static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
+
     /*
      * XXX 3.x -> 8.x : Convert UAX#29 Underscore Analysis to Legacy Analysis
      * 
@@ -77,7 +79,7 @@ public final class AnalyzerFactory {
      *
      */
     @SuppressWarnings("unused")
-    private void addTokenFilterForUnderscoreRemovalAroundToken (Builder builder)  throws IOException{
+    private void addTokenFilterForUnderscoreRemovalAroundToken(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
                     "pattern", "^\\_", "replacement", "", "replace", "all")
@@ -99,7 +101,7 @@ public final class AnalyzerFactory {
      * (TCON stands for Genre with ID3 v2.3-v2.4)
      * Such processing exists because brackets in the Gener string have a special meaning.
      */
-    private void addTokenFilterForTokenToDomainValue (Builder builder)  throws IOException{
+    private void addTokenFilterForTokenToDomainValue(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
                     "pattern", "\\(", "replacement", "", "replace", "all")
@@ -113,9 +115,9 @@ public final class AnalyzerFactory {
                     "pattern", "\\[\\]", "replacement", "\\[ \\]", "replace", "all");
     }
 
-    private Builder createDefaultAnalyzerBuilder() throws IOException {
+    private Builder createDefaultAnalyzerBuilder(boolean isArtist) throws IOException {
         CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
-        builder = basicFilters(builder);
+        builder = basicFilters(builder, isArtist);
         return builder;
     }
 
@@ -127,11 +129,11 @@ public final class AnalyzerFactory {
         "false");
     }
 
-    private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder) throws IOException {
+    private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder, boolean isArtist) throws IOException {
         builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class, "words", STOP_WARDS, "ignoreCase", "true")
+                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WARDS, "ignoreCase", "true")
                 .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
                 // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
         //addTokenFilterForUnderscoreRemovalAroundToken(builder); // XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
@@ -163,7 +165,7 @@ public final class AnalyzerFactory {
 
     private Builder createId3ArtistAnalyzerBuilder() throws IOException {  
         CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(Id3ArtistTokenizerFactory.class);
-        builder = basicFilters(builder)
+        builder = basicFilters(builder, true)
                 .addTokenFilter(PunctuationStemFilterFactory.class)
                 .addTokenFilter(ToHiraganaFilterFactory.class);
         return builder;
@@ -182,7 +184,8 @@ public final class AnalyzerFactory {
         if (isEmpty(analyzer)) {
             try {
 
-                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder().build();
+                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder(false).build();
+                Analyzer artistAnalyzer = createDefaultAnalyzerBuilder(true).build();
                 Analyzer key = createKeyAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer genre = createGenreAnalyzerBuilder().build();
@@ -192,7 +195,9 @@ public final class AnalyzerFactory {
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.GENRE_KEY, key);
                 analyzerMap.put(FieldNames.GENRE, genre);
+                analyzerMap.put(FieldNames.ARTIST, artistAnalyzer);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
+                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);
@@ -224,7 +229,8 @@ public final class AnalyzerFactory {
         if (isEmpty(queryAnalyzer)) {
             try {
 
-                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder().build();
+                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder(false).build();
+                Analyzer artistAnalyzer = createDefaultAnalyzerBuilder(true).build();
                 Analyzer genre = createGenreAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer artistExceptional = createArtistExceptionalBuilder().build();
@@ -232,7 +238,9 @@ public final class AnalyzerFactory {
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
                 analyzerMap.put(FieldNames.GENRE, genre);
+                analyzerMap.put(FieldNames.ARTIST, artistAnalyzer);
                 analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
+                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
                 analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);

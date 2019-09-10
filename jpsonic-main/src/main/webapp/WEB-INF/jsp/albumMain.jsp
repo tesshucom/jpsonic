@@ -304,6 +304,49 @@
     <tr style="vertical-align:top;">
         <td style="vertical-align:top;padding-bottom: 1em">
             <table class="music" style="width: 100%">
+
+                <c:if test="${0 ne fn:length( model.files ) && (model.visibility.composerVisible || model.visibility.genreVisible) }">
+                    <thead>
+                        <tr>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="fit"></th>
+                            <th class="truncate mainTitle"><fmt:message key="common.fields.songtitle" /></th>
+                            <c:if test="${model.visibility.albumVisible}">
+                                <th class="truncate mainAlbum"><fmt:message key="common.fields.album" /></th>
+                            </c:if>
+                            <c:if test="${model.visibility.artistVisible}">
+                                <th class="truncate mainArtist"><fmt:message key="common.fields.artist" /></th>
+                            </c:if>
+                            <c:if test="${model.visibility.composerVisible}">
+                                <th class="truncate mainComposer"><fmt:message key="common.fields.composer" /></th>
+                            </c:if>
+                            <c:if test="${model.visibility.genreVisible}">
+                                <th class="truncate mainGenre"><fmt:message key="common.fields.genre" /></th>
+                            </c:if>
+                            <c:if test="${model.visibility.yearVisible}">
+                                <th class="fit"></th>
+                            </c:if>
+                            <c:if test="${model.visibility.formatVisible}">
+                                <th class="fit"></th>
+                            </c:if>
+                            <c:if test="${model.visibility.fileSizeVisible}">
+                                <th class="fit"></th>
+                            </c:if>
+                            <c:if test="${model.visibility.durationVisible}">
+                                <th class="fit"></th>
+                            </c:if>
+                            <c:if test="${model.visibility.bitRateVisible}">
+                                <th class="fit"></th>
+                            </c:if>
+                        </tr>
+                    </thead>
+                </c:if>
+
                 <c:forEach items="${model.files}" var="song" varStatus="loopStatus">
                     <%--@elvariable id="song" type="org.airsonic.player.domain.MediaFile"--%>
                     <tr style="margin:0;padding:0;border:0">
@@ -342,8 +385,14 @@
                             </td>
                         </c:if>
 
+                        <c:if test="${model.visibility.composerVisible}">
+                            <td class="truncate">
+                                <span class="detail" title="${fn:escapeXml(song.composer)}">${fn:escapeXml(song.composer)}</span>
+                            </td>
+                        </c:if>
+
                         <c:if test="${model.visibility.genreVisible}">
-                            <td class="fit rightalign">
+                            <td class="fit">
                                 <span class="detail">${fn:escapeXml(song.genre)}</span>
                             </td>
                         </c:if>

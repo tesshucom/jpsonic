@@ -102,7 +102,7 @@ public class IndexManager {
      *    DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 16;
+    private static final int INDEX_VERSION = 17;
 
     /**
      * Literal name of index top directory.
@@ -435,7 +435,7 @@ public class IndexManager {
         }
 
         IndexSearcher searcher = getSearcher(IndexType.GENRE);
-        if(isEmpty(searcher)) {
+        if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 

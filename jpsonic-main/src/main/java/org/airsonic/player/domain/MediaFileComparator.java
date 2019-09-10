@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.domain;
 
+import com.tesshu.jpsonic.service.AlphanumComparator;
+
 import java.util.Comparator;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Comparator for sorting media files.
@@ -28,8 +32,18 @@ public class MediaFileComparator implements Comparator<MediaFile> {
 
     private final boolean sortAlbumsByYear;
 
+    private final boolean isAlphanum;
+
+    private AlphanumComparator alphanum = new AlphanumComparator();
+
+    public MediaFileComparator(boolean sortAlbumsByYear, boolean isAlphanum) {
+        this.sortAlbumsByYear = sortAlbumsByYear;
+        this.isAlphanum = isAlphanum;
+    }
+
     public MediaFileComparator(boolean sortAlbumsByYear) {
         this.sortAlbumsByYear = sortAlbumsByYear;
+        this.isAlphanum = false;
     }
 
     public int compare(MediaFile a, MediaFile b) {
@@ -59,8 +73,23 @@ public class MediaFileComparator implements Comparator<MediaFile> {
         }
 
         if (a.isDirectory() && b.isDirectory()) {
-            int n = a.getName().compareToIgnoreCase(b.getName());
-            return n == 0 ? a.getPath().compareToIgnoreCase(b.getPath()) : n; // To make it consistent to MediaFile.equals()
+            int n = 0;
+            if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
+                if (isAlphanum) {
+                    n = alphanum.compareToIgnoreCase(a.getAlbumReading(), b.getAlbumReading());
+                } else {
+                    n = a.getAlbumReading().compareToIgnoreCase(b.getAlbumReading());
+                }
+            } else {
+                if (isAlphanum) {
+                    n = alphanum.compareToIgnoreCase(a.getName(), b.getName());
+                } else {
+                    n = a.getName().compareToIgnoreCase(b.getName());
+                }
+            }
+            return n == 0
+                    ? a.getPath().compareToIgnoreCase(b.getPath())
+                    : n; // To make it consistent to MediaFile.equals()
         }
 
         // Compare by disc and track numbers, if present.

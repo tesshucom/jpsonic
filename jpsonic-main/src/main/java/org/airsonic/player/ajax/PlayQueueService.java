@@ -658,7 +658,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST);
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum());
         return convert(request, player, false);
     }
 
@@ -666,7 +666,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM);
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum());
         return convert(request, player, false);
     }
 
@@ -724,7 +724,7 @@ public class PlayQueueService {
             String format = formatFormat(player, file);
             String username = securityService.getCurrentUsername(request);
             boolean starred = mediaFileService.getMediaFileStarredDate(file.getId(), username) != null;
-            entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(),
+            entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(), file.getComposer(),
                     file.getAlbumName(), file.getGenre(), file.getYear(), formatBitRate(file),
                     file.getDurationSeconds(), file.getDurationString(), format, formatContentType(format),
                     formatFileSize(file.getFileSize(), locale), starred, albumUrl, streamUrl, remoteStreamUrl,
@@ -745,7 +745,7 @@ public class PlayQueueService {
         List<PlayQueueInfo.Entry> entries = new ArrayList<>();
         for (InternetRadioSource streamSource: internetRadioService.getInternetRadioSources(radio)) {
             // Fake entry id so that the source can be selected in the UI
-            Integer streamId = -(1+entries.size());
+            int streamId = -(1 + entries.size());
             Integer streamTrackNumber = entries.size();
             String streamUrl = streamSource.getStreamUrl();
             entries.add(new PlayQueueInfo.Entry(
@@ -753,6 +753,7 @@ public class PlayQueueService {
                     streamTrackNumber, // Track number
                     streamUrl,         // Track title (use radio stream URL for now)
                     "",                // Track artist
+                    "",                // Track composer
                     radioName,         // Album name (use radio name)
                     "Internet Radio",  // Genre
                     0,                 // Year
