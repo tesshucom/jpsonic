@@ -3,6 +3,22 @@
 # jpsonic/jpsonic
 # -->
 
+## v105.1.0
+#### Based on *airsonic 10.5.0-SNAPSHOT eb4c5a0*
+
+> [eb4c5a0]
+> 
+> Minor screen and player fixes, compatible with tomcat9.
+
+  * [fix] Fixed a case where excessive Japanese translations were done when tags contained uppercase alphabets.
+  * [update] Update jackson-databind to 2.9.9.3(CVE-2019-12086).
+  * [update] Improved translation of Japanese messages. Fixed mistranslation due to design misread.
+  * [update] Supports composer tag scanning and searching. Search is possible when composer is turned on as an option.
+  * [update] Added header to song table. Header is possible when composer/genre is turned on as an option.
+  * [update] Improved sorting of Play queue. Change to ignore upper/lower case.
+  * [update] Add advanced sorting options. (Changing Various artist sorting rules / Sort serial numbers)
+  * [update] Add artist-specific stopwords. "CV, feat, with" are ignored when searching the Artist field.
+
 ## v105.0.0
 #### Based on *airsonic 10.5.0-SNAPSHOT 3c5735e*
 
