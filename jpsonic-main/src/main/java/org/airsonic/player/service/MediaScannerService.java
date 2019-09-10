@@ -363,7 +363,7 @@ public class MediaScannerService {
             artist = new Artist();
             artist.setName(file.getAlbumArtist());
         }
-        if(file.getAlbumArtistSort() != null) {
+        if (file.getAlbumArtistSort() != null) {
             artist.setSort(file.getAlbumArtistSort());
             mediaFileJPSupport.analyzeArtist(file, artist);
         }

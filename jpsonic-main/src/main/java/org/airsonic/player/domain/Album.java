@@ -202,21 +202,21 @@ public class Album {
         return folderId;
     }
 
-	public String getArtistSort() {
-		return artistSort;
-	}
+    public String getArtistSort() {
+        return artistSort;
+    }
 
-	public void setArtistSort(String artistSort) {
-		this.artistSort = artistSort;
-	}
+    public void setArtistSort(String artistSort) {
+        this.artistSort = artistSort;
+    }
 
-	public String getNameSort() {
-		return nameSort;
-	}
+    public String getNameSort() {
+        return nameSort;
+    }
 
-	public void setNameSort(String nameSort) {
-		this.nameSort = nameSort;
-	}
+    public void setNameSort(String nameSort) {
+        this.nameSort = nameSort;
+    }
 
     public String getMusicBrainzReleaseId() {
         return musicBrainzReleaseId;

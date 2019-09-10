@@ -157,11 +157,11 @@ public class QueryFactory {
      * RangeQuery has been changed to not allow null.
      */
     private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery =
-            (from, to) -> {
-        return IntPoint.newRangeQuery(FieldNames.YEAR,
+        (from, to) -> {
+            return IntPoint.newRangeQuery(FieldNames.YEAR,
                 isEmpty(from) ? Integer.MIN_VALUE : from,
                 isEmpty(to) ? Integer.MAX_VALUE : to);
-    };
+        };
 
     /**
      * Query generation expression extracted from
@@ -382,7 +382,7 @@ public class QueryFactory {
         // sub - genre
         BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
 
-        for(String genre : genres) {
+        for (String genre : genres) {
             if (!isEmpty(genre)) {
                 TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNames.GENRE, genre);
                 stream.reset();

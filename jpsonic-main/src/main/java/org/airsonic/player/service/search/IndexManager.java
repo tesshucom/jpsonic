@@ -435,7 +435,7 @@ public class IndexManager {
         }
 
         IndexSearcher searcher = getSearcher(IndexType.GENRE);
-        if(isEmpty(searcher)) {
+        if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 

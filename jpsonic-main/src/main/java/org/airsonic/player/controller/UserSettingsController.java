@@ -75,8 +75,8 @@ public class UserSettingsController {
     @GetMapping
     protected String displayForm(HttpServletRequest request, Model model) throws Exception {
         UserSettingsCommand command;
-        if(!model.containsAttribute("command")) {
-             command = new UserSettingsCommand();
+        if (!model.containsAttribute("command")) {
+            command = new UserSettingsCommand();
 
             User user = getUser(request);
             if (user != null) {
@@ -132,7 +132,7 @@ public class UserSettingsController {
     @PostMapping
     protected String doSubmitAction(@ModelAttribute("command") @Validated UserSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) throws Exception {
 
-        if(!bindingResult.hasErrors()) {
+        if (!bindingResult.hasErrors()) {
             if (command.isDeleteUser()) {
                 deleteUser(command);
             } else if (command.isNewUser()) {
@@ -154,7 +154,7 @@ public class UserSettingsController {
     private Integer getUserIndex(UserSettingsCommand command) {
         List<User> allUsers = securityService.getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
-            if(StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), command.getUsername())) {
+            if (StringUtils.equalsIgnoreCase(allUsers.get(i).getUsername(), command.getUsername())) {
                 return i;
             }
         }

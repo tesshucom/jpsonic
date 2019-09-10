@@ -79,7 +79,7 @@ public final class AnalyzerFactory {
      *
      */
     @SuppressWarnings("unused")
-    private void addTokenFilterForUnderscoreRemovalAroundToken (Builder builder)  throws IOException{
+    private void addTokenFilterForUnderscoreRemovalAroundToken(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
                     "pattern", "^\\_", "replacement", "", "replace", "all")
@@ -101,7 +101,7 @@ public final class AnalyzerFactory {
      * (TCON stands for Genre with ID3 v2.3-v2.4)
      * Such processing exists because brackets in the Gener string have a special meaning.
      */
-    private void addTokenFilterForTokenToDomainValue (Builder builder)  throws IOException{
+    private void addTokenFilterForTokenToDomainValue(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
                     "pattern", "\\(", "replacement", "", "replace", "all")

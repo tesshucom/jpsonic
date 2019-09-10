@@ -87,7 +87,9 @@ public class DocumentFactory {
     @FunctionalInterface
     private interface Consumer<T, U, V> {
         void accept(T t, U u, V v);
-    };
+    }
+    
+    ;
 
     private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
         doc.add(new StoredField(FieldNames.ID, Integer.toString(value), TYPE_ID));

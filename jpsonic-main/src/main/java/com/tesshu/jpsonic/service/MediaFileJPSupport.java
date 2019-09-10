@@ -60,7 +60,7 @@ public class MediaFileJPSupport {
             StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 
     private final Function<Token, String> readingAnalysis = token -> {
-        if(KATAKANA.matcher(token.getSurface()).matches()
+        if (KATAKANA.matcher(token.getSurface()).matches()
                 || ALPHA.matcher(token.getSurface()).matches()
                 || ASTER.equals(token.getReading())) {
             return token.getSurface();
@@ -108,23 +108,13 @@ public class MediaFileJPSupport {
     }
 
     public void analyzeArtist(MediaFile mediaFile) {
-        if(!isEmpty(mediaFile.getArtistSort())) {
+        if (!isEmpty(mediaFile.getArtistSort())) {
             mediaFile.setArtistSort(analyzeSort(mediaFile.getArtistSort()));
         }
         mediaFile.setArtistReading(createReading(
                 isEmpty(mediaFile.getArtistSort())
                     ? mediaFile.getArtist()
                     : mediaFile.getArtistSort()));
-    }
-
-    public void analyzeAlbum(MediaFile mediaFile) {
-        if (!isEmpty(mediaFile.getAlbumSort())) {
-            mediaFile.setAlbumSort(analyzeSort(mediaFile.getAlbumSort()));
-        }
-        mediaFile.setAlbumReading(createReading(
-                isEmpty(mediaFile.getAlbumSort())
-                    ? mediaFile.getAlbumName()
-                    : mediaFile.getAlbumSort()));
     }
 
     public void analyzeArtist(MediaFile artist, Artist dist) {
@@ -135,6 +125,16 @@ public class MediaFileJPSupport {
                 isEmpty(artist.getAlbumArtistSort())
                     ? artist.getAlbumArtist()
                     : artist.getAlbumArtistSort()));
+    }
+
+    public void analyzeAlbum(MediaFile mediaFile) {
+        if (!isEmpty(mediaFile.getAlbumSort())) {
+            mediaFile.setAlbumSort(analyzeSort(mediaFile.getAlbumSort()));
+        }
+        mediaFile.setAlbumReading(createReading(
+                isEmpty(mediaFile.getAlbumSort())
+                    ? mediaFile.getAlbumName()
+                    : mediaFile.getAlbumSort()));
     }
 
     public void clear() {

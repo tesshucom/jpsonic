@@ -77,7 +77,7 @@ public class MediaFile {
     private String composer;
     private String composerSort;
 
-	public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
+    public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
@@ -470,54 +470,54 @@ public class MediaFile {
         // TODO: Optimize
         return coverArtPath == null ? null : new File(coverArtPath);
     }
-    
-	public String getArtistReading() {
-		return artistReading;
-	}
 
-	public void setArtistReading(String artistReading) {
-		this.artistReading = artistReading;
-	}
-	
+    public String getArtistReading() {
+        return artistReading;
+    }
+
+    public void setArtistReading(String artistReading) {
+        this.artistReading = artistReading;
+    }
+
     public String getTitleSort() {
-		return titleSort;
-	}
+        return titleSort;
+    }
 
-	public void setTitleSort(String titleSort) {
-		this.titleSort = titleSort;
-	}
+    public void setTitleSort(String titleSort) {
+        this.titleSort = titleSort;
+    }
 
-	public String getAlbumSort() {
-		return albumSort;
-	}
+    public String getAlbumSort() {
+        return albumSort;
+    }
 
-	public void setAlbumSort(String albumSort) {
-		this.albumSort = albumSort;
-	}
+    public void setAlbumSort(String albumSort) {
+        this.albumSort = albumSort;
+    }
 
-	public String getArtistSort() {
-		return artistSort;
-	}
+    public String getArtistSort() {
+        return artistSort;
+    }
 
-	public void setArtistSort(String artistSort) {
-		this.artistSort = artistSort;
-	}
-	
-	public String getAlbumArtistSort() {
-		return albumArtistSort;
-	}
+    public void setArtistSort(String artistSort) {
+        this.artistSort = artistSort;
+    }
 
-	public void setAlbumArtistSort(String albumArtistSort) {
-		this.albumArtistSort = albumArtistSort;
-	}
+    public String getAlbumArtistSort() {
+        return albumArtistSort;
+    }
 
-	public String getAlbumReading() {
-		return albumReading;
-	}
+    public void setAlbumArtistSort(String albumArtistSort) {
+        this.albumArtistSort = albumArtistSort;
+    }
 
-	public void setAlbumReading(String albumReading) {
-		this.albumReading = albumReading;
-	}
+    public String getAlbumReading() {
+        return albumReading;
+    }
+
+    public void setAlbumReading(String albumReading) {
+        this.albumReading = albumReading;
+    }
 
     public String getComposer() {
         return composer;
@@ -535,7 +535,7 @@ public class MediaFile {
         this.composerSort = composerSort;
     }
 
-	@Override
+    @Override
     public String toString() {
         return getName();
     }
