@@ -45,6 +45,7 @@ import org.springframework.util.ObjectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.Collator;
 import java.util.*;
 import java.util.regex.Pattern;
 
@@ -217,16 +218,17 @@ public class MediaFileService {
         }
 
         if (sort) {
-
             boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
                     && (!settingsService.isProhibitSortVarious() || ObjectUtils.isEmpty(parent)
                             || ObjectUtils.isEmpty(parent.getArtist())
                             || !isVarious.matcher(parent.getArtist().toLowerCase()).matches());
-            
-            boolean isSortAlphanum = settingsService.isSortAlphanum();
 
-            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear, isSortAlphanum);
-            // Note: Intentionally not using Collections.sort() since it can be problematic on Java 7.
+            boolean isSortAlphanum = settingsService.isSortAlphanum();
+            Collator collator = Collator.getInstance(settingsService.getLocale());
+
+            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear, isSortAlphanum, collator);
+            // Note: Intentionally not using Collections.sort() since it can be problematic
+            // on Java 7.
             // http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#jdk7
             Set<MediaFile> set = new TreeSet<MediaFile>(comparator);
             set.addAll(result);

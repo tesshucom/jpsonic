@@ -19,17 +19,29 @@
  */
 package com.tesshu.jpsonic.service;
 
+import java.text.Collator;
 import java.util.Comparator;
 
 /**
- * This is an updated version with enhancements made by Daniel Migowski, Andre
- * Bogus, and David Koelle. Updated by David Koelle in 2017.
- *
- * To use this class: Use the static "sort" method from the
- * java.util.Collections class: Collections.sort(your list, new
- * AlphanumComparator());
+ * Class to perform Collaror sort considering serial number.
  */
 public class AlphanumComparator implements Comparator<String> {
+    
+    private final Collator collator;
+
+    public AlphanumComparator() {
+        this.collator = null;
+    }
+
+    /**
+     * Generate instance with collator.
+     * If collator is specified,
+     * compareToIgnoreCase will be disabled and follow the collator sorting rules.
+     * @param collator collator
+     */
+    public AlphanumComparator(Collator collator) {
+        this.collator = collator;
+    }
 
     public int compare(String s1, String s2) {
         return compare(s1, s2, false);
@@ -48,17 +60,12 @@ public class AlphanumComparator implements Comparator<String> {
         while (thisMarker < s1Length && thatMarker < s2Length) {
             String thisChunk = getChunk(s1, s1Length, thisMarker);
             thisMarker += thisChunk.length();
-
             String thatChunk = getChunk(s2, s2Length, thatMarker);
             thatMarker += thatChunk.length();
-
-            // If both chunks contain numeric characters, sort them numerically
             int result = 0;
             if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
-                // Simple chunk comparison by length.
                 int thisChunkLength = thisChunk.length();
                 result = thisChunkLength - thatChunk.length();
-                // If equal, the first different number counts
                 if (result == 0) {
                     for (int i = 0; i < thisChunkLength; i++) {
                         result = thisChunk.charAt(i) - thatChunk.charAt(i);
@@ -68,16 +75,20 @@ public class AlphanumComparator implements Comparator<String> {
                     }
                 }
             } else {
-                result = isIgnoreCase ? thisChunk.compareToIgnoreCase(thatChunk) : thisChunk.compareTo(thatChunk);
+                collator.compare(thisChunk, thatChunk);
+                result = null == collator
+                            ? isIgnoreCase ? thisChunk.compareToIgnoreCase(thatChunk) : thisChunk.compareTo(thatChunk)
+                            : collator.compare(thisChunk, thatChunk);
             }
-
             if (result != 0)
                 return result;
         }
-
         return s1Length - s2Length;
     }
 
+    /**
+     * Available only when collator is not specified
+     */
     public int compareToIgnoreCase(String s1, String s2) {
         return compare(s1, s2, true);
     }

@@ -148,7 +148,11 @@ public class MediaFileJPSupport {
      */
     private String createIndexableName(String s) {
         String indexableName = s;
-        indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
+        char c = s.charAt(0);
+        if (!(c <= '\u007e') || (c == '\u00a5') || (c == '\u203e')) {
+            indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
+            indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
+        }
         // http://www.unicode.org/reports/tr15/
         indexableName = Normalizer.normalize(indexableName, Normalizer.Form.NFD);
         return indexableName;
@@ -158,10 +162,10 @@ public class MediaFileJPSupport {
         String indexableName = mediaFile.getName();
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
             indexableName = mediaFile.getName();
-        } else if (!isEmpty(mediaFile.getArtistSort())) {
-            indexableName = createReading(mediaFile.getArtistSort());
         } else if (!isEmpty(mediaFile.getArtistReading())) {
             indexableName = mediaFile.getArtistReading();
+        } else if (!isEmpty(mediaFile.getArtistSort())) {
+            indexableName = createIndexableName(mediaFile.getArtistSort());
         }
         return createIndexableName(indexableName);
     }
@@ -170,10 +174,10 @@ public class MediaFileJPSupport {
         String indexableName = artist.getName();
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
             indexableName = artist.getName();
-        } else if (!isEmpty(artist.getSort())) {
-            indexableName = createReading(artist.getSort());
         } else if (!isEmpty(artist.getReading())) {
             indexableName = artist.getReading();
+        } else if (!isEmpty(artist.getSort())) {
+            indexableName = createReading(artist.getSort());
         }
         return createIndexableName(indexableName);
     }

@@ -38,6 +38,7 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.text.Collator;
 import java.util.*;
 
 /**
@@ -658,7 +659,8 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum(),
+                Collator.getInstance(settingsService.getLocale()));
         return convert(request, player, false);
     }
 
@@ -666,7 +668,8 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum(),
+                Collator.getInstance(settingsService.getLocale()));
         return convert(request, player, false);
     }
 

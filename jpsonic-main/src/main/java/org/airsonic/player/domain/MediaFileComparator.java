@@ -21,6 +21,7 @@ package org.airsonic.player.domain;
 
 import com.tesshu.jpsonic.service.AlphanumComparator;
 
+import java.text.Collator;
 import java.util.Comparator;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -34,16 +35,22 @@ public class MediaFileComparator implements Comparator<MediaFile> {
 
     private final boolean isAlphanum;
 
-    private AlphanumComparator alphanum = new AlphanumComparator();
+    private final Collator collator;
 
-    public MediaFileComparator(boolean sortAlbumsByYear, boolean isAlphanum) {
+    private AlphanumComparator alphanum;
+
+    public MediaFileComparator(boolean sortAlbumsByYear, boolean isAlphanum, Collator collator) {
         this.sortAlbumsByYear = sortAlbumsByYear;
         this.isAlphanum = isAlphanum;
+        this.collator = collator;
+        alphanum = new AlphanumComparator(collator);
     }
 
     public MediaFileComparator(boolean sortAlbumsByYear) {
         this.sortAlbumsByYear = sortAlbumsByYear;
         this.isAlphanum = false;
+        this.collator = null;
+        alphanum = new AlphanumComparator();
     }
 
     public int compare(MediaFile a, MediaFile b) {
@@ -76,13 +83,13 @@ public class MediaFileComparator implements Comparator<MediaFile> {
             int n = 0;
             if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
                 if (isAlphanum) {
-                    n = alphanum.compareToIgnoreCase(a.getAlbumReading(), b.getAlbumReading());
+                    n = alphanum.compare(a.getAlbumReading(), b.getAlbumReading());
                 } else {
-                    n = a.getAlbumReading().compareToIgnoreCase(b.getAlbumReading());
+                    n = collator.compare(a.getAlbumReading(), b.getAlbumReading());
                 }
             } else {
                 if (isAlphanum) {
-                    n = alphanum.compareToIgnoreCase(a.getName(), b.getName());
+                    n = alphanum.compare(a.getName(), b.getName());
                 } else {
                     n = a.getName().compareToIgnoreCase(b.getName());
                 }
