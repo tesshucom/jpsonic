@@ -39,11 +39,13 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Collator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Provides persistent storage of application settings and preferences.
@@ -246,6 +248,8 @@ public class SettingsService {
     private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
 
     private Pattern excludePattern;
+    
+    private Locale locale;
 
     private void removeObsoleteProperties() {
 
@@ -826,11 +830,13 @@ public class SettingsService {
      * @return The locale.
      */
     public Locale getLocale() {
-        String language = getProperty(KEY_LOCALE_LANGUAGE, DEFAULT_LOCALE_LANGUAGE);
-        String country = getProperty(KEY_LOCALE_COUNTRY, DEFAULT_LOCALE_COUNTRY);
-        String variant = getProperty(KEY_LOCALE_VARIANT, DEFAULT_LOCALE_VARIANT);
-
-        return new Locale(language, country, variant);
+        if (isEmpty(locale)) {
+            String language = getProperty(KEY_LOCALE_LANGUAGE, DEFAULT_LOCALE_LANGUAGE);
+            String country = getProperty(KEY_LOCALE_COUNTRY, DEFAULT_LOCALE_COUNTRY);
+            String variant = getProperty(KEY_LOCALE_VARIANT, DEFAULT_LOCALE_VARIANT);
+            locale = new Locale(language, country, variant);
+        }
+        return locale;
     }
 
     /**
@@ -839,9 +845,14 @@ public class SettingsService {
      * @param locale The locale.
      */
     public void setLocale(Locale locale) {
+        this.locale = null;
         setProperty(KEY_LOCALE_LANGUAGE, locale.getLanguage());
         setProperty(KEY_LOCALE_COUNTRY, locale.getCountry());
         setProperty(KEY_LOCALE_VARIANT, locale.getVariant());
+    }
+
+    public Collator getCollator() {
+        return Collator.getInstance(getLocale());
     }
 
     /**

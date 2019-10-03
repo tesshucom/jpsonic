@@ -89,7 +89,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         assertEquals("♂くんつ", l.get(19));
     }
 
-    private void assertJPSonicNaturalList(List<String> l) {
+    public static void assertJPSonicNaturalList(List<String> l) {
         assertEquals("abcde", l.get(0));
         assertEquals("ＢＣＤＥＡ", l.get(1));
         assertEquals("ĆḊÉÁḂ", l.get(2));
@@ -216,7 +216,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, false, Collator.getInstance(settingsService.getLocale()));
+        playQueue.sort(SortOrder.ALBUM, false, settingsService.getCollator());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertJPSonicNaturalList(albums);
     }
@@ -233,7 +233,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, true, Collator.getInstance(settingsService.getLocale()));
+        playQueue.sort(SortOrder.ALBUM, true, settingsService.getCollator());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertAlphaNumList(albums);
     }
@@ -250,7 +250,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, false, Collator.getInstance(settingsService.getLocale()));
+        playQueue.sort(SortOrder.ARTIST, false, settingsService.getCollator());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertJPSonicNaturalList(artists);
     }
@@ -267,7 +267,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, true, Collator.getInstance(settingsService.getLocale()));
+        playQueue.sort(SortOrder.ARTIST, true, settingsService.getCollator());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertAlphaNumList(artists);
     }

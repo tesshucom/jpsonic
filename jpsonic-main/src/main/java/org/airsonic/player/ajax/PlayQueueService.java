@@ -660,7 +660,7 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
         player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum(),
-                Collator.getInstance(settingsService.getLocale()));
+                settingsService.getCollator());
         return convert(request, player, false);
     }
 
@@ -669,7 +669,7 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
         player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum(),
-                Collator.getInstance(settingsService.getLocale()));
+                settingsService.getCollator());
         return convert(request, player, false);
     }
 

@@ -128,7 +128,7 @@ public class ArtistDao extends AbstractDao {
         args.put("offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                "order by coalesce(sort, reading, name) limit :count offset :offset", rowMapper, args);
+                "order by coalesce(reading, sort, name) limit :count offset :offset", rowMapper, args);
     }
 
     /**
