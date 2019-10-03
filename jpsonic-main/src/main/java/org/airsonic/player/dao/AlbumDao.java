@@ -169,9 +169,9 @@ public class AlbumDao extends AbstractDao {
         args.put("offset", offset);
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(coalesce(artist_sort, artist)),  LOWER(coalesce(name_sort, name))" : "LOWER(coalesce(name_sort, name))";
+            orderBy = byArtist ? "LOWER(artist_sort),  LOWER(name_sort)" : "LOWER(name_sort)";
         } else {
-            orderBy = byArtist ? "coalesce(artist_sort, artist), coalesce(name_sort, name)" : "coalesce(name_sort, name)";
+            orderBy = byArtist ? "artist_sort, name_sort" : "name_sort";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +

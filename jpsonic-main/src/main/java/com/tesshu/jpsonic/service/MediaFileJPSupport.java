@@ -115,16 +115,10 @@ public class MediaFileJPSupport {
                 isEmpty(mediaFile.getArtistSort())
                     ? mediaFile.getArtist()
                     : mediaFile.getArtistSort()));
-    }
-
-    public void analyzeArtist(MediaFile artist, Artist dist) {
-        if (!isEmpty(artist.getAlbumArtistSort())) {
-            dist.setSort(analyzeSort(artist.getAlbumArtistSort()));
-        }
-        dist.setReading(createReading(
-                isEmpty(artist.getAlbumArtistSort())
-                    ? artist.getAlbumArtist()
-                    : artist.getAlbumArtistSort()));
+        mediaFile.setAlbumArtistSort(createReading(
+                isEmpty(mediaFile.getAlbumArtistSort())
+                    ? mediaFile.getAlbumArtist()
+                    : mediaFile.getAlbumArtistSort()));
     }
 
     public void analyzeAlbum(MediaFile mediaFile) {

@@ -1,11 +1,27 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2019 (C) tesshu.com
+ */
 package com.tesshu.jpsonic.service;
 
 import static org.junit.Assert.*;
 
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
-import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
@@ -75,17 +91,6 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest{
         mediaFile.setPath(path);
         support.analyzeArtist(mediaFile);
         return mediaFile;
-    };
-
-    private Function<String, Artist> toAnalyzedArtist = (name) -> {
-        Artist artist = new Artist();
-        artist.setName(name);
-        artist.setReading(name);
-        MediaFile parent = toAnalyzedMediaFile.apply(name, name);
-        parent.setAlbumArtist(name);
-        parent.setAlbumArtistSort(name);
-        support.analyzeArtist(parent, artist);        
-        return artist;
     };
 
     @Test
@@ -302,34 +307,4 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest{
 
     }
 
-    @Test
-    public void testCreateIndexableName4Artist() {
-
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedArtist.apply("あいうえお")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedArtist.apply("アイウエオ")));
-        assertEquals("ァィゥェォ", support.createIndexableName(toAnalyzedArtist.apply("ァィゥェォ")));
-        assertEquals("ァィゥェォ", support.createIndexableName(toAnalyzedArtist.apply("ｧｨｩｪｫ")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedArtist.apply("ｱｲｳｴｵ")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedArtist.apply("亜伊鵜絵尾")));
-        assertEquals("ABCDE", support.createIndexableName(toAnalyzedArtist.apply("ABCDE")));
-        assertEquals("ABCDE", support.createIndexableName(toAnalyzedArtist.apply("ＡＢＣＤＥ")));
-        assertEquals("アルファベータガンマ", support.createIndexableName(toAnalyzedArtist.apply("αβγ")));
-        assertEquals("ツンク♂", support.createIndexableName(toAnalyzedArtist.apply("つんく♂")));
-        assertEquals("BAD COMMUNICATION", support.createIndexableName(toAnalyzedArtist.apply("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ")));
-        assertEquals("「」()()[][];;!!??##123",
-                support.createIndexableName(toAnalyzedArtist.apply("「」（）()［］[]；;！!？?＃#１２３")));
-        assertEquals("ゴウヒロミ", support.createIndexableName(toAnalyzedArtist.apply("ゴウヒロミ")));
-        assertEquals("パミュパミュ", support.createIndexableName(toAnalyzedArtist.apply("ぱみゅぱみゅ")));
-
-        Artist artist = new Artist();
-        artist.setName("倖田來未");
-        artist.setSort("コウダクミ");
-        MediaFile parent = toAnalyzedMediaFile.apply("倖田來未", "非alpha");
-        parent.setAlbumArtist("倖田來未");
-        parent.setAlbumArtistSort("コウダクミ");
-        support.analyzeArtist(parent, artist);
-        assertEquals("コウダクミ", support.createIndexableName(artist));
-
-    }
-    
 }

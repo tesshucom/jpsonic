@@ -95,7 +95,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
             settingsService.clearMusicFolderCache();
             try {
                 // Await time to avoid scan failure.
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 5; i++) {
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
@@ -127,7 +127,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                 try {
                     // The subsequent test method waits while reading DB data.
                     for (int i = 0; i < 10; i++) {
-                        Thread.sleep(100);
+                        Thread.sleep(500);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
