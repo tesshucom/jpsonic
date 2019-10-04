@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import com.tesshu.jpsonic.service.sort.JpsonicComparators;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -45,9 +46,7 @@ import org.springframework.util.ObjectUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.Collator;
 import java.util.*;
-import java.util.regex.Pattern;
 
 /**
  * Provides services for instantiating and caching media files and cover art.
@@ -58,8 +57,6 @@ import java.util.regex.Pattern;
 public class MediaFileService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
-
-    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     @Autowired
     private Ehcache mediaFileMemoryCache;
@@ -82,6 +79,8 @@ public class MediaFileService {
     private ArtistDao artistDao;
     @Autowired
     private IndexManager indexManager;
+    @Autowired
+    private JpsonicComparators jpsonicComparator;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -218,17 +217,7 @@ public class MediaFileService {
         }
 
         if (sort) {
-            boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
-                    && (!settingsService.isProhibitSortVarious() || ObjectUtils.isEmpty(parent)
-                            || ObjectUtils.isEmpty(parent.getArtist())
-                            || !isVarious.matcher(parent.getArtist().toLowerCase()).matches());
-
-            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear,
-                    settingsService.isSortAlphanum(), settingsService.getCollator());
-            // Note: Intentionally not using Collections.sort() since it can be problematic
-            // on Java 7.
-            // http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#jdk7
-            Set<MediaFile> set = new TreeSet<MediaFile>(comparator);
+            Set<MediaFile> set = new TreeSet<MediaFile>(jpsonicComparator.naturalMediaFileOrder(parent));
             set.addAll(result);
             result = new ArrayList<MediaFile>(set);
         }

@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp;
 
+import com.tesshu.jpsonic.service.sort.JpsonicComparators;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
@@ -56,6 +57,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @Autowired
     SearchService searchService;
+
+    @Autowired
+    private JpsonicComparators jpsonicComparator;
 
     public AlbumUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ALBUM_PREFIX);
@@ -97,7 +101,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public List<Album> getAllItems() {
         List<MusicFolder> allFolders = getDispatchingContentDirectory().getSettingsService().getAllMusicFolders();
-        return getAlbumDao().getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, allFolders);
+        List<Album> albums = getAlbumDao().getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, allFolders);
+        albums.sort(jpsonicComparator.naturalAlbumOrder());
+        return albums;
     }
 
     public Album getItemById(String id) throws Exception {

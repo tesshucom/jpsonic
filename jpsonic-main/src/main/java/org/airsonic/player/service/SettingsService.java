@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.service.sort.CollatorProvider;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MusicFolderDao;
@@ -53,7 +54,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * @author Sindre Mehus
  */
 @Service
-public class SettingsService {
+public class SettingsService implements CollatorProvider {
 
     // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
@@ -851,6 +852,7 @@ public class SettingsService {
         setProperty(KEY_LOCALE_VARIANT, locale.getVariant());
     }
 
+    @Override
     public Collator getCollator() {
         return Collator.getInstance(getLocale());
     }

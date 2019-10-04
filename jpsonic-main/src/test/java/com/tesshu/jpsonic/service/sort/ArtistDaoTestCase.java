@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.dao;
+package com.tesshu.jpsonic.service.sort;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,29 +24,28 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.domain.Album;
+import org.airsonic.player.dao.ArtistDao;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.tesshu.jpsonic.service.SortingIntegrationTestCase.validateJPSonicNaturalList;
+import static com.tesshu.jpsonic.service.sort.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertFalse;
 
-public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
+public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(2, musicDir2, "Albums", true, new Date()));
+        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
+        musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
     }
-
     @Autowired
-    private AlbumDao albumDao;
+    private ArtistDao artistDao;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -60,7 +59,7 @@ public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabetialArtists() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
+        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
         assertFalse(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 

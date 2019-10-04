@@ -19,11 +19,13 @@
 */
 package org.airsonic.player.service.upnp;
 
+import com.tesshu.jpsonic.service.sort.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
@@ -45,6 +47,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     @Autowired
     SearchService searchService;
 
+    @Autowired
+    SettingsService settingsService;
+    
+    @Autowired
+    private JpsonicComparators jpsonicComparator;
+
     public ArtistUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ARTIST_PREFIX);
         setRootTitle("Artists");
@@ -63,9 +71,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     public List<Artist> getAllItems() {
         List<MusicFolder> allFolders = getDispatcher().getSettingsService().getAllMusicFolders();
         List<Artist> allArtists = getArtistDao().getAlphabetialArtists(0, Integer.MAX_VALUE, allFolders);
-        // alpha artists doesn't quite work :P
-        allArtists.sort((Artist o1, Artist o2) -> o1.getName().replaceAll("\\W", "").compareToIgnoreCase(o2.getName().replaceAll("\\W", "")));
-
+        allArtists.sort(jpsonicComparator.naturalArtistOrder());
         return allArtists;
     }
 

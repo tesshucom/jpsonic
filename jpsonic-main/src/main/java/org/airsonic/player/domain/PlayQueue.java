@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.service.AlphanumComparator;
+import com.tesshu.jpsonic.service.sort.AlphanumComparator;
 
 import java.io.IOException;
 import java.text.Collator;
