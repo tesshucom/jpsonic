@@ -100,35 +100,18 @@ public class MediaFileJPSupport {
         return reading;
     }
 
-    String analyzeSort(String s) {
-        if (isEmpty(s)) {
-            return null;
-        }
+    String normalize(String s) {
         return Normalizer.normalize(s, Normalizer.Form.NFKC);
     }
 
-    public void analyzeArtist(MediaFile mediaFile) {
-        if (!isEmpty(mediaFile.getArtistSort())) {
-            mediaFile.setArtistSort(analyzeSort(mediaFile.getArtistSort()));
-        }
-        mediaFile.setArtistReading(createReading(
-                isEmpty(mediaFile.getArtistSort())
-                    ? mediaFile.getArtist()
-                    : mediaFile.getArtistSort()));
-        mediaFile.setAlbumArtistSort(createReading(
-                isEmpty(mediaFile.getAlbumArtistSort())
-                    ? mediaFile.getAlbumArtist()
-                    : mediaFile.getAlbumArtistSort()));
-    }
-
-    public void analyzeAlbum(MediaFile mediaFile) {
-        if (!isEmpty(mediaFile.getAlbumSort())) {
-            mediaFile.setAlbumSort(analyzeSort(mediaFile.getAlbumSort()));
-        }
-        mediaFile.setAlbumReading(createReading(
-                isEmpty(mediaFile.getAlbumSort())
-                    ? mediaFile.getAlbumName()
-                    : mediaFile.getAlbumSort()));
+    public void analyze(MediaFile m) {
+        m.setArtistSort(isEmpty(m.getArtistSort()) ? null : normalize(m.getArtistSort()));
+        m.setArtistReading(createReading(isEmpty(m.getArtistSort()) ? m.getArtist() : m.getArtistSort()));
+        m.setAlbumArtistSort(isEmpty(m.getAlbumArtistSort()) ? null : normalize(m.getAlbumArtistSort()));
+        m.setAlbumArtistReading(
+                createReading(isEmpty(m.getAlbumArtistSort()) ? m.getAlbumArtist() : m.getAlbumArtistSort()));
+        m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort()));
+        m.setAlbumReading(createReading(isEmpty(m.getAlbumSort()) ? m.getAlbumName() : m.getAlbumSort()));
     }
 
     public void clear() {

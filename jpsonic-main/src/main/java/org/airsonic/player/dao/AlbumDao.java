@@ -41,11 +41,11 @@ import java.util.*;
 public class AlbumDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, " +
                                           "year, genre, play_count, last_played, comment, created, last_scanned, present, " +
-                                          "folder_id, artist_sort, name_sort, mb_release_id";
+                                          "folder_id, artist_reading, artist_sort, name_reading, name_sort, mb_release_id";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final RowMapper rowMapper = new AlbumMapper();
+    private final AlbumMapper rowMapper = new AlbumMapper();
 
     public Album getAlbum(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from album where id=?", rowMapper, id);
@@ -128,21 +128,27 @@ public class AlbumDao extends AbstractDao {
                      "last_scanned=?," +
                      "present=?, " +
                      "folder_id=?, " +
+                     "artist_reading=?, " +
                      "artist_sort=?, " +
+                     "name_reading=?, " +
                      "name_sort=?, " +
                      "mb_release_id=? " +
                      "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(),
                        album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistSort(), album.getNameSort(), album.getMusicBrainzReleaseId(), album.getArtist(), album.getName());
+                        album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistReading(),
+                        album.getArtistSort(), album.getNameReading(), album.getNameSort(), album.getMusicBrainzReleaseId(), album.getArtist(),
+                        album.getName());
 
         if (n == 0) {
 
             update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")", album.getPath(),
-                   album.getName(), album.getArtist(), album.getSongCount(), album.getDurationSeconds(),
-                   album.getCoverArtPath(), album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
-                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistSort(), album.getNameSort(), album.getMusicBrainzReleaseId());
+                    album.getName(), album.getArtist(), album.getSongCount(), album.getDurationSeconds(),
+                    album.getCoverArtPath(), album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
+                    album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(),
+                    album.getFolderId(), album.getArtistReading(), album.getArtistSort(), album.getNameReading(), album.getNameSort(),
+                    album.getMusicBrainzReleaseId());
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(), album.getName());
@@ -169,9 +175,9 @@ public class AlbumDao extends AbstractDao {
         args.put("offset", offset);
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist_sort),  LOWER(name_sort)" : "LOWER(name_sort)";
+            orderBy = byArtist ? "LOWER(artist_reading),  LOWER(name_reading)" : "LOWER(name_reading)";
         } else {
-            orderBy = byArtist ? "artist_sort, name_sort" : "name_sort";
+            orderBy = byArtist ? "artist_reading, name_reading" : "name_reading";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
@@ -393,7 +399,9 @@ public class AlbumDao extends AbstractDao {
                     rs.getInt(16),
                     rs.getString(17),
                     rs.getString(18),
-                    rs.getString(19));
+                    rs.getString(19),
+                    rs.getString(20),
+                    rs.getString(21));
         }
     }
 }

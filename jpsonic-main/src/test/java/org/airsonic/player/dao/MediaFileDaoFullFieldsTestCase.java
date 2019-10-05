@@ -19,6 +19,7 @@
 package org.airsonic.player.dao;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
@@ -34,6 +35,8 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.base.Supplier;
 
 /**
  */
@@ -64,11 +67,13 @@ public class MediaFileDaoFullFieldsTestCase extends AbstractAirsonicHomeTest {
         populateDatabaseOnlyOnce();
     }
 
+    private Supplier<Boolean> isWin = () -> System.getProperty("os.name").startsWith("Win");
+    
     @Test
     public void testFullFields() {
 
         String path = resolveBaseMediaPath.apply("Metadata/fullFields/v2.3+v1.1.mp3");
-        if (System.getProperty("os.name").startsWith("Win")) {
+        if (isWin.get()) {
             path = path.replaceAll("^/", "").replaceAll("/", "\\\\");
         }
 
@@ -87,7 +92,8 @@ public class MediaFileDaoFullFieldsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("アルバム(読み)", mediaFile.getAlbumSort());
 
         assertEquals("アルバムアーティスト", mediaFile.getAlbumArtist());
-        //assertEquals("アルバムアーティスト名(読み)", mediaFile.getAlbumArtistSort()); //TODO #306
+        assertEquals("アルバムアーティストメイ(ヨミ)", mediaFile.getAlbumArtistReading());
+        assertEquals("アルバムアーティスト名(読み)", mediaFile.getAlbumArtistSort());
 
         assertEquals("作曲者", mediaFile.getComposer());
         assertEquals("作曲者(読み)", mediaFile.getComposerSort());
@@ -100,14 +106,25 @@ public class MediaFileDaoFullFieldsTestCase extends AbstractAirsonicHomeTest {
         Album album = albumDao.getAlbum(mediaFile.getAlbumArtist(), mediaFile.getAlbumName());
 
         assertEquals("アルバムアーティスト", album.getArtist());
-        //assertEquals("アルバムアーティスト名(読み)", album.getArtistSort()); //TODO #306
+        if (isWin.get()) { // #307
+            assertEquals("アルバムアーティストメイ(ヨミ)", album.getArtistReading());
+        } else {
+            assertTrue("アルバムアーティスト".equals(album.getArtistReading())
+                    || "アルバムアーティストメイ(ヨミ)".equals(album.getArtistReading()));
+        }
+        assertEquals("アルバムアーティスト名(読み)", album.getArtistSort());
         assertEquals("アルバム", album.getName());
-        assertEquals("アルバム(読み)", album.getNameSort());// By washing process
+        assertEquals("アルバム(ヨミ)", album.getNameReading());
+        assertEquals("アルバム(読み)", album.getNameSort());
 
         Artist artist = artistDao.getArtist(album.getArtist());
         assertEquals("アルバムアーティスト", artist.getName());
-        //assertEquals("アルバムアーティストメイ(ヨミ)", artist.getReading());; //TODO #306
-        //assertEquals("アルバムアーティスト名(読み)", artist.getSort()); //TODO #306
+        if (isWin.get()) { // #307
+            assertEquals("アルバムアーティストメイ(ヨミ)", artist.getReading());// By washing process
+        } else {
+            assertTrue("アルバムアーティスト".equals(artist.getReading()) || "アルバムアーティストメイ(ヨミ)".equals(artist.getReading()));
+        }
+        assertEquals("アルバムアーティスト名(読み)", artist.getSort());
 
     }
 

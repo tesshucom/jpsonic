@@ -37,6 +37,8 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.*;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 /**
  * Provides services for scanning the music library.
  *
@@ -295,7 +297,20 @@ public class MediaScannerService {
     }
 
     private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
-        String artist = file.getAlbumArtist() != null ? file.getAlbumArtist() : file.getArtist();
+        // String artist = file.getAlbumArtist() != null ? file.getAlbumArtist() : file.getArtist();
+        String artist;
+        String reading;
+        String sort;
+        if (isEmpty(file.getAlbumArtist())) {
+            artist = file.getArtist();
+            reading = file.getArtistReading();
+            sort = file.getArtistSort();
+        } else {
+            artist = file.getAlbumArtist();
+            reading = file.getAlbumArtistReading();
+            sort = file.getAlbumArtistSort();
+        }
+
         if (file.getAlbumName() == null || artist == null || file.getParentPath() == null || !file.isAudio()) {
             return;
         }
@@ -305,9 +320,11 @@ public class MediaScannerService {
             album = new Album();
             album.setPath(file.getParentPath());
             album.setName(file.getAlbumName());
-            album.setNameSort(file.getAlbumReading());
+            album.setNameReading(file.getAlbumReading());
+            album.setNameSort(file.getAlbumSort());
             album.setArtist(artist);
-            album.setArtistSort(file.getArtistReading());
+            album.setArtistReading(reading);
+            album.setArtistSort(sort);
             album.setCreated(file.getChanged());
         }
 
@@ -362,7 +379,7 @@ public class MediaScannerService {
         if (artist == null) {
             artist = new Artist();
             artist.setName(file.getAlbumArtist());
-            artist.setReading(file.getAlbumArtistSort());
+            artist.setReading(file.getAlbumArtistReading());
             artist.setSort(file.getAlbumArtistSort());
         }
         if (artist.getCoverArtPath() == null) {

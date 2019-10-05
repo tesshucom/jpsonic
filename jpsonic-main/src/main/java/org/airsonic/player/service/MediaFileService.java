@@ -495,8 +495,7 @@ public class MediaFileService {
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
                 mediaFile.setComposer(metaData.getComposer());
                 mediaFile.setComposerSort(metaData.getComposerSort());
-                mediaFileJPSupport.analyzeArtist(mediaFile);
-                mediaFileJPSupport.analyzeAlbum(mediaFile);
+                mediaFileJPSupport.analyze(mediaFile);
 
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
@@ -545,8 +544,7 @@ public class MediaFileService {
                 } else {
                     mediaFile.setArtist(file.getName());
                 }
-                mediaFileJPSupport.analyzeArtist(mediaFile);
-                mediaFileJPSupport.analyzeAlbum(mediaFile);
+                mediaFileJPSupport.analyze(mediaFile);
             }
         }
 
@@ -758,7 +756,7 @@ public class MediaFileService {
         List<Artist> candidatesid3 = artistDao.getSortCandidate();
         for (Artist candidate : candidatesid3) {
             Artist artist = artistDao.getArtist(candidate.getName());
-            if (!artist.getReading().equals(candidate.getSort())) {
+            if (!candidate.getSort().equals(artist.getSort())) {
                 artist.setSort(candidate.getSort());
                 // update db
                 artistDao.createOrUpdateArtist(artist);
@@ -807,13 +805,15 @@ public class MediaFileService {
         for (Artist artist : sortedArtists) {
             List<Album> albums = albumDao.getAlbumsForArtist(artist.getName(), folders);
             for (Album album : albums) {
-                String reading = artist.getReading();
-                if (reading != null && !reading.equals(album.getArtistSort())) {
-                    album.setArtistSort(reading);
+                String sort = artist.getSort();
+                if (sort != null && !sort.equals(album.getArtistSort())) {
+                    album.setArtistReading(artist.getReading());
+                    album.setArtistSort(artist.getSort());
                     // update db
                     albumDao.createOrUpdateAlbum(album);
-                    // update artistSort only.
-                    indexManager.updateArtistSort(album);
+                    if (album.getArtistSort() != null) {
+                        indexManager.index(album);
+                    }
                     maybe++;
                 }
             }
@@ -827,11 +827,12 @@ public class MediaFileService {
                 Album albumid3 = albumDao.getAlbum(album.getAlbumArtist(), album.getAlbumName());
                 if (null != albumid3) {
                     if (null != album.getAlbumSort() && !album.getAlbumSort().equals(albumid3.getNameSort())) {
+                        albumid3.setNameReading(album.getAlbumReading());
                         albumid3.setNameSort(album.getAlbumSort());
                         // update db
                         albumDao.createOrUpdateAlbum(albumid3);
                         // update index
-                        indexManager.updateArtistSort(albumid3);
+                        indexManager.index(albumid3);
                         maybe++;
                     }
                 } else {

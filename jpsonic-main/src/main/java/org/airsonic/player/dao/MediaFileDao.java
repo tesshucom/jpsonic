@@ -47,7 +47,7 @@ public class MediaFileDao extends AbstractDao {
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
                                                 "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id," +
-                                                "composer, composer_sort";
+                                                "composer, composer_sort, album_artist_reading";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
@@ -174,7 +174,8 @@ public class MediaFileDao extends AbstractDao {
                      "album_reading=?, " +
                      "mb_release_id=?, " +
                      "composer=?, " +
-                     "composer_sort=? " +
+                     "composer_sort=?, " +
+                     "album_artist_reading=? " +
                      "where path=?";
 
         logger.trace("Updating media file {}", Util.debugObject(file));
@@ -195,6 +196,7 @@ public class MediaFileDao extends AbstractDao {
                        file.getMusicBrainzReleaseId(),
                        file.getComposer(),
                        file.getComposerSort(),
+                       file.getAlbumArtistReading(),
                        file.getPath());
 
         if (n == 0) {
@@ -215,7 +217,7 @@ public class MediaFileDao extends AbstractDao {
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
                    file.getChildrenLastUpdated(), file.isPresent(), VERSION,
                    file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort(), file.getAlbumReading(),
-                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort());
+                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort(), file.getAlbumArtistReading());
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -234,7 +236,7 @@ public class MediaFileDao extends AbstractDao {
         logger.trace("Updating media file {}", artist);
         return update(sql, artistSort, artist, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
-    
+
     /**
      * Update albumSorts all.
      * @param album The artist to update.
@@ -247,7 +249,7 @@ public class MediaFileDao extends AbstractDao {
         logger.trace("Updating media file {}", album);
         return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
     }
-    
+
     /**
      * Update albumArtistSorts all.
      * @param artist The artist to update.
@@ -822,7 +824,8 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(36),
                     rs.getString(37),
                     rs.getString(38),
-                    rs.getString(39));
+                    rs.getString(39),
+                    rs.getString(40));
         }
     }
 

@@ -463,6 +463,7 @@ public class IndexManager {
         return result;
     }
 
+    @Deprecated
     public void updateArtistSort(Album album) {
         try {
             if (isEmpty(album.getArtistSort())) {

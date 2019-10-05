@@ -67,12 +67,13 @@ public class MediaFile {
     private Date childrenLastUpdated;
     private boolean present;
     private int version;
-    private String artistReading;
     private String titleSort;
-    private String albumSort;
-    private String artistSort;
-    private String albumArtistSort;
     private String albumReading;
+    private String albumSort;
+    private String artistReading;
+    private String artistSort;
+    private String albumArtistReading;
+    private String albumArtistSort;
     private String musicBrainzReleaseId;
     private String composer;
     private String composerSort;
@@ -83,7 +84,7 @@ public class MediaFile {
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
                      Date childrenLastUpdated, boolean present, int version,
                      String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading,
-                     String musicBrainzReleaseId, String composer, String composerSort) {
+                     String musicBrainzReleaseId, String composer, String composerSort, String albumArtistReading) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -123,6 +124,7 @@ public class MediaFile {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.composer = composer;
         this.composerSort = composerSort;
+        this.albumArtistReading = albumArtistReading; 
     }
 
     public MediaFile() {
@@ -533,6 +535,14 @@ public class MediaFile {
 
     public void setComposerSort(String composerSort) {
         this.composerSort = composerSort;
+    }
+
+    public String getAlbumArtistReading() {
+        return albumArtistReading;
+    }
+
+    public void setAlbumArtistReading(String albumArtistReading) {
+        this.albumArtistReading = albumArtistReading;
     }
 
     @Override

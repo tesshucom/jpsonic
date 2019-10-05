@@ -43,7 +43,9 @@ public class Album {
     private Date lastScanned;
     private boolean present;
     private Integer folderId;
+    private String artistReading;
     private String artistSort;
+    private String nameReading;
     private String nameSort;
     private String musicBrainzReleaseId;
 
@@ -52,7 +54,7 @@ public class Album {
 
     public Album(int id, String path, String name, String artist, int songCount, int durationSeconds, String coverArtPath,
             Integer year, String genre, int playCount, Date lastPlayed, String comment, Date created, Date lastScanned,
-            boolean present, Integer folderId, String artistSort, String nameSort, String musicBrainzReleaseId) {
+            boolean present, Integer folderId, String artistReading, String artistSort, String nameReading, String nameSort, String musicBrainzReleaseId) {
         this.id = id;
         this.path = path;
         this.name = name;
@@ -70,7 +72,9 @@ public class Album {
         this.folderId = folderId;
         this.present = present;
         this.artistSort = artistSort;
+        this.artistReading = artistReading;
         this.nameSort = nameSort;
+        this.nameReading = nameReading;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
@@ -202,12 +206,28 @@ public class Album {
         return folderId;
     }
 
+    public String getArtistReading() {
+        return artistReading;
+    }
+
+    public void setArtistReading(String artistReading) {
+        this.artistReading = artistReading;
+    }
+
     public String getArtistSort() {
         return artistSort;
     }
 
     public void setArtistSort(String artistSort) {
         this.artistSort = artistSort;
+    }
+
+    public String getNameReading() {
+        return nameReading;
+    }
+
+    public void setNameReading(String nameReading) {
+        this.nameReading = nameReading;
     }
 
     public String getNameSort() {

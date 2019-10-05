@@ -60,8 +60,8 @@ public class JpsonicComparators {
             @Override
             public int compare(Album o1, Album o2) {
                 return getCollator().compare(
-                        StringUtils.defaultIfBlank(o1.getNameSort(), o1.getName()),
-                        StringUtils.defaultIfBlank(o2.getNameSort(), o2.getName()));
+                        StringUtils.defaultIfBlank(o1.getNameReading(), o1.getName()),
+                        StringUtils.defaultIfBlank(o2.getNameReading(), o2.getName()));
             }
         };
     }
