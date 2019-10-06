@@ -32,6 +32,8 @@ import org.fourthline.cling.support.model.container.GenreContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 import java.util.List;
 
 /**
@@ -46,7 +48,11 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     public GenreUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_GENRE_PREFIX);
-        setRootTitle("Genres");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.genres");
     }
 
     /**

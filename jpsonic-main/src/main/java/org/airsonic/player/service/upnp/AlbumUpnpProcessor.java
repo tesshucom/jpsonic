@@ -37,6 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -63,7 +65,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public AlbumUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ALBUM_PREFIX);
-        setRootTitle("Albums");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.albums");
     }
 
     /**

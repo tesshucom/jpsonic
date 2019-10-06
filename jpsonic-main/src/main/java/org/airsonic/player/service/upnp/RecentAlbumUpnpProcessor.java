@@ -26,6 +26,8 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 import java.util.List;
 
 /**
@@ -38,7 +40,11 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     public RecentAlbumUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_RECENT_PREFIX);
-        setRootTitle("RecentAlbums");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.recentAlbums");
     }
 
     /**

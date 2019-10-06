@@ -33,10 +33,13 @@ import org.fourthline.cling.support.model.item.MusicTrack;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  * @author Allen Petersen
@@ -50,7 +53,11 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     public MediaFileUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_FOLDER_PREFIX);
-        setRootTitle("Folders");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.folders");
     }
 
     @Override

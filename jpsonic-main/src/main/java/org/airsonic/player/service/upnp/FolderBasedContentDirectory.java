@@ -101,7 +101,7 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
 
         MediaLibraryStatistics statistics = settingsService.getMediaLibraryStatistics();
         root.setStorageUsed(statistics == null ? 0 : statistics.getTotalLengthInBytes());
-        root.setTitle("Airsonic Media");
+        root.setTitle("Jpsonic Media");
         root.setRestricted(true);
         root.setSearchable(false);
         root.setWriteStatus(WriteStatus.NOT_WRITABLE);

@@ -45,7 +45,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor <Container, Containe
         // some upnp clients
         //root.setStorageUsed(statistics == null ? 0 : statistics.getTotalLengthInBytes());
         root.setStorageUsed(-1L);
-        root.setTitle("Airsonic Media");
+        root.setTitle("Jpsonic Media");
         root.setRestricted(true);
         root.setSearchable(true);
         root.setWriteStatus(WriteStatus.NOT_WRITABLE);
@@ -63,8 +63,8 @@ public class RootUpnpProcessor extends UpnpContentProcessor <Container, Containe
         ArrayList<Container> allItems = new ArrayList<Container>();
         allItems.add(getDispatchingContentDirectory().getAlbumProcessor().createRootContainer());
         allItems.add(getDispatchingContentDirectory().getArtistProcessor().createRootContainer());
-        allItems.add(getDispatchingContentDirectory().getMediaFileProcessor().createRootContainer());
         allItems.add(getDispatchingContentDirectory().getGenreProcessor().createRootContainer());
+        allItems.add(getDispatchingContentDirectory().getMediaFileProcessor().createRootContainer());
         allItems.add(getDispatchingContentDirectory().getPlaylistProcessor().createRootContainer());
         allItems.add(getDispatchingContentDirectory().getRecentAlbumProcessor().createRootContainer());
         return allItems;
