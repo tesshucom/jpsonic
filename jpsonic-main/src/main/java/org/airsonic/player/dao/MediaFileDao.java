@@ -754,23 +754,36 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void markPresent(String path, Date lastScanned) {
-        update("update media_file set present=?, last_scanned=? where path=?", true, lastScanned, path);
+        update("update media_file set present=?, last_scanned = ? where path=?", true, lastScanned, path);
     }
 
     public void markNonPresent(Date lastScanned) {
-        int minId = queryForInt("select min(id) from media_file where last_scanned != ? and present", 0, lastScanned);
-        int maxId = queryForInt("select max(id) from media_file where last_scanned != ? and present", 0, lastScanned);
+        int minId = queryForInt("select min(id) from media_file where last_scanned < ? and present", 0, lastScanned);
+        int maxId = queryForInt("select max(id) from media_file where last_scanned < ? and present", 0, lastScanned);
 
         final int batchSize = 1000;
         Date childrenLastUpdated = new Date(0L);  // Used to force a children rescan if file is later resurrected.
         for (int id = minId; id <= maxId; id += batchSize) {
-            update("update media_file set present=false, children_last_updated=? where id between ? and ? and last_scanned != ? and present",
+            update("update media_file set present=false, children_last_updated=? where id between ? and ? and " +
+                            "last_scanned < ? and present",
                    childrenLastUpdated, id, id + batchSize, lastScanned);
         }
     }
 
-    public List<MediaFile> getExpungementCandidate() {
-        return query("select " + QUERY_COLUMNS + " from media_file where not present", rowMapper);
+    public List<Integer> getArtistExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type = ? and not present",
+                MediaFile.MediaType.DIRECTORY.name());
+    }
+
+    public List<Integer> getAlbumExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type = ? and not present",
+                MediaFile.MediaType.ALBUM.name());
+    }
+
+    public List<Integer> getSongExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type in (?,?,?,?) and not present",
+                MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
+                MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name());
     }
 
     public void expunge() {

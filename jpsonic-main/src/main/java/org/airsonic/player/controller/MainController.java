@@ -266,7 +266,7 @@ public class MainController  {
         return new ArrayList<>(result);
     }
 
-    private List<MediaFile> getAncestors(MediaFile dir) throws IOException {
+    private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 
         try {

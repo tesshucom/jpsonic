@@ -88,7 +88,7 @@ public class DocumentFactory {
     private interface Consumer<T, U, V> {
         void accept(T t, U u, V v);
     }
-    
+
     ;
 
     private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
@@ -109,13 +109,6 @@ public class DocumentFactory {
     private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> 
         fieldKey.accept(doc, FieldNames.FOLDER, value);
 
-    private Consumer<@NonNull Document, @NonNull String, @Nullable Integer> fieldYear = (doc, fieldName, value) -> {
-        if (isEmpty(value)) {
-            return;
-        }
-        doc.add(new IntPoint(fieldName, value));
-    };
-
     public BiFunction<@NonNull String, @Nullable String, List<Field>>  createWordsFields = (fieldName, value) ->
         Arrays.asList(new TextField(fieldName, value, Store.NO), new SortedDocValuesField(fieldName, new BytesRef(value)));
 
@@ -133,24 +126,33 @@ public class DocumentFactory {
         fieldWords.accept(doc, FieldNames.GENRE, value);
     };
 
+
     private Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> {
         doc.add(new TextField(fieldName, value, Store.YES));
     };
 
-    public Term createPrimarykey(Album album) {
-        return new Term(FieldNames.ID, Integer.toString(album.getId()));
+    private Consumer<@NonNull Document, @NonNull String, @Nullable Integer> fieldYear = (doc, fieldName, value) -> {
+        if (isEmpty(value)) {
+            return;
+        }
+        doc.add(new IntPoint(fieldName, value));
     };
 
-    public Term createPrimarykey(Artist artist) {
-        return new Term(FieldNames.ID, Integer.toString(artist.getId()));
+
+    public final Term createPrimarykey(Integer id) {
+        return new Term(FieldNames.ID, Integer.toString(id));
     };
 
-    public Term createPrimarykey(MediaFile mediaFile) {
-        return new Term(FieldNames.ID, Integer.toString(mediaFile.getId()));
+    public final Term createPrimarykey(Album album) {
+        return createPrimarykey(album.getId());
     };
 
-    public Term createPrimarykey(String genre) {
-        return new Term(FieldNames.GENRE_KEY, genre);
+    public final Term createPrimarykey(Artist artist) {
+        return createPrimarykey(artist.getId());
+    };
+
+    public final Term createPrimarykey(MediaFile mediaFile) {
+        return createPrimarykey(mediaFile.getId());
     };
 
     /**

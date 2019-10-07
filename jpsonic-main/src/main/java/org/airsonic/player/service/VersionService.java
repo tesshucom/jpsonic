@@ -21,10 +21,11 @@ package org.airsonic.player.service;
 
 import com.jayway.jsonpath.JsonPath;
 import org.airsonic.player.domain.Version;
-import org.apache.commons.io.IOUtils;
+import org.airsonic.player.util.FileUtil;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -201,8 +202,8 @@ public class VersionService {
         } catch (IOException x) {
             return null;
         } finally {
-            IOUtils.closeQuietly(reader);
-            IOUtils.closeQuietly(in);
+            FileUtil.closeQuietly(reader);
+            FileUtil.closeQuietly(in);
         }
     }
 
@@ -243,6 +244,9 @@ public class VersionService {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             content = client.execute(method, responseHandler);
+        } catch (ConnectTimeoutException e) {
+            LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+            return;
         }
 
         List<String> unsortedTags = JsonPath.read(content, JSON_PATH);

@@ -44,7 +44,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -166,9 +165,13 @@ public class MediaFileService {
     }
 
     private MediaFile checkLastModified(MediaFile mediaFile, boolean useFastCache) {
-        if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
+        if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION
+                && !settingsService.isIgnoreFileTimestamps()
+                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
+            LOG.debug("Detected unmodified file");
             return mediaFile;
         }
+        LOG.debug("Updating database file from disk");
         mediaFile = createMediaFile(mediaFile.getFile());
         mediaFileDao.createOrUpdateMediaFile(mediaFile);
         return mediaFile;
@@ -208,10 +211,10 @@ public class MediaFileService {
         List<MediaFile> result = new ArrayList<MediaFile>();
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPath())) {
             child = checkLastModified(child, useFastCache);
-            if (child.isDirectory() && includeDirectories) {
+            if (child.isDirectory() && includeDirectories && includeMediaFile(child)) {
                 result.add(child);
             }
-            if (child.isFile() && includeFiles) {
+            if (child.isFile() && includeFiles && includeMediaFile(child)) {
                 result.add(child);
             }
         }
@@ -345,13 +348,7 @@ public class MediaFileService {
      * Removes video files from the given list.
      */
     public void removeVideoFiles(List<MediaFile> files) {
-        Iterator<MediaFile> iterator = files.iterator();
-        while (iterator.hasNext()) {
-            MediaFile file = iterator.next();
-            if (file.isVideo()) {
-                iterator.remove();
-            }
-        }
+        files.removeIf(MediaFile::isVideo);
     }
 
     public Date getMediaFileStarredDate(int id, String username) {
@@ -401,11 +398,22 @@ public class MediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
+    public boolean includeMediaFile(MediaFile candidate) {
+        return includeMediaFile(candidate.getFile());
+    }
+
+    public boolean includeMediaFile(File candidate) {
+        String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
+        if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
+            return true;
+        }
+        return false;
+    }
+
     public List<File> filterMediaFiles(File[] candidates) {
         List<File> result = new ArrayList<File>();
         for (File candidate : candidates) {
-            String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
-            if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
+            if (includeMediaFile(candidate)) {
                 result.add(candidate);
             }
         }
@@ -532,13 +540,9 @@ public class MediaFileService {
                     }
 
                     // Look for cover art.
-                    try {
-                        File coverArt = findCoverArt(children);
-                        if (coverArt != null) {
-                            mediaFile.setCoverArtPath(coverArt.getPath());
-                        }
-                    } catch (IOException x) {
-                        LOG.error("Failed to find cover art.", x);
+                    File coverArt = findCoverArt(children);
+                    if (coverArt != null) {
+                        mediaFile.setCoverArtPath(coverArt.getPath());
                     }
 
                 } else {
@@ -607,7 +611,7 @@ public class MediaFileService {
     /**
      * Finds a cover art image for the given directory, by looking for it on the disk.
      */
-    private File findCoverArt(File[] candidates) throws IOException {
+    private File findCoverArt(File[] candidates) {
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase()) && !candidate.getName().startsWith(".")) {

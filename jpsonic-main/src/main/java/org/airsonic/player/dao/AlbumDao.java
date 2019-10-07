@@ -181,7 +181,7 @@ public class AlbumDao extends AbstractDao {
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +
-                "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
     }
 
     /**
@@ -342,17 +342,17 @@ public class AlbumDao extends AbstractDao {
     }
 
     public void markNonPresent(Date lastScanned) {
-        int minId = queryForInt("select min(id) from album where last_scanned != ? and present", 0, lastScanned);
-        int maxId = queryForInt("select max(id) from album where last_scanned != ? and present", 0, lastScanned);
+        int minId = queryForInt("select min(id) from album where last_scanned < ? and present", 0, lastScanned);
+        int maxId = queryForInt("select max(id) from album where last_scanned < ? and present", 0, lastScanned);
 
         final int batchSize = 1000;
         for (int id = minId; id <= maxId; id += batchSize) {
-            update("update album set present=false where id between ? and ? and last_scanned != ? and present", id, id + batchSize, lastScanned);
+            update("update album set present=false where id between ? and ? and last_scanned < ? and present", id, id + batchSize, lastScanned);
         }
     }
 
-    public List<Album> getExpungementCandidate() {
-        return query("select " + QUERY_COLUMNS + " from album where not present", rowMapper);
+    public List<Integer> getExpungeCandidates() {
+        return queryForInts("select id from album where not present");
     }
 
     public void expunge() {

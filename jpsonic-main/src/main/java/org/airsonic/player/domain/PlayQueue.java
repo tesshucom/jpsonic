@@ -21,7 +21,6 @@ package org.airsonic.player.domain;
 
 import com.tesshu.jpsonic.service.sort.AlphanumComparator;
 
-import java.io.IOException;
 import java.text.Collator;
 import java.util.*;
 
@@ -172,9 +171,8 @@ public class PlayQueue {
      *
      * @param mediaFiles The music files to add.
      * @param index Where to add them.
-     * @throws IOException If an I/O error occurs.
      */
-    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, int index) throws IOException {
+    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, int index) {
         makeBackup();
         for (MediaFile mediaFile : mediaFiles) {
             files.add(index, mediaFile);
@@ -188,9 +186,8 @@ public class PlayQueue {
      *
      * @param append     Whether existing songs in the playlist should be kept.
      * @param mediaFiles The music files to add.
-     * @throws IOException If an I/O error occurs.
      */
-    public synchronized void addFiles(boolean append, Iterable<MediaFile> mediaFiles) throws IOException {
+    public synchronized void addFiles(boolean append, Iterable<MediaFile> mediaFiles) {
         makeBackup();
         if (!append) {
             index = 0;
@@ -205,7 +202,7 @@ public class PlayQueue {
     /**
      * Convenience method, equivalent to {@link #addFiles(boolean, Iterable)}.
      */
-    public synchronized void addFiles(boolean append, MediaFile... mediaFiles) throws IOException {
+    public synchronized void addFiles(boolean append, MediaFile... mediaFiles) {
         addFiles(append, Arrays.asList(mediaFiles));
     }
 

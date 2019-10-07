@@ -74,11 +74,6 @@ public interface SearchService {
             String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz);
 
     /**
-     * @since 101.1.0
-     */
-    String INDEX_FILE_PREFIX = "lucene";
-
-    /**
      * Returns all genres in the music collection.
      *
      * @since 101.2.0
@@ -122,5 +117,5 @@ public interface SearchService {
      * @return songs in the genre.
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
-
+    
 }
