@@ -39,6 +39,7 @@ public class GeneralSettingsCommand {
     private boolean sortAlbumsByYear;
     private boolean prohibitSortVarious;
     private boolean sortAlphanum;
+    private boolean sortStrict;
     private boolean gettingStartedEnabled;
     private String welcomeTitle;
     private String welcomeSubtitle;
@@ -194,6 +195,14 @@ public class GeneralSettingsCommand {
 
     public void setSortAlphanum(boolean sortAlphanum) {
         this.sortAlphanum = sortAlphanum;
+    }
+
+    public boolean isSortStrict() {
+        return sortStrict;
+    }
+
+    public void setSortStrict(boolean sortStrict) {
+        this.sortStrict = sortStrict;
     }
 
     public boolean isGettingStartedEnabled() {

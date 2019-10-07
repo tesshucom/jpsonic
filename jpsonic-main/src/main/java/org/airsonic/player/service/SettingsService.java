@@ -104,6 +104,7 @@ public class SettingsService implements CollatorProvider {
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
+    private static final String KEY_SORT_STRICT = "SortStrict";
     private static final String KEY_MEDIA_LIBRARY_STATISTICS = "MediaLibraryStatistics";
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -183,6 +184,7 @@ public class SettingsService implements CollatorProvider {
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
+    private static final boolean DEFAULT_SORT_STRICT = false;
     private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -773,7 +775,15 @@ public class SettingsService implements CollatorProvider {
     public void setSortAlphanum(boolean b) {
         setBoolean(KEY_SORT_ALPHANUM, b);
     }
-    
+
+    public boolean isSortStrict() {
+        return getBoolean(KEY_SORT_STRICT, DEFAULT_SORT_STRICT);
+    }
+
+    public void setSortStrict(boolean b) {
+        setBoolean(KEY_SORT_STRICT, b);
+    }
+
     public boolean getIgnoreSymLinks() {
         return getBoolean(KEY_IGNORE_SYMLINKS, DEFAULT_IGNORE_SYMLINKS);
     }

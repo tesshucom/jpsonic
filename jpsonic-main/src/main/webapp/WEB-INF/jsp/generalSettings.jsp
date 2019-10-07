@@ -129,6 +129,14 @@
                 <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
             </td>
         </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <form:checkbox path="sortStrict" id="sortStrict"/>
+                <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
+            </td>
+        </tr>
 
         <tr><td colspan="2">&nbsp;</td></tr>
 

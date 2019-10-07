@@ -63,6 +63,7 @@ public class GeneralSettingsController  {
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
         command.setSortAlphanum(settingsService.isSortAlphanum());
+        command.setSortStrict(settingsService.isSortStrict());
         command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
         command.setWelcomeTitle(settingsService.getWelcomeTitle());
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
@@ -122,6 +123,7 @@ public class GeneralSettingsController  {
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
         settingsService.setSortAlphanum(command.isSortAlphanum());
+        settingsService.setSortStrict(command.isSortStrict());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
