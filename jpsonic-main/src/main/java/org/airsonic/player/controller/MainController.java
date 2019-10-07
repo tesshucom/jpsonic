@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.service.sort.JpsonicComparators;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
 import org.apache.commons.lang3.BooleanUtils;

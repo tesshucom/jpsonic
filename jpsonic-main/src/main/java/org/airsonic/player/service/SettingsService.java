@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.service;
 
-import com.tesshu.jpsonic.service.sort.CollatorProvider;
+import com.tesshu.jpsonic.domain.CollatorProvider;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MusicFolderDao;

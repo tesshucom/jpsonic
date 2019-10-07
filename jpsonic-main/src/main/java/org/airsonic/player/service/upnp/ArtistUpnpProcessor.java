@@ -19,7 +19,7 @@
 */
 package org.airsonic.player.service.upnp;
 
-import com.tesshu.jpsonic.service.sort.JpsonicComparators;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;

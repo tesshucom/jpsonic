@@ -17,7 +17,7 @@
  Copyright 2019 (C) tesshu.com
  Based upon Alphanum Algorithm, Copyright 2007-2017 David Koelle
  */
-package com.tesshu.jpsonic.service.sort;
+package com.tesshu.jpsonic.domain;
 
 import java.text.Collator;
 import java.util.Comparator;

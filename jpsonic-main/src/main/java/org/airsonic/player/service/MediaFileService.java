@@ -19,8 +19,8 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
-import com.tesshu.jpsonic.service.sort.JpsonicComparators;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;

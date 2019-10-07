@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.sort;
+package com.tesshu.jpsonic.domain;
 
 import java.text.Collator;
 

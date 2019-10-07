@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.sort;
+package com.tesshu.jpsonic.domain;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -24,29 +24,32 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.airsonic.player.service.upnp.AlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.ArtistUpnpProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static com.tesshu.jpsonic.service.sort.SortingIntegrationTestCase.validateJPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
-public class AlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
+/*
+ * Test to correct sort inconsistencies.
+ */
+public class ArtistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir2, "Albums", true, new Date()));
+        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
+        musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
     }
 
     @Autowired
-    private AlbumUpnpProcessor albumUpnpProcessor;
+    private ArtistUpnpProcessor artistUpnpProcessor;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -59,10 +62,9 @@ public class AlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     }
 
     @Test
-    public void testGetAllItems() {
-        List<Album> all = albumUpnpProcessor.getAllItems();
-        List<String> albums = all.stream().map(a -> a.getName()).collect(Collectors.toList());
-        assertTrue(validateJPSonicNaturalList(albums));
+    public void testUpnpArtist() {
+        List<Artist> all = artistUpnpProcessor.getAllItems();
+        assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }

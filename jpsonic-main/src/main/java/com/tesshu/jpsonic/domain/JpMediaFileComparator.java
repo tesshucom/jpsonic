@@ -18,7 +18,7 @@
  Based upon Airsonic, Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package com.tesshu.jpsonic.service.sort;
+package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
