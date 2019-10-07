@@ -32,6 +32,8 @@ import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 import java.util.List;
 
 /**
@@ -55,7 +57,11 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     public ArtistUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ARTIST_PREFIX);
-        setRootTitle("Artists");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.artists");
     }
 
     public Container createContainer(Artist artist) {

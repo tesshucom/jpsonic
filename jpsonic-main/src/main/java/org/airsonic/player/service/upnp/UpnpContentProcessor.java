@@ -21,6 +21,7 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.Util;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * @author Allen Petersen
@@ -41,6 +43,11 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     @Autowired
     private DispatchingContentDirectory dispatchingContentDirectory;
+
+    @Autowired
+    private SettingsService settingsService;
+    
+    private static ResourceBundle resourceBundle;
 
     protected String rootTitle;
     protected String rootId;
@@ -173,14 +180,26 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     public String getRootTitle() {
         return rootTitle;
     }
+
+    public void setRootTitleWithResource(String key) {
+        if (null == resourceBundle) {
+            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle",
+                    settingsService.getLocale());
+        }
+        setRootTitle(resourceBundle.getString(key));
+    }
+
     public void setRootTitle(String rootTitle) {
         this.rootTitle = rootTitle;
     }
+
     public String getRootId() {
         return rootId;
     }
+
     public void setRootId(String rootId) {
         this.rootId = rootId;
     }
+
 }
 
