@@ -16,9 +16,9 @@ matrix:
     addons:
       coverity_scan:
         project:
-          name: "airsonic/airsonic"
+          name: "jpsonic/jpsonic"
           description: "A Free and Open Source community driven media server"
-        notification_email: "airsonic@tutanota.com"
+        notification_email: "webmaster@tesshu.com"
         build_command_prepend:
         build_command: mvn -B clean package -DskipTests=true
         branch_pattern: master
