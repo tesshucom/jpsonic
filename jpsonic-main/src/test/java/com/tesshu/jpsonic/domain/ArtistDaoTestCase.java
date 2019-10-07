@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
@@ -44,6 +44,7 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
         File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
     }
+
     @Autowired
     private ArtistDao artistDao;
 
@@ -54,13 +55,14 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Before
     public void setup() throws Exception {
+        setSortStrict(true);
         populateDatabaseOnlyOnce();
     }
 
     @Test
     public void testGetAlphabetialArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
-        assertFalse(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
+        assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }

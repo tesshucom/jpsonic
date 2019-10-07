@@ -48,9 +48,10 @@ public class JpsonicComparators {
         return new JpComparator<Artist>() {
             @Override
             public int compare(Artist o1, Artist o2) {
-                return getCollator().compare(
-                        StringUtils.defaultIfBlank(o1.getReading(), o1.getName()),
-                        StringUtils.defaultIfBlank(o2.getReading(), o2.getName()));
+                if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
+                    return o1.getOrder() - o2.getOrder();
+                }
+                return getCollator().compare(o1.getReading(), o2.getReading());
             }
         };
     }

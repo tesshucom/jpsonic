@@ -37,7 +37,7 @@ import java.util.*;
  */
 @Repository
 public class ArtistDao extends AbstractDao {
-    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, reading, sort";
+    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, reading, sort, _order";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper rowMapper = new ArtistMapper();
@@ -96,14 +96,17 @@ public class ArtistDao extends AbstractDao {
                      "present=?," +
                      "folder_id=?," +
                      "reading=?," +
-                     "sort=? " +
+                     "sort=?, " +
+                     "_order=? " +
                      "where name=?";
 
-        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), artist.getName());
+        int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), artist.getOrder(), artist.getName());
 
         if (n == 0) {
             update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                   artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort());
+                    artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
+                    artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), -1);
         }
 
         int id = queryForInt("select id from artist where name=?", null, artist.getName());
@@ -128,7 +131,7 @@ public class ArtistDao extends AbstractDao {
         args.put("offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                "order by reading limit :count offset :offset", rowMapper, args);
+                "order by _order, reading limit :count offset :offset", rowMapper, args);
     }
 
     /**
@@ -211,12 +214,14 @@ public class ArtistDao extends AbstractDao {
                     rs.getBoolean(6),
                     rs.getInt(7),
                     rs.getString(8),
-                    rs.getString(9));
+                    rs.getString(9),
+                    rs.getInt(10));
         }
     }
 
-    public void clearSort() {
+    public void clearSortAndOrder() {
         update("update artist set sort = null");
+        update("update artist set _order = -1");
     }
 
     public List<Artist> getSortCandidate() {

@@ -736,7 +736,7 @@ public class MediaFileService {
         LOG.info(toBeUpdates.size() + " update candidates for file structure artistSort. " + updated + " rows reversal.");
 
         int maybe = 0;
-        artistDao.clearSort();
+        artistDao.clearSortAndOrder();
         for (MediaFile toBeUpdate : toBeUpdates) {
             Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
             if (ObjectUtils.isEmpty(artist)) {
@@ -846,6 +846,17 @@ public class MediaFileService {
         }
         LOG.info(albums.size() + " sorted id3 albums. " + maybe + " id3 album rows reversal.");
 
+    }
+
+    public void updateArtistOrder() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        artists.sort(jpsonicComparator.naturalArtistOrder());
+        int i = 0;
+        for (Artist artist : artists) {
+            artist.setOrder(i++);
+            artistDao.createOrUpdateArtist(artist);
+        }
     }
 
     public void clearMemoryCache() {

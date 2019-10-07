@@ -136,4 +136,8 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
         }
     }
 
+    protected void setSortStrict(boolean isSortStrict) {
+        settingsService.setSortStrict(isSortStrict);
+    }
+
 }

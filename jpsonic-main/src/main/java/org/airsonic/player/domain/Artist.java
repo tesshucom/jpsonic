@@ -36,12 +36,13 @@ public class Artist {
     private Integer folderId;
     private String reading;
     private String sort;
+    private int order;
 
     public Artist() {
     }
 
     public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present, Integer folderId,
-            String reading, String sort) {
+            String reading, String sort, int order) {
         this.id = id;
         this.name = name;
         this.coverArtPath = coverArtPath;
@@ -51,6 +52,7 @@ public class Artist {
         this.folderId = folderId;
         this.reading = reading;
         this.sort = sort;
+        this.order = order;
     }
 
     public int getId() {
@@ -124,5 +126,13 @@ public class Artist {
     public void setSort(String sort) {
         this.sort = sort;
     }
-    
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
 }
