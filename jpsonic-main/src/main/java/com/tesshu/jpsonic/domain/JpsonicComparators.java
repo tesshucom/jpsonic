@@ -43,35 +43,46 @@ public class JpsonicComparators {
     @Autowired
     private SettingsService settingsService;
 
-    public Comparator<Artist> naturalArtistOrder() {
-        return new JpComparator<Artist>() {
+    public Comparator<Object> naturalOrder() {
+        Collator collator = collatorProvider.getCollator();
+        return settingsService.isSortAlphanum() ? new AlphanumCollatorWrapper(collator) : collator;
+    }
+
+    public Comparator<Artist> artistOrder() {
+        return new Comparator<Artist>() {
+
+            private final Comparator<Object> c = naturalOrder();
+
             @Override
             public int compare(Artist o1, Artist o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return getCollator().compare(o1.getReading(), o2.getReading());
+                return c.compare(o1.getReading(), o2.getReading());
             }
         };
     }
 
-    public Comparator<Album> naturalAlbumOrder() {
-        return new JpComparator<Album>() {
+    public Comparator<Album> albumOrder() {
+        return new Comparator<Album>() {
+
+            private final Comparator<Object> c = naturalOrder();
+
             @Override
             public int compare(Album o1, Album o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return getCollator().compare(o1.getNameReading(), o2.getNameReading());
+                return c.compare(o1.getNameReading(), o2.getNameReading());
             }
         };
     }
 
-    public MediaFileComparator naturalMediaFileOrder() {
-        return naturalMediaFileOrder(null);
+    public MediaFileComparator mediaFileOrder() {
+        return mediaFileOrder(null);
     }
 
-    public MediaFileComparator naturalMediaFileOrder(MediaFile parent) {
+    public MediaFileComparator mediaFileOrder(MediaFile parent) {
 
         boolean isSortAlbumsByYear = 
                 (isEmpty(parent)
@@ -86,16 +97,6 @@ public class JpsonicComparators {
                 settingsService.getCollator());
 
         return mediaFileComparator;
-
-    }
-
-    private abstract class JpComparator<T> implements Comparator<T> {
-
-        private final Collator collator = collatorProvider.getCollator();
-
-        public Collator getCollator() {
-            return collator;
-        }
 
     }
 

@@ -19,9 +19,6 @@
  */
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.domain.AlphanumComparator;
-
-import java.text.Collator;
 import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -40,8 +37,6 @@ public class PlayQueue {
 
     private RandomSearchCriteria randomSearchCriteria;
     private InternetRadio internetRadio;
-
-    private AlphanumComparator alphanum;
 
     /**
      * The index of the current song, or -1 is the end of the playlist is reached.
@@ -250,21 +245,17 @@ public class PlayQueue {
      * Sorts the playlist according to the given sort order.
      */
     public synchronized void sort(final SortOrder sortOrder) {
-        sort(sortOrder, false, null);
+        sort(sortOrder, null);
     }
 
     /**
      * Sorts the playlist according to the given sort order.
      */
-    public synchronized void sort(final SortOrder sortOrder, boolean isAlphanum, Collator collator) {
+    public synchronized void sort(final SortOrder sortOrder, Comparator<Object> comparator) {
         makeBackup();
         MediaFile currentFile = getCurrentFile();
         
-        if (isAlphanum) {
-            alphanum = new AlphanumComparator(collator);
-        }
-
-        Comparator<MediaFile> comparator = new Comparator<MediaFile>() {
+        Collections.sort(files, new Comparator<MediaFile>() {
             public int compare(MediaFile a, MediaFile b) {
                 switch (sortOrder) {
                     case TRACK:
@@ -281,22 +272,18 @@ public class PlayQueue {
                     case ARTIST:
                         String artistA = defaultIfBlank(a.getArtistReading(), a.getArtist());
                         String artistB = defaultIfBlank(b.getArtistReading(), b.getArtist());
-                        return isAlphanum
-                                ? alphanum.compare(artistA, artistB)
-                                : null == collator ? artistA.compareToIgnoreCase(artistB) : collator.compare(artistA, artistB);
+                        return null == comparator ? artistA.compareToIgnoreCase(artistB)
+                                : comparator.compare(artistA, artistB);
                     case ALBUM:
                         String albumA = defaultIfBlank(a.getAlbumReading(), a.getAlbumName());
                         String albumB = defaultIfBlank(b.getAlbumReading(), b.getAlbumName());
-                        return isAlphanum
-                                ? alphanum.compare(albumA, albumB)
-                                : null == collator ? albumA.compareToIgnoreCase(albumB) : collator.compare(albumA, albumB);
+                        return null == comparator ? albumA.compareToIgnoreCase(albumB) : comparator.compare(albumA, albumB);
                     default:
                         return 0;
                 }
             }
-        };
+        });
 
-        Collections.sort(files, comparator);
         if (currentFile != null) {
             index = files.indexOf(currentFile);
         }

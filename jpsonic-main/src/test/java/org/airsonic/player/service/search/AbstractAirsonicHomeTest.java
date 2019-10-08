@@ -140,4 +140,9 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
         settingsService.setSortStrict(isSortStrict);
     }
 
+    protected void setSortAlphanum(boolean isSortStrict) {
+        settingsService.setSortAlphanum(true);
+        ;
+    }
+
 }

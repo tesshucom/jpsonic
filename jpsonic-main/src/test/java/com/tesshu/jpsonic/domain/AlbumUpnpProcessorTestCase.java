@@ -41,8 +41,8 @@ public class AlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir2, "Albums", true, new Date()));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Albums"));
+        musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
@@ -55,6 +55,7 @@ public class AlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Before
     public void setup() throws Exception {
+        setSortStrict(true);
         populateDatabaseOnlyOnce();
     }
 

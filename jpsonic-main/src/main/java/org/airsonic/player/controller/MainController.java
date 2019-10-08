@@ -256,7 +256,7 @@ public class MainController  {
     }
 
     private List<MediaFile> getMultiFolderChildren(List<MediaFile> mediaFiles) throws IOException {
-        SortedSet<MediaFile> result = new TreeSet<>(jpsonicComparator.naturalMediaFileOrder());
+        SortedSet<MediaFile> result = new TreeSet<>(jpsonicComparator.mediaFileOrder());
         for (MediaFile mediaFile : mediaFiles) {
             if (mediaFile.isFile()) {
                 mediaFile = mediaFileService.getParentOf(mediaFile);

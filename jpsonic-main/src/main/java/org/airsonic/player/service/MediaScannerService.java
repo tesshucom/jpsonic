@@ -224,6 +224,7 @@ public class MediaScannerService {
             // Update albumSort
             mediaFileService.updateAlbumSort();
 
+            // Update order
             if (settingsService.isSortStrict()) {
                 mediaFileService.updateArtistOrder();
                 mediaFileService.updateAlbumOrder();

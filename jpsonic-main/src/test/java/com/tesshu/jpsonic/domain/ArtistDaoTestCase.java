@@ -20,6 +20,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
@@ -43,6 +45,8 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
         musicFolders = new ArrayList<>();
         File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
+        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/ArtistsAlphaNum"));
+        musicFolders.add(new MusicFolder(2, musicDir2, "ArtistsAlphaNum", true, new Date()));
     }
 
     @Autowired
@@ -55,14 +59,21 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Before
     public void setup() throws Exception {
+        setSortAlphanum(true);
         setSortStrict(true);
         populateDatabaseOnlyOnce();
     }
 
     @Test
     public void testGetAlphabetialArtists() {
-        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
+    }
+    
+    @Test
+    public void testGetAlphabetialNumArtists() {
+        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(1)));
+        assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }

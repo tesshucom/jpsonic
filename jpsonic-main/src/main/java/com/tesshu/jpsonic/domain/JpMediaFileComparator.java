@@ -24,6 +24,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 
 import java.text.Collator;
+import java.util.Comparator;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -34,17 +35,11 @@ class JpMediaFileComparator implements MediaFileComparator {
 
     private final boolean sortAlbumsByYear;
 
-    private final boolean isAlphanum;
-
-    private final Collator collator;
-
-    private AlphanumComparator alphanum;
+    private final Comparator<Object> comparator;
 
     public JpMediaFileComparator(boolean sortAlbumsByYear, boolean isAlphanum, Collator collator) {
         this.sortAlbumsByYear = sortAlbumsByYear;
-        this.isAlphanum = isAlphanum;
-        this.collator = collator;
-        alphanum = isAlphanum ? new AlphanumComparator(collator) : null;
+        comparator = isAlphanum ? new AlphanumCollatorWrapper(collator) : collator;
     }
 
     public int compare(MediaFile a, MediaFile b) {
@@ -76,16 +71,12 @@ class JpMediaFileComparator implements MediaFileComparator {
         if (a.isDirectory() && b.isDirectory()) {
             int n = 0;
             if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
-                n = isAlphanum
-                    ? alphanum.compare(a.getAlbumReading(), b.getAlbumReading())
-                    : collator.compare(a.getAlbumReading(), b.getAlbumReading());
+                n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
             } else {
-                n = isAlphanum
-                    ? alphanum.compare(a.getName(), b.getName())
-                    : collator.compare(a.getName(), b.getName());
+                n = comparator.compare(a.getName(), b.getName());
             }
             return n == 0
-                    ? collator.compare(a.getPath(), b.getPath())
+                    ? comparator.compare(a.getPath(), b.getPath())
                     : n; // To make it consistent to MediaFile.equals()
         }
 
@@ -97,7 +88,7 @@ class JpMediaFileComparator implements MediaFileComparator {
             return i;
         }
 
-        return collator.compare(a.getPath(), b.getPath());
+        return comparator.compare(a.getPath(), b.getPath());
     }
 
     private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {
@@ -121,4 +112,5 @@ class JpMediaFileComparator implements MediaFileComparator {
         int discNumber = file.getDiscNumber() == null ? 1 : file.getDiscNumber();
         return discNumber * 1000 + file.getTrackNumber();
     }
+
 }

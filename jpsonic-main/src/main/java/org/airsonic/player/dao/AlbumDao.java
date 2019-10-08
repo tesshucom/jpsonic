@@ -45,7 +45,7 @@ public class AlbumDao extends AbstractDao {
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final AlbumMapper rowMapper = new AlbumMapper();
+    private final RowMapper<Album> rowMapper = new AlbumMapper();
 
     public Album getAlbum(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from album where id=?", rowMapper, id);
@@ -350,6 +350,10 @@ public class AlbumDao extends AbstractDao {
         for (int id = minId; id <= maxId; id += batchSize) {
             update("update album set present=false where id between ? and ? and last_scanned < ? and present", id, id + batchSize, lastScanned);
         }
+    }
+
+    public void clearOrder() {
+        update("update album set _order = -1");
     }
 
     public List<Integer> getExpungeCandidates() {

@@ -220,7 +220,7 @@ public class MediaFileService {
         }
 
         if (sort) {
-            Set<MediaFile> set = new TreeSet<MediaFile>(jpsonicComparator.naturalMediaFileOrder(parent));
+            Set<MediaFile> set = new TreeSet<MediaFile>(jpsonicComparator.mediaFileOrder(parent));
             set.addAll(result);
             result = new ArrayList<MediaFile>(set);
         }
@@ -793,6 +793,7 @@ public class MediaFileService {
         List<MediaFile> candidates = mediaFileDao.getAlbumSortCandidate();
         List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        albumDao.clearOrder();
 
         int updated = 0;
         for (MediaFile toBeUpdate : toBeUpdates) {
@@ -851,7 +852,7 @@ public class MediaFileService {
     public void updateArtistOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        artists.sort(jpsonicComparator.naturalArtistOrder());
+        artists.sort(jpsonicComparator.artistOrder());
         int i = 0;
         for (Artist artist : artists) {
             artist.setOrder(i++);
@@ -862,7 +863,7 @@ public class MediaFileService {
     public void updateAlbumOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
-        albums.sort(jpsonicComparator.naturalAlbumOrder());
+        albums.sort(jpsonicComparator.albumOrder());
         int i = 0;
         for (Album album : albums) {
             album.setOrder(i++);

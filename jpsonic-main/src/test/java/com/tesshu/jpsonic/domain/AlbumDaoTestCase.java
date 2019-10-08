@@ -20,6 +20,7 @@ package com.tesshu.jpsonic.domain;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
@@ -41,8 +43,10 @@ public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir2, "Albums", true, new Date()));
+        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
+        musicFolders.add(new MusicFolder(1, musicDir1, "Albums", true, new Date()));
+        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/AlbumsAlphaNum"));
+        musicFolders.add(new MusicFolder(2, musicDir2, "AlbumsAlphaNum", true, new Date()));
     }
 
     @Autowired
@@ -56,13 +60,22 @@ public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
     @Before
     public void setup() throws Exception {
         setSortStrict(true);
+        setSortAlphanum(true);
         populateDatabaseOnlyOnce();
     }
 
     @Test
     public void testGetAlphabeticalAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
+                Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
+    }
+
+    @Test
+    public void testGetAlphabeticalNumAlbums() {
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
+                Arrays.asList(musicFolders.get(1)));
+        assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }

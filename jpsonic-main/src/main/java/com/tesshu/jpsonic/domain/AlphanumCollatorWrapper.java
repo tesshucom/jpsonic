@@ -25,32 +25,20 @@ import java.util.Comparator;
 /**
  * Class to perform Collaror sort considering serial number.
  */
-public class AlphanumComparator implements Comparator<String> {
+public class AlphanumCollatorWrapper implements Comparator<Object> {
     
     private final Collator collator;
 
-    public AlphanumComparator() {
-        this.collator = null;
-    }
-
-    /**
-     * Generate instance with collator.
-     * If collator is specified,
-     * compareToIgnoreCase will be disabled and follow the collator sorting rules.
-     * @param collator collator
-     */
-    public AlphanumComparator(Collator collator) {
+    public AlphanumCollatorWrapper(Collator collator) {
         this.collator = collator;
     }
 
-    public int compare(String s1, String s2) {
-        return compare(s1, s2, false);
-    }
-
-    private int compare(String s1, String s2, boolean isIgnoreCase) {
-        if ((s1 == null) || (s2 == null)) {
+    public int compare(Object o1, Object o2) {
+        if ((o1 == null) || (o2 == null)) {
             return 0;
         }
+        String s1 = o1.toString();
+        String s2 = o2.toString();
 
         int thisMarker = 0;
         int thatMarker = 0;
@@ -77,8 +65,8 @@ public class AlphanumComparator implements Comparator<String> {
             } else {
                 collator.compare(thisChunk, thatChunk);
                 result = null == collator
-                            ? isIgnoreCase ? thisChunk.compareToIgnoreCase(thatChunk) : thisChunk.compareTo(thatChunk)
-                            : collator.compare(thisChunk, thatChunk);
+                        ? thisChunk.compareToIgnoreCase(thatChunk)
+                        : collator.compare(thisChunk, thatChunk);
             }
             if (result != 0)
                 return result;
@@ -86,17 +74,6 @@ public class AlphanumComparator implements Comparator<String> {
         return s1Length - s2Length;
     }
 
-    /**
-     * Available only when collator is not specified
-     */
-    public int compareToIgnoreCase(String s1, String s2) {
-        return compare(s1, s2, true);
-    }
-
-    /**
-     * Length of string is passed in for improved efficiency (only need to calculate
-     * it once)
-     **/
     private final String getChunk(String s, int slength, int marker) {
         StringBuilder chunk = new StringBuilder();
         char c = s.charAt(marker);

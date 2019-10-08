@@ -19,7 +19,6 @@
 */
 package org.airsonic.player.service.upnp;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -51,9 +50,6 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Autowired
     SettingsService settingsService;
-    
-    @Autowired
-    private JpsonicComparators jpsonicComparator;
 
     public ArtistUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ARTIST_PREFIX);
@@ -76,9 +72,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     public List<Artist> getAllItems() {
         List<MusicFolder> allFolders = getDispatcher().getSettingsService().getAllMusicFolders();
-        List<Artist> allArtists = getArtistDao().getAlphabetialArtists(0, Integer.MAX_VALUE, allFolders);
-        allArtists.sort(jpsonicComparator.naturalArtistOrder());
-        return allArtists;
+        return getArtistDao().getAlphabetialArtists(0, Integer.MAX_VALUE, allFolders);
     }
 
     public Artist getItemById(String id) {

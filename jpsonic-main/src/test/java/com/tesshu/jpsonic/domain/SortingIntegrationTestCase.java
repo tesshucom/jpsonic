@@ -90,7 +90,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     private MediaFileService mediaFileService;
 
     @Autowired
-    private JpsonicComparators jpsonicComparators;
+    private JpsonicComparators comparators;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -119,7 +119,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     public void testCompareAlbums() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
-        MediaFileComparator comparator = jpsonicComparators.naturalMediaFileOrder();
+        MediaFileComparator comparator = comparators.mediaFileOrder();
 
         MediaFile albumA2012 = new MediaFile();
         albumA2012.setMediaType(MediaFile.MediaType.ALBUM);
@@ -165,7 +165,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     public void testCompareDiscNumbers() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
-        MediaFileComparator comparator = jpsonicComparators.naturalMediaFileOrder();
+        MediaFileComparator comparator = comparators.mediaFileOrder();
 
         MediaFile discXtrack1 = new MediaFile();
         discXtrack1.setMediaType(MediaFile.MediaType.MUSIC);
@@ -294,7 +294,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, false, settingsService.getCollator());
+        playQueue.sort(SortOrder.ALBUM, comparators.naturalOrder());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertTrue(validateJPSonicNaturalList(albums));
     }
@@ -311,7 +311,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, true, settingsService.getCollator());
+        playQueue.sort(SortOrder.ALBUM, comparators.naturalOrder());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertTrue(validateAlphaNumList(albums));
     }
@@ -328,7 +328,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, false, settingsService.getCollator());
+        playQueue.sort(SortOrder.ARTIST, comparators.naturalOrder());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateJPSonicNaturalList(artists));
     }
@@ -345,7 +345,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, true, settingsService.getCollator());
+        playQueue.sort(SortOrder.ARTIST, comparators.naturalOrder());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateAlphaNumList(artists));
     }

@@ -20,6 +20,8 @@
 package org.airsonic.player.ajax;
 
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlayQueueDao;
@@ -57,6 +59,8 @@ public class PlayQueueService {
     private TranscodingService transcodingService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private JpsonicComparators comparators;
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
@@ -646,8 +650,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum(),
-                settingsService.getCollator());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, comparators.naturalOrder());
         return convert(request, player, false);
     }
 
@@ -655,8 +658,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum(),
-                settingsService.getCollator());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, comparators.naturalOrder());
         return convert(request, player, false);
     }
 
