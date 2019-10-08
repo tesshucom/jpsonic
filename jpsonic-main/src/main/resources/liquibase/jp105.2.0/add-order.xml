@@ -14,4 +14,16 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-order_002" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="album" columnName="_order"  />
+            </not>
+        </preConditions>
+        <addColumn tableName="album">
+            <column name="_order" type="int">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

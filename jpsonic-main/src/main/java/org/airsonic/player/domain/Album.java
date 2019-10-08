@@ -47,14 +47,16 @@ public class Album {
     private String artistSort;
     private String nameReading;
     private String nameSort;
+    private int order;
     private String musicBrainzReleaseId;
 
     public Album() {
     }
 
-    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds, String coverArtPath,
-            Integer year, String genre, int playCount, Date lastPlayed, String comment, Date created, Date lastScanned,
-            boolean present, Integer folderId, String artistReading, String artistSort, String nameReading, String nameSort, String musicBrainzReleaseId) {
+    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
+            String coverArtPath, Integer year, String genre, int playCount, Date lastPlayed, String comment,
+            Date created, Date lastScanned, boolean present, Integer folderId, String artistReading, String artistSort,
+            String nameReading, String nameSort, int order, String musicBrainzReleaseId) {
         this.id = id;
         this.path = path;
         this.name = name;
@@ -75,6 +77,7 @@ public class Album {
         this.artistReading = artistReading;
         this.nameSort = nameSort;
         this.nameReading = nameReading;
+        this.order = order;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
@@ -238,6 +241,14 @@ public class Album {
         this.nameSort = nameSort;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
+
     public String getMusicBrainzReleaseId() {
         return musicBrainzReleaseId;
     }
@@ -245,4 +256,5 @@ public class Album {
     public void setMusicBrainzReleaseId(String musicBrainzReleaseId) {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
+
 }

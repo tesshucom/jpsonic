@@ -23,7 +23,6 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.service.SettingsService;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -60,9 +59,10 @@ public class JpsonicComparators {
         return new JpComparator<Album>() {
             @Override
             public int compare(Album o1, Album o2) {
-                return getCollator().compare(
-                        StringUtils.defaultIfBlank(o1.getNameReading(), o1.getName()),
-                        StringUtils.defaultIfBlank(o2.getNameReading(), o2.getName()));
+                if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
+                    return o1.getOrder() - o2.getOrder();
+                }
+                return getCollator().compare(o1.getNameReading(), o2.getNameReading());
             }
         };
     }

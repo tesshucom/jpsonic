@@ -859,6 +859,17 @@ public class MediaFileService {
         }
     }
 
+    public void updateAlbumOrder() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        albums.sort(jpsonicComparator.naturalAlbumOrder());
+        int i = 0;
+        for (Album album : albums) {
+            album.setOrder(i++);
+            albumDao.createOrUpdateAlbum(album);
+        }
+    }
+
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
     }
