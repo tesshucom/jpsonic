@@ -197,7 +197,8 @@ public class MediaFileService {
      * @param sort               Whether to sort files in the same directory.
      * @return All children media files.
      */
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort, boolean useFastCache) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
+            boolean sort, boolean useFastCache) {
 
         if (!parent.isDirectory()) {
             return Collections.emptyList();
@@ -220,9 +221,7 @@ public class MediaFileService {
         }
 
         if (sort) {
-            Set<MediaFile> set = new TreeSet<MediaFile>(jpsonicComparator.mediaFileOrder(parent));
-            set.addAll(result);
-            result = new ArrayList<MediaFile>(set);
+            result.sort(jpsonicComparator.mediaFileOrder(parent));
         }
 
         return result;

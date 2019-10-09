@@ -114,9 +114,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public List<MediaFile> getChildren(MediaFile item) {
-        List<MediaFile> children = getMediaFileService().getChildrenOf(item, true, true, true);
-        children.sort((MediaFile o1, MediaFile o2) -> o1.getPath().replaceAll("\\W", "").compareToIgnoreCase(o2.getPath().replaceAll("\\W", "")));
-        return children;
+        return getMediaFileService().getChildrenOf(item, true, true, true);
     }
 
     public void addItem(DIDLContent didl, MediaFile item) {
