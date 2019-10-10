@@ -37,9 +37,9 @@ class JpMediaFileComparator implements MediaFileComparator {
 
     private final Comparator<Object> comparator;
 
-    public JpMediaFileComparator(boolean sortAlbumsByYear, boolean isAlphanum, Collator collator) {
+    JpMediaFileComparator(boolean sortAlbumsByYear, Collator collator) {
         this.sortAlbumsByYear = sortAlbumsByYear;
-        comparator = isAlphanum ? new AlphanumCollatorWrapper(collator) : collator;
+        comparator = collator;
     }
 
     public int compare(MediaFile a, MediaFile b) {

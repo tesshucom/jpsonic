@@ -43,15 +43,15 @@ public class JpsonicComparators {
     @Autowired
     private SettingsService settingsService;
 
-    public Comparator<Object> naturalOrder() {
+    public Collator naturalOrder() {
         Collator collator = collatorProvider.getCollator();
-        return settingsService.isSortAlphanum() ? new AlphanumCollatorWrapper(collator) : collator;
+        return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
 
     public Comparator<Artist> artistOrder() {
         return new Comparator<Artist>() {
 
-            private final Comparator<Object> c = naturalOrder();
+            private final Collator c = naturalOrder();
 
             @Override
             public int compare(Artist o1, Artist o2) {
@@ -66,7 +66,7 @@ public class JpsonicComparators {
     public Comparator<Album> albumOrder() {
         return new Comparator<Album>() {
 
-            private final Comparator<Object> c = naturalOrder();
+            private final Collator c = naturalOrder();
 
             @Override
             public int compare(Album o1, Album o2) {
@@ -90,8 +90,7 @@ public class JpsonicComparators {
 
         MediaFileComparator mediaFileComparator = new JpMediaFileComparator(
                 isSortAlbumsByYear,
-                settingsService.isSortAlphanum(),
-                settingsService.getCollator());
+                naturalOrder());
 
         return mediaFileComparator;
 

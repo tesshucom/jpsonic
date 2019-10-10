@@ -19,26 +19,24 @@
  */
 package com.tesshu.jpsonic.domain;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import java.text.CollationKey;
 import java.text.Collator;
-import java.util.Comparator;
 
 /**
  * Class to perform Collaror sort considering serial number.
  */
-public class AlphanumCollatorWrapper implements Comparator<Object> {
-    
-    private final Collator collator;
+class AlphanumWrapper extends Collator {
 
-    public AlphanumCollatorWrapper(Collator collator) {
-        this.collator = collator;
+    private final Collator deligate;
+
+    AlphanumWrapper(Collator collator) {
+        this.deligate = collator;
     }
 
-    public int compare(Object o1, Object o2) {
-        if ((o1 == null) || (o2 == null)) {
-            return 0;
-        }
-        String s1 = o1.toString();
-        String s2 = o2.toString();
+    public int compare(String s1, String s2) {
 
         int thisMarker = 0;
         int thatMarker = 0;
@@ -63,10 +61,10 @@ public class AlphanumCollatorWrapper implements Comparator<Object> {
                     }
                 }
             } else {
-                collator.compare(thisChunk, thatChunk);
-                result = null == collator
+                deligate.compare(thisChunk, thatChunk);
+                result = null == deligate
                         ? thisChunk.compareToIgnoreCase(thatChunk)
-                        : collator.compare(thisChunk, thatChunk);
+                        : deligate.compare(thisChunk, thatChunk);
             }
             if (result != 0)
                 return result;
@@ -102,5 +100,28 @@ public class AlphanumCollatorWrapper implements Comparator<Object> {
     private final boolean isDigit(char ch) {
         return ((ch >= 48) && (ch <= 57));
     }
+
+    @Override
+    public CollationKey getCollationKey(String source) {
+        return deligate.getCollationKey(source);
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder().append(deligate).toHashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof AlphanumWrapper)) {
+            return false;
+        }
+        AlphanumWrapper that = (AlphanumWrapper) o;
+        return new EqualsBuilder().appendSuper(super.equals(that)).append(that, that.deligate).isEquals();
+    }
+
 
 }

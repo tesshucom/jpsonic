@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
 
 import org.airsonic.player.domain.*;
@@ -46,6 +47,8 @@ public class MusicIndexService {
     private MediaFileService mediaFileService;
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
+    @Autowired
+    private JpsonicComparators comparators;
 
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
@@ -164,8 +167,8 @@ public class MusicIndexService {
         String[] shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
         Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
-        final Collator collator = settingsService.getCollator();
 
+        Collator c = comparators.naturalOrder();
         for (MusicFolder folder : folders) {
 
             MediaFile root = mediaFileService.getMediaFile(folder.getPath(), !refresh);
@@ -178,7 +181,7 @@ public class MusicIndexService {
                 String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(child), ignoredArticles);
                 MusicIndex.SortableArtistWithMediaFiles artist = artistMap.get(sortableName);
                 if (artist == null) {
-                    artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, collator);
+                    artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, c);
                     artistMap.put(sortableName, artist);
                 }
                 artist.addMediaFile(child);
@@ -191,12 +194,11 @@ public class MusicIndexService {
     private List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        final Collator collator = settingsService.getCollator();
+        Collator c = comparators.naturalOrder();
         for (Artist artist : artists) {
             String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
-            result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, collator));
+            result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, c));
         }
-
         return result;
     }
 
