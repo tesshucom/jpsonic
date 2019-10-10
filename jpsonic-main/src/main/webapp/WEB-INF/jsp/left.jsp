@@ -156,7 +156,7 @@
 
     <c:forEach items="${entry.value}" var="artist" varStatus="loop">
         <p class="dense<c:if test="${loop.last}"> last</c:if>" style="padding-left:2px">
-            <span title="${artist.name}">
+            <span title="${artist.sortableName}">
                 <sub:url value="main.view" var="mainUrl">
                     <c:forEach items="${artist.mediaFiles}" var="mediaFile">
                         <sub:param name="id" value="${mediaFile.id}"/>
