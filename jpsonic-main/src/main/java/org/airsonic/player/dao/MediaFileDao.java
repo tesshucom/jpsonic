@@ -230,6 +230,7 @@ public class MediaFileDao extends AbstractDao {
      * @param artistSort Update value.
      */
     @Transactional
+    @Deprecated
     public int updateArtistSort(String artist, String artistSort) {
         logger.trace("Updating media file at {}", artist);
         String sql = "update media_file set artist_sort = ? where artist = ? and type in (?, ?)";
@@ -731,6 +732,7 @@ public class MediaFileDao extends AbstractDao {
                 rowMapper, MediaFile.MediaType.ALBUM.name());
     }
 
+    @Deprecated
     public void clearSort() {
         update("update media_file set artist_sort = null where type in(?, ?) and present",
                 MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());

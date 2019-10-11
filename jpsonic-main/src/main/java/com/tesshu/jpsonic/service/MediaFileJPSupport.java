@@ -139,10 +139,10 @@ public class MediaFileJPSupport {
         String indexableName = mediaFile.getName();
         if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
             indexableName = mediaFile.getName();
-        } else if (!isEmpty(mediaFile.getArtistSort())) {
-            indexableName = createIndexableName(createReading(mediaFile.getArtistSort()));
         } else if (!isEmpty(mediaFile.getArtistReading())) {
             indexableName = mediaFile.getArtistReading();
+        } else if (!isEmpty(mediaFile.getArtistSort())) {
+            indexableName = createIndexableName(createReading(mediaFile.getArtistSort()));
         }
         return createIndexableName(indexableName);
     }
@@ -151,10 +151,10 @@ public class MediaFileJPSupport {
         String indexableName = artist.getName();
         if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
             indexableName = artist.getName();
-        } else if (!isEmpty(artist.getSort())) {
-            indexableName = createIndexableName(createReading(artist.getSort()));
         } else if (!isEmpty(artist.getReading())) {
             indexableName = artist.getReading();
+        } else if (!isEmpty(artist.getSort())) {
+            indexableName = createIndexableName(createReading(artist.getSort()));
         }
         return createIndexableName(indexableName);
     }
@@ -163,6 +163,7 @@ public class MediaFileJPSupport {
         List<MediaFile> toBeUpdate = new ArrayList<>();
         for (MediaFile candidate : candidates) {
             if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
+                candidate.setId(candidate.getId());
                 candidate.setArtistSort(candidate.getArtistSort());
                 toBeUpdate.add(candidate);
             }

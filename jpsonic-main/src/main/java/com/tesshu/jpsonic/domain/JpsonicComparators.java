@@ -63,7 +63,8 @@ public class JpsonicComparators {
         };
     }
 
-    public Comparator<Album> albumOrder() {
+
+    public Comparator<Album> albumAlphabeticalOrder() {
         return new Comparator<Album>() {
 
             private final Collator c = naturalOrder();
@@ -71,6 +72,25 @@ public class JpsonicComparators {
             @Override
             public int compare(Album o1, Album o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
+                    return o1.getOrder() - o2.getOrder();
+                }
+                return c.compare(o1.getNameReading(), o2.getNameReading());
+            }
+        };
+    }
+    
+    public Comparator<Album> albumOrder() {
+        return new Comparator<Album>() {
+
+            private final Comparator<Object> c = naturalOrder();
+
+            private final boolean isByYear = settingsService.isSortAlbumsByYear();
+
+            @Override
+            public int compare(Album o1, Album o2) {
+                if (isByYear && !isEmpty(o1.getYear())) {
+                    return o1.getYear().compareTo(o2.getYear());
+                } else if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
                 return c.compare(o1.getNameReading(), o2.getNameReading());

@@ -219,8 +219,7 @@ public class ArtistDao extends AbstractDao {
         }
     }
 
-    public void clearSortAndOrder() {
-        update("update artist set sort = null");
+    public void clearOrder() {
         update("update artist set _order = -1");
     }
 

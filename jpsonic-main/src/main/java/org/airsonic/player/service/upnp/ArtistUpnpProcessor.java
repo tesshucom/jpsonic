@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -50,6 +51,8 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Autowired
     SettingsService settingsService;
+    
+    private @Autowired JpsonicComparators comparators;
 
     public ArtistUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ARTIST_PREFIX);
@@ -82,6 +85,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     public  List<Album> getChildren(Artist artist) {
         List<MusicFolder> allFolders = getDispatcher().getSettingsService().getAllMusicFolders();
         List<Album> allAlbums = getAlbumProcessor().getAlbumDao().getAlbumsForArtist(artist.getName(), allFolders);
+        allAlbums.sort(comparators.albumOrder());
         if (allAlbums.size() > 1) {
             // if the artist has more than one album, add in an option to
             // view the tracks in all the albums together
@@ -91,6 +95,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
             viewAll.setComment(AlbumUpnpProcessor.ALL_BY_ARTIST + "_" + artist.getId());
             allAlbums.add(0, viewAll);
         }
+        
         return allAlbums;
     }
 
