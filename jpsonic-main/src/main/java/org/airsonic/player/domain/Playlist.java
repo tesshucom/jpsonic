@@ -38,6 +38,7 @@ public class Playlist {
     private Date created;
     private Date changed;
     private String importedFrom;
+    private transient String reading;
 
     public Playlist() {
     }
@@ -139,4 +140,13 @@ public class Playlist {
     public void setImportedFrom(String importedFrom) {
         this.importedFrom = importedFrom;
     }
+
+    public String getReading() {
+        return reading;
+    }
+
+    public void setReading(String reading) {
+        this.reading = reading;
+    }
+
 }

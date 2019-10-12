@@ -24,6 +24,7 @@ import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -112,6 +113,10 @@ public class MediaFileJPSupport {
                 createReading(isEmpty(m.getAlbumArtistSort()) ? m.getAlbumArtist() : m.getAlbumArtistSort()));
         m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort()));
         m.setAlbumReading(createReading(isEmpty(m.getAlbumSort()) ? m.getAlbumName() : m.getAlbumSort()));
+    }
+    
+    public void analyze(Playlist p) {
+        p.setReading(isEmpty(p.getReading()) ? createReading(p.getName()) : p.getReading());
     }
 
     public void clear() {

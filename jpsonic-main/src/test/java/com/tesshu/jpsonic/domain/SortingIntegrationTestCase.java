@@ -25,24 +25,30 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.SortedMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.PlayQueue.SortOrder;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
+import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.upnp.PlaylistUpnpProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,20 +59,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
-    private static List<String> indexList = Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ",
-            "いうえおあ", "ｴｵｱｲｳ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ",
-            "♂くんつ");
-    private static List<String> jPSonicNaturalList = Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾",
-            "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る",
-            "はるなつあきふゆ", "♂くんつ");
-    private static List<String> alphaNumList = Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius",
-            "20X Radonius Prime", "30X Radonius", "40X Radonius", "200X Radonius", "1000X Radonius Maximus",
-            "Allegia 6R Clasteron", "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron",
-            "Allegia 500 Clasteron", "Alpha 2", "Alpha 2A", "Alpha 2A-900", "Alpha 2A-8000", "Alpha 100", "Alpha 200",
-            "Callisto Morphamax", "Callisto Morphamax 500", "Callisto Morphamax 600", "Callisto Morphamax 700",
-            "Callisto Morphamax 5000", "Callisto Morphamax 6000 SE", "Callisto Morphamax 6000 SE2",
-            "Callisto Morphamax 7000", "Xiph Xlater 5", "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58",
-            "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000");
+
+    private static List<String> indexList = Collections.unmodifiableList(
+            Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ｴｵｱｲｳ", "オアイウエ",
+                    "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "♂くんつ"));
+
+    private static List<String> jPSonicNaturalList = Collections.unmodifiableList(
+            Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ",
+                    "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));;
+
+    private static List<String> alphaNumList = Collections
+            .unmodifiableList(Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime",
+                    "30X Radonius", "40X Radonius", "200X Radonius", "1000X Radonius Maximus", "Allegia 6R Clasteron",
+                    "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron", "Allegia 500 Clasteron",
+                    "Alpha 2", "Alpha 2A", "Alpha 2A-900", "Alpha 2A-8000", "Alpha 100", "Alpha 200",
+                    "Callisto Morphamax", "Callisto Morphamax 500", "Callisto Morphamax 600", "Callisto Morphamax 700",
+                    "Callisto Morphamax 5000", "Callisto Morphamax 6000 SE", "Callisto Morphamax 6000 SE2",
+                    "Callisto Morphamax 7000", "Xiph Xlater 5", "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58",
+                    "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000"));
 
     {
         musicFolders = new ArrayList<>();
@@ -90,6 +100,15 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     private MediaFileService mediaFileService;
 
     @Autowired
+    private PlaylistDao playlistDao;
+    
+    @Autowired
+    private PlaylistService playlistService;
+
+    @Autowired
+    private PlaylistUpnpProcessor playlistUpnpProcessor;
+    
+    @Autowired
     private JpsonicComparators comparators;
 
     @Override
@@ -100,6 +119,25 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     @Before
     public void setup() throws Exception {
         populateDatabaseOnlyOnce();
+
+        Function<String, Playlist> toPlaylist = (title) -> {
+            Date now = new Date();
+            Playlist playlist = new Playlist();
+            playlist.setName(title);
+            playlist.setUsername("admin");
+            playlist.setCreated(now);
+            playlist.setChanged(now);
+            playlist.setShared(false);
+            return playlist;
+        };
+
+        if (0 == playlistDao.getAllPlaylists().size()) {
+            List<String> shallow = new ArrayList<>();
+            shallow.addAll(jPSonicNaturalList);
+            Collections.shuffle(shallow);
+            shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
+        }
+
     }
 
     public static boolean validateIndexList(List<String> l) {
@@ -348,6 +386,18 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         playQueue.sort(SortOrder.ARTIST, comparators.naturalOrder());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateAlphaNumList(artists));
+    }
+
+    @Test
+    public void testPlaylistServiceGetAll() throws Exception {
+        List<Playlist> all = playlistService.getAllPlaylists();
+        assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
+    }
+
+    @Test
+    public void testPlaylistUpnpGetAll() throws Exception {
+        List<Playlist> all = playlistUpnpProcessor.getAllItems();
+        assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
     }
 
     /*

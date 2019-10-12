@@ -22,6 +22,7 @@ package org.airsonic.player.service;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -68,6 +69,8 @@ public class PlaylistService {
     private List<PlaylistExportHandler> exportHandlers;
     @Autowired
     private List<PlaylistImportHandler> importHandlers;
+    @Autowired
+    private JpsonicComparators comparators;
 
     public PlaylistService(
             MediaFileDao mediaFileDao,
@@ -110,7 +113,7 @@ public class PlaylistService {
     }
 
     private List<Playlist> sort(List<Playlist> playlists) {
-        Collections.sort(playlists, new PlaylistComparator());
+        Collections.sort(playlists, comparators.playlistOrder());
         return playlists;
     }
 
@@ -303,10 +306,4 @@ public class PlaylistService {
         }
     }
 
-    private static class PlaylistComparator implements Comparator<Playlist> {
-        @Override
-        public int compare(Playlist p1, Playlist p2) {
-            return p1.getName().compareTo(p2.getName());
-        }
-    }
 }

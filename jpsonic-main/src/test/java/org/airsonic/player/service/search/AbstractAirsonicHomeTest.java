@@ -16,6 +16,8 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.DirtiesContext;
@@ -33,6 +35,8 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  * Abstract class for scanning MusicFolder.
  */
 public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAirsonicHomeTest.class);
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -102,7 +106,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                 e.printStackTrace();
             }
             TestCaseUtils.execScan(mediaScannerService);
-            System.out.println("--- Report of records count per table ---");
+            LOG.debug("--- Report of records count per table ---");
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
             records.keySet().stream().filter(s ->
                     s.equals("MEDIA_FILE")
@@ -112,7 +116,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     | s.equals("GENRE"))
                     .forEach(tableName ->
                         System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
-            System.out.println("--- *********************** ---");
+            LOG.debug("--- *********************** ---");
             try {
                 // Await for Lucene to finish writing(asynchronous).
                 for (int i = 0; i < 5; i++) {

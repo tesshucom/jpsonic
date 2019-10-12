@@ -18,10 +18,12 @@
  */
 package com.tesshu.jpsonic.domain;
 
+import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
+import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,9 @@ public class JpsonicComparators {
 
     @Autowired
     private SettingsService settingsService;
+    
+    @Autowired
+    private MediaFileJPSupport mediaFileJPSupport;
 
     public Collator naturalOrder() {
         Collator collator = collatorProvider.getCollator();
@@ -114,6 +119,20 @@ public class JpsonicComparators {
 
         return mediaFileComparator;
 
+    }
+
+    public Comparator<Playlist> playlistOrder() {
+        return new Comparator<Playlist>() {
+
+            private final Comparator<Object> c = naturalOrder();
+
+            @Override
+            public int compare(Playlist o1, Playlist o2) {
+                mediaFileJPSupport.analyze(o1);
+                mediaFileJPSupport.analyze(o2);
+                return c.compare(o1.getReading(), o2.getReading());
+            }
+        };
     }
 
 }
