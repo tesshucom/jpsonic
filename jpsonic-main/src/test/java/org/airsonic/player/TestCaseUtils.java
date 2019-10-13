@@ -1,9 +1,12 @@
 package org.airsonic.player;
 
+import org.airsonic.player.controller.AvatarUploadController;
 import org.airsonic.player.controller.JAXBWriter;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.service.MediaScannerService;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -17,6 +20,8 @@ import java.util.stream.Collectors;
 public class TestCaseUtils {
 
   private static File jpsonicHomeDirForTest = null;
+
+  private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
 
   /**
    * Returns the path of the JPSONIC_HOME directory to use for tests.
@@ -33,7 +38,7 @@ public class TestCaseUtils {
       } catch (IOException e) {
         throw new RuntimeException("Error while creating temporary JPSONIC_HOME directory for tests");
       }
-      System.out.println("JPSONIC_HOME directory will be "+jpsonicHomeDirForTest.getAbsolutePath());
+      LOG.info("JPSONIC_HOME directory will be "+jpsonicHomeDirForTest.getAbsolutePath());
     }
     return jpsonicHomeDirForTest.getAbsolutePath();
   }
