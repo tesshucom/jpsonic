@@ -33,6 +33,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.airsonic.player.dao.PlaylistDao;
+import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.MusicFolder;
@@ -49,6 +50,7 @@ import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.RecentAlbumUpnpProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +109,9 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
     private PlaylistUpnpProcessor playlistUpnpProcessor;
+    
+    @Autowired
+    private RecentAlbumUpnpProcessor recentAlbumUpnpProcessor;
     
     @Autowired
     private JpsonicComparators comparators;
@@ -400,6 +405,28 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
     }
 
+    /*
+     * #305 #313 This case shows green, but Web / DNLA display may be different when
+     * compared on the screen.
+     */
+    @Test
+    public void testRecentAlbum() throws Exception {
+
+        int count = 10;
+
+        // The first element is fixed to "-All Albums-"
+        List<Album> upnpNewests = recentAlbumUpnpProcessor.getAllItems().subList(1, 11);
+
+        List<MediaFile> serviceNewests = mediaFileService.getNewestAlbums(0, count, musicFolders);
+
+        assertEquals(upnpNewests.size(), serviceNewests.size());
+
+        for (int i = 0; i < count; i++) {
+            assertEquals("Recent　(" + count + ") : ", upnpNewests.get(i).getName(), serviceNewests.get(i).getName());
+        }
+
+    }
+    
     /*
      * DB dependent. Sort rules vary depending on the DB.
      */
