@@ -40,23 +40,20 @@ public class JpsonicComparators {
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
     @Autowired
-    private CollatorProvider collatorProvider;
-
-    @Autowired
     private SettingsService settingsService;
-    
+
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
 
-    public Collator naturalOrder() {
-        Collator collator = collatorProvider.getCollator();
+    public Collator createCollator() {
+        Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
 
     public Comparator<Artist> artistOrder() {
         return new Comparator<Artist>() {
 
-            private final Collator c = naturalOrder();
+            private final Collator c = createCollator();
 
             @Override
             public int compare(Artist o1, Artist o2) {
@@ -68,11 +65,10 @@ public class JpsonicComparators {
         };
     }
 
-
     public Comparator<Album> albumAlphabeticalOrder() {
         return new Comparator<Album>() {
 
-            private final Collator c = naturalOrder();
+            private final Collator c = createCollator();
 
             @Override
             public int compare(Album o1, Album o2) {
@@ -83,11 +79,11 @@ public class JpsonicComparators {
             }
         };
     }
-    
+
     public Comparator<Album> albumOrder() {
         return new Comparator<Album>() {
 
-            private final Comparator<Object> c = naturalOrder();
+            private final Comparator<Object> c = createCollator();
 
             private final boolean isByYear = settingsService.isSortAlbumsByYear();
 
@@ -113,9 +109,7 @@ public class JpsonicComparators {
                 && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));
 
-        MediaFileComparator mediaFileComparator = new JpMediaFileComparator(
-                isSortAlbumsByYear,
-                naturalOrder());
+        MediaFileComparator mediaFileComparator = new JpMediaFileComparator(isSortAlbumsByYear, createCollator());
 
         return mediaFileComparator;
 
@@ -124,7 +118,7 @@ public class JpsonicComparators {
     public Comparator<Playlist> playlistOrder() {
         return new Comparator<Playlist>() {
 
-            private final Comparator<Object> c = naturalOrder();
+            private final Comparator<Object> c = createCollator();
 
             @Override
             public int compare(Playlist o1, Playlist o2) {

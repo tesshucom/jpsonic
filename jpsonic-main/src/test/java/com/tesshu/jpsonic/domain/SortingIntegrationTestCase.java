@@ -337,7 +337,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, comparators.naturalOrder());
+        playQueue.sort(SortOrder.ALBUM, comparators.createCollator());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertTrue(validateJPSonicNaturalList(albums));
     }
@@ -354,7 +354,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, comparators.naturalOrder());
+        playQueue.sort(SortOrder.ALBUM, comparators.createCollator());
         List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
         assertTrue(validateAlphaNumList(albums));
     }
@@ -371,7 +371,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, comparators.naturalOrder());
+        playQueue.sort(SortOrder.ARTIST, comparators.createCollator());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateJPSonicNaturalList(artists));
     }
@@ -388,7 +388,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, comparators.naturalOrder());
+        playQueue.sort(SortOrder.ARTIST, comparators.createCollator());
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateAlphaNumList(artists));
     }

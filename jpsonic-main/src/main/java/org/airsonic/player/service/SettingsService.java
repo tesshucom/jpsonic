@@ -19,7 +19,6 @@
  */
 package org.airsonic.player.service;
 
-import com.tesshu.jpsonic.domain.CollatorProvider;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MusicFolderDao;
@@ -40,7 +39,6 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.Collator;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -54,7 +52,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * @author Sindre Mehus
  */
 @Service
-public class SettingsService implements CollatorProvider {
+public class SettingsService {
 
     // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
@@ -870,11 +868,6 @@ public class SettingsService implements CollatorProvider {
         setProperty(KEY_LOCALE_LANGUAGE, locale.getLanguage());
         setProperty(KEY_LOCALE_COUNTRY, locale.getCountry());
         setProperty(KEY_LOCALE_VARIANT, locale.getVariant());
-    }
-
-    @Override
-    public Collator getCollator() {
-        return Collator.getInstance(getLocale());
     }
 
     /**
