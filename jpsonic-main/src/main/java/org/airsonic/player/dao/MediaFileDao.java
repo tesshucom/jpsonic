@@ -42,7 +42,7 @@ import java.util.*;
  */
 @Repository
 public class MediaFileDao extends AbstractDao {
-    private static final Logger logger = LoggerFactory.getLogger(MediaFileDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
@@ -56,8 +56,8 @@ public class MediaFileDao extends AbstractDao {
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
-    private final RowMapper musicFileInfoRowMapper = new MusicFileInfoMapper();
-    private final RowMapper genreRowMapper = new GenreMapper();
+    private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
+    private final RowMapper<Genre> genreRowMapper = new GenreMapper();
     private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
     private final RowMapper<MediaFile> albumSortCandidateMapper = new AlbumSortCandidateMapper();
 
@@ -137,7 +137,7 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public void createOrUpdateMediaFile(MediaFile file) {
-        logger.trace("Creating/Updating new media file at {}", file.getPath());
+        LOG.trace("Creating/Updating new media file at {}", file.getPath());
         String sql = "update media_file set " +
                      "folder=?," +
                      "type=?," +
@@ -178,7 +178,7 @@ public class MediaFileDao extends AbstractDao {
                      "album_artist_reading=? " +
                      "where path=?";
 
-        logger.trace("Updating media file {}", Util.debugObject(file));
+        LOG.trace("Updating media file {}", Util.debugObject(file));
 
         int n = update(sql,
                        file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(), file.getAlbumName(), file.getArtist(),
@@ -231,9 +231,9 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public int updateArtistSort(String artist, String artistSort) {
-        logger.trace("Updating media file at {}", artist);
+        LOG.trace("Updating media file at {}", artist);
         String sql = "update media_file set artist_sort = ? where artist = ? and type in (?, ?)";
-        logger.trace("Updating media file {}", artist);
+        LOG.trace("Updating media file {}", artist);
         return update(sql, artistSort, artist, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
 
@@ -244,9 +244,9 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public int updateAlbumSort(String album, String albumSort) {
-        logger.trace("Updating media file at {}", album);
+        LOG.trace("Updating media file at {}", album);
         String sql = "update media_file set album_sort = ? where album = ? and type = ?";
-        logger.trace("Updating media file {}", album);
+        LOG.trace("Updating media file {}", album);
         return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
     }
 
@@ -257,9 +257,9 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public int updateAlbumArtistSort(String artist, String albumArtistSort) {
-        logger.trace("Updating media file at {}", artist);
+        LOG.trace("Updating media file at {}", artist);
         String sql = "update media_file set album_artist_sort = ? where artist = ? and artist_reading <> ? and type in (?, ?)";
-        logger.trace("Updating media file {}", artist);
+        LOG.trace("Updating media file {}", artist);
         return update(sql, albumArtistSort, artist, albumArtistSort, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
 

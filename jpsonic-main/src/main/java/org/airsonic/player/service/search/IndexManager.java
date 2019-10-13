@@ -53,7 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -125,10 +125,10 @@ public class IndexManager {
 
     @Autowired
     private SearchServiceUtilities util;
-    
-    private Map<IndexType, SearcherManager> searchers = new HashMap<>();
 
-    private Map<IndexType, IndexWriter> writers = new HashMap<>();
+    private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
+
+    private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
