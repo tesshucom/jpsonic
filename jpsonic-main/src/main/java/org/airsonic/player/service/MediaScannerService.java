@@ -218,6 +218,9 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
+
+            LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+
             // Update artistSort
             mediaFileService.updateArtistSort();
 
@@ -229,8 +232,12 @@ public class MediaScannerService {
 
             // Update order
             if (settingsService.isSortStrict()) {
+                LOG.info(
+                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
                 mediaFileService.updateArtistOrder();
                 mediaFileService.updateAlbumOrder();
+            } else {
+                LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
             }
 
             settingsService.setMediaLibraryStatistics(statistics);

@@ -754,13 +754,9 @@ public class MediaFileService {
         }
         LOG.info("{} records of artist-sort were updated.", toBeUpdates.size());
 
+        // The following processes require testing
+
         int maybe = 0;
-
-        /*
-         * 
-         */
-
-        // mediaFileDao.clearSort();
 
         List<Artist> candidatesid3 = artistDao.getSortCandidate();
         for (Artist candidate : candidatesid3) {
@@ -804,16 +800,17 @@ public class MediaFileService {
         List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
-        int updated = 0;
         for (MediaFile toBeUpdate : toBeUpdates) {
             // update db
-            updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
+            mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
             // update index
             MediaFile album = mediaFileDao.getMediaFile(toBeUpdate.getId());
             indexManager.index(album);
         }
-        LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. " + updated + " rows reversal.");
+        LOG.info("{} records of album-sort were updated.", toBeUpdates.size());
 
+        // The following processes require testing
+        
         List<Artist> sortedArtists = artistDao.getSortedArtists();
         int maybe = 0;
         for (Artist artist : sortedArtists) {
