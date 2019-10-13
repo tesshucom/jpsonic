@@ -181,12 +181,16 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return rootTitle;
     }
 
-    public void setRootTitleWithResource(String key) {
+    public String getResource(String key) {
         if (null == resourceBundle) {
             resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle",
                     settingsService.getLocale());
         }
-        setRootTitle(resourceBundle.getString(key));
+        return resourceBundle.getString(key);
+    }
+
+    public void setRootTitleWithResource(String key) {
+        setRootTitle(getResource(key));
     }
 
     public void setRootTitle(String rootTitle) {

@@ -90,7 +90,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
             // if the artist has more than one album, add in an option to
             // view the tracks in all the albums together
             Album viewAll = new Album();
-            viewAll.setName("- All Albums -");
+            viewAll.setName(getResource("dnla.element.allalbums"));
             viewAll.setId(-1);
             viewAll.setComment(AlbumUpnpProcessor.ALL_BY_ARTIST + "_" + artist.getId());
             allAlbums.add(0, viewAll);

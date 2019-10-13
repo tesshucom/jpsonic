@@ -77,7 +77,7 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
             // if there is more than one recent album, add in an option to
             // view the tracks in all the recent albums together
             Album viewAll = new Album();
-            viewAll.setName("- All Albums -");
+            viewAll.setName(getResource("dnla.element.allalbums"));
             viewAll.setId(-1);
             viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT);
             recentAlbums.add(0, viewAll);
