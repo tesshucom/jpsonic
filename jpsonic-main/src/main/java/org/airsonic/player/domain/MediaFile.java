@@ -77,6 +77,7 @@ public class MediaFile {
     private String musicBrainzReleaseId;
     private String composer;
     private String composerSort;
+    private int order;
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
@@ -84,7 +85,7 @@ public class MediaFile {
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
                      Date childrenLastUpdated, boolean present, int version,
                      String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading,
-                     String musicBrainzReleaseId, String composer, String composerSort, String albumArtistReading) {
+                     String musicBrainzReleaseId, String composer, String composerSort, String albumArtistReading, int order) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -124,7 +125,8 @@ public class MediaFile {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.composer = composer;
         this.composerSort = composerSort;
-        this.albumArtistReading = albumArtistReading; 
+        this.albumArtistReading = albumArtistReading;
+        this.order = order;
     }
 
     public MediaFile() {
@@ -543,6 +545,14 @@ public class MediaFile {
 
     public void setAlbumArtistReading(String albumArtistReading) {
         this.albumArtistReading = albumArtistReading;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 
     @Override

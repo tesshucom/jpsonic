@@ -2,28 +2,55 @@
         xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
-    <changeSet id="add-order_001" author="tesshu">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="artist" columnName="_order"  />
-            </not>
-        </preConditions>
-        <addColumn tableName="artist">
-            <column name="_order" type="int">
-                <constraints nullable="false" />
-            </column>
-        </addColumn>
-    </changeSet>
-    <changeSet id="add-order_002" author="tesshu">
-        <preConditions onFail="MARK_RAN">
-            <not>
-                <columnExists tableName="album" columnName="_order"  />
-            </not>
-        </preConditions>
-        <addColumn tableName="album">
-            <column name="_order" type="int">
-                <constraints nullable="false" />
-            </column>
-        </addColumn>
-    </changeSet>
+
+	<changeSet id="add-order_001" author="tesshu">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<columnExists tableName="artist" columnName="_order" />
+			</not>
+		</preConditions>
+		<addColumn tableName="artist">
+			<column name="_order" type="int">
+				<constraints nullable="true" />
+			</column>
+		</addColumn>
+	</changeSet>
+	<changeSet id="add-order_002" author="tesshu">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<columnExists tableName="album" columnName="_order" />
+			</not>
+		</preConditions>
+		<addColumn tableName="album">
+			<column name="_order" type="int">
+				<constraints nullable="true" />
+			</column>
+		</addColumn>
+	</changeSet>
+	<changeSet id="add-order_003" author="tesshu">
+		<preConditions onFail="MARK_RAN">
+			<not>
+				<columnExists tableName="media_File"
+					columnName="_order" />
+			</not>
+		</preConditions>
+		<addColumn tableName="media_File">
+			<column name="_order" type="int">
+				<constraints nullable="true" />
+			</column>
+		</addColumn>
+	</changeSet>
+	<changeSet id="add-order_004" author="tesshu">
+		<addNotNullConstraint tableName="artist"
+			columnName="_order" columnDataType="int" defaultNullValue="-1" />
+	</changeSet>
+	<changeSet id="add-order_005" author="tesshu">
+		<addNotNullConstraint tableName="album"
+			columnName="_order" columnDataType="int" defaultNullValue="-1" />
+	</changeSet>
+	<changeSet id="add-order_006" author="tesshu">
+		<addNotNullConstraint tableName="media_File"
+			columnName="_order" columnDataType="int" defaultNullValue="-1" />
+	</changeSet>
+
 </databaseChangeLog>
