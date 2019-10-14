@@ -91,7 +91,7 @@ public class IndexManager {
     /**
      * Literal name of index top directory.
      */
-    private static final String INDEX_ROOT_DIR_NAME = "index";
+    private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
     /**
      * File supplier for index directory.
@@ -333,8 +333,9 @@ public class IndexManager {
     public void deleteOldIndexFiles() {
 
         // Delete legacy files unconditionally
-        Arrays.stream(SettingsService.getJpsonicHome()
-                .listFiles((file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches())).forEach(old -> {
+        Arrays.stream(SettingsService.getJpsonicHome().listFiles(
+            (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
+                .forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found legacy index file. Try to delete : {}", old.getAbsolutePath());
                         try {
@@ -352,9 +353,9 @@ public class IndexManager {
 
         // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome()
-                .listFiles((file, name) -> Pattern.compile("^index\\d+$").matcher(name).matches()))
-                .filter(dir -> !dir.getName().equals(rootIndexDirectory.get().getName()))
-                .forEach(old -> {
+                .listFiles(
+                    (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
+                .filter(dir -> !dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
                         try {
