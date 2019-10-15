@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
 
 import org.airsonic.player.domain.*;
@@ -28,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.text.Collator;
 import java.util.*;
@@ -47,6 +47,8 @@ public class MusicIndexService {
     private MediaFileService mediaFileService;
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
+    @Autowired
+    private JpsonicComparators comparators;
 
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
@@ -54,25 +56,24 @@ public class MusicIndexService {
      * @param folders The music folders.
      * @param refresh Whether to look for updates by checking the last-modified timestamp of the music folders.
      * @return A map from music indexes to sets of artists that are direct children of this music file.
-     * @throws IOException If an I/O error occurs.
      */
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(List<MusicFolder> folders, boolean refresh) throws IOException {
+    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(List<MusicFolder> folders, boolean refresh) {
         List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders, refresh);
         return sortArtists(artists);
     }
 
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedArtists(List<Artist> artists) throws IOException {
+    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> getIndexedArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> sortableArtists = createSortableArtists(artists);
         return sortArtists(sortableArtists);
     }
 
-    public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse, boolean refresh) throws Exception {
+    public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse, boolean refresh) {
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(musicFoldersToUse, refresh);
         List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse, refresh);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
 
-    private List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) throws IOException {
+    private List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
         List<MediaFile> result = new ArrayList<MediaFile>();
         for (MusicFolder folder : folders) {
             MediaFile parent = mediaFileService.getMediaFile(folder.getPath(), !refresh);
@@ -102,11 +103,7 @@ public class MusicIndexService {
 
         for (T artist : artists) {
             MusicIndex index = getIndex(artist, indexes);
-            List<T> artistSet = result.get(index);
-            if (artistSet == null) {
-                artistSet = new ArrayList<T>();
-                result.put(index, artistSet);
-            }
+            List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<T>());
             artistSet.add(artist);
         }
 
@@ -165,13 +162,13 @@ public class MusicIndexService {
         return result;
     }
 
-    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) throws IOException {
+    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
         Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
-        Collator collator = createCollator();
 
+        Collator c = comparators.createCollator();
         for (MusicFolder folder : folders) {
 
             MediaFile root = mediaFileService.getMediaFile(folder.getPath(), !refresh);
@@ -184,7 +181,7 @@ public class MusicIndexService {
                 String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(child), ignoredArticles);
                 MusicIndex.SortableArtistWithMediaFiles artist = artistMap.get(sortableName);
                 if (artist == null) {
-                    artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, collator);
+                    artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, c);
                     artistMap.put(sortableName, artist);
                 }
                 artist.addMediaFile(child);
@@ -197,20 +194,12 @@ public class MusicIndexService {
     private List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        Collator collator = createCollator();
+        Collator c = comparators.createCollator();
         for (Artist artist : artists) {
             String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
-            result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, collator));
+            result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, c));
         }
-
         return result;
-    }
-
-    /**
-     * Returns a collator to be used when sorting artists.
-     */
-    private Collator createCollator() {
-        return Collator.getInstance(settingsService.getLocale());
     }
 
     private String createSortableName(String name, String[] ignoredArticles) {
@@ -251,6 +240,8 @@ public class MusicIndexService {
     }
 
     private static class MusicIndexComparator implements Comparator<MusicIndex>, Serializable {
+
+        private static final long serialVersionUID = 1L;
 
         private List<MusicIndex> indexes;
 

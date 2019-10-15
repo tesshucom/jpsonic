@@ -19,8 +19,9 @@
  */
 package org.airsonic.player.ajax;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlayQueueDao;
@@ -58,6 +59,8 @@ public class PlayQueueService {
     private TranscodingService transcodingService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private JpsonicComparators comparators;
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
@@ -275,13 +278,7 @@ public class PlayQueueService {
         }
 
         // Remove non-present files
-        Iterator<MediaFile> iterator = files.iterator();
-        while (iterator.hasNext()) {
-            MediaFile file = iterator.next();
-            if (!file.isPresent()) {
-                iterator.remove();
-            }
-        }
+        files.removeIf(file -> !file.isPresent());
         Player player = getCurrentPlayer(request, response);
         return doPlay(request, player, files).setStartPlayerAt(0);
     }
@@ -357,12 +354,7 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
         List<PodcastEpisode> episodes = podcastService.getNewestEpisodes(10);
-        List<MediaFile> files = Lists.transform(episodes, new Function<PodcastEpisode, MediaFile>() {
-            @Override
-            public MediaFile apply(PodcastEpisode episode) {
-                return mediaFileService.getMediaFile(episode.getMediaFileId());
-            }
-        });
+        List<MediaFile> files = Lists.transform(episodes, episode -> mediaFileService.getMediaFile(episode.getMediaFileId()));
 
         String username = securityService.getCurrentUsername(request);
         boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();
@@ -435,7 +427,7 @@ public class PlayQueueService {
         return doPlay(request, player, songs).setStartPlayerAt(0);
     }
 
-    private PlayQueueInfo doPlay(HttpServletRequest request, Player player, List<MediaFile> files) throws Exception {
+    private PlayQueueInfo doPlay(HttpServletRequest request, Player player, List<MediaFile> files) {
         if (player.isWeb()) {
             mediaFileService.removeVideoFiles(files);
         }
@@ -448,7 +440,7 @@ public class PlayQueueService {
         return convert(request, player, true);
     }
 
-    private PlayQueueInfo doPlayInternetRadio(HttpServletRequest request, Player player, InternetRadio radio) throws Exception {
+    private PlayQueueInfo doPlayInternetRadio(HttpServletRequest request, Player player, InternetRadio radio) {
         internetRadioService.clearInternetRadioSourceCache(radio.getId());
         player.getPlayQueue().clear();
         player.getPlayQueue().setRandomSearchCriteria(null);
@@ -501,7 +493,7 @@ public class PlayQueueService {
     /**
      * TODO This method should be moved to a real PlayQueueService not dedicated to Ajax DWR.
      */
-    public PlayQueue addMediaFilesToPlayQueue(PlayQueue playQueue,int[] ids, Integer index, boolean removeVideoFiles) throws Exception {
+    public PlayQueue addMediaFilesToPlayQueue(PlayQueue playQueue,int[] ids, Integer index, boolean removeVideoFiles) {
         List<MediaFile> files = new ArrayList<MediaFile>(ids.length);
         for (int id : ids) {
             MediaFile ancestor = mediaFileService.getMediaFile(id);
@@ -533,7 +525,7 @@ public class PlayQueueService {
     /**
      * TODO This method should be moved to a real PlayQueueService not dedicated to Ajax DWR.
      */
-    public PlayQueue resetPlayQueue(PlayQueue playQueue,int[] ids, boolean removeVideoFiles) throws Exception {
+    public PlayQueue resetPlayQueue(PlayQueue playQueue,int[] ids, boolean removeVideoFiles) {
         MediaFile currentFile = playQueue.getCurrentFile();
         PlayQueue.Status status = playQueue.getStatus();
 
@@ -658,7 +650,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, settingsService.isSortAlphanum());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, comparators.createCollator());
         return convert(request, player, false);
     }
 
@@ -666,15 +658,15 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, settingsService.isSortAlphanum());
+        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, comparators.createCollator());
         return convert(request, player, false);
     }
 
-    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) throws Exception {
+    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) {
         return convert(request, player, serverSidePlaylist, 0);
     }
 
-    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist, int offset) throws Exception {
+    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist, int offset) {
 
         String url = NetworkService.getBaseUrl(request);
         Locale locale = RequestContextUtils.getLocale(request);
@@ -734,7 +726,7 @@ public class PlayQueueService {
         return entries;
     }
 
-    private List<PlayQueueInfo.Entry> convertInternetRadio(HttpServletRequest request, Player player) throws Exception {
+    private List<PlayQueueInfo.Entry> convertInternetRadio(HttpServletRequest request, Player player) {
 
         PlayQueue playQueue = player.getPlayQueue();
         InternetRadio radio = playQueue.getInternetRadio();

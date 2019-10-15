@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
 import org.apache.commons.lang3.BooleanUtils;
@@ -53,6 +54,9 @@ public class MainController  {
     private PlayerService playerService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private JpsonicComparators jpsonicComparator;
+
     @Autowired
     private RatingService ratingService;
     @Autowired
@@ -252,7 +256,7 @@ public class MainController  {
     }
 
     private List<MediaFile> getMultiFolderChildren(List<MediaFile> mediaFiles) throws IOException {
-        SortedSet<MediaFile> result = new TreeSet<>(new MediaFileComparator(settingsService.isSortAlbumsByYear()));
+        SortedSet<MediaFile> result = new TreeSet<>(jpsonicComparator.mediaFileOrder());
         for (MediaFile mediaFile : mediaFiles) {
             if (mediaFile.isFile()) {
                 mediaFile = mediaFileService.getParentOf(mediaFile);
@@ -262,7 +266,7 @@ public class MainController  {
         return new ArrayList<>(result);
     }
 
-    private List<MediaFile> getAncestors(MediaFile dir) throws IOException {
+    private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 
         try {

@@ -47,7 +47,7 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
     private IndexManager indexManager;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         populateDatabaseOnlyOnce();
     }
 

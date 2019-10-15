@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Provides persistent storage of application settings and preferences.
@@ -77,6 +78,7 @@ public class SettingsService {
     private static final String KEY_INDEX_CREATION_INTERVAL = "IndexCreationInterval";
     private static final String KEY_INDEX_CREATION_HOUR = "IndexCreationHour";
     private static final String KEY_FAST_CACHE_ENABLED = "FastCacheEnabled";
+    private static final String KEY_IGNORE_FILE_TIMESTAMPS = "IgnoreFileTimestamps";
     private static final String KEY_PODCAST_UPDATE_INTERVAL = "PodcastUpdateInterval";
     private static final String KEY_PODCAST_FOLDER = "PodcastFolder";
     private static final String KEY_PODCAST_EPISODE_RETENTION_COUNT = "PodcastEpisodeRetentionCount";
@@ -100,6 +102,7 @@ public class SettingsService {
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
+    private static final String KEY_SORT_STRICT = "SortStrict";
     private static final String KEY_MEDIA_LIBRARY_STATISTICS = "MediaLibraryStatistics";
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -155,6 +158,7 @@ public class SettingsService {
     private static final int DEFAULT_INDEX_CREATION_INTERVAL = 1;
     private static final int DEFAULT_INDEX_CREATION_HOUR = 3;
     private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
+    private static final boolean DEFAULT_IGNORE_FILE_TIMESTAMPS = false;
     private static final int DEFAULT_PODCAST_UPDATE_INTERVAL = 24;
     private static final String DEFAULT_PODCAST_FOLDER = Util.getDefaultPodcastFolder();
     private static final int DEFAULT_PODCAST_EPISODE_RETENTION_COUNT = 10;
@@ -178,6 +182,7 @@ public class SettingsService {
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
+    private static final boolean DEFAULT_SORT_STRICT = false;
     private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -246,6 +251,8 @@ public class SettingsService {
     private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
 
     private Pattern excludePattern;
+    
+    private Locale locale;
 
     private void removeObsoleteProperties() {
 
@@ -534,6 +541,14 @@ public class SettingsService {
         setBoolean(KEY_FAST_CACHE_ENABLED, enabled);
     }
 
+    public boolean isIgnoreFileTimestamps() {
+        return getBoolean(KEY_IGNORE_FILE_TIMESTAMPS, DEFAULT_IGNORE_FILE_TIMESTAMPS);
+    }
+
+    public void setIgnoreFileTimestamps(boolean ignore) {
+        setBoolean(KEY_IGNORE_FILE_TIMESTAMPS, ignore);
+    }
+
     /**
      * Returns the number of hours between Podcast updates, of -1 if automatic updates
      * are disabled.
@@ -758,7 +773,15 @@ public class SettingsService {
     public void setSortAlphanum(boolean b) {
         setBoolean(KEY_SORT_ALPHANUM, b);
     }
-    
+
+    public boolean isSortStrict() {
+        return getBoolean(KEY_SORT_STRICT, DEFAULT_SORT_STRICT);
+    }
+
+    public void setSortStrict(boolean b) {
+        setBoolean(KEY_SORT_STRICT, b);
+    }
+
     public boolean getIgnoreSymLinks() {
         return getBoolean(KEY_IGNORE_SYMLINKS, DEFAULT_IGNORE_SYMLINKS);
     }
@@ -826,11 +849,13 @@ public class SettingsService {
      * @return The locale.
      */
     public Locale getLocale() {
-        String language = getProperty(KEY_LOCALE_LANGUAGE, DEFAULT_LOCALE_LANGUAGE);
-        String country = getProperty(KEY_LOCALE_COUNTRY, DEFAULT_LOCALE_COUNTRY);
-        String variant = getProperty(KEY_LOCALE_VARIANT, DEFAULT_LOCALE_VARIANT);
-
-        return new Locale(language, country, variant);
+        if (isEmpty(locale)) {
+            String language = getProperty(KEY_LOCALE_LANGUAGE, DEFAULT_LOCALE_LANGUAGE);
+            String country = getProperty(KEY_LOCALE_COUNTRY, DEFAULT_LOCALE_COUNTRY);
+            String variant = getProperty(KEY_LOCALE_VARIANT, DEFAULT_LOCALE_VARIANT);
+            locale = new Locale(language, country, variant);
+        }
+        return locale;
     }
 
     /**
@@ -839,6 +864,7 @@ public class SettingsService {
      * @param locale The locale.
      */
     public void setLocale(Locale locale) {
+        this.locale = null;
         setProperty(KEY_LOCALE_LANGUAGE, locale.getLanguage());
         setProperty(KEY_LOCALE_COUNTRY, locale.getCountry());
         setProperty(KEY_LOCALE_VARIANT, locale.getVariant());

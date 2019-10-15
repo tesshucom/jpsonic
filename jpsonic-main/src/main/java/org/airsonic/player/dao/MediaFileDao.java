@@ -42,22 +42,22 @@ import java.util.*;
  */
 @Repository
 public class MediaFileDao extends AbstractDao {
-    private static final Logger logger = LoggerFactory.getLogger(MediaFileDao.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
                                                 "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id," +
-                                                "composer, composer_sort";
+                                                "composer, composer_sort, album_artist_reading, _order";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    private static final int JP_VERSION = 5;
+    private static final int JP_VERSION = 6;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
-    private final RowMapper musicFileInfoRowMapper = new MusicFileInfoMapper();
-    private final RowMapper genreRowMapper = new GenreMapper();
+    private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
+    private final RowMapper<Genre> genreRowMapper = new GenreMapper();
     private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
     private final RowMapper<MediaFile> albumSortCandidateMapper = new AlbumSortCandidateMapper();
 
@@ -137,7 +137,7 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public void createOrUpdateMediaFile(MediaFile file) {
-        logger.trace("Creating/Updating new media file at {}", file.getPath());
+        LOG.trace("Creating/Updating new media file at {}", file.getPath());
         String sql = "update media_file set " +
                      "folder=?," +
                      "type=?," +
@@ -174,10 +174,12 @@ public class MediaFileDao extends AbstractDao {
                      "album_reading=?, " +
                      "mb_release_id=?, " +
                      "composer=?, " +
-                     "composer_sort=? " +
+                     "composer_sort=?, " +
+                     "album_artist_reading=?, " +
+                     "_order=? " +
                      "where path=?";
 
-        logger.trace("Updating media file {}", Util.debugObject(file));
+        LOG.trace("Updating media file {}", Util.debugObject(file));
 
         int n = update(sql,
                        file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(), file.getAlbumName(), file.getArtist(),
@@ -195,6 +197,8 @@ public class MediaFileDao extends AbstractDao {
                        file.getMusicBrainzReleaseId(),
                        file.getComposer(),
                        file.getComposerSort(),
+                       file.getAlbumArtistReading(),
+                       -1,
                        file.getPath());
 
         if (n == 0) {
@@ -215,7 +219,7 @@ public class MediaFileDao extends AbstractDao {
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
                    file.getChildrenLastUpdated(), file.isPresent(), VERSION,
                    file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort(), file.getAlbumReading(),
-                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort());
+                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort(), file.getAlbumArtistReading(), -1);
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -228,13 +232,14 @@ public class MediaFileDao extends AbstractDao {
      * @param artistSort Update value.
      */
     @Transactional
+    @Deprecated
     public int updateArtistSort(String artist, String artistSort) {
-        logger.trace("Updating media file at {}", artist);
+        LOG.trace("Updating media file at {}", artist);
         String sql = "update media_file set artist_sort = ? where artist = ? and type in (?, ?)";
-        logger.trace("Updating media file {}", artist);
+        LOG.trace("Updating media file {}", artist);
         return update(sql, artistSort, artist, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
-    
+
     /**
      * Update albumSorts all.
      * @param album The artist to update.
@@ -242,12 +247,12 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public int updateAlbumSort(String album, String albumSort) {
-        logger.trace("Updating media file at {}", album);
+        LOG.trace("Updating media file at {}", album);
         String sql = "update media_file set album_sort = ? where album = ? and type = ?";
-        logger.trace("Updating media file {}", album);
+        LOG.trace("Updating media file {}", album);
         return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
     }
-    
+
     /**
      * Update albumArtistSorts all.
      * @param artist The artist to update.
@@ -255,9 +260,9 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public int updateAlbumArtistSort(String artist, String albumArtistSort) {
-        logger.trace("Updating media file at {}", artist);
+        LOG.trace("Updating media file at {}", artist);
         String sql = "update media_file set album_artist_sort = ? where artist = ? and artist_reading <> ? and type in (?, ?)";
-        logger.trace("Updating media file {}", artist);
+        LOG.trace("Updating media file {}", artist);
         return update(sql, albumArtistSort, artist, albumArtistSort, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
 
@@ -729,6 +734,7 @@ public class MediaFileDao extends AbstractDao {
                 rowMapper, MediaFile.MediaType.ALBUM.name());
     }
 
+    @Deprecated
     public void clearSort() {
         update("update media_file set artist_sort = null where type in(?, ?) and present",
                 MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
@@ -752,23 +758,36 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public void markPresent(String path, Date lastScanned) {
-        update("update media_file set present=?, last_scanned=? where path=?", true, lastScanned, path);
+        update("update media_file set present=?, last_scanned = ? where path=?", true, lastScanned, path);
     }
 
     public void markNonPresent(Date lastScanned) {
-        int minId = queryForInt("select min(id) from media_file where last_scanned != ? and present", 0, lastScanned);
-        int maxId = queryForInt("select max(id) from media_file where last_scanned != ? and present", 0, lastScanned);
+        int minId = queryForInt("select min(id) from media_file where last_scanned < ? and present", 0, lastScanned);
+        int maxId = queryForInt("select max(id) from media_file where last_scanned < ? and present", 0, lastScanned);
 
         final int batchSize = 1000;
         Date childrenLastUpdated = new Date(0L);  // Used to force a children rescan if file is later resurrected.
         for (int id = minId; id <= maxId; id += batchSize) {
-            update("update media_file set present=false, children_last_updated=? where id between ? and ? and last_scanned != ? and present",
+            update("update media_file set present=false, children_last_updated=? where id between ? and ? and " +
+                            "last_scanned < ? and present",
                    childrenLastUpdated, id, id + batchSize, lastScanned);
         }
     }
 
-    public List<MediaFile> getExpungementCandidate() {
-        return query("select " + QUERY_COLUMNS + " from media_file where not present", rowMapper);
+    public List<Integer> getArtistExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type = ? and not present",
+                MediaFile.MediaType.DIRECTORY.name());
+    }
+
+    public List<Integer> getAlbumExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type = ? and not present",
+                MediaFile.MediaType.ALBUM.name());
+    }
+
+    public List<Integer> getSongExpungeCandidates() {
+        return queryForInts("select id from media_file where media_file.type in (?,?,?,?) and not present",
+                MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(),
+                MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name());
     }
 
     public void expunge() {
@@ -822,7 +841,9 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(36),
                     rs.getString(37),
                     rs.getString(38),
-                    rs.getString(39));
+                    rs.getString(39),
+                    rs.getString(40),
+                    rs.getInt(41));
         }
     }
 

@@ -19,9 +19,6 @@
  */
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.service.AlphanumComparator;
-
-import java.io.IOException;
 import java.util.*;
 
 import static org.apache.commons.lang.StringUtils.defaultIfBlank;
@@ -40,8 +37,6 @@ public class PlayQueue {
 
     private RandomSearchCriteria randomSearchCriteria;
     private InternetRadio internetRadio;
-
-    private final AlphanumComparator alphanum = new AlphanumComparator();
 
     /**
      * The index of the current song, or -1 is the end of the playlist is reached.
@@ -171,9 +166,8 @@ public class PlayQueue {
      *
      * @param mediaFiles The music files to add.
      * @param index Where to add them.
-     * @throws IOException If an I/O error occurs.
      */
-    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, int index) throws IOException {
+    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, int index) {
         makeBackup();
         for (MediaFile mediaFile : mediaFiles) {
             files.add(index, mediaFile);
@@ -187,9 +181,8 @@ public class PlayQueue {
      *
      * @param append     Whether existing songs in the playlist should be kept.
      * @param mediaFiles The music files to add.
-     * @throws IOException If an I/O error occurs.
      */
-    public synchronized void addFiles(boolean append, Iterable<MediaFile> mediaFiles) throws IOException {
+    public synchronized void addFiles(boolean append, Iterable<MediaFile> mediaFiles) {
         makeBackup();
         if (!append) {
             index = 0;
@@ -204,7 +197,7 @@ public class PlayQueue {
     /**
      * Convenience method, equivalent to {@link #addFiles(boolean, Iterable)}.
      */
-    public synchronized void addFiles(boolean append, MediaFile... mediaFiles) throws IOException {
+    public synchronized void addFiles(boolean append, MediaFile... mediaFiles) {
         addFiles(append, Arrays.asList(mediaFiles));
     }
 
@@ -252,17 +245,17 @@ public class PlayQueue {
      * Sorts the playlist according to the given sort order.
      */
     public synchronized void sort(final SortOrder sortOrder) {
-        sort(sortOrder, false);
+        sort(sortOrder, null);
     }
 
     /**
      * Sorts the playlist according to the given sort order.
      */
-    public synchronized void sort(final SortOrder sortOrder, boolean isAlphanum) {
+    public synchronized void sort(final SortOrder sortOrder, Comparator<Object> comparator) {
         makeBackup();
         MediaFile currentFile = getCurrentFile();
-
-        Comparator<MediaFile> comparator = new Comparator<MediaFile>() {
+        
+        Collections.sort(files, new Comparator<MediaFile>() {
             public int compare(MediaFile a, MediaFile b) {
                 switch (sortOrder) {
                     case TRACK:
@@ -279,23 +272,18 @@ public class PlayQueue {
                     case ARTIST:
                         String artistA = defaultIfBlank(a.getArtistReading(), a.getArtist());
                         String artistB = defaultIfBlank(b.getArtistReading(), b.getArtist());
-                        return isAlphanum
-                                ? alphanum.compareToIgnoreCase(artistA, artistB)
-                                : artistA.compareToIgnoreCase(artistB);
-
+                        return null == comparator ? artistA.compareToIgnoreCase(artistB)
+                                : comparator.compare(artistA, artistB);
                     case ALBUM:
                         String albumA = defaultIfBlank(a.getAlbumReading(), a.getAlbumName());
                         String albumB = defaultIfBlank(b.getAlbumReading(), b.getAlbumName());
-                        return isAlphanum
-                                ? alphanum.compareToIgnoreCase(albumA, albumB)
-                                : albumA.compareToIgnoreCase(albumB);
+                        return null == comparator ? albumA.compareToIgnoreCase(albumB) : comparator.compare(albumA, albumB);
                     default:
                         return 0;
                 }
             }
-        };
+        });
 
-        Collections.sort(files, comparator);
         if (currentFile != null) {
             index = files.indexOf(currentFile);
         }

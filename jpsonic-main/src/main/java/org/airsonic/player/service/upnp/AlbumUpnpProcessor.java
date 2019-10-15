@@ -36,8 +36,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
+
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,7 +60,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public AlbumUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_ALBUM_PREFIX);
-        setRootTitle("Albums");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.albums");
     }
 
     /**
@@ -76,7 +81,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
         return createBrowseResult(didl, (int) didl.getCount(), getAllItemsSize());
     }
-    public Container createContainer(Album album) throws Exception {
+    public Container createContainer(Album album) {
         MusicAlbum container = new MusicAlbum();
 
         if (album.getId() == -1) {
@@ -100,7 +105,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return getAlbumDao().getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, allFolders);
     }
 
-    public Album getItemById(String id) throws Exception {
+    public Album getItemById(String id) {
         Album returnValue = null;
         if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT)) {
             returnValue = new Album();
@@ -112,7 +117,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return returnValue;
     }
 
-    public List<MediaFile> getChildren(Album album) throws Exception {
+    public List<MediaFile> getChildren(Album album) {
         List<MediaFile> allFiles = getMediaFileDao().getSongsForAlbum(album.getArtist(), album.getName());
         if (album.getId() == -1) {
             List<Album> albumList = null;
@@ -136,17 +141,17 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     @Override
-    public int getAllItemsSize() throws Exception {
+    public int getAllItemsSize() {
         List<MusicFolder> allFolders = getDispatchingContentDirectory().getSettingsService().getAllMusicFolders();
         return getAlbumDao().getAlbumCount(allFolders);
     }
 
 
-    public void addChild(DIDLContent didl, MediaFile child) throws Exception {
+    public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }
 
-    public URI getAlbumArtURI(int albumId) throws URISyntaxException {
+    public URI getAlbumArtURI(int albumId) {
         return getDispatcher().getJwtSecurityService().addJWTToken(UriComponentsBuilder.fromUriString(getDispatcher().getBaseUrl() + "/ext/coverArt.view").queryParam("id", albumId).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 

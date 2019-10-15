@@ -22,6 +22,7 @@ package org.airsonic.player.service;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -30,10 +31,10 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.playlist.PlaylistExportHandler;
 import org.airsonic.player.service.playlist.PlaylistImportHandler;
+import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.Pair;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,6 +69,8 @@ public class PlaylistService {
     private List<PlaylistExportHandler> exportHandlers;
     @Autowired
     private List<PlaylistImportHandler> importHandlers;
+    @Autowired
+    private JpsonicComparators comparators;
 
     public PlaylistService(
             MediaFileDao mediaFileDao,
@@ -77,12 +80,12 @@ public class PlaylistService {
             List<PlaylistExportHandler> exportHandlers,
             List<PlaylistImportHandler> importHandlers
     ) {
-        Assert.notNull(mediaFileDao);
-        Assert.notNull(playlistDao);
-        Assert.notNull(securityService);
-        Assert.notNull(settingsService);
-        Assert.notNull(exportHandlers);
-        Assert.notNull(importHandlers);
+        Assert.notNull(mediaFileDao, "mediaFileDao must not be null");
+        Assert.notNull(playlistDao, "playlistDao must not be null");
+        Assert.notNull(securityService, "securityservice must not be null");
+        Assert.notNull(settingsService, "settingsService must not be null");
+        Assert.notNull(exportHandlers, "exportHandlers must not be null");
+        Assert.notNull(importHandlers, "importHandlers must not be null");
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
         this.securityService = securityService;
@@ -110,7 +113,7 @@ public class PlaylistService {
     }
 
     private List<Playlist> sort(List<Playlist> playlists) {
-        Collections.sort(playlists, new PlaylistComparator());
+        Collections.sort(playlists, comparators.playlistOrder());
         return playlists;
     }
 
@@ -261,7 +264,7 @@ public class PlaylistService {
         }
     }
 
-    private void doImportPlaylists() throws Exception {
+    private void doImportPlaylists() {
         String playlistFolderPath = settingsService.getPlaylistFolder();
         if (playlistFolderPath == null) {
             return;
@@ -299,14 +302,8 @@ public class PlaylistService {
             importPlaylist(User.USERNAME_ADMIN, FilenameUtils.getBaseName(fileName), fileName, in, existingPlaylist);
             LOG.info("Auto-imported playlist " + file);
         } finally {
-            IOUtils.closeQuietly(in);
+            FileUtil.closeQuietly(in);
         }
     }
 
-    private static class PlaylistComparator implements Comparator<Playlist> {
-        @Override
-        public int compare(Playlist p1, Playlist p2) {
-            return p1.getName().compareTo(p2.getName());
-        }
-    }
 }

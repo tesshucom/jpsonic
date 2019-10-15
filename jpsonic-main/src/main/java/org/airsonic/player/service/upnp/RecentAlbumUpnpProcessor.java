@@ -26,6 +26,8 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 import java.util.List;
 
 /**
@@ -38,7 +40,11 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     public RecentAlbumUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_RECENT_PREFIX);
-        setRootTitle("RecentAlbums");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.recentAlbums");
     }
 
     /**
@@ -71,7 +77,7 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
             // if there is more than one recent album, add in an option to
             // view the tracks in all the recent albums together
             Album viewAll = new Album();
-            viewAll.setName("- All Albums -");
+            viewAll.setName(getResource("dnla.element.allalbums"));
             viewAll.setId(-1);
             viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT);
             recentAlbums.add(0, viewAll);
@@ -80,7 +86,7 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @Override
-    public int getAllItemsSize() throws Exception {
+    public int getAllItemsSize() {
         List<MusicFolder> allFolders = getDispatchingContentDirectory().getSettingsService().getAllMusicFolders();
         int allAlbumCount = getAlbumDao().getAlbumCount(allFolders);
         return Math.min(allAlbumCount, RECENT_COUNT);

@@ -20,7 +20,6 @@
 package org.airsonic.player.domain;
 
 import java.io.Serializable;
-import java.text.CollationKey;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +39,8 @@ import java.util.Objects;
  * @author Sindre Mehus
  */
 public class MusicIndex implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static final MusicIndex OTHER = new MusicIndex("#");
 
@@ -100,11 +101,7 @@ public class MusicIndex implements Serializable {
 
         final MusicIndex musicIndex = (MusicIndex) o;
 
-        if (!Objects.equals(index, musicIndex.index)) {
-            return false;
-        }
-
-        return true;
+        return Objects.equals(index, musicIndex.index);
     }
 
     /**
@@ -124,12 +121,12 @@ public class MusicIndex implements Serializable {
 
         private final String name;
         private final String sortableName;
-        private final CollationKey collationKey;
+        private final Collator collator;
 
         public SortableArtist(String name, String sortableName, Collator collator) {
             this.name = name;
             this.sortableName = sortableName;
-            collationKey = collator.getCollationKey(sortableName);
+            this.collator = collator;
         }
 
         public String getName() {
@@ -141,7 +138,7 @@ public class MusicIndex implements Serializable {
         }
 
         public int compareTo(SortableArtist other) {
-            return collationKey.compareTo(other.collationKey);
+            return collator.compare(sortableName, other.sortableName);
         }
     }
 

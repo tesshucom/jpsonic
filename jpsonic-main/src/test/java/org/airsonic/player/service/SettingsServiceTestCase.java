@@ -36,7 +36,7 @@ public class SettingsServiceTestCase extends TestCase {
     private SettingsService settingsService;
 
     @Override
-    protected void setUp() throws Exception {
+    protected void setUp() {
         String jpsonicHome = TestCaseUtils.jpsonicHomePathForTest();
         System.setProperty("jpsonic.home", jpsonicHome);
         new File(jpsonicHome, "jpsonic.properties").delete();

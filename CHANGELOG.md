@@ -3,6 +3,20 @@
 # jpsonic/jpsonic
 # -->
 
+## v105.2.0
+#### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
+
+> [06e36ff]
+> 
+> Fixed a bug where the last song in the play queue is repeated.
+> MariaDB support etc.
+
+  * [fix] Update jackson-databind to 2.10.0.pr3(CVE-2019-14540, CVE-2019-16335).
+  * [fix] Fixed a edge case where artist reading analysis failed.
+  * [update] The sorting algorithm and settings shared internally. Most features now work with the same sorting rules.
+  * [update] DNLA Japanese language support has started. Provides title translation and complete dictionary sorting.
+  * [update] Added an option to strictly sort DNLA/REST-ID3 in the sorting options. Necessary when handling DNLA in Japanese.
+
 ## v105.1.0
 #### Based on *airsonic 10.5.0-SNAPSHOT eb4c5a0*
 

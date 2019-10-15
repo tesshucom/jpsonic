@@ -21,8 +21,8 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.Util;
-import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * @author Allen Petersen
@@ -42,6 +43,11 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     @Autowired
     private DispatchingContentDirectory dispatchingContentDirectory;
+
+    @Autowired
+    private SettingsService settingsService;
+    
+    private static ResourceBundle resourceBundle;
 
     protected String rootTitle;
     protected String rootId;
@@ -123,8 +129,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     public BrowseResult searchByName(String name,
                                      long firstResult, long maxResults,
-                                     SortCriterion[] orderBy)
-        throws ContentDirectoryException {
+                                     SortCriterion[] orderBy) {
         DIDLContent didl = new DIDLContent();
 
         Class clazz =  (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
@@ -153,7 +158,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return getDispatchingContentDirectory();
     }
 
-    public void addItem(DIDLContent didl, T item) throws Exception {
+    public void addItem(DIDLContent didl, T item) {
         didl.addContainer(createContainer(item));
     }
 
@@ -162,27 +167,43 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return getAllItems().size();
     }
 
-    public abstract Container createContainer(T item) throws Exception;
+    public abstract Container createContainer(T item);
 
     public abstract List<T> getAllItems() throws Exception;
 
-    public abstract T getItemById(String id) throws Exception;
+    public abstract T getItemById(String id);
 
     public abstract List<U> getChildren(T item) throws Exception;
 
-    public abstract void addChild(DIDLContent didl, U child) throws Exception;
+    public abstract void addChild(DIDLContent didl, U child);
 
     public String getRootTitle() {
         return rootTitle;
     }
+
+    public String getResource(String key) {
+        if (null == resourceBundle) {
+            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle",
+                    settingsService.getLocale());
+        }
+        return resourceBundle.getString(key);
+    }
+
+    public void setRootTitleWithResource(String key) {
+        setRootTitle(getResource(key));
+    }
+
     public void setRootTitle(String rootTitle) {
         this.rootTitle = rootTitle;
     }
+
     public String getRootId() {
         return rootId;
     }
+
     public void setRootId(String rootId) {
         this.rootId = rootId;
     }
+
 }
 

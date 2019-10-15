@@ -16,7 +16,7 @@
     <c:param name="toast" value="${settings_toast}"/>
 </c:import>
 
-<form:form method="post" action="generalSettings.view" commandName="command">
+<form:form method="post" action="generalSettings.view" modelAttribute="command">
 
     <table style="white-space:nowrap" class="indent">
 
@@ -111,6 +111,7 @@
             <td>
                 <form:checkbox path="sortAlbumsByYear" id="sortAlbumsByYear"/>
                 <label for="sortAlbumsByYear"><fmt:message key="generalsettings.sortalbumsbyyear"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalbumsbyyear"/></c:import>
             </td>
         </tr>
         <tr>
@@ -119,6 +120,7 @@
             <td>
                 <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
                 <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="prohibitsortvarious"/></c:import>
             </td>
         </tr>
         <tr>
@@ -127,6 +129,16 @@
             <td>
                 <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
                 <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalphanum"/></c:import>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+            <td>
+                <form:checkbox path="sortStrict" id="sortStrict"/>
+                <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortstrict"/></c:import>
             </td>
         </tr>
 
@@ -158,7 +170,6 @@
             <td>
                 <form:textarea path="loginMessage" rows="5" cols="70"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="loginmessage"/></c:import>
-                <fmt:message key="main.wiki"/>
             </td>
         </tr>
         <tr>

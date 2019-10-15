@@ -37,6 +37,8 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.*;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
 /**
  * Provides services for scanning the music library.
  *
@@ -180,6 +182,9 @@ public class MediaScannerService {
             scanCount = 0;
             statistics.reset();
 
+            artistDao.clearOrder();
+            albumDao.clearOrder();
+
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
 
@@ -216,11 +221,24 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
+
+            LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+
             // Update artistSort
             mediaFileService.updateArtistSort();
 
             // Update albumSort
             mediaFileService.updateAlbumSort();
+
+            // Update order
+            if (settingsService.isSortStrict()) {
+                LOG.info(
+                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                mediaFileService.updateArtistOrder();
+                mediaFileService.updateAlbumOrder();
+            } else {
+                LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+            }
 
             settingsService.setMediaLibraryStatistics(statistics);
             settingsService.setLastScanned(lastScanned);
@@ -295,7 +313,20 @@ public class MediaScannerService {
     }
 
     private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
-        String artist = file.getAlbumArtist() != null ? file.getAlbumArtist() : file.getArtist();
+        // String artist = file.getAlbumArtist() != null ? file.getAlbumArtist() : file.getArtist();
+        String artist;
+        String reading;
+        String sort;
+        if (isEmpty(file.getAlbumArtist())) {
+            artist = file.getArtist();
+            reading = file.getArtistReading();
+            sort = file.getArtistSort();
+        } else {
+            artist = file.getAlbumArtist();
+            reading = file.getAlbumArtistReading();
+            sort = file.getAlbumArtistSort();
+        }
+
         if (file.getAlbumName() == null || artist == null || file.getParentPath() == null || !file.isAudio()) {
             return;
         }
@@ -305,9 +336,11 @@ public class MediaScannerService {
             album = new Album();
             album.setPath(file.getParentPath());
             album.setName(file.getAlbumName());
+            album.setNameReading(file.getAlbumReading());
             album.setNameSort(file.getAlbumSort());
             album.setArtist(artist);
-            album.setArtistSort(file.getArtistSort());
+            album.setArtistReading(reading);
+            album.setArtistSort(sort);
             album.setCreated(file.getChanged());
         }
 
@@ -362,10 +395,8 @@ public class MediaScannerService {
         if (artist == null) {
             artist = new Artist();
             artist.setName(file.getAlbumArtist());
-        }
-        if (file.getAlbumArtistSort() != null) {
+            artist.setReading(file.getAlbumArtistReading());
             artist.setSort(file.getAlbumArtistSort());
-            mediaFileJPSupport.analyzeArtist(file, artist);
         }
         if (artist.getCoverArtPath() == null) {
             MediaFile parent = mediaFileService.getParentOf(file);

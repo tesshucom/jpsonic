@@ -27,7 +27,6 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.FileUtil;
@@ -54,7 +53,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -78,21 +77,6 @@ public class IndexManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
-    @Autowired
-    private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private ArtistDao artistDao;
-
-    @Autowired
-    private AlbumDao albumDao;
-    
-    @Autowired
-    private QueryFactory queryFactory;
-
-    @Autowired
-    private SearchServiceUtilities util;
-
     /**
      * Schema version of Airsonic index.
      * It may be incremented in the following cases:
@@ -107,26 +91,19 @@ public class IndexManager {
     /**
      * Literal name of index top directory.
      */
-    private static final String INDEX_ROOT_DIR_NAME = "index";
+    private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
     /**
      * File supplier for index directory.
      */
-    private Supplier<File> indexDirectory = () ->
-        new File(SettingsService.getJpsonicHome(), INDEX_ROOT_DIR_NAME);
-
-    /**
-     * File supplier for index version file.
-     * Index version file represents the version of index directory that has already been created.
-     */
-    private Supplier<File> indexVersionFile = () ->
-        new File(indexDirectory.get(), "jpsonic".concat(Integer.toString(INDEX_VERSION).concat(".index")));
+    private Supplier<File> rootIndexDirectory = () ->
+        new File(SettingsService.getJpsonicHome(), INDEX_ROOT_DIR_NAME.concat(Integer.toString(INDEX_VERSION)));
 
     /**
      * Returns the directory of the specified index
      */
     private Function<IndexType, File> getIndexDirectory = (indexType) ->
-        new File(indexDirectory.get(), indexType.toString().toLowerCase());
+        new File(rootIndexDirectory.get(), indexType.toString().toLowerCase());
 
     @Autowired
     private AnalyzerFactory analyzerFactory;
@@ -134,9 +111,24 @@ public class IndexManager {
     @Autowired
     private DocumentFactory documentFactory;
 
-    private Map<IndexType, SearcherManager> searchers = new HashMap<>();
+    @Autowired
+    private MediaFileDao mediaFileDao;
 
-    private Map<IndexType, IndexWriter> writers = new HashMap<>();
+    @Autowired
+    private ArtistDao artistDao;
+
+    @Autowired
+    private AlbumDao albumDao;
+
+    @Autowired
+    private QueryFactory queryFactory;
+
+    @Autowired
+    private SearchServiceUtilities util;
+
+    private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
+
+    private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
@@ -172,7 +164,7 @@ public class IndexManager {
                 writers.get(IndexType.ARTIST).updateDocument(primarykey, document);
             }
             if (!isEmpty(mediaFile.getGenre())) {
-                primarykey = documentFactory.createPrimarykey(Integer.toString(mediaFile.getGenre().hashCode()));
+                primarykey = documentFactory.createPrimarykey(mediaFile.getGenre().hashCode());
                 Document document = documentFactory.createGenreDocument(mediaFile);
                 writers.get(IndexType.GENRE).updateDocument(primarykey, document);
             }
@@ -191,16 +183,59 @@ public class IndexManager {
         }
     }
 
-    /**
-     * 
-     * @param indexType
-     * @return
-     * @throws IOException
-     */
     private IndexWriter createIndexWriter(IndexType indexType) throws IOException {
         File indexDirectory = getIndexDirectory.apply(indexType);
         IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
         return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
+    }
+
+    public void expunge() {
+
+        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream()
+                .map(m -> documentFactory.createPrimarykey(m))
+                .toArray(i -> new Term[i]);
+        try {
+            writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
+        } catch (IOException e) {
+            LOG.error("Failed to delete artist doc.", e);
+        }
+
+        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream()
+                .map(m -> documentFactory.createPrimarykey(m))
+                .toArray(i -> new Term[i]);
+        try {
+            writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
+        } catch (IOException e) {
+            LOG.error("Failed to delete album doc.", e);
+        }
+
+        primarykeys = mediaFileDao.getSongExpungeCandidates().stream()
+                .map(m -> documentFactory.createPrimarykey(m))
+                .toArray(i -> new Term[i]);
+        try {
+            writers.get(IndexType.SONG).deleteDocuments(primarykeys);
+        } catch (IOException e) {
+            LOG.error("Failed to delete song doc.", e);
+        }
+
+        primarykeys = artistDao.getExpungeCandidates().stream()
+                .map(m -> documentFactory.createPrimarykey(m))
+                .toArray(i -> new Term[i]);
+        try {
+            writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
+        } catch (IOException e) {
+            LOG.error("Failed to delete artistId3 doc.", e);
+        }
+
+        primarykeys = albumDao.getExpungeCandidates().stream()
+                .map(m -> documentFactory.createPrimarykey(m))
+                .toArray(i -> new Term[i]);
+        try {
+            writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
+        } catch (IOException e) {
+            LOG.error("Failed to delete albumId3 doc.", e);
+        }
+
     }
 
     /**
@@ -208,13 +243,11 @@ public class IndexManager {
      * Called at the end of the Scan flow.
      */
     public void stopIndexing() {
-        expunge();
         Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
     }
 
     /**
      * Close Writer of specified index and refresh SearcherManager.
-     * @param type
      */
     private void stopIndexing(IndexType type) {
         boolean isUpdate = false;
@@ -246,9 +279,6 @@ public class IndexManager {
      * Return the IndexSearcher of the specified index.
      * At initial startup, it may return null
      * if the user performs any search before performing a scan.
-     * 
-     * @param indexType
-     * @return
      */
     public @Nullable IndexSearcher getSearcher(IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
@@ -303,8 +333,29 @@ public class IndexManager {
     public void deleteOldIndexFiles() {
 
         // Delete legacy files unconditionally
+        Arrays.stream(SettingsService.getJpsonicHome().listFiles(
+            (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
+                .forEach(old -> {
+                    if (FileUtil.exists(old)) {
+                        LOG.info("Found legacy index file. Try to delete : {}", old.getAbsolutePath());
+                        try {
+                            if (old.isFile()) {
+                                FileUtils.deleteQuietly(old);
+                            } else {
+                                FileUtils.deleteDirectory(old);
+                            }
+                        } catch (IOException e) {
+                            // Log only if failed
+                            LOG.warn("Failed to delete the legacy Index : ".concat(old.getAbsolutePath()), e);
+                        }
+                    }
+                });
+
+        // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome()
-                .listFiles((file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches())).forEach(old -> {
+                .listFiles(
+                    (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
+                .filter(dir -> !dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
                         try {
@@ -319,103 +370,23 @@ public class IndexManager {
                         }
                     }
                 });
-
-        // Check if Index is current version
-        if (indexDirectory.get().exists()) {
-
-            if (indexVersionFile.get().exists()) {
-
-                // Index of current version already exists
-                LOG.info("Index was found (index version {}). ", INDEX_VERSION);
-
-            } else {
-
-                // Delete if not current version and create current version directory
-                try {
-                    FileUtils.deleteDirectory(indexDirectory.get());
-                } catch (IOException e) {
-                    LOG.warn("Failed to delete the old Index : ", indexDirectory.get().getAbsolutePath());
-                }
-
-                initializeIndexDirectory();
-
-            }
-        } else {
-
-            // Create current version directory at first start without index
-            initializeIndexDirectory();
-
-        }
-
     }
 
     /**
-     * Create index directory for initialization.
-     * Create a directory with a fixed name,
-     * and immediately below create an index version file that represents the current version.
+     * Create a directory corresponding to the current index version.
      */
-    private void initializeIndexDirectory() {
-        try {
-            if (indexDirectory.get().mkdir() && indexVersionFile.get().createNewFile()) {
+    public void initializeIndexDirectory() {
+        // Check if Index is current version
+        if (rootIndexDirectory.get().exists()) {
+            // Index of current version already exists
+            LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+        } else {
+            if (rootIndexDirectory.get().mkdir()) {
                 LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);
             } else {
                 LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
             }
-        } catch (IOException e) {
-            LOG.error("Failed to create index directory :  (index version "
-                    .concat(Integer.toString(INDEX_VERSION))
-                    .concat("). "), e);
         }
-    }
-
-    private void expunge() {
-
-        List<MediaFile> mediaFiles = mediaFileDao.getExpungementCandidate();
-
-        Term[] primarykeys = mediaFiles.stream()
-            .filter(m -> MediaType.MUSIC == m.getMediaType()
-                || MediaType.PODCAST == m.getMediaType()
-                || MediaType.AUDIOBOOK == m.getMediaType()
-                || MediaType.VIDEO == m.getMediaType())
-            .map(m -> documentFactory.createPrimarykey(m))
-            .toArray(i -> new Term[i]);
-        try {
-            writers.get(IndexType.SONG).deleteDocuments(primarykeys);
-        } catch (IOException e) {
-            LOG.error("Failed to delete song doc.", e);
-        }
-
-        primarykeys = mediaFiles.stream()
-            .filter(m -> MediaType.ALBUM == m.getMediaType())
-            .map(m -> documentFactory.createPrimarykey(m))
-            .toArray(i -> new Term[i]);
-        try {
-            writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
-        } catch (IOException e) {
-            LOG.error("Failed to delete album doc.", e);
-        }
-
-        List<Artist> artists = artistDao.getExpungementCandidate();
-        primarykeys = artists.stream()
-            .map(m -> documentFactory.createPrimarykey(m))
-            .toArray(i -> new Term[i]);
-        try {
-            writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
-        } catch (IOException e) {
-            LOG.error("Failed to delete artistId3 doc.", e);
-        }
-
-        List<Album> albums = albumDao.getExpungementCandidate();
-
-        primarykeys = albums.stream()
-            .map(m -> documentFactory.createPrimarykey(m))
-            .toArray(i -> new Term[i]);
-        try {
-            writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
-        } catch (IOException e) {
-            LOG.error("Failed to delete albumId3 doc.", e);
-        }
-
     }
 
     /**
@@ -425,7 +396,7 @@ public class IndexManager {
      * Therefore, the parsed genre string and the cardinal of the unedited genre string are n: n.
      * 
      * @param list of analyzed genres
-     * @return　list of pre-analyzed genres
+     * @return�@list of pre-analyzed genres
      * @since 101.2.0
      */
     public List<String> toPreAnalyzedGenres(List<String> genres) {
@@ -463,6 +434,7 @@ public class IndexManager {
         return result;
     }
 
+    @Deprecated
     public void updateArtistSort(Album album) {
         try {
             if (isEmpty(album.getArtistSort())) {

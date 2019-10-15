@@ -73,12 +73,8 @@ public final class AnalyzerFactory {
      * Because changes in underscores before and after words
      * have a major effect on user's forward match search.
      * 
-     * XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
-     * 
      * @see AnalyzerFactoryTestCase
-     *
      */
-    @SuppressWarnings("unused")
     private void addTokenFilterForUnderscoreRemovalAroundToken(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
@@ -115,10 +111,26 @@ public final class AnalyzerFactory {
                     "pattern", "\\[\\]", "replacement", "\\[ \\]", "replace", "all");
     }
 
+    private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder, boolean isArtist) throws IOException {
+        builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
+                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
+                .addTokenFilter(LowerCaseFilterFactory.class)
+                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WARDS, "ignoreCase", "true")
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
+                // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
+        addTokenFilterForUnderscoreRemovalAroundToken(builder);
+        return builder;
+    }
+
     private Builder createDefaultAnalyzerBuilder(boolean isArtist) throws IOException {
         CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(JapaneseTokenizerFactory.class);
         builder = basicFilters(builder, isArtist);
         return builder;
+    }
+
+    private Builder createKeywordAnalyzerBuilder() throws IOException {
+        return CustomAnalyzer.builder()
+                .withTokenizer(KeywordTokenizerFactory.class);
     }
 
     private Builder createGenreAnalyzerBuilder() throws IOException {
@@ -129,23 +141,9 @@ public final class AnalyzerFactory {
         "false");
     }
 
-    private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder, boolean isArtist) throws IOException {
-        builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
-                .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
-                .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WARDS, "ignoreCase", "true")
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
-                // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
-        //addTokenFilterForUnderscoreRemovalAroundToken(builder); // XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
-        return builder;
-    }
-
-    private Builder createKeyAnalyzerBuilder() throws IOException {
-        return CustomAnalyzer.builder().withTokenizer(KeywordTokenizerFactory.class);
-    }
 
     private Builder createExceptionalAnalyzerBuilder() throws IOException {
-        return createKeyAnalyzerBuilder()
+        return createKeywordAnalyzerBuilder()
             .addTokenFilter(CJKWidthFilterFactory.class)
             .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
@@ -186,7 +184,7 @@ public final class AnalyzerFactory {
 
                 Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder(false).build();
                 Analyzer artistAnalyzer = createDefaultAnalyzerBuilder(true).build();
-                Analyzer key = createKeyAnalyzerBuilder().build();
+                Analyzer key = createKeywordAnalyzerBuilder().build();
                 Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
                 Analyzer genre = createGenreAnalyzerBuilder().build();
                 Analyzer artistExceptional = createArtistExceptionalBuilder().build();

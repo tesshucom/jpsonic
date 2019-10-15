@@ -95,7 +95,6 @@ public class UserSettingsController {
         } else {
             command = (UserSettingsCommand) model.asMap().get("command");
         }
-        command.setAdmin(User.USERNAME_ADMIN.equals(command.getUsername()));
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isDownsamplingSupported(null));
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
@@ -130,7 +129,7 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") @Validated UserSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) throws Exception {
+    protected String doSubmitAction(@ModelAttribute("command") @Validated UserSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (!bindingResult.hasErrors()) {
             if (command.isDeleteUser()) {

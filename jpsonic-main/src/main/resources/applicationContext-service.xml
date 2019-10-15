@@ -16,6 +16,7 @@
         org.airsonic.player.monitor, 
         org.airsonic.player.ajax, 
         org.airsonic.player.i18n.,
+        com.tesshu.jpsonic.domain,
         com.tesshu.jpsonic.service" />
 
     <!-- Services -->

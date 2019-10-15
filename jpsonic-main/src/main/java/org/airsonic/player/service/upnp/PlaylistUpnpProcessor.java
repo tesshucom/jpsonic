@@ -28,7 +28,10 @@ import org.fourthline.cling.support.model.container.PlaylistContainer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.PostConstruct;
+
 import java.util.List;
+
 
 /**
  * @author Allen Petersen
@@ -41,7 +44,11 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
 
     public PlaylistUpnpProcessor() {
         setRootId(DispatchingContentDirectory.CONTAINER_ID_PLAYLIST_PREFIX);
-        setRootTitle("Playlists");
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dnla.title.playlists");
     }
 
     public Container createContainer(Playlist item) {
@@ -59,7 +66,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return getPlaylistService().getAllPlaylists();
     }
 
-    public Playlist getItemById(String id) throws Exception {
+    public Playlist getItemById(String id) {
         return getDispatcher().getPlaylistService().getPlaylist(Integer.parseInt(id));
     }
 
@@ -67,7 +74,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return getPlaylistService().getFilesInPlaylist(item.getId());
     }
 
-    public void addChild(DIDLContent didl, MediaFile child) throws Exception {
+    public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatchingContentDirectory().createItem(child));
     }
 

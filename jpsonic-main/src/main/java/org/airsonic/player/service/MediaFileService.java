@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
 
 import net.sf.ehcache.Ehcache;
@@ -36,17 +37,17 @@ import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.regex.Pattern;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Provides services for instantiating and caching media files and cover art.
@@ -57,8 +58,6 @@ import java.util.regex.Pattern;
 public class MediaFileService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
-
-    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     @Autowired
     private Ehcache mediaFileMemoryCache;
@@ -81,6 +80,8 @@ public class MediaFileService {
     private ArtistDao artistDao;
     @Autowired
     private IndexManager indexManager;
+    @Autowired
+    private JpsonicComparators jpsonicComparator;
 
     /**
      * Returns a media file instance for the given file.  If possible, a cached value is returned.
@@ -166,9 +167,13 @@ public class MediaFileService {
     }
 
     private MediaFile checkLastModified(MediaFile mediaFile, boolean useFastCache) {
-        if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
+        if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION
+                && !settingsService.isIgnoreFileTimestamps()
+                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
+            LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
             return mediaFile;
         }
+        LOG.debug("Updating database file from disk (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
         mediaFile = createMediaFile(mediaFile.getFile());
         mediaFileDao.createOrUpdateMediaFile(mediaFile);
         return mediaFile;
@@ -194,7 +199,8 @@ public class MediaFileService {
      * @param sort               Whether to sort files in the same directory.
      * @return All children media files.
      */
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort, boolean useFastCache) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
+            boolean sort, boolean useFastCache) {
 
         if (!parent.isDirectory()) {
             return Collections.emptyList();
@@ -208,29 +214,16 @@ public class MediaFileService {
         List<MediaFile> result = new ArrayList<MediaFile>();
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPath())) {
             child = checkLastModified(child, useFastCache);
-            if (child.isDirectory() && includeDirectories) {
+            if (child.isDirectory() && includeDirectories && includeMediaFile(child)) {
                 result.add(child);
             }
-            if (child.isFile() && includeFiles) {
+            if (child.isFile() && includeFiles && includeMediaFile(child)) {
                 result.add(child);
             }
         }
 
         if (sort) {
-
-            boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
-                    && (!settingsService.isProhibitSortVarious() || ObjectUtils.isEmpty(parent)
-                            || ObjectUtils.isEmpty(parent.getArtist())
-                            || !isVarious.matcher(parent.getArtist().toLowerCase()).matches());
-            
-            boolean isSortAlphanum = settingsService.isSortAlphanum();
-
-            Comparator<MediaFile> comparator = new MediaFileComparator(isSortAlbumsByYear, isSortAlphanum);
-            // Note: Intentionally not using Collections.sort() since it can be problematic on Java 7.
-            // http://www.oracle.com/technetwork/java/javase/compatibility-417013.html#jdk7
-            Set<MediaFile> set = new TreeSet<MediaFile>(comparator);
-            set.addAll(result);
-            result = new ArrayList<MediaFile>(set);
+            result.sort(jpsonicComparator.mediaFileOrder(parent));
         }
 
         return result;
@@ -356,13 +349,7 @@ public class MediaFileService {
      * Removes video files from the given list.
      */
     public void removeVideoFiles(List<MediaFile> files) {
-        Iterator<MediaFile> iterator = files.iterator();
-        while (iterator.hasNext()) {
-            MediaFile file = iterator.next();
-            if (file.isVideo()) {
-                iterator.remove();
-            }
-        }
+        files.removeIf(MediaFile::isVideo);
     }
 
     public Date getMediaFileStarredDate(int id, String username) {
@@ -412,11 +399,22 @@ public class MediaFileService {
         mediaFileDao.createOrUpdateMediaFile(parent);
     }
 
+    public boolean includeMediaFile(MediaFile candidate) {
+        return includeMediaFile(candidate.getFile());
+    }
+
+    public boolean includeMediaFile(File candidate) {
+        String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
+        if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
+            return true;
+        }
+        return false;
+    }
+
     public List<File> filterMediaFiles(File[] candidates) {
         List<File> result = new ArrayList<File>();
         for (File candidate : candidates) {
-            String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
-            if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
+            if (includeMediaFile(candidate)) {
                 result.add(candidate);
             }
         }
@@ -506,8 +504,7 @@ public class MediaFileService {
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
                 mediaFile.setComposer(metaData.getComposer());
                 mediaFile.setComposerSort(metaData.getComposerSort());
-                mediaFileJPSupport.analyzeArtist(mediaFile);
-                mediaFileJPSupport.analyzeAlbum(mediaFile);
+                mediaFileJPSupport.analyze(mediaFile);
 
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
@@ -544,20 +541,15 @@ public class MediaFileService {
                     }
 
                     // Look for cover art.
-                    try {
-                        File coverArt = findCoverArt(children);
-                        if (coverArt != null) {
-                            mediaFile.setCoverArtPath(coverArt.getPath());
-                        }
-                    } catch (IOException x) {
-                        LOG.error("Failed to find cover art.", x);
+                    File coverArt = findCoverArt(children);
+                    if (coverArt != null) {
+                        mediaFile.setCoverArtPath(coverArt.getPath());
                     }
 
                 } else {
                     mediaFile.setArtist(file.getName());
                 }
-                mediaFileJPSupport.analyzeArtist(mediaFile);
-                mediaFileJPSupport.analyzeAlbum(mediaFile);
+                mediaFileJPSupport.analyze(mediaFile);
             }
         }
 
@@ -620,7 +612,7 @@ public class MediaFileService {
     /**
      * Finds a cover art image for the given directory, by looking for it on the disk.
      */
-    private File findCoverArt(File[] candidates) throws IOException {
+    private File findCoverArt(File[] candidates) {
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase()) && !candidate.getName().startsWith(".")) {
@@ -728,48 +720,48 @@ public class MediaFileService {
         return mediaFileDao.getStarredAlbumCount(username, musicFolders);
     }
 
+    /*
+     * Supplement DIRECTOEY sort/reading of MediaFile.
+     */
     public void updateArtistSort() {
+
         List<MediaFile> candidates = mediaFileDao.getArtistSortCandidate();
         List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-        mediaFileDao.clearSort();
 
-        int updated = 0;
         for (MediaFile toBeUpdate : toBeUpdates) {
-            // update db
-            updated += mediaFileDao.updateArtistSort(toBeUpdate.getArtist(), toBeUpdate.getArtistSort());
-            // update index
             MediaFile artist = mediaFileDao.getMediaFile(toBeUpdate.getId());
+            artist.setArtistSort(toBeUpdate.getArtistSort());
+            mediaFileJPSupport.analyze(artist);
+            mediaFileDao.createOrUpdateMediaFile(artist);
             indexManager.index(artist);
-        }
-        LOG.info(toBeUpdates.size() + " update candidates for file structure artistSort. " + updated + " rows reversal.");
-
-        int maybe = 0;
-        artistDao.clearSort();
-        for (MediaFile toBeUpdate : toBeUpdates) {
-            Artist artist = artistDao.getArtist(toBeUpdate.getArtist());
-            if (ObjectUtils.isEmpty(artist)) {
-                LOG.error("Usually a non-reachable code. {} not found.({})", toBeUpdate.getArtist(),
-                        toBeUpdate.getPath());
-            } else {
-                artist.setSort(toBeUpdate.getArtistSort());
-                // update db
-                artistDao.createOrUpdateArtist(artist);
-                maybe++;
-                // update index
+            Artist a = artistDao.getArtist(artist.getArtist());
+            if (!isEmpty(a) && !new EqualsBuilder()
+                    .append(a.getName(), artist.getAlbumArtist())
+                    .append(a.getReading(), artist.getAlbumArtistReading())
+                    .append(a.getSort(), artist.getAlbumArtistSort()).isEquals()) {
+                // usually pass!
+                final Artist artistId3 = a;
+                artistId3.setName(artist.getArtist());
+                artistId3.setReading(artist.getArtistReading());
+                artistId3.setSort(artist.getArtistSort());
+                artistDao.createOrUpdateArtist(artistId3);
                 folders.stream()
-                        .filter(m -> artist.getFolderId().equals(m.getId()))
-                        .findFirst()
-                        .ifPresent(m -> indexManager.index(artist, m));
+                    .filter(m -> m.getId().equals(artistId3.getId()))
+                    .findFirst()
+                    .ifPresent(m -> indexManager.index(artistId3, m));
             }
         }
-        LOG.info(toBeUpdates.size() + " update candidates for id3 artistSort. " + maybe + " rows reversal.");
+        LOG.info("{} records of artist-sort were updated.", toBeUpdates.size());
 
-        maybe = 0;
+        // The following processes require testing
+
+        int maybe = 0;
+
         List<Artist> candidatesid3 = artistDao.getSortCandidate();
         for (Artist candidate : candidatesid3) {
             Artist artist = artistDao.getArtist(candidate.getName());
-            if (!artist.getReading().equals(candidate.getSort())) {
+            if (!candidate.getSort().equals(artist.getSort())) {
                 artist.setSort(candidate.getSort());
                 // update db
                 artistDao.createOrUpdateArtist(artist);
@@ -778,7 +770,9 @@ public class MediaFileService {
                 folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
             }
         }
-        LOG.info(candidatesid3.size() + " update candidates for id3 albumArtistSort. " + maybe + " rows reversal.");
+        LOG.debug(candidatesid3.size() + " update candidates for id3 albumArtistSort. " + maybe + " rows reversal.");
+
+        int updated = 0;
 
         updated = 0;
         for (Artist candidate : candidatesid3) {
@@ -793,43 +787,49 @@ public class MediaFileService {
                 LOG.info(" > " + candidate.getName() + "@" + candidate.getSort() + " does not exist in id 3.");
             }
         }
-        LOG.info(candidatesid3.size() + " update candidates for file structure albumArtistSort. " + updated + " rows reversal.");
+        LOG.debug(candidatesid3.size() + " update candidates for file structure albumArtistSort. " + updated + " rows reversal.");
 
     }
-    
+
+    /**
+     * Supplement DIRECTOEY sort/reading of MediaFile.
+     */
     public void updateAlbumSort() {
 
         List<MediaFile> candidates = mediaFileDao.getAlbumSortCandidate();
         List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
-        int updated = 0;
         for (MediaFile toBeUpdate : toBeUpdates) {
             // update db
-            updated += mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
+            mediaFileDao.updateAlbumSort(toBeUpdate.getAlbumName(), toBeUpdate.getAlbumSort());
             // update index
             MediaFile album = mediaFileDao.getMediaFile(toBeUpdate.getId());
             indexManager.index(album);
         }
-        LOG.info(toBeUpdates.size() + " update candidates for file structure albumSort. " + updated + " rows reversal.");
+        LOG.info("{} records of album-sort were updated.", toBeUpdates.size());
 
+        // The following processes require testing
+        
         List<Artist> sortedArtists = artistDao.getSortedArtists();
         int maybe = 0;
         for (Artist artist : sortedArtists) {
             List<Album> albums = albumDao.getAlbumsForArtist(artist.getName(), folders);
             for (Album album : albums) {
-                String sort = null == artist.getSort() ? artist.getReading() : artist.getSort();
+                String sort = artist.getSort();
                 if (sort != null && !sort.equals(album.getArtistSort())) {
-                    album.setArtistSort(sort);
+                    album.setArtistReading(artist.getReading());
+                    album.setArtistSort(artist.getSort());
                     // update db
                     albumDao.createOrUpdateAlbum(album);
-                    // update artistSort only.
-                    indexManager.updateArtistSort(album);
+                    if (album.getArtistSort() != null) {
+                        indexManager.index(album);
+                    }
                     maybe++;
                 }
             }
         }
-        LOG.info(sortedArtists.size() + " sorted id3 artists. " + maybe + " id3 album rows reversal.");
+        LOG.debug(sortedArtists.size() + " sorted id3 artists. " + maybe + " id3 album rows reversal.");
 
         List<MediaFile> albums = mediaFileDao.getSortedAlbums();
         maybe = 0;
@@ -838,11 +838,12 @@ public class MediaFileService {
                 Album albumid3 = albumDao.getAlbum(album.getAlbumArtist(), album.getAlbumName());
                 if (null != albumid3) {
                     if (null != album.getAlbumSort() && !album.getAlbumSort().equals(albumid3.getNameSort())) {
+                        albumid3.setNameReading(album.getAlbumReading());
                         albumid3.setNameSort(album.getAlbumSort());
                         // update db
                         albumDao.createOrUpdateAlbum(albumid3);
                         // update index
-                        indexManager.updateArtistSort(albumid3);
+                        indexManager.index(albumid3);
                         maybe++;
                     }
                 } else {
@@ -850,8 +851,30 @@ public class MediaFileService {
                 }
             }
         }
-        LOG.info(albums.size() + " sorted id3 albums. " + maybe + " id3 album rows reversal.");
+        LOG.debug(albums.size() + " sorted id3 albums. " + maybe + " id3 album rows reversal.");
 
+    }
+
+    public void updateArtistOrder() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        artists.sort(jpsonicComparator.artistOrder());
+        int i = 0;
+        for (Artist artist : artists) {
+            artist.setOrder(i++);
+            artistDao.createOrUpdateArtist(artist);
+        }
+    }
+
+    public void updateAlbumOrder() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        albums.sort(jpsonicComparator.albumAlphabeticalOrder());
+        int i = 0;
+        for (Album album : albums) {
+            album.setOrder(i++);
+            albumDao.createOrUpdateAlbum(album);
+        }
     }
 
     public void clearMemoryCache() {

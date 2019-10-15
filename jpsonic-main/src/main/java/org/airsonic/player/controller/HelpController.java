@@ -50,7 +50,7 @@ import java.util.Map;
 @RequestMapping("/help")
 public class HelpController {
 
-    private static final Logger logger = LoggerFactory.getLogger(HelpController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HelpController.class);
 
     private static final int LOG_LINES_TO_SHOW = 50;
 
@@ -62,7 +62,7 @@ public class HelpController {
     private SecurityService securityService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
         Map<String, Object> map = new HashMap<>();
 
         if (versionService.isNewFinalVersionAvailable()) {
@@ -109,7 +109,7 @@ public class HelpController {
             }
             return lines;
         } catch (Exception e) {
-            logger.warn("Could not open log file " + logFile, e);
+            LOG.warn("Could not open log file " + logFile, e);
             return null;
         }
     }

@@ -16,6 +16,8 @@ import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.test.annotation.DirtiesContext;
@@ -29,10 +31,12 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
         "/applicationContext-testdb.xml"})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 @Component
-/**
+/*
  * Abstract class for scanning MusicFolder.
  */
 public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAirsonicHomeTest.class);
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -95,14 +99,14 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
             settingsService.clearMusicFolderCache();
             try {
                 // Await time to avoid scan failure.
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 5; i++) {
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             TestCaseUtils.execScan(mediaScannerService);
-            System.out.println("--- Report of records count per table ---");
+            LOG.debug("--- Report of records count per table ---");
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
             records.keySet().stream().filter(s ->
                     s.equals("MEDIA_FILE")
@@ -112,7 +116,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     | s.equals("GENRE"))
                     .forEach(tableName ->
                         System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
-            System.out.println("--- *********************** ---");
+            LOG.debug("--- *********************** ---");
             try {
                 // Await for Lucene to finish writing(asynchronous).
                 for (int i = 0; i < 5; i++) {
@@ -127,13 +131,22 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                 try {
                     // The subsequent test method waits while reading DB data.
                     for (int i = 0; i < 10; i++) {
-                        Thread.sleep(100);
+                        Thread.sleep(500);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
+    }
+
+    protected void setSortStrict(boolean isSortStrict) {
+        settingsService.setSortStrict(isSortStrict);
+    }
+
+    protected void setSortAlphanum(boolean isSortStrict) {
+        settingsService.setSortAlphanum(true);
+        ;
     }
 
 }
