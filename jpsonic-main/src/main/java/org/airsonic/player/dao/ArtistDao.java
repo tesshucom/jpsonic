@@ -221,6 +221,7 @@ public class ArtistDao extends AbstractDao {
 
     public void clearOrder() {
         update("update artist set _order = -1");
+        update("delete from artist where reading is null");// #311
     }
 
     public List<Artist> getSortCandidate() {

@@ -354,6 +354,7 @@ public class AlbumDao extends AbstractDao {
 
     public void clearOrder() {
         update("update album set _order = -1");
+        update("delete from album where name_reading is null or artist_reading is null ");// #311
     }
 
     public List<Integer> getExpungeCandidates() {

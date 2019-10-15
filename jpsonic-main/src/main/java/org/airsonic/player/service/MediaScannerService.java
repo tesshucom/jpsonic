@@ -182,6 +182,9 @@ public class MediaScannerService {
             scanCount = 0;
             statistics.reset();
 
+            artistDao.clearOrder();
+            albumDao.clearOrder();
+
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
 
@@ -226,9 +229,6 @@ public class MediaScannerService {
 
             // Update albumSort
             mediaFileService.updateAlbumSort();
-
-            artistDao.clearOrder();
-            albumDao.clearOrder();
 
             // Update order
             if (settingsService.isSortStrict()) {
