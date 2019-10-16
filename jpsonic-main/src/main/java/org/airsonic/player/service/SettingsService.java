@@ -362,8 +362,20 @@ public class SettingsService {
         return home.contains("libresonic") ? "libresonic" : "jpsonic";
     }
 
+    public static String getDefaultJDBCPath() {
+        return getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
+    }
+
     public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getJpsonicHome().getPath() + "/db/" + getFileSystemAppName() + ";sql.enforce_size=false";
+        return "jdbc:hsqldb:file:" + getDefaultJDBCPath() + ";sql.enforce_size=false";
+    }
+
+    public static String getDefaultJDBCUsername() {
+        return "sa";
+    }
+
+    public static String getDefaultJDBCPassword() {
+        return "";
     }
 
     public static int getDefaultUPnPPort() {
