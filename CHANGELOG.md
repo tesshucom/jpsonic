@@ -3,6 +3,11 @@
 # jpsonic/jpsonic
 # -->
 
+## v105.2.1
+#### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
+
+  * [fix] Fixed bug that fail when migrating with postgres from v105.1.0 to v105.2.0.
+
 ## v105.2.0
 #### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
 
