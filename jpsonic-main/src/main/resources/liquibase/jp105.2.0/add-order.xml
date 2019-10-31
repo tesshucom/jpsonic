@@ -28,13 +28,14 @@
 		</addColumn>
 	</changeSet>
 	<changeSet id="add-order_003" author="tesshu">
+	    <validCheckSum>8:bf25733a2f3d22d92eecccbee43198de</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 			<not>
-				<columnExists tableName="media_File"
+				<columnExists tableName="media_file"
 					columnName="_order" />
 			</not>
 		</preConditions>
-		<addColumn tableName="media_File">
+		<addColumn tableName="media_file">
 			<column name="_order" type="int">
 				<constraints nullable="true" />
 			</column>
@@ -49,7 +50,8 @@
 			columnName="_order" columnDataType="int" defaultNullValue="-1" />
 	</changeSet>
 	<changeSet id="add-order_006" author="tesshu">
-		<addNotNullConstraint tableName="media_File"
+	    <validCheckSum>8:c1343371608c39db4f75d6f5ad727f86</validCheckSum>
+		<addNotNullConstraint tableName="media_file"
 			columnName="_order" columnDataType="int" defaultNullValue="-1" />
 	</changeSet>
 
