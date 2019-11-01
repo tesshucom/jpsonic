@@ -25,6 +25,6 @@ matrix:
   - jdk: openjdk8
   - jdk: openjdk9
   - jdk: openjdk11
-  # - jdk: openjdk12
+  - jdk: openjdk12
   - jdk: openjdk13
   # - jdk: openjdk-ea
