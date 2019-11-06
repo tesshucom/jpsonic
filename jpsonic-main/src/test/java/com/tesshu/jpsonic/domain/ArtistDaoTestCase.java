@@ -69,7 +69,7 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
-    
+
     @Test
     public void testGetAlphabetialNumArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(1)));

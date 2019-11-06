@@ -242,6 +242,16 @@ public class SearchServiceImpl implements SearchService {
         return indexManager.getGenres(sortByAlbum);
     }
 
+    @Override
+    public List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults) {
+        return indexManager.getGenres(sortByAlbum, offset, maxResults);
+    }
+    
+    @Override
+    public int getGenresCount() {
+        return indexManager.getGenresCount();
+    }
+
     private List<MediaFile> getMediasByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
             IndexType indexType, SortField[] sortFields) {
 
@@ -330,6 +340,33 @@ public class SearchServiceImpl implements SearchService {
                 .map(n -> new SortField(n, SortField.Type.STRING))
                 .toArray(i -> new SortField[i]);
         return getMediasByGenres(genres, offset, count, musicFolders, IndexType.SONG, sortFields);
+    }
+
+    @Override
+    public int getSongsCountByGenres(String genres, List<MusicFolder> musicFolders) {
+
+        if (isEmpty(genres)) {
+            return 0;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+        if (isEmpty(searcher)) {
+            return 0;
+        }
+
+        int totalHits = 0;
+
+        try {
+            Query query = queryFactory.getMediasByGenres(genres, musicFolders);
+            TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
+            totalHits = util.round.apply(topDocs.totalHits.value);
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            indexManager.release(IndexType.SONG, searcher);
+        }
+
+        return totalHits;
     }
 
 }

@@ -66,15 +66,13 @@ public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabeticalAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
-                Arrays.asList(musicFolders.get(0)));
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
     @Test
     public void testGetAlphabeticalNumAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
-                Arrays.asList(musicFolders.get(1)));
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(1)));
         assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 

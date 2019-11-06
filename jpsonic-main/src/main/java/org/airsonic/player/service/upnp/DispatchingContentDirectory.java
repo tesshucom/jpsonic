@@ -22,6 +22,14 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.*;
+import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
@@ -42,30 +50,17 @@ import java.util.Arrays;
  * @version $Id$
  */
 @Service
-public class DispatchingContentDirectory extends CustomContentDirectory {
+public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
-
-    public static final String CONTAINER_ID_ROOT = "0";
-    public static final String CONTAINER_ID_PLAYLIST_PREFIX = "playlist";
-    public static final String CONTAINER_ID_FOLDER_PREFIX = "folder";
-    public static final String CONTAINER_ID_ALBUM_PREFIX = "album";
-    public static final String CONTAINER_ID_ARTIST_PREFIX = "artist";
-    public static final String CONTAINER_ID_ARTISTALBUM_PREFIX = "artistalbum";
-    public static final String CONTAINER_ID_GENRE_PREFIX = "genre";
-    public static final String CONTAINER_ID_RECENT_PREFIX = "recent";
-
-    protected static final String SEPARATOR = "-";
 
     @Autowired
     private PlaylistUpnpProcessor playlistProcessor;
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
-    //@Autowired can't autowire because of the subclassing :P
-    @Autowired//first checks type then field name to autowire
+    @Autowired
     private AlbumUpnpProcessor albumUpnpProcessor;
-    //@Autowired can't autowire because of the subclassing :P
-    @Autowired//first checks type then field name to autowire
+    @Autowired
     private RecentAlbumUpnpProcessor recentAlbumUpnpProcessor;
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
@@ -73,18 +68,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
     private GenreUpnpProcessor genreProcessor;
     @Autowired
     private RootUpnpProcessor rootProcessor;
-
     @Autowired
     private MediaFileService mediaFileService;
-    @Autowired
-    private PlaylistService playlistService;
-
-    @Autowired
-    private MusicIndexService musicIndexService;
-
-    @Autowired
-    private SearchService searchService;
-
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -104,10 +89,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
 
         BrowseResult returnValue = null;
         try {
-            String[] splitId = objectId.split(SEPARATOR);
+            String[] splitId = objectId.split(OBJECT_ID_SEPARATOR);
             String browseRoot = splitId[0];
             String itemId = splitId.length == 1 ? null : splitId[1];
 
+            @SuppressWarnings("rawtypes")
             UpnpContentProcessor processor = findProcessor(browseRoot);
             if (processor == null) {
                 // if it's null then assume it's a file, and that the id
@@ -149,7 +135,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         return returnValue != null ? returnValue : super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
     }
 
-
+    @SuppressWarnings("rawtypes")
     private UpnpContentProcessor findProcessor(String type) {
         switch (type) {
             case CONTAINER_ID_ROOT:
@@ -178,7 +164,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         item.setTitle(song.getTitle());
         item.setAlbum(song.getAlbumName());
         if (song.getArtist() != null) {
-            item.setArtists(new PersonWithRole[]{new PersonWithRole(song.getArtist())});
+            item.setArtists(new PersonWithRole[] { new PersonWithRole(song.getArtist()) });
         }
         Integer year = song.getYear();
         if (year != null) {
@@ -186,7 +172,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         }
         item.setOriginalTrackNumber(song.getTrackNumber());
         if (song.getGenre() != null) {
-            item.setGenres(new String[]{song.getGenre()});
+            item.setGenres(new String[] { song.getGenre() });
         }
         item.setResources(Arrays.asList(createResourceForSong(song)));
         item.setDescription(song.getComment());
@@ -195,92 +181,43 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         return item;
     }
 
-    public URI getAlbumArtUrl(int id) {
+    private final URI getAlbumArtUrl(int id) {
         return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view").queryParam("id", id).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 
+    @Override
     public PlaylistUpnpProcessor getPlaylistProcessor() {
         return playlistProcessor;
     }
-    public void setPlaylistProcessor(PlaylistUpnpProcessor playlistProcessor) {
-        this.playlistProcessor = playlistProcessor;
-    }
 
+    @Override
     public MediaFileUpnpProcessor getMediaFileProcessor() {
         return mediaFileProcessor;
     }
-    public void setMediaFileProcessor(MediaFileUpnpProcessor mediaFileProcessor) {
-        this.mediaFileProcessor = mediaFileProcessor;
-    }
 
+    @Override
     public AlbumUpnpProcessor getAlbumProcessor() {
         return albumUpnpProcessor;
     }
-    public void setAlbumProcessor(AlbumUpnpProcessor albumProcessor) {
-        this.albumUpnpProcessor = albumProcessor;
-    }
 
+    @Override
     public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
         return recentAlbumUpnpProcessor;
     }
-    public void setRecentAlbumProcessor(RecentAlbumUpnpProcessor recentAlbumProcessor) {
-        this.recentAlbumUpnpProcessor = recentAlbumProcessor;
-    }
 
+    @Override
     public ArtistUpnpProcessor getArtistProcessor() {
         return artistProcessor;
     }
-    public void setArtistProcessor(ArtistUpnpProcessor artistProcessor) {
-        this.artistProcessor = artistProcessor;
-    }
 
+    @Override
     public GenreUpnpProcessor getGenreProcessor() {
         return genreProcessor;
     }
-    public void setGenreProcessor(GenreUpnpProcessor genreProcessor) {
-        this.genreProcessor = genreProcessor;
-    }
 
+    @Override
     public RootUpnpProcessor getRootProcessor() {
         return rootProcessor;
     }
-    public void setRootProcessor(RootUpnpProcessor rootProcessor) {
-        this.rootProcessor = rootProcessor;
-    }
 
-    public MediaFileService getMediaFileService() {
-        return mediaFileService;
-    }
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public SettingsService getSettingsService() {
-        return settingsService;
-    }
-
-    public PlaylistService getPlaylistService() {
-        return playlistService;
-    }
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
-    }
-
-    public JWTSecurityService getJwtSecurityService() {
-        return jwtSecurityService;
-    }
-
-    public MusicIndexService getMusicIndexService() {
-        return this.musicIndexService;
-    }
-    public void setMusicIndexService(MusicIndexService musicIndexService) {
-        this.musicIndexService = musicIndexService;
-    }
-
-    public SearchService getSearchService() {
-        return this.searchService;
-    }
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
 }

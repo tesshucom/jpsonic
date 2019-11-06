@@ -39,7 +39,7 @@ public class PlaylistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "username, is_public, name, comment, file_count, duration_seconds, " +
                                                 "created, changed, imported_from";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
-    private final RowMapper rowMapper = new PlaylistMapper();
+    private final RowMapper<Playlist> rowMapper = new PlaylistMapper();
 
     public List<Playlist> getReadablePlaylistsForUser(String username) {
 
@@ -70,6 +70,10 @@ public class PlaylistDao extends AbstractDao {
 
     public Playlist getPlaylist(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from playlist where id=?", rowMapper, id);
+    }
+
+    public int getCountAll() {
+        return queryForInt("select count(id) from playlist", 0);
     }
 
     public List<Playlist> getAllPlaylists() {

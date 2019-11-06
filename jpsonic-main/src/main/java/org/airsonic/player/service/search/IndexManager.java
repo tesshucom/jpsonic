@@ -457,4 +457,12 @@ public class IndexManager {
         return mediaFileDao.getGenres(sortByAlbum);
     }
 
+    public List<Genre> getGenres(boolean sortByAlbum, long offset, long count) {
+        return mediaFileDao.getGenres(sortByAlbum, offset, count);
+    }
+
+    public int getGenresCount() {
+        return mediaFileDao.getGenresCount();
+    }
+
 }

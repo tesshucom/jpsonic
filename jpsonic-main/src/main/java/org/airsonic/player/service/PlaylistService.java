@@ -94,6 +94,10 @@ public class PlaylistService {
         this.importHandlers = importHandlers;
     }
 
+    public int getCountAll() {
+        return playlistDao.getCountAll();
+    }
+
     public List<Playlist> getAllPlaylists() {
         return sort(playlistDao.getAllPlaylists());
     }
@@ -125,8 +129,16 @@ public class PlaylistService {
         return playlistDao.getPlaylistUsers(playlistId);
     }
 
+    public int getCountInPlaylist(int id) {
+        return mediaFileDao.getCountInPlaylist(id);
+    }
+
     public List<MediaFile> getFilesInPlaylist(int id) {
         return getFilesInPlaylist(id, false);
+    }
+
+    public List<MediaFile> getFilesInPlaylist(int id, long offset, long count) {
+        return mediaFileDao.getFilesInPlaylist(id, offset, count);
     }
 
     public List<MediaFile> getFilesInPlaylist(int id, boolean includeNotPresent) {

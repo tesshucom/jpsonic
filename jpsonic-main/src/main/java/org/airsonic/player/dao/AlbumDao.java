@@ -94,6 +94,16 @@ public class AlbumDao extends AbstractDao {
         return null;
     }
 
+    public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("artist", artist);
+        args.put("folders", MusicFolder.toIdList(musicFolders));
+        return namedQueryForInt("select count(id) from album where artist = :artist and present and folder_id in (:folders)", 0, args);
+    }
+
     public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -103,7 +113,22 @@ public class AlbumDao extends AbstractDao {
         args.put("folders", MusicFolder.toIdList(musicFolders));
         return namedQuery("select " + QUERY_COLUMNS
                           + " from album where artist = :artist and present and folder_id in (:folders) " +
-                          "order by name",
+                          "order by _order, name",
+                          rowMapper, args);
+    }
+
+    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("artist", artist);
+        args.put("folders", MusicFolder.toIdList(musicFolders));
+        args.put("offset", offset);
+        args.put("count", count);
+        return namedQuery("select " + QUERY_COLUMNS
+                          + " from album where artist = :artist and present and folder_id in (:folders) " +
+                          "order by _order, name limit :count offset :offset",
                           rowMapper, args);
     }
 
@@ -166,7 +191,7 @@ public class AlbumDao extends AbstractDao {
      * @param ignoreCase   Use case insensitive sorting
      * @return Albums in alphabetical order.
      */
-    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlphabeticalAlbums(final long offset, final long count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -252,7 +277,7 @@ public class AlbumDao extends AbstractDao {
      * @param musicFolders Only return albums from these folders.
      * @return The most recently added albums.
      */
-    public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<Album> getNewestAlbums(final long offset, final long count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }

@@ -229,6 +229,10 @@ public class MediaFileService {
         return result;
     }
 
+    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count) {
+        return mediaFileDao.getChildrenOf(offset, count, parent.getPath());
+    }
+
     /**
      * Returns whether the given file is the root of a media folder.
      *
@@ -875,6 +879,29 @@ public class MediaFileService {
             album.setOrder(i++);
             albumDao.createOrUpdateAlbum(album);
         }
+    }
+
+    public void updateFileStructureOrder() {
+
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
+        artists.sort(jpsonicComparator.mediaFileOrder());
+
+        int i = 0;
+        for (MediaFile artist : artists) {
+            artist.setOrder(i++);
+            mediaFileDao.createOrUpdateMediaFile(artist);
+        }
+
+        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
+        albums.sort(jpsonicComparator.mediaFileOrder());
+
+        i = 0;
+        for (MediaFile album : albums) {
+            album.setOrder(i++);
+            mediaFileDao.createOrUpdateMediaFile(album);
+        }
+
     }
 
     public void clearMemoryCache() {

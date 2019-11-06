@@ -47,12 +47,14 @@ import java.util.List;
  * @version $Id$
  */
 @Service
+@Deprecated // not being used?
 public class FolderBasedContentDirectory extends CustomContentDirectory {
 
     private static final Logger LOG = LoggerFactory.getLogger(FolderBasedContentDirectory.class);
     private static final String CONTAINER_ID_PLAYLIST_ROOT = "playlists";
     private static final String CONTAINER_ID_PLAYLIST_PREFIX = "playlist-";
     private static final String CONTAINER_ID_FOLDER_PREFIX = "folder-";
+
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
@@ -71,7 +73,7 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
         }
 
         try {
-            if (CONTAINER_ID_ROOT.equals(objectId)) {
+            if (UpnpProcessDispatcher.CONTAINER_ID_ROOT.equals(objectId)) {
                 return browseFlag == BrowseFlag.METADATA ? browseRootMetadata() : browseRoot(firstResult, maxResults);
             }
             if (CONTAINER_ID_PLAYLIST_ROOT.equals(objectId)) {
@@ -95,7 +97,7 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
 
     private BrowseResult browseRootMetadata() throws Exception {
         StorageFolder root = new StorageFolder();
-        root.setId(CONTAINER_ID_ROOT);
+        root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         root.setParentID("-1");
 
         MediaLibraryStatistics statistics = settingsService.getMediaLibraryStatistics();
@@ -220,7 +222,7 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
         List<MediaFile> children = mediaFileService.getChildrenOf(mediaFile, true, true, false);
         container.setChildCount(children.size());
 
-        container.setParentID(CONTAINER_ID_ROOT);
+        container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         if (!mediaFileService.isRoot(mediaFile)) {
             MediaFile parent = mediaFileService.getParentOf(mediaFile);
             if (parent != null) {
@@ -250,7 +252,7 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
 
         List<Playlist> playlists = playlistService.getAllPlaylists();
         container.setChildCount(playlists.size());
-        container.setParentID(CONTAINER_ID_ROOT);
+        container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         return container;
     }
 
@@ -274,11 +276,4 @@ public class FolderBasedContentDirectory extends CustomContentDirectory {
                 .toUri();
     }
 
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
-    }
 }

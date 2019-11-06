@@ -39,11 +39,13 @@ import java.util.concurrent.Executors;
  */
 public class ApacheUpnpServiceConfiguration extends DefaultUpnpServiceConfiguration {
 
+    @SuppressWarnings("rawtypes")
     @Override
     public StreamClient createStreamClient() {
         return new StreamClientImpl(new StreamClientConfigurationImpl(Executors.newCachedThreadPool()));
     }
 
+    @SuppressWarnings("rawtypes")
     @Override
     public StreamServer createStreamServer(NetworkAddressFactory networkAddressFactory) {
         return new StreamServerImpl(new StreamServerConfigurationImpl(networkAddressFactory.getStreamListenPort()));

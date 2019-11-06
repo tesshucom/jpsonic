@@ -184,6 +184,7 @@ public class MediaScannerService {
 
             artistDao.clearOrder();
             albumDao.clearOrder();
+            mediaFileDao.clearOrder();
 
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
@@ -236,6 +237,7 @@ public class MediaScannerService {
                         "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
                 mediaFileService.updateArtistOrder();
                 mediaFileService.updateAlbumOrder();
+                mediaFileService.updateFileStructureOrder();
             } else {
                 LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
             }

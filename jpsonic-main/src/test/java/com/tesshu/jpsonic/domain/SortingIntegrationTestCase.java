@@ -33,7 +33,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.airsonic.player.dao.PlaylistDao;
-import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.MusicFolder;
@@ -49,8 +48,6 @@ import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.airsonic.player.service.search.IndexType;
-import org.airsonic.player.service.upnp.PlaylistUpnpProcessor;
-import org.airsonic.player.service.upnp.RecentAlbumUpnpProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,15 +59,19 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
-    private static List<String> indexList = Collections.unmodifiableList(
-            Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ｴｵｱｲｳ", "オアイウエ",
-                    "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "♂くんつ"));
+    public final static List<String> indexList = Collections.unmodifiableList(
+            Arrays.asList(
+                    "abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ｴｵｱｲｳ", "オアイウエ",
+                    "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ",
+                    "10", "20", "30", "40", "50", "60", "70", "80", "90", "98", "99", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "♂くんつ"));
 
-    private static List<String> jPSonicNaturalList = Collections.unmodifiableList(
-            Arrays.asList("abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ",
+    public final static List<String> jPSonicNaturalList = Collections.unmodifiableList(
+            Arrays.asList(
+                    "10", "20", "30", "40", "50", "60", "70", "80", "90", "98","99",
+                    "abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ",
                     "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));;
 
-    private static List<String> alphaNumList = Collections
+    public final static List<String> alphaNumList = Collections
             .unmodifiableList(Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime",
                     "30X Radonius", "40X Radonius", "200X Radonius", "1000X Radonius Maximus", "Allegia 6R Clasteron",
                     "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron", "Allegia 500 Clasteron",
@@ -80,6 +81,12 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
                     "Callisto Morphamax 7000", "Xiph Xlater 5", "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58",
                     "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000"));
 
+    public final static List<String> childrenList = Collections.unmodifiableList(
+            Arrays.asList(
+                    "empty30", "empty29", "empty28", "empty27", "empty26", "empty25", "empty24", "empty23", "empty22", "empty21", 
+                    "empty20", "empty19", "empty18", "empty17", "empty16", "empty15", "empty14", "empty13", "empty12", "empty11", 
+                    "empty10", "empty09", "empty08", "empty07", "empty06", "empty05", "empty04", "empty03", "empty02", "empty01", "empty00"));
+    
     {
         musicFolders = new ArrayList<>();
         File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
@@ -106,12 +113,6 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
     
     @Autowired
     private PlaylistService playlistService;
-
-    @Autowired
-    private PlaylistUpnpProcessor playlistUpnpProcessor;
-    
-    @Autowired
-    private RecentAlbumUpnpProcessor recentAlbumUpnpProcessor;
     
     @Autowired
     private JpsonicComparators comparators;
@@ -142,6 +143,14 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
             Collections.shuffle(shallow);
             shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
         }
+
+        /*
+         * Should be more than 30 elements.
+         */
+        assertEquals(31, indexList.size());
+        assertEquals(31, jPSonicNaturalList.size());
+        assertEquals(31, childrenList.size());
+        assertEquals(36, alphaNumList.size());
 
     }
 
@@ -365,7 +374,7 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         settingsService.setSortAlbumsByYear(false);
         List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
         SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("ALBUM");
+        criteria.setQuery("ALBUM abcde");
         criteria.setCount(Integer.MAX_VALUE);
         SearchResult result = searchService.search(criteria, musicFoldersToUse, IndexType.ALBUM);
         PlayQueue playQueue = new PlayQueue();
@@ -399,34 +408,6 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
     }
 
-    @Test
-    public void testPlaylistUpnpGetAll() throws Exception {
-        List<Playlist> all = playlistUpnpProcessor.getAllItems();
-        assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
-    }
-
-    /*
-     * #305 #313 This case shows green, but Web / DNLA display may be different when
-     * compared on the screen.
-     */
-    @Test
-    public void testRecentAlbum() throws Exception {
-
-        int count = 10;
-
-        // The first element is fixed to "-All Albums-"
-        List<Album> upnpNewests = recentAlbumUpnpProcessor.getAllItems().subList(1, 11);
-
-        List<MediaFile> serviceNewests = mediaFileService.getNewestAlbums(0, count, musicFolders);
-
-        assertEquals(upnpNewests.size(), serviceNewests.size());
-
-        for (int i = 0; i < count; i++) {
-            assertEquals("Recent　(" + count + ") : ", upnpNewests.get(i).getName(), serviceNewests.get(i).getName());
-        }
-
-    }
-    
     /*
      * DB dependent. Sort rules vary depending on the DB.
      */

@@ -83,6 +83,25 @@ public interface SearchService {
     List<Genre> getGenres(boolean sortByAlbum);
 
     /**
+     * Returns all genres in the music collection.
+     *
+     * @since 105.3.0
+     * @param sortByAlbum Whether to sort by album count, rather than song count.
+     * @param offset offset
+     * @param maxResults maxResults
+     * @return Sorted list of genres.
+     */
+    List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults);
+
+    /**
+     * Returns count of Genres.
+     * 
+     * @since 105.3.0
+     * @return Count of Genres
+     */
+    int getGenresCount();
+
+    /**
      * Returns albums in a genre.
      *
      * @since 101.2.0
@@ -117,5 +136,13 @@ public interface SearchService {
      * @return songs in the genre.
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
-    
+
+    /**
+     * Returns songs count of Genres.
+     * 
+     * @since 105.3.0
+     * @return Count of Genres
+     */
+    int getSongsCountByGenres(String genres, List<MusicFolder> musicFolders);
+
 }
