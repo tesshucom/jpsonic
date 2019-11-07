@@ -46,7 +46,7 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
-                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id," +
+                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id, " +
                                                 "composer, composer_sort, album_artist_reading, _order";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -436,11 +436,18 @@ public class MediaFileDao extends AbstractDao {
         args.put("folders", MusicFolder.toPathList(musicFolders));
         args.put("count", count);
         args.put("offset", offset);
+        String namedQuery =
+                "select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) and present " +
+                "order by _order, album_reading limit :count offset :offset";
+        if (byArtist) {
+            namedQuery =
+                    "select distinct " + prefix(QUERY_COLUMNS, "al") + ", ar._order as ar_order, al._order as al_order "
+                            + "from media_file al join media_file ar on ar.path = al.parent_path "
+                            + "where al.type = :type and al.folder in (:folders) and al.present " +
+                    "order by ar_order, al.artist_reading, al_order, al.album_reading limit :count offset :offset";
+        }
 
-        String orderBy = byArtist ? "artist_reading, album_reading" : "album_reading";
-        return namedQuery("select " + QUERY_COLUMNS
-                          + " from media_file where type = :type and folder in (:folders) and present " +
-                          "order by " + orderBy + " limit :count offset :offset", rowMapper, args);
+        return namedQuery(namedQuery, rowMapper, args);
     }
 
     /**

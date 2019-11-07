@@ -65,6 +65,11 @@ public class JpsonicComparators {
         };
     }
 
+    /**
+     * Returns a comparator that sorts in dictionary order regardless of the setting.
+     * (Used places are limited)
+     * @return Comparator
+     */
     public Comparator<Album> albumAlphabeticalOrder() {
         return new Comparator<Album>() {
 
@@ -80,6 +85,10 @@ public class JpsonicComparators {
         };
     }
 
+    /**
+     * Returns a Comparator that sorts by year or dictionary order according to the settings
+     * @return Comparator
+     */
     public Comparator<Album> albumOrder() {
         return new Comparator<Album>() {
 
