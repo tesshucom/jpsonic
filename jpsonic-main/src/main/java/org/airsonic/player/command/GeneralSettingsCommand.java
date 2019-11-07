@@ -40,6 +40,7 @@ public class GeneralSettingsCommand {
     private boolean prohibitSortVarious;
     private boolean sortAlphanum;
     private boolean sortStrict;
+    private boolean outputSearchQuery;
     private boolean gettingStartedEnabled;
     private String welcomeTitle;
     private String welcomeSubtitle;
@@ -203,6 +204,14 @@ public class GeneralSettingsCommand {
 
     public void setSortStrict(boolean sortStrict) {
         this.sortStrict = sortStrict;
+    }
+
+    public boolean isOutputSearchQuery() {
+        return outputSearchQuery;
+    }
+
+    public void setOutputSearchQuery(boolean outputSearchQuery) {
+        this.outputSearchQuery = outputSearchQuery;
     }
 
     public boolean isGettingStartedEnabled() {

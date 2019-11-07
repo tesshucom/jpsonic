@@ -22,6 +22,7 @@ package org.airsonic.player.service.search;
 
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -52,6 +53,9 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     private SearchServiceUtilities util;
 
+    @Autowired
+    private SettingsService settingsService;
+
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
             IndexType indexType) {
@@ -80,6 +84,10 @@ public class SearchServiceImpl implements SearchService {
 
             for (int i = start; i < end; i++) {
                 util.addIfAnyMatch(result, indexType, searcher.doc(topDocs.scoreDocs[i].doc));
+            }
+
+            if (settingsService.isOutputSearchQuery()) {
+                LOG.info("Entered query : {}", criteria.getQuery());
             }
 
         } catch (IOException e) {

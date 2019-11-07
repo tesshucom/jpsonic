@@ -64,6 +64,7 @@ public class GeneralSettingsController  {
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
         command.setSortAlphanum(settingsService.isSortAlphanum());
         command.setSortStrict(settingsService.isSortStrict());
+        command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
         command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
         command.setWelcomeTitle(settingsService.getWelcomeTitle());
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
@@ -124,6 +125,7 @@ public class GeneralSettingsController  {
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
         settingsService.setSortAlphanum(command.isSortAlphanum());
         settingsService.setSortStrict(command.isSortStrict());
+        settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());

@@ -103,6 +103,7 @@ public class SettingsService {
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
     private static final String KEY_SORT_STRICT = "SortStrict";
+    private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
     private static final String KEY_MEDIA_LIBRARY_STATISTICS = "MediaLibraryStatistics";
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -183,6 +184,7 @@ public class SettingsService {
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
     private static final boolean DEFAULT_SORT_STRICT = false;
+    private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
     private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -780,6 +782,14 @@ public class SettingsService {
 
     public void setSortStrict(boolean b) {
         setBoolean(KEY_SORT_STRICT, b);
+    }
+
+    public boolean isOutputSearchQuery() {
+        return getBoolean(KEY_OUTPUT_SEARCH_QUERY, DEFAULT_OUTPUT_SEARCH_QUERY);
+    }
+
+    public void setOutputSearchQuery(boolean b) {
+        setBoolean(KEY_OUTPUT_SEARCH_QUERY, b);
     }
 
     public boolean getIgnoreSymLinks() {
