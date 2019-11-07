@@ -118,6 +118,7 @@
             <td>
             </td>
             <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
                 <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
                 <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="prohibitsortvarious"/></c:import>
@@ -127,6 +128,7 @@
             <td>
             </td>
             <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
                 <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
                 <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortalphanum"/></c:import>
@@ -136,6 +138,7 @@
             <td>
             </td>
             <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
                 <form:checkbox path="sortStrict" id="sortStrict"/>
                 <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortstrict"/></c:import>

@@ -611,6 +611,12 @@ img#show-left-frame {
 	border-radius: 8px 8px 8px 8px;
 }
 
+.domestic {
+	height: 18px;	
+	width: 18px;
+	margin-top:-5px;
+}
+
 .monospace {
 	font-family: monospace;
 }
