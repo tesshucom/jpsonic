@@ -22,7 +22,11 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -48,14 +52,17 @@ import java.util.List;
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
 
-    private MediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
 
-    private MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
-    public MediaFileUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService) {
+    private final SearchService searchService;
+
+    public MediaFileUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, SearchService searchService) {
         super();
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
+        this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
 
@@ -172,6 +179,25 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getDispatcher().getAlbumProcessor().getAlbumArtURI(parent.getId())));
 
         return item;
+    }
+
+    public BrowseResult search(String query, long firstResult, long maxResults, IndexType indexType) {
+        DIDLContent didl = new DIDLContent();
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setOffset((int) firstResult);
+        criteria.setCount((int) maxResults);
+        criteria.setQuery(query);
+        try {
+            ParamSearchResult<MediaFile> result = searchService.search(criteria, indexType);
+            List<MediaFile> selectedItems = result.getItems();
+            for (MediaFile item : selectedItems) {
+                addItem(didl, item);
+            }
+            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

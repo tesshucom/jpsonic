@@ -87,7 +87,50 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Entered query : {}", criteria.getQuery());
+                LOG.info("Entered query : {} -> {}", indexType, criteria.getQuery());
+            }
+
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            indexManager.release(indexType, searcher);
+        }
+        return result;
+    }
+
+    @Override
+    public ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType) {
+
+        int offset = criteria.getOffset();
+        int count = criteria.getCount();
+
+        ParamSearchResult<MediaFile> result = new ParamSearchResult<>();
+        result.setOffset(offset);
+
+        if (count <= 0)
+            return result;
+
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        if (isEmpty(searcher)) {
+            return result;
+        }
+
+        try {
+            Query query = queryFactory.search(criteria, settingsService.getAllMusicFolders(), indexType);
+
+            TopDocs topDocs = searcher.search(query, offset + count);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
+            result.setTotalHits(totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            for (int i = start; i < end; i++) {
+                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                util.addIgnoreNull(result, indexType, util.getId.apply(doc), MediaFile.class);
+            }
+
+            if (settingsService.isOutputSearchQuery()) {
+                LOG.info("[UPnP] Entered query : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {

@@ -22,6 +22,7 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.*;
+import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
@@ -43,6 +44,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * @author Allen Petersen
@@ -114,25 +116,33 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
     }
 
+    private final int COUNT_MAX = 50;
+    
+    private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
+    
     @Override
     public BrowseResult search(String containerId,
-                               String searchCriteria, String filter,
+                               String criteria, String filter,
                                long firstResult, long maxResults,
                                SortCriterion[] orderBy) throws ContentDirectoryException {
-        // i don't see a parser for upnp search criteria anywhere, so this will
-        // have to do
-        String upnpClass = searchCriteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        String titleSearch = searchCriteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        BrowseResult returnValue = null;
-        if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-            returnValue = getArtistProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
-        } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-            returnValue = getMediaFileProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
-        } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-            returnValue = getAlbumProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
+        long offset = firstResult;
+        long count = maxResults;
+        if ((offset + count) > COUNT_MAX) {
+            count = COUNT_MAX - offset;
         }
-
-        return returnValue != null ? returnValue : super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
+        String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
+        String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
+        BrowseResult returnValue = null;
+        if (TITLE_SEARCH.matcher(criteria).matches()) {
+            if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
+                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.ARTIST);
+            } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
+                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.ALBUM);
+            } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
+                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.SONG);
+            }
+        }
+        return returnValue;
     }
 
     @SuppressWarnings("rawtypes")
