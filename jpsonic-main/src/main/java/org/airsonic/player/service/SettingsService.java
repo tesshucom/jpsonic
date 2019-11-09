@@ -99,6 +99,7 @@ public class SettingsService {
     private static final String KEY_SETTINGS_CHANGED = "SettingsChanged";
     private static final String KEY_LAST_SCANNED = "LastScanned";
     private static final String KEY_ORGANIZE_BY_FOLDER_STRUCTURE = "OrganizeByFolderStructure";
+    private static final String KEY_INDEX_ENGLISH_PRIOR = "IndexEnglishPrior";
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
@@ -180,6 +181,7 @@ public class SettingsService {
     private static final boolean DEFAULT_GETTING_STARTED_ENABLED = true;
     private static final long DEFAULT_SETTINGS_CHANGED = 0L;
     private static final boolean DEFAULT_ORGANIZE_BY_FOLDER_STRUCTURE = true;
+    private static final boolean DEFAULT_INDEX_ENGLISH_PRIOR = true;
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
@@ -750,6 +752,14 @@ public class SettingsService {
 
     public void setOrganizeByFolderStructure(boolean b) {
         setBoolean(KEY_ORGANIZE_BY_FOLDER_STRUCTURE, b);
+    }
+
+    public boolean isIndexEnglishPrior() {
+        return getBoolean(KEY_INDEX_ENGLISH_PRIOR, DEFAULT_INDEX_ENGLISH_PRIOR);
+    }
+
+    public void setIndexEnglishPrior(boolean b) {
+        setBoolean(KEY_INDEX_ENGLISH_PRIOR, b);
     }
 
     public boolean isSortAlbumsByYear() {

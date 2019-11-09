@@ -21,68 +21,9 @@
     <table style="white-space:nowrap" class="indent">
 
         <tr>
-            <td><fmt:message key="generalsettings.musicmask"/></td>
-            <td>
-                <form:input path="musicFileTypes" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="musicmask"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.videomask"/></td>
-            <td>
-                <form:input path="videoFileTypes" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="videomask"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.coverartmask"/></td>
-            <td>
-                <form:input path="coverArtFileTypes" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.playlistfolder"/></td>
-            <td>
-                <form:input path="playlistFolder" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="playlistfolder"/></c:import>
-            </td>
-        </tr>
-
-        <tr><td colspan="2">&nbsp;</td></tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.index"/></td>
-            <td>
-                <form:input path="index" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="index"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.ignoredarticles"/></td>
-            <td>
-                <form:input path="ignoredArticles" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoredarticles"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
-            <td><fmt:message key="generalsettings.shortcuts"/></td>
-            <td>
-                <form:input path="shortcuts" size="70"/>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shortcuts"/></c:import>
-            </td>
-        </tr>
-
-        <tr><td colspan="2">&nbsp;</td></tr>
-
-        <tr>
             <td><fmt:message key="generalsettings.language"/></td>
             <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
                 <form:select path="localeIndex" cssStyle="width:15em">
                     <c:forEach items="${command.locales}" var="locale" varStatus="loopStatus">
                         <form:option value="${loopStatus.count - 1}" label="${locale}"/>
@@ -95,12 +36,44 @@
         <tr>
             <td><fmt:message key="generalsettings.theme"/></td>
             <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
                 <form:select path="themeIndex" cssStyle="width:15em">
                     <c:forEach items="${command.themes}" var="theme" varStatus="loopStatus">
                         <form:option value="${loopStatus.count - 1}" label="${theme.name}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="theme"/></c:import>
+            </td>
+        </tr>
+
+        <tr><td colspan="2">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.indexsettings"/></td>
+            <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
+                <fmt:message key="generalsettings.index"/>
+                <form:input path="index" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="index"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <fmt:message key="generalsettings.ignoredarticles"/>
+                <form:input path="ignoredArticles" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoredarticles"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td>
+                <img src="<spring:theme code="domestic"/>" class="domestic" alt="">
+                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior"/>
+                <label for="sortAlbumsByYear"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
             </td>
         </tr>
 
@@ -145,6 +118,8 @@
             </td>
         </tr>
 
+        <tr><td colspan="2">&nbsp;</td></tr>
+
         <tr>
             <td><fmt:message key="generalsettings.searchsettings"/></td>
             <td>
@@ -152,6 +127,48 @@
                 <form:checkbox path="outputSearchQuery" id="outputSearchQuery"/>
                 <label for="outputSearchQuery"><fmt:message key="generalsettings.outputsearchquery"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="outputsearchquery"/></c:import>
+            </td>
+        </tr>
+
+        <tr><td colspan="2">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.musicmask"/></td>
+            <td>
+                <form:input path="musicFileTypes" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="musicmask"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.videomask"/></td>
+            <td>
+                <form:input path="videoFileTypes" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="videomask"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.coverartmask"/></td>
+            <td>
+                <form:input path="coverArtFileTypes" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.playlistfolder"/></td>
+            <td>
+                <form:input path="playlistFolder" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="playlistfolder"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td><fmt:message key="generalsettings.shortcuts"/></td>
+            <td>
+                <form:input path="shortcuts" size="70"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shortcuts"/></c:import>
             </td>
         </tr>
 
