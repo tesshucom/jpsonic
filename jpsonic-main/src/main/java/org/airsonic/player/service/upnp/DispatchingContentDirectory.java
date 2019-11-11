@@ -118,6 +118,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     private final int COUNT_MAX = 50;
     
+    /*
+     * Legacy implementation assumes title search(Ignore other fields if specified).
+     */
     private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
     
     @Override
@@ -133,14 +136,20 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
         String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
         BrowseResult returnValue = null;
+        boolean isDlnaFileStructure = settingsService.isDlnaFileStructureSearch();
         if (TITLE_SEARCH.matcher(criteria).matches()) {
             if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.ARTIST);
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.ARTIST)
+                        : getArtistProcessor().searchByName(query, offset, count, orderBy);
             } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.ALBUM);
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.ALBUM)
+                        : getAlbumProcessor().searchByName(query, offset, count, orderBy);
             } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-                returnValue = getMediaFileProcessor().search(query, offset, count, IndexType.SONG);
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.SONG)
+                        : getMediaFileProcessor().searchByName(query, offset, count, orderBy);
             }
+        } else {
+            LOG.debug("Does not support field search other than title. QUERY : {}", criteria);
         }
         return returnValue;
     }

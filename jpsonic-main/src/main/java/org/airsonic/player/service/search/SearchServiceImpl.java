@@ -87,7 +87,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Entered query : {} -> {}", indexType, criteria.getQuery());
+                LOG.info("Web/FileStructure : {} -> {}", indexType, criteria.getQuery());
             }
 
         } catch (IOException e) {
@@ -130,7 +130,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("[UPnP] Entered query : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("UPnP/FileStructure : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
@@ -278,6 +278,10 @@ public class SearchServiceImpl implements SearchService {
             for (int i = start; i < end; i++) {
                 Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                 util.addIgnoreNull(result, indexType, util.getId.apply(doc), assignableClass);
+            }
+
+            if (settingsService.isOutputSearchQuery()) {
+                LOG.info("UPnP/ID3 : {} -> query:{}", fieldName, name);
             }
 
         } catch (IOException e) {

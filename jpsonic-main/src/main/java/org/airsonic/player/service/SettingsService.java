@@ -109,6 +109,7 @@ public class SettingsService {
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
+    private static final String KEY_DLNA_FILE_STRUCTURE_SEARCH = "DlnaFileStructureSearch";
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
     private static final String KEY_SONOS_SERVICE_ID = "SonosServiceId";
@@ -191,6 +192,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
+    private static final boolean DEFAULT_DLNA_FILE_STRUCTURE_SEARCH = true;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
@@ -1287,6 +1289,14 @@ public class SettingsService {
 
     public void setDlnaBaseLANURL(String dlnaBaseLANURL) {
         setString(KEY_DLNA_BASE_LAN_URL, dlnaBaseLANURL);
+    }
+
+    public boolean isDlnaFileStructureSearch() {
+        return getBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, DEFAULT_DLNA_FILE_STRUCTURE_SEARCH);
+    }
+
+    public void setDlnaFileStructureSearch(boolean b) {
+        setBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, b);
     }
 
     public boolean isSonosEnabled() {

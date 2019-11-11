@@ -20,7 +20,6 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.UPnPService;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,6 +33,9 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 /**
  * Controller for the page used to administrate the UPnP/DLNA server settings.
@@ -58,6 +60,7 @@ public class DLNASettingsController {
         map.put("dlnaEnabled", settingsService.isDlnaEnabled());
         map.put("dlnaServerName", settingsService.getDlnaServerName());
         map.put("dlnaBaseLANURL", settingsService.getDlnaBaseLANURL());
+        map.put("dlnaFileStructureSearch", settingsService.isDlnaFileStructureSearch());
 
         model.addAttribute("model", map);
         return "dlnaSettings";
@@ -72,18 +75,28 @@ public class DLNASettingsController {
 
     private void handleParameters(HttpServletRequest request) {
         boolean dlnaEnabled = ServletRequestUtils.getBooleanParameter(request, "dlnaEnabled", false);
-        String dlnaServerName = StringUtils.trimToNull(request.getParameter("dlnaServerName"));
-        String dlnaBaseLANURL = StringUtils.trimToNull(request.getParameter("dlnaBaseLANURL"));
+        String dlnaServerName = trimToNull(request.getParameter("dlnaServerName"));
+        String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
+        boolean dlnaFileStructureSearch = ServletRequestUtils.getBooleanParameter(request, "dlnaFileStructureSearch", false);
         if (dlnaServerName == null) {
             dlnaServerName = "Jpsonic";
         }
 
-        upnpService.setMediaServerEnabled(false);
+        boolean isEnabledStateChange =
+                !(settingsService.isDlnaEnabled() == dlnaEnabled
+                && !isEmpty(dlnaServerName) && dlnaServerName.equals(settingsService.getDlnaServerName())
+                && !isEmpty(dlnaBaseLANURL) && dlnaBaseLANURL.equals(settingsService.getDlnaBaseLANURL()));
+
         settingsService.setDlnaEnabled(dlnaEnabled);
         settingsService.setDlnaServerName(dlnaServerName);
         settingsService.setDlnaBaseLANURL(dlnaBaseLANURL);
+        settingsService.setDlnaFileStructureSearch(dlnaFileStructureSearch);
         settingsService.save();
-        upnpService.setMediaServerEnabled(dlnaEnabled);
+
+        if (isEnabledStateChange) {
+            upnpService.setMediaServerEnabled(dlnaEnabled);
+        }
+
     }
 
     public void setSettingsService(SettingsService settingsService) {

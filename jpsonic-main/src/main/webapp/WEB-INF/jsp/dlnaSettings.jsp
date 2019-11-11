@@ -33,8 +33,8 @@
     <c:param name="toast" value="${settings_toast}"/>
 </c:import>
 
-
 <form method="post" action="dlnaSettings.view">
+    <sec:csrfInput />
 
     <table style="white-space:nowrap" class="indent">
 
@@ -65,6 +65,16 @@
             <td>
                 <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value="${model.dlnaBaseLANURL}" />" />
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnalanurl"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.search"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaFileStructureSearch" id="dlnaFileStructureSearch" ${model.dlnaFileStructureSearch? "checked": ""}/>
+                <label for="dlnaFileStructureSearch"><fmt:message key="dlnasettings.filestructuresearch"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaFileStructureSearch"/></c:import>
             </td>
         </tr>
 
