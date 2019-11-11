@@ -50,7 +50,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.artists");
+        setRootTitleWithResource("dlna.title.artists");
     }
 
     public Container createContainer(Artist artist) {
@@ -88,7 +88,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
                 .getAlbumsForArtist(artist.getName(), offset > 1 ? offset - 1 : offset, 0L == offset ? maxResults - 1 : maxResults, getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();
-            firstElement.setName(getResource("dnla.element.allalbums"));
+            firstElement.setName(getResource("dlna.element.allalbums"));
             firstElement.setId(-1);
             firstElement.setComment(AlbumUpnpProcessor.ALL_BY_ARTIST + "_" + artist.getId());
             albums.add(0, firstElement);

@@ -68,7 +68,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.folders");
+        setRootTitleWithResource("dlna.title.folders");
     }
 
     @Override

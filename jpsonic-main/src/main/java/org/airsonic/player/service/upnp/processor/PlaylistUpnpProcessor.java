@@ -50,7 +50,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.playlists");
+        setRootTitleWithResource("dlna.title.playlists");
     }
 
     public Container createContainer(Playlist item) {

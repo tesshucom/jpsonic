@@ -68,7 +68,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.albums");
+        setRootTitleWithResource("dlna.title.albums");
     }
 
     /**

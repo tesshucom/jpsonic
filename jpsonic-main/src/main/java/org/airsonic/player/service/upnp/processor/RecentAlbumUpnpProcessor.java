@@ -50,7 +50,7 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.recentAlbums");
+        setRootTitleWithResource("dlna.title.recentAlbums");
     }
 
     public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
@@ -85,7 +85,7 @@ public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
         albums = albumDao.getNewestAlbums(offset, count, getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album viewAll = new Album();
-            viewAll.setName(getResource("dnla.element.allalbums"));
+            viewAll.setName(getResource("dlna.element.allalbums"));
             viewAll.setId(-1);
             viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT);
             albums.add(0, viewAll);

@@ -51,7 +51,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dnla.title.genres");
+        setRootTitleWithResource("dlna.title.genres");
     }
 
     /**
