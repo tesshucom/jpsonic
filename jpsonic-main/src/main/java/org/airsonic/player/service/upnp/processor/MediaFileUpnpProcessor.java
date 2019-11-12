@@ -181,20 +181,12 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return item;
     }
 
-    public BrowseResult search(String query, long firstResult, long maxResults, IndexType indexType) {
+    public BrowseResult search(SearchCriteria criteria, IndexType indexType) {
         DIDLContent didl = new DIDLContent();
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setOffset((int) firstResult);
-        criteria.setCount((int) maxResults);
-        criteria.setQuery(query);
         try {
             ParamSearchResult<MediaFile> result = searchService.search(criteria, indexType);
-            List<MediaFile> selectedItems = result.getItems();
-            for (MediaFile item : selectedItems) {
-                addItem(didl, item);
-            }
+            result.getItems().forEach(i -> addItem(didl, i));
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-
         } catch (Exception e) {
             return null;
         }

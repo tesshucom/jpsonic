@@ -21,6 +21,7 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
@@ -136,16 +137,24 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
         String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
         BrowseResult returnValue = null;
+
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOffset((int) firstResult);
+        searchCriteria.setCount((int) maxResults);
+        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());        
+        searchCriteria.setQuery(query);
+
         boolean isDlnaFileStructure = settingsService.isDlnaFileStructureSearch();
+
         if (TITLE_SEARCH.matcher(criteria).matches()) {
             if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.ARTIST)
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ARTIST)
                         : getArtistProcessor().searchByName(query, offset, count, orderBy);
             } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.ALBUM)
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ALBUM)
                         : getAlbumProcessor().searchByName(query, offset, count, orderBy);
             } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(query, offset, count, IndexType.SONG)
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.SONG)
                         : getMediaFileProcessor().searchByName(query, offset, count, orderBy);
             }
         } else {

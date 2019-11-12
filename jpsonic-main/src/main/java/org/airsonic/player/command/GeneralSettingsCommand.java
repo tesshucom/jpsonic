@@ -41,6 +41,7 @@ public class GeneralSettingsCommand {
     private boolean prohibitSortVarious;
     private boolean sortAlphanum;
     private boolean sortStrict;
+    private boolean searchComposer;
     private boolean outputSearchQuery;
     private boolean gettingStartedEnabled;
     private String welcomeTitle;
@@ -213,6 +214,14 @@ public class GeneralSettingsCommand {
 
     public void setSortStrict(boolean sortStrict) {
         this.sortStrict = sortStrict;
+    }
+
+    public boolean isSearchComposer() {
+        return searchComposer;
+    }
+
+    public void setSearchComposer(boolean searchComposer) {
+        this.searchComposer = searchComposer;
     }
 
     public boolean isOutputSearchQuery() {

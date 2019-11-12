@@ -104,6 +104,7 @@ public class SettingsService {
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
     private static final String KEY_SORT_STRICT = "SortStrict";
+    private static final String KEY_SEARCH_COMPOSER = "SearchComposer";
     private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
     private static final String KEY_MEDIA_LIBRARY_STATISTICS = "MediaLibraryStatistics";
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
@@ -187,6 +188,7 @@ public class SettingsService {
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
     private static final boolean DEFAULT_SORT_STRICT = false;
+    private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
     private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
@@ -794,6 +796,14 @@ public class SettingsService {
 
     public void setSortStrict(boolean b) {
         setBoolean(KEY_SORT_STRICT, b);
+    }
+
+    public boolean isSearchComposer() {
+        return getBoolean(KEY_SEARCH_COMPOSER, DEFAULT_SEARCH_COMPOSER);
+    }
+
+    public void setSearchComposer(boolean b) {
+        setBoolean(KEY_SEARCH_COMPOSER, b);
     }
 
     public boolean isOutputSearchQuery() {

@@ -123,6 +123,16 @@
             <td><fmt:message key="generalsettings.searchsettings"/></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
+                <form:checkbox path="searchComposer" id="searchComposer"/>
+                <label for="searchComposer"><fmt:message key="generalsettings.searchcomposer"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchcomposer"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
                 <form:checkbox path="outputSearchQuery" id="outputSearchQuery"/>
                 <label for="outputSearchQuery"><fmt:message key="generalsettings.outputsearchquery"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="outputsearchquery"/></c:import>

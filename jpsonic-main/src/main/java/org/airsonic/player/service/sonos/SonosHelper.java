@@ -530,6 +530,7 @@ public class SonosHelper {
         searchCriteria.setCount(count);
         searchCriteria.setOffset(offset);
         searchCriteria.setQuery(query);
+        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         SearchResult searchResult = searchService.search(searchCriteria, musicFolders, indexType);

@@ -81,7 +81,7 @@ public interface SearchService {
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
 
     /**
-     * Currently not used.
+     * Design change required.
      * @deprecated
      */
     @Deprecated

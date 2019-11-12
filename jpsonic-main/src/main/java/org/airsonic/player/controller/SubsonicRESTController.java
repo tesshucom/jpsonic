@@ -682,6 +682,7 @@ public class SubsonicRESTController {
         criteria.setQuery(query.toString().trim());
         criteria.setCount(getIntParameter(request, "count", 20));
         criteria.setOffset(getIntParameter(request, "offset", 0));
+        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         org.airsonic.player.domain.SearchResult result = searchService.search(criteria, musicFolders, IndexType.SONG);
@@ -712,6 +713,7 @@ public class SubsonicRESTController {
         criteria.setQuery(StringUtils.trimToEmpty(query));
         criteria.setCount(getIntParameter(request, "artistCount", 20));
         criteria.setOffset(getIntParameter(request, "artistOffset", 0));
+        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());        
         org.airsonic.player.domain.SearchResult artists = searchService.search(criteria, musicFolders, IndexType.ARTIST);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
@@ -751,6 +753,7 @@ public class SubsonicRESTController {
         criteria.setQuery(StringUtils.trimToEmpty(query));
         criteria.setCount(getIntParameter(request, "artistCount", 20));
         criteria.setOffset(getIntParameter(request, "artistOffset", 0));
+        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());        
         org.airsonic.player.domain.SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST_ID3);
         for (org.airsonic.player.domain.Artist artist : result.getArtists()) {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
