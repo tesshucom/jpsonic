@@ -1,8 +1,10 @@
 
 package org.airsonic.player.service.search;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.junit.Test;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -10,10 +12,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Test;
-import org.slf4j.LoggerFactory;
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Test case for Analyzer.
@@ -35,8 +35,7 @@ public class AnalyzerFactoryTestCase {
          */
 
         // 4
-        String[] multiTokenFields = { FieldNames.ARTIST, FieldNames.ARTIST_READING, FieldNames.ALBUM,
-                FieldNames.TITLE };
+        String[] multiTokenFields = { FieldNames.ARTIST, FieldNames.ARTIST_READING, FieldNames.ALBUM, FieldNames.TITLE };
         Arrays.stream(multiTokenFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("multiToken : " + n, 7, terms.size());

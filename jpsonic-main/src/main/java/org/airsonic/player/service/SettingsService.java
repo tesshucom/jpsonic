@@ -99,12 +99,10 @@ public class SettingsService implements CollatorProvider {
     private static final String KEY_LDAP_AUTO_SHADOWING = "LdapAutoShadowing";
     private static final String KEY_GETTING_STARTED_ENABLED = "GettingStartedEnabled";
     private static final String KEY_SETTINGS_CHANGED = "SettingsChanged";
-    private static final String KEY_LAST_SCANNED = "LastScanned";
     private static final String KEY_ORGANIZE_BY_FOLDER_STRUCTURE = "OrganizeByFolderStructure";
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
-    private static final String KEY_MEDIA_LIBRARY_STATISTICS = "MediaLibraryStatistics";
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
@@ -166,7 +164,6 @@ public class SettingsService implements CollatorProvider {
     private static final int DEFAULT_PODCAST_EPISODE_DOWNLOAD_COUNT = 1;
     private static final long DEFAULT_DOWNLOAD_BITRATE_LIMIT = 0;
     private static final long DEFAULT_UPLOAD_BITRATE_LIMIT = 0;
-    private static final boolean DEFAULT_ENABLE_SEEK = true;
     private static final String DEFAULT_DOWNSAMPLING_COMMAND = "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -";
     private static final String DEFAULT_HLS_COMMAND = "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -";
     private static final String DEFAULT_JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
@@ -183,7 +180,6 @@ public class SettingsService implements CollatorProvider {
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = false;
-    private static final String DEFAULT_MEDIA_LIBRARY_STATISTICS = "0 0 0 0 0";
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
@@ -729,19 +725,6 @@ public class SettingsService implements CollatorProvider {
         return getLong(KEY_SETTINGS_CHANGED, DEFAULT_SETTINGS_CHANGED);
     }
 
-    public Date getLastScanned() {
-        String lastScanned = getProperty(KEY_LAST_SCANNED, null);
-        return lastScanned == null ? null : new Date(Long.parseLong(lastScanned));
-    }
-
-    void setLastScanned(Date date) {
-        if (date == null) {
-            setProperty(KEY_LAST_SCANNED, null);
-        } else {
-            setLong(KEY_LAST_SCANNED, date.getTime());
-        }
-    }
-
     public boolean isOrganizeByFolderStructure() {
         return getBoolean(KEY_ORGANIZE_BY_FOLDER_STRUCTURE, DEFAULT_ORGANIZE_BY_FOLDER_STRUCTURE);
     }
@@ -804,14 +787,6 @@ public class SettingsService implements CollatorProvider {
             compileExcludePattern();
         }
         return excludePattern;
-    }
-
-    public MediaLibraryStatistics getMediaLibraryStatistics() {
-        return MediaLibraryStatistics.parse(getString(KEY_MEDIA_LIBRARY_STATISTICS, DEFAULT_MEDIA_LIBRARY_STATISTICS));
-    }
-
-    void setMediaLibraryStatistics(MediaLibraryStatistics statistics) {
-        setString(KEY_MEDIA_LIBRARY_STATISTICS, statistics.format());
     }
 
     /**

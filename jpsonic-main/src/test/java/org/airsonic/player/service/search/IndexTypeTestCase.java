@@ -18,13 +18,12 @@
  */
 package org.airsonic.player.service.search;
 
-import java.util.Arrays;
-
+import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import junit.framework.TestCase;
+import java.util.Arrays;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 public class IndexTypeTestCase extends TestCase {

@@ -18,16 +18,16 @@
  */
 package com.tesshu.jpsonic.service;
 
-import static org.junit.Assert.*;
-
-import java.util.function.BiFunction;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest{
+import java.util.function.BiFunction;
+
+import static org.junit.Assert.*;
+
+public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
     private MediaFileJPSupport support;
@@ -80,7 +80,6 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest{
         MediaFile mediaFile = new MediaFile();
         mediaFile.setArtist(artist);
         mediaFile.setArtistSort(artistSort);
-        ;
         return mediaFile;
     };
 

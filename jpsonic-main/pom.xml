@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>10.5.0-SNAPSHOT</version>
+        <version>10.5.0-RELEASE</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>105.2.0-SNAPSHOT</jpsonic.version>
+        <jpsonic.version>106.0.0-SNAPSHOT</jpsonic.version>
     </properties>
 
     <dependencies>
@@ -103,7 +103,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.8.0</version>
+            <version>3.8.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
@@ -612,6 +612,24 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <language>jsp</language>
+                    <rulesets>
+                        <ruleset>/category/jsp/codestyle.xml</ruleset>
+                        <ruleset>/category/jsp/errorprone.xml</ruleset>
+                    </rulesets>
+                    <includes>
+                        <include>**/*.jsp</include>
+                        <include>**/*.jspf</include>
+                    </includes>
+                    <compileSourceRoots>
+                        <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
+                    </compileSourceRoots>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>1.5.21.RELEASE</version>
@@ -628,42 +646,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>post-unit-test</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>target/jacoco.exec</dataFile>
-                            <outputDirectory>target/jacoco-ut</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <systemPropertyVariables>
-                        <jacoco-agent.destfile>target/jacoco.exec</jacoco-agent.destfile>
-                    </systemPropertyVariables>
-                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -743,15 +725,6 @@
             </plugin>
         </plugins>
     </build>
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.3</version>
-            </plugin>
-        </plugins>
-    </reporting>
     <profiles>
         <profile>
             <id>tomcat-embed</id>

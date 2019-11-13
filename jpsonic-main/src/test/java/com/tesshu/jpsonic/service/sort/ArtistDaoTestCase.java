@@ -18,12 +18,6 @@
  */
 package com.tesshu.jpsonic.service.sort;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
@@ -31,6 +25,12 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.service.sort.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertFalse;
@@ -44,6 +44,7 @@ public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
         File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
     }
+
     @Autowired
     private ArtistDao artistDao;
 
