@@ -86,10 +86,6 @@
         </tr>
         
     </table>
-    <p>
-        <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
-        <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
-    </p>
 
 </form>
 
