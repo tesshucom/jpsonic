@@ -21,12 +21,12 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
+    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
 <body class="mainframe bgcolor1">
-<script type="text/javascript" src="<c:url value="/script/wz_tooltip.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/script/tip_balloon.js"/>"></script>
+<script type="text/javascript" src="<c:url value='/script/wz_tooltip.js'/>"></script>
+<script type="text/javascript" src="<c:url value='/script/tip_balloon.js'/>"></script>
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="dlna"/>
@@ -53,7 +53,7 @@
             <td></td>
             <td><fmt:message key="dlnasettings.servername"/></td>
             <td>
-                <input name="dlnaServerName" id="dlnaServerName" size="40" value="<c:out value="${model.dlnaServerName}" escapeXml="true"/>"/>
+                <input name="dlnaServerName" id="dlnaServerName" size="40" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaservername"/></c:import>
             </td>
         </tr>
@@ -63,7 +63,7 @@
             <td></td>
             <td><label for="dlnaBaseLANURL" ><fmt:message key="dlnasettings.baselanurl"/></label></td>
             <td>
-                <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value="${model.dlnaBaseLANURL}" />" />
+                <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value='${model.dlnaBaseLANURL}' />" />
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnalanurl"/></c:import>
             </td>
         </tr>
@@ -80,12 +80,16 @@
 
         <tr>
             <td colspan="4" style="padding-top:1.5em">
-                <input type="submit" value="<fmt:message key="common.save"/>" style="margin-right:0.3em">
-                <a href='nowPlaying.view'><input type="button" value="<fmt:message key="common.cancel"/>"></a>
+                <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
+                <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
             </td>
         </tr>
         
     </table>
+    <p>
+        <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
+        <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
+    </p>
 
 </form>
 

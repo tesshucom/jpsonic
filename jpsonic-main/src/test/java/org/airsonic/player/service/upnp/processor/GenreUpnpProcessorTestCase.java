@@ -18,21 +18,20 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import org.airsonic.player.domain.Genre;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.airsonic.player.domain.Genre;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertEquals;
 

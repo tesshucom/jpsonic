@@ -4,9 +4,9 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
     <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
-    <script type="text/javascript" src="<c:url value="/dwr/engine.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/dwr/interface/playlistService.js"/>"></script>
-    <script type="text/javascript" src="<c:url value="/dwr/interface/starService.js"/>"></script>
+    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
+    <script type="text/javascript" src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
+    <script type="text/javascript" src="<c:url value='/dwr/interface/starService.js'/>"></script>
     <script type="text/javascript" language="javascript">
 
         var playlist;
@@ -287,12 +287,12 @@
     </tbody>
 </table>
 
-<div id="dialog-delete" title="<fmt:message key="common.confirm"/>" style="display: none;">
+<div id="dialog-delete" title="<fmt:message key='common.confirm'/>" style="display: none;">
     <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
         <fmt:message key="playlist2.confirmdelete"/></p>
 </div>
 
-<div id="dialog-edit" title="<fmt:message key="common.edit"/>" style="display: none;">
+<div id="dialog-edit" title="<fmt:message key='common.edit'/>" style="display: none;">
     <form>
         <label for="newName" style="display:block;"><fmt:message key="playlist2.name"/></label>
         <input type="text" name="newName" id="newName" value="${fn:escapeXml(model.playlist.name)}" class="ui-widget-content"

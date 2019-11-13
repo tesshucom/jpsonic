@@ -18,8 +18,6 @@
  */
 package org.airsonic.player.service.search;
 
-import static org.junit.Assert.assertEquals;
-
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
@@ -41,6 +39,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /*
  * The query syntax has not changed significantly since Lucene 1.3.
@@ -237,7 +237,7 @@ public class QueryFactoryTestCase {
     public void testGetRandomSongs() throws IOException {
         RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), Integer.valueOf(1900), Integer.valueOf(2000), SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
-        assertEquals(ToStringBuilder.reflectionToString(criteria), "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(criteria), "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + ")", query.toString());
         criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), Integer.valueOf(1900), Integer.valueOf(2000), MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria), "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
@@ -253,13 +253,13 @@ public class QueryFactoryTestCase {
 
         criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock", "Rock & Roll"), Integer.valueOf(1900), Integer.valueOf(2000), SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
-        assertEquals("multi genre", "+m:MUSIC +(g:Classic Rock g:Rock & Roll) +y:[1900 TO 2000] +(f:" + PATH1 +")", query.toString());
+        assertEquals("multi genre", "+m:MUSIC +(g:Classic Rock g:Rock & Roll) +y:[1900 TO 2000] +(f:" + PATH1 + ")", query.toString());
     }
 
     @Test
     public void testGetRandomAlbums() {
         Query query = queryFactory.getRandomAlbums(SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(f:" + PATH1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(f:" + PATH1 + ")", query.toString());
         query = queryFactory.getRandomAlbums(MULTI_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
     }
@@ -267,7 +267,7 @@ public class QueryFactoryTestCase {
     @Test
     public void testGetRandomAlbumsId3() {
         Query query = queryFactory.getRandomAlbumsId3(SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(fId:" + FID1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "(fId:" + FID1 + ")", query.toString());
         query = queryFactory.getRandomAlbumsId3(MULTI_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
     }
@@ -275,7 +275,7 @@ public class QueryFactoryTestCase {
     @Test
     public void testGetMediasByGenre() throws IOException {
         Query query = queryFactory.getMediasByGenres("Instrumental pop", SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(f:" + PATH1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(f:" + PATH1 + ")", query.toString());
         query = queryFactory.getMediasByGenres("Rock & Roll", MULTI_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(g:Rock & Roll) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         query = queryFactory.getMediasByGenres("Pop;Pop/Funk", MULTI_FOLDERS);
@@ -287,7 +287,7 @@ public class QueryFactoryTestCase {
     @Test
     public void testGetAlbumId3sByGenre() throws IOException {
         Query query = queryFactory.getAlbumId3sByGenres("Instrumental pop", SINGLE_FOLDERS);
-        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(fId:" + FID1 +")", query.toString());
+        assertEquals(ToStringBuilder.reflectionToString(SINGLE_FOLDERS), "+(g:Instrumental pop) +(fId:" + FID1 + ")", query.toString());
         query = queryFactory.getAlbumId3sByGenres("Rock & Roll", MULTI_FOLDERS);
         assertEquals(ToStringBuilder.reflectionToString(MULTI_FOLDERS), "+(g:Rock & Roll) +(fId:" + FID1 + " fId:" + FID2 + ")", query.toString());
         query = queryFactory.getAlbumId3sByGenres("Pop;Pop/Funk", MULTI_FOLDERS);

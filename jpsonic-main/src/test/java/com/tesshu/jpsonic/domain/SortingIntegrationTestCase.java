@@ -18,8 +18,25 @@
  */
 package com.tesshu.jpsonic.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.airsonic.player.dao.PlaylistDao;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaFileComparator;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.MusicIndex;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.PlayQueue.SortOrder;
+import org.airsonic.player.domain.Playlist;
+import org.airsonic.player.domain.SearchCriteria;
+import org.airsonic.player.domain.SearchResult;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.MusicIndexService;
+import org.airsonic.player.service.PlaylistService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.airsonic.player.service.search.IndexType;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,25 +49,8 @@ import java.util.SortedMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.airsonic.player.dao.PlaylistDao;
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFileComparator;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.domain.PlayQueue;
-import org.airsonic.player.domain.Playlist;
-import org.airsonic.player.domain.PlayQueue.SortOrder;
-import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.domain.SearchResult;
-import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.MusicIndexService;
-import org.airsonic.player.service.PlaylistService;
-import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.airsonic.player.service.search.IndexType;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /*
  * Test to correct sort inconsistencies.

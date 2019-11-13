@@ -43,8 +43,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         root.setParentID("-1");
 
-        // MediaLibraryStatistics statistics =
-        // getDispatcher().getSettingsService().getMediaLibraryStatistics();
+        // MediaLibraryStatistics statistics = indexManager.getStatistics();
         // returning large storageUsed values doesn't play nicely with
         // some upnp clients
         // root.setStorageUsed(statistics == null ? 0 :

@@ -27,12 +27,16 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.FileUtil;
+import org.airsonic.player.util.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
@@ -56,6 +60,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -242,17 +247,20 @@ public class IndexManager {
      * Close Writer of all indexes and update SearcherManager.
      * Called at the end of the Scan flow.
      */
-    public void stopIndexing() {
-        Arrays.asList(IndexType.values()).forEach(this::stopIndexing);
+    public void stopIndexing(MediaLibraryStatistics statistics) {
+        Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
     }
 
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
-    private void stopIndexing(IndexType type) {
+    private void stopIndexing(IndexType type, MediaLibraryStatistics statistics) {
+
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
+            Map<String,String> userData = Util.objectToStringMap(statistics);
+            writer.setLiveCommitData(userData.entrySet());
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
             writers.remove(type);
@@ -273,6 +281,43 @@ public class IndexManager {
             }
         }
 
+    }
+
+    /**
+     * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data.
+     * On invalid indices, returns null.
+     */
+    public @Nullable MediaLibraryStatistics getStatistics() {
+        MediaLibraryStatistics stats = null;
+        for (IndexType indexType : IndexType.values()) {
+            IndexSearcher searcher = getSearcher(indexType);
+            if (searcher == null) {
+                LOG.trace("No index for type " + indexType);
+                return null;
+            }
+            IndexReader indexReader = searcher.getIndexReader();
+            if (!(indexReader instanceof DirectoryReader)) {
+                LOG.warn("Unexpected index type " + indexReader.getClass());
+                return null;
+            }
+            try {
+                Map<String, String> userData = ((DirectoryReader) indexReader).getIndexCommit().getUserData();
+                MediaLibraryStatistics currentStats = Util.stringMapToValidObject(MediaLibraryStatistics.class,
+                        userData);
+                if (stats == null) {
+                    stats = currentStats;
+                } else {
+                    if (!Objects.equals(stats, currentStats)) {
+                        LOG.warn("Index type " + indexType + " had differing stats data");
+                        return null;
+                    }
+                }
+            } catch (IOException | IllegalArgumentException e) {
+                LOG.debug("Exception encountered while fetching index commit data", e);
+                return null;
+            }
+        }
+        return stats;
     }
 
     /**
@@ -370,6 +415,7 @@ public class IndexManager {
                         }
                     }
                 });
+
     }
 
     /**

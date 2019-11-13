@@ -19,8 +19,8 @@
     </script>
 </head>
 <body class="mainframe bgcolor1" onload="init()">
-<script type="text/javascript" src="<c:url value="/script/wz_tooltip.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/script/tip_balloon.js"/>"></script>
+<script type="text/javascript" src="<c:url value='/script/wz_tooltip.js'/>"></script>
+<script type="text/javascript" src="<c:url value='/script/tip_balloon.js'/>"></script>
 
 
 <c:import url="settingsHeader.jsp">
@@ -30,7 +30,7 @@
 
 <form:form modelAttribute="command" action="musicFolderSettings.view" method="post">
 
-    <table style="white-space:nowrap" class="indent">
+<table class="indent">
 
         <tr>
             <td valign="top"><fmt:message key="musicfoldersettings.specify"/></td>

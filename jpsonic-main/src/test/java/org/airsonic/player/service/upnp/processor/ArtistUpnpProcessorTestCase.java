@@ -18,19 +18,18 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
