@@ -43,6 +43,7 @@ public class MusicFolderSettingsCommand {
     private MusicFolderInfo newMusicFolder;
     private String excludePatternString;
     private boolean ignoreSymLinks;
+    private boolean indexEnglishPrior;
 
     public String getInterval() {
         return interval;
@@ -114,6 +115,14 @@ public class MusicFolderSettingsCommand {
 
     public void setIgnoreSymLinks(boolean ignoreSymLinks) {
         this.ignoreSymLinks = ignoreSymLinks;
+    }
+
+    public boolean isIndexEnglishPrior() {
+        return indexEnglishPrior;
+    }
+
+    public void setIndexEnglishPrior(boolean indexEnglishPrior) {
+        this.indexEnglishPrior = indexEnglishPrior;
     }
 
     public static class MusicFolderInfo {

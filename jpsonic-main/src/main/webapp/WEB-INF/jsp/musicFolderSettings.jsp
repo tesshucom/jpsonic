@@ -34,6 +34,7 @@
 
         <tr>
             <td valign="top"><fmt:message key="musicfoldersettings.specify"/></td>
+            <td></td>
             <td>
     
                 <table class="indent">
@@ -78,6 +79,7 @@
         
         <tr>
             <td valign="top"><fmt:message key="musicfoldersettings.exclusion"/></td>
+            <td></td>
             <td>
     
                 <div>
@@ -98,6 +100,7 @@
 
         <tr>
             <td valign="top"><fmt:message key="musicfoldersettings.execscan"/></td>
+            <td></td>
             <td>
     
     
@@ -142,6 +145,7 @@
 
         <tr>
             <td valign="top"><fmt:message key="musicfoldersettings.other"/></td>
+            <td></td>
             <td>
             
                 <div>
@@ -157,6 +161,16 @@
                 <p class="detail" style="width:60%;white-space:normal;margin-top:-10px;">
                     <fmt:message key="musicfoldersettings.expunge.description"/>
                 </p>
+            </td>
+        </tr>
+
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior" disabled="true"/>
+                <label for="sortAlbumsByYear"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
             </td>
         </tr>
 

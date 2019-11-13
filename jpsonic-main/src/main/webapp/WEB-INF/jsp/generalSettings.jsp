@@ -68,16 +68,6 @@
             </td>
         </tr>
 
-        <tr>
-            <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
-            <td colspan="2">
-                <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior"/>
-                <label for="sortAlbumsByYear"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
-            </td>
-        </tr>
-
         <tr><td colspan="4">&nbsp;</td></tr>
 
         <tr>

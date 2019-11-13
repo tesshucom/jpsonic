@@ -96,6 +96,7 @@ public class MusicFolderSettingsController {
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.getIgnoreSymLinks());
+        command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
 
         model.addAttribute("command",command);
     }
@@ -155,6 +156,8 @@ public class MusicFolderSettingsController {
         settingsService.setOrganizeByFolderStructure(command.isOrganizeByFolderStructure());
         settingsService.setExcludePatternString(command.getExcludePatternString());
         settingsService.setIgnoreSymLinks(command.getIgnoreSymLinks());
+        settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());
+
         settingsService.save();
 
 

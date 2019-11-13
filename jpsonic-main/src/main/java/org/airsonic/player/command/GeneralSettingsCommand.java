@@ -36,7 +36,6 @@ public class GeneralSettingsCommand {
     private String index;
     private String ignoredArticles;
     private String shortcuts;
-    private boolean indexEnglishPrior;
     private boolean sortAlbumsByYear;
     private boolean prohibitSortVarious;
     private boolean sortAlphanum;
@@ -174,14 +173,6 @@ public class GeneralSettingsCommand {
     }
 
     public void setReloadNeeded(boolean reloadNeeded) {
-    }
-
-    public boolean isIndexEnglishPrior() {
-        return indexEnglishPrior;
-    }
-
-    public void setIndexEnglishPrior(boolean indexEnglishPrior) {
-        this.indexEnglishPrior = indexEnglishPrior;
     }
 
     public boolean isSortAlbumsByYear() {
