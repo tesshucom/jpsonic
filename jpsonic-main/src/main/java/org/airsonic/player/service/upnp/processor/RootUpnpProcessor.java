@@ -82,6 +82,9 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
 
+        if (settingsService.isDlnaIndexVisible()) {
+            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
+        }
         if (settingsService.isDlnaFolderVisible()) {
             containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
         }
@@ -91,11 +94,11 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaAlbumVisible()) {
             containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaGenreVisible()) {
-            containers.add(getDispatcher().getGenreProcessor().createRootContainer());
-        }
         if (settingsService.isDlnaPlaylistVisible()) {
             containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaGenreVisible()) {
+            containers.add(getDispatcher().getGenreProcessor().createRootContainer());
         }
         if (settingsService.isDlnaRecentAlbumVisible()) {
             containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());

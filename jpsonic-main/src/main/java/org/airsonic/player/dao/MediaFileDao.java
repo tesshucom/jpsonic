@@ -100,8 +100,10 @@ public class MediaFileDao extends AbstractDao {
      * @param path The path.
      * @return The list of children.
      */
-    public List<MediaFile> getChildrenOf(final long offset, final long count, String path) {
-        return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by _order limit ? offset ?", rowMapper, path, count, offset);
+    public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
+        String order = byYear ? "year" : "_order";
+        return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present order by " +
+                order + " limit ? offset ?", rowMapper, path, count, offset);
     }
 
     public int getChildSizeOf(String path) {

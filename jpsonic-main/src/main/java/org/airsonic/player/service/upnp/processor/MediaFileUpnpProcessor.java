@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * @author Allen Petersen
@@ -137,7 +138,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
-        return mediaFileService.getChildrenOf(item, offset, maxResults);
+        if (item.isAlbum()) {
+            return mediaFileDao.getSongsForAlbum(item.getArtist(), item.getName(), offset, maxResults);
+        }
+        if (isEmpty(item.getArtist())) {
+            return mediaFileService.getChildrenOf(item, offset, maxResults, false);
+        }
+        return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear());
     }
 
     public void addItem(DIDLContent didl, MediaFile item) {

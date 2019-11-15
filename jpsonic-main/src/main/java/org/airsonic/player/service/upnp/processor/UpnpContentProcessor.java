@@ -125,7 +125,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         try {
 
             List<MusicFolder> allFolders = getAllMusicFolders();
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({ "unchecked", "deprecation" })
             ParamSearchResult<T> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, allFolders, clazz);
             List<T> selectedItems = result.getItems();
             for (T item : selectedItems) {
@@ -197,6 +197,10 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     protected final List<MusicFolder> getAllMusicFolders() {
         return settingsService.getAllMusicFolders();
+    }
+
+    protected final boolean isSortAlbumsByYear() {
+        return settingsService.isSortAlbumsByYear();
     }
 
 }

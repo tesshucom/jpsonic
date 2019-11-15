@@ -229,8 +229,8 @@ public class MediaFileService {
         return result;
     }
 
-    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count) {
-        return mediaFileDao.getChildrenOf(offset, count, parent.getPath());
+    public List<MediaFile> getChildrenOf(MediaFile parent, long offset, long count, boolean byYear) {
+        return mediaFileDao.getChildrenOf(offset, count, parent.getPath(), byYear);
     }
 
     /**
@@ -885,7 +885,7 @@ public class MediaFileService {
 
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        artists.sort(jpsonicComparator.mediaFileOrder());
+        artists.sort(jpsonicComparator.mediaFileAlphabeticalOrder());
 
         int i = 0;
         for (MediaFile artist : artists) {
@@ -894,7 +894,7 @@ public class MediaFileService {
         }
 
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
-        albums.sort(jpsonicComparator.mediaFileOrder());
+        albums.sort(jpsonicComparator.mediaFileAlphabeticalOrder());
 
         i = 0;
         for (MediaFile album : albums) {

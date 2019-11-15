@@ -72,6 +72,14 @@
 
         <tr>
             <td><fmt:message key="dlnasettings.view"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaIndexVisible" id="dlnaIndexVisible" ${model.dlnaIndexVisible? "checked": ""}/>
+                <label for="dlnaIndexVisible"><fmt:message key="dlna.title.index"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaFolderVisible" id="dlnaFolderVisible" ${model.dlnaFolderVisible? "checked": ""}/>
@@ -98,16 +106,16 @@
             <td></td>
             <td></td>
             <td colspan="2">
-                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
-                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
+                <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
+                <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
             </td>
         </tr>
         <tr>
             <td></td>
             <td></td>
             <td colspan="2">
-                <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
-                <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
+                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
+                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
             </td>
         </tr>
         <tr>

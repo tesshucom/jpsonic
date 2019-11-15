@@ -113,15 +113,20 @@ public class JpsonicComparators {
     }
 
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
-
         boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
                 && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));
-
         MediaFileComparator mediaFileComparator = new JpMediaFileComparator(isSortAlbumsByYear, createCollator());
-
         return mediaFileComparator;
+    }
 
+    /**
+     * Returns a comparator that sorts in dictionary order regardless of the setting.
+     * (Used places are limited)
+     * @return Comparator
+     */
+    public MediaFileComparator mediaFileAlphabeticalOrder() {
+        return new JpMediaFileComparator(false, createCollator());
     }
 
     public Comparator<Playlist> playlistOrder() {
