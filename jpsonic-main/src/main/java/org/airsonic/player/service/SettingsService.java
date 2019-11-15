@@ -105,10 +105,18 @@ public class SettingsService {
     private static final String KEY_SORT_STRICT = "SortStrict";
     private static final String KEY_SEARCH_COMPOSER = "SearchComposer";
     private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
+
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
     private static final String KEY_DLNA_FILE_STRUCTURE_SEARCH = "DlnaFileStructureSearch";
+    private static final String KEY_DLNA_ALBUM_VISIBLE = "DlnaAlbumVisible";
+    private static final String KEY_DLNA_ARTIST_VISIBLE = "DlnaArtistVisible";
+    private static final String KEY_DLNA_GENRE_VISIBLE = "DlnaGenreVisible";
+    private static final String KEY_DLNA_FOLDER_VISIBLE = "DlnaFolderVisible";
+    private static final String KEY_DLNA_PLAYLIST_VISIBLE = "DlnaPlaylistVisible";
+    private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
+    
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
     private static final String KEY_SONOS_SERVICE_ID = "SonosServiceId";
@@ -187,10 +195,18 @@ public class SettingsService {
     private static final boolean DEFAULT_SORT_STRICT = false;
     private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
+
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
     private static final boolean DEFAULT_DLNA_FILE_STRUCTURE_SEARCH = true;
+    private static final boolean DEFAULT_DLNA_ALBUM_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_ARTIST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_GENRE_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_FOLDER_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_PLAYLIST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
+    
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
@@ -1282,6 +1298,54 @@ public class SettingsService {
 
     public void setDlnaFileStructureSearch(boolean b) {
         setBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, b);
+    }
+
+    public boolean isDlnaAlbumVisible() {
+        return getBoolean(KEY_DLNA_ALBUM_VISIBLE, DEFAULT_DLNA_ALBUM_VISIBLE);
+    }
+
+    public void setDlnaAlbumVisible(boolean b) {
+        setBoolean(KEY_DLNA_ALBUM_VISIBLE, b);
+    }
+
+    public boolean isDlnaArtistVisible() {
+        return getBoolean(KEY_DLNA_ARTIST_VISIBLE, DEFAULT_DLNA_ARTIST_VISIBLE);
+    }
+
+    public void setDlnaArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_ARTIST_VISIBLE, b);
+    }
+
+    public boolean isDlnaGenreVisible() {
+        return getBoolean(KEY_DLNA_GENRE_VISIBLE, DEFAULT_DLNA_GENRE_VISIBLE);
+    }
+
+    public void setDlnaGenreVisible(boolean b) {
+        setBoolean(KEY_DLNA_GENRE_VISIBLE, b);
+    }
+
+    public boolean isDlnaFolderVisible() {
+        return getBoolean(KEY_DLNA_FOLDER_VISIBLE, DEFAULT_DLNA_FOLDER_VISIBLE);
+    }
+
+    public void setDlnaFolderVisible(boolean b) {
+        setBoolean(KEY_DLNA_FOLDER_VISIBLE, b);
+    }
+
+    public boolean isDlnaPlaylistVisible() {
+        return getBoolean(KEY_DLNA_PLAYLIST_VISIBLE, DEFAULT_DLNA_PLAYLIST_VISIBLE);
+    }
+
+    public void setDlnaPlaylistVisible(boolean b) {
+        setBoolean(KEY_DLNA_PLAYLIST_VISIBLE, b);
+    }
+
+    public boolean isDlnaRecentAlbumVisible() {
+        return getBoolean(KEY_DLNA_RECENT_ALBUM_VISIBLE, DEFAULT_DLNA_RECENT_ALBUM_VISIBLE);
+    }
+
+    public void setDlnaRecentAlbumVisible(boolean b) {
+        setBoolean(KEY_DLNA_RECENT_ALBUM_VISIBLE, b);
     }
 
     public boolean isSonosEnabled() {

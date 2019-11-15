@@ -19,11 +19,13 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,6 +39,9 @@ import java.util.List;
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
     private ArrayList<Container> containers = new ArrayList<>();
+
+    @Autowired
+    private SettingsService settingsService;
 
     public Container createRootContainer() {
         StorageFolder root = new StorageFolder();
@@ -76,12 +81,26 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     @Override
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
-        containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
-        containers.add(getDispatcher().getArtistProcessor().createRootContainer());
-        containers.add(getDispatcher().getGenreProcessor().createRootContainer());
-        containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
-        containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
-        containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
+
+        if (settingsService.isDlnaFolderVisible()) {
+            containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaArtistVisible()) {
+            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaAlbumVisible()) {
+            containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaGenreVisible()) {
+            containers.add(getDispatcher().getGenreProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaPlaylistVisible()) {
+            containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaRecentAlbumVisible()) {
+            containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
+        }
+
         return org.airsonic.player.util.Util.subList(containers, offset, maxResults);
     }
 

@@ -62,6 +62,13 @@ public class DLNASettingsController {
         map.put("dlnaBaseLANURL", settingsService.getDlnaBaseLANURL());
         map.put("dlnaFileStructureSearch", settingsService.isDlnaFileStructureSearch());
 
+        map.put("dlnaAlbumVisible", settingsService.isDlnaAlbumVisible());
+        map.put("dlnaArtistVisible", settingsService.isDlnaArtistVisible());
+        map.put("dlnaGenreVisible", settingsService.isDlnaGenreVisible());
+        map.put("dlnaFolderVisible", settingsService.isDlnaFolderVisible());
+        map.put("dlnaPlaylistVisible", settingsService.isDlnaPlaylistVisible());
+        map.put("dlnaRecentAlbumVisible", settingsService.isDlnaRecentAlbumVisible());
+
         model.addAttribute("model", map);
         return "dlnaSettings";
     }
@@ -76,11 +83,18 @@ public class DLNASettingsController {
     private void handleParameters(HttpServletRequest request) {
         boolean dlnaEnabled = ServletRequestUtils.getBooleanParameter(request, "dlnaEnabled", false);
         String dlnaServerName = trimToNull(request.getParameter("dlnaServerName"));
-        String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
-        boolean dlnaFileStructureSearch = ServletRequestUtils.getBooleanParameter(request, "dlnaFileStructureSearch", false);
         if (dlnaServerName == null) {
             dlnaServerName = "Jpsonic";
         }
+        String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
+        boolean dlnaFileStructureSearch = ServletRequestUtils.getBooleanParameter(request, "dlnaFileStructureSearch", false);
+
+        boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumVisible", false);
+        boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistVisible", false);
+        boolean dlnaGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaGenreVisible", false);
+        boolean dlnaFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaFolderVisible", false);
+        boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPlaylistVisible", false);
+        boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumVisible", false);
 
         boolean isEnabledStateChange =
                 !(settingsService.isDlnaEnabled() == dlnaEnabled
@@ -91,6 +105,14 @@ public class DLNASettingsController {
         settingsService.setDlnaServerName(dlnaServerName);
         settingsService.setDlnaBaseLANURL(dlnaBaseLANURL);
         settingsService.setDlnaFileStructureSearch(dlnaFileStructureSearch);
+
+        settingsService.setDlnaAlbumVisible(dlnaAlbumVisible);
+        settingsService.setDlnaArtistVisible(dlnaArtistVisible);
+        settingsService.setDlnaGenreVisible(dlnaGenreVisible);
+        settingsService.setDlnaFolderVisible(dlnaFolderVisible);
+        settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
+        settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
+
         settingsService.save();
 
         if (isEnabledStateChange) {

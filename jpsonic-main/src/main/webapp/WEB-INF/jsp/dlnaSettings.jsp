@@ -68,6 +68,59 @@
             </td>
         </tr>
 
+		<tr><td colspan="3">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.view"/></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaFolderVisible" id="dlnaFolderVisible" ${model.dlnaFolderVisible? "checked": ""}/>
+                <label for="dlnaFolderVisible"><fmt:message key="dlna.title.folders"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaArtistVisible" id="dlnaArtistVisible" ${model.dlnaArtistVisible? "checked": ""}/>
+                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaAlbumVisible" id="dlnaAlbumVisible" ${model.dlnaAlbumVisible? "checked": ""}/>
+                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
+                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
+                <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaRecentAlbumVisible" id="dlnaRecentAlbumVisible" ${model.dlnaRecentAlbumVisible? "checked": ""}/>
+                <label for="dlnaRecentAlbumVisible"><fmt:message key="dlna.title.recentAlbums"/></label>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
+
         <tr>
             <td><fmt:message key="dlnasettings.search"/></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
