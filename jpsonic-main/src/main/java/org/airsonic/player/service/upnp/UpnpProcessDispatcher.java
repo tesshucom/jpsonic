@@ -7,7 +7,7 @@ import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
-import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
 import org.fourthline.cling.support.model.Res;
 import org.fourthline.cling.support.model.item.Item;
@@ -34,7 +34,7 @@ public interface UpnpProcessDispatcher {
 
     AlbumUpnpProcessor getAlbumProcessor();
 
-    RecentAlbumUpnpProcessor getRecentAlbumProcessor();
+    RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor();
 
     ArtistUpnpProcessor getArtistProcessor();
 

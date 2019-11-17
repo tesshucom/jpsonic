@@ -30,7 +30,7 @@ import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
-import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
@@ -65,7 +65,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Autowired
     private AlbumUpnpProcessor albumUpnpProcessor;
     @Autowired
-    private RecentAlbumUpnpProcessor recentAlbumUpnpProcessor;
+    private RecentAlbumId3UpnpProcessor recentAlbumId3UpnpProcessor;
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
     @Autowired
@@ -178,7 +178,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             case CONTAINER_ID_ALBUM_PREFIX:
                 return getAlbumProcessor();
             case CONTAINER_ID_RECENT_PREFIX:
-                return getRecentAlbumProcessor();
+                return getRecentAlbumId3Processor();
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
             case CONTAINER_ID_GENRE_PREFIX:
@@ -234,8 +234,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
-        return recentAlbumUpnpProcessor;
+    public RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor() {
+        return recentAlbumId3UpnpProcessor;
     }
 
     @Override

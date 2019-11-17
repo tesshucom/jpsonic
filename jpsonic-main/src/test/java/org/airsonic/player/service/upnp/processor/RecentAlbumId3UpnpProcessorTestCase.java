@@ -34,7 +34,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class RecentAlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
+public class RecentAlbumId3UpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
@@ -45,7 +45,7 @@ public class RecentAlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     }
 
     @Autowired
-    private RecentAlbumUpnpProcessor processor;
+    private RecentAlbumId3UpnpProcessor processor;
 
     @Override
     public List<MusicFolder> getMusicFolders() {

@@ -39,11 +39,11 @@ import java.util.List;
  * @version $Id$
  */
 @Service
-public class RecentAlbumUpnpProcessor extends AlbumUpnpProcessor {
+public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumUpnpProcessor(MediaFileDao mediaFileDao, AlbumDao albumDao, JWTSecurityService jwtSecurityService) {
+    public RecentAlbumId3UpnpProcessor(MediaFileDao mediaFileDao, AlbumDao albumDao, JWTSecurityService jwtSecurityService) {
         super(mediaFileDao, albumDao, jwtSecurityService);
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
     }
