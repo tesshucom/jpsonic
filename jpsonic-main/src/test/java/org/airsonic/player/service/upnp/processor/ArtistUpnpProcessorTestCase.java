@@ -21,6 +21,7 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +51,10 @@ public class ArtistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
     private ArtistUpnpProcessor artistUpnpProcessor;
+    
+    @Autowired
+    private SettingsService settingsService;
+
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -100,9 +106,7 @@ public class ArtistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     @Test
     public void testGetChildren() {
 
-        /*
-         * Since the first element is "-All-", the element number is shifted by one.
-         */
+        settingsService.setSortAlbumsByYear(false);
 
         List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
@@ -128,4 +132,36 @@ public class ArtistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     }
 
+    @Test
+    public void testGetChildrenByYear() {
+        
+        // The result change depending on the setting
+        settingsService.setSortAlbumsByYear(true);
+        List<String> reversedByYear = new ArrayList<>(jPSonicNaturalList);
+        Collections.reverse(reversedByYear);
+
+        List<Artist> artists = artistUpnpProcessor.getItems(0, 1);
+        assertEquals(1, artists.size());
+        assertEquals("10", artists.get(0).getName());
+
+        List<Album> children = artistUpnpProcessor.getChildren(artists.get(0), 0, 10);
+
+        for (int i = 0; i < children.size(); i++) {
+            if (0 != i) {
+                assertEquals(reversedByYear.get(i - 1), children.get(i).getName());
+            }
+        }
+
+        children = artistUpnpProcessor.getChildren(artists.get(0), 10, 10);
+        for (int i = 0; i < children.size(); i++) {
+            assertEquals(reversedByYear.get(i + 10 - 1), children.get(i).getName());
+        }
+
+        children = artistUpnpProcessor.getChildren(artists.get(0), 20, 100);
+        assertEquals(12, children.size()); //
+        for (int i = 0; i < children.size(); i++) {
+            assertEquals(reversedByYear.get(i + 20 - 1), children.get(i).getName());
+        }
+
+    }
 }

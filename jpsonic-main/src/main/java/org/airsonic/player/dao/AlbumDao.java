@@ -117,7 +117,7 @@ public class AlbumDao extends AbstractDao {
                           rowMapper, args);
     }
 
-    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -126,10 +126,10 @@ public class AlbumDao extends AbstractDao {
         args.put("folders", MusicFolder.toIdList(musicFolders));
         args.put("offset", offset);
         args.put("count", count);
-        return namedQuery("select " + QUERY_COLUMNS
-                          + " from album where artist = :artist and present and folder_id in (:folders) " +
-                          "order by _order, name limit :count offset :offset",
-                          rowMapper, args);
+        return namedQuery("select " + QUERY_COLUMNS +
+                " from album where artist = :artist and present and folder_id in (:folders) " +
+                "order by " + (byYear ? "year" : "_order") + ", name limit :count offset :offset",
+                rowMapper, args);
     }
 
     /**

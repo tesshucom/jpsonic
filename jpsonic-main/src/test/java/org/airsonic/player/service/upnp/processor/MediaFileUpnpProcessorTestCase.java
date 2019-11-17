@@ -27,10 +27,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
 
 public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
@@ -115,6 +118,43 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         for (int i = 0; i < children.size(); i++) {
             assertEquals(jPSonicNaturalList.get(i + 20), children.get(i).getName());
         }
+
+    }
+
+    @Test
+    public void testAlbum() {
+
+        settingsService.setSortAlbumsByYear(false);
+
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        assertEquals(1, artists.size());
+        assertEquals("10", artists.get(0).getName());
+
+        MediaFile artist = artists.get(0);
+
+        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(31, albums.size());
+        validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testAlbumByYear() {
+
+        // The result change depending on the setting
+        settingsService.setSortAlbumsByYear(true);
+        List<String> reversedByYear = new ArrayList<>(jPSonicNaturalList);
+        Collections.reverse(reversedByYear);
+
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        assertEquals(1, artists.size());
+        assertEquals("10", artists.get(0).getName());
+
+        MediaFile artist = artists.get(0);
+
+        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(31, albums.size());
+        assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
 
     }
 

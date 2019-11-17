@@ -203,5 +203,9 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return settingsService.isSortAlbumsByYear();
     }
 
+    protected final boolean isProhibitSortVarious() {
+        return settingsService.isProhibitSortVarious();
+    }
+
 }
 

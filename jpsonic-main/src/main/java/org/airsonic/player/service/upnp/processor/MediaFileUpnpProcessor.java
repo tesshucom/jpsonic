@@ -43,6 +43,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -52,6 +53,8 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
  */
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
+
+    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     private final MediaFileDao mediaFileDao;
 
@@ -144,7 +147,9 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         if (isEmpty(item.getArtist())) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, false);
         }
-        return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear());
+        // TODO #340
+        boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(item.getName().toLowerCase()).matches());
+        return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear);
     }
 
     public void addItem(DIDLContent didl, MediaFile item) {

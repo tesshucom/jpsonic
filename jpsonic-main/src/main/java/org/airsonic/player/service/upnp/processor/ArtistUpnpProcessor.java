@@ -32,6 +32,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * @author Allen Petersen
@@ -39,6 +40,8 @@ import java.util.List;
  */
 @Service
 public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
+
+    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     private ArtistDao artistDao;
 
@@ -84,8 +87,16 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
+
+        // TODO #340
+        boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(artist.getName().toLowerCase()).matches());
+
         List<Album> albums = getDispatcher().getAlbumProcessor()
-                .getAlbumsForArtist(artist.getName(), offset > 1 ? offset - 1 : offset, 0L == offset ? maxResults - 1 : maxResults, getAllMusicFolders());
+                .getAlbumsForArtist(artist.getName(),
+                        offset > 1 ? offset - 1 : offset,
+                        0L == offset ? maxResults - 1 : maxResults,
+                        isSortAlbumsByYear,
+                        getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();
             firstElement.setName(getResource("dlna.element.allalbums"));

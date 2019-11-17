@@ -113,6 +113,7 @@ public class JpsonicComparators {
     }
 
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
+        // TODO #340
         boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
                 && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));

@@ -27,11 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.indexList;
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
 
 public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
@@ -154,6 +157,55 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         assertEquals(indexList.get(28), artist.get(9).getName());
         assertEquals(indexList.get(29), artist.get(10).getName());
         assertEquals(indexList.get(30), artist.get(11).getName());
+
+    }
+
+    @Test
+    public void testAlbum() {
+
+        settingsService.setSortAlbumsByYear(false);
+
+        List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
+        assertEquals(9, indexes.size());
+
+        MediaFile index = indexes.get(8);
+        assertEquals("#", index.getName());
+
+        List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE);
+        assertEquals(15, artists.size());
+        MediaFile artist = artists.get(0);
+        assertEquals("10", artist.getName());
+
+        List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(31, albums.size());
+
+        validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+
+    }
+
+    @Test
+    public void testAlbumByYear() {
+
+        // The result change depending on the setting
+        settingsService.setSortAlbumsByYear(true);
+        List<String> reversedByYear = new ArrayList<>(jPSonicNaturalList);
+        Collections.reverse(reversedByYear);
+
+        List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
+        assertEquals(9, indexes.size());
+
+        MediaFile index = indexes.get(8);
+        assertEquals("#", index.getName());
+
+        List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE);
+        assertEquals(15, artists.size());
+        MediaFile artist = artists.get(0);
+        assertEquals("10", artist.getName());
+
+        List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(31, albums.size());
+
+        assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
 
     }
 

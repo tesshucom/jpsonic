@@ -41,6 +41,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.airsonic.player.util.Util.subList;
@@ -48,6 +49,8 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
+
+    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     private MusicFolderContent content;
 
@@ -122,7 +125,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             return mediaFileDao.getSongsForAlbum(item.getArtist(), item.getName(), offset, maxResults);
         }
         if (MediaType.DIRECTORY == item.getMediaType()) {
-            return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear());
+            // TODO #340
+            boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(item.getName().toLowerCase()).matches());
+            return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear);
         }
         return mediaFileService.getChildrenOf(item, offset, maxResults, false);
     }

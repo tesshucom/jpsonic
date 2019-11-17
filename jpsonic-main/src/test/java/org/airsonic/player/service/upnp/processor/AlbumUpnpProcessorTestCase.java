@@ -68,6 +68,32 @@ public class AlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItems() {
+        
+        settingsService.setSortAlbumsByYear(false);
+
+        List<Album> items = albumUpnpProcessor.getItems(0, 10);
+        for (int i = 0; i < items.size(); i++) {
+            assertEquals(jPSonicNaturalList.get(i), items.get(i).getName());
+        }
+
+        items = albumUpnpProcessor.getItems(10, 10);
+        for (int i = 0; i < items.size(); i++) {
+            assertEquals(jPSonicNaturalList.get(i + 10), items.get(i).getName());
+        }
+
+        items = albumUpnpProcessor.getItems(20, 100);
+        assertEquals(11, items.size());
+        for (int i = 0; i < items.size(); i++) {
+            assertEquals(jPSonicNaturalList.get(i + 20), items.get(i).getName());
+        }
+
+    }
+
+    @Test
+    public void testGetItemsByYear() {
+
+        // The result does not change depending on the setting
+        settingsService.setSortAlbumsByYear(true);
 
         List<Album> items = albumUpnpProcessor.getItems(0, 10);
         for (int i = 0; i < items.size(); i++) {

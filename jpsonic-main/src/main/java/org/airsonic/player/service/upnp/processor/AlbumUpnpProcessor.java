@@ -157,8 +157,8 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return albumDao.getAlbumsCountForArtist(artist, musicFolders);
     }
 
-    public List<Album> getAlbumsForArtist(final String artist, long offset, long maxResults, final List<MusicFolder> musicFolders) {
-        return albumDao.getAlbumsForArtist(offset, maxResults, artist, musicFolders);
+    public List<Album> getAlbumsForArtist(final String artist, long offset, long maxResults, boolean byYear, final List<MusicFolder> musicFolders) {
+        return albumDao.getAlbumsForArtist(offset, maxResults, artist, byYear, musicFolders);
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {
