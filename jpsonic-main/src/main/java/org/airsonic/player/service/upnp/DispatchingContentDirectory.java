@@ -31,6 +31,7 @@ import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
@@ -41,6 +42,7 @@ import org.fourthline.cling.support.model.item.MusicTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -60,22 +62,37 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     @Autowired
     private PlaylistUpnpProcessor playlistProcessor;
+
+    @Qualifier("mediaFileUpnpProcessor")
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
+
+    @Qualifier("albumUpnpProcessor")
     @Autowired
-    private AlbumUpnpProcessor albumUpnpProcessor;
+    private AlbumUpnpProcessor albumProcessor;
+
+    @Qualifier("recentAlbumUpnpProcessor")
     @Autowired
-    private RecentAlbumId3UpnpProcessor recentAlbumId3UpnpProcessor;
+    private RecentAlbumUpnpProcessor recentAlbumProcessor;
+
+    @Qualifier("recentAlbumId3UpnpProcessor")
+    @Autowired
+    private RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
+
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
+
     @Autowired
     private GenreUpnpProcessor genreProcessor;
+
     @Autowired
     private RootUpnpProcessor rootProcessor;
+
     @Autowired
     private MediaFileService mediaFileService;
+
     @Autowired
-    private IndexUpnpProcessor  IndexUpnpProcessor;
+    private IndexUpnpProcessor IndexUpnpProcessor;
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -178,6 +195,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             case CONTAINER_ID_ALBUM_PREFIX:
                 return getAlbumProcessor();
             case CONTAINER_ID_RECENT_PREFIX:
+                return getRecentAlbumProcessor();
+            case CONTAINER_ID_RECENT_ID3_PREFIX:
                 return getRecentAlbumId3Processor();
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
@@ -230,12 +249,16 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     @Override
     public AlbumUpnpProcessor getAlbumProcessor() {
-        return albumUpnpProcessor;
+        return albumProcessor;
+    }
+
+    public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
+        return recentAlbumProcessor;
     }
 
     @Override
     public RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor() {
-        return recentAlbumId3UpnpProcessor;
+        return recentAlbumId3Processor;
     }
 
     @Override

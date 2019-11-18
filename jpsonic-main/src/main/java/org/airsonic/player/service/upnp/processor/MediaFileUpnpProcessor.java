@@ -36,6 +36,7 @@ import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import javax.annotation.PostConstruct;
 
@@ -56,9 +57,9 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
-    private final MediaFileDao mediaFileDao;
+    protected final MediaFileDao mediaFileDao;
 
-    private final MediaFileService mediaFileService;
+    protected final MediaFileService mediaFileService;
 
     private final SearchService searchService;
 
@@ -169,10 +170,10 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public final Item createItem(MediaFile song) {
-        MediaFile parent = mediaFileService.getParentOf(song);
+
         MusicTrack item = new MusicTrack();
+
         item.setId(String.valueOf(song.getId()));
-        item.setParentID(String.valueOf(parent.getId()));
         item.setTitle(song.getTitle());
         item.setAlbum(song.getAlbumName());
         if (song.getArtist() != null) {
@@ -184,11 +185,16 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
         item.setOriginalTrackNumber(song.getTrackNumber());
         if (song.getGenre() != null) {
-            item.setGenres(new String[]{song.getGenre()});
+            item.setGenres(new String[] { song.getGenre() });
         }
         item.setResources(Arrays.asList(getDispatcher().createResourceForSong(song)));
         item.setDescription(song.getComment());
-        item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getDispatcher().getAlbumProcessor().getAlbumArtURI(parent.getId())));
+
+        MediaFile parent = mediaFileService.getParentOf(song);
+        if (!ObjectUtils.isEmpty(parent)) {
+            item.setParentID(String.valueOf(parent.getId()));
+            item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getDispatcher().getAlbumProcessor().getAlbumArtURI(parent.getId())));
+        }
 
         return item;
     }

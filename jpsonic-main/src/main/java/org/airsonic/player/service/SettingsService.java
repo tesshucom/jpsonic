@@ -116,6 +116,7 @@ public class SettingsService {
     private static final String KEY_DLNA_FOLDER_VISIBLE = "DlnaFolderVisible";
     private static final String KEY_DLNA_PLAYLIST_VISIBLE = "DlnaPlaylistVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
+    private static final String KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE = "DlnaRecentAlbumId3Visible";
     private static final String KEY_DLNA_INDEX_VISIBLE = "DlnaIndexVisible";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
@@ -207,6 +208,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_FOLDER_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_PLAYLIST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_INDEX_VISIBLE = true;
     
     private static final boolean DEFAULT_SONOS_ENABLED = false;
@@ -1348,6 +1350,14 @@ public class SettingsService {
 
     public void setDlnaRecentAlbumVisible(boolean b) {
         setBoolean(KEY_DLNA_RECENT_ALBUM_VISIBLE, b);
+    }
+
+    public boolean isDlnaRecentAlbumId3Visible() {
+        return getBoolean(KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE, DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE);
+    }
+
+    public void setDlnaRecentAlbumId3Visible(boolean b) {
+        setBoolean(KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE, b);
     }
 
     public boolean isDlnaIndexVisible() {

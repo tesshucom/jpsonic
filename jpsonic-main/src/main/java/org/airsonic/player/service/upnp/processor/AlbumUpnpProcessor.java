@@ -51,7 +51,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_BY_ARTIST = "allByArtist";
 
-    public static final String ALL_RECENT = "allRecent";
+    public static final String ALL_RECENT_ID3 = "allRecentId3";
 
     private final MediaFileDao mediaFileDao;
 
@@ -114,7 +114,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public Album getItemById(String id) {
         Album returnValue = null;
-        if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT)) {
+        if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT_ID3)) {
             returnValue = new Album();
             returnValue.setId(-1);
             returnValue.setComment(id);
@@ -137,7 +137,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
             if (album.getComment().startsWith(ALL_BY_ARTIST)) {
                 ArtistUpnpProcessor ap = getDispatcher().getArtistProcessor();
                 albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset, maxResults);
-            } else if (album.getComment().equalsIgnoreCase(ALL_RECENT)) {
+            } else if (album.getComment().equalsIgnoreCase(ALL_RECENT_ID3)) {
                 albums = getDispatcher().getRecentAlbumId3Processor().getItems(offset, maxResults);
             } else {
                 albums = new ArrayList<>();

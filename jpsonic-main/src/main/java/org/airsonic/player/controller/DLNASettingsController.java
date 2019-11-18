@@ -68,6 +68,7 @@ public class DLNASettingsController {
         map.put("dlnaFolderVisible", settingsService.isDlnaFolderVisible());
         map.put("dlnaPlaylistVisible", settingsService.isDlnaPlaylistVisible());
         map.put("dlnaRecentAlbumVisible", settingsService.isDlnaRecentAlbumVisible());
+        map.put("dlnaRecentAlbumId3Visible", settingsService.isDlnaRecentAlbumId3Visible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
 
         model.addAttribute("model", map);
@@ -96,6 +97,7 @@ public class DLNASettingsController {
         boolean dlnaFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaFolderVisible", false);
         boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPlaylistVisible", false);
         boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumVisible", false);
+        boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumId3Visible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
         
         boolean isEnabledStateChange =
@@ -114,6 +116,7 @@ public class DLNASettingsController {
         settingsService.setDlnaFolderVisible(dlnaFolderVisible);
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
+        settingsService.setDlnaRecentAlbumId3Visible(dlnaRecentAlbumId3Visible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
 
         settingsService.save();

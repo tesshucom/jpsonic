@@ -8,6 +8,7 @@ import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
 import org.fourthline.cling.support.model.Res;
 import org.fourthline.cling.support.model.item.Item;
@@ -26,6 +27,7 @@ public interface UpnpProcessDispatcher {
     String CONTAINER_ID_ARTISTALBUM_PREFIX = "artistalbum";
     String CONTAINER_ID_GENRE_PREFIX = "genre";
     String CONTAINER_ID_RECENT_PREFIX = "recent";
+    String CONTAINER_ID_RECENT_ID3_PREFIX = "recentId3";
     String CONTAINER_ID_INDEX_PREFIX = "index";
 
     PlaylistUpnpProcessor getPlaylistProcessor();
@@ -33,6 +35,8 @@ public interface UpnpProcessDispatcher {
     MediaFileUpnpProcessor getMediaFileProcessor();
 
     AlbumUpnpProcessor getAlbumProcessor();
+
+    RecentAlbumUpnpProcessor getRecentAlbumProcessor();
 
     RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor();
 

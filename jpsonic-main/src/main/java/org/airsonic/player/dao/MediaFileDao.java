@@ -395,7 +395,7 @@ public class MediaFileDao extends AbstractDao {
      * @param musicFolders Only return albums in these folders.
      * @return The most recently added albums.
      */
-    public List<MediaFile> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<MediaFile> getNewestAlbums(final long offset, final long count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }

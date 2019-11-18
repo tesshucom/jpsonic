@@ -45,12 +45,12 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     public RecentAlbumId3UpnpProcessor(MediaFileDao mediaFileDao, AlbumDao albumDao, JWTSecurityService jwtSecurityService) {
         super(mediaFileDao, albumDao, jwtSecurityService);
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
+        setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);
     }
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dlna.title.recentAlbums");
+        setRootTitleWithResource("dlna.title.recentAlbumsId3");
     }
 
     public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
@@ -87,7 +87,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
             Album viewAll = new Album();
             viewAll.setName(getResource("dlna.element.allalbums"));
             viewAll.setId(-1);
-            viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT);
+            viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT_ID3);
             albums.add(0, viewAll);
         }
         return albums;
