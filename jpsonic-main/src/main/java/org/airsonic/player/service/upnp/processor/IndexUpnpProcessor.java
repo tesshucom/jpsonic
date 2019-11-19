@@ -37,12 +37,12 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.airsonic.player.util.Util.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -50,21 +50,21 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
-
-    private MusicFolderContent content;
-
     private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
-    private List<MediaIndex> indexes;
-
-    private Map<Integer, MediaIndex> indexesMap;
+    private final Pattern isVarious = Pattern.compile("^various.*$");
 
     private final MediaFileDao mediaFileDao;
 
     private final MediaFileService mediaFileService;
 
     private final MusicIndexService musicIndexService;
+
+    private MusicFolderContent content;
+
+    private Map<Integer, MediaIndex> indexesMap;
+
+    private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, MusicIndexService musicIndexService) {
         super();
@@ -151,16 +151,16 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public int getItemCount() {
         initIndex();
-        return indexes.size() + content.getSingleSongs().size();
+        return topNodes.size();
     }
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
         List<MediaFile> result = new ArrayList<MediaFile>();
-        int count = min((int) maxResults, getItemCount(), indexes.size());
-        if (offset < indexes.size()) {
+        if (offset < getItemCount()) {
+            int count = min((int) (offset + maxResults), getItemCount());
             for (int i = (int) offset; i < count; i++) {
-                result.add(indexes.get(i));
+                result.add(topNodes.get(i));
             }
         }
         return result;
@@ -183,16 +183,12 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     private final void initIndex() {
-        if (isEmpty(content) || isEmpty(indexes)) {
+        if (isEmpty(content)) {
             content = musicIndexService.getMusicFolderContent(getAllMusicFolders(), true);
-            Iterator<MusicIndex> musicIndexs = content.getIndexedArtists().keySet().iterator();
-            indexes = new ArrayList<>();
-            while (musicIndexs.hasNext()) {
-                MediaIndex mediaIndex = new MediaIndex(musicIndexs.next());
-                indexes.add(mediaIndex);
-            }
+            List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();
             indexes.forEach(i -> indexesMap.put(i.getId(), i));
+            topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
         }
     }
 

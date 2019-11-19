@@ -65,13 +65,56 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItemCount() {
-        assertEquals(9, indexUpnpProcessor.getItemCount());
+        assertEquals(31, indexUpnpProcessor.getItemCount());
     }
 
     @Test
     public void testGetItems() {
 
-        List<MediaFile> items = indexUpnpProcessor.getItems(0, 5);
+        List<MediaFile> items = indexUpnpProcessor.getItems(0, 10);
+        assertEquals(10, items.size());
+        assertEquals("A", items.get(0).getName());
+        assertEquals("B", items.get(1).getName());
+        assertEquals("C", items.get(2).getName());
+        assertEquals("D", items.get(3).getName());
+        assertEquals("E", items.get(4).getName());
+        assertEquals("あ", items.get(5).getName());
+        assertEquals("さ", items.get(6).getName());
+        assertEquals("は", items.get(7).getName());
+        assertEquals("#", items.get(8).getName());
+        assertEquals("single1", items.get(9).getName());
+
+        items = indexUpnpProcessor.getItems(10, 10);
+        assertEquals(10, items.size());
+        assertEquals("single2", items.get(0).getName());
+        assertEquals("single3", items.get(1).getName());
+        assertEquals("single4", items.get(2).getName());
+        assertEquals("single5", items.get(3).getName());
+        assertEquals("single6", items.get(4).getName());
+        assertEquals("single7", items.get(5).getName());
+        assertEquals("single8", items.get(6).getName());
+        assertEquals("single9", items.get(7).getName());
+        assertEquals("single10", items.get(8).getName());
+        assertEquals("single11", items.get(9).getName());
+
+        items = indexUpnpProcessor.getItems(20, 10);
+        assertEquals(10, items.size());
+        assertEquals("single12", items.get(0).getName());
+        assertEquals("single13", items.get(1).getName());
+        assertEquals("single14", items.get(2).getName());
+        assertEquals("single15", items.get(3).getName());
+        assertEquals("single16", items.get(4).getName());
+        assertEquals("single17", items.get(5).getName());
+        assertEquals("single18", items.get(6).getName());
+        assertEquals("single19", items.get(7).getName());
+        assertEquals("single20", items.get(8).getName());
+        assertEquals("single21", items.get(9).getName());
+
+        items = indexUpnpProcessor.getItems(30, 10);
+        assertEquals(1, items.size());
+        assertEquals("single22", items.get(0).getName());
+
+        items = indexUpnpProcessor.getItems(0, 5);
         assertEquals(5, items.size());
         assertEquals("A", items.get(0).getName());
         assertEquals("B", items.get(1).getName());
@@ -80,19 +123,36 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         assertEquals("E", items.get(4).getName());
 
         items = indexUpnpProcessor.getItems(5, 100);
-        assertEquals(4, items.size());
+        assertEquals(26, items.size());
         assertEquals("あ", items.get(0).getName());
         assertEquals("さ", items.get(1).getName());
         assertEquals("は", items.get(2).getName());
         assertEquals("#", items.get(3).getName());
+        assertEquals("single1", items.get(4).getName());
+        
+        items = indexUpnpProcessor.getItems(0, 9);
+        assertEquals(9, items.size());
+        assertEquals("A", items.get(0).getName());
+        assertEquals("#", items.get(8).getName());
 
+        items = indexUpnpProcessor.getItems(8, 1);
+        assertEquals(1, items.size());
+        assertEquals("#", items.get(0).getName());
+
+        items = indexUpnpProcessor.getItems(9, 1);
+        assertEquals(1, items.size());
+        assertEquals("single1", items.get(0).getName());
+        
+        items = indexUpnpProcessor.getItems(30, 1);
+        assertEquals(1, items.size());
+        assertEquals("single22", items.get(0).getName());
     }
 
     @Test
     public void testGetChildSizeOf() {
 
         List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
-        assertEquals(9, items.size());
+        assertEquals(31, items.size());
 
         assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(0)));
         assertEquals(1, indexUpnpProcessor.getChildSizeOf(items.get(1)));
@@ -116,7 +176,7 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         assertEquals(indexList, artistNames);
 
         List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
-        assertEquals(9, items.size());
+        assertEquals(31, items.size());
         assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(5)));
         assertEquals(5, indexUpnpProcessor.getChildSizeOf(items.get(7)));
         assertEquals(15, indexUpnpProcessor.getChildSizeOf(items.get(8)));
@@ -166,7 +226,7 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         settingsService.setSortAlbumsByYear(false);
 
         List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
-        assertEquals(9, indexes.size());
+        assertEquals(31, indexes.size());
 
         MediaFile index = indexes.get(8);
         assertEquals("#", index.getName());
@@ -192,7 +252,7 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         Collections.reverse(reversedByYear);
 
         List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
-        assertEquals(9, indexes.size());
+        assertEquals(31, indexes.size());
 
         MediaFile index = indexes.get(8);
         assertEquals("#", index.getName());

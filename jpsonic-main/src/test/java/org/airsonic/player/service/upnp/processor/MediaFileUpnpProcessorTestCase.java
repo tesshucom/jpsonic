@@ -64,33 +64,29 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItemCount() {
-        assertEquals(31, mediaFileUpnpProcessor.getItemCount());
+        //31 + 22(topnodes)
+        assertEquals(53, mediaFileUpnpProcessor.getItemCount());
     }
 
     @Test
     public void testGetItems() {
 
         List<MediaFile> items = mediaFileUpnpProcessor.getItems(0, 10);
-        for (int i = 0; i < items.size(); i++) {
-            assertEquals(jPSonicNaturalList.get(i), items.get(i).getName());
-        }
+        assertEquals(10, items.size());
 
         items = mediaFileUpnpProcessor.getItems(10, 10);
-        for (int i = 0; i < items.size(); i++) {
-            assertEquals(jPSonicNaturalList.get(i + 10), items.get(i).getName());
-        }
+        assertEquals(10, items.size());
 
         items = mediaFileUpnpProcessor.getItems(20, 100);
-        assertEquals(11, items.size());
-        for (int i = 0; i < items.size(); i++) {
-            assertEquals(jPSonicNaturalList.get(i + 20), items.get(i).getName());
-        }
+        assertEquals(33, items.size());
 
+        items = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> !a.getName().startsWith("single")).collect(Collectors.toList());
+        validateJPSonicNaturalList(items.stream().map(a -> a.getName()).collect(Collectors.toList()));
     }
 
     @Test
     public void testGetChildSizeOf() {
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
         assertEquals(31, mediaFileUpnpProcessor.getChildSizeOf(artists.get(0)));
@@ -99,7 +95,7 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     @Test
     public void testgetChildren() {
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
 
@@ -126,7 +122,7 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
         settingsService.setSortAlbumsByYear(false);
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
 
@@ -146,7 +142,7 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         List<String> reversedByYear = new ArrayList<>(jPSonicNaturalList);
         Collections.reverse(reversedByYear);
 
-        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 1);
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
         assertEquals("10", artists.get(0).getName());
 
