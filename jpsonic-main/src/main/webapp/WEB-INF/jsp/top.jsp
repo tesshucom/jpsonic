@@ -130,8 +130,8 @@
                 <td><a href="javascript:document.searchForm.submit()"><img src="<spring:theme code='searchImage'/>" alt="${search}" title="${search}"></a></td>
             </form>
         </td>
-
-        <td style="padding-left:15pt;padding-right:5pt;vertical-align: middle;width: 100%;text-align: center">
+        <td style="width:30%;"><td>
+        <td style="padding-right:5pt;vertical-align: middle;width:32px;text-align: center">
             <c:if test="${model.user.settingsRole}"><a href="personalSettings.view" target="main"></c:if>
             <c:choose>
                 <c:when test="${model.showAvatar}">
@@ -143,7 +143,7 @@
                     </div>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='userImage'/>" alt="User" height="24">
+                    <img src="<spring:theme code='userImage'/>" alt="User" height="30">
                 </c:otherwise>
             </c:choose>
 
@@ -153,7 +153,7 @@
             <c:if test="${model.user.settingsRole}"></a></c:if>
         </td>
 
-        <td style="padding-left:15pt;padding-right:5pt;vertical-align: right;width: 100%;text-align: center">
+        <td style="padding-left:5pt;padding-right:5pt;vertical-align: right;width:32px;text-align: center">
             <a href="<c:url value='/logout'/>" target="_top">
                 <img src="<spring:theme code='logoutImage'/>" alt="logout" height="24">
                 <div class="detail">
