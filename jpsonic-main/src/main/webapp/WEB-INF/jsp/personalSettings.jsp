@@ -74,6 +74,7 @@
 
     <table class="indent">
         <tr>
+            <th></th>
             <th style="padding:0 0.5em 0.5em 0;text-align:left;"><fmt:message key="personalsettings.display"/></th>
             <th style="padding:0 0.5em 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.browse"/></th>
             <th style="padding:0 0 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.playlist"/></th>
@@ -82,51 +83,61 @@
             </th>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.tracknumber"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.trackNumberVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.trackNumberVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.artist"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.artistVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.artistVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.album"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.albumVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.albumVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""><fmt:message key="personalsettings.composer"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><fmt:message key="personalsettings.composer"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.composerVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.composerVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""><fmt:message key="personalsettings.genre"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><fmt:message key="personalsettings.genre"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.genreVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.genreVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.year"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.yearVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.yearVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.bitrate"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.bitRateVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.bitRateVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.duration"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.durationVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.durationVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.format"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.formatVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.formatVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.filesize"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.fileSizeVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.fileSizeVisible" cssClass="checkbox"/></td>

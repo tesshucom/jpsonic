@@ -91,7 +91,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaArtistVisible" id="dlnaArtistVisible" ${model.dlnaArtistVisible? "checked": ""}/>
-                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/></label>
+                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/>(ID3)</label>
             </td>
         </tr>
         <tr>
@@ -99,7 +99,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaAlbumVisible" id="dlnaAlbumVisible" ${model.dlnaAlbumVisible? "checked": ""}/>
-                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/></label>
+                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/>(ID3)</label>
             </td>
         </tr>
         <tr>
@@ -131,7 +131,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaRecentAlbumId3Visible" id="dlnaRecentAlbumId3Visible" ${model.dlnaRecentAlbumId3Visible? "checked": ""}/>
-                <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/></label>
+                <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/>(ID3)</label>
             </td>
         </tr>
 
