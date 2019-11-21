@@ -104,7 +104,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     @Override
     public int getChildSizeOf(Genre item) {
-        return searchService.getSongsCountByGenres(item.getName(), getAllMusicFolders());
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, getAllMusicFolders()).size();
     }
 
     @Override

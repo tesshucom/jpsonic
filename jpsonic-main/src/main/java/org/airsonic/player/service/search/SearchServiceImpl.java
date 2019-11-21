@@ -20,6 +20,9 @@
 
 package org.airsonic.player.service.search;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
@@ -34,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.airsonic.player.service.search.IndexType.*;
@@ -55,6 +59,12 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private SettingsService settingsService;
+
+    @Autowired
+    private MediaFileDao mediaFileDao;
+
+    @Autowired
+    private Ehcache searchCache;
 
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
@@ -307,6 +317,30 @@ public class SearchServiceImpl implements SearchService {
         return indexManager.getGenresCount();
     }
 
+    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+        StringBuilder b = new StringBuilder();
+        b.append(genres);
+        b.append("[");
+        musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        b.append("]");
+        b.append(indexType.name());
+        return b.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+        List<MediaFile> mediaFiles = null;
+        Element e = searchCache.get(createCacheKey(genres, musicFolders, indexType));
+        if (!isEmpty(e)) {
+            mediaFiles = (List<MediaFile>) e.getObjectValue();
+        }
+        return Optional.ofNullable(mediaFiles);
+    }
+
+    private void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
+        searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+    }
+
     private List<MediaFile> getMediasByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
             IndexType indexType, SortField[] sortFields) {
 
@@ -391,37 +425,26 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
-        SortField[] sortFields = Arrays.stream(IndexType.SONG.getFields())
-                .map(n -> new SortField(n, SortField.Type.STRING))
-                .toArray(i -> new SortField[i]);
-        return getMediasByGenres(genres, offset, count, musicFolders, IndexType.SONG, sortFields);
-    }
-
-    @Override
-    public int getSongsCountByGenres(String genres, List<MusicFolder> musicFolders) {
-
         if (isEmpty(genres)) {
-            return 0;
+            return Collections.emptyList();
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
-        if (isEmpty(searcher)) {
-            return 0;
+        final List<MediaFile> result = new ArrayList<>();
+
+        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
+            result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+
+        getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
         }
 
-        int totalHits = 0;
+        List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
+        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE, musicFolders);
+        putCache(genres, musicFolders, IndexType.SONG, cache);
 
-        try {
-            Query query = queryFactory.getMediasByGenres(genres, musicFolders);
-            TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
-            totalHits = util.round.apply(topDocs.totalHits.value);
-        } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
-        } finally {
-            indexManager.release(IndexType.SONG, searcher);
-        }
-
-        return totalHits;
+        addSubToResult.accept(cache);
+        return result;
     }
 
 }

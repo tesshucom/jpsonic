@@ -183,7 +183,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     private final void initIndex() {
-        if (isEmpty(content)) {
+        if (isEmpty(content) || 0 == content.getIndexedArtists().size()) {
             content = musicIndexService.getMusicFolderContent(getAllMusicFolders(), true);
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();

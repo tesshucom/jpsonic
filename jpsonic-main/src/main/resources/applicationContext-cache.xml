@@ -14,4 +14,8 @@
         <constructor-arg value="mediaFileMemoryCache"/>
     </bean>
 
+    <bean id="searchCache" factory-bean="cacheFactory" factory-method="getCache">
+        <constructor-arg value="searchCache"/>
+    </bean>
+
 </beans>

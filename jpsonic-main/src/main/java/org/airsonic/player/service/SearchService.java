@@ -152,12 +152,4 @@ public interface SearchService {
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
 
-    /**
-     * Returns songs count of Genres.
-     * 
-     * @since 105.3.0
-     * @return Count of Genres
-     */
-    int getSongsCountByGenres(String genres, List<MusicFolder> musicFolders);
-
 }
