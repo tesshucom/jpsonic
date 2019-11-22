@@ -122,7 +122,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream()).collect(Collectors.toList()), offset, maxResults);
         }
         if (item.isAlbum()) {
-            return mediaFileDao.getSongsForAlbum(item.getArtist(), item.getName(), offset, maxResults);
+            return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
         }
         if (MediaType.DIRECTORY == item.getMediaType()) {
             // TODO #340

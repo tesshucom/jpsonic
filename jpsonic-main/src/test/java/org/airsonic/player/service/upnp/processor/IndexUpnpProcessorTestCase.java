@@ -269,4 +269,35 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     }
 
+    @Test
+    public void testSongs() {
+
+        List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100)
+                .stream().filter(a -> "#".equals(a.getName())).collect(Collectors.toList());
+        assertEquals(1, indexes.size());
+        
+        MediaFile index = indexes.get(0);
+        assertEquals("#", index.getName());
+
+        List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE)
+                .stream().filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+        assertEquals(1, artists.size());
+
+        MediaFile artist = artists.get(0);
+        assertEquals("20", artist.getName());
+
+        List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(1, albums.size());
+
+        MediaFile album = albums.get(0);
+        assertEquals("ALBUM", album.getName());// the case where album name is different between file and id3
+
+        List<MediaFile> songs = indexUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
+        assertEquals(1, songs.size());
+
+        MediaFile song = songs.get(0);
+        assertEquals("empty", song.getName());
+
+    }
+
 }

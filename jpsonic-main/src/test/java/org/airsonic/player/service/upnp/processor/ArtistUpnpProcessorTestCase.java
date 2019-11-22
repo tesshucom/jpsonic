@@ -20,6 +20,7 @@ package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
@@ -164,4 +166,28 @@ public class ArtistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         }
 
     }
+
+    @Test
+    public void testSongs() {
+
+        List<Artist> artists = artistUpnpProcessor.getItems(0, Integer.MAX_VALUE).stream().filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+        assertEquals(1, artists.size());
+
+        Artist artist = artists.get(0);
+        assertEquals("20", artist.getName());
+
+        List<Album> albums = artistUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(1, albums.size());
+
+        Album album = albums.get(0);
+        assertEquals("AlBum!", album.getName());// the case where album name is different between file and id3
+
+        List<MediaFile> songs = artistUpnpProcessor.getDispatcher().getAlbumProcessor().getChildren(album, 0, Integer.MAX_VALUE);
+        assertEquals(1, songs.size());
+
+        MediaFile song = songs.get(0);
+        assertEquals("empty", song.getName());
+
+    }
+
 }
