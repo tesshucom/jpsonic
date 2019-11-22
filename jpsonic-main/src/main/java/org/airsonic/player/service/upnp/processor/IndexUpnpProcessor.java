@@ -192,6 +192,12 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
+    public final void clearIndex() {
+        content = null;
+        indexesMap = null;
+        topNodes = null;
+    }
+
     private final boolean isIndex(int id) {
         return -1 > id;
     }
