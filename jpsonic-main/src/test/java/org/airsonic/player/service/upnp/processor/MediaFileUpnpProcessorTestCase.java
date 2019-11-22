@@ -153,5 +153,30 @@ public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
 
     }
+    
+    @Test
+    public void testSongs() {
+
+        settingsService.setSortAlbumsByYear(false);
+
+        List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+        assertEquals(1, artists.size());
+
+        MediaFile artist = artists.get(0);
+        assertEquals("20", artist.getName());
+
+        List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
+        assertEquals(1, albums.size());
+
+        MediaFile album = albums.get(0);
+        assertEquals("ALBUM", album.getName());// the case where album name is different between file and id3
+
+        List<MediaFile> songs = mediaFileUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
+        assertEquals(1, songs.size());
+
+        MediaFile song = songs.get(0);
+        assertEquals("empty", song.getName());
+
+    }
 
 }

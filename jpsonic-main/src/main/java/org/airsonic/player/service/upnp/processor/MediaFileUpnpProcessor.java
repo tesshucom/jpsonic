@@ -110,22 +110,25 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @Override
     public int getItemCount() {
+        int count = 0;
         List<MusicFolder> allFolders = getAllMusicFolders();
         if (allFolders.size() == 1) {
-            return mediaFileDao.getChildSizeOf(allFolders.get(0).getPath().getPath());
+            count = mediaFileDao.getChildSizeOf(allFolders.get(0).getPath().getPath());
+        } else {
+            count = allFolders.size();
         }
-        return allFolders.size();
+        return count;
     }
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
         List<MusicFolder> allFolders = getAllMusicFolders();
         List<MediaFile> returnValue = new ArrayList<MediaFile>();
-        if (allFolders.size() == 1) {
-            return getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
+        if (1 == allFolders.size()) {
+            returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
         } else {
-            for (MusicFolder folder : allFolders) {
-                returnValue.add(mediaFileService.getMediaFile(folder.getPath()));
+            for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {
+                returnValue.add(mediaFileService.getMediaFile(allFolders.get(i).getPath()));
             }
         }
         return returnValue;
@@ -143,7 +146,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (item.isAlbum()) {
-            return mediaFileDao.getSongsForAlbum(item.getArtist(), item.getName(), offset, maxResults);
+            return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
         }
         if (isEmpty(item.getArtist())) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, false);
