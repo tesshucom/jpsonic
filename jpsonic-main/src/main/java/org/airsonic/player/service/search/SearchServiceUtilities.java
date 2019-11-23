@@ -161,7 +161,8 @@ public class SearchServiceUtilities {
         }
     };
 
-    public final boolean addIgnoreNull(Collection collection, Object object) {
+    @SuppressWarnings("unchecked")
+    public final boolean addIgnoreNull(@SuppressWarnings("rawtypes") Collection collection, Object object) {
         return CollectionUtils.addIgnoreNull(collection, object);
     }
 
@@ -177,7 +178,7 @@ public class SearchServiceUtilities {
 
     public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType,
             int subjectId, Class<T> subjectClass) {
-        if (indexType == IndexType.SONG) {
+        if (indexType == IndexType.SONG || indexType == IndexType.ALBUM || indexType == IndexType.ARTIST) {
             MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
         } else if (indexType == IndexType.ARTIST_ID3) {

@@ -21,7 +21,19 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.*;
+import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
@@ -30,11 +42,13 @@ import org.fourthline.cling.support.model.item.MusicTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.regex.Pattern;
 
 /**
  * @author Allen Petersen
@@ -42,49 +56,43 @@ import java.util.Arrays;
  * @version $Id$
  */
 @Service
-public class DispatchingContentDirectory extends CustomContentDirectory {
+public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
-    public static final String CONTAINER_ID_ROOT = "0";
-    public static final String CONTAINER_ID_PLAYLIST_PREFIX = "playlist";
-    public static final String CONTAINER_ID_FOLDER_PREFIX = "folder";
-    public static final String CONTAINER_ID_ALBUM_PREFIX = "album";
-    public static final String CONTAINER_ID_ARTIST_PREFIX = "artist";
-    public static final String CONTAINER_ID_ARTISTALBUM_PREFIX = "artistalbum";
-    public static final String CONTAINER_ID_GENRE_PREFIX = "genre";
-    public static final String CONTAINER_ID_RECENT_PREFIX = "recent";
-
-    protected static final String SEPARATOR = "-";
-
     @Autowired
     private PlaylistUpnpProcessor playlistProcessor;
+
+    @Qualifier("mediaFileUpnpProcessor")
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
-    //@Autowired can't autowire because of the subclassing :P
-    @Autowired//first checks type then field name to autowire
-    private AlbumUpnpProcessor albumUpnpProcessor;
-    //@Autowired can't autowire because of the subclassing :P
-    @Autowired//first checks type then field name to autowire
-    private RecentAlbumUpnpProcessor recentAlbumUpnpProcessor;
+
+    @Qualifier("albumUpnpProcessor")
+    @Autowired
+    private AlbumUpnpProcessor albumProcessor;
+
+    @Qualifier("recentAlbumUpnpProcessor")
+    @Autowired
+    private RecentAlbumUpnpProcessor recentAlbumProcessor;
+
+    @Qualifier("recentAlbumId3UpnpProcessor")
+    @Autowired
+    private RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
+
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
+
     @Autowired
     private GenreUpnpProcessor genreProcessor;
+
     @Autowired
     private RootUpnpProcessor rootProcessor;
 
     @Autowired
     private MediaFileService mediaFileService;
-    @Autowired
-    private PlaylistService playlistService;
 
     @Autowired
-    private MusicIndexService musicIndexService;
-
-    @Autowired
-    private SearchService searchService;
-
+    private IndexUpnpProcessor IndexUpnpProcessor;
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -104,10 +112,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
 
         BrowseResult returnValue = null;
         try {
-            String[] splitId = objectId.split(SEPARATOR);
+            String[] splitId = objectId.split(OBJECT_ID_SEPARATOR);
             String browseRoot = splitId[0];
             String itemId = splitId.length == 1 ? null : splitId[1];
 
+            @SuppressWarnings("rawtypes")
             UpnpContentProcessor processor = findProcessor(browseRoot);
             if (processor == null) {
                 // if it's null then assume it's a file, and that the id
@@ -128,28 +137,53 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         }
     }
 
+    private final int COUNT_MAX = 50;
+    
+    /*
+     * Legacy implementation assumes title search(Ignore other fields if specified).
+     */
+    private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
+    
     @Override
     public BrowseResult search(String containerId,
-                               String searchCriteria, String filter,
+                               String criteria, String filter,
                                long firstResult, long maxResults,
                                SortCriterion[] orderBy) throws ContentDirectoryException {
-        // i don't see a parser for upnp search criteria anywhere, so this will
-        // have to do
-        String upnpClass = searchCriteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        String titleSearch = searchCriteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        BrowseResult returnValue = null;
-        if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-            returnValue = getArtistProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
-        } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-            returnValue = getMediaFileProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
-        } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-            returnValue = getAlbumProcessor().searchByName(titleSearch, firstResult, maxResults, orderBy);
+        long offset = firstResult;
+        long count = maxResults;
+        if ((offset + count) > COUNT_MAX) {
+            count = COUNT_MAX - offset;
         }
+        String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
+        String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
+        BrowseResult returnValue = null;
 
-        return returnValue != null ? returnValue : super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
+        SearchCriteria searchCriteria = new SearchCriteria();
+        searchCriteria.setOffset((int) firstResult);
+        searchCriteria.setCount((int) maxResults);
+        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());        
+        searchCriteria.setQuery(query);
+
+        boolean isDlnaFileStructure = settingsService.isDlnaFileStructureSearch();
+
+        if (TITLE_SEARCH.matcher(criteria).matches()) {
+            if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ARTIST)
+                        : getArtistProcessor().searchByName(query, offset, count, orderBy);
+            } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ALBUM)
+                        : getAlbumProcessor().searchByName(query, offset, count, orderBy);
+            } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
+                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.SONG)
+                        : getMediaFileProcessor().searchByName(query, offset, count, orderBy);
+            }
+        } else {
+            LOG.debug("Does not support field search other than title. QUERY : {}", criteria);
+        }
+        return returnValue;
     }
 
-
+    @SuppressWarnings("rawtypes")
     private UpnpContentProcessor findProcessor(String type) {
         switch (type) {
             case CONTAINER_ID_ROOT:
@@ -162,10 +196,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
                 return getAlbumProcessor();
             case CONTAINER_ID_RECENT_PREFIX:
                 return getRecentAlbumProcessor();
+            case CONTAINER_ID_RECENT_ID3_PREFIX:
+                return getRecentAlbumId3Processor();
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
             case CONTAINER_ID_GENRE_PREFIX:
                 return getGenreProcessor();
+            case CONTAINER_ID_INDEX_PREFIX:
+                return getIndexProcessor();
         }
         return null;
     }
@@ -178,7 +216,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         item.setTitle(song.getTitle());
         item.setAlbum(song.getAlbumName());
         if (song.getArtist() != null) {
-            item.setArtists(new PersonWithRole[]{new PersonWithRole(song.getArtist())});
+            item.setArtists(new PersonWithRole[] { new PersonWithRole(song.getArtist()) });
         }
         Integer year = song.getYear();
         if (year != null) {
@@ -186,7 +224,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         }
         item.setOriginalTrackNumber(song.getTrackNumber());
         if (song.getGenre() != null) {
-            item.setGenres(new String[]{song.getGenre()});
+            item.setGenres(new String[] { song.getGenre() });
         }
         item.setResources(Arrays.asList(createResourceForSong(song)));
         item.setDescription(song.getComment());
@@ -195,92 +233,52 @@ public class DispatchingContentDirectory extends CustomContentDirectory {
         return item;
     }
 
-    public URI getAlbumArtUrl(int id) {
+    private final URI getAlbumArtUrl(int id) {
         return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view").queryParam("id", id).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 
+    @Override
     public PlaylistUpnpProcessor getPlaylistProcessor() {
         return playlistProcessor;
     }
-    public void setPlaylistProcessor(PlaylistUpnpProcessor playlistProcessor) {
-        this.playlistProcessor = playlistProcessor;
-    }
 
+    @Override
     public MediaFileUpnpProcessor getMediaFileProcessor() {
         return mediaFileProcessor;
     }
-    public void setMediaFileProcessor(MediaFileUpnpProcessor mediaFileProcessor) {
-        this.mediaFileProcessor = mediaFileProcessor;
-    }
 
+    @Override
     public AlbumUpnpProcessor getAlbumProcessor() {
-        return albumUpnpProcessor;
-    }
-    public void setAlbumProcessor(AlbumUpnpProcessor albumProcessor) {
-        this.albumUpnpProcessor = albumProcessor;
+        return albumProcessor;
     }
 
     public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
-        return recentAlbumUpnpProcessor;
-    }
-    public void setRecentAlbumProcessor(RecentAlbumUpnpProcessor recentAlbumProcessor) {
-        this.recentAlbumUpnpProcessor = recentAlbumProcessor;
+        return recentAlbumProcessor;
     }
 
+    @Override
+    public RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor() {
+        return recentAlbumId3Processor;
+    }
+
+    @Override
     public ArtistUpnpProcessor getArtistProcessor() {
         return artistProcessor;
     }
-    public void setArtistProcessor(ArtistUpnpProcessor artistProcessor) {
-        this.artistProcessor = artistProcessor;
-    }
 
+    @Override
     public GenreUpnpProcessor getGenreProcessor() {
         return genreProcessor;
     }
-    public void setGenreProcessor(GenreUpnpProcessor genreProcessor) {
-        this.genreProcessor = genreProcessor;
-    }
 
+    @Override
     public RootUpnpProcessor getRootProcessor() {
         return rootProcessor;
     }
-    public void setRootProcessor(RootUpnpProcessor rootProcessor) {
-        this.rootProcessor = rootProcessor;
+
+    @Override
+    public IndexUpnpProcessor getIndexProcessor() {
+        return IndexUpnpProcessor;
     }
 
-    public MediaFileService getMediaFileService() {
-        return mediaFileService;
-    }
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public SettingsService getSettingsService() {
-        return settingsService;
-    }
-
-    public PlaylistService getPlaylistService() {
-        return playlistService;
-    }
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
-    }
-
-    public JWTSecurityService getJwtSecurityService() {
-        return jwtSecurityService;
-    }
-
-    public MusicIndexService getMusicIndexService() {
-        return this.musicIndexService;
-    }
-    public void setMusicIndexService(MusicIndexService musicIndexService) {
-        this.musicIndexService = musicIndexService;
-    }
-
-    public SearchService getSearchService() {
-        return this.searchService;
-    }
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
 }

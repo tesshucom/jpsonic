@@ -142,7 +142,7 @@ public class MediaFileJPSupport {
 
     public String createIndexableName(MediaFile mediaFile) {
         String indexableName = mediaFile.getName();
-        if (ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
+        if (settingsService.isIndexEnglishPrior() && ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
             indexableName = mediaFile.getName();
         } else if (!isEmpty(mediaFile.getArtistReading())) {
             indexableName = mediaFile.getArtistReading();
@@ -154,7 +154,7 @@ public class MediaFileJPSupport {
 
     public String createIndexableName(Artist artist) {
         String indexableName = artist.getName();
-        if (ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
+        if (settingsService.isIndexEnglishPrior() && ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
             indexableName = artist.getName();
         } else if (!isEmpty(artist.getReading())) {
             indexableName = artist.getReading();

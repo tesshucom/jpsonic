@@ -4,7 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
+    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 
     <script type="text/javascript" language="javascript">
         function enableLastFmFields() {
@@ -14,8 +14,8 @@
 </head>
 
 <body class="mainframe bgcolor1" onload="enableLastFmFields()">
-<script type="text/javascript" src="<c:url value="/script/wz_tooltip.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/script/tip_balloon.js"/>"></script>
+<script type="text/javascript" src="<c:url value='/script/wz_tooltip.js'/>"></script>
+<script type="text/javascript" src="<c:url value='/script/tip_balloon.js'/>"></script>
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="personal"/>
@@ -74,6 +74,7 @@
 
     <table class="indent">
         <tr>
+            <th></th>
             <th style="padding:0 0.5em 0.5em 0;text-align:left;"><fmt:message key="personalsettings.display"/></th>
             <th style="padding:0 0.5em 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.browse"/></th>
             <th style="padding:0 0 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.playlist"/></th>
@@ -82,51 +83,61 @@
             </th>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.tracknumber"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.trackNumberVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.trackNumberVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.artist"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.artistVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.artistVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.album"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.albumVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.albumVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td><fmt:message key="personalsettings.composer"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.composerVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.composerVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td><fmt:message key="personalsettings.genre"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.genreVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.genreVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.year"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.yearVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.yearVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.bitrate"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.bitRateVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.bitRateVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.duration"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.durationVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.durationVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.format"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.formatVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.formatVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
+            <td></td>
             <td><fmt:message key="personalsettings.filesize"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.fileSizeVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.fileSizeVisible" cssClass="checkbox"/></td>
@@ -212,8 +223,8 @@
     </table>
 
     <p style="padding-top:1em;padding-bottom:1em">
-        <input type="submit" value="<fmt:message key="common.save"/>" style="margin-right:0.3em"/>
-        <a href='nowPlaying.view'><input type="button" value="<fmt:message key="common.cancel"/>"></a>
+        <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em"/>
+        <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
     </p>
 
     <h2><fmt:message key="personalsettings.avatar.title"/></h2>
@@ -225,7 +236,7 @@
             </c:url>
             <span style="white-space:nowrap;">
                 <form:radiobutton id="avatar-${avatar.id}" path="avatarId" value="${avatar.id}"/>
-                <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${avatar.name}" width="${avatar.width}" height="${avatar.height}" style="padding-right:2em;padding-bottom:1em"/></label>
+                <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${fn:escapeXml(avatar.name)}" width="${avatar.width}" height="${avatar.height}" style="padding-right:2em;padding-bottom:1em"/></label>
             </span>
         </c:forEach>
     </p>
@@ -241,7 +252,7 @@
                     <sub:param name="username" value="${command.user.username}"/>
                     <sub:param name="forceCustom" value="true"/>
                 </sub:url>
-                <img src="${avatarUrl}" alt="${command.customAvatar.name}" width="${command.customAvatar.width}" height="${command.customAvatar.height}" style="padding-right:2em"/>
+                <img src="${avatarUrl}" alt="${fn:escapeXml(command.customAvatar.name)}" width="${command.customAvatar.width}" height="${command.customAvatar.height}" style="padding-right:2em"/>
             </c:if>
         </label>
     </p>
@@ -252,7 +263,7 @@
         <tr>
             <td style="padding-right:1em"><fmt:message key="personalsettings.avatar.changecustom"/></td>
             <td style="padding-right:1em"><input type="file" id="file" name="file" size="40"/></td>
-            <td style="padding-right:1em"><input type="submit" value="<fmt:message key="personalsettings.avatar.upload"/>"/></td>
+            <td style="padding-right:1em"><input type="submit" value="<fmt:message key='personalsettings.avatar.upload'/>"/></td>
         </tr>
     </table>
 </form>

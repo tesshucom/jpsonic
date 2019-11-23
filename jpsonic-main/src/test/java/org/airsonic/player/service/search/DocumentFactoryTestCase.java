@@ -18,13 +18,6 @@
  */
 package org.airsonic.player.service.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
-
-import java.io.File;
-import java.util.Date;
-
 import org.airsonic.player.dao.MusicFolderTestData;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -43,6 +36,13 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+
+import java.io.File;
+import java.util.Date;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 @ContextConfiguration(locations = {
         "/applicationContext-service.xml",

@@ -1,9 +1,5 @@
 package org.airsonic.player.service.search;
 
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MusicFolderDao;
@@ -24,6 +20,10 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 @ContextConfiguration(locations = {
         "/applicationContext-service.xml",
@@ -146,7 +146,6 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
     protected void setSortAlphanum(boolean isSortStrict) {
         settingsService.setSortAlphanum(true);
-        ;
     }
 
 }

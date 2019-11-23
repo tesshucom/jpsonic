@@ -41,8 +41,18 @@ import java.util.List;
  */
 public interface SearchService {
 
-    SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
-            IndexType indexType);
+    SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType);
+
+    /**
+     * Method equivalent to Legecy's searchByName.
+     * However, Legegy handles ID3, but this method uses the same method as "search".
+     * This is a way to provide a file/ID3 multi-field search that is valid for DLNA search
+     * and provides the same specification to the user as a Web/REST search.
+     * 
+     * @since 105.3.0
+     * @return search　result
+     */
+    ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType);
 
     /**
      * Returns a number of random songs.
@@ -70,6 +80,11 @@ public interface SearchService {
      */
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
 
+    /**
+     * Design change required.
+     * @deprecated
+     */
+    @Deprecated
     <T> ParamSearchResult<T> searchByName(
             String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz);
 
@@ -81,6 +96,25 @@ public interface SearchService {
      * @return Sorted list of genres.
      */
     List<Genre> getGenres(boolean sortByAlbum);
+
+    /**
+     * Returns all genres in the music collection.
+     *
+     * @since 105.3.0
+     * @param sortByAlbum Whether to sort by album count, rather than song count.
+     * @param offset offset
+     * @param maxResults maxResults
+     * @return Sorted list of genres.
+     */
+    List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults);
+
+    /**
+     * Returns count of Genres.
+     * 
+     * @since 105.3.0
+     * @return Count of Genres
+     */
+    int getGenresCount();
 
     /**
      * Returns albums in a genre.
@@ -117,5 +151,5 @@ public interface SearchService {
      * @return songs in the genre.
      */
     List<MediaFile> getSongsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders);
-    
+
 }

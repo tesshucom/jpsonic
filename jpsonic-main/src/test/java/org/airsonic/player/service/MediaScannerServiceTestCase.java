@@ -3,9 +3,14 @@ package org.airsonic.player.service;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.dao.*;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.HomeRule;
+import org.airsonic.player.util.MusicFolderTestData;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -14,11 +19,6 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.airsonic.player.TestCaseUtils;
-import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.Artist;
-import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -29,9 +29,9 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -135,13 +135,13 @@ public class MediaScannerServiceTestCase {
 
         System.out.println("--- List of all artists ---");
         System.out.println("artistName#albumCount");
-        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, 0, musicFolderDao.getAllMusicFolders());
+        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolderDao.getAllMusicFolders());
         allArtists.forEach(artist -> System.out.println(artist.getName() + "#" + artist.getAlbumCount()));
         System.out.println("--- *********************** ---");
 
         System.out.println("--- List of all albums ---");
         System.out.println("name#artist");
-        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, 0, true, true, musicFolderDao.getAllMusicFolders());
+        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, musicFolderDao.getAllMusicFolders());
         allAlbums.forEach(album -> System.out.println(album.getName() + "#" + album.getArtist()));
         Assert.assertEquals(5, allAlbums.size());
         System.out.println("--- *********************** ---");
@@ -151,7 +151,7 @@ public class MediaScannerServiceTestCase {
 
         // display out metrics report
         ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.SECONDS.SECONDS)
+                .convertRatesTo(TimeUnit.SECONDS)
                 .convertDurationsTo(TimeUnit.MILLISECONDS)
                 .build();
         reporter.report();
@@ -179,6 +179,12 @@ public class MediaScannerServiceTestCase {
     }
 
     @Test
+    public void testNeverScanned() {
+
+        mediaScannerService.neverScanned();
+    }
+
+    @Test
     public void testMusicBrainzReleaseIdTag() {
 
         // Add the "Music3" folder to the database
@@ -196,14 +202,14 @@ public class MediaScannerServiceTestCase {
         folders.add(musicFolder);
 
         // Test that the artist is correctly imported
-        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, 0, folders);
+        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
         Assert.assertEquals(1, allArtists.size());
         Artist artist = allArtists.get(0);
         Assert.assertEquals("TestArtist", artist.getName());
         Assert.assertEquals(1, artist.getAlbumCount());
 
         // Test that the album is correctly imported, along with its MusicBrainz release ID
-        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, 0, true, true, folders);
+        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, folders);
         Assert.assertEquals(1, allAlbums.size());
         Album album = allAlbums.get(0);
         Assert.assertEquals("TestAlbum", album.getName());

@@ -18,13 +18,6 @@
  */
 package com.tesshu.jpsonic.domain;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
@@ -32,6 +25,13 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors; 
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
@@ -66,15 +66,13 @@ public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabeticalAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
-                Arrays.asList(musicFolders.get(0)));
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
     @Test
     public void testGetAlphabeticalNumAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true,
-                Arrays.asList(musicFolders.get(1)));
+        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(1)));
         assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 

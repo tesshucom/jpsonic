@@ -223,6 +223,14 @@ used with JMX monitors.
            diskSpoolBufferSizeMB="1"
            statistics="true"/>
 
+    <cache name="searchCache"
+           maxElementsInMemory="30"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="10"
+           overflowToDisk="false"
+           statistics="false"/>
+
     <!--
     Sample caches. Following are some example caches. Remove these before use.
     -->

@@ -46,7 +46,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public abstract class CustomContentDirectory extends AbstractContentDirectoryService {
 
-    protected static final String CONTAINER_ID_ROOT = "0";
+    //protected static final String CONTAINER_ID_ROOT = "0";
 
     @Autowired
     protected SettingsService settingsService;
@@ -61,7 +61,7 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         super(Lists.newArrayList("*"), Lists.newArrayList());
     }
 
-    protected Res createResourceForSong(MediaFile song) {
+    public Res createResourceForSong(MediaFile song) {
         Player player = playerService.getGuestPlayer(null);
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/ext/stream")
@@ -75,7 +75,6 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         jwtSecurityService.addJWTToken(builder);
 
         String url = builder.toUriString();
-
         String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
         String mimeTypeString = StringUtil.getMimeType(suffix);
         MimeType mimeType = mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
@@ -89,30 +88,10 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         if (seconds == null) {
             return null;
         }
-
-        StringBuilder result = new StringBuilder(8);
-
-        int hours = seconds / 3600;
-        seconds -= hours * 3600;
-
-        int minutes = seconds / 60;
-        seconds -= minutes * 60;
-
-        result.append(hours).append(':');
-        if (minutes < 10) {
-            result.append('0');
-        }
-        result.append(minutes).append(':');
-        if (seconds < 10) {
-            result.append('0');
-        }
-        result.append(seconds);
-        result.append(".0");
-
-        return result.toString();
+        return StringUtil.formatDurationHMMSS((int)seconds) + ".0";
     }
 
-    protected String getBaseUrl() {
+    public String getBaseUrl() {
         String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
         if (StringUtils.isBlank(dlnaBaseLANURL)) {
             throw new RuntimeException("DLNA Base LAN URL is not set correctly");
@@ -133,19 +112,4 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         return super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
     }
 
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-    }
-
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setJwtSecurityService(JWTSecurityService jwtSecurityService) {
-        this.jwtSecurityService = jwtSecurityService;
-    }
 }

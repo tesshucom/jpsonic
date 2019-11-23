@@ -113,6 +113,15 @@ public class ArtistDao extends AbstractDao {
         artist.setId(id);
     }
 
+    public int getArtistsCount(final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty()) {
+            return 0;
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("folders", MusicFolder.toIdList(musicFolders));
+        return namedQueryForInt("select count(id) from artist where present and folder_id in (:folders)", 0, args);
+    }
+
     /**
      * Returns artists in alphabetical order.
      *
@@ -121,7 +130,7 @@ public class ArtistDao extends AbstractDao {
      * @param musicFolders Only return artists that have at least one album in these folders.
      * @return Artists in alphabetical order.
      */
-    public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
+    public List<Artist> getAlphabetialArtists(final long offset, final long count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }

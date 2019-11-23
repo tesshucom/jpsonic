@@ -1,14 +1,6 @@
 
 package org.airsonic.player.service.search;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
@@ -18,7 +10,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.google.common.base.Function;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.function.Function;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /*
  * Tests to prove what kind of strings/chars can be used in the genre field.
@@ -64,12 +63,12 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
     public void testQueryEscapeRequires() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s ->
-        new RandomSearchCriteria(Integer.MAX_VALUE, // count
-                Arrays.asList(s), // genre,
-                null, // fromYear
-                null, // toYear
-                getMusicFolders() // musicFolders
-        );
+            new RandomSearchCriteria(Integer.MAX_VALUE, // count
+                    Arrays.asList(s), // genre,
+                    null, // fromYear
+                    null, // toYear
+                    getMusicFolders() // musicFolders
+            );
 
         List<MediaFile> songs = searchService.getRandomSongs(simpleStringCriteria.apply("+"));
         Assert.assertEquals(1, songs.size());// XXX 3.x -> 8.x : Searchable
@@ -118,7 +117,7 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
          * 
          * @see AnalyzerFactory
          * 
-         * >>>>>
+         *
          */
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("{}"));
         Assert.assertEquals(1, songs.size());// XXX 3.x -> 8.x : Searchable
@@ -195,12 +194,12 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
     public void testBrackets() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s ->
-        new RandomSearchCriteria(Integer.MAX_VALUE, // count
-                Arrays.asList(s), // genre,
-                null, // fromYear
-                null, // toYear
-                getMusicFolders() // musicFolders
-        );
+            new RandomSearchCriteria(Integer.MAX_VALUE, // count
+                    Arrays.asList(s), // genre,
+                    null, // fromYear
+                    null, // toYear
+                    getMusicFolders() // musicFolders
+            );
 
         // -(GENRE)- is registered as genre of FILE17.
 
@@ -269,12 +268,12 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
     public void testOthers() {
 
         Function<String, RandomSearchCriteria> simpleStringCriteria = s ->
-        new RandomSearchCriteria(Integer.MAX_VALUE, // count
-                Arrays.asList(s), // genre,
-                null, // fromYear
-                null, // toYear
-                getMusicFolders() // musicFolders
-        );
+            new RandomSearchCriteria(Integer.MAX_VALUE, // count
+                    Arrays.asList(s), // genre,
+                    null, // fromYear
+                    null, // toYear
+                    getMusicFolders() // musicFolders
+            );
 
         // XXX 3.x -> 8.x : Do the process more strictly.
         List<MediaFile> songs = searchService

@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>10.5.0-SNAPSHOT</version>
+    <version>10.5.0-RELEASE</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -16,8 +16,8 @@
     <properties>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.3.1</cxf.version>
-        <jackson.version>2.10.0.pr3</jackson.version>
+        <cxf.version>3.3.4</cxf.version>
+        <jackson.version>2.10.1</jackson.version>
     </properties>
 
     <repositories>
@@ -250,6 +250,7 @@
                                 <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
                                 <failOnViolation>true</failOnViolation>
+                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
                             </configuration>
                             <goals>
                                 <goal>check</goal>
@@ -265,9 +266,26 @@
                     </dependencies>
                 </plugin>
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>3.12.0</version>
+                    <executions>
+                        <execution>
+                            <id>validate</id>
+                            <phase>validate</phase>
+                            <configuration>
+                                <sourceEncoding>utf-8</sourceEncoding>
+                            </configuration>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>5.1.0</version>
+                    <version>5.2.2</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>

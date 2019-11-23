@@ -65,6 +65,11 @@ public class JpsonicComparators {
         };
     }
 
+    /**
+     * Returns a comparator that sorts in dictionary order regardless of the setting.
+     * (Used places are limited)
+     * @return Comparator
+     */
     public Comparator<Album> albumAlphabeticalOrder() {
         return new Comparator<Album>() {
 
@@ -80,6 +85,10 @@ public class JpsonicComparators {
         };
     }
 
+    /**
+     * Returns a Comparator that sorts by year or dictionary order according to the settings
+     * @return Comparator
+     */
     public Comparator<Album> albumOrder() {
         return new Comparator<Album>() {
 
@@ -104,15 +113,21 @@ public class JpsonicComparators {
     }
 
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
-
+        // TODO #340
         boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
                 && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));
-
         MediaFileComparator mediaFileComparator = new JpMediaFileComparator(isSortAlbumsByYear, createCollator());
-
         return mediaFileComparator;
+    }
 
+    /**
+     * Returns a comparator that sorts in dictionary order regardless of the setting.
+     * (Used places are limited)
+     * @return Comparator
+     */
+    public MediaFileComparator mediaFileAlphabeticalOrder() {
+        return new JpMediaFileComparator(false, createCollator());
     }
 
     public Comparator<Playlist> playlistOrder() {

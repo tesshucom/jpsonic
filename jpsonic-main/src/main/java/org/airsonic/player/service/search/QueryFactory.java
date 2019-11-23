@@ -180,7 +180,7 @@ public class QueryFactory {
 
         String[] fields = indexType.getFields();
 
-        if (criteria.isContainsComposer()) {
+        if (criteria.isIncludeComposer()) {
             List<String> ifields = new ArrayList<>();
             Arrays.asList(fields).forEach(e -> ifields.add(e));
             ifields.add(FieldNames.COMPOSER);

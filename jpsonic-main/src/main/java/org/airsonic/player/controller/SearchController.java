@@ -89,7 +89,7 @@ public class SearchController {
             SearchCriteria criteria = new SearchCriteria();
             criteria.setCount(MATCH_COUNT);
             criteria.setQuery(query);
-            criteria.setContainsComposer(userSettings.getMainVisibility().isComposerVisible());
+            criteria.setIncludeComposer(settingsService.isSearchComposer() || userSettings.getMainVisibility().isComposerVisible());
 
             SearchResult artists = searchService.search(criteria, musicFolders, IndexType.ARTIST);
             command.setArtists(artists.getMediaFiles());

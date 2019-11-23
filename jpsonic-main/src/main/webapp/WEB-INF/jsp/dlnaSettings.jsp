@@ -21,12 +21,12 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value="/script/utils.js"/>"></script>
+    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
 <body class="mainframe bgcolor1">
-<script type="text/javascript" src="<c:url value="/script/wz_tooltip.js"/>"></script>
-<script type="text/javascript" src="<c:url value="/script/tip_balloon.js"/>"></script>
+<script type="text/javascript" src="<c:url value='/script/wz_tooltip.js'/>"></script>
+<script type="text/javascript" src="<c:url value='/script/tip_balloon.js'/>"></script>
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="dlna"/>
@@ -36,36 +36,133 @@
 <form method="post" action="dlnaSettings.view">
     <sec:csrfInput />
 
-    <div>
-        <input type="checkbox" name="dlnaEnabled" id="dlnaEnabled" ${model.dlnaEnabled? "checked": ""}/>
-        <label for="dlnaEnabled"><fmt:message key="dlnasettings.enabled"/></label>
-    </div>
-    <p class="detail" style="width:60%;white-space:normal">
-        <fmt:message key="dlnasettings.description"/>
-    </p>
+    <table style="white-space:nowrap" class="indent">
 
-    <div>
-        <fmt:message key="dlnasettings.servername"/>
-        <input name="dlnaServerName" id="dlnaServerName" size="40"
-               value="<c:out value="${model.dlnaServerName}" escapeXml="true"/>"/>
-    </div>
-    <p class="detail" style="width:60%;white-space:normal;padding-top:0">
-        <fmt:message key="dlnasettings.servername.description"/>
-    </p>
+        <tr>
+            <td><fmt:message key="dlnasettings.basic"/></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaEnabled" id="dlnaEnabled" ${model.dlnaEnabled? "checked": ""}/>
+                <label for="dlnaEnabled"><fmt:message key="dlnasettings.enabled"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaenable"/></c:import>
+            </td>
+        </tr>
 
-    <div>
-        <label for="dlnaBaseLANURL" ><fmt:message key="dlnasettings.baselanurl"/></label>
-        <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL"
-               value="<c:out value="${model.dlnaBaseLANURL}" />" />
-    </div>
-    <p class="detail" style="width:60%;white-space:normal">
-        <fmt:message key="dlnasettings.lanurl.description"/>
-    </p>
+        <tr>
+            <td></td>
+            <td></td>
+            <td><fmt:message key="dlnasettings.servername"/></td>
+            <td>
+                <input name="dlnaServerName" id="dlnaServerName" size="40" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaservername"/></c:import>
+            </td>
+        </tr>
 
-    <p>
-        <input type="submit" value="<fmt:message key="common.save"/>" style="margin-right:0.3em">
-        <a href='nowPlaying.view'><input type="button" value="<fmt:message key="common.cancel"/>"></a>
-    </p>
+        <tr>
+            <td></td>
+            <td></td>
+            <td><label for="dlnaBaseLANURL" ><fmt:message key="dlnasettings.baselanurl"/></label></td>
+            <td>
+                <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value='${model.dlnaBaseLANURL}' />" />
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnalanurl"/></c:import>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.view"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaIndexVisible" id="dlnaIndexVisible" ${model.dlnaIndexVisible? "checked": ""}/>
+                <label for="dlnaIndexVisible"><fmt:message key="dlna.title.index"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaFolderVisible" id="dlnaFolderVisible" ${model.dlnaFolderVisible? "checked": ""}/>
+                <label for="dlnaFolderVisible"><fmt:message key="dlna.title.folders"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaArtistVisible" id="dlnaArtistVisible" ${model.dlnaArtistVisible? "checked": ""}/>
+                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/>(ID3)</label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaAlbumVisible" id="dlnaAlbumVisible" ${model.dlnaAlbumVisible? "checked": ""}/>
+                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/>(ID3)</label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
+                <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
+                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name=dlnaGenreCountVisible id="dlnaGenreCountVisible" style="margin-left:2em" ${model.dlnaGenreCountVisible? "checked": ""}/>
+                <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaRecentAlbumVisible" id="dlnaRecentAlbumVisible" ${model.dlnaRecentAlbumVisible? "checked": ""}/>
+                <label for="dlnaRecentAlbumVisible"><fmt:message key="dlna.title.recentAlbums"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaRecentAlbumId3Visible" id="dlnaRecentAlbumId3Visible" ${model.dlnaRecentAlbumId3Visible? "checked": ""}/>
+                <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/>(ID3)</label>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.search"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaFileStructureSearch" id="dlnaFileStructureSearch" ${model.dlnaFileStructureSearch? "checked": ""}/>
+                <label for="dlnaFileStructureSearch"><fmt:message key="dlnasettings.filestructuresearch"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaFileStructureSearch"/></c:import>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4" style="padding-top:1.5em">
+                <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
+                <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
+            </td>
+        </tr>
+        
+    </table>
 
 </form>
 
