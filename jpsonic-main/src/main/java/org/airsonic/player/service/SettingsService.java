@@ -193,8 +193,8 @@ public class SettingsService {
     private static final boolean DEFAULT_INDEX_ENGLISH_PRIOR = true;
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
-    private static final boolean DEFAULT_SORT_ALPHANUM = false;
-    private static final boolean DEFAULT_SORT_STRICT = false;
+    private static final boolean DEFAULT_SORT_ALPHANUM = true;
+    private static final boolean DEFAULT_SORT_STRICT = true;
     private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
 
@@ -1210,6 +1210,7 @@ public class SettingsService {
         UserSettings.Visibility playlist = settings.getPlaylistVisibility();
         playlist.setArtistVisible(true);
         playlist.setAlbumVisible(true);
+        playlist.setGenreVisible(true);
         playlist.setYearVisible(true);
         playlist.setDurationVisible(true);
         playlist.setBitRateVisible(true);
@@ -1219,6 +1220,7 @@ public class SettingsService {
         UserSettings.Visibility main = settings.getMainVisibility();
         main.setTrackNumberVisible(true);
         main.setArtistVisible(true);
+        main.setGenreVisible(true);
         main.setDurationVisible(true);
 
         return settings;
