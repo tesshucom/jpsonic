@@ -207,5 +207,9 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return settingsService.isProhibitSortVarious();
     }
 
+    protected final boolean isDlnaGenreCountVisible() {
+        return settingsService.isDlnaGenreCountVisible();
+    }
+
 }
 

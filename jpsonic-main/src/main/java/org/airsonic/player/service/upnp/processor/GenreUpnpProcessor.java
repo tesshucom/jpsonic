@@ -78,7 +78,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
-        container.setTitle(item.getName());
+        container.setTitle(isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
         container.setChildCount(item.getAlbumCount());
         return container;
     }

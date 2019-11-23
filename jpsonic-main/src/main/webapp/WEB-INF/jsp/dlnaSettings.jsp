@@ -120,6 +120,14 @@
         </tr>
         <tr>
             <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name=dlnaGenreCountVisible id="dlnaGenreCountVisible" style="margin-left:2em" ${model.dlnaGenreCountVisible? "checked": ""}/>
+                <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaRecentAlbumVisible" id="dlnaRecentAlbumVisible" ${model.dlnaRecentAlbumVisible? "checked": ""}/>
