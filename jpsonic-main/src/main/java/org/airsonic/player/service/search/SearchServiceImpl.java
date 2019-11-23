@@ -330,15 +330,20 @@ public class SearchServiceImpl implements SearchService {
     @SuppressWarnings("unchecked")
     private Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         List<MediaFile> mediaFiles = null;
-        Element e = searchCache.get(createCacheKey(genres, musicFolders, indexType));
-        if (!isEmpty(e)) {
-            mediaFiles = (List<MediaFile>) e.getObjectValue();
+        Element element = null;
+        synchronized (searchCache) {
+            element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
+        }
+        if (!isEmpty(element)) {
+            mediaFiles = (List<MediaFile>) element.getObjectValue();
         }
         return Optional.ofNullable(mediaFiles);
     }
 
     private void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
-        searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+        synchronized (searchCache) {
+            searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+        }
     }
 
     private List<MediaFile> getMediasByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,

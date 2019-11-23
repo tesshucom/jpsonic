@@ -548,8 +548,9 @@ public class MediaFileDao extends AbstractDao {
                           "join media_file al on s.parent_path = al.path " + 
                           "join media_file ar on al.parent_path = ar.path " +
                           "where s.type in (:types) and s.genre in (:genres) " +
-                          "and s.present and s.folder in (:folders) limit :count offset :offset " +
-                          "order by ar._order, al._order, s.track_number", rowMapper, args);
+                          "and s.present and s.folder in (:folders) " +
+                          "order by ar._order, al._order, s.track_number " +
+                          "limit :count offset :offset ", rowMapper, args);
     }
 
     public List<MediaFile> getSongsByArtist(String artist, int offset, int count) {
