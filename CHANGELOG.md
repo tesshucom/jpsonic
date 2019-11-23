@@ -3,6 +3,33 @@
 # jpsonic/jpsonic
 # -->
 
+## v106.0.0
+#### Based on *airsonic 10.5.0-RELEASE*
+
+###### General
+
+  * [fix] Update jackson to 2.10.1(CVE-2019-16943, CVE-2019-17531).
+  * [fix] Update cxf to 3.3.4(CVE-2019-12406, CVE-2019-12419).
+  * [update] Changed the default value of the setting item.
+             The recommended items are now ON by default because so many options have been added.
+  * [update] Jpsonic icons have been added to optional items, that include Jpsonic's unique functions and modifications.
+
+###### WEB
+
+  * [update] Modified the order of Home> All to be in the same order regardless of the DB being used.
+  * [update] Added an option to include composers in the search, regardless of personal settings.
+  * [update] Added an option to output the value entered in the log. Input from Web/Rest/DLNA can be confirmed.
+  * [update] Added default user icon for Jpsonic theme 
+
+###### DLNA
+
+  * [update] Improved item deployment speed.
+  * [update] Added DLNA display items (index/recently added album).
+  * [update] Added option to select DLNA display items.
+  * [update] Fixed the title search of DLNA to work correctly.
+             DLNA title search can be selected as ID3/FileStructure (default is FileStructure and same search as Web) 
+  * [update] Added an option to display the number of items in the genre 
+
 ## v105.2.1
 #### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
 
