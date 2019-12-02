@@ -25,6 +25,7 @@
         <property name="lastFmService" ref="lastFmService"/>
         <property name="podcastService" ref="podcastService"/>
         <property name="mediaFileDao" ref="mediaFileDao"/>
+        <property name="coverArtLogic" ref="coverArtLogic"/>
     </bean>
 
 </beans>

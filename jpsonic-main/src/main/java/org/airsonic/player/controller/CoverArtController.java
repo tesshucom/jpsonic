@@ -22,6 +22,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
 import org.airsonic.player.util.FileUtil;
@@ -63,11 +64,6 @@ import java.util.concurrent.Semaphore;
 @RequestMapping({"/coverArt", "/ext/coverArt"})
 public class CoverArtController implements LastModified {
 
-    public static final String ALBUM_COVERART_PREFIX = "al-";
-    public static final String ARTIST_COVERART_PREFIX = "ar-";
-    public static final String PLAYLIST_COVERART_PREFIX = "pl-";
-    public static final String PODCAST_COVERART_PREFIX = "pod-";
-
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
 
     @Autowired
@@ -87,6 +83,8 @@ public class CoverArtController implements LastModified {
     @Autowired
     private JaudiotaggerParser jaudiotaggerParser;
     private Semaphore semaphore;
+    @Autowired
+    private CoverArtLogic logic;
 
     @PostConstruct
     public void init() {
@@ -138,18 +136,17 @@ public class CoverArtController implements LastModified {
         if (id == null) {
             return null;
         }
-
-        if (id.startsWith(ALBUM_COVERART_PREFIX)) {
-            return createAlbumCoverArtRequest(Integer.valueOf(id.replace(ALBUM_COVERART_PREFIX, "")));
+        if (logic.isAlbum(id)) {
+            return createAlbumCoverArtRequest(logic.getAlbumId(id));
         }
-        if (id.startsWith(ARTIST_COVERART_PREFIX)) {
-            return createArtistCoverArtRequest(Integer.valueOf(id.replace(ARTIST_COVERART_PREFIX, "")));
+        if (logic.isArtist(id)) {
+            return createArtistCoverArtRequest(logic.getArtistId(id));
         }
-        if (id.startsWith(PLAYLIST_COVERART_PREFIX)) {
-            return createPlaylistCoverArtRequest(Integer.valueOf(id.replace(PLAYLIST_COVERART_PREFIX, "")));
+        if (logic.isPlaylist(id)) {
+            return createPlaylistCoverArtRequest(logic.getPlaylistId(id));
         }
-        if (id.startsWith(PODCAST_COVERART_PREFIX)) {
-            return createPodcastCoverArtRequest(Integer.valueOf(id.replace(PODCAST_COVERART_PREFIX, "")), request);
+        if (logic.isPodcast(id)) {
+            return createPodcastCoverArtRequest(logic.getPodcastId(id), request);
         }
         return createMediaFileCoverArtRequest(Integer.valueOf(id), request);
     }
@@ -430,7 +427,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return artist.getCoverArtPath() != null ? artist.getCoverArtPath() : (ARTIST_COVERART_PREFIX + artist.getId());
+            return artist.getCoverArtPath() != null ? artist.getCoverArtPath() : logic.createKey(artist);
         }
 
         @Override
@@ -465,7 +462,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return album.getCoverArtPath() != null ? album.getCoverArtPath() : (ALBUM_COVERART_PREFIX + album.getId());
+            return album.getCoverArtPath() != null ? album.getCoverArtPath() : logic.createKey(album);
         }
 
         @Override
@@ -500,7 +497,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return PLAYLIST_COVERART_PREFIX + playlist.getId();
+            return logic.createKey(playlist);
         }
 
         @Override
@@ -567,7 +564,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return PODCAST_COVERART_PREFIX + channel.getId();
+            return logic.createKey(channel);
         }
 
         @Override

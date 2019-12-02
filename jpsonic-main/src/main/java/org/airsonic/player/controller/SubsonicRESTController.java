@@ -30,6 +30,7 @@ import org.airsonic.player.dao.PlayQueueDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.i18n.LocaleResolver;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
@@ -137,6 +138,8 @@ public class SubsonicRESTController {
     private MediaScannerService mediaScannerService;
     @Autowired
     private LocaleResolver localeResolver;
+    @Autowired
+    private CoverArtLogic logic;
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
 
@@ -487,7 +490,7 @@ public class SubsonicRESTController {
         jaxbArtist.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(artist.getId(), username)));
         jaxbArtist.setAlbumCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
-            jaxbArtist.setCoverArt(CoverArtController.ARTIST_COVERART_PREFIX + artist.getId());
+            jaxbArtist.setCoverArt(logic.createKey(artist));
         }
         return jaxbArtist;
     }
@@ -535,7 +538,7 @@ public class SubsonicRESTController {
             }
         }
         if (album.getCoverArtPath() != null) {
-            jaxbAlbum.setCoverArt(CoverArtController.ALBUM_COVERART_PREFIX + album.getId());
+            jaxbAlbum.setCoverArt(logic.createKey(album));
         }
         jaxbAlbum.setSongCount(album.getSongCount());
         jaxbAlbum.setDuration(album.getDurationSeconds());
@@ -556,7 +559,7 @@ public class SubsonicRESTController {
         jaxbPlaylist.setDuration(playlist.getDurationSeconds());
         jaxbPlaylist.setCreated(jaxbWriter.convertDate(playlist.getCreated()));
         jaxbPlaylist.setChanged(jaxbWriter.convertDate(playlist.getChanged()));
-        jaxbPlaylist.setCoverArt(CoverArtController.PLAYLIST_COVERART_PREFIX + playlist.getId());
+        jaxbPlaylist.setCoverArt(logic.createKey(playlist));
 
         for (String username : playlistService.getPlaylistUsers(playlist.getId())) {
             jaxbPlaylist.getAllowedUser().add(username);
@@ -1568,7 +1571,7 @@ public class SubsonicRESTController {
                 c.setStatus(PodcastStatus.valueOf(channel.getStatus().name()));
                 c.setTitle(channel.getTitle());
                 c.setDescription(channel.getDescription());
-                c.setCoverArt(CoverArtController.PODCAST_COVERART_PREFIX + channel.getId());
+                c.setCoverArt(logic.createKey(channel));
                 c.setOriginalImageUrl(channel.getImageUrl());
                 c.setErrorMessage(channel.getErrorMessage());
 
@@ -2318,8 +2321,9 @@ public class SubsonicRESTController {
     }
 
     private String mapId(String id) {
-        if (id == null || id.startsWith(CoverArtController.ALBUM_COVERART_PREFIX) ||
-                id.startsWith(CoverArtController.ARTIST_COVERART_PREFIX) || StringUtils.isNumeric(id)) {
+        
+        
+        if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {
             return id;
         }
 
