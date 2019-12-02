@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import static org.junit.Assert.assertEquals;
+
 public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
@@ -472,41 +474,19 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
         List<Genre> genres = searchService.getGenres(false);
         Assert.assertEquals("size", 5, genres.size());
-
-        Assert.assertEquals("genre(0).name", "Gothik Folk Psychobilly", genres.get(0).getName());
-        Assert.assertEquals("genre(0).albumCount", 1, genres.get(0).getAlbumCount());
-        Assert.assertEquals("genre(0).songCount", 3, genres.get(0).getSongCount());
-        Assert.assertEquals("genre(1).name", "Baroque Instrumental", genres.get(1).getName());
-        Assert.assertEquals("genre(1).albumCount", 1, genres.get(1).getAlbumCount());
-        Assert.assertEquals("genre(1).songCount", 2, genres.get(1).getSongCount());
-        Assert.assertEquals("genre(2).name", "Impressionist Era", genres.get(2).getName());
-        Assert.assertEquals("genre(2).albumCount", 1, genres.get(2).getAlbumCount());
-        Assert.assertEquals("genre(2).songCount", 2, genres.get(2).getSongCount());
-        Assert.assertEquals("genre(3).name", "Alternative/Indie", genres.get(3).getName());
-        Assert.assertEquals("genre(3).albumCount", 0, genres.get(3).getAlbumCount());
-        Assert.assertEquals("genre(3).songCount", 1, genres.get(3).getSongCount());
-        Assert.assertEquals("genre(4).name", "Metal", genres.get(4).getName());
-        Assert.assertEquals("genre(4).albumCount", 1, genres.get(4).getAlbumCount());
-        Assert.assertEquals("genre(4).songCount", 1, genres.get(4).getSongCount());
+        assertEquals(1L, genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Impressionist Era".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Baroque Instrumental".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Alternative/Indie".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
         genres = searchService.getGenres(true);
         Assert.assertEquals("size", 5, genres.size());
-
-        Assert.assertEquals("genre(0).name", "Baroque Instrumental", genres.get(0).getName());
-        Assert.assertEquals("genre(0).albumCount", 1, genres.get(0).getAlbumCount());
-        Assert.assertEquals("genre(0).songCount", 2, genres.get(0).getSongCount());
-        Assert.assertEquals("genre(1).name", "Metal", genres.get(1).getName());
-        Assert.assertEquals("genre(1).albumCount", 1, genres.get(1).getAlbumCount());
-        Assert.assertEquals("genre(1).songCount", 1, genres.get(1).getSongCount());
-        Assert.assertEquals("genre(2).name", "Impressionist Era", genres.get(2).getName());
-        Assert.assertEquals("genre(2).albumCount", 1, genres.get(2).getAlbumCount());
-        Assert.assertEquals("genre(2).songCount", 2, genres.get(2).getSongCount());
-        Assert.assertEquals("genre(3).name", "Gothik Folk Psychobilly", genres.get(3).getName());
-        Assert.assertEquals("genre(3).albumCount", 1, genres.get(3).getAlbumCount());
-        Assert.assertEquals("genre(3).songCount", 3, genres.get(3).getSongCount());
-        Assert.assertEquals("genre(4).name", "Alternative/Indie", genres.get(4).getName());
-        Assert.assertEquals("genre(4).albumCount", 0, genres.get(4).getAlbumCount());
-        Assert.assertEquals("genre(4).songCount", 1, genres.get(4).getSongCount());
+        assertEquals(1L, genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Impressionist Era".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Baroque Instrumental".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Alternative/Indie".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
     }
 

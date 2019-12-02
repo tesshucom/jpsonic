@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.domain;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.Playlist;
@@ -142,6 +143,10 @@ public class JpsonicComparators {
                 return c.compare(o1.getReading(), o2.getReading());
             }
         };
+    }
+
+    public Comparator<Genre> genreOrder(boolean sortByAlbum) {
+        return (Genre o1, Genre o2) -> sortByAlbum ? o2.getAlbumCount() - o1.getAlbumCount() : o2.getSongCount() - o1.getSongCount();
     }
 
 }

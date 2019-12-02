@@ -20,12 +20,12 @@
 
 package org.airsonic.player.service.search;
 
+import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.airsonic.player.domain.MusicFolder;
@@ -34,7 +34,6 @@ import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -131,6 +130,9 @@ public class IndexManager {
     @Autowired
     private SearchServiceUtilities util;
 
+    @Autowired
+    private Ehcache genreCache;
+
     private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
 
     private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
@@ -194,6 +196,15 @@ public class IndexManager {
         return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
     }
 
+    public final void clearGenre() {
+        try {
+            writers.get(IndexType.GENRE).deleteAll();
+            writers.get(IndexType.GENRE).flush();
+        } catch (IOException e) {
+            LOG.error("Failed to clear genre index.", e);
+        }
+    }
+
     public void expunge() {
 
         Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream()
@@ -249,6 +260,7 @@ public class IndexManager {
      */
     public void stopIndexing(MediaLibraryStatistics statistics) {
         Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
+        genreCache.removeAll();
     }
 
     /**
@@ -478,33 +490,6 @@ public class IndexManager {
             release(IndexType.GENRE, searcher);
         }
         return result;
-    }
-
-    @Deprecated
-    public void updateArtistSort(Album album) {
-        try {
-            if (isEmpty(album.getArtistSort())) {
-                Term primarykey = documentFactory.createPrimarykey(album);
-                List<Field> updates = documentFactory.createWordsFields.apply(FieldNames.ARTIST_READING, album.getArtistSort());
-                writers.get(IndexType.ALBUM_ID3).updateDocValues(primarykey, updates.toArray(new Field[updates.size()]));
-            }
-        } catch (Exception x) {
-            LOG.error("Failed to create search index for " + album, x);
-        }
-    }
-
-    /*
-     * All genre master acquisitions are aggregated into this method.
-     * The current situation uses legacy database tables.
-     * By design, it is possible to process entirely with the index on the lucene side,
-     * so it is possible to hide the implementation without using a DB in this class.
-     */
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
-
-    public List<Genre> getGenres(boolean sortByAlbum, long offset, long count) {
-        return mediaFileDao.getGenres(sortByAlbum, offset, count);
     }
 
     public int getGenresCount() {

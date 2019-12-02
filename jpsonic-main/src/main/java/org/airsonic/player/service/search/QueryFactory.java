@@ -393,4 +393,8 @@ public class QueryFactory {
         return query.build();
     }
 
+    public Query getGenre(String genre) throws IOException {
+        return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNames.GENRE, genre)), Occur.SHOULD).build();
+    }
+
 }
