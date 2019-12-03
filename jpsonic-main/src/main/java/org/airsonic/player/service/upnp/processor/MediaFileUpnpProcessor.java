@@ -20,23 +20,34 @@
 package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.dao.MediaFileDao;
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.SearchCriteria;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
+import org.airsonic.player.util.StringUtil;
+import org.apache.commons.io.FilenameUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
-import org.fourthline.cling.support.model.DIDLObject;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.fourthline.cling.support.model.Res;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
+import org.seamless.util.MimeType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 
@@ -57,17 +68,24 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
-    protected final MediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
 
-    protected final MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
 
     private final SearchService searchService;
 
-    public MediaFileUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, SearchService searchService) {
-        super();
+    private final PlayerService playerService;
+
+    private final TranscodingService transcodingService;
+
+    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
+        this.playerService = playerService;
+        this.transcodingService = transcodingService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
 
@@ -88,11 +106,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     public Container createContainer(MediaFile item) {
         MusicAlbum container = new MusicAlbum();
         if (item.isAlbum()) {
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().getAlbumArtURI(item.getId()) });
+            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(item) });
             if (item.getArtist() != null) {
                 container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
             }
             container.setDescription(item.getComment());
+        } else if (item.isDirectory()) {
+            container.setAlbumArtURIs(new URI[] { createArtistArtURI(item) });
         }
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
         container.setTitle(item.getName());
@@ -190,19 +210,19 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         if (song.getGenre() != null) {
             item.setGenres(new String[] { song.getGenre() });
         }
-        item.setResources(Arrays.asList(getDispatcher().createResourceForSong(song)));
+        item.setResources(Arrays.asList(createResourceForSong(song)));
         item.setDescription(song.getComment());
 
         MediaFile parent = mediaFileService.getParentOf(song);
         if (!ObjectUtils.isEmpty(parent)) {
             item.setParentID(String.valueOf(parent.getId()));
-            item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getDispatcher().getAlbumProcessor().getAlbumArtURI(parent.getId())));
+            item.addProperty(new ALBUM_ART_URI(createAlbumArtURI(parent)));
         }
 
         return item;
     }
 
-    public BrowseResult search(SearchCriteria criteria, IndexType indexType) {
+    public final BrowseResult search(SearchCriteria criteria, IndexType indexType) {
         DIDLContent didl = new DIDLContent();
         try {
             ParamSearchResult<MediaFile> result = searchService.search(criteria, indexType);
@@ -211,6 +231,45 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private final Res createResourceForSong(MediaFile song) {
+        Player player = playerService.getGuestPlayer(null);
+        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
+        String mimeTypeString = StringUtil.getMimeType(suffix);
+        MimeType mimeType = mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
+        Res res = new Res(mimeType, null, createStreamURI(song, player));
+        res.setDuration(formatDuration(song.getDurationSeconds()));
+        return res;
+    }
+
+    private String formatDuration(Integer seconds) {
+        if (seconds == null) {
+            return null;
+        }
+        return StringUtil.formatDurationHMMSS((int) seconds) + ".0";
+    }
+
+    public final URI createArtistArtURI(MediaFile artist) {
+        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", artist.getId())
+                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+    }
+
+    public final URI createAlbumArtURI(MediaFile album) {
+        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", album.getId())
+                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+    }
+
+    private String createStreamURI(MediaFile song, Player player) {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/ext/stream")
+                .queryParam("id", song.getId())
+                .queryParam("player", player.getId());
+        if (song.isVideo()) {
+            builder.queryParam("format", TranscodingService.FORMAT_RAW);
+        }
+        return createURIStringWithToken(builder);
     }
 
 }

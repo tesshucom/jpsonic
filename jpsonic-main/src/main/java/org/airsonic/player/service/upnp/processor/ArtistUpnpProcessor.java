@@ -19,18 +19,26 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.logic.CoverArtLogic;
+import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -43,11 +51,15 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
-    private ArtistDao artistDao;
+    private final ArtistDao artistDao;
+    
+    private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(ArtistDao artistDao, JpsonicComparators comparators) {
-        super();
+    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, ArtistDao artistDao, JWTSecurityService jwtSecurityService,
+            CoverArtLogic coverArtLogic) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.artistDao = artistDao;
+        this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
     }
 
@@ -62,6 +74,9 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         container.setParentID(getRootId());
         container.setTitle(artist.getName());
         container.setChildCount(artist.getAlbumCount());
+        if (artist.getCoverArtPath() != null) {
+            container.setProperties(Arrays.asList(new ALBUM_ART_URI(createArtistArtURI(artist))));
+        }
         return container;
     }
 
@@ -109,6 +124,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     public void addChild(DIDLContent didl, Album album) {
         didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
+    }
+
+    private URI createArtistArtURI(Artist artist) {
+        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", coverArtLogic.createKey(artist))
+                .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
 }

@@ -19,13 +19,14 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -40,10 +41,14 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     private ArrayList<Container> containers = new ArrayList<>();
 
-    @Autowired
     private SettingsService settingsService;
 
-    public Container createRootContainer() {
+    public RootUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
+        this.settingsService = settingsService;
+    }
+
+    protected final Container createRootContainer() {
         StorageFolder root = new StorageFolder();
         root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         root.setParentID("-1");
@@ -62,7 +67,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         root.setChildCount(6);
         return root;
     }
-    
+
     @Override
     public void initTitle() {
         // to be none
@@ -120,7 +125,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return getChildren(item).size();
     }
 
-    public List<Container> getChildren(Container item) {
+    public final List<Container> getChildren(Container item) {
         return containers;
     }
 

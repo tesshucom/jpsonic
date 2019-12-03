@@ -21,18 +21,21 @@ package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
+import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.lang.reflect.ParameterizedType;
+import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -42,20 +45,27 @@ import java.util.ResourceBundle;
  */
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
-    @Autowired
-    private UpnpProcessDispatcher dispatcher;
+    private final UpnpProcessDispatcher dispatcher;
 
-    @Autowired
-    private SettingsService settingsService;
-    
-    @Autowired
-    private SearchService searchService;
+    private final SettingsService settingsService;
+
+    private final SearchService searchService;
+
+    private final JWTSecurityService jwtSecurityService;
 
     private static ResourceBundle resourceBundle;
 
     private String rootTitle;
 
     private String rootId;
+
+    public UpnpContentProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
+        super();
+        this.dispatcher = dispatcher;
+        this.settingsService = settingsService;
+        this.searchService = searchService;
+        this.jwtSecurityService = jwtSecurityService;
+    }
 
     /**
      * Browses the root metadata for a type.
@@ -70,7 +80,6 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         Container container = new StorageFolder();
         container.setId(getRootId());
         container.setTitle(getRootTitle());
-
         int childCount = getItemCount();
         container.setChildCount(childCount);
         container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
@@ -112,7 +121,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return createBrowseResult(didl, selectedChildren.size(), getChildSizeOf(item));
     }
 
-    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
+    protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
         return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
     }
 
@@ -138,12 +147,28 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         }
     }
 
-    protected UpnpProcessDispatcher getDispatcher() {
+    protected final UpnpProcessDispatcher getDispatcher() {
         return dispatcher;
     }
 
     public void addItem(DIDLContent didl, T item) {
         didl.addContainer(createContainer(item));
+    }
+
+    protected final String getBaseUrl() {
+        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
+        if (StringUtils.isBlank(dlnaBaseLANURL)) {
+            throw new RuntimeException("DLNA Base LAN URL is not set correctly");
+        }
+        return dlnaBaseLANURL;
+    }
+
+    protected final String createURIStringWithToken(UriComponentsBuilder builder) {
+        return jwtSecurityService.addJWTToken(builder).toUriString();
+    }
+
+    protected final URI createURIWithToken(UriComponentsBuilder builder) {
+        return jwtSecurityService.addJWTToken(builder).build().encode().toUri();
     }
 
     public abstract Container createContainer(T item);

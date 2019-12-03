@@ -19,10 +19,8 @@
 */
 package org.airsonic.player.service.upnp;
 
-import org.airsonic.player.domain.CoverArtScheme;
-import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.service.*;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
@@ -37,18 +35,16 @@ import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
-import org.fourthline.cling.support.model.item.Item;
-import org.fourthline.cling.support.model.item.MusicTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Arrays;
 import java.util.regex.Pattern;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * @author Allen Petersen
@@ -61,36 +57,43 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
     @Autowired
-    private PlaylistUpnpProcessor playlistProcessor;
+    private SettingsService settingsService;
+
+    @Autowired
+    private RootUpnpProcessor rootProcessor;
 
     @Qualifier("mediaFileUpnpProcessor")
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
 
+    @Lazy
+    @Autowired
+    private PlaylistUpnpProcessor playlistProcessor;
+
+    @Lazy
     @Qualifier("albumUpnpProcessor")
     @Autowired
     private AlbumUpnpProcessor albumProcessor;
 
+    @Lazy
     @Qualifier("recentAlbumUpnpProcessor")
     @Autowired
     private RecentAlbumUpnpProcessor recentAlbumProcessor;
 
+    @Lazy
     @Qualifier("recentAlbumId3UpnpProcessor")
     @Autowired
     private RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
 
+    @Lazy
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
 
+    @Lazy
     @Autowired
     private GenreUpnpProcessor genreProcessor;
 
-    @Autowired
-    private RootUpnpProcessor rootProcessor;
-
-    @Autowired
-    private MediaFileService mediaFileService;
-
+    @Lazy
     @Autowired
     private IndexUpnpProcessor IndexUpnpProcessor;
 
@@ -100,10 +103,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                                long maxResults, SortCriterion[] orderBy)
         throws ContentDirectoryException {
 
-        LOG.debug("UPnP request - objectId: " + objectId + ", browseFlag: " + browseFlag + ", filter: " + filter + ", firstResult: " + firstResult + ", maxResults: " + maxResults);
-
-        if (objectId == null)
+        if (isEmpty(objectId)) {
             throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, "objectId is null");
+        }
 
         // maxResult == 0 means all.
         if (maxResults == 0) {
@@ -118,14 +120,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
             @SuppressWarnings("rawtypes")
             UpnpContentProcessor processor = findProcessor(browseRoot);
-            if (processor == null) {
+            if (isEmpty(processor)) {
                 // if it's null then assume it's a file, and that the id
                 // is all that's there.
                 itemId = browseRoot;
                 processor = getMediaFileProcessor();
             }
 
-            if (itemId == null) {
+            if (isEmpty(itemId)) {
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata() : processor.browseRoot(filter, firstResult, maxResults, orderBy);
             } else {
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, maxResults, orderBy);
@@ -187,7 +189,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private UpnpContentProcessor findProcessor(String type) {
         switch (type) {
             case CONTAINER_ID_ROOT:
-                return getRootProcessor();
+                return rootProcessor;
             case CONTAINER_ID_PLAYLIST_PREFIX:
                 return getPlaylistProcessor();
             case CONTAINER_ID_FOLDER_PREFIX:
@@ -206,35 +208,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                 return getIndexProcessor();
         }
         return null;
-    }
-
-    public Item createItem(MediaFile song) {
-        MediaFile parent = mediaFileService.getParentOf(song);
-        MusicTrack item = new MusicTrack();
-        item.setId(String.valueOf(song.getId()));
-        item.setParentID(String.valueOf(parent.getId()));
-        item.setTitle(song.getTitle());
-        item.setAlbum(song.getAlbumName());
-        if (song.getArtist() != null) {
-            item.setArtists(new PersonWithRole[] { new PersonWithRole(song.getArtist()) });
-        }
-        Integer year = song.getYear();
-        if (year != null) {
-            item.setDate(year + "-01-01");
-        }
-        item.setOriginalTrackNumber(song.getTrackNumber());
-        if (song.getGenre() != null) {
-            item.setGenres(new String[] { song.getGenre() });
-        }
-        item.setResources(Arrays.asList(createResourceForSong(song)));
-        item.setDescription(song.getComment());
-        item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getAlbumArtUrl(parent.getId())));
-
-        return item;
-    }
-
-    private final URI getAlbumArtUrl(int id) {
-        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view").queryParam("id", id).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 
     @Override
@@ -269,11 +242,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public GenreUpnpProcessor getGenreProcessor() {
         return genreProcessor;
-    }
-
-    @Override
-    public RootUpnpProcessor getRootProcessor() {
-        return rootProcessor;
     }
 
     @Override

@@ -23,8 +23,11 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.MusicIndex;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -66,8 +69,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, MusicIndexService musicIndexService) {
-        super();
+    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            MusicIndexService musicIndexService, JWTSecurityService jwtSecurityService) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
@@ -101,11 +105,13 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     public Container createContainer(MediaFile item) {
         MusicAlbum container = new MusicAlbum();
         if (item.isAlbum()) {
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().getAlbumArtURI(item.getId()) });
+            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
             if (item.getArtist() != null) {
                 container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
             }
             container.setDescription(item.getComment());
+        } else if (item.isDirectory()) {
+            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createArtistArtURI(item) });
         }
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
         container.setTitle(item.getName());

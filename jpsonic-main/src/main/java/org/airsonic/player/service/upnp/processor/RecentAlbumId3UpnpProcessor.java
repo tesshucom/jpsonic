@@ -21,7 +21,10 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 //import org.airsonic.player.util.Util;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -43,8 +46,9 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(MediaFileDao mediaFileDao, AlbumDao albumDao, JWTSecurityService jwtSecurityService) {
-        super(mediaFileDao, albumDao, jwtSecurityService);
+    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
+            JWTSecurityService jwtSecurityService, CoverArtLogic coverArtLogic) {
+        super(dispatcher, settingsService, searchService, mediaFileDao, albumDao, jwtSecurityService, coverArtLogic);
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);
     }
 

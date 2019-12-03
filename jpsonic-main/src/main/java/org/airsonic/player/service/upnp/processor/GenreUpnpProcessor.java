@@ -21,7 +21,9 @@ package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -42,9 +44,9 @@ import java.util.List;
 public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
 
     private SearchService searchService;
-    
-    public GenreUpnpProcessor(SearchService searchService) {
-        super();
+
+    public GenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_GENRE_PREFIX);
     }
@@ -74,7 +76,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
         return null;
     }
 
-    private final Container createContainer(Genre item, int index) {
+    private Container createContainer(Genre item, int index) {
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());

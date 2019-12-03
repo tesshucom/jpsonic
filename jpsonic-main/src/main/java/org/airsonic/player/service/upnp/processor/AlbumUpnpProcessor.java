@@ -25,7 +25,10 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -56,13 +59,15 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     private final MediaFileDao mediaFileDao;
 
     protected final AlbumDao albumDao;
-    
-    private JWTSecurityService jwtSecurityService;
 
-    public AlbumUpnpProcessor(MediaFileDao mediaFileDao, AlbumDao albumDao, JWTSecurityService jwtSecurityService) {
+    private final CoverArtLogic coverArtLogic;
+
+    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
+            JWTSecurityService jwtSecurityService, CoverArtLogic coverArtLogic) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
-        this.jwtSecurityService = jwtSecurityService;
+        this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_PREFIX);
     }
 
@@ -90,12 +95,13 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getComment());
         } else {
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + album.getId());
-            container.setAlbumArtURIs(new URI[] { getAlbumArtURI(album.getId()) });
+            if (album.getCoverArtPath() != null) {
+                container.setAlbumArtURIs(new URI[] { createAlbumArtURI(album) });
+            }
             container.setDescription(album.getComment());
         }
         container.setParentID(getRootId());
         container.setTitle(album.getName());
-        // TODO: correct artist?
         if (album.getArtist() != null) {
             container.setArtists(getAlbumArtists(album.getArtist()));
         }
@@ -165,12 +171,14 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }
 
-    public URI getAlbumArtURI(int albumId) {
-        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getDispatcher().getBaseUrl() + "/ext/coverArt.view").queryParam("id", albumId).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
+    public final PersonWithRole[] getAlbumArtists(String artist) {
+        return new PersonWithRole[] { new PersonWithRole(artist) };
     }
 
-    public PersonWithRole[] getAlbumArtists(String artist) {
-        return new PersonWithRole[] { new PersonWithRole(artist) };
+    private URI createAlbumArtURI(Album album) {
+        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", coverArtLogic.createKey(album))
+                .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
 }

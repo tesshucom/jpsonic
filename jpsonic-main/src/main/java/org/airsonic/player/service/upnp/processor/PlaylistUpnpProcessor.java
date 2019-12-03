@@ -19,17 +19,26 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
+import org.airsonic.player.domain.logic.CoverArtLogic;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.PlaylistService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.PlaylistContainer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
 
@@ -40,11 +49,18 @@ import java.util.List;
 @Component
 public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, MediaFile> {
 
-    private PlaylistService playlistService;
-    
-    public PlaylistUpnpProcessor(PlaylistService playlistService) {
-        super();
+    private final PlaylistService playlistService;
+
+    private final CoverArtLogic coverArtLogic;
+
+    private final JWTSecurityService jwtSecurityService;
+
+    public PlaylistUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, PlaylistService playlistService, CoverArtLogic coverArtLogic,
+            JWTSecurityService jwtSecurityService) {
+        super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.playlistService = playlistService;
+        this.coverArtLogic = coverArtLogic;
+        this.jwtSecurityService = jwtSecurityService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PLAYLIST_PREFIX);
     }
 
@@ -60,6 +76,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         container.setTitle(item.getName());
         container.setDescription(item.getComment());
         container.setChildCount(playlistService.getFilesInPlaylist(item.getId()).size());
+        container.setProperties(Arrays.asList(new ALBUM_ART_URI(getArtURI(item))));
         return container;
     }
 
@@ -90,7 +107,13 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().createItem(child));
+        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+    }
+
+    private URI getArtURI(Playlist playlist) {
+        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", coverArtLogic.createKey(playlist))
+                .queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 
 }

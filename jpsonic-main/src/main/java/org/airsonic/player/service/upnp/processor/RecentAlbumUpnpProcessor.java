@@ -20,8 +20,12 @@ package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -37,8 +41,12 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, SearchService searchService) {
-        super(mediaFileDao, mediaFileService, searchService);
+    private final MediaFileDao mediaFileDao;
+
+    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
+            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService) {
+        super(dispatcher, settingsService, searchService, mediaFileDao, mediaFileService, jwtSecurityService, playerService, transcodingService);
+        this.mediaFileDao = mediaFileDao;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
     }
 
