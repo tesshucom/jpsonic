@@ -28,6 +28,7 @@ import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
@@ -94,8 +95,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private GenreUpnpProcessor genreProcessor;
 
     @Lazy
+    @Qualifier("indexUpnpProcessor")
     @Autowired
-    private IndexUpnpProcessor IndexUpnpProcessor;
+    private IndexUpnpProcessor indexProcessor;
+
+    @Lazy
+    @Qualifier("podcastUpnpProcessor")
+    @Autowired
+    private PodcastUpnpProcessor podcastProcessor;
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -206,6 +213,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                 return getGenreProcessor();
             case CONTAINER_ID_INDEX_PREFIX:
                 return getIndexProcessor();
+            case CONTAINER_ID_PODCAST_PREFIX:
+                return getPodcastProcessor();
         }
         return null;
     }
@@ -246,7 +255,12 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     @Override
     public IndexUpnpProcessor getIndexProcessor() {
-        return IndexUpnpProcessor;
+        return indexProcessor;
+    }
+
+    @Override
+    public PodcastUpnpProcessor getPodcastProcessor() {
+        return podcastProcessor;
     }
 
 }

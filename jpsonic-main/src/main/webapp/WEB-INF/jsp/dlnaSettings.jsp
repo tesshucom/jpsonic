@@ -142,6 +142,14 @@
                 <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/>(ID3)</label>
             </td>
         </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaPodcastVisible" id="dlnaPodcastVisible" ${model.dlnaPodcastVisible? "checked": ""}/>
+                <label for="dlnaPodcastVisible"><fmt:message key="dlna.title.podcast"/></label>
+            </td>
+        </tr>
 
 		<tr><td colspan="3">&nbsp;</td></tr>
 

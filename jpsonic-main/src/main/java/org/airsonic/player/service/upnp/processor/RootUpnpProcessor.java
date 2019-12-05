@@ -112,6 +112,9 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaRecentAlbumId3Visible()) {
             containers.add(getDispatcher().getRecentAlbumId3Processor().createRootContainer());
         }
+        if (settingsService.isDlnaPodcastVisible()) {
+            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
+        }
 
         return org.airsonic.player.util.Util.subList(containers, offset, maxResults);
     }

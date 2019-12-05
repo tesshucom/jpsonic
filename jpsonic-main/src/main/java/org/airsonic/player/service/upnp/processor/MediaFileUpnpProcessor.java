@@ -233,7 +233,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
     }
 
-    private final Res createResourceForSong(MediaFile song) {
+    public final Res createResourceForSong(MediaFile song) {
         Player player = playerService.getGuestPlayer(null);
         String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
         String mimeTypeString = StringUtil.getMimeType(suffix);

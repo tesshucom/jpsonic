@@ -6,6 +6,7 @@ import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 
@@ -23,6 +24,7 @@ public interface UpnpProcessDispatcher {
     String CONTAINER_ID_RECENT_PREFIX = "recent";
     String CONTAINER_ID_RECENT_ID3_PREFIX = "recentId3";
     String CONTAINER_ID_INDEX_PREFIX = "index";
+    String CONTAINER_ID_PODCAST_PREFIX = "podcast";
 
     PlaylistUpnpProcessor getPlaylistProcessor();
 
@@ -39,5 +41,7 @@ public interface UpnpProcessDispatcher {
     GenreUpnpProcessor getGenreProcessor();
 
     IndexUpnpProcessor getIndexProcessor();
+
+    PodcastUpnpProcessor getPodcastProcessor();
 
 }

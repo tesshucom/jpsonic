@@ -119,6 +119,7 @@ public class SettingsService {
     private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE = "DlnaRecentAlbumId3Visible";
     private static final String KEY_DLNA_INDEX_VISIBLE = "DlnaIndexVisible";
+    private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
@@ -212,7 +213,8 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_INDEX_VISIBLE = true;
-    
+    private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
+
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
@@ -1378,6 +1380,14 @@ public class SettingsService {
 
     public void setDlnaIndexVisible(boolean b) {
         setBoolean(KEY_DLNA_INDEX_VISIBLE, b);
+    }
+
+    public boolean isDlnaPodcastVisible() {
+        return getBoolean(KEY_DLNA_PODCAST_VISIBLE, DEFAULT_DLNA_PODCAST_VISIBLE);
+    }
+
+    public void setDlnaPodcastVisible(boolean b) {
+        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
     }
 
     public boolean isSonosEnabled() {
