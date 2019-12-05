@@ -2,13 +2,13 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
-import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.SongByGenreUpnpProcessor;
 
 public interface UpnpProcessDispatcher {
 
@@ -38,7 +38,7 @@ public interface UpnpProcessDispatcher {
 
     ArtistUpnpProcessor getArtistProcessor();
 
-    GenreUpnpProcessor getGenreProcessor();
+    SongByGenreUpnpProcessor getSongByGenreProcessor();
 
     IndexUpnpProcessor getIndexProcessor();
 

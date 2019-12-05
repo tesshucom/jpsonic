@@ -41,11 +41,11 @@ import java.util.List;
  * @version $Id$
  */
 @Service
-public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
+public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
 
     private SearchService searchService;
 
-    public GenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
+    public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
         super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_GENRE_PREFIX);
@@ -53,7 +53,7 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dlna.title.genres");
+        setRootTitleWithResource("dlna.title.songbygenres");
     }
 
     /**

@@ -38,7 +38,7 @@ import static org.junit.Assert.assertEquals;
 /*
  * Test to correct sort inconsistencies.
  */
-public class GenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
+public class SongByGenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
@@ -49,7 +49,7 @@ public class GenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     }
 
     @Autowired
-    private GenreUpnpProcessor genreUpnpProcessor;
+    private SongByGenreUpnpProcessor SongByGenreUpnpProcessor;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -66,7 +66,7 @@ public class GenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItemCount() {
-        assertEquals(31, genreUpnpProcessor.getItemCount());
+        assertEquals(31, SongByGenreUpnpProcessor.getItemCount());
     }
 
     @Test
@@ -74,15 +74,15 @@ public class GenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
         Map<String, Genre> c = new HashMap<>();
 
-        List<Genre> items = genreUpnpProcessor.getItems(0, 10);
+        List<Genre> items = SongByGenreUpnpProcessor.getItems(0, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 10);
 
-        items = genreUpnpProcessor.getItems(10, 10);
+        items = SongByGenreUpnpProcessor.getItems(10, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 20);
 
-        items = genreUpnpProcessor.getItems(20, 100);
+        items = SongByGenreUpnpProcessor.getItems(20, 100);
         assertEquals(11, items.size());
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
         assertEquals(c.size(), 31);
@@ -91,30 +91,30 @@ public class GenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetChildSizeOf() {
-        List<Genre> artists = genreUpnpProcessor.getItems(0, 1);
+        List<Genre> artists = SongByGenreUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
-        assertEquals(31, genreUpnpProcessor.getChildSizeOf(artists.get(0)));
+        assertEquals(31, SongByGenreUpnpProcessor.getChildSizeOf(artists.get(0)));
     }
 
     @Test
     public void testGetChildren() {
 
-        List<Genre> artists = genreUpnpProcessor.getItems(0, 1);
+        List<Genre> artists = SongByGenreUpnpProcessor.getItems(0, 1);
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
 
         Map<String, MediaFile> c = new HashMap<>();
 
-        List<MediaFile> children = genreUpnpProcessor.getChildren(artists.get(0), 0, 10);
+        List<MediaFile> children = SongByGenreUpnpProcessor.getChildren(artists.get(0), 0, 10);
         children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
         assertEquals(c.size(), 10);
 
-        children = genreUpnpProcessor.getChildren(artists.get(0), 10, 10);
+        children = SongByGenreUpnpProcessor.getChildren(artists.get(0), 10, 10);
         children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
         assertEquals(c.size(), 20);
 
-        children = genreUpnpProcessor.getChildren(artists.get(0), 20, 100);
+        children = SongByGenreUpnpProcessor.getChildren(artists.get(0), 20, 100);
         assertEquals(11, children.size());
         children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));
         assertEquals(c.size(), 31);

@@ -24,7 +24,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
-import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
@@ -32,6 +31,7 @@ import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.SongByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
@@ -92,7 +92,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     @Lazy
     @Autowired
-    private GenreUpnpProcessor genreProcessor;
+    private SongByGenreUpnpProcessor genreProcessor;
 
     @Lazy
     @Qualifier("indexUpnpProcessor")
@@ -210,7 +210,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
             case CONTAINER_ID_GENRE_PREFIX:
-                return getGenreProcessor();
+                return getSongByGenreProcessor();
             case CONTAINER_ID_INDEX_PREFIX:
                 return getIndexProcessor();
             case CONTAINER_ID_PODCAST_PREFIX:
@@ -249,7 +249,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public GenreUpnpProcessor getGenreProcessor() {
+    public SongByGenreUpnpProcessor getSongByGenreProcessor() {
         return genreProcessor;
     }
 

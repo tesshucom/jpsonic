@@ -114,8 +114,8 @@
             <td></td>
             <td></td>
             <td colspan="2">
-                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
-                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
+                <input type="checkbox" name="dlnaSongByGenreVisible" id="dlnaSongByGenreVisible" ${model.dlnaSongByGenreVisible? "checked": ""}/>
+                <label for="dlnaSongByGenreVisible"><fmt:message key="dlna.title.songbygenres"/></label>
             </td>
         </tr>
         <tr>
