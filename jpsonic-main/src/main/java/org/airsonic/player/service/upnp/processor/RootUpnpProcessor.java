@@ -103,6 +103,9 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaPlaylistVisible()) {
             containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
         }
+        if (settingsService.isDlnaAlbumByGenreVisible()) {
+            containers.add(getDispatcher().getAlbumByGenreProcessor().createRootContainer());
+        }
         if (settingsService.isDlnaSongByGenreVisible()) {
             containers.add(getDispatcher().getSongByGenreProcessor().createRootContainer());
         }

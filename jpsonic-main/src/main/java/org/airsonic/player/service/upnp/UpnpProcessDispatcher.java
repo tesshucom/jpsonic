@@ -1,5 +1,6 @@
 package org.airsonic.player.service.upnp;
 
+import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
@@ -20,7 +21,8 @@ public interface UpnpProcessDispatcher {
     String CONTAINER_ID_ALBUM_PREFIX = "album";
     String CONTAINER_ID_ARTIST_PREFIX = "artist";
     String CONTAINER_ID_ARTISTALBUM_PREFIX = "artistalbum";
-    String CONTAINER_ID_GENRE_PREFIX = "genre";
+    String CONTAINER_ID_ALBUM_BY_GENRE_PREFIX = "abg";
+    String CONTAINER_ID_SONG_BY_GENRE_PREFIX = "sbg";
     String CONTAINER_ID_RECENT_PREFIX = "recent";
     String CONTAINER_ID_RECENT_ID3_PREFIX = "recentId3";
     String CONTAINER_ID_INDEX_PREFIX = "index";
@@ -37,6 +39,8 @@ public interface UpnpProcessDispatcher {
     RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor();
 
     ArtistUpnpProcessor getArtistProcessor();
+
+    AlbumByGenreUpnpProcessor getAlbumByGenreProcessor();
 
     SongByGenreUpnpProcessor getSongByGenreProcessor();
 

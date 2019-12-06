@@ -22,6 +22,7 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
@@ -92,7 +93,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     @Lazy
     @Autowired
-    private SongByGenreUpnpProcessor genreProcessor;
+    private AlbumByGenreUpnpProcessor albumByGenreProcessor;
+
+    @Lazy
+    @Autowired
+    private SongByGenreUpnpProcessor songByGenreProcessor;
 
     @Lazy
     @Qualifier("indexUpnpProcessor")
@@ -209,7 +214,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                 return getRecentAlbumId3Processor();
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
-            case CONTAINER_ID_GENRE_PREFIX:
+            case CONTAINER_ID_ALBUM_BY_GENRE_PREFIX:
+                return getAlbumByGenreProcessor();
+            case CONTAINER_ID_SONG_BY_GENRE_PREFIX:
                 return getSongByGenreProcessor();
             case CONTAINER_ID_INDEX_PREFIX:
                 return getIndexProcessor();
@@ -249,8 +256,13 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
+    public AlbumByGenreUpnpProcessor getAlbumByGenreProcessor() {
+        return albumByGenreProcessor;
+    }
+
+    @Override
     public SongByGenreUpnpProcessor getSongByGenreProcessor() {
-        return genreProcessor;
+        return songByGenreProcessor;
     }
 
     @Override

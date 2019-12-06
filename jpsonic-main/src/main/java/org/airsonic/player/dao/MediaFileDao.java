@@ -519,6 +519,20 @@ public class MediaFileDao extends AbstractDao {
                           "and present and genre = :genre limit :count offset :offset", rowMapper, args);
     }
 
+    public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final List<String> genres, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty() || genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("type", MediaFile.MediaType.ALBUM.name());
+        args.put("genres", genres);
+        args.put("folders", MusicFolder.toPathList(musicFolders));
+        args.put("count", count);
+        args.put("offset", offset);
+        return namedQuery("select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) " +
+                "and present and genre in (:genres) order by _order limit :count offset :offset", rowMapper, args);
+    }
+
     public List<MediaFile> getSongsByGenre(final String genre, final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -535,7 +549,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
+        if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = new HashMap<>();

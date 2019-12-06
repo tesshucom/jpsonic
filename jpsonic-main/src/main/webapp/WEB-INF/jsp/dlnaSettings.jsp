@@ -104,10 +104,18 @@
         </tr>
         <tr>
             <td></td>
-            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
                 <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaAlbumByGenreVisible" id="dlnaAlbumByGenreVisible" ${model.dlnaAlbumByGenreVisible? "checked": ""}/>
+                <label for="dlnaAlbumByGenreVisible"><fmt:message key="dlna.title.albumbygenres"/></label>
             </td>
         </tr>
         <tr>

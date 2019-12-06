@@ -48,7 +48,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
     public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
         super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.searchService = searchService;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_GENRE_PREFIX);
+        setRootId(UpnpProcessDispatcher.CONTAINER_ID_SONG_BY_GENRE_PREFIX);
     }
 
     @PostConstruct
@@ -72,16 +72,15 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
 
     @Deprecated
     public Container createContainer(Genre item) {
-        // genre uses index because we don't have a proper id
         return null;
     }
 
-    private Container createContainer(Genre item, int index) {
+    protected Container createContainer(Genre item, int index) {
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
         container.setTitle(isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
-        container.setChildCount(item.getAlbumCount());
+        container.setChildCount(item.getSongCount());
         return container;
     }
 
