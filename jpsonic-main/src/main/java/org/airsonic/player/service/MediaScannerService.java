@@ -184,7 +184,6 @@ public class MediaScannerService {
 
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
-            indexManager.clearGenre();
             mediaFileService.clearMemoryCache();
 
             // Recurse through all files on disk.

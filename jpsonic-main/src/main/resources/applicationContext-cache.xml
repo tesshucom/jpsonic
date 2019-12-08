@@ -18,8 +18,8 @@
         <constructor-arg value="searchCache"/>
     </bean>
 
-    <bean id="genreCache" factory-bean="cacheFactory" factory-method="getCache">
-        <constructor-arg value="genreCache"/>
+    <bean id="indexCache" factory-bean="cacheFactory" factory-method="getCache">
+        <constructor-arg value="indexCache"/>
     </bean>
 
 </beans>

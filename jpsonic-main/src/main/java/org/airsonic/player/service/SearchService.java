@@ -112,9 +112,10 @@ public interface SearchService {
      * Returns count of Genres.
      * 
      * @since 105.3.0
+     * @param sortByAlbum Whether to sort by album count, rather than song count.
      * @return Count of Genres
      */
-    int getGenresCount();
+    int getGenresCount(boolean sortByAlbum);
 
     /**
      * Returns albums in a genre.

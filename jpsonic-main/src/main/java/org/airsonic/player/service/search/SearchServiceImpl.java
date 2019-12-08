@@ -20,7 +20,6 @@
 
 package org.airsonic.player.service.search;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.dao.MediaFileDao;
@@ -28,8 +27,6 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.misc.HighFreqTerms;
-import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.search.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
@@ -68,12 +65,6 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private Ehcache searchCache;
-
-    @Autowired
-    private Ehcache genreCache;
-    
-    @Autowired
-    private JpsonicComparators comparators;
 
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
@@ -312,56 +303,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public List<Genre> getGenres(boolean sortByAlbum) {
-
-        List<Genre> genres = getCache();
-        if (!isEmpty(genres)) {
-            if (sortByAlbum) {
-                genres.sort(comparators.genreOrder(true));
-            }
-            return genres;
-        }
-
-        synchronized (genreCache) {
-
-            IndexSearcher genreSearcher = indexManager.getSearcher(IndexType.GENRE);
-            IndexSearcher songSearcher = indexManager.getSearcher(IndexType.SONG);
-            IndexSearcher albumSearcher = indexManager.getSearcher(IndexType.ALBUM);
-            genres = new ArrayList<Genre>();
-
-            try {
-                if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
-
-                    int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
-                    Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
-                    TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
-                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
-
-                    for (String genreName : genreNames) {
-                        Query query = queryFactory.getGenre(genreName);
-                        TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
-                        int songCount = util.round.apply(topDocs.totalHits.value);
-                        topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
-                        int albumCount = util.round.apply(topDocs.totalHits.value);
-                        genres.add(new Genre(genreName, songCount, albumCount));
-                    }
-
-                    genres.sort(comparators.genreOrder(false));
-
-                    genreCache.put(new Element("master", genres));
-
-                }
-            } catch (Exception e) {
-                LOG.error("Failed to execute Lucene search.", e);
-            } finally {
-                indexManager.release(IndexType.GENRE, genreSearcher);
-                indexManager.release(IndexType.SONG, songSearcher);
-                indexManager.release(IndexType.ALBUM, albumSearcher);
-            }
-
-        }
-
-        return genres;
+    public synchronized List<Genre> getGenres(boolean sortByAlbum) {
+        return indexManager.getGenres(sortByAlbum);
     }
 
     @Override
@@ -371,8 +314,8 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public int getGenresCount() {
-        return getGenres(false).size();
+    public int getGenresCount(boolean sortByAlbum) {
+        return getGenres(sortByAlbum).size();
     }
 
     private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
@@ -396,19 +339,6 @@ public class SearchServiceImpl implements SearchService {
             mediaFiles = (List<MediaFile>) element.getObjectValue();
         }
         return Optional.ofNullable(mediaFiles);
-    }
-
-    @SuppressWarnings("unchecked")
-    private @Nullable List<Genre> getCache() {
-        List<Genre> genres = null;
-        Element element = null;
-        synchronized (genreCache) {
-            element = genreCache.get("master");
-        }
-        if (!isEmpty(element)) {
-            genres = (List<Genre>) element.getObjectValue();
-        }
-        return genres;
     }
 
     private void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {

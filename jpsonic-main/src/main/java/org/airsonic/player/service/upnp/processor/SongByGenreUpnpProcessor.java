@@ -86,7 +86,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
 
     @Override
     public int getItemCount() {
-        return searchService.getGenresCount();
+        return searchService.getGenresCount(false);
     }
 
     @Override

@@ -71,9 +71,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         List<MediaFile> selectedItems = getItems(firstResult, maxResults);
         for (int i = 0; i < selectedItems.size(); i++) {
             MediaFile item = selectedItems.get(i);
-            if (!isEmpty(item.getComment())) {
-                didl.addContainer(createContainer(item, Integer.toString((int) (i + firstResult))));
-            }
+            didl.addContainer(createContainer(item, Integer.toString((int) (i + firstResult))));
         }
         return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
     }
@@ -117,7 +115,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     @Override
     public int getItemCount() {
-        return searchService.getGenresCount();
+        return searchService.getGenresCount(true);
     }
 
     private final Function<Genre, MediaFile> toMediaFile = (g) -> {

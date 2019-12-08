@@ -231,9 +231,11 @@ used with JMX monitors.
            overflowToDisk="false"
            statistics="false"/>
 
-    <cache name="genreCache"
-           maxElementsInMemory="2"
-           eternal="true"
+    <cache name="indexCache"
+           maxElementsInMemory="1"
+           eternal="false"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="30"
            overflowToDisk="false"
            statistics="false"/>
 
