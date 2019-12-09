@@ -86,7 +86,6 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     @Override
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
-        getDispatcher().getIndexProcessor().clearIndex();
 
         if (settingsService.isDlnaIndexVisible()) {
             containers.add(getDispatcher().getIndexProcessor().createRootContainer());

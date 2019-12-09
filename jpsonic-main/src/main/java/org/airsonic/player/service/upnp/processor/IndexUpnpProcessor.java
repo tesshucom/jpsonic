@@ -18,6 +18,8 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
@@ -63,6 +65,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final MusicIndexService musicIndexService;
 
+    private final Ehcache indexCache;
+
     private MusicFolderContent content;
 
     private Map<Integer, MediaIndex> indexesMap;
@@ -70,11 +74,12 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            MusicIndexService musicIndexService, JWTSecurityService jwtSecurityService) {
+            MusicIndexService musicIndexService, JWTSecurityService jwtSecurityService, Ehcache indexCache) {
         super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
+        this.indexCache = indexCache;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
@@ -156,7 +161,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     @Override
     public int getItemCount() {
-        initIndex();
+        refreshIndex();
         return topNodes.size();
     }
 
@@ -188,20 +193,17 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
-    private final void initIndex() {
-        if (isEmpty(content) || 0 == content.getIndexedArtists().size()) {
+    private final synchronized void refreshIndex() {
+        Element element = indexCache.getQuiet("content");
+        boolean expired = isEmpty(element) || indexCache.isExpired(element);
+        if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
             content = musicIndexService.getMusicFolderContent(getAllMusicFolders(), true);
+            indexCache.put(new Element("content", content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();
             indexes.forEach(i -> indexesMap.put(i.getId(), i));
             topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
         }
-    }
-
-    public final void clearIndex() {
-        content = null;
-        indexesMap = null;
-        topNodes = null;
     }
 
     private final boolean isIndex(int id) {

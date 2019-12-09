@@ -226,7 +226,6 @@ used with JMX monitors.
     <cache name="searchCache"
            maxElementsInMemory="30"
            eternal="false"
-           timeToIdleSeconds="0"
            timeToLiveSeconds="10"
            overflowToDisk="false"
            statistics="false"/>
@@ -234,8 +233,8 @@ used with JMX monitors.
     <cache name="indexCache"
            maxElementsInMemory="1"
            eternal="false"
-           timeToIdleSeconds="0"
-           timeToLiveSeconds="30"
+           timeToIdleSeconds="180"
+           timeToLiveSeconds="180"
            overflowToDisk="false"
            statistics="false"/>
 
