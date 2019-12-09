@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -40,7 +41,6 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * @author Allen Petersen
@@ -49,17 +49,18 @@ import java.util.regex.Pattern;
 @Service
 public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
-
     private final ArtistDao artistDao;
     
     private final CoverArtLogic coverArtLogic;
+    
+    private final JpsonicComparators comparators;
 
     public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, ArtistDao artistDao, JWTSecurityService jwtSecurityService,
-            CoverArtLogic coverArtLogic) {
+            CoverArtLogic coverArtLogic, JpsonicComparators comparators) {
         super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.artistDao = artistDao;
         this.coverArtLogic = coverArtLogic;
+        this.comparators = comparators;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
     }
 
@@ -102,15 +103,11 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
-
-        // TODO #340
-        boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(artist.getName().toLowerCase()).matches());
-
         List<Album> albums = getDispatcher().getAlbumProcessor()
                 .getAlbumsForArtist(artist.getName(),
                         offset > 1 ? offset - 1 : offset,
                         0L == offset ? maxResults - 1 : maxResults,
-                        isSortAlbumsByYear,
+                        comparators.isSortAlbumsByYear(artist.getName()),
                         getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();

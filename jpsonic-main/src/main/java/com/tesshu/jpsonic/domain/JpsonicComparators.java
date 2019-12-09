@@ -109,17 +109,23 @@ public class JpsonicComparators {
         };
     }
 
+    public boolean isSortAlbumsByYear(String artist) {
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
+                        && isVarious.matcher(artist.toLowerCase()).matches()));
+    }
+    
+    public boolean isSortAlbumsByYear(MediaFile parent) {
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
+    }
+
     public MediaFileComparator mediaFileOrder() {
         return mediaFileOrder(null);
     }
 
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
-        // TODO #340
-        boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
-                && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
-                        && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));
-        MediaFileComparator mediaFileComparator = new JpMediaFileComparator(isSortAlbumsByYear, createCollator());
-        return mediaFileComparator;
+        return new JpMediaFileComparator(isSortAlbumsByYear(parent), createCollator());
     }
 
     /**

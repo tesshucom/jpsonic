@@ -55,6 +55,7 @@ import static org.junit.Assert.assertTrue;
 
 /*
  * Test to correct sort inconsistencies.
+ * Testing may not be possible on an OS that does not support fsync.
  */
 public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 

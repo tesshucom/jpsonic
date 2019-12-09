@@ -18,6 +18,7 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.JWTSecurityService;
@@ -44,8 +45,8 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
     private final MediaFileDao mediaFileDao;
 
     public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService) {
-        super(dispatcher, settingsService, searchService, mediaFileDao, mediaFileService, jwtSecurityService, playerService, transcodingService);
+            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService, JpsonicComparators comparators) {
+        super(dispatcher, settingsService, searchService, mediaFileDao, mediaFileService, jwtSecurityService, playerService, transcodingService, comparators);
         this.mediaFileDao = mediaFileDao;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
     }

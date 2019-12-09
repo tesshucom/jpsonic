@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -55,7 +56,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -66,8 +66,6 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
-
     private final MediaFileDao mediaFileDao;
 
     private final MediaFileService mediaFileService;
@@ -77,15 +75,18 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     private final PlayerService playerService;
 
     private final TranscodingService transcodingService;
+    
+    private final JpsonicComparators comparators;
 
     public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService) {
+            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService, JpsonicComparators comparators) {
         super(dispatcher, settingsService, searchService, jwtSecurityService);
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
         this.playerService = playerService;
         this.transcodingService = transcodingService;
+        this.comparators = comparators;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
 
@@ -171,9 +172,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         if (isEmpty(item.getArtist())) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, false);
         }
-        // TODO #340
-        boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(item.getName().toLowerCase()).matches());
-        return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear);
+        return mediaFileService.getChildrenOf(item, offset, maxResults, comparators.isSortAlbumsByYear(item));
     }
 
     public void addItem(DIDLContent didl, MediaFile item) {
