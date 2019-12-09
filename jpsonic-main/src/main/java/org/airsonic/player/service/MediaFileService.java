@@ -246,6 +246,26 @@ public class MediaFileService {
         }
         return false;
     }
+    
+    /**
+     * Returns the number of child elements of the specified musicFolder.
+     * 
+     * @param musicFolder
+     * @return the number of child elements
+     */
+    public int getChildSizeOf(MusicFolder musicFolder) {
+        return mediaFileDao.getChildSizeOf(musicFolder.getPath().getPath());
+    }
+
+    /**
+     * Returns the number of child elements of the specified mediaFile.
+     * 
+     * @param mediaFile
+     * @return the number of child elements
+     */
+    public int getChildSizeOf(MediaFile mediaFile) {
+        return mediaFileDao.getChildSizeOf(mediaFile.getPath());
+    }
 
     /**
      * Returns the most frequently played albums.
@@ -294,6 +314,42 @@ public class MediaFileService {
      */
     public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
         return mediaFileDao.getStarredAlbums(offset, count, username, musicFolders);
+    }
+
+    /**
+     * Returns the song count of the specified album name and album-artist.
+     * 
+     * @param albumArtist album-artist
+     * @param album       name of album
+     * @return song count
+     */
+    public int getSongsCountForAlbum(String albumArtist, String album) {
+        return mediaFileDao.getSongsCountForAlbum(albumArtist, album);
+    }
+
+    /**
+     * Returns the song of the specified album name and album-artist.
+     * 
+     * @param offset Number of songs to skip.
+     * @param count  Maximum number of songs to return.
+     * @param album  album-artist
+     * @param album  name of album
+     * @return Enumerating songs considering paging
+     */
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
+        return mediaFileDao.getSongsForAlbum(offset, count, albumArtist, album);
+    }
+
+    /**
+     * Returns the song of the specified album.
+     * 
+     * @param offset Number of songs to skip.
+     * @param count  Maximum number of songs to return.
+     * @param album  album
+     * @return Enumerating songs considering paging
+     */
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
+        return mediaFileDao.getSongsForAlbum(offset, count, album);
     }
 
     /**

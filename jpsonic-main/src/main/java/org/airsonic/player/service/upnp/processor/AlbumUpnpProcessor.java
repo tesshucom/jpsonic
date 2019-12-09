@@ -20,13 +20,13 @@
 package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
+import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -51,7 +51,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     private final SearchService searchService;
 
-    private final MediaFileDao mediaFileDao;
+    private final MediaFileService mediaFileService;
 
     private final AlbumDao albumDao;
 
@@ -61,11 +61,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
+    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
         super(dispatcher, util);
         this.util = util;
         this.searchService = searchService;
-        this.mediaFileDao = mediaFileDao;
+        this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
         this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_PREFIX);
@@ -132,12 +132,12 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @Override
     public int getChildSizeOf(Album album) {
-        return mediaFileDao.getSongsCountForAlbum(album.getArtist(), album.getName());
+        return mediaFileService.getSongsCountForAlbum(album.getArtist(), album.getName());
     }
 
     @Override
     public List<MediaFile> getChildren(Album album, long offset, long maxResults) {
-        List<MediaFile> children = mediaFileDao.getSongsForAlbum(album.getArtist(), album.getName(), offset, maxResults);
+        List<MediaFile> children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
         if (album.getId() == -1) {
             List<Album> albums = null;
             if (album.getComment().startsWith(ALL_BY_ARTIST)) {
@@ -150,11 +150,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
             }
             for (Album a : albums) {
                 if (a.getId() != -1) {
-                    children.addAll(mediaFileDao.getSongsForAlbum(a.getArtist(), a.getName(), offset, maxResults));
+                    children.addAll(mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName()));
                 }
             }
         } else {
-            children = mediaFileDao.getSongsForAlbum(album.getArtist(), album.getName(), offset, maxResults);
+            children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
         }
         return children;
     }

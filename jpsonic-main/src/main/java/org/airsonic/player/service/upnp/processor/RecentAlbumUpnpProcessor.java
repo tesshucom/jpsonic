@@ -18,7 +18,6 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
@@ -38,15 +37,14 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileDao mediaFileDao;
+    private final MediaFileService mediaFileService;
 
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            PlayerService playerService) {
-        super(dispatcher, util, searchService, mediaFileService, mediaFileDao, playerService);
+    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, PlayerService playerService) {
+        super(dispatcher, util, searchService, mediaFileService, playerService);
         this.util = util;
-        this.mediaFileDao = mediaFileDao;
+        this.mediaFileService = mediaFileService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
     }
 
@@ -66,13 +64,13 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public int getItemCount() {
-        int count = mediaFileDao.getAlbumCount(util.getAllMusicFolders());
+        int count = mediaFileService.getAlbumCount(util.getAllMusicFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
     public List<MediaFile> getItems(long first, long max) {
-        return mediaFileDao.getNewestAlbums(first, max, util.getAllMusicFolders());
+        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getAllMusicFolders());
     }
 
 }

@@ -19,12 +19,11 @@
 */
 package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.dao.AlbumDao;
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.logic.CoverArtLogic;
+import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
-//import org.airsonic.player.util.Util;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
@@ -44,9 +43,9 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
+    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, AlbumDao albumDao,
             CoverArtLogic coverArtLogic) {
-        super(dispatcher, util, searchService, mediaFileDao, albumDao, coverArtLogic);
+        super(dispatcher, util, searchService, mediaFileService, albumDao, coverArtLogic);
         this.util = util;
         this.albumDao = albumDao;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);

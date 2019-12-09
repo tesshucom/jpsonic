@@ -19,7 +19,6 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -61,20 +60,15 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileDao mediaFileDao;
-
     private final MediaFileService mediaFileService;
 
     private final SearchService searchService;
 
     private final PlayerService playerService;
 
-
-    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            PlayerService playerService) {
+    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, PlayerService playerService) {
         super(dispatcher, util);
         this.util = util;
-        this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
         this.playerService = playerService;
@@ -125,7 +119,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         int count = 0;
         List<MusicFolder> allFolders = util.getAllMusicFolders();
         if (allFolders.size() == 1) {
-            count = mediaFileDao.getChildSizeOf(allFolders.get(0).getPath().getPath());
+            count = mediaFileService.getChildSizeOf(allFolders.get(0));
         } else {
             count = allFolders.size();
         }
@@ -152,13 +146,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @Override
     public int getChildSizeOf(MediaFile item) {
-        return mediaFileDao.getChildSizeOf(item.getPath());
+        return mediaFileService.getChildSizeOf(item);
     }
 
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (item.isAlbum()) {
-            return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
+            return mediaFileService.getSongsForAlbum(offset, maxResults, item);
         }
         if (isEmpty(item.getArtist())) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, false);

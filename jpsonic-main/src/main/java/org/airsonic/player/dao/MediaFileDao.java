@@ -137,17 +137,17 @@ public class MediaFileDao extends AbstractDao {
                      artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.PODCAST.name());
     }
 
-    public List<MediaFile> getSongsForAlbum(MediaFile album, final long offset, final long count) {
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
         return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present " +
                 "and type in (?,?,?) order by track_number limit ? offset ?",
                 rowMapper, album.getPath(), MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
                 MediaFile.MediaType.PODCAST.name(), count, offset);
     }
 
-    public List<MediaFile> getSongsForAlbum(String artist, String album, final long offset, final long count) {
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return query("select " + QUERY_COLUMNS + " from media_file where album_artist=? and album=? and present " +
                 "and type in (?,?,?) order by track_number limit ? offset ?",
-                rowMapper, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
+                rowMapper, albumArtist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
                 MediaFile.MediaType.PODCAST.name(), count, offset);
     }
 

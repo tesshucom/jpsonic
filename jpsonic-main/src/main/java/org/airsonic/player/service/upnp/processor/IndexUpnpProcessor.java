@@ -20,7 +20,6 @@ package org.airsonic.player.service.upnp.processor;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolderContent;
@@ -59,8 +58,6 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final MusicIndexService musicIndexService;
 
-    private final MediaFileDao mediaFileDao;
-
     private final Ehcache indexCache;
 
     private MusicFolderContent content;
@@ -69,11 +66,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MusicIndexService musicIndexService, MediaFileDao mediaFileDao,
-            Ehcache indexCache) {
+    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
         super(dispatcher, util);
         this.util = util;
-        this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
         this.indexCache = indexCache;
@@ -130,7 +125,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream()).collect(Collectors.toList()), offset, maxResults);
         }
         if (item.isAlbum()) {
-            return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
+            return mediaFileService.getSongsForAlbum(offset, maxResults, item);
         }
         if (MediaType.DIRECTORY == item.getMediaType()) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getArtist()));
@@ -143,7 +138,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (isIndex(item)) {
             return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
         }
-        return mediaFileDao.getChildSizeOf(item.getPath());
+        return mediaFileService.getChildSizeOf(item);
     }
 
     public MediaFile getItemById(String ids) {

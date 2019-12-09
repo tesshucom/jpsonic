@@ -18,7 +18,6 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
@@ -50,13 +49,10 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     private final MediaFileService mediaFileService;
 
-    private final MediaFileDao mediaFileDao;
-
-    public AlbumByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MediaFileDao mediaFileDao, SearchService searchService) {
+    public AlbumByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, SearchService searchService) {
         super(dispatcher, util);
         this.util = util;
         this.mediaFileService = mediaFileService;
-        this.mediaFileDao = mediaFileDao;
         this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_BY_GENRE_PREFIX);
     }
@@ -153,7 +149,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         if (-1 == item.getId()) {
             return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults, util.getAllMusicFolders());
         }
-        return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
+        return mediaFileService.getSongsForAlbum(offset, maxResults, item);
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {
