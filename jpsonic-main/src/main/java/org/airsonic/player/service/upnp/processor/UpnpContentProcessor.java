@@ -19,52 +19,30 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.ParamSearchResult;
-import org.airsonic.player.service.JWTSecurityService;
-import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
-import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.lang.reflect.ParameterizedType;
-import java.net.URI;
 import java.util.List;
-import java.util.ResourceBundle;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     private final UpnpProcessDispatcher dispatcher;
 
-    private final SettingsService settingsService;
-
-    private final SearchService searchService;
-
-    private final JWTSecurityService jwtSecurityService;
-
-    private static ResourceBundle resourceBundle;
+    private final UpnpProcessorUtil util;
 
     private String rootTitle;
 
     private String rootId;
 
-    public UpnpContentProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
+    public UpnpContentProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util) {
         super();
         this.dispatcher = dispatcher;
-        this.settingsService = settingsService;
-        this.searchService = searchService;
-        this.jwtSecurityService = jwtSecurityService;
+        this.util = util;
     }
 
     /**
@@ -125,50 +103,12 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
     }
 
-    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
-        DIDLContent didl = new DIDLContent();
-
-        @SuppressWarnings("rawtypes")
-        Class clazz = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-
-        try {
-
-            List<MusicFolder> allFolders = getAllMusicFolders();
-            @SuppressWarnings({ "unchecked", "deprecation" })
-            ParamSearchResult<T> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, allFolders, clazz);
-            List<T> selectedItems = result.getItems();
-            for (T item : selectedItems) {
-                addItem(didl, item);
-            }
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
     protected final UpnpProcessDispatcher getDispatcher() {
         return dispatcher;
     }
 
     public void addItem(DIDLContent didl, T item) {
         didl.addContainer(createContainer(item));
-    }
-
-    protected final String getBaseUrl() {
-        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
-        if (StringUtils.isBlank(dlnaBaseLANURL)) {
-            throw new RuntimeException("DLNA Base LAN URL is not set correctly");
-        }
-        return dlnaBaseLANURL;
-    }
-
-    protected final String createURIStringWithToken(UriComponentsBuilder builder) {
-        return jwtSecurityService.addJWTToken(builder).toUriString();
-    }
-
-    protected final URI createURIWithToken(UriComponentsBuilder builder) {
-        return jwtSecurityService.addJWTToken(builder).build().encode().toUri();
     }
 
     public abstract Container createContainer(T item);
@@ -197,15 +137,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     public abstract void initTitle();
 
-    protected final String getResource(String key) {
-        if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle", settingsService.getLocale());
-        }
-        return resourceBundle.getString(key);
-    }
-
     protected final void setRootTitleWithResource(String key) {
-        setRootTitle(getResource(key));
+        setRootTitle(util.getResource(key));
     }
 
     protected final void setRootTitle(String rootTitle) {
@@ -218,22 +151,6 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     protected final void setRootId(String rootId) {
         this.rootId = rootId;
-    }
-
-    protected final List<MusicFolder> getAllMusicFolders() {
-        return settingsService.getAllMusicFolders();
-    }
-
-    protected final boolean isSortAlbumsByYear() {
-        return settingsService.isSortAlbumsByYear();
-    }
-
-    protected final boolean isProhibitSortVarious() {
-        return settingsService.isProhibitSortVarious();
-    }
-
-    protected final boolean isDlnaGenreCountVisible() {
-        return settingsService.isDlnaGenreCountVisible();
     }
 
 }

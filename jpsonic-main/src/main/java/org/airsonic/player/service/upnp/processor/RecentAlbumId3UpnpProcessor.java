@@ -22,9 +22,7 @@ import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 //import org.airsonic.player.util.Util;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -37,18 +35,20 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
 public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
+    private final UpnpProcessorUtil util;
+
+    private final AlbumDao albumDao;
+
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            JWTSecurityService jwtSecurityService, CoverArtLogic coverArtLogic) {
-        super(dispatcher, settingsService, searchService, mediaFileDao, albumDao, jwtSecurityService, coverArtLogic);
+    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
+            CoverArtLogic coverArtLogic) {
+        super(dispatcher, util, searchService, mediaFileDao, albumDao, coverArtLogic);
+        this.util = util;
+        this.albumDao = albumDao;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);
     }
 
@@ -69,7 +69,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     @Override
     public int getItemCount() {
         // max to be able to return for view
-        int count = albumDao.getAlbumCount(getAllMusicFolders());
+        int count = albumDao.getAlbumCount(util.getAllMusicFolders());
         count = count > 1 ? count + 1 : count;
         return Math.min(count, RECENT_COUNT);
     }
@@ -86,10 +86,10 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
         if (offset != 0 && 0 != limit && 0 < max) {
             offset = offset - 1;
         }
-        albums = albumDao.getNewestAlbums(offset, count, getAllMusicFolders());
+        albums = albumDao.getNewestAlbums(offset, count, util.getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album viewAll = new Album();
-            viewAll.setName(getResource("dlna.element.allalbums"));
+            viewAll.setName(util.getResource("dlna.element.allalbums"));
             viewAll.setId(-1);
             viewAll.setComment(AlbumUpnpProcessor.ALL_RECENT_ID3);
             albums.add(0, viewAll);

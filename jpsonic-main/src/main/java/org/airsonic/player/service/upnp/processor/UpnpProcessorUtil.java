@@ -1,0 +1,96 @@
+package org.airsonic.player.service.upnp.processor;
+
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.TranscodingService;
+import org.airsonic.player.util.StringUtil;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.seamless.util.MimeType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.util.List;
+import java.util.ResourceBundle;
+
+@Component
+public class UpnpProcessorUtil {
+
+    private final JpsonicComparators comparators;
+
+    private final JWTSecurityService securityService;
+
+    private final SettingsService settingsService;
+
+    private final TranscodingService transcodingService;
+
+    private static ResourceBundle resourceBundle;
+
+    public UpnpProcessorUtil(JpsonicComparators comparators, JWTSecurityService securityService, SettingsService settingsService, TranscodingService transcodingService) {
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.comparators = comparators;
+        this.transcodingService = transcodingService;
+    }
+
+    public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
+        return securityService.addJWTToken(builder);
+    }
+
+    public String createURIStringWithToken(UriComponentsBuilder builder) {
+        return addJWTToken(builder).toUriString();
+    }
+
+    public URI createURIWithToken(UriComponentsBuilder builder) {
+        return addJWTToken(builder).build().encode().toUri();
+    }
+
+    public List<MusicFolder> getAllMusicFolders() {
+        return settingsService.getAllMusicFolders();
+    }
+
+    public String getBaseUrl() {
+        String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
+        if (StringUtils.isBlank(dlnaBaseLANURL)) {
+            throw new RuntimeException("DLNA Base LAN URL is not set correctly");
+        }
+        return dlnaBaseLANURL;
+    }
+
+    public MimeType getMimeType(MediaFile song, Player player) {
+        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
+        String mimeTypeString = StringUtil.getMimeType(suffix);
+        MimeType mimeType = mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
+        return mimeType;
+    }
+
+    public String getResource(String key) {
+        if (null == resourceBundle) {
+            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle", settingsService.getLocale());
+        }
+        return resourceBundle.getString(key);
+    }
+
+    public boolean isDlnaGenreCountVisible() {
+        return settingsService.isDlnaGenreCountVisible();
+    }
+
+    public boolean isProhibitSortVarious() {
+        return settingsService.isProhibitSortVarious();
+    }
+
+    public boolean isSortAlbumsByYear() {
+        return settingsService.isSortAlbumsByYear();
+    }
+
+    public boolean isSortAlbumsByYear(String artist) {
+        return comparators.isSortAlbumsByYear(artist);
+    }
+
+}

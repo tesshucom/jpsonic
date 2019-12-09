@@ -18,15 +18,11 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -40,15 +36,23 @@ import java.util.List;
 @Service
 public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
-    private final static int RECENT_COUNT = 50;
+    private final UpnpProcessorUtil util;
 
     private final MediaFileDao mediaFileDao;
 
-    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService, JpsonicComparators comparators) {
-        super(dispatcher, settingsService, searchService, mediaFileDao, mediaFileService, jwtSecurityService, playerService, transcodingService, comparators);
+    private final static int RECENT_COUNT = 50;
+
+    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
+            PlayerService playerService) {
+        super(dispatcher, util, searchService, mediaFileService, mediaFileDao, playerService);
+        this.util = util;
         this.mediaFileDao = mediaFileDao;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dlna.title.recentAlbums");
     }
 
     public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
@@ -62,18 +66,13 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public int getItemCount() {
-        int count = mediaFileDao.getAlbumCount(getAllMusicFolders());
+        int count = mediaFileDao.getAlbumCount(util.getAllMusicFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
     public List<MediaFile> getItems(long first, long max) {
-        return mediaFileDao.getNewestAlbums(first, max, getAllMusicFolders());
-    }
-
-    @PostConstruct
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.recentAlbums");
+        return mediaFileDao.getNewestAlbums(first, max, util.getAllMusicFolders());
     }
 
 }

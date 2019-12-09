@@ -19,18 +19,19 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
+import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
+import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
@@ -42,25 +43,23 @@ import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
 public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
+
+    private final UpnpProcessorUtil util;
+    
+    private final SearchService searchService;
 
     private final ArtistDao artistDao;
     
     private final CoverArtLogic coverArtLogic;
-    
-    private final JpsonicComparators comparators;
 
-    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, ArtistDao artistDao, JWTSecurityService jwtSecurityService,
-            CoverArtLogic coverArtLogic, JpsonicComparators comparators) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, ArtistDao artistDao, CoverArtLogic coverArtLogic) {
+        super(dispatcher, util);
+        this.util = util;
+        this.searchService = searchService;
         this.artistDao = artistDao;
         this.coverArtLogic = coverArtLogic;
-        this.comparators = comparators;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
     }
 
@@ -83,12 +82,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Override
     public int getItemCount() {
-        return artistDao.getArtistsCount(getAllMusicFolders());
+        return artistDao.getArtistsCount(util.getAllMusicFolders());
     }
 
     @Override
     public List<Artist> getItems(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists(offset, maxResults, getAllMusicFolders());
+        return artistDao.getAlphabetialArtists(offset, maxResults, util.getAllMusicFolders());
     }
 
     public Artist getItemById(String id) {
@@ -97,7 +96,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(), getAllMusicFolders());
+        int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(), util.getAllMusicFolders());
         return size > 1 ? size + 1 : size;
     }
 
@@ -107,11 +106,11 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
                 .getAlbumsForArtist(artist.getName(),
                         offset > 1 ? offset - 1 : offset,
                         0L == offset ? maxResults - 1 : maxResults,
-                        comparators.isSortAlbumsByYear(artist.getName()),
-                        getAllMusicFolders());
+                        util.isSortAlbumsByYear(artist.getName()),
+                        util.getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();
-            firstElement.setName(getResource("dlna.element.allalbums"));
+            firstElement.setName(util.getResource("dlna.element.allalbums"));
             firstElement.setId(-1);
             firstElement.setComment(AlbumUpnpProcessor.ALL_BY_ARTIST + "_" + artist.getId());
             albums.add(0, firstElement);
@@ -124,9 +123,25 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     }
 
     private URI createArtistArtURI(Artist artist) {
-        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(artist))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
+    }
+
+    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
+        DIDLContent didl = new DIDLContent();
+        try {
+            List<MusicFolder> folders = util.getAllMusicFolders();
+            @SuppressWarnings("deprecation")
+            ParamSearchResult<Artist> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, Artist.class);
+            List<Artist> selectedItems = result.getItems();
+            for (Artist item : selectedItems) {
+                addItem(didl, item);
+            }
+            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -19,8 +19,6 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.service.JWTSecurityService;
-import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -32,10 +30,6 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
@@ -43,8 +37,8 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     private SettingsService settingsService;
 
-    public RootUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    public RootUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+        super(dispatcher, util);
         this.settingsService = settingsService;
     }
 

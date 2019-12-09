@@ -21,10 +21,8 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -46,18 +44,20 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
 
+    private final UpnpProcessorUtil util;
+
     private final SearchService searchService;
 
     private final MediaFileService mediaFileService;
 
     private final MediaFileDao mediaFileDao;
 
-    public AlbumByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService,
-            MediaFileService mediaFileService, MediaFileDao mediaFileDao) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
-        this.searchService = searchService;
-        this.mediaFileDao = mediaFileDao;
+    public AlbumByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MediaFileDao mediaFileDao, SearchService searchService) {
+        super(dispatcher, util);
+        this.util = util;
         this.mediaFileService = mediaFileService;
+        this.mediaFileDao = mediaFileDao;
+        this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_BY_GENRE_PREFIX);
     }
 
@@ -107,7 +107,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         if (isEmpty(item.getMediaType())) {
             container.setParentID(getRootId());
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
-            container.setTitle(isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
+            container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
             container.setChildCount(isEmpty(item.getComment()) ? 0 : Integer.parseInt(item.getComment()));
         }
         return container;
@@ -145,13 +145,13 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     @Override
     public int getChildSizeOf(MediaFile item) {
-        return searchService.getAlbumsByGenres(item.getName(), 0, Integer.MAX_VALUE, getAllMusicFolders()).size();
+        return searchService.getAlbumsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getAllMusicFolders()).size();
     }
 
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (-1 == item.getId()) {
-            return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults, getAllMusicFolders());
+            return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults, util.getAllMusicFolders());
         }
         return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
     }

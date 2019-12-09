@@ -19,7 +19,6 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -27,20 +26,18 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.airsonic.player.util.StringUtil;
-import org.apache.commons.io.FilenameUtils;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.Res;
+import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
@@ -59,12 +56,10 @@ import java.util.List;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
+
+    private final UpnpProcessorUtil util;
 
     private final MediaFileDao mediaFileDao;
 
@@ -74,19 +69,15 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final PlayerService playerService;
 
-    private final TranscodingService transcodingService;
-    
-    private final JpsonicComparators comparators;
 
-    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            JWTSecurityService jwtSecurityService, PlayerService playerService, TranscodingService transcodingService, JpsonicComparators comparators) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
+            PlayerService playerService) {
+        super(dispatcher, util);
+        this.util = util;
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
         this.playerService = playerService;
-        this.transcodingService = transcodingService;
-        this.comparators = comparators;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
 
@@ -132,7 +123,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     @Override
     public int getItemCount() {
         int count = 0;
-        List<MusicFolder> allFolders = getAllMusicFolders();
+        List<MusicFolder> allFolders = util.getAllMusicFolders();
         if (allFolders.size() == 1) {
             count = mediaFileDao.getChildSizeOf(allFolders.get(0).getPath().getPath());
         } else {
@@ -143,7 +134,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
-        List<MusicFolder> allFolders = getAllMusicFolders();
+        List<MusicFolder> allFolders = util.getAllMusicFolders();
         List<MediaFile> returnValue = new ArrayList<MediaFile>();
         if (1 == allFolders.size()) {
             returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
@@ -172,7 +163,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         if (isEmpty(item.getArtist())) {
             return mediaFileService.getChildrenOf(item, offset, maxResults, false);
         }
-        return mediaFileService.getChildrenOf(item, offset, maxResults, comparators.isSortAlbumsByYear(item));
+        return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getName()));
     }
 
     public void addItem(DIDLContent didl, MediaFile item) {
@@ -234,9 +225,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     public final Res createResourceForSong(MediaFile song) {
         Player player = playerService.getGuestPlayer(null);
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
-        String mimeTypeString = StringUtil.getMimeType(suffix);
-        MimeType mimeType = mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
+        MimeType mimeType = util.getMimeType(song, player);
         Res res = new Res(mimeType, null, createStreamURI(song, player));
         res.setDuration(formatDuration(song.getDurationSeconds()));
         return res;
@@ -250,25 +239,41 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public final URI createArtistArtURI(MediaFile artist) {
-        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", artist.getId())
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final URI createAlbumArtURI(MediaFile album) {
-        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", album.getId())
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     private String createStreamURI(MediaFile song, Player player) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/ext/stream")
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(util.getBaseUrl() + "/ext/stream")
                 .queryParam("id", song.getId())
                 .queryParam("player", player.getId());
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }
-        return createURIStringWithToken(builder);
+        return util.createURIStringWithToken(builder);
+    }
+
+    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
+        DIDLContent didl = new DIDLContent();
+        try {
+            List<MusicFolder> folders = util.getAllMusicFolders();
+            @SuppressWarnings("deprecation")
+            ParamSearchResult<MediaFile> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, MediaFile.class);
+            List<MediaFile> selectedItems = result.getItems();
+            for (MediaFile item : selectedItems) {
+                addItem(didl, item);
+            }
+            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

@@ -24,11 +24,8 @@ import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
 import org.airsonic.player.domain.PodcastStatus;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PodcastService;
-import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -55,19 +52,21 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, PodcastEpisode> {
 
-    private final PodcastService podcastService;
+    private final UpnpProcessorUtil util;
 
     private final MediaFileService mediaFileService;
+
+    private final PodcastService podcastService;
 
     private final CoverArtLogic coverArtLogic;
 
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    public PodcastUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService, PodcastService podcastService,
-            CoverArtLogic coverArtLogic, MediaFileService mediaFileService) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
-        this.podcastService = podcastService;
+    public PodcastUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PodcastService podcastService, CoverArtLogic coverArtLogic) {
+        super(dispatcher, util);
+        this.util = util;
         this.mediaFileService = mediaFileService;
+        this.podcastService = podcastService;
         this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PODCAST_PREFIX);
     }
@@ -157,7 +156,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     private URI createPodcastChannelURI(PodcastChannel channel) {
-        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(channel))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }

@@ -48,11 +48,6 @@ import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-/**
- * @author Allen Petersen
- * @author Sindre Mehus
- * @version $Id$
- */
 @Service
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
@@ -196,6 +191,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
         return returnValue;
     }
+
 
     @SuppressWarnings("rawtypes")
     private UpnpContentProcessor findProcessor(String type) {

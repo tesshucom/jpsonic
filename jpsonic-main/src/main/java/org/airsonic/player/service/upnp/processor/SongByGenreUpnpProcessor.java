@@ -21,9 +21,7 @@ package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -36,17 +34,16 @@ import javax.annotation.PostConstruct;
 
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
 public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
 
     private SearchService searchService;
 
-    public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, JWTSecurityService jwtSecurityService) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    private final UpnpProcessorUtil util;
+
+    public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService) {
+        super(dispatcher, util);
+        this.util = util;
         this.searchService = searchService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_SONG_BY_GENRE_PREFIX);
     }
@@ -79,7 +76,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
-        container.setTitle(isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
+        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
         container.setChildCount(item.getSongCount());
         return container;
     }
@@ -105,12 +102,12 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
 
     @Override
     public int getChildSizeOf(Genre item) {
-        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, getAllMusicFolders()).size();
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getAllMusicFolders()).size();
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, getAllMusicFolders());
+        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {

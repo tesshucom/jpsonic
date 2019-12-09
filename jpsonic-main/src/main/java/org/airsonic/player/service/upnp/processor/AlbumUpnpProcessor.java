@@ -25,10 +25,9 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -45,26 +44,27 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
 public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> {
+
+    private final UpnpProcessorUtil util;
+
+    private final SearchService searchService;
+
+    private final MediaFileDao mediaFileDao;
+
+    private final AlbumDao albumDao;
+
+    private final CoverArtLogic coverArtLogic;
 
     public static final String ALL_BY_ARTIST = "allByArtist";
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    private final MediaFileDao mediaFileDao;
-
-    protected final AlbumDao albumDao;
-
-    private final CoverArtLogic coverArtLogic;
-
-    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao,
-            JWTSecurityService jwtSecurityService, CoverArtLogic coverArtLogic) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileDao mediaFileDao, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
+        super(dispatcher, util);
+        this.util = util;
+        this.searchService = searchService;
         this.mediaFileDao = mediaFileDao;
         this.albumDao = albumDao;
         this.coverArtLogic = coverArtLogic;
@@ -81,7 +81,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
      */
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
-        List<Album> selectedItems = albumDao.getAlphabeticalAlbums(firstResult, maxResults, false, true, getAllMusicFolders());
+        List<Album> selectedItems = albumDao.getAlphabeticalAlbums(firstResult, maxResults, false, true, util.getAllMusicFolders());
         for (Album item : selectedItems) {
             addItem(didl, item);
         }
@@ -110,12 +110,12 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @Override
     public int getItemCount() {
-        return albumDao.getAlbumCount(getAllMusicFolders());
+        return albumDao.getAlbumCount(util.getAllMusicFolders());
     }
 
     @Override
     public List<Album> getItems(long offset, long maxResults) {
-        return albumDao.getAlphabeticalAlbums(offset, maxResults, false, true, getAllMusicFolders());
+        return albumDao.getAlphabeticalAlbums(offset, maxResults, false, true, util.getAllMusicFolders());
     }
 
     public Album getItemById(String id) {
@@ -176,9 +176,25 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     private URI createAlbumArtURI(Album album) {
-        return createURIWithToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(album))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
+    }
+
+    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
+        DIDLContent didl = new DIDLContent();
+        try {
+            List<MusicFolder> folders = util.getAllMusicFolders();
+            @SuppressWarnings("deprecation")
+            ParamSearchResult<Album> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, Album.class);
+            List<Album> selectedItems = result.getItems();
+            for (Album item : selectedItems) {
+                addItem(didl, item);
+            }
+            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }

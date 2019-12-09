@@ -18,7 +18,6 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.dao.MediaFileDao;
@@ -26,11 +25,8 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
-import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -57,30 +53,30 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
-    private final MediaFileDao mediaFileDao;
+    private final UpnpProcessorUtil util;
 
     private final MediaFileService mediaFileService;
 
     private final MusicIndexService musicIndexService;
 
+    private final MediaFileDao mediaFileDao;
+
     private final Ehcache indexCache;
 
-    private final JpsonicComparators comparators;
-    
     private MusicFolderContent content;
 
     private Map<Integer, MediaIndex> indexesMap;
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, SettingsService settingsService, SearchService searchService, MediaFileDao mediaFileDao, MediaFileService mediaFileService,
-            MusicIndexService musicIndexService, JWTSecurityService jwtSecurityService, Ehcache indexCache, JpsonicComparators comparators) {
-        super(dispatcher, settingsService, searchService, jwtSecurityService);
+    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MusicIndexService musicIndexService, MediaFileDao mediaFileDao,
+            Ehcache indexCache) {
+        super(dispatcher, util);
+        this.util = util;
         this.mediaFileDao = mediaFileDao;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
         this.indexCache = indexCache;
-        this.comparators = comparators;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
@@ -137,7 +133,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
         }
         if (MediaType.DIRECTORY == item.getMediaType()) {
-            return mediaFileService.getChildrenOf(item, offset, maxResults, comparators.isSortAlbumsByYear(item));
+            return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getArtist()));
         }
         return mediaFileService.getChildrenOf(item, offset, maxResults, false);
     }
@@ -196,7 +192,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         Element element = indexCache.getQuiet("content");
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
-            content = musicIndexService.getMusicFolderContent(getAllMusicFolders(), true);
+            content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
             indexCache.put(new Element("content", content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();
