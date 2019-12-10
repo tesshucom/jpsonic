@@ -112,7 +112,7 @@
         </tr>
         <tr>
             <td></td>
-            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaAlbumByGenreVisible" id="dlnaAlbumByGenreVisible" ${model.dlnaAlbumByGenreVisible? "checked": ""}/>
                 <label for="dlnaAlbumByGenreVisible"><fmt:message key="dlna.title.albumbygenres"/></label>

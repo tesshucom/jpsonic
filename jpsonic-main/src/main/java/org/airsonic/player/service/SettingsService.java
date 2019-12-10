@@ -100,6 +100,7 @@ public class SettingsService {
     private static final String KEY_ORGANIZE_BY_FOLDER_STRUCTURE = "OrganizeByFolderStructure";
     private static final String KEY_INDEX_ENGLISH_PRIOR = "IndexEnglishPrior";
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
+    private static final String KEY_SORT_GENRES_BY_ALPHABET = "SortGenresByAlphabet";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
     private static final String KEY_SORT_STRICT = "SortStrict";
@@ -195,6 +196,7 @@ public class SettingsService {
     private static final boolean DEFAULT_ORGANIZE_BY_FOLDER_STRUCTURE = true;
     private static final boolean DEFAULT_INDEX_ENGLISH_PRIOR = true;
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
+    private static final boolean DEFAULT_SORT_GENRES_BY_ALPHABET = false;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = true;
     private static final boolean DEFAULT_SORT_STRICT = true;
@@ -781,6 +783,14 @@ public class SettingsService {
 
     public void setSortAlbumsByYear(boolean b) {
         setBoolean(KEY_SORT_ALBUMS_BY_YEAR, b);
+    }
+
+    public boolean isSortGenresByAlphabet() {
+        return getBoolean(KEY_SORT_GENRES_BY_ALPHABET, DEFAULT_SORT_GENRES_BY_ALPHABET);
+    }
+
+    public void setSortGenresByAlphabet(boolean b) {
+        setBoolean(KEY_SORT_GENRES_BY_ALPHABET, b);
     }
 
     public boolean isProhibitSortVarious() {

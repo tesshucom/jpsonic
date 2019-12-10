@@ -137,12 +137,15 @@ public class IndexManager {
     @Autowired
     private JpsonicComparators comparators;
 
+    @Autowired
+    private SettingsService settingsService;
+
     private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
 
     private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
 
     private enum GenreSort {
-        ALBUM_COUNT, SONG_COUNT
+        ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
     ;
@@ -511,12 +514,39 @@ public class IndexManager {
     }
 
     List<Genre> getGenres(boolean sortByAlbum) {
+
         synchronized (multiGenreMaster) {
             if (multiGenreMaster.isEmpty()) {
                 refreshMultiGenreMaster();
             }
         }
+
+        if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
+            if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
+                return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
+            }
+            synchronized (multiGenreMaster) {
+                List<Genre> albumGenres = new ArrayList<Genre>();
+                albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
+                albumGenres.sort(comparators.genreAlphabeticalOrder());
+                multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
+                return albumGenres;
+            }
+        } else if (settingsService.isSortGenresByAlphabet()) {
+            if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
+                return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
+            }
+            synchronized (multiGenreMaster) {
+                List<Genre> albumGenres = new ArrayList<Genre>();
+                albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
+                albumGenres.sort(comparators.genreAlphabeticalOrder());
+                multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
+                return albumGenres;
+            }
+        }
+
         return sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT) : multiGenreMaster.get(GenreSort.SONG_COUNT);
+
     }
 
     private void refreshMultiGenreMaster() {

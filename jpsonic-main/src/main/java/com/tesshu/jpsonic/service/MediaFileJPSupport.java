@@ -23,6 +23,7 @@ import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
 
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
@@ -117,6 +118,10 @@ public class MediaFileJPSupport {
     
     public void analyze(Playlist p) {
         p.setReading(isEmpty(p.getReading()) ? createReading(p.getName()) : p.getReading());
+    }
+
+    public void analyze(Genre g) {
+        g.setReading(isEmpty(g.getReading()) ? createReading(g.getName()) : g.getReading());
     }
 
     public void clear() {

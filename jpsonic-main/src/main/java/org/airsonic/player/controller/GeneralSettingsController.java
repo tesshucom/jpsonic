@@ -61,6 +61,7 @@ public class GeneralSettingsController  {
         command.setMusicFileTypes(settingsService.getMusicFileTypes());
         command.setVideoFileTypes(settingsService.getVideoFileTypes());
         command.setSortAlbumsByYear(settingsService.isSortAlbumsByYear());
+        command.setSortGenresByAlphabet(settingsService.isSortGenresByAlphabet());
         command.setProhibitSortVarious(settingsService.isProhibitSortVarious());
         command.setSortAlphanum(settingsService.isSortAlphanum());
         command.setSortStrict(settingsService.isSortStrict());
@@ -123,6 +124,7 @@ public class GeneralSettingsController  {
         settingsService.setVideoFileTypes(command.getVideoFileTypes());
         settingsService.setCoverArtFileTypes(command.getCoverArtFileTypes());
         settingsService.setSortAlbumsByYear(command.isSortAlbumsByYear());
+        settingsService.setSortGenresByAlphabet(command.isSortGenresByAlphabet());
         settingsService.setProhibitSortVarious(command.isProhibitSortVarious());
         settingsService.setSortAlphanum(command.isSortAlphanum());
         settingsService.setSortStrict(command.isSortStrict());

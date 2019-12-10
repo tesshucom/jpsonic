@@ -155,4 +155,18 @@ public class JpsonicComparators {
         return (Genre o1, Genre o2) -> sortByAlbum ? o2.getAlbumCount() - o1.getAlbumCount() : o2.getSongCount() - o1.getSongCount();
     }
 
+    public Comparator<Genre> genreAlphabeticalOrder() {
+        return new Comparator<Genre>() {
+
+            private final Comparator<Object> c = createCollator();
+
+            @Override
+            public int compare(Genre o1, Genre o2) {
+                mediaFileJPSupport.analyze(o1);
+                mediaFileJPSupport.analyze(o2);
+                return c.compare(o1.getReading(), o2.getReading());
+            }
+        };
+    }
+
 }

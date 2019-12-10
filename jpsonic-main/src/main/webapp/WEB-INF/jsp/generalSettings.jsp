@@ -83,6 +83,15 @@
             <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
+                <form:checkbox path="sortGenresByAlphabet" id="sortGenresByAlphabet"/>
+                <label for="sortGenresByAlphabet"><fmt:message key="generalsettings.sortgenresbyalphabet"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="sortgenresbyalphabet"/></c:import>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
                 <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
                 <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="prohibitsortvarious"/></c:import>
