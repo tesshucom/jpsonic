@@ -32,6 +32,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!--
+        <dependency>
+            <groupId>com.tesshu.jpsonic.player</groupId>
+            <artifactId>jpsonic-upnp-template</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+         -->
+
         <!-- Java Audio Player and needed dependencies
          -->
         <dependency>

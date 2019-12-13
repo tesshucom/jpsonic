@@ -83,7 +83,7 @@ public class QueryFactory {
      *   - Path comparison is more appropriate with "Or".
      *   - If "SpanOr" is maintained, the DOC design needs to be changed.
      */
-    private final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (
+    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (
             isId3, folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
         folders.stream()
@@ -103,7 +103,7 @@ public class QueryFactory {
      *  - Self made parser process reduces one library dependency.
      *  - It is easy to make corrections later when changing the query to improve search accuracy.
      */
-    private Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -253,6 +253,7 @@ public class QueryFactory {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
 
+        // TODO #353
         // TODO Support for extended fields and boost
         try (TokenStream stream = analyzer.tokenStream(fieldName, name)) {
             stream.reset();

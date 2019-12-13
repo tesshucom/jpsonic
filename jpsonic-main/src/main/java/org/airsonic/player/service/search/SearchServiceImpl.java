@@ -26,6 +26,7 @@ import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.search.lucene.UPnPFieldSearchCriteria;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -108,6 +109,7 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @Deprecated
     @Override
     public ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType) {
 
@@ -149,6 +151,12 @@ public class SearchServiceImpl implements SearchService {
             indexManager.release(indexType, searcher);
         }
         return result;
+    }
+
+    @Override
+    public <T> ParamSearchResult<T> fieldSearch(UPnPFieldSearchCriteria<T> criteria, Class<T> assignableClass) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     /**

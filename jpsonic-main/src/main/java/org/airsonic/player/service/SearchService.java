@@ -29,6 +29,7 @@ import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.lucene.UPnPFieldSearchCriteria;
 
 import java.util.List;
 
@@ -51,8 +52,20 @@ public interface SearchService {
      * 
      * @since 105.3.0
      * @return search　result
+     * @deprecated use fieldSearch
      */
+    @Deprecated
     ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType);
+
+    /**
+     * 
+     * @param <T> Class that represents search target and return value
+     * @param criteria
+     * @param indexType
+     * @param assignableClass
+     * @return
+     */
+    <T> ParamSearchResult<T> fieldSearch(UPnPFieldSearchCriteria<T> criteria, Class<T> assignableClass);
 
     /**
      * Returns a number of random songs.
