@@ -24,19 +24,15 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.Player;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
-import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.TranscodingService;
-import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.airsonic.player.util.StringUtil;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.Res;
-import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
@@ -62,15 +58,12 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final MediaFileService mediaFileService;
 
-    private final SearchService searchService;
-
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, PlayerService playerService) {
+    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PlayerService playerService) {
         super(dispatcher, util);
         this.util = util;
         this.mediaFileService = mediaFileService;
-        this.searchService = searchService;
         this.playerService = playerService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
@@ -206,10 +199,9 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return item;
     }
 
-    public final BrowseResult search(SearchCriteria criteria, IndexType indexType) {
+    public final BrowseResult toBrowseResult(ParamSearchResult<MediaFile> result) {
         DIDLContent didl = new DIDLContent();
         try {
-            ParamSearchResult<MediaFile> result = searchService.search(criteria, indexType);
             result.getItems().forEach(i -> addItem(didl, i));
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
         } catch (Exception e) {
@@ -252,22 +244,6 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }
         return util.createURIStringWithToken(builder);
-    }
-
-    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
-        DIDLContent didl = new DIDLContent();
-        try {
-            List<MusicFolder> folders = util.getAllMusicFolders();
-            @SuppressWarnings("deprecation")
-            ParamSearchResult<MediaFile> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, MediaFile.class);
-            List<MediaFile> selectedItems = result.getItems();
-            for (MediaFile item : selectedItems) {
-                addItem(didl, item);
-            }
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-        } catch (Exception e) {
-            return null;
-        }
     }
 
 }

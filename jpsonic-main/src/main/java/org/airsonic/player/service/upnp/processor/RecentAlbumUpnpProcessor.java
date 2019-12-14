@@ -21,7 +21,6 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
-import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -41,8 +40,8 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, PlayerService playerService) {
-        super(dispatcher, util, searchService, mediaFileService, playerService);
+    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PlayerService playerService) {
+        super(dispatcher, util, mediaFileService, playerService);
         this.util = util;
         this.mediaFileService = mediaFileService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);

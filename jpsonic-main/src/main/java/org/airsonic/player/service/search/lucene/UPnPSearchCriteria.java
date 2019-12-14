@@ -34,9 +34,9 @@ import org.apache.lucene.search.Query;
  * This class depends on the Lucene implementation and assumes that the Lucene
  * query will be converted at the same time the UPnP message is analyzed.
  */
-public class UPnPFieldSearchCriteria<T> extends SearchCriteria {
+public class UPnPSearchCriteria extends SearchCriteria {
 
-    private Class<T> assignableClass;
+    private Class<?> assignableClass;
 
     private Query parsedQuery;
 
@@ -46,7 +46,7 @@ public class UPnPFieldSearchCriteria<T> extends SearchCriteria {
      * 
      * @return T that represents search target and return value
      */
-    public Class<T> getAssignableClass() {
+    public Class<?> getAssignableClass() {
         return assignableClass;
     }
 
@@ -60,7 +60,7 @@ public class UPnPFieldSearchCriteria<T> extends SearchCriteria {
         return parsedQuery;
     }
 
-    public void setAssignableClass(Class<T> assignableClass) {
+    public void setAssignableClass(Class<?> assignableClass) {
         this.assignableClass = assignableClass;
     }
 

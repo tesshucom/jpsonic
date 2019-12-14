@@ -26,7 +26,7 @@ import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.lucene.UPnPFieldSearchCriteria;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -109,7 +109,6 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    @Deprecated
     @Override
     public ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType) {
 
@@ -153,10 +152,80 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <T> ParamSearchResult<T> fieldSearch(UPnPFieldSearchCriteria<T> criteria, Class<T> assignableClass) {
-        // TODO Auto-generated method stub
-        return null;
+    public <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria) {
+
+        int offset = criteria.getOffset();
+        int count = criteria.getCount();
+
+        ParamSearchResult<T> result = new ParamSearchResult<>();
+        result.setOffset(offset);
+
+        if (count <= 0) {
+            return result;
+        }
+
+        IndexType indexType = null;
+        if (Artist.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ARTIST_ID3;
+        } else if (Album.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ALBUM_ID3;
+        } else if (MediaFile.class == criteria.getAssignableClass()) {
+            indexType = IndexType.SONG;
+        }
+
+        if (isEmpty(indexType)) {
+            return result;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        if (isEmpty(searcher)) {
+            return result;
+        }
+
+        try {
+
+            TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
+            int totalHits = util.round.apply(topDocs.totalHits.value);
+            result.setTotalHits(totalHits);
+            int start = Math.min(offset, totalHits);
+            int end = Math.min(start + count, totalHits);
+
+            if (ARTIST_ID3 == indexType) {
+                ParamSearchResult<Artist> artistResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(artistResult, indexType, util.getId.apply(doc), Artist.class);
+                }
+                artistResult.getItems().forEach(a -> result.getItems().add((T) a));
+            } else if (ALBUM_ID3 == indexType) {
+                ParamSearchResult<Album> albumResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
+                }
+                albumResult.getItems().forEach(a -> result.getItems().add((T) a));
+            } else if (MediaFile.class == criteria.getAssignableClass()) {
+                ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(songResult, indexType, util.getId.apply(doc), MediaFile.class);
+                }
+                songResult.getItems().forEach(a -> result.getItems().add((T) a));
+            }
+
+            if (settingsService.isOutputSearchQuery()) {
+                LOG.info("UPnP/FileStructure : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+            }
+
+        } catch (IOException e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            indexManager.release(indexType, searcher);
+        }
+        return result;
+        
     }
 
     /**
