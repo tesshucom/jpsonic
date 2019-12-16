@@ -53,6 +53,7 @@ import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaParser.WCharContext;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.service.upnp.processor.UpnpProcessorUtil;
@@ -63,9 +64,11 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.TermQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
@@ -78,8 +81,10 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.ObjectUtils.isEmpty;
+
 
 /**
  * Director class for use Lucene's QueryBuilder at the same time as UPnP message
@@ -102,6 +107,8 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private final SettingsService settingsService;
 
+    private BooleanQuery.Builder mediaTypeQueryBuilder;
+
     private BooleanQuery.Builder propExpQueryBuilder;
 
     private UPnPSearchCriteria criteria;
@@ -112,6 +119,16 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
         if (b)
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
     };
+
+    private final List<String> UNSUPPORTED_CLASS = Arrays.asList(
+            "object.container.album.photoAlbum",
+            "object.container.playlistContainer",
+            "object.container.genre",
+            "object.container.genre.musicGenre",
+            "object.container.genre.movieGenre",
+            "object.container.storageSystem",
+            "object.container.storageVolume",
+            "object.container.storageFolder");
 
     public UPnPCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util) {
         this.queryFactory = queryFactory;
@@ -134,7 +151,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     @Override
     public void enterAsterisk(AsteriskContext ctx) {
     }
-    
+
     @Override
     public void enterBaseName(BaseNameContext ctx) {
     }
@@ -151,43 +168,107 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     public void enterClassName(ClassNameContext ctx) {
     }
 
+    /**
+     * 7. Appendix C - AV Working Committee Class Definitions
+     */
     @Override
     public void enterClassRelExp(ClassRelExpContext ctx) {
         List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
+        final String S = children.get(0).getText();
         final String V = children.get(1).getText();
         final String C = children.get(2).getText();
 
+        if (UNSUPPORTED_CLASS.contains(C)) {
+            mediaTypeQueryBuilder = null;
+            throw createIllegal("The current version does not support searching for this class.", S, V, C);
+        }
+
         criteria = new UPnPSearchCriteria();
+        if (C.startsWith("object.item.audioItem") || C.startsWith("object.item.videoItem")) {
+            mediaTypeQueryBuilder = new BooleanQuery.Builder();
+        } else {
+            mediaTypeQueryBuilder = null;
+        }
+
         switch (V) {
             case "derivedfrom":
                 switch (C) {
+
+                    // artist
+                    case "object.container.person":
+                    case "object.container.person.musicArtist":
+                        criteria.setAssignableClass(Artist.class);
+                        break;
+
+                    // album
+                    case "object.container.album":
+                    case "object.container.album.musicAlbum":
+                        criteria.setAssignableClass(Album.class);
+                        break;
+
+                    // audio
                     case "object.item.audioItem":
                         criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
                         break;
+
+                    // video
                     case "object.item.videoItem":
                         criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
                         break;
+
                     default:
-                        notice.accept(true, "ClassRelExp:Unexpected class specification. -> " + C);
-                        break;
+                        mediaTypeQueryBuilder = null;
+                        throw createIllegal("An unknown class was specified.", S, V, C);
+
                 }
                 break;
             case "=":
                 switch (C) {
-                    case "object.container.album.musicAlbum":
-                        criteria.setAssignableClass(Album.class);
-                        break;
+    
+                    // artist
                     case "object.container.person.musicArtist":
                         criteria.setAssignableClass(Artist.class);
                         break;
-                    default:
-                        notice.accept(true, "ClassRelExp:Unexpected class specification. -> " + C);
+
+                    // album
+                    case "object.container.album.musicAlbum":
+                        criteria.setAssignableClass(Album.class);
                         break;
+
+                    // audio
+                    case "object.item.audioItem.musicTrack":
+                        criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        break;
+                    case "object.item.audioItem.audioBroadcast":
+                        criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        break;
+                    case "object.item.audioItem.audioBook":
+                        criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        break;
+
+                    // video
+                    case "object.item.videoItem.movie":
+                    case "object.item.videoItem.videoBroadcast":
+                    case "object.item.videoItem.musicVideoClip":
+                        criteria.setAssignableClass(MediaFile.class);
+                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        break;
+
+                    default:
+                        mediaTypeQueryBuilder = null;
+                        throw createIllegal("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.", S, V, C);
+
                 }
                 break;
             default:
-                notice.accept(3 != children.size(), "ClassRelExp:Unexpected binOp.");
                 break;
         }
 
@@ -266,12 +347,10 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
         List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
         final String S = children.get(0).getText();
-        // final String V = children.get(1).getText();
         final String C = children.get(2).getText();
 
         List<String> fieldName = new ArrayList<String>();
 
-        // BaseProperty
         if ("dc:title".equals(S)) {
             if (Album.class == criteria.getAssignableClass()) {
                 fieldName.add(FieldNames.ALBUM_EX);
@@ -409,15 +488,23 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     public void exitParse(ParseContext ctx) {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
-        Query propExpQuery = propExpQueryBuilder.build();
-        mainQuery.add(propExpQuery, Occur.MUST);
 
+        // prop
+        mainQuery.add(propExpQueryBuilder.build(), Occur.MUST);
+
+        // mediatype
+        if (!isEmpty(mediaTypeQueryBuilder)) {
+            mainQuery.add(mediaTypeQueryBuilder.build(), Occur.MUST);
+        }
+
+        // folder
         IndexType t = getIndexType();
         boolean isId3 = t == IndexType.ALBUM_ID3 || t == IndexType.ARTIST_ID3;
         Query folderQuery = queryFactory.toFolderQuery.apply(isId3, util.getAllMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
         criteria.setParsedQuery(mainQuery.build());
+
     }
 
     @Override
@@ -480,11 +567,15 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     public void visitTerminal(TerminalNode node) {
     }
 
+    private IllegalArgumentException createIllegal(String message, String S, String V, String C) {
+        return new IllegalArgumentException(message.concat(" : ").concat(S).concat(SPACE).concat(V).concat(SPACE).concat(C));
+    }
+
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
         List<String> subjectFields = new ArrayList<>();
         boolean composerUsable = getIndexType() == IndexType.SONG && criteria.isIncludeComposer();
         Arrays.asList(fields).stream().forEach(f -> {
-            // TODO #353
+            // TODO #354
             if (FieldNames.COMPOSER_READING.equals(f) || FieldNames.COMPOSER.equals(f)) {
                 if (composerUsable) {
                     subjectFields.add(f);

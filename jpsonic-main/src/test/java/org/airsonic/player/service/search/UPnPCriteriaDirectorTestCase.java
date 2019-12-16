@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.test.annotation.DirtiesContext;
@@ -44,12 +45,15 @@ public class UPnPCriteriaDirectorTestCase {
     @Rule
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
+    @Rule
+    public ExpectedException exceptionCase = ExpectedException.none();
+
     @Resource
     SettingsService settingsService;
 
     @Resource
     UPnPCriteriaDirector builder;
-    
+
     private String path;
 
     @Before
@@ -59,13 +63,149 @@ public class UPnPCriteriaDirectorTestCase {
         path = settingsService.getAllMusicFolders().get(0).getPath().getPath();
     }
 
-    /* 
-     * For BuubbleUPnP, use the following search queries.(Same for voice input.)
-     * and albums by -> searchQuery3, tracs by -> searchQuery5
-     */
+    @Test
+    public void testAmbiguousAlbum() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.container.album");
+        builder.construct(0, 50, "(upnp:class = \"object.container.album\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testAmbiguousAudio() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.audioItem");
+        builder.construct(0, 50, "(upnp:class = \"object.item.audioItem\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testAmbiguousVideo() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.videoItem");
+        builder.construct(0, 50, "(upnp:class = \"object.item.videoItem\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testClassHierarchy() {
+
+        UPnPSearchCriteria criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(m:MUSIC) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(m:PODCAST) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
+        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
+        criteria.setAssignableClass(Album.class);
+        assertEquals("+((((alb:test*)^2.3))) +(fId:0)", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
+        criteria.setAssignableClass(Album.class);
+        assertEquals("+((((artR:test*)^1.1 art:test*))) +(fId:0)", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\")");
+        criteria.setAssignableClass(Album.class);
+        assertEquals("+((((artR:test*)^1.1 art:test*))) +(fId:0)", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
+        criteria.setAssignableClass(Album.class);
+        assertEquals("+((((alb:test*)^2.3))) +(fId:0)", criteria.getParsedQuery().toString());
+
+        criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
+        criteria.setAssignableClass(Album.class);
+        assertEquals("+((((alb:test*)^2.3))) +(fId:0)", criteria.getParsedQuery().toString());
+
+    }
+
+    @Test
+    public void testGenre() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre");
+        builder.construct(0, 50, "(upnp:class = \"object.container.genre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testGenreDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testMovieGenre() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre.movieGenre");
+        builder.construct(0, 50, "(upnp:class = \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testMovieGenreDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.movieGenre");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testMusicGenre() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre.musicGenre");
+        builder.construct(0, 50, "(upnp:class = \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testMusicGenreDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.musicGenre");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testPhotoAlbum() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.album.photoAlbum");
+        builder.construct(0, 50, "(upnp:class = \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testPhotoAlbumDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.album.photoAlbum");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testPlaylist() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.playlistContainer");
+        builder.construct(0, 50, "(upnp:class = \"object.container.playlistContainer\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testPlaylistDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.playlistContainer");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.playlistContainer\" and dc:title contains \"test\")");
+    }
 
     @Test
     public void testSearchQuery1() {
+        
         String searchQuery1 = "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"にほんごはむずかしい\")";
         UPnPSearchCriteria criteria = builder.construct(0, 50, searchQuery1);
         assertEquals(Album.class, criteria.getAssignableClass());
@@ -109,7 +249,7 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(53, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
-        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.3))) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.3))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @Test
@@ -121,7 +261,7 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(54, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+(((cmpR:日本語てすと* cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+(((cmpR:日本語てすと* cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @Test
@@ -133,7 +273,49 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(55, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery6, criteria.getQuery());
-        assertEquals("+((((tit:日本語*)^2.3) ((tit:テスト*)^2.3))) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:日本語*)^2.3) ((tit:テスト*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+    }
+
+    @Test
+    public void testStorageFolder() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
+        builder.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testStorageFolderDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageFolder");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageFolder\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testStorageSystem() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageSystem");
+        builder.construct(0, 50, "(upnp:class = \"object.container.storageSystem\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testStorageSystemDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageSystem");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageSystem\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testStorageVolume() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
+        builder.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+    }
+
+    @Test
+    public void testStorageVolumeDerivedfrom() {
+        exceptionCase.expect(IllegalArgumentException.class);
+        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageVolume");
+        builder.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageVolume\" and dc:title contains \"test\")");
     }
 
 }
