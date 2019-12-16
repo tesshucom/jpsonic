@@ -22,11 +22,7 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.ParamSearchResult;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.UPnPCriteriaDirector;
 import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
@@ -52,8 +48,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.regex.Pattern;
-
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -61,8 +55,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
-    @Autowired
-    private SettingsService settingsService;
+    private final int COUNT_MAX = 50;
 
     @Autowired
     private RootUpnpProcessor rootProcessor;
@@ -160,57 +153,26 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
     }
 
-    private final int COUNT_MAX = 50;
-
-    /*
-     * Legacy implementation assumes title search(Ignore other fields if specified).
-     */
-    private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
-    private final Pattern VIDEO_SEARCH = Pattern.compile("^[(]upnp:class derivedfrom \"object.item.videoItem\".*$");
-
     @Override
     public BrowseResult search(String containerId,
                                String upnpSearchQuery, String filter,
                                long firstResult, long maxResults,
                                SortCriterion[] orderBy) throws ContentDirectoryException {
 
-        long offset = firstResult;
-        long count = maxResults;
+        int offset = (int) firstResult;
+        int count = (int) maxResults;
         if ((offset + count) > COUNT_MAX) {
             count = COUNT_MAX - offset;
         }
 
-        UPnPSearchCriteria upnpCriteria = criteriaDirector.construct((int) offset, (int) count, upnpSearchQuery);
+        UPnPSearchCriteria upnpCriteria = criteriaDirector.construct(offset, count, upnpSearchQuery);
 
-        if (!settingsService.isDlnaFileStructureSearch()) {
-
-            if (Artist.class == upnpCriteria.getAssignableClass()) {
-                ParamSearchResult<Artist> searchResult = searchService.search(upnpCriteria);
-                return getArtistProcessor().toBrowseResult(searchResult);
-            } else if (Album.class == upnpCriteria.getAssignableClass()) {
-                ParamSearchResult<Album> searchResult = searchService.search(upnpCriteria);
-                return getAlbumProcessor().toBrowseResult(searchResult);
-            } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
-                ParamSearchResult<MediaFile> searchResult = searchService.search(upnpCriteria);
-                return getMediaFileProcessor().toBrowseResult(searchResult);
-            }
-
-        } else if (TITLE_SEARCH.matcher(upnpSearchQuery).matches() && !VIDEO_SEARCH.matcher(upnpSearchQuery).matches()) {
-            String query = upnpSearchQuery.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-            SearchCriteria searchCriteria = new SearchCriteria();
-            searchCriteria.setOffset((int) firstResult);
-            searchCriteria.setCount((int) maxResults);
-            searchCriteria.setIncludeComposer(settingsService.isSearchComposer());
-            searchCriteria.setQuery(query);
-            ParamSearchResult<MediaFile> searchResult = null;
-            if (Artist.class == upnpCriteria.getAssignableClass()) {
-                searchResult = searchService.search(searchCriteria, IndexType.ARTIST);
-            } else if (Album.class == upnpCriteria.getAssignableClass()) {
-                searchResult = searchService.search(searchCriteria, IndexType.ALBUM);
-            } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
-                searchResult = searchService.search(searchCriteria, IndexType.SONG);
-            }
-            return getMediaFileProcessor().toBrowseResult(searchResult);
+        if (Artist.class == upnpCriteria.getAssignableClass()) {
+            return getArtistProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (Album.class == upnpCriteria.getAssignableClass()) {
+            return getAlbumProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
+            return getMediaFileProcessor().toBrowseResult(searchService.search(upnpCriteria));
         }
 
         return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
