@@ -103,9 +103,11 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private final QueryFactory queryFactory;
 
-    private final UpnpProcessorUtil util;
+    private final UpnpProcessorUtil upnpUtil;
 
     private final SettingsService settingsService;
+
+    private final SearchServiceUtilities searchUtil;
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
 
@@ -130,10 +132,11 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
             "object.container.storageVolume",
             "object.container.storageFolder");
 
-    public UPnPCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util) {
+    public UPnPCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
         this.queryFactory = queryFactory;
         this.settingsService = settingsService;
-        this.util = util;
+        this.upnpUtil = util;
+        this.searchUtil = searchUtil;
     }
 
     public UPnPSearchCriteria construct(int offset, int count, String upnpSearchQuery) {
@@ -272,7 +275,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
                 break;
         }
 
-        criteria.setIncludeComposer(settingsService.isSearchComposer());
+        criteria.setIncludeComposer(settingsService.isSearchComposer() && MediaFile.class == criteria.getAssignableClass());
 
     }
 
@@ -500,7 +503,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
         // folder
         IndexType t = getIndexType();
         boolean isId3 = t == IndexType.ALBUM_ID3 || t == IndexType.ARTIST_ID3;
-        Query folderQuery = queryFactory.toFolderQuery.apply(isId3, util.getAllMusicFolders());
+        Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getAllMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
         criteria.setParsedQuery(mainQuery.build());
@@ -572,23 +575,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
-        List<String> subjectFields = new ArrayList<>();
-        boolean composerUsable = getIndexType() == IndexType.SONG && criteria.isIncludeComposer();
-        Arrays.asList(fields).stream().forEach(f -> {
-            // TODO #354
-            if (FieldNames.COMPOSER_READING.equals(f) || FieldNames.COMPOSER.equals(f)) {
-                if (composerUsable) {
-                    subjectFields.add(f);
-                }
-            } else {
-                subjectFields.add(f);
-            }
-        });
-        if (0 == subjectFields.size()) {
-            return null;
-        }
-        String[] f = subjectFields.toArray(new String[subjectFields.size()]);
-        return queryFactory.createMultiFieldWildQuery(f, query, getIndexType());
+        return queryFactory.createMultiFieldWildQuery(searchUtil.validate(fields, criteria), query, getIndexType());
     }
 
     private IndexType getIndexType() {

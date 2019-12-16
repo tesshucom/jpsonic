@@ -88,28 +88,28 @@ public class UPnPCriteriaDirectorTestCase {
     public void testClassHierarchy() {
 
         UPnPSearchCriteria criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(m:MUSIC) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(m:PODCAST) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:PODCAST) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
-        assertEquals("+((((tit:test*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
 
         criteria = builder.construct(0, 50, "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
         criteria.setAssignableClass(Album.class);
@@ -249,7 +249,7 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(53, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
-        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.3))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @Test
@@ -261,7 +261,7 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(54, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+(((cmpR:日本語てすと* cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((cmpR:日本語てすと*)^1.1 cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(f:" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @Test
@@ -273,7 +273,7 @@ public class UPnPCriteriaDirectorTestCase {
         assertEquals(55, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery6, criteria.getQuery());
-        assertEquals("+((((tit:日本語*)^2.3) ((tit:テスト*)^2.3))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:日本語*)^2.2) ((tit:テスト*)^2.2))) +(+m:VIDEO) +(f:" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @Test

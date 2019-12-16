@@ -42,7 +42,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -66,6 +65,9 @@ public class QueryFactory {
 
     @Autowired
     private AnalyzerFactory analyzerFactory;
+
+    @Autowired
+    private SearchServiceUtilities util;
 
     private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
         // Unanalyzed field
@@ -178,16 +180,7 @@ public class QueryFactory {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = indexType.getFields();
-
-        if (criteria.isIncludeComposer()) {
-            List<String> ifields = new ArrayList<>();
-            Arrays.asList(fields).forEach(e -> ifields.add(e));
-            ifields.add(FieldNames.COMPOSER);
-            ifields.add(FieldNames.COMPOSER_READING);
-            fields = ifields.toArray(new String[ifields.size()]);
-        }
-
+        String[] fields = util.validate(indexType.getFields(), criteria);
         Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
