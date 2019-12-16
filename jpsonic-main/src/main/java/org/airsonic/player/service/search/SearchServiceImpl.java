@@ -98,7 +98,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Web/FileStructure : {} -> {}", indexType, criteria.getQuery());
+                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
@@ -141,7 +141,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("UPnP/FileStructure : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("UpnP: Multi-field search using title : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
@@ -216,7 +216,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("UPnP/FileStructure : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
