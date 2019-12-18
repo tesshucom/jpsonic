@@ -53,15 +53,6 @@ public interface SearchService {
     SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType);
 
     /**
-     * Perform a multi-field search corresponding to SearchCriteria.
-     * Used from the dlna.
-     * Search almost compatible with search(SearchCriteria , List<MusicFolder> musicFolders, indexType).
-     * @since 105.3.0
-     * @return search　result
-     */
-    ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType);
-
-    /**
      * Perform a search that comply with the UPnP Service Template with UPnPSearchCriteria.
      * Criteria is built using a dedicated Director class (UPnPCriteriaDirector).
      * 
@@ -96,14 +87,6 @@ public interface SearchService {
      * @return List of random albums.
      */
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
-
-    /**
-     * Design change required.
-     * @deprecated
-     */
-    @Deprecated
-    <T> ParamSearchResult<T> searchByName(
-            String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz);
 
     /**
      * Returns all genres in the music collection.
