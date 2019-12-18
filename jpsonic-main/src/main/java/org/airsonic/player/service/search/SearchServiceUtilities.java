@@ -26,6 +26,7 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -38,6 +39,8 @@ import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -201,6 +204,15 @@ public class SearchServiceUtilities {
         } else if (subjectIndexType == IndexType.ALBUM_ID3) {
             addAlbumId3IfAnyMatch.accept(dist.getAlbums(), documentId);
         }
+    }
+
+    public final String[] validate(String[] Fields, SearchCriteria criteria) {
+        boolean composerUsable = criteria.isIncludeComposer();
+        List<String> fields = new ArrayList<>();
+        Arrays.asList(Fields).stream()
+                .filter(f -> composerUsable ? true : !FieldNames.COMPOSER.equals(f))
+                .filter(f -> composerUsable ? true : !FieldNames.COMPOSER_READING.equals(f)).forEach(e -> fields.add(e));
+        return fields.toArray(new String[fields.size()]);
     }
 
 }

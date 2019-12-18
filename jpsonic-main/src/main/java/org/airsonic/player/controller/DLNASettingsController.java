@@ -60,7 +60,6 @@ public class DLNASettingsController {
         map.put("dlnaEnabled", settingsService.isDlnaEnabled());
         map.put("dlnaServerName", settingsService.getDlnaServerName());
         map.put("dlnaBaseLANURL", settingsService.getDlnaBaseLANURL());
-        map.put("dlnaFileStructureSearch", settingsService.isDlnaFileStructureSearch());
 
         map.put("dlnaAlbumVisible", settingsService.isDlnaAlbumVisible());
         map.put("dlnaArtistVisible", settingsService.isDlnaArtistVisible());
@@ -92,7 +91,6 @@ public class DLNASettingsController {
             dlnaServerName = "Jpsonic";
         }
         String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
-        boolean dlnaFileStructureSearch = ServletRequestUtils.getBooleanParameter(request, "dlnaFileStructureSearch", false);
 
         boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumVisible", false);
         boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistVisible", false);
@@ -114,7 +112,6 @@ public class DLNASettingsController {
         settingsService.setDlnaEnabled(dlnaEnabled);
         settingsService.setDlnaServerName(dlnaServerName);
         settingsService.setDlnaBaseLANURL(dlnaBaseLANURL);
-        settingsService.setDlnaFileStructureSearch(dlnaFileStructureSearch);
 
         settingsService.setDlnaAlbumVisible(dlnaAlbumVisible);
         settingsService.setDlnaArtistVisible(dlnaArtistVisible);

@@ -27,7 +27,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -49,8 +48,6 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     private final UpnpProcessorUtil util;
 
-    private final SearchService searchService;
-
     private final MediaFileService mediaFileService;
 
     private final AlbumDao albumDao;
@@ -61,10 +58,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, MediaFileService mediaFileService, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
+    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
         super(dispatcher, util);
         this.util = util;
-        this.searchService = searchService;
         this.mediaFileService = mediaFileService;
         this.albumDao = albumDao;
         this.coverArtLogic = coverArtLogic;
@@ -181,14 +177,10 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
-    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
+    public final BrowseResult toBrowseResult(ParamSearchResult<Album> result) {
         DIDLContent didl = new DIDLContent();
         try {
-            List<MusicFolder> folders = util.getAllMusicFolders();
-            @SuppressWarnings("deprecation")
-            ParamSearchResult<Album> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, Album.class);
-            List<Album> selectedItems = result.getItems();
-            for (Album item : selectedItems) {
+            for (Album item : result.getItems()) {
                 addItem(didl, item);
             }
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());

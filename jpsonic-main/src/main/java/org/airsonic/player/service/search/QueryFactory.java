@@ -42,7 +42,6 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -67,6 +66,9 @@ public class QueryFactory {
     @Autowired
     private AnalyzerFactory analyzerFactory;
 
+    @Autowired
+    private SearchServiceUtilities util;
+
     private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
         // Unanalyzed field
         return new TermQuery(new Term(FieldNames.FOLDER_ID, folder.getId().toString()));
@@ -83,7 +85,7 @@ public class QueryFactory {
      *   - Path comparison is more appropriate with "Or".
      *   - If "SpanOr" is maintained, the DOC design needs to be changed.
      */
-    private final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (
+    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (
             isId3, folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
         folders.stream()
@@ -103,7 +105,7 @@ public class QueryFactory {
      *  - Self made parser process reduces one library dependency.
      *  - It is easy to make corrections later when changing the query to improve search accuracy.
      */
-    private Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -178,16 +180,7 @@ public class QueryFactory {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = indexType.getFields();
-
-        if (criteria.isIncludeComposer()) {
-            List<String> ifields = new ArrayList<>();
-            Arrays.asList(fields).forEach(e -> ifields.add(e));
-            ifields.add(FieldNames.COMPOSER);
-            ifields.add(FieldNames.COMPOSER_READING);
-            fields = ifields.toArray(new String[ifields.size()]);
-        }
-
+        String[] fields = util.validate(indexType.getFields(), criteria);
         Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
@@ -253,6 +246,7 @@ public class QueryFactory {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
 
+        // TODO #353
         // TODO Support for extended fields and boost
         try (TokenStream stream = analyzer.tokenStream(fieldName, name)) {
             stream.reset();

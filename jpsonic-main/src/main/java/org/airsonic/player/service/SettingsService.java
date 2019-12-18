@@ -110,7 +110,6 @@ public class SettingsService {
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
-    private static final String KEY_DLNA_FILE_STRUCTURE_SEARCH = "DlnaFileStructureSearch";
     private static final String KEY_DLNA_ALBUM_VISIBLE = "DlnaAlbumVisible";
     private static final String KEY_DLNA_ARTIST_VISIBLE = "DlnaArtistVisible";
     private static final String KEY_DLNA_ALBUM_BY_GENRE_VISIBLE = "DlnaAlbumByGenreVisible";
@@ -206,7 +205,6 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
-    private static final boolean DEFAULT_DLNA_FILE_STRUCTURE_SEARCH = true;
     private static final boolean DEFAULT_DLNA_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_ARTIST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_ALBUM_BY_GENRE_VISIBLE = true;
@@ -1312,14 +1310,6 @@ public class SettingsService {
 
     public void setDlnaBaseLANURL(String dlnaBaseLANURL) {
         setString(KEY_DLNA_BASE_LAN_URL, dlnaBaseLANURL);
-    }
-
-    public boolean isDlnaFileStructureSearch() {
-        return getBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, DEFAULT_DLNA_FILE_STRUCTURE_SEARCH);
-    }
-
-    public void setDlnaFileStructureSearch(boolean b) {
-        setBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, b);
     }
 
     public boolean isDlnaAlbumVisible() {

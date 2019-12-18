@@ -142,18 +142,18 @@ public class QueryFactoryTestCase {
         criteria.setCount(Integer.MAX_VALUE);
         criteria.setQuery(QUERY_PATTERN_INCLUDING_KATAKANA);
         Query query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((tit:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA, "+(((tit:ネコ*)^2.2 (artR:ねこ*)^1.4 (art:ネコ*)^1.2) ((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_ALPHANUMERIC_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((tit:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
         criteria.setQuery(QUERY_PATTERN_HIRAGANA_ONLY);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((titEX:ねこいぬ*)^2.3 (tit:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((tit:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_HIRAGANA_ONLY, "+(((titEX:ねこいぬ*)^2.3 (tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2) ((tit:いぬ*)^2.2 (artR:いぬ*)^1.4 (art:いぬ*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
         criteria.setQuery(QUERY_PATTERN_OTHERS);
         query = queryFactory.search(criteria, MULTI_FOLDERS, IndexType.SONG);
-        assertEquals(QUERY_PATTERN_OTHERS, "+(((tit:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((tit:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        assertEquals(QUERY_PATTERN_OTHERS, "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
     }
 

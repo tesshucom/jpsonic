@@ -162,22 +162,12 @@
 		<tr><td colspan="3">&nbsp;</td></tr>
 
         <tr>
-            <td><fmt:message key="dlnasettings.search"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
-            <td colspan="2">
-                <input type="checkbox" name="dlnaFileStructureSearch" id="dlnaFileStructureSearch" ${model.dlnaFileStructureSearch? "checked": ""}/>
-                <label for="dlnaFileStructureSearch"><fmt:message key="dlnasettings.filestructuresearch"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaFileStructureSearch"/></c:import>
-            </td>
-        </tr>
-
-        <tr>
             <td colspan="4" style="padding-top:1.5em">
                 <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
                 <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
             </td>
         </tr>
-        
+
     </table>
 
 </form>

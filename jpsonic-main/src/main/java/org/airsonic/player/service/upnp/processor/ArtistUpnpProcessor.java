@@ -23,15 +23,12 @@ import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.CoverArtScheme;
-import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
-import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.stereotype.Service;
@@ -47,17 +44,14 @@ import java.util.List;
 public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     private final UpnpProcessorUtil util;
-    
-    private final SearchService searchService;
 
     private final ArtistDao artistDao;
     
     private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService, ArtistDao artistDao, CoverArtLogic coverArtLogic) {
+    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, ArtistDao artistDao, CoverArtLogic coverArtLogic) {
         super(dispatcher, util);
         this.util = util;
-        this.searchService = searchService;
         this.artistDao = artistDao;
         this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
@@ -128,14 +122,10 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
-    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
+    public final BrowseResult toBrowseResult(ParamSearchResult<Artist> result) {
         DIDLContent didl = new DIDLContent();
         try {
-            List<MusicFolder> folders = util.getAllMusicFolders();
-            @SuppressWarnings("deprecation")
-            ParamSearchResult<Artist> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, folders, Artist.class);
-            List<Artist> selectedItems = result.getItems();
-            for (Artist item : selectedItems) {
+            for (Artist item : result.getItems()) {
                 addItem(didl, item);
             }
             return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());

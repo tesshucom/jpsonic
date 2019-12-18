@@ -19,9 +19,12 @@
 */
 package org.airsonic.player.service.upnp;
 
-import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.search.UPnPCriteriaDirector;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
@@ -34,6 +37,7 @@ import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.SongByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
+import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
@@ -44,8 +48,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.util.regex.Pattern;
-
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -53,8 +55,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
-    @Autowired
-    private SettingsService settingsService;
+    private final int COUNT_MAX = 50;
 
     @Autowired
     private RootUpnpProcessor rootProcessor;
@@ -104,6 +105,12 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Autowired
     private PodcastUpnpProcessor podcastProcessor;
 
+    @Autowired
+    private UPnPCriteriaDirector criteriaDirector;
+
+    @Autowired
+    private SearchService searchService;
+
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
                                String filter, long firstResult,
@@ -146,52 +153,30 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
     }
 
-    private final int COUNT_MAX = 50;
-    
-    /*
-     * Legacy implementation assumes title search(Ignore other fields if specified).
-     */
-    private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
-    
     @Override
     public BrowseResult search(String containerId,
-                               String criteria, String filter,
+                               String upnpSearchQuery, String filter,
                                long firstResult, long maxResults,
                                SortCriterion[] orderBy) throws ContentDirectoryException {
-        long offset = firstResult;
-        long count = maxResults;
+
+        int offset = (int) firstResult;
+        int count = (int) maxResults;
         if ((offset + count) > COUNT_MAX) {
             count = COUNT_MAX - offset;
         }
-        String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        BrowseResult returnValue = null;
 
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOffset((int) firstResult);
-        searchCriteria.setCount((int) maxResults);
-        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());        
-        searchCriteria.setQuery(query);
+        UPnPSearchCriteria upnpCriteria = criteriaDirector.construct(offset, count, upnpSearchQuery);
 
-        boolean isDlnaFileStructure = settingsService.isDlnaFileStructureSearch();
-
-        if (TITLE_SEARCH.matcher(criteria).matches()) {
-            if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ARTIST)
-                        : getArtistProcessor().searchByName(query, offset, count, orderBy);
-            } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ALBUM)
-                        : getAlbumProcessor().searchByName(query, offset, count, orderBy);
-            } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.SONG)
-                        : getMediaFileProcessor().searchByName(query, offset, count, orderBy);
-            }
-        } else {
-            LOG.debug("Does not support field search other than title. QUERY : {}", criteria);
+        if (Artist.class == upnpCriteria.getAssignableClass()) {
+            return getArtistProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (Album.class == upnpCriteria.getAssignableClass()) {
+            return getAlbumProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
+            return getMediaFileProcessor().toBrowseResult(searchService.search(upnpCriteria));
         }
-        return returnValue;
-    }
 
+        return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
+    }
 
     @SuppressWarnings("rawtypes")
     private UpnpContentProcessor findProcessor(String type) {

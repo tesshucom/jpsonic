@@ -29,6 +29,7 @@ import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 
 import java.util.List;
 
@@ -41,18 +42,34 @@ import java.util.List;
  */
 public interface SearchService {
 
+    /**
+     * Perform a multi-field search corresponding to SearchCriteria.
+     * 
+     * It is the most popular search inherited from legacy servers
+     * and has been used from the Web and REST since ancient times.
+     * 
+     * @return search　result
+     */
     SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType);
 
     /**
-     * Method equivalent to Legecy's searchByName.
-     * However, Legegy handles ID3, but this method uses the same method as "search".
-     * This is a way to provide a file/ID3 multi-field search that is valid for DLNA search
-     * and provides the same specification to the user as a Web/REST search.
-     * 
+     * Perform a multi-field search corresponding to SearchCriteria.
+     * Used from the dlna.
+     * Search almost compatible with search(SearchCriteria , List<MusicFolder> musicFolders, indexType).
      * @since 105.3.0
      * @return search　result
      */
     ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType);
+
+    /**
+     * Perform a search that comply with the UPnP Service Template with UPnPSearchCriteria.
+     * Criteria is built using a dedicated Director class (UPnPCriteriaDirector).
+     * 
+     * @param <T> see UPnPSearchCriteria#getAssignableClass
+     * @since 106.1.0
+     * @return search　result
+     */
+    <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria);
 
     /**
      * Returns a number of random songs.
