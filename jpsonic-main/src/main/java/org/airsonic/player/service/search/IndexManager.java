@@ -527,8 +527,10 @@ public class IndexManager {
             }
             synchronized (multiGenreMaster) {
                 List<Genre> albumGenres = new ArrayList<Genre>();
-                albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
-                albumGenres.sort(comparators.genreAlphabeticalOrder());
+                if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
+                    albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
+                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                }
                 multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
                 return albumGenres;
             }
@@ -538,14 +540,19 @@ public class IndexManager {
             }
             synchronized (multiGenreMaster) {
                 List<Genre> albumGenres = new ArrayList<Genre>();
-                albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
-                albumGenres.sort(comparators.genreAlphabeticalOrder());
+                if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
+                    albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
+                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                }
                 multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
                 return albumGenres;
             }
         }
 
-        return sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT) : multiGenreMaster.get(GenreSort.SONG_COUNT);
+        List<Genre> genres = sortByAlbum
+                ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
+                : multiGenreMaster.get(GenreSort.SONG_COUNT);
+        return isEmpty(genres) ? Collections.emptyList() : genres;
 
     }
 
@@ -558,11 +565,19 @@ public class IndexManager {
         try {
             if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
 
-                synchronized (multiGenreMaster) {
+                mayBeInit: synchronized (multiGenreMaster) {
+
+                    multiGenreMaster.clear();
 
                     int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
                     Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
-                    TermStats[] stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
+                    TermStats[] stats = null;
+                    try {
+                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
+                    } catch (Exception e) {
+                        LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e.toString());
+                        break mayBeInit;
+                    }
                     List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
 
                     List<Genre> genres = new ArrayList<Genre>();
