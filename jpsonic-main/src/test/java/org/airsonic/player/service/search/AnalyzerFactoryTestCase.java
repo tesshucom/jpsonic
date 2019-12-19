@@ -109,6 +109,7 @@ public class AnalyzerFactoryTestCase {
                 case FieldNames.ARTIST:
                 case FieldNames.ALBUM:
                 case FieldNames.TITLE:
+                case FieldNames.COMPOSER:
                     assertEquals("tokenized : " + n, 2, terms.size());
                     assertEquals("tokenized : " + n, expected1, terms.get(0));
                     assertEquals("tokenized : " + n, expected2, terms.get(1));
@@ -121,6 +122,7 @@ public class AnalyzerFactoryTestCase {
                     break;
 
                 case FieldNames.ARTIST_READING:
+                case FieldNames.COMPOSER_READING:
                     assertEquals("tokenized : " + n, 1, terms.size());
                     assertEquals("tokenized : " + n, expected3, terms.get(0));
                     break;

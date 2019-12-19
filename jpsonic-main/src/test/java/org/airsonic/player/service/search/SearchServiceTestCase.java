@@ -26,6 +26,7 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
@@ -128,13 +129,16 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
                 result.getArtists().size());
         Assert.assertEquals("(13) Specify album '" + query + "', and get a song. Album SIZE is", 0,
                 result.getAlbums().size());
-        Assert.assertEquals("(14) Specify album '" + query + "', and get a song. MediaFile SIZE is",
-                2, result.getMediaFiles().size());
-        Assert.assertEquals("(15) Specify album '" + query + "', and get songs. The first song is ",
-                "01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getTitle());
-        Assert.assertEquals(
-                "(16) Specify album '" + query + "', and get songs. The second song is ",
-                "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
+        Assert.assertEquals("(14) Specify album '" + query + "', and get a song. MediaFile SIZE is", 2, result.getMediaFiles().size());
+        // Assert.assertEquals("(15) Specify album '" + query + "', and get songs. The first song is ", "01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getTitle());
+        // Assert.assertEquals("(16) Specify album '" + query + "', and get songs. The second song is ", "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
+        if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
+        } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
+        } else {
+            fail("Search results are not correct.");
+        }
 
         // *** testGetRandomSongs() ***
 
@@ -263,7 +267,7 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
                 .timer(MetricRegistry.name(SearchServiceTestCase.class, "Timer.global"));
         final Timer.Context globalTimerContext = globalTimer.time();
 
-        System.out.println("--- Random search (" + countForEachMethod * 5 + " times) ---");
+        System.out.println("--- Random search (" + countForEachMethod * 4 + " times) ---");
 
         // testSearch()
         Arrays.stream(randomWords4Search).forEach(w -> {
@@ -434,11 +438,10 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
         assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
         genres = searchService.getGenres(true);
-        Assert.assertEquals("size", 5, genres.size());
+        Assert.assertEquals("size", 4, genres.size());
         assertEquals(1L, genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.getName())).count());
         assertEquals(1L, genres.stream().filter(g -> "Impressionist Era".equals(g.getName())).count());
         assertEquals(1L, genres.stream().filter(g -> "Baroque Instrumental".equals(g.getName())).count());
-        assertEquals(1L, genres.stream().filter(g -> "Alternative/Indie".equals(g.getName())).count());
         assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
     }
