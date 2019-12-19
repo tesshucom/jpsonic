@@ -70,6 +70,8 @@ public class DLNASettingsController {
         map.put("dlnaPlaylistVisible", settingsService.isDlnaPlaylistVisible());
         map.put("dlnaRecentAlbumVisible", settingsService.isDlnaRecentAlbumVisible());
         map.put("dlnaRecentAlbumId3Visible", settingsService.isDlnaRecentAlbumId3Visible());
+        map.put("dlnaRandomAlbumVisible", settingsService.isDlnaRandomAlbumVisible());
+        map.put("dlnaRandomSongVisible", settingsService.isDlnaRandomSongVisible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
 
@@ -101,6 +103,8 @@ public class DLNASettingsController {
         boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPlaylistVisible", false);
         boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumVisible", false);
         boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumId3Visible", false);
+        boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomAlbumVisible", false);
+        boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
         boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
         
@@ -122,6 +126,8 @@ public class DLNASettingsController {
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
         settingsService.setDlnaRecentAlbumId3Visible(dlnaRecentAlbumId3Visible);
+        settingsService.setDlnaRandomAlbumVisible(dlnaRandomAlbumVisible);
+        settingsService.setDlnaRandomSongVisible(dlnaRandomSongVisible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
         settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
 

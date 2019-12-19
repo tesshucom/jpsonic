@@ -230,6 +230,13 @@ used with JMX monitors.
            overflowToDisk="false"
            statistics="false"/>
 
+    <cache name="randomCache"
+           maxElementsInMemory="2"
+           eternal="false"
+           timeToLiveSeconds="2"
+           overflowToDisk="false"
+           statistics="false"/>
+
     <cache name="indexCache"
            maxElementsInMemory="1"
            eternal="false"

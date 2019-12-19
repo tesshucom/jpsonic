@@ -58,12 +58,12 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
-        super(dispatcher, util);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
-        this.albumDao = albumDao;
-        this.coverArtLogic = coverArtLogic;
+    public AlbumUpnpProcessor(UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+        super(d, u);
+        this.util = u;
+        this.mediaFileService = m;
+        this.albumDao = a;
+        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_PREFIX);
     }
 

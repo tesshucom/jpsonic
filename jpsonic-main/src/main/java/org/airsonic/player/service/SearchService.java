@@ -71,6 +71,25 @@ public interface SearchService {
     List<MediaFile> getRandomSongs(RandomSearchCriteria criteria);
 
     /**
+     * Returns random songs.
+     * The song returned by this list is limited to MesiaType=SONG.
+     * In other words, PODCAST, AUDIOBOOK and VIDEO are not included.
+     * 
+     * This method uses a very short-lived cache.
+     * This cache is not for long-running transactions like paging,
+     * but for short-term repetitive calls.
+     * 
+     * @since 106.1.0
+     * @param count        Number of albums to return.
+     * @param offset       offset
+     * @param casheMax     Data duplication due to paging is avoided
+     *                     when the cache is an iterative call within the valid period.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
+
+    /**
      * Returns a number of random albums.
      *
      * @param count Number of albums to return.
@@ -80,13 +99,30 @@ public interface SearchService {
     List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
 
     /**
-     * Returns a number of random albums, using ID3 tag.
+     * Returns random albums, using ID3 tag.
      *
      * @param count Number of albums to return.
      * @param musicFolders Only return albums from these folders.
      * @return List of random albums.
      */
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
+
+    /**
+     * Returns random albums, using ID3 tag.
+     * 
+     * Unlike getRandom Album Id3, this method uses a very short-lived.
+     * This cache is not for long-running transactions like paging,
+     * but for short-term repetitive calls.
+     * 
+     * @since 106.1.0
+     * @param count        Number of albums to return.
+     * @param offset       offset
+     * @param casheMax     Data duplication due to paging is avoided
+     *                     when the cache  is an iterative call within the valid period.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
      * Returns all genres in the music collection.

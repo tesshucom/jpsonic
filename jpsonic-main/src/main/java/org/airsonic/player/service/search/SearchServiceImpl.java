@@ -20,8 +20,6 @@
 
 package org.airsonic.player.service.search;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
@@ -41,6 +39,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.airsonic.player.service.search.IndexType.*;
+import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_ALBUM;
+import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -62,9 +62,6 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private Ehcache searchCache;
 
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
@@ -234,6 +231,53 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+
+        final List<MediaFile> result = new ArrayList<>();
+        Consumer<List<Integer>> addSubToResult = (ids) ->
+            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+                .forEach(id -> util.addIgnoreNull(result, SONG, id));
+        util.getCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+        if (isEmpty(searcher)) {
+            return result;
+        }
+
+        Query query = queryFactory.getRandomSongs(musicFolders);
+
+        try {
+
+            List<Integer> docs = Arrays
+                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                    .map(sd -> sd.doc)
+                    .collect(Collectors.toList());
+
+            List<Integer> ids = new ArrayList<>();
+            while (!docs.isEmpty() && ids.size() < casheMax) {
+                int randomPos = util.nextInt.apply(docs.size());
+                Document document = searcher.doc(docs.get(randomPos));
+                ids.add(util.getId.apply(document));
+                docs.remove(randomPos);
+            }
+
+            util.putCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders, ids);
+
+            addSubToResult.accept(ids);
+
+        } catch (IOException e) {
+            LOG.error("Failed to search for random songs.", e);
+        } finally {
+            indexManager.release(IndexType.SONG, searcher);
+        }
+
+        return result;
+    }
+
+    @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
@@ -280,6 +324,53 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+
+        final List<Album> result = new ArrayList<>();
+        Consumer<List<Integer>> addSubToResult = (ids) ->
+            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+                .forEach(id -> util.addIgnoreNull(result, ALBUM_ID3, id));
+        util.getCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
+        if (isEmpty(searcher)) {
+            return result;
+        }
+
+        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
+        try {
+
+            List<Integer> docs = Arrays
+                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                    .map(sd -> sd.doc)
+                    .collect(Collectors.toList());
+
+            List<Integer> ids = new ArrayList<>();
+            while (!docs.isEmpty() && ids.size() < casheMax) {
+                int randomPos = util.nextInt.apply(docs.size());
+                Document document = searcher.doc(docs.get(randomPos));
+                ids.add(util.getId.apply(document));
+                docs.remove(randomPos);
+            }
+
+            util.putCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders, ids);
+
+            addSubToResult.accept(ids);
+
+        } catch (IOException e) {
+            LOG.error("Failed to search for random albums.", e);
+        } finally {
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
+        }
+
+        return result;
+    }
+
+    @Override
     public synchronized List<Genre> getGenres(boolean sortByAlbum) {
         return indexManager.getGenres(sortByAlbum);
     }
@@ -295,35 +386,6 @@ public class SearchServiceImpl implements SearchService {
         return getGenres(sortByAlbum).size();
     }
 
-    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        StringBuilder b = new StringBuilder();
-        b.append(genres);
-        b.append("[");
-        musicFolders.forEach(m -> b.append(m.getId()).append(","));
-        b.append("]");
-        b.append(indexType.name());
-        return b.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        List<MediaFile> mediaFiles = null;
-        Element element = null;
-        synchronized (searchCache) {
-            element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
-        }
-        if (!isEmpty(element)) {
-            mediaFiles = (List<MediaFile>) element.getObjectValue();
-        }
-        return Optional.ofNullable(mediaFiles);
-    }
-
-    private void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
-        synchronized (searchCache) {
-            searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
-        }
-    }
-
     @Override
     public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
         if (isEmpty(genres)) {
@@ -333,14 +395,14 @@ public class SearchServiceImpl implements SearchService {
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
             result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
-        getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
+        util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
         final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList, musicFolders);
-        putCache(genres, musicFolders, IndexType.ALBUM, cache);
+        util.putCache(genres, musicFolders, IndexType.ALBUM, cache);
         addSubToResult.accept(cache);
         return result;
     }
@@ -392,14 +454,14 @@ public class SearchServiceImpl implements SearchService {
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
             result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
-        getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
+        util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
         final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE, musicFolders);
-        putCache(genres, musicFolders, IndexType.SONG, cache);
+        util.putCache(genres, musicFolders, IndexType.SONG, cache);
         addSubToResult.accept(cache);
         return result;
     }

@@ -32,6 +32,8 @@ import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
@@ -105,11 +107,25 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Autowired
     private PodcastUpnpProcessor podcastProcessor;
 
+    @Lazy
+    @Qualifier("randomAlbumUpnpProcessor")
     @Autowired
-    private UPnPCriteriaDirector criteriaDirector;
+    private RandomAlbumUpnpProcessor randomAlbumProcessor;
 
+    @Lazy
+    @Qualifier("randomSongUpnpProcessor")
     @Autowired
-    private SearchService searchService;
+    private RandomSongUpnpProcessor randomSongProcessor;
+
+    private final UPnPCriteriaDirector criteriaDirector;
+
+    private final SearchService searchService;
+
+    public DispatchingContentDirectory(UPnPCriteriaDirector c, SearchService s) {
+        super();
+        this.criteriaDirector = c;
+        this.searchService = s;
+    }
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -178,33 +194,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
     }
 
-    @SuppressWarnings("rawtypes")
-    private UpnpContentProcessor findProcessor(String type) {
-        switch (type) {
-            case CONTAINER_ID_ROOT:
-                return rootProcessor;
-            case CONTAINER_ID_PLAYLIST_PREFIX:
-                return getPlaylistProcessor();
-            case CONTAINER_ID_FOLDER_PREFIX:
-                return getMediaFileProcessor();
-            case CONTAINER_ID_ALBUM_PREFIX:
-                return getAlbumProcessor();
-            case CONTAINER_ID_RECENT_PREFIX:
-                return getRecentAlbumProcessor();
-            case CONTAINER_ID_RECENT_ID3_PREFIX:
-                return getRecentAlbumId3Processor();
-            case CONTAINER_ID_ARTIST_PREFIX:
-                return getArtistProcessor();
-            case CONTAINER_ID_ALBUM_BY_GENRE_PREFIX:
-                return getAlbumByGenreProcessor();
-            case CONTAINER_ID_SONG_BY_GENRE_PREFIX:
-                return getSongByGenreProcessor();
-            case CONTAINER_ID_INDEX_PREFIX:
-                return getIndexProcessor();
-            case CONTAINER_ID_PODCAST_PREFIX:
-                return getPodcastProcessor();
-        }
-        return null;
+    @Override
+    public RootUpnpProcessor getRootProcessor() {
+        return rootProcessor;
     }
 
     @Override
@@ -254,6 +246,16 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public PodcastUpnpProcessor getPodcastProcessor() {
         return podcastProcessor;
+    }
+
+    @Override
+    public RandomAlbumUpnpProcessor getRandomAlbumProcessor() {
+        return randomAlbumProcessor;
+    }
+
+    @Override
+    public RandomSongUpnpProcessor getRandomSongProcessor() {
+        return randomSongProcessor;
     }
 
 }

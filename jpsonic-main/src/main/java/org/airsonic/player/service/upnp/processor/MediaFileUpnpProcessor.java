@@ -60,11 +60,11 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PlayerService playerService) {
-        super(dispatcher, util);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
-        this.playerService = playerService;
+    public MediaFileUpnpProcessor(UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
+        super(d, u);
+        this.util = u;
+        this.mediaFileService = m;
+        this.playerService = p;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
     }
 

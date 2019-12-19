@@ -20,11 +20,14 @@
 
 package org.airsonic.player.service.search;
 
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
@@ -35,6 +38,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
@@ -43,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -72,6 +77,14 @@ public class SearchServiceUtilities {
     @Autowired
     private AlbumDao albumDao;
 
+    @Autowired
+    @Qualifier("searchCache")
+    private Ehcache searchCache;
+
+    @Autowired
+    @Qualifier("randomCache")
+    private Ehcache randomCache;
+
     /*
      * Search by id only.
      * Although there is no influence at present,
@@ -84,6 +97,9 @@ public class SearchServiceUtilities {
     private Random random;
 
     private Random secureRandom;
+
+    public static final String CASHE_KEY_RANDOM_ALBUM = "randomAlbum";
+    public static final String CASHE_KEY_RANDOM_SONG = "randomSong";
 
     {
         try {
@@ -213,6 +229,61 @@ public class SearchServiceUtilities {
                 .filter(f -> composerUsable ? true : !FieldNames.COMPOSER.equals(f))
                 .filter(f -> composerUsable ? true : !FieldNames.COMPOSER_READING.equals(f)).forEach(e -> fields.add(e));
         return fields.toArray(new String[fields.size()]);
+    }
+
+    private final String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+        StringBuilder b = new StringBuilder();
+        b.append(genres).append("[");
+        musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        b.append("]");
+        b.append(indexType.name());
+        return b.toString();
+    }
+
+    private final String createCacheKey(String key, int casheMax, List<MusicFolder> musicFolders) {
+        StringBuilder b = new StringBuilder();
+        b.append(key).append(",").append(casheMax).append("[");
+        musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        b.append("]");
+        return b.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+        List<MediaFile> mediaFiles = null;
+        Element element = null;
+        synchronized (searchCache) {
+            element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
+        }
+        if (!isEmpty(element)) {
+            mediaFiles = (List<MediaFile>) element.getObjectValue();
+        }
+        return Optional.ofNullable(mediaFiles);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<List<Integer>> getCache(String key, int casheMax, List<MusicFolder> musicFolders) {
+        List<Integer> ids = null;
+        Element element = null;
+        synchronized (randomCache) {
+            element = randomCache.get(createCacheKey(key, casheMax, musicFolders));
+        }
+        if (!isEmpty(element)) {
+            ids = (List<Integer>) element.getObjectValue();
+        }
+        return Optional.ofNullable(ids);
+    }
+
+    public void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
+        synchronized (searchCache) {
+            searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
+        }
+    }
+
+    public void putCache(String key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
+        synchronized (randomCache) {
+            randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
+        }
     }
 
 }
