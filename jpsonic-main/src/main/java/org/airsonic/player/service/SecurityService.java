@@ -43,6 +43,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
 /**
  * Provides security-related services for authentication and authorization.
  *
@@ -235,6 +237,11 @@ public class SecurityService implements UserDetailsService {
         return isInMusicFolder(file) || isInPodcastFolder(file);
     }
 
+    public boolean isReadAllowed(String path) {
+        // Allowed to read from both music folder and podcast folder.
+        return isInMusicFolder(path) || isInPodcastFolder(path);
+    }
+
     /**
      * Returns whether the given file may be written, created or deleted.
      *
@@ -267,6 +274,20 @@ public class SecurityService implements UserDetailsService {
         return getMusicFolderForFile(file) != null;
     }
 
+    private boolean isInMusicFolder(String path) {
+        return getMusicFolderForFile(path) != null;
+    }
+
+    private MusicFolder getMusicFolderForFile(String path) {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, true);
+        for (MusicFolder folder : folders) {
+            if (isFileInFolder(path, folder.getPath().getPath())) {
+                return folder;
+            }
+        }
+        return null;
+    }
+
     private MusicFolder getMusicFolderForFile(File file) {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, true);
         String path = file.getPath();
@@ -287,6 +308,11 @@ public class SecurityService implements UserDetailsService {
     private boolean isInPodcastFolder(File file) {
         String podcastFolder = settingsService.getPodcastFolder();
         return isFileInFolder(file.getPath(), podcastFolder);
+    }
+
+    private boolean isInPodcastFolder(String path) {
+        String podcastFolder = settingsService.getPodcastFolder();
+        return isFileInFolder(path, podcastFolder);
     }
 
     public String getRootFolderForFile(File file) {
@@ -324,6 +350,9 @@ public class SecurityService implements UserDetailsService {
      * @return Whether the given file is located in the given folder.
      */
     protected boolean isFileInFolder(String file, String folder) {
+        if (isEmpty(file)) {
+            return false;
+        }
         // Deny access if file contains ".." surrounded by slashes (or end of line).
         if (file.matches(".*(/|\\\\)\\.\\.(/|\\\\|$).*")) {
             return false;

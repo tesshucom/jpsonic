@@ -665,6 +665,9 @@ public class MediaFileService {
         if (mediaFile.getCoverArtFile() != null) {
             return mediaFile.getCoverArtFile();
         }
+        if (!securityService.isReadAllowed(mediaFile.getParentPath())) {
+            return null;
+        }
         MediaFile parent = getParentOf(mediaFile);
         return parent == null ? null : parent.getCoverArtFile();
     }
