@@ -23,8 +23,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Arrays;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 public class IndexTypeTestCase extends TestCase {
 
@@ -39,12 +37,6 @@ public class IndexTypeTestCase extends TestCase {
     @Test
     public void testAlbumFields() {
         assertEquals(5, IndexType.ALBUM.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.ALBUM.getFields())
-                .filter(f -> FieldNames.ALBUM.equals(f))
-                .filter(f -> FieldNames.ALBUM_EX.equals(f))
-                .filter(f -> FieldNames.ARTIST_READING.equals(f))
-                .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
@@ -58,27 +50,16 @@ public class IndexTypeTestCase extends TestCase {
     @Test
     public void testAlbumId3Fields() {
         assertEquals(5, IndexType.ALBUM_ID3.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                .filter(f -> FieldNames.ALBUM.equals(f))
-                .filter(f -> FieldNames.ALBUM_EX.equals(f))
-                .filter(f -> FieldNames.ARTIST_READING.equals(f))
-                .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
     public void testArtistBoosts() {
         assertEquals(1, IndexType.ARTIST.getBoosts().size());
-        assertEquals(IndexType.ARTIST.getBoosts().get(FieldNames.ARTIST_READING), 1.1F);
     }
 
     @Test
     public void testArtistFields() {
         assertEquals(3, IndexType.ARTIST.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.ARTIST.getFields())
-            .filter(f -> FieldNames.ARTIST_READING.equals(f))
-            .filter(f -> FieldNames.ARTIST.equals(f))
-            .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
@@ -90,10 +71,6 @@ public class IndexTypeTestCase extends TestCase {
     @Test
     public void testArtistId3Fields() {
         assertEquals(3, IndexType.ARTIST_ID3.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.ARTIST_ID3.getFields())
-                .filter(f -> FieldNames.ARTIST_READING.equals(f))
-                .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
     }
 
     @Test
@@ -105,28 +82,22 @@ public class IndexTypeTestCase extends TestCase {
     @Test
     public void testGenreFields() {
         assertEquals(2, IndexType.GENRE.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.GENRE.getFields())
-            .filter(f -> FieldNames.GENRE.equals(f))
-            .filter(f -> FieldNames.GENRE_KEY.equals(f)).count());
     }
 
     @Test
     public void testSongBoosts() {
-        assertEquals(3, IndexType.SONG.getBoosts().size());
-        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE), 2.3F);
+        assertEquals(6, IndexType.SONG.getBoosts().size());
         assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE_EX), 2.3F);
-        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST_READING), 1.1F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.TITLE), 2.2F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST_READING), 1.4F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST_EX), 1.3F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.ARTIST), 1.2F);
+        assertEquals(IndexType.SONG.getBoosts().get(FieldNames.COMPOSER_READING), 1.1F);
     }
 
     @Test
     public void testSongFields() {
-        assertEquals(5, IndexType.SONG.getFields().length);
-        assertEquals(0, Arrays.stream(IndexType.SONG.getFields())
-                .filter(f -> FieldNames.TITLE.equals(f))
-                .filter(f -> FieldNames.TITLE_EX.equals(f))
-                .filter(f -> FieldNames.ARTIST_READING.equals(f))
-                .filter(f -> FieldNames.ARTIST.equals(f))
-                .filter(f -> FieldNames.ARTIST_EX.equals(f)).count());
+        assertEquals(7, IndexType.SONG.getFields().length);
     }
 
 }

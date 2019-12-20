@@ -316,8 +316,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.0</version>
                         <configuration>
-                            <!-- #1186 Temporarily skip a test. -->
-                            <excludes>${test.excludes}</excludes>
                         </configuration>
                 </plugin>
                 <plugin>

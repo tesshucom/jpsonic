@@ -39,6 +39,7 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
@@ -132,8 +133,13 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         // song
         result = searchService.search(criteriaSong, musicFolders, IndexType.SONG);
         assertEquals(2, result.getMediaFiles().size());
-        assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getName());
-        assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
+        if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
+        } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
+        } else {
+            fail("Search results are not correct.");
+        }
 
         candidates = mediaFileDao.getSongExpungeCandidates();
         assertEquals(0, candidates.size());
