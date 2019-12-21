@@ -137,6 +137,10 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
+        if (settingsService.isOutputSearchQuery()) {
+            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+        }
+
         try {
 
             TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
@@ -159,17 +163,13 @@ public class SearchServiceImpl implements SearchService {
                     util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
                 }
                 albumResult.getItems().forEach(a -> result.getItems().add((T) a));
-            } else if (MediaFile.class == criteria.getAssignableClass()) {
+            } else if (IndexType.SONG == indexType) {
                 ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(songResult, indexType, util.getId.apply(doc), MediaFile.class);
                 }
                 songResult.getItems().forEach(a -> result.getItems().add((T) a));
-            }
-
-            if (settingsService.isOutputSearchQuery()) {
-                LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
