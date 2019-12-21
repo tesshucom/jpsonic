@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.domain;
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.Playlist;
@@ -108,17 +109,23 @@ public class JpsonicComparators {
         };
     }
 
+    public boolean isSortAlbumsByYear(String artist) {
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
+                        && isVarious.matcher(artist.toLowerCase()).matches()));
+    }
+    
+    public boolean isSortAlbumsByYear(MediaFile parent) {
+        return settingsService.isSortAlbumsByYear()
+                && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
+    }
+
     public MediaFileComparator mediaFileOrder() {
         return mediaFileOrder(null);
     }
 
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
-        // TODO #340
-        boolean isSortAlbumsByYear = settingsService.isSortAlbumsByYear()
-                && ((isEmpty(parent) || isEmpty(parent.getArtist())) || !(settingsService.isProhibitSortVarious()
-                        && isVarious.matcher(parent.getArtist().toLowerCase()).matches()));
-        MediaFileComparator mediaFileComparator = new JpMediaFileComparator(isSortAlbumsByYear, createCollator());
-        return mediaFileComparator;
+        return new JpMediaFileComparator(isSortAlbumsByYear(parent), createCollator());
     }
 
     /**
@@ -137,6 +144,24 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Playlist o1, Playlist o2) {
+                mediaFileJPSupport.analyze(o1);
+                mediaFileJPSupport.analyze(o2);
+                return c.compare(o1.getReading(), o2.getReading());
+            }
+        };
+    }
+
+    public Comparator<Genre> genreOrder(boolean sortByAlbum) {
+        return (Genre o1, Genre o2) -> sortByAlbum ? o2.getAlbumCount() - o1.getAlbumCount() : o2.getSongCount() - o1.getSongCount();
+    }
+
+    public Comparator<Genre> genreAlphabeticalOrder() {
+        return new Comparator<Genre>() {
+
+            private final Comparator<Object> c = createCollator();
+
+            @Override
+            public int compare(Genre o1, Genre o2) {
                 mediaFileJPSupport.analyze(o1);
                 mediaFileJPSupport.analyze(o2);
                 return c.compare(o1.getReading(), o2.getReading());

@@ -104,7 +104,7 @@
         </tr>
         <tr>
             <td></td>
-            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaPlaylistVisible" id="dlnaPlaylistVisible" ${model.dlnaPlaylistVisible? "checked": ""}/>
                 <label for="dlnaPlaylistVisible"><fmt:message key="dlna.title.playlists"/></label>
@@ -112,10 +112,18 @@
         </tr>
         <tr>
             <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaAlbumByGenreVisible" id="dlnaAlbumByGenreVisible" ${model.dlnaAlbumByGenreVisible? "checked": ""}/>
+                <label for="dlnaAlbumByGenreVisible"><fmt:message key="dlna.title.albumbygenres"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
             <td></td>
             <td colspan="2">
-                <input type="checkbox" name="dlnaGenreVisible" id="dlnaGenreVisible" ${model.dlnaGenreVisible? "checked": ""}/>
-                <label for="dlnaGenreVisible"><fmt:message key="dlna.title.genres"/></label>
+                <input type="checkbox" name="dlnaSongByGenreVisible" id="dlnaSongByGenreVisible" ${model.dlnaSongByGenreVisible? "checked": ""}/>
+                <label for="dlnaSongByGenreVisible"><fmt:message key="dlna.title.songbygenres"/></label>
             </td>
         </tr>
         <tr>
@@ -142,18 +150,32 @@
                 <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/>(ID3)</label>
             </td>
         </tr>
-
-		<tr><td colspan="3">&nbsp;</td></tr>
-
         <tr>
-            <td><fmt:message key="dlnasettings.search"/></td>
+            <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
-                <input type="checkbox" name="dlnaFileStructureSearch" id="dlnaFileStructureSearch" ${model.dlnaFileStructureSearch? "checked": ""}/>
-                <label for="dlnaFileStructureSearch"><fmt:message key="dlnasettings.filestructuresearch"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaFileStructureSearch"/></c:import>
+                <input type="checkbox" name="dlnaRandomAlbumVisible" id="dlnaRandomAlbumVisible" ${model.dlnaRandomAlbumVisible? "checked": ""}/>
+                <label for="dlnaRandomAlbumVisible"><fmt:message key="dlna.title.randomAlbum"/></label>
             </td>
         </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaRandomSongVisible" id="dlnaRandomSongVisible" ${model.dlnaRandomSongVisible? "checked": ""}/>
+                <label for="dlnaRandomSongVisible"><fmt:message key="dlna.title.randomSong"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaPodcastVisible" id="dlnaPodcastVisible" ${model.dlnaPodcastVisible? "checked": ""}/>
+                <label for="dlnaPodcastVisible"><fmt:message key="dlna.title.podcast"/></label>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
 
         <tr>
             <td colspan="4" style="padding-top:1.5em">
@@ -161,7 +183,7 @@
                 <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
             </td>
         </tr>
-        
+
     </table>
 
 </form>

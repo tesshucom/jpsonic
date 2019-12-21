@@ -15,7 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>106.0.0-RELEASE</jpsonic.version>
+        <jpsonic.version>106.1.0-RELEASE</jpsonic.version>
     </properties>
 
     <dependencies>
@@ -29,6 +29,12 @@
         <dependency>
             <groupId>com.tesshu.jpsonic.player</groupId>
             <artifactId>jpsonic-sonos-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.tesshu.jpsonic.player</groupId>
+            <artifactId>jpsonic-upnp-template</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -138,6 +144,15 @@
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
             <version>8.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-misc</artifactId>
+            <version>8.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.ant</groupId>

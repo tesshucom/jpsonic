@@ -3,6 +3,27 @@
 # jpsonic/jpsonic
 # -->
 
+## v106.1.0
+#### Based on *airsonic 10.5.0-RELEASE*
+
+  * [fix] Fixed server startup flow.
+	This is fix for potential issue with Airsonic 10.5.0.
+	The update to 106.1.0 disables automatic scan on first launch and removes previous search index data.
+  * [fix] The UPnP search function has been improved and the previous search function has been removed.
+	Performs query analysis according to Service Template Version 1.01 for UPnP Version 1.0.
+	From 106.1.0, voice input is also possible from BubbleUPnP for DLNA.
+  * [fix] Fixed the bug that UPnP cover art is not processed correctly.
+	From 106.1.0, cover art of Artist(file/id3) / Album(file/id3) / Song / Playlist / Podcast can be displayed.
+	(In the case of BubbleUPnP for DLNA. It depends on the specifications of the client application)
+  * [fix] Fixed security check on cover art.
+	Fixed meaningless SecurityException not to be output to the log.
+  * [fix] Fixed to display multi genres correctly.
+	From 106.1.0, if the genres are separated by semicolons, they will be displayed as different genres in the genre list.
+  * [update] Added UPnP display items.
+	Genre (song), shuffle (album), shuffle (song), and podcast are newly added.
+  * [update] Added sorting option to genre master.
+	Added option to display in dictionary order.
+
 ## v106.0.0
 #### Based on *airsonic 10.5.0-RELEASE*
 

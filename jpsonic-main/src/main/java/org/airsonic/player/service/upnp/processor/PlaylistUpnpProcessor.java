@@ -19,32 +19,39 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.PlaylistContainer;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 
+import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 
-
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Component
 public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, MediaFile> {
 
-    private PlaylistService playlistService;
-    
-    public PlaylistUpnpProcessor(PlaylistService playlistService) {
-        super();
+    private final UpnpProcessorUtil util;
+
+    private final PlaylistService playlistService;
+
+    private final CoverArtLogic coverArtLogic;
+
+    public PlaylistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, PlaylistService playlistService, CoverArtLogic coverArtLogic) {
+        super(dispatcher, util);
+        this.util = util;
         this.playlistService = playlistService;
+        this.coverArtLogic = coverArtLogic;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PLAYLIST_PREFIX);
     }
 
@@ -60,6 +67,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         container.setTitle(item.getName());
         container.setDescription(item.getComment());
         container.setChildCount(playlistService.getFilesInPlaylist(item.getId()).size());
+        container.setProperties(Arrays.asList(new ALBUM_ART_URI(getArtURI(item))));
         return container;
     }
 
@@ -90,7 +98,13 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {
-        didl.addItem(getDispatcher().createItem(child));
+        didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+    }
+
+    private URI getArtURI(Playlist playlist) {
+        return util.addJWTToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+                .queryParam("id", coverArtLogic.createKey(playlist))
+                .queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }
 
 }

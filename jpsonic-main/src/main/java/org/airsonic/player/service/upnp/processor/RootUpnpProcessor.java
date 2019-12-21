@@ -25,25 +25,24 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
     private ArrayList<Container> containers = new ArrayList<>();
 
-    @Autowired
     private SettingsService settingsService;
 
-    public Container createRootContainer() {
+    public RootUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+        super(dispatcher, util);
+        this.settingsService = settingsService;
+    }
+
+    protected final Container createRootContainer() {
         StorageFolder root = new StorageFolder();
         root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
         root.setParentID("-1");
@@ -62,7 +61,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         root.setChildCount(6);
         return root;
     }
-    
+
     @Override
     public void initTitle() {
         // to be none
@@ -81,7 +80,6 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     @Override
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
-        getDispatcher().getIndexProcessor().clearIndex();
 
         if (settingsService.isDlnaIndexVisible()) {
             containers.add(getDispatcher().getIndexProcessor().createRootContainer());
@@ -98,14 +96,26 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaPlaylistVisible()) {
             containers.add(getDispatcher().getPlaylistProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaGenreVisible()) {
-            containers.add(getDispatcher().getGenreProcessor().createRootContainer());
+        if (settingsService.isDlnaAlbumByGenreVisible()) {
+            containers.add(getDispatcher().getAlbumByGenreProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaSongByGenreVisible()) {
+            containers.add(getDispatcher().getSongByGenreProcessor().createRootContainer());
         }
         if (settingsService.isDlnaRecentAlbumVisible()) {
             containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
         }
         if (settingsService.isDlnaRecentAlbumId3Visible()) {
             containers.add(getDispatcher().getRecentAlbumId3Processor().createRootContainer());
+        }
+        if (settingsService.isDlnaRandomAlbumVisible()) {
+            containers.add(getDispatcher().getRandomAlbumProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaRandomSongVisible()) {
+            containers.add(getDispatcher().getRandomSongProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaPodcastVisible()) {
+            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
         }
 
         return org.airsonic.player.util.Util.subList(containers, offset, maxResults);
@@ -120,7 +130,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return getChildren(item).size();
     }
 
-    public List<Container> getChildren(Container item) {
+    public final List<Container> getChildren(Container item) {
         return containers;
     }
 

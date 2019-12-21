@@ -7,12 +7,10 @@ import com.codahale.metrics.Timer;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.domain.Album;
-import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
@@ -21,12 +19,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.subsonic.restapi.ArtistID3;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
@@ -129,51 +129,16 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
                 result.getArtists().size());
         Assert.assertEquals("(13) Specify album '" + query + "', and get a song. Album SIZE is", 0,
                 result.getAlbums().size());
-        Assert.assertEquals("(14) Specify album '" + query + "', and get a song. MediaFile SIZE is",
-                2, result.getMediaFiles().size());
-        Assert.assertEquals("(15) Specify album '" + query + "', and get songs. The first song is ",
-                "01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getTitle());
-        Assert.assertEquals(
-                "(16) Specify album '" + query + "', and get songs. The second song is ",
-                "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
-
-        // *** testSearchByName() ***
-
-        /*
-         * _ID3_ALBUM_ Sackcloth 'n' Ashes
-         * Should be 1 in Lucene 3.0(Because Single quate is not a delimiter).
-         */
-        query = "Sackcloth 'n' Ashes";
-        ParamSearchResult<Album> albumResult = searchService.searchByName(query, 0,
-                Integer.MAX_VALUE, allMusicFolders, Album.class);
-        Assert.assertEquals(
-                "(17) Specify album name '" + query + "' as the name, and get an album.", 1,
-                albumResult.getItems().size());
-        Assert.assertEquals("(18) Specify '" + query + "' as the name, The album name is ",
-                "_ID3_ALBUM_ Sackcloth 'n' Ashes", albumResult.getItems().get(0).getName());
-        Assert.assertEquals(
-                "(19) Whether the acquired album contains data of the specified album name", 1L,
-                albumResult.getItems().stream()
-                        .filter(r -> "_ID3_ALBUM_ Sackcloth \'n\' Ashes".equals(r.getName()))
-                        .count());
-
-        /*
-         * Should be 0 in Lucene 3.0(Since the slash is not a delimiter).
-         */
-        query = "lker/Nash";
-        ParamSearchResult<ArtistID3> artistId3Result = searchService.searchByName(query, 0,
-                Integer.MAX_VALUE, allMusicFolders, ArtistID3.class);
-        Assert.assertEquals("(20) Specify '" + query + "' as the name, and get an artist.", 0,
-                artistId3Result.getItems().size());
-        ParamSearchResult<Artist> artistResult = searchService.searchByName(query, 0,
-                Integer.MAX_VALUE, allMusicFolders, Artist.class);
-
-        /*
-         * // XXX 3.x -> 8.x :
-         * Hit 'Nash*' as ​​the slash becomes a delimiter.
-         */
-        Assert.assertEquals("(21) Specify '" + query + "' as the name, and get an artist.", 1,
-                artistResult.getItems().size());
+        Assert.assertEquals("(14) Specify album '" + query + "', and get a song. MediaFile SIZE is", 2, result.getMediaFiles().size());
+        // Assert.assertEquals("(15) Specify album '" + query + "', and get songs. The first song is ", "01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(0).getTitle());
+        // Assert.assertEquals("(16) Specify album '" + query + "', and get songs. The second song is ", "02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getTitle());
+        if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
+        } else if ("02 - Gaspard de la Nuit - ii. Le Gibet".equals(result.getMediaFiles().get(0).getName())) {
+            assertEquals("01 - Gaspard de la Nuit - i. Ondine", result.getMediaFiles().get(1).getName());
+        } else {
+            fail("Search results are not correct.");
+        }
 
         // *** testGetRandomSongs() ***
 
@@ -297,23 +262,17 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
          */
         int countForEachMethod = 500;
         String[] randomWords4Search = createRandomWords(countForEachMethod);
-        String[] randomWords4SearchByName = createRandomWords(countForEachMethod);
 
         Timer globalTimer = metrics
                 .timer(MetricRegistry.name(SearchServiceTestCase.class, "Timer.global"));
         final Timer.Context globalTimerContext = globalTimer.time();
 
-        System.out.println("--- Random search (" + countForEachMethod * 5 + " times) ---");
+        System.out.println("--- Random search (" + countForEachMethod * 4 + " times) ---");
 
         // testSearch()
         Arrays.stream(randomWords4Search).forEach(w -> {
             searchCriteria.setQuery(w);
             searchService.search(searchCriteria, allMusicFolders, IndexType.ALBUM);
-        });
-
-        // testSearchByName()
-        Arrays.stream(randomWords4SearchByName).forEach(w -> {
-            searchService.searchByName(w, 0, Integer.MAX_VALUE, allMusicFolders, Artist.class);
         });
 
         // testGetRandomSongs()
@@ -472,41 +431,18 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
         List<Genre> genres = searchService.getGenres(false);
         Assert.assertEquals("size", 5, genres.size());
-
-        Assert.assertEquals("genre(0).name", "Gothik Folk Psychobilly", genres.get(0).getName());
-        Assert.assertEquals("genre(0).albumCount", 1, genres.get(0).getAlbumCount());
-        Assert.assertEquals("genre(0).songCount", 3, genres.get(0).getSongCount());
-        Assert.assertEquals("genre(1).name", "Baroque Instrumental", genres.get(1).getName());
-        Assert.assertEquals("genre(1).albumCount", 1, genres.get(1).getAlbumCount());
-        Assert.assertEquals("genre(1).songCount", 2, genres.get(1).getSongCount());
-        Assert.assertEquals("genre(2).name", "Impressionist Era", genres.get(2).getName());
-        Assert.assertEquals("genre(2).albumCount", 1, genres.get(2).getAlbumCount());
-        Assert.assertEquals("genre(2).songCount", 2, genres.get(2).getSongCount());
-        Assert.assertEquals("genre(3).name", "Alternative/Indie", genres.get(3).getName());
-        Assert.assertEquals("genre(3).albumCount", 0, genres.get(3).getAlbumCount());
-        Assert.assertEquals("genre(3).songCount", 1, genres.get(3).getSongCount());
-        Assert.assertEquals("genre(4).name", "Metal", genres.get(4).getName());
-        Assert.assertEquals("genre(4).albumCount", 1, genres.get(4).getAlbumCount());
-        Assert.assertEquals("genre(4).songCount", 1, genres.get(4).getSongCount());
+        assertEquals(1L, genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Impressionist Era".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Baroque Instrumental".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Alternative/Indie".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
         genres = searchService.getGenres(true);
-        Assert.assertEquals("size", 5, genres.size());
-
-        Assert.assertEquals("genre(0).name", "Baroque Instrumental", genres.get(0).getName());
-        Assert.assertEquals("genre(0).albumCount", 1, genres.get(0).getAlbumCount());
-        Assert.assertEquals("genre(0).songCount", 2, genres.get(0).getSongCount());
-        Assert.assertEquals("genre(1).name", "Metal", genres.get(1).getName());
-        Assert.assertEquals("genre(1).albumCount", 1, genres.get(1).getAlbumCount());
-        Assert.assertEquals("genre(1).songCount", 1, genres.get(1).getSongCount());
-        Assert.assertEquals("genre(2).name", "Impressionist Era", genres.get(2).getName());
-        Assert.assertEquals("genre(2).albumCount", 1, genres.get(2).getAlbumCount());
-        Assert.assertEquals("genre(2).songCount", 2, genres.get(2).getSongCount());
-        Assert.assertEquals("genre(3).name", "Gothik Folk Psychobilly", genres.get(3).getName());
-        Assert.assertEquals("genre(3).albumCount", 1, genres.get(3).getAlbumCount());
-        Assert.assertEquals("genre(3).songCount", 3, genres.get(3).getSongCount());
-        Assert.assertEquals("genre(4).name", "Alternative/Indie", genres.get(4).getName());
-        Assert.assertEquals("genre(4).albumCount", 0, genres.get(4).getAlbumCount());
-        Assert.assertEquals("genre(4).songCount", 1, genres.get(4).getSongCount());
+        Assert.assertEquals("size", 4, genres.size());
+        assertEquals(1L, genres.stream().filter(g -> "Gothik Folk Psychobilly".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Impressionist Era".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Baroque Instrumental".equals(g.getName())).count());
+        assertEquals(1L, genres.stream().filter(g -> "Metal".equals(g.getName())).count());
 
     }
 

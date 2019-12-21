@@ -137,17 +137,17 @@ public class MediaFileDao extends AbstractDao {
                      artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.PODCAST.name());
     }
 
-    public List<MediaFile> getSongsForAlbum(MediaFile album, final long offset, final long count) {
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
         return query("select " + QUERY_COLUMNS + " from media_file where parent_path=? and present " +
                 "and type in (?,?,?) order by track_number limit ? offset ?",
                 rowMapper, album.getPath(), MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
                 MediaFile.MediaType.PODCAST.name(), count, offset);
     }
 
-    public List<MediaFile> getSongsForAlbum(String artist, String album, final long offset, final long count) {
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return query("select " + QUERY_COLUMNS + " from media_file where album_artist=? and album=? and present " +
                 "and type in (?,?,?) order by track_number limit ? offset ?",
-                rowMapper, artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
+                rowMapper, albumArtist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
                 MediaFile.MediaType.PODCAST.name(), count, offset);
     }
 
@@ -519,6 +519,20 @@ public class MediaFileDao extends AbstractDao {
                           "and present and genre = :genre limit :count offset :offset", rowMapper, args);
     }
 
+    public List<MediaFile> getAlbumsByGenre(final int offset, final int count, final List<String> genres, final List<MusicFolder> musicFolders) {
+        if (musicFolders.isEmpty() || genres.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("type", MediaFile.MediaType.ALBUM.name());
+        args.put("genres", genres);
+        args.put("folders", MusicFolder.toPathList(musicFolders));
+        args.put("count", count);
+        args.put("offset", offset);
+        return namedQuery("select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) " +
+                "and present and genre in (:genres) order by _order limit :count offset :offset", rowMapper, args);
+    }
+
     public List<MediaFile> getSongsByGenre(final String genre, final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -535,7 +549,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
+        if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
         Map<String, Object> args = new HashMap<>();

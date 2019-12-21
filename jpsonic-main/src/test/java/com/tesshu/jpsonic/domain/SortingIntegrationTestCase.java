@@ -19,6 +19,7 @@
 package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.dao.PlaylistDao;
+import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.MusicFolder;
@@ -54,6 +55,7 @@ import static org.junit.Assert.assertTrue;
 
 /*
  * Test to correct sort inconsistencies.
+ * Testing may not be possible on an OS that does not support fsync.
  */
 public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 
@@ -166,6 +168,22 @@ public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
         return alphaNumList.equals(l);
     }
 
+    @Test
+    public void testCompareGenre() throws Exception {
+
+        List<Genre> genres = Arrays.asList(new Genre("A", 1, 3), new Genre("B", 2, 2), new Genre("C", 3, 1));
+
+        genres.sort(comparators.genreOrder(false));
+        assertEquals("C", genres.get(0).getName());
+        assertEquals("B", genres.get(1).getName());
+        assertEquals("A", genres.get(2).getName());
+
+        genres.sort(comparators.genreOrder(true));
+        assertEquals("A", genres.get(0).getName());
+        assertEquals("B", genres.get(1).getName());
+        assertEquals("C", genres.get(2).getName());
+
+    }
 
     @Test
     public void testCompareAlbums() throws Exception {

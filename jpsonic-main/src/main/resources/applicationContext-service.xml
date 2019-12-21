@@ -12,6 +12,7 @@
     <!-- DAO's -->
     
     <context:component-scan base-package="org.airsonic.player.dao, 
+        org.airsonic.player.domain.logic, 
         org.airsonic.player.service, 
         org.airsonic.player.monitor, 
         org.airsonic.player.ajax, 

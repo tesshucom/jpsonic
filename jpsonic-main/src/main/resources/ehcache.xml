@@ -226,8 +226,22 @@ used with JMX monitors.
     <cache name="searchCache"
            maxElementsInMemory="30"
            eternal="false"
-           timeToIdleSeconds="0"
            timeToLiveSeconds="10"
+           overflowToDisk="false"
+           statistics="false"/>
+
+    <cache name="randomCache"
+           maxElementsInMemory="2"
+           eternal="false"
+           timeToLiveSeconds="2"
+           overflowToDisk="false"
+           statistics="false"/>
+
+    <cache name="indexCache"
+           maxElementsInMemory="1"
+           eternal="false"
+           timeToIdleSeconds="180"
+           timeToLiveSeconds="180"
            overflowToDisk="false"
            statistics="false"/>
 

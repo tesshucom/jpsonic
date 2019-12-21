@@ -60,17 +60,20 @@ public class DLNASettingsController {
         map.put("dlnaEnabled", settingsService.isDlnaEnabled());
         map.put("dlnaServerName", settingsService.getDlnaServerName());
         map.put("dlnaBaseLANURL", settingsService.getDlnaBaseLANURL());
-        map.put("dlnaFileStructureSearch", settingsService.isDlnaFileStructureSearch());
 
         map.put("dlnaAlbumVisible", settingsService.isDlnaAlbumVisible());
         map.put("dlnaArtistVisible", settingsService.isDlnaArtistVisible());
-        map.put("dlnaGenreVisible", settingsService.isDlnaGenreVisible());
+        map.put("dlnaAlbumByGenreVisible", settingsService.isDlnaAlbumByGenreVisible());
+        map.put("dlnaSongByGenreVisible", settingsService.isDlnaSongByGenreVisible());
         map.put("dlnaGenreCountVisible", settingsService.isDlnaGenreCountVisible());
         map.put("dlnaFolderVisible", settingsService.isDlnaFolderVisible());
         map.put("dlnaPlaylistVisible", settingsService.isDlnaPlaylistVisible());
         map.put("dlnaRecentAlbumVisible", settingsService.isDlnaRecentAlbumVisible());
         map.put("dlnaRecentAlbumId3Visible", settingsService.isDlnaRecentAlbumId3Visible());
+        map.put("dlnaRandomAlbumVisible", settingsService.isDlnaRandomAlbumVisible());
+        map.put("dlnaRandomSongVisible", settingsService.isDlnaRandomSongVisible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
+        map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
 
         model.addAttribute("model", map);
         return "dlnaSettings";
@@ -90,17 +93,20 @@ public class DLNASettingsController {
             dlnaServerName = "Jpsonic";
         }
         String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
-        boolean dlnaFileStructureSearch = ServletRequestUtils.getBooleanParameter(request, "dlnaFileStructureSearch", false);
 
         boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumVisible", false);
         boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistVisible", false);
-        boolean dlnaGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaGenreVisible", false);
+        boolean dlnaAlbumByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumByGenreVisible", false);
+        boolean dlnaSongByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaSongByGenreVisible", false);
         boolean dlnaGenreCountVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaGenreCountVisible", false);
         boolean dlnaFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaFolderVisible", false);
         boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPlaylistVisible", false);
         boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumVisible", false);
         boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumId3Visible", false);
+        boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomAlbumVisible", false);
+        boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
+        boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
         
         boolean isEnabledStateChange =
                 !(settingsService.isDlnaEnabled() == dlnaEnabled
@@ -110,17 +116,20 @@ public class DLNASettingsController {
         settingsService.setDlnaEnabled(dlnaEnabled);
         settingsService.setDlnaServerName(dlnaServerName);
         settingsService.setDlnaBaseLANURL(dlnaBaseLANURL);
-        settingsService.setDlnaFileStructureSearch(dlnaFileStructureSearch);
 
         settingsService.setDlnaAlbumVisible(dlnaAlbumVisible);
         settingsService.setDlnaArtistVisible(dlnaArtistVisible);
-        settingsService.setDlnaGenreVisible(dlnaGenreVisible);
+        settingsService.setDlnaAlbumByGenreVisible(dlnaAlbumByGenreVisible);
+        settingsService.setDlnaSongByGenreVisible(dlnaSongByGenreVisible);
         settingsService.setDlnaGenreCountVisible(dlnaGenreCountVisible);
         settingsService.setDlnaFolderVisible(dlnaFolderVisible);
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
         settingsService.setDlnaRecentAlbumId3Visible(dlnaRecentAlbumId3Visible);
+        settingsService.setDlnaRandomAlbumVisible(dlnaRandomAlbumVisible);
+        settingsService.setDlnaRandomSongVisible(dlnaRandomSongVisible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
+        settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
 
         settingsService.save();
 

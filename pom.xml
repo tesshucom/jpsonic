@@ -75,6 +75,7 @@
     <modules>
         <module>subsonic-rest-api</module>
         <module>jpsonic-sonos-api</module>
+        <module>jpsonic-upnp-template</module>
         <module>jpsonic-main</module>
     </modules>
 
@@ -183,6 +184,11 @@
                 <groupId>javax.jws</groupId>
                 <artifactId>javax.jws-api</artifactId>
                 <version>1.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-runtime</artifactId>
+                <version>4.7.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -310,8 +316,6 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.0</version>
                         <configuration>
-                            <!-- #1186 Temporarily skip a test. -->
-                            <excludes>${test.excludes}</excludes>
                         </configuration>
                 </plugin>
                 <plugin>

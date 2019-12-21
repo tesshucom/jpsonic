@@ -20,6 +20,7 @@
 
 package org.airsonic.player.service.search;
 
+import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
@@ -34,13 +35,14 @@ import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.misc.HighFreqTerms;
+import org.apache.lucene.misc.TermStats;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.SearcherManager;
@@ -57,6 +59,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +94,7 @@ public class IndexManager {
      *    DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 17;
+    private static final int INDEX_VERSION = 18;
 
     /**
      * Literal name of index top directory.
@@ -131,9 +134,23 @@ public class IndexManager {
     @Autowired
     private SearchServiceUtilities util;
 
+    @Autowired
+    private JpsonicComparators comparators;
+
+    @Autowired
+    private SettingsService settingsService;
+
     private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
 
     private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
+
+    private enum GenreSort {
+        ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
+    }
+
+    ;
+
+    private Map<GenreSort, List<Genre>> multiGenreMaster = new EnumMap<>(GenreSort.class);
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
@@ -183,6 +200,7 @@ public class IndexManager {
             for (IndexType IndexType : IndexType.values()) {
                 writers.put(IndexType, createIndexWriter(IndexType));
             }
+            clearGenreMaster();
         } catch (IOException e) {
             LOG.error("Failed to create search index.", e);
         }
@@ -192,6 +210,20 @@ public class IndexManager {
         File indexDirectory = getIndexDirectory.apply(indexType);
         IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
         return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
+    }
+
+    private void clearMultiGenreMaster() {
+        multiGenreMaster.clear();
+    }
+
+    private void clearGenreMaster() {
+        try {
+            writers.get(IndexType.GENRE).deleteAll();
+            writers.get(IndexType.GENRE).flush();
+            clearMultiGenreMaster();
+        } catch (IOException e) {
+            LOG.error("Failed to clear genre index.", e);
+        }
     }
 
     public void expunge() {
@@ -249,6 +281,7 @@ public class IndexManager {
      */
     public void stopIndexing(MediaLibraryStatistics statistics) {
         Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
+        clearMultiGenreMaster();
     }
 
     /**
@@ -480,35 +513,103 @@ public class IndexManager {
         return result;
     }
 
-    @Deprecated
-    public void updateArtistSort(Album album) {
-        try {
-            if (isEmpty(album.getArtistSort())) {
-                Term primarykey = documentFactory.createPrimarykey(album);
-                List<Field> updates = documentFactory.createWordsFields.apply(FieldNames.ARTIST_READING, album.getArtistSort());
-                writers.get(IndexType.ALBUM_ID3).updateDocValues(primarykey, updates.toArray(new Field[updates.size()]));
+    List<Genre> getGenres(boolean sortByAlbum) {
+
+        synchronized (multiGenreMaster) {
+            if (multiGenreMaster.isEmpty()) {
+                refreshMultiGenreMaster();
             }
-        } catch (Exception x) {
-            LOG.error("Failed to create search index for " + album, x);
         }
+
+        if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
+            if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
+                return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
+            }
+            synchronized (multiGenreMaster) {
+                List<Genre> albumGenres = new ArrayList<Genre>();
+                if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
+                    albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
+                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                }
+                multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
+                return albumGenres;
+            }
+        } else if (settingsService.isSortGenresByAlphabet()) {
+            if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
+                return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
+            }
+            synchronized (multiGenreMaster) {
+                List<Genre> albumGenres = new ArrayList<Genre>();
+                if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
+                    albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
+                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                }
+                multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
+                return albumGenres;
+            }
+        }
+
+        List<Genre> genres = sortByAlbum
+                ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
+                : multiGenreMaster.get(GenreSort.SONG_COUNT);
+        return isEmpty(genres) ? Collections.emptyList() : genres;
+
     }
 
-    /*
-     * All genre master acquisitions are aggregated into this method.
-     * The current situation uses legacy database tables.
-     * By design, it is possible to process entirely with the index on the lucene side,
-     * so it is possible to hide the implementation without using a DB in this class.
-     */
-    public List<Genre> getGenres(boolean sortByAlbum) {
-        return mediaFileDao.getGenres(sortByAlbum);
-    }
+    private void refreshMultiGenreMaster() {
 
-    public List<Genre> getGenres(boolean sortByAlbum, long offset, long count) {
-        return mediaFileDao.getGenres(sortByAlbum, offset, count);
-    }
+        IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
+        IndexSearcher songSearcher = getSearcher(IndexType.SONG);
+        IndexSearcher albumSearcher = getSearcher(IndexType.ALBUM);
 
-    public int getGenresCount() {
-        return mediaFileDao.getGenresCount();
-    }
+        try {
+            if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
 
+                mayBeInit: synchronized (multiGenreMaster) {
+
+                    multiGenreMaster.clear();
+
+                    int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
+                    Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
+                    TermStats[] stats = null;
+                    try {
+                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
+                    } catch (Exception e) {
+                        LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e.toString());
+                        break mayBeInit;
+                    }
+                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
+
+                    List<Genre> genres = new ArrayList<Genre>();
+                    for (String genreName : genreNames) {
+                        Query query = queryFactory.getGenre(genreName);
+                        TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
+                        int songCount = util.round.apply(topDocs.totalHits.value);
+                        topDocs = albumSearcher.search(query, Integer.MAX_VALUE);
+                        int albumCount = util.round.apply(topDocs.totalHits.value);
+                        genres.add(new Genre(genreName, songCount, albumCount));
+                    }
+
+                    genres.sort(comparators.genreOrder(false));
+                    multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
+
+                    List<Genre> genresByAlbum = new ArrayList<Genre>();
+                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(g -> genresByAlbum.add(g));
+                    genresByAlbum.sort(comparators.genreOrder(true));
+                    multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);
+
+                    LOG.info("The multi-genre master has been updated.");
+
+                }
+
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to execute Lucene search.", e);
+        } finally {
+            release(IndexType.GENRE, genreSearcher);
+            release(IndexType.SONG, songSearcher);
+            release(IndexType.ALBUM, albumSearcher);
+        }
+
+    }
 }

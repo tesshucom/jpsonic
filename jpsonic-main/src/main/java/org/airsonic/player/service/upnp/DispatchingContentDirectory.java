@@ -19,80 +19,113 @@
 */
 package org.airsonic.player.service.upnp;
 
-import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.SearchCriteria;
-import org.airsonic.player.service.*;
-import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.search.UPnPCriteriaDirector;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
+import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
-import org.airsonic.player.service.upnp.processor.GenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RootUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.SongByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
+import org.apache.commons.lang3.StringUtils;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryErrorCode;
 import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
-import org.fourthline.cling.support.model.item.Item;
-import org.fourthline.cling.support.model.item.MusicTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import java.net.URI;
-import java.util.Arrays;
-import java.util.regex.Pattern;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
-/**
- * @author Allen Petersen
- * @author Sindre Mehus
- * @version $Id$
- */
 @Service
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
+    private final int COUNT_MAX = 50;
+
     @Autowired
-    private PlaylistUpnpProcessor playlistProcessor;
+    private RootUpnpProcessor rootProcessor;
 
     @Qualifier("mediaFileUpnpProcessor")
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
 
+    @Lazy
+    @Autowired
+    private PlaylistUpnpProcessor playlistProcessor;
+
+    @Lazy
     @Qualifier("albumUpnpProcessor")
     @Autowired
     private AlbumUpnpProcessor albumProcessor;
 
+    @Lazy
     @Qualifier("recentAlbumUpnpProcessor")
     @Autowired
     private RecentAlbumUpnpProcessor recentAlbumProcessor;
 
+    @Lazy
     @Qualifier("recentAlbumId3UpnpProcessor")
     @Autowired
     private RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
 
+    @Lazy
     @Autowired
     private ArtistUpnpProcessor artistProcessor;
 
+    @Lazy
     @Autowired
-    private GenreUpnpProcessor genreProcessor;
+    private AlbumByGenreUpnpProcessor albumByGenreProcessor;
 
+    @Lazy
     @Autowired
-    private RootUpnpProcessor rootProcessor;
+    private SongByGenreUpnpProcessor songByGenreProcessor;
 
+    @Lazy
+    @Qualifier("indexUpnpProcessor")
     @Autowired
-    private MediaFileService mediaFileService;
+    private IndexUpnpProcessor indexProcessor;
 
+    @Lazy
+    @Qualifier("podcastUpnpProcessor")
     @Autowired
-    private IndexUpnpProcessor IndexUpnpProcessor;
+    private PodcastUpnpProcessor podcastProcessor;
+
+    @Lazy
+    @Qualifier("randomAlbumUpnpProcessor")
+    @Autowired
+    private RandomAlbumUpnpProcessor randomAlbumProcessor;
+
+    @Lazy
+    @Qualifier("randomSongUpnpProcessor")
+    @Autowired
+    private RandomSongUpnpProcessor randomSongProcessor;
+
+    private final UPnPCriteriaDirector criteriaDirector;
+
+    private final SearchService searchService;
+
+    public DispatchingContentDirectory(UPnPCriteriaDirector c, SearchService s) {
+        super();
+        this.criteriaDirector = c;
+        this.searchService = s;
+    }
 
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
@@ -100,10 +133,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                                long maxResults, SortCriterion[] orderBy)
         throws ContentDirectoryException {
 
-        LOG.debug("UPnP request - objectId: " + objectId + ", browseFlag: " + browseFlag + ", filter: " + filter + ", firstResult: " + firstResult + ", maxResults: " + maxResults);
-
-        if (objectId == null)
+        if (isEmpty(objectId)) {
             throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, "objectId is null");
+        }
 
         // maxResult == 0 means all.
         if (maxResults == 0) {
@@ -118,14 +150,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
             @SuppressWarnings("rawtypes")
             UpnpContentProcessor processor = findProcessor(browseRoot);
-            if (processor == null) {
+            if (isEmpty(processor)) {
                 // if it's null then assume it's a file, and that the id
                 // is all that's there.
                 itemId = browseRoot;
                 processor = getMediaFileProcessor();
             }
 
-            if (itemId == null) {
+            if (isEmpty(itemId)) {
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata() : processor.browseRoot(filter, firstResult, maxResults, orderBy);
             } else {
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, maxResults, orderBy);
@@ -137,104 +169,34 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
     }
 
-    private final int COUNT_MAX = 50;
-    
-    /*
-     * Legacy implementation assumes title search(Ignore other fields if specified).
-     */
-    private final Pattern TITLE_SEARCH = Pattern.compile("^.*dc:title.*$");
-    
     @Override
     public BrowseResult search(String containerId,
-                               String criteria, String filter,
+                               String upnpSearchQuery, String filter,
                                long firstResult, long maxResults,
                                SortCriterion[] orderBy) throws ContentDirectoryException {
-        long offset = firstResult;
-        long count = maxResults;
+
+        int offset = (int) firstResult;
+        int count = (int) maxResults;
         if ((offset + count) > COUNT_MAX) {
             count = COUNT_MAX - offset;
         }
-        String upnpClass = criteria.replaceAll("^.*upnp:class\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        String query = criteria.replaceAll("^.*dc:title\\s+[\\S]+\\s+\"([\\S]*)\".*$", "$1");
-        BrowseResult returnValue = null;
 
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setOffset((int) firstResult);
-        searchCriteria.setCount((int) maxResults);
-        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());        
-        searchCriteria.setQuery(query);
+        UPnPSearchCriteria upnpCriteria = criteriaDirector.construct(offset, count, upnpSearchQuery);
 
-        boolean isDlnaFileStructure = settingsService.isDlnaFileStructureSearch();
-
-        if (TITLE_SEARCH.matcher(criteria).matches()) {
-            if ("object.container.person.musicArtist".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ARTIST)
-                        : getArtistProcessor().searchByName(query, offset, count, orderBy);
-            } else if ("object.container.album.musicAlbum".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.ALBUM)
-                        : getAlbumProcessor().searchByName(query, offset, count, orderBy);
-            } else if ("object.item.audioItem".equalsIgnoreCase(upnpClass)) {
-                returnValue = isDlnaFileStructure ? getMediaFileProcessor().search(searchCriteria, IndexType.SONG)
-                        : getMediaFileProcessor().searchByName(query, offset, count, orderBy);
-            }
-        } else {
-            LOG.debug("Does not support field search other than title. QUERY : {}", criteria);
+        if (Artist.class == upnpCriteria.getAssignableClass()) {
+            return getArtistProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (Album.class == upnpCriteria.getAssignableClass()) {
+            return getAlbumProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
+            return getMediaFileProcessor().toBrowseResult(searchService.search(upnpCriteria));
         }
-        return returnValue;
+
+        return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
     }
 
-    @SuppressWarnings("rawtypes")
-    private UpnpContentProcessor findProcessor(String type) {
-        switch (type) {
-            case CONTAINER_ID_ROOT:
-                return getRootProcessor();
-            case CONTAINER_ID_PLAYLIST_PREFIX:
-                return getPlaylistProcessor();
-            case CONTAINER_ID_FOLDER_PREFIX:
-                return getMediaFileProcessor();
-            case CONTAINER_ID_ALBUM_PREFIX:
-                return getAlbumProcessor();
-            case CONTAINER_ID_RECENT_PREFIX:
-                return getRecentAlbumProcessor();
-            case CONTAINER_ID_RECENT_ID3_PREFIX:
-                return getRecentAlbumId3Processor();
-            case CONTAINER_ID_ARTIST_PREFIX:
-                return getArtistProcessor();
-            case CONTAINER_ID_GENRE_PREFIX:
-                return getGenreProcessor();
-            case CONTAINER_ID_INDEX_PREFIX:
-                return getIndexProcessor();
-        }
-        return null;
-    }
-
-    public Item createItem(MediaFile song) {
-        MediaFile parent = mediaFileService.getParentOf(song);
-        MusicTrack item = new MusicTrack();
-        item.setId(String.valueOf(song.getId()));
-        item.setParentID(String.valueOf(parent.getId()));
-        item.setTitle(song.getTitle());
-        item.setAlbum(song.getAlbumName());
-        if (song.getArtist() != null) {
-            item.setArtists(new PersonWithRole[] { new PersonWithRole(song.getArtist()) });
-        }
-        Integer year = song.getYear();
-        if (year != null) {
-            item.setDate(year + "-01-01");
-        }
-        item.setOriginalTrackNumber(song.getTrackNumber());
-        if (song.getGenre() != null) {
-            item.setGenres(new String[] { song.getGenre() });
-        }
-        item.setResources(Arrays.asList(createResourceForSong(song)));
-        item.setDescription(song.getComment());
-        item.addProperty(new DIDLObject.Property.UPNP.ALBUM_ART_URI(getAlbumArtUrl(parent.getId())));
-
-        return item;
-    }
-
-    private final URI getAlbumArtUrl(int id) {
-        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(getBaseUrl() + "/ext/coverArt.view").queryParam("id", id).queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
+    @Override
+    public RootUpnpProcessor getRootProcessor() {
+        return rootProcessor;
     }
 
     @Override
@@ -267,18 +229,33 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public GenreUpnpProcessor getGenreProcessor() {
-        return genreProcessor;
+    public AlbumByGenreUpnpProcessor getAlbumByGenreProcessor() {
+        return albumByGenreProcessor;
     }
 
     @Override
-    public RootUpnpProcessor getRootProcessor() {
-        return rootProcessor;
+    public SongByGenreUpnpProcessor getSongByGenreProcessor() {
+        return songByGenreProcessor;
     }
 
     @Override
     public IndexUpnpProcessor getIndexProcessor() {
-        return IndexUpnpProcessor;
+        return indexProcessor;
+    }
+
+    @Override
+    public PodcastUpnpProcessor getPodcastProcessor() {
+        return podcastProcessor;
+    }
+
+    @Override
+    public RandomAlbumUpnpProcessor getRandomAlbumProcessor() {
+        return randomAlbumProcessor;
+    }
+
+    @Override
+    public RandomSongUpnpProcessor getRandomSongProcessor() {
+        return randomSongProcessor;
     }
 
 }

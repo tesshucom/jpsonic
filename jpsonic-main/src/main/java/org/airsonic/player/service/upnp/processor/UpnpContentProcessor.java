@@ -19,10 +19,6 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.ParamSearchResult;
-import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -30,32 +26,24 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.List;
-import java.util.ResourceBundle;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
-    @Autowired
-    private UpnpProcessDispatcher dispatcher;
+    private final UpnpProcessDispatcher dispatcher;
 
-    @Autowired
-    private SettingsService settingsService;
-    
-    @Autowired
-    private SearchService searchService;
-
-    private static ResourceBundle resourceBundle;
+    private final UpnpProcessorUtil util;
 
     private String rootTitle;
 
     private String rootId;
+
+    public UpnpContentProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util) {
+        super();
+        this.dispatcher = dispatcher;
+        this.util = util;
+    }
 
     /**
      * Browses the root metadata for a type.
@@ -70,7 +58,6 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         Container container = new StorageFolder();
         container.setId(getRootId());
         container.setTitle(getRootTitle());
-
         int childCount = getItemCount();
         container.setChildCount(childCount);
         container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
@@ -112,33 +99,11 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return createBrowseResult(didl, selectedChildren.size(), getChildSizeOf(item));
     }
 
-    protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
+    protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
         return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
     }
 
-    public BrowseResult searchByName(String name, long firstResult, long maxResults, SortCriterion[] orderBy) {
-        DIDLContent didl = new DIDLContent();
-
-        @SuppressWarnings("rawtypes")
-        Class clazz = (Class) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-
-        try {
-
-            List<MusicFolder> allFolders = getAllMusicFolders();
-            @SuppressWarnings({ "unchecked", "deprecation" })
-            ParamSearchResult<T> result = searchService.searchByName(name, (int) firstResult, (int) maxResults, allFolders, clazz);
-            List<T> selectedItems = result.getItems();
-            for (T item : selectedItems) {
-                addItem(didl, item);
-            }
-            return createBrowseResult(didl, (int) didl.getCount(), result.getTotalHits());
-
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    protected UpnpProcessDispatcher getDispatcher() {
+    protected final UpnpProcessDispatcher getDispatcher() {
         return dispatcher;
     }
 
@@ -172,15 +137,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     public abstract void initTitle();
 
-    protected final String getResource(String key) {
-        if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle", settingsService.getLocale());
-        }
-        return resourceBundle.getString(key);
-    }
-
     protected final void setRootTitleWithResource(String key) {
-        setRootTitle(getResource(key));
+        setRootTitle(util.getResource(key));
     }
 
     protected final void setRootTitle(String rootTitle) {
@@ -193,22 +151,6 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     protected final void setRootId(String rootId) {
         this.rootId = rootId;
-    }
-
-    protected final List<MusicFolder> getAllMusicFolders() {
-        return settingsService.getAllMusicFolders();
-    }
-
-    protected final boolean isSortAlbumsByYear() {
-        return settingsService.isSortAlbumsByYear();
-    }
-
-    protected final boolean isProhibitSortVarious() {
-        return settingsService.isProhibitSortVarious();
-    }
-
-    protected final boolean isDlnaGenreCountVisible() {
-        return settingsService.isDlnaGenreCountVisible();
     }
 
 }

@@ -100,6 +100,7 @@ public class SettingsService {
     private static final String KEY_ORGANIZE_BY_FOLDER_STRUCTURE = "OrganizeByFolderStructure";
     private static final String KEY_INDEX_ENGLISH_PRIOR = "IndexEnglishPrior";
     private static final String KEY_SORT_ALBUMS_BY_YEAR = "SortAlbumsByYear";
+    private static final String KEY_SORT_GENRES_BY_ALPHABET = "SortGenresByAlphabet";
     private static final String KEY_PROHIBIT_SORT_VARIOUS = "ProhibitSortVarious";
     private static final String KEY_SORT_ALPHANUM = "SortAlphanum";
     private static final String KEY_SORT_STRICT = "SortStrict";
@@ -109,16 +110,19 @@ public class SettingsService {
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
-    private static final String KEY_DLNA_FILE_STRUCTURE_SEARCH = "DlnaFileStructureSearch";
     private static final String KEY_DLNA_ALBUM_VISIBLE = "DlnaAlbumVisible";
     private static final String KEY_DLNA_ARTIST_VISIBLE = "DlnaArtistVisible";
-    private static final String KEY_DLNA_GENRE_VISIBLE = "DlnaGenreVisible";
+    private static final String KEY_DLNA_ALBUM_BY_GENRE_VISIBLE = "DlnaAlbumByGenreVisible";
+    private static final String KEY_DLNA_SONG_BY_GENRE_VISIBLE = "DlnaSongByGenreVisible";
     private static final String KEY_DLNA_GENRE_COUNT_VISIBLE = "DlnaGenreCountVisible";
     private static final String KEY_DLNA_FOLDER_VISIBLE = "DlnaFolderVisible";
     private static final String KEY_DLNA_PLAYLIST_VISIBLE = "DlnaPlaylistVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE = "DlnaRecentAlbumId3Visible";
     private static final String KEY_DLNA_INDEX_VISIBLE = "DlnaIndexVisible";
+    private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
+    private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
+    private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
@@ -193,6 +197,7 @@ public class SettingsService {
     private static final boolean DEFAULT_ORGANIZE_BY_FOLDER_STRUCTURE = true;
     private static final boolean DEFAULT_INDEX_ENGLISH_PRIOR = true;
     private static final boolean DEFAULT_SORT_ALBUMS_BY_YEAR = true;
+    private static final boolean DEFAULT_SORT_GENRES_BY_ALPHABET = false;
     private static final boolean DEFAULT_PROHIBIT_SORT_VARIOUS = true;
     private static final boolean DEFAULT_SORT_ALPHANUM = true;
     private static final boolean DEFAULT_SORT_STRICT = true;
@@ -202,17 +207,20 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
-    private static final boolean DEFAULT_DLNA_FILE_STRUCTURE_SEARCH = true;
     private static final boolean DEFAULT_DLNA_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_ARTIST_VISIBLE = true;
-    private static final boolean DEFAULT_DLNA_GENRE_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_ALBUM_BY_GENRE_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_SONG_BY_GENRE_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_GENRE_COUNT_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_FOLDER_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_PLAYLIST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_INDEX_VISIBLE = true;
-    
+    private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
+
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
@@ -779,6 +787,14 @@ public class SettingsService {
         setBoolean(KEY_SORT_ALBUMS_BY_YEAR, b);
     }
 
+    public boolean isSortGenresByAlphabet() {
+        return getBoolean(KEY_SORT_GENRES_BY_ALPHABET, DEFAULT_SORT_GENRES_BY_ALPHABET);
+    }
+
+    public void setSortGenresByAlphabet(boolean b) {
+        setBoolean(KEY_SORT_GENRES_BY_ALPHABET, b);
+    }
+
     public boolean isProhibitSortVarious() {
         return getBoolean(KEY_PROHIBIT_SORT_VARIOUS, DEFAULT_PROHIBIT_SORT_VARIOUS);
     }
@@ -1300,14 +1316,6 @@ public class SettingsService {
         setString(KEY_DLNA_BASE_LAN_URL, dlnaBaseLANURL);
     }
 
-    public boolean isDlnaFileStructureSearch() {
-        return getBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, DEFAULT_DLNA_FILE_STRUCTURE_SEARCH);
-    }
-
-    public void setDlnaFileStructureSearch(boolean b) {
-        setBoolean(KEY_DLNA_FILE_STRUCTURE_SEARCH, b);
-    }
-
     public boolean isDlnaAlbumVisible() {
         return getBoolean(KEY_DLNA_ALBUM_VISIBLE, DEFAULT_DLNA_ALBUM_VISIBLE);
     }
@@ -1324,12 +1332,20 @@ public class SettingsService {
         setBoolean(KEY_DLNA_ARTIST_VISIBLE, b);
     }
 
-    public boolean isDlnaGenreVisible() {
-        return getBoolean(KEY_DLNA_GENRE_VISIBLE, DEFAULT_DLNA_GENRE_VISIBLE);
+    public boolean isDlnaAlbumByGenreVisible() {
+        return getBoolean(KEY_DLNA_ALBUM_BY_GENRE_VISIBLE, DEFAULT_DLNA_ALBUM_BY_GENRE_VISIBLE);
     }
 
-    public void setDlnaGenreVisible(boolean b) {
-        setBoolean(KEY_DLNA_GENRE_VISIBLE, b);
+    public void setDlnaAlbumByGenreVisible(boolean b) {
+        setBoolean(KEY_DLNA_ALBUM_BY_GENRE_VISIBLE, b);
+    }
+
+    public boolean isDlnaSongByGenreVisible() {
+        return getBoolean(KEY_DLNA_SONG_BY_GENRE_VISIBLE, DEFAULT_DLNA_SONG_BY_GENRE_VISIBLE);
+    }
+
+    public void setDlnaSongByGenreVisible(boolean b) {
+        setBoolean(KEY_DLNA_SONG_BY_GENRE_VISIBLE, b);
     }
 
     public boolean isDlnaGenreCountVisible() {
@@ -1378,6 +1394,30 @@ public class SettingsService {
 
     public void setDlnaIndexVisible(boolean b) {
         setBoolean(KEY_DLNA_INDEX_VISIBLE, b);
+    }
+
+    public boolean isDlnaPodcastVisible() {
+        return getBoolean(KEY_DLNA_PODCAST_VISIBLE, DEFAULT_DLNA_PODCAST_VISIBLE);
+    }
+
+    public boolean isDlnaRandomAlbumVisible() {
+        return getBoolean(KEY_DLNA_RANDOM_ALBUM_VISIBLE, DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE);
+    }
+
+    public void setDlnaRandomAlbumVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_ALBUM_VISIBLE, b);
+    }
+
+    public boolean isDlnaRandomSongVisible() {
+        return getBoolean(KEY_DLNA_RANDOM_SONG_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_VISIBLE);
+    }
+
+    public void setDlnaRandomSongVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_VISIBLE, b);
+    }
+
+    public void setDlnaPodcastVisible(boolean b) {
+        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
     }
 
     public boolean isSonosEnabled() {

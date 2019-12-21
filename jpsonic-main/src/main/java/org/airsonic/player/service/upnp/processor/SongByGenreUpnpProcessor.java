@@ -34,24 +34,23 @@ import javax.annotation.PostConstruct;
 
 import java.util.List;
 
-/**
- * @author Allen Petersen
- * @version $Id$
- */
 @Service
-public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
+public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
 
     private SearchService searchService;
-    
-    public GenreUpnpProcessor(SearchService searchService) {
-        super();
+
+    private final UpnpProcessorUtil util;
+
+    public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService) {
+        super(dispatcher, util);
+        this.util = util;
         this.searchService = searchService;
-        setRootId(UpnpProcessDispatcher.CONTAINER_ID_GENRE_PREFIX);
+        setRootId(UpnpProcessDispatcher.CONTAINER_ID_SONG_BY_GENRE_PREFIX);
     }
 
     @PostConstruct
     public void initTitle() {
-        setRootTitleWithResource("dlna.title.genres");
+        setRootTitleWithResource("dlna.title.songbygenres");
     }
 
     /**
@@ -70,22 +69,21 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     @Deprecated
     public Container createContainer(Genre item) {
-        // genre uses index because we don't have a proper id
         return null;
     }
 
-    private final Container createContainer(Genre item, int index) {
+    protected Container createContainer(Genre item, int index) {
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
-        container.setTitle(isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
-        container.setChildCount(item.getAlbumCount());
+        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
+        container.setChildCount(item.getSongCount());
         return container;
     }
 
     @Override
     public int getItemCount() {
-        return searchService.getGenresCount();
+        return searchService.getGenresCount(false);
     }
 
     @Override
@@ -104,12 +102,12 @@ public class GenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> 
 
     @Override
     public int getChildSizeOf(Genre item) {
-        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, getAllMusicFolders()).size();
+        return searchService.getSongsByGenres(item.getName(), 0, Integer.MAX_VALUE, util.getAllMusicFolders()).size();
     }
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, getAllMusicFolders());
+        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
     public void addChild(DIDLContent didl, MediaFile child) {

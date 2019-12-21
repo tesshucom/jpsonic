@@ -18,7 +18,8 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.MediaFileDao;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolderContent;
@@ -40,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,13 +52,13 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
-
-    private final MediaFileDao mediaFileDao;
+    private final UpnpProcessorUtil util;
 
     private final MediaFileService mediaFileService;
 
     private final MusicIndexService musicIndexService;
+
+    private final Ehcache indexCache;
 
     private MusicFolderContent content;
 
@@ -66,11 +66,12 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, MusicIndexService musicIndexService) {
-        super();
-        this.mediaFileDao = mediaFileDao;
+    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
+        super(dispatcher, util);
+        this.util = util;
         this.mediaFileService = mediaFileService;
         this.musicIndexService = musicIndexService;
+        this.indexCache = indexCache;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
@@ -101,11 +102,13 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     public Container createContainer(MediaFile item) {
         MusicAlbum container = new MusicAlbum();
         if (item.isAlbum()) {
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().getAlbumArtURI(item.getId()) });
+            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
             if (item.getArtist() != null) {
                 container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
             }
             container.setDescription(item.getComment());
+        } else if (item.isDirectory()) {
+            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createArtistArtURI(item) });
         }
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
         container.setTitle(item.getName());
@@ -122,12 +125,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream()).collect(Collectors.toList()), offset, maxResults);
         }
         if (item.isAlbum()) {
-            return mediaFileDao.getSongsForAlbum(item, offset, maxResults);
+            return mediaFileService.getSongsForAlbum(offset, maxResults, item);
         }
         if (MediaType.DIRECTORY == item.getMediaType()) {
-            // TODO #340
-            boolean isSortAlbumsByYear = isSortAlbumsByYear() && !(isProhibitSortVarious() && isVarious.matcher(item.getName().toLowerCase()).matches());
-            return mediaFileService.getChildrenOf(item, offset, maxResults, isSortAlbumsByYear);
+            return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getArtist()));
         }
         return mediaFileService.getChildrenOf(item, offset, maxResults, false);
     }
@@ -137,7 +138,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (isIndex(item)) {
             return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
         }
-        return mediaFileDao.getChildSizeOf(item.getPath());
+        return mediaFileService.getChildSizeOf(item);
     }
 
     public MediaFile getItemById(String ids) {
@@ -150,7 +151,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     @Override
     public int getItemCount() {
-        initIndex();
+        refreshIndex();
         return topNodes.size();
     }
 
@@ -182,20 +183,17 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
-    private final void initIndex() {
-        if (isEmpty(content) || 0 == content.getIndexedArtists().size()) {
-            content = musicIndexService.getMusicFolderContent(getAllMusicFolders(), true);
+    private final synchronized void refreshIndex() {
+        Element element = indexCache.getQuiet("content");
+        boolean expired = isEmpty(element) || indexCache.isExpired(element);
+        if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
+            content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
+            indexCache.put(new Element("content", content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();
             indexes.forEach(i -> indexesMap.put(i.getId(), i));
             topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
         }
-    }
-
-    public final void clearIndex() {
-        content = null;
-        indexesMap = null;
-        topNodes = null;
     }
 
     private final boolean isIndex(int id) {

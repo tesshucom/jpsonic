@@ -23,9 +23,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.*;
 
-import org.airsonic.player.controller.CoverArtController;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.util.StringUtil;
@@ -70,6 +70,8 @@ public class SonosHelper {
     private LastFmService lastFmService;
     @Autowired
     private PodcastService podcastService;
+    @Autowired
+    private CoverArtLogic coverArtLogic;
 
     public List<AbstractMedia> forRoot() {
         MediaMetadata shuffle = new MediaMetadata();
@@ -270,7 +272,7 @@ public class SonosHelper {
         for (Playlist playlist : playlistService.getReadablePlaylistsForUser(username)) {
             MediaCollection mediaCollection = new MediaCollection();
             AlbumArtUrl albumArtURI = new AlbumArtUrl();
-            albumArtURI.setValue(getCoverArtUrl(CoverArtController.PLAYLIST_COVERART_PREFIX + playlist.getId(), request));
+            albumArtURI.setValue(getCoverArtUrl(coverArtLogic.createKey(playlist), request));
 
             mediaCollection.setId(SonosService.ID_PLAYLIST_PREFIX + playlist.getId());
             mediaCollection.setCanPlay(true);
@@ -694,4 +696,9 @@ public class SonosHelper {
     public void setPodcastService(PodcastService podcastService) {
         this.podcastService = podcastService;
     }
+
+    public void setCoverArtLogic(CoverArtLogic coverArtLogic) {
+        this.coverArtLogic = coverArtLogic;
+    }
+
 }

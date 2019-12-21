@@ -28,6 +28,7 @@ package org.airsonic.player.domain;
 public class Genre {
 
     private final String name;
+    private transient String reading;
     private int songCount;
     private int albumCount;
 
@@ -60,4 +61,13 @@ public class Genre {
     public void incrementSongCount() {
         songCount++;
     }
+
+    public String getReading() {
+        return reading;
+    }
+
+    public void setReading(String reading) {
+        this.reading = reading;
+    }
+
 }

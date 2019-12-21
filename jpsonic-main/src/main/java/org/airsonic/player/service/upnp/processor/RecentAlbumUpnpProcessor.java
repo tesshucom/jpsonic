@@ -18,10 +18,9 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -35,11 +34,22 @@ import java.util.List;
 @Service
 public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
+    private final UpnpProcessorUtil util;
+
+    private final MediaFileService mediaFileService;
+
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(MediaFileDao mediaFileDao, MediaFileService mediaFileService, SearchService searchService) {
-        super(mediaFileDao, mediaFileService, searchService);
+    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PlayerService playerService) {
+        super(dispatcher, util, mediaFileService, playerService);
+        this.util = util;
+        this.mediaFileService = mediaFileService;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
+    }
+
+    @PostConstruct
+    public void initTitle() {
+        setRootTitleWithResource("dlna.title.recentAlbums");
     }
 
     public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
@@ -53,18 +63,13 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public int getItemCount() {
-        int count = mediaFileDao.getAlbumCount(getAllMusicFolders());
+        int count = mediaFileService.getAlbumCount(util.getAllMusicFolders());
         return Math.min(count, RECENT_COUNT);
     }
 
     @Override
     public List<MediaFile> getItems(long first, long max) {
-        return mediaFileDao.getNewestAlbums(first, max, getAllMusicFolders());
-    }
-
-    @PostConstruct
-    public void initTitle() {
-        setRootTitleWithResource("dlna.title.recentAlbums");
+        return mediaFileService.getNewestAlbums((int) first, (int) max, util.getAllMusicFolders());
     }
 
 }

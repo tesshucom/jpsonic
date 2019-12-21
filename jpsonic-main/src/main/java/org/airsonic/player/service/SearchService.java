@@ -29,6 +29,7 @@ import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 
 import java.util.List;
 
@@ -41,18 +42,25 @@ import java.util.List;
  */
 public interface SearchService {
 
+    /**
+     * Perform a multi-field search corresponding to SearchCriteria.
+     * 
+     * It is the most popular search inherited from legacy servers
+     * and has been used from the Web and REST since ancient times.
+     * 
+     * @return search　result
+     */
     SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType);
 
     /**
-     * Method equivalent to Legecy's searchByName.
-     * However, Legegy handles ID3, but this method uses the same method as "search".
-     * This is a way to provide a file/ID3 multi-field search that is valid for DLNA search
-     * and provides the same specification to the user as a Web/REST search.
+     * Perform a search that comply with the UPnP Service Template with UPnPSearchCriteria.
+     * Criteria is built using a dedicated Director class (UPnPCriteriaDirector).
      * 
-     * @since 105.3.0
+     * @param <T> see UPnPSearchCriteria#getAssignableClass
+     * @since 106.1.0
      * @return search　result
      */
-    ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType);
+    <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria);
 
     /**
      * Returns a number of random songs.
@@ -61,6 +69,25 @@ public interface SearchService {
      * @return List of random songs.
      */
     List<MediaFile> getRandomSongs(RandomSearchCriteria criteria);
+
+    /**
+     * Returns random songs.
+     * The song returned by this list is limited to MesiaType=SONG.
+     * In other words, PODCAST, AUDIOBOOK and VIDEO are not included.
+     * 
+     * This method uses a very short-lived cache.
+     * This cache is not for long-running transactions like paging,
+     * but for short-term repetitive calls.
+     * 
+     * @since 106.1.0
+     * @param count        Number of albums to return.
+     * @param offset       offset
+     * @param casheMax     Data duplication due to paging is avoided
+     *                     when the cache is an iterative call within the valid period.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
      * Returns a number of random albums.
@@ -72,7 +99,7 @@ public interface SearchService {
     List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders);
 
     /**
-     * Returns a number of random albums, using ID3 tag.
+     * Returns random albums, using ID3 tag.
      *
      * @param count Number of albums to return.
      * @param musicFolders Only return albums from these folders.
@@ -81,12 +108,21 @@ public interface SearchService {
     List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders);
 
     /**
-     * Design change required.
-     * @deprecated
+     * Returns random albums, using ID3 tag.
+     * 
+     * Unlike getRandom Album Id3, this method uses a very short-lived.
+     * This cache is not for long-running transactions like paging,
+     * but for short-term repetitive calls.
+     * 
+     * @since 106.1.0
+     * @param count        Number of albums to return.
+     * @param offset       offset
+     * @param casheMax     Data duplication due to paging is avoided
+     *                     when the cache  is an iterative call within the valid period.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
      */
-    @Deprecated
-    <T> ParamSearchResult<T> searchByName(
-            String name, int offset, int count, List<MusicFolder> folderList, Class<T> clazz);
+    List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
      * Returns all genres in the music collection.
@@ -112,9 +148,10 @@ public interface SearchService {
      * Returns count of Genres.
      * 
      * @since 105.3.0
+     * @param sortByAlbum Whether to sort by album count, rather than song count.
      * @return Count of Genres
      */
-    int getGenresCount();
+    int getGenresCount(boolean sortByAlbum);
 
     /**
      * Returns albums in a genre.

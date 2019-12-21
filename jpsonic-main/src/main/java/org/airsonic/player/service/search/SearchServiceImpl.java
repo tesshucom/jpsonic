@@ -20,15 +20,13 @@
 
 package org.airsonic.player.service.search;
 
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +39,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.airsonic.player.service.search.IndexType.*;
+import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_ALBUM;
+import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -62,9 +62,6 @@ public class SearchServiceImpl implements SearchService {
 
     @Autowired
     private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private Ehcache searchCache;
 
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
@@ -97,7 +94,7 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Web/FileStructure : {} -> {}", indexType, criteria.getQuery());
+                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
@@ -108,39 +105,71 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public ParamSearchResult<MediaFile> search(SearchCriteria criteria, IndexType indexType) {
+    public <T> ParamSearchResult<T> search(UPnPSearchCriteria criteria) {
 
         int offset = criteria.getOffset();
         int count = criteria.getCount();
 
-        ParamSearchResult<MediaFile> result = new ParamSearchResult<>();
+        ParamSearchResult<T> result = new ParamSearchResult<>();
         result.setOffset(offset);
 
-        if (count <= 0)
+        if (count <= 0) {
             return result;
+        }
+
+        IndexType indexType = null;
+        if (Artist.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ARTIST_ID3;
+        } else if (Album.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ALBUM_ID3;
+        } else if (MediaFile.class == criteria.getAssignableClass()) {
+            indexType = IndexType.SONG;
+        }
+
+        if (isEmpty(indexType)) {
+            return result;
+        }
 
         IndexSearcher searcher = indexManager.getSearcher(indexType);
         if (isEmpty(searcher)) {
             return result;
         }
 
-        try {
-            Query query = queryFactory.search(criteria, settingsService.getAllMusicFolders(), indexType);
+        if (settingsService.isOutputSearchQuery()) {
+            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+        }
 
-            TopDocs topDocs = searcher.search(query, offset + count);
+        try {
+
+            TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
-            for (int i = start; i < end; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addIgnoreNull(result, indexType, util.getId.apply(doc), MediaFile.class);
-            }
-
-            if (settingsService.isOutputSearchQuery()) {
-                LOG.info("UPnP/FileStructure : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+            if (ARTIST_ID3 == indexType) {
+                ParamSearchResult<Artist> artistResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(artistResult, indexType, util.getId.apply(doc), Artist.class);
+                }
+                artistResult.getItems().forEach(a -> result.getItems().add((T) a));
+            } else if (ALBUM_ID3 == indexType) {
+                ParamSearchResult<Album> albumResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
+                }
+                albumResult.getItems().forEach(a -> result.getItems().add((T) a));
+            } else if (IndexType.SONG == indexType) {
+                ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
+                for (int i = start; i < end; i++) {
+                    Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
+                    util.addIgnoreNull(songResult, indexType, util.getId.apply(doc), MediaFile.class);
+                }
+                songResult.getItems().forEach(a -> result.getItems().add((T) a));
             }
 
         } catch (IOException e) {
@@ -149,6 +178,7 @@ public class SearchServiceImpl implements SearchService {
             indexManager.release(indexType, searcher);
         }
         return result;
+        
     }
 
     /**
@@ -201,6 +231,53 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
+    public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+
+        final List<MediaFile> result = new ArrayList<>();
+        Consumer<List<Integer>> addSubToResult = (ids) ->
+            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+                .forEach(id -> util.addIgnoreNull(result, SONG, id));
+        util.getCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
+        }
+
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
+        if (isEmpty(searcher)) {
+            return result;
+        }
+
+        Query query = queryFactory.getRandomSongs(musicFolders);
+
+        try {
+
+            List<Integer> docs = Arrays
+                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                    .map(sd -> sd.doc)
+                    .collect(Collectors.toList());
+
+            List<Integer> ids = new ArrayList<>();
+            while (!docs.isEmpty() && ids.size() < casheMax) {
+                int randomPos = util.nextInt.apply(docs.size());
+                Document document = searcher.doc(docs.get(randomPos));
+                ids.add(util.getId.apply(document));
+                docs.remove(randomPos);
+            }
+
+            util.putCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders, ids);
+
+            addSubToResult.accept(ids);
+
+        } catch (IOException e) {
+            LOG.error("Failed to search for random songs.", e);
+        } finally {
+            indexManager.release(IndexType.SONG, searcher);
+        }
+
+        return result;
+    }
+
+    @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
         IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
@@ -247,147 +324,87 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public <T> ParamSearchResult<T> searchByName(String name, int offset, int count,
-            List<MusicFolder> folderList, Class<T> assignableClass) {
+    public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
-        // we only support album, artist, and song for now
-        @Nullable
-        IndexType indexType = util.getIndexType.apply(assignableClass);
-        @Nullable
-        String fieldName = util.getFieldName.apply(assignableClass);
-
-        ParamSearchResult<T> result = new ParamSearchResult<T>();
-        result.setOffset(offset);
-
-        if (isEmpty(indexType) || isEmpty(fieldName) || count <= 0) {
+        final List<Album> result = new ArrayList<>();
+        Consumer<List<Integer>> addSubToResult = (ids) ->
+            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+                .forEach(id -> util.addIgnoreNull(result, ALBUM_ID3, id));
+        util.getCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
+        if (0 < result.size()) {
             return result;
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
             return result;
         }
 
+        Query query = queryFactory.getRandomAlbumsId3(musicFolders);
+
         try {
 
-            Query query = queryFactory.searchByName(fieldName, name);
+            List<Integer> docs = Arrays
+                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
+                    .map(sd -> sd.doc)
+                    .collect(Collectors.toList());
 
-            SortField[] sortFields = Arrays
-                    .stream(indexType.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING))
-                    .toArray(i -> new SortField[i]);
-            Sort sort = new Sort(sortFields);
-
-            TopDocs topDocs = searcher.search(query, offset + count, sort);
-
-            int totalHits = util.round.apply(topDocs.totalHits.value);
-            result.setTotalHits(totalHits);
-            int start = Math.min(offset, totalHits);
-            int end = Math.min(start + count, totalHits);
-
-            for (int i = start; i < end; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addIgnoreNull(result, indexType, util.getId.apply(doc), assignableClass);
+            List<Integer> ids = new ArrayList<>();
+            while (!docs.isEmpty() && ids.size() < casheMax) {
+                int randomPos = util.nextInt.apply(docs.size());
+                Document document = searcher.doc(docs.get(randomPos));
+                ids.add(util.getId.apply(document));
+                docs.remove(randomPos);
             }
 
-            if (settingsService.isOutputSearchQuery()) {
-                LOG.info("UPnP/ID3 : {} -> query:{}", fieldName, name);
-            }
+            util.putCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders, ids);
+
+            addSubToResult.accept(ids);
 
         } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
+            LOG.error("Failed to search for random albums.", e);
         } finally {
-            indexManager.release(indexType, searcher);
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
+
         return result;
     }
 
     @Override
-    public List<Genre> getGenres(boolean sortByAlbum) {
+    public synchronized List<Genre> getGenres(boolean sortByAlbum) {
         return indexManager.getGenres(sortByAlbum);
     }
 
     @Override
     public List<Genre> getGenres(boolean sortByAlbum, long offset, long maxResults) {
-        return indexManager.getGenres(sortByAlbum, offset, maxResults);
+        List<Genre> genres = getGenres(sortByAlbum);
+        return genres.subList((int) offset, Math.min(genres.size(), (int) (offset + maxResults)));
     }
-    
+
     @Override
-    public int getGenresCount() {
-        return indexManager.getGenresCount();
-    }
-
-    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        StringBuilder b = new StringBuilder();
-        b.append(genres);
-        b.append("[");
-        musicFolders.forEach(m -> b.append(m.getId()).append(","));
-        b.append("]");
-        b.append(indexType.name());
-        return b.toString();
-    }
-
-    @SuppressWarnings("unchecked")
-    private Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
-        List<MediaFile> mediaFiles = null;
-        Element element = null;
-        synchronized (searchCache) {
-            element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
-        }
-        if (!isEmpty(element)) {
-            mediaFiles = (List<MediaFile>) element.getObjectValue();
-        }
-        return Optional.ofNullable(mediaFiles);
-    }
-
-    private void putCache(String genres, List<MusicFolder> musicFolders, IndexType indexType, List<MediaFile> value) {
-        synchronized (searchCache) {
-            searchCache.put(new Element(createCacheKey(genres, musicFolders, indexType), value));
-        }
-    }
-
-    private List<MediaFile> getMediasByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders,
-            IndexType indexType, SortField[] sortFields) {
-
-        if (isEmpty(genres)) {
-            return Collections.emptyList();
-        }
-
-        IndexSearcher searcher = indexManager.getSearcher(indexType);
-        if (isEmpty(searcher)) {
-            return Collections.emptyList();
-        }
-
-        List<MediaFile> result = new ArrayList<>();
-        try {
-            Query query = queryFactory.getMediasByGenres(genres, musicFolders);
-            Sort sort = new Sort(sortFields);
-            TopDocs topDocs = searcher.search(query, offset + count, sort);
-
-            int totalHits = util.round.apply(topDocs.totalHits.value);
-            int start = Math.min(offset, totalHits);
-            int end = Math.min(start + count, totalHits);
-
-            for (int i = start; i < end; i++) {
-                Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addMediaFileIfAnyMatch.accept(result, util.getId.apply(doc));
-            }
-
-        } catch (IOException e) {
-            LOG.error("Failed to execute Lucene search.", e);
-        } finally {
-            indexManager.release(indexType, searcher);
-        }
-        return result;
-
+    public int getGenresCount(boolean sortByAlbum) {
+        return getGenres(sortByAlbum).size();
     }
 
     @Override
     public List<MediaFile> getAlbumsByGenres(String genres, int offset, int count, List<MusicFolder> musicFolders) {
-        SortField[] sortFields = Arrays.stream(IndexType.ALBUM.getFields())
-                .map(n -> new SortField(n, SortField.Type.STRING))
-                .toArray(i -> new SortField[i]);
-        return getMediasByGenres(genres, offset, count, musicFolders, IndexType.ALBUM, sortFields);
+        if (isEmpty(genres)) {
+            return Collections.emptyList();
+        }
+
+        final List<MediaFile> result = new ArrayList<>();
+        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
+            result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+        util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
+        }
+
+        List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
+        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList, musicFolders);
+        util.putCache(genres, musicFolders, IndexType.ALBUM, cache);
+        addSubToResult.accept(cache);
+        return result;
     }
 
     @Override
@@ -435,19 +452,16 @@ public class SearchServiceImpl implements SearchService {
         }
 
         final List<MediaFile> result = new ArrayList<>();
-
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
             result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
-
-        getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
+        util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
         final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE, musicFolders);
-        putCache(genres, musicFolders, IndexType.SONG, cache);
-
+        util.putCache(genres, musicFolders, IndexType.SONG, cache);
         addSubToResult.accept(cache);
         return result;
     }
