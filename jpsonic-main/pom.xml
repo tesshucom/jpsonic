@@ -16,6 +16,7 @@
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
         <jpsonic.version>106.1.1-SNAPSHOT</jpsonic.version>
+        <jetty.version>9.4.24.v20191120</jetty.version>
     </properties>
 
     <dependencies>
@@ -534,11 +535,14 @@
             <artifactId>spring-boot-starter-jetty</artifactId>
             <scope>provided</scope>
         </dependency>
+        <!-- @see #367
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jsp</artifactId>
+            <version>${jetty.version}</version>
             <scope>provided</scope>
         </dependency>
+        -->
 
         <!-- Provided by the servlet container, but found by dependency:analyze even if used via reflection -->
         <dependency>
@@ -717,10 +721,11 @@
                 <groupId>net.nicoulaj.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
             </plugin>
+            <!-- @see #367
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jspc-maven-plugin</artifactId>
-                <version>9.4.19.v20190610</version>
+                <version>${jetty.version}</version>
                 <executions>
                     <execution>
                         <id>jspc</id>
@@ -729,15 +734,16 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
-                            <!-- Since we are using spring boot - we do not have a web.xml so there is no sense
+                            < Since we are using spring boot - we do not have a web.xml so there is no sense
                             enabling merging. Furthermore, we output the webXmlFragment to the target/classes
-                            directory such that it will be on the classpath for use during runtime -->
+                            directory such that it will be on the classpath for use during runtime >
                             <mergeFragment>false</mergeFragment>
                             <webXmlFragment>${project.build.outputDirectory}/precompiled-jsp-web.xml</webXmlFragment>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+             -->
         </plugins>
     </build>
     <profiles>
