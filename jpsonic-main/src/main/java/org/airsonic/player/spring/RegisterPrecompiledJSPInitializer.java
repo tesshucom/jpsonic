@@ -9,7 +9,7 @@ import org.apache.cxf.jaxb.JAXBDataBinding;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
-import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
@@ -21,7 +21,7 @@ import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.charset.Charset;
 
-@Component
+//@Component
 public class RegisterPrecompiledJSPInitializer implements ServletContextInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisterPrecompiledJSPInitializer.class);
