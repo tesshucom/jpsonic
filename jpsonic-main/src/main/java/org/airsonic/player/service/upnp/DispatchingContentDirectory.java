@@ -62,6 +62,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Autowired
     private RootUpnpProcessor rootProcessor;
 
+    @Lazy
     @Qualifier("mediaFileUpnpProcessor")
     @Autowired
     private MediaFileUpnpProcessor mediaFileProcessor;
