@@ -3,6 +3,20 @@
 # jpsonic/jpsonic
 # -->
 
+## v106.1.1
+#### Based on *airsonic 10.5.0-RELEASE*
+
+  * [fix] Update Tomcat to 8.5.50 (CVE-2019-12418, CVE-2019-17563 CVE).
+
+Critical security fix.
+The following measures taken.
+
+ - Update Tomcat version to 8.5.50. The only version that addresses threats now.
+ - Stop Tomcat precompiler. Because it depends on 8.5.40. As a result, the initial display of the web screen is slightly slower.
+ - Jetty will continue to change to a compilable configuration. However,
+   since it does not respond to threats, no official distribution will be made.
+   It only supports arbitrary compilation.
+
 ## v106.1.0
 #### Based on *airsonic 10.5.0-RELEASE*
 
