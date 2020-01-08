@@ -29,6 +29,7 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+@SpringBootTest
 public class WashingTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
