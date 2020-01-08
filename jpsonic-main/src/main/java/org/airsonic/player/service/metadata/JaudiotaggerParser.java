@@ -93,6 +93,7 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDiscNumber(parseInteger(getTagField(tag, FieldKey.DISC_NO)));
                 metaData.setTrackNumber(parseTrackNumber(getTagField(tag, FieldKey.TRACK)));
                 metaData.setMusicBrainzReleaseId(getTagField(tag, FieldKey.MUSICBRAINZ_RELEASEID));
+                metaData.setMusicBrainzRecordingId(getTagField(tag, FieldKey.MUSICBRAINZ_TRACK_ID));
                 metaData.setArtistSort(getTagField(tag, FieldKey.ARTIST_SORT));
                 metaData.setAlbumSort(getTagField(tag, FieldKey.ALBUM_SORT));
                 metaData.setTitleSort(getTagField(tag, FieldKey.TITLE_SORT));
@@ -134,7 +135,7 @@ public class JaudiotaggerParser extends MetaDataParser {
             return null;
         }
     }
-    
+
     /**
      * Returns all tags supported by id3v1.
      */
