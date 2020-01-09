@@ -296,12 +296,12 @@ public class AnalyzerFactoryTestCase {
      */
     @Test
     public void testArtistStopward() {
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "CV").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "feat").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "with").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "CV").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "feat").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "with").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "with").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "with").size());
     }
 
     /**
