@@ -20,15 +20,14 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -50,11 +49,7 @@ import static org.junit.Assert.assertNotNull;
  * At runtime, the subsonic_home dir is set to target/test-classes/org/airsonic/player/service/mediaScannerServiceTestCase.
  * An empty database is created on the fly.
  */
-@ContextConfiguration(locations = {
-        "/applicationContext-service.xml",
-        "/applicationContext-cache.xml",
-        "/applicationContext-testdb.xml",
-        "/applicationContext-mockSonos.xml"})
+@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class MediaScannerServiceTestCase {
 
@@ -100,9 +95,6 @@ public class MediaScannerServiceTestCase {
 
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    @Autowired
-    ResourceLoader resourceLoader;
 
 
     /**
@@ -161,12 +153,15 @@ public class MediaScannerServiceTestCase {
 
     @Test
     public void testSpecialCharactersInFilename() throws Exception {
-        Resource resource = resourceLoader.getResource("MEDIAS/piano.mp3");
+        InputStream resource = MediaScannerServiceTestCase.class
+                .getClassLoader()
+                .getResourceAsStream("MEDIAS/piano.mp3");
+        assert resource != null;
         String directoryName = "Muff1nman\u2019s \uFF0FMusic";
         String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3";
         File artistDir = temporaryFolder.newFolder(directoryName);
         File musicFile = artistDir.toPath().resolve(fileName).toFile();
-        IOUtils.copy(resource.getInputStream(), new FileOutputStream(musicFile));
+        IOUtils.copy(resource, new FileOutputStream(musicFile));
 
         MusicFolder musicFolder = new MusicFolder(1, temporaryFolder.getRoot(), "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
@@ -212,7 +207,7 @@ public class MediaScannerServiceTestCase {
         Assert.assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", album.getMusicBrainzReleaseId());
         Assert.assertEquals(musicFolderFile.toPath().resolve("TestAlbum").toString(), album.getPath());
 
-        // Test that the music file is correctly imported, along with its MusicBrainz release ID
+        // Test that the music file is correctly imported, along with its MusicBrainz release ID and recording ID
         List<MediaFile> albumFiles = mediaFileDao.getChildrenOf(allAlbums.get(0).getPath());
         Assert.assertEquals(1, albumFiles.size());
         MediaFile file = albumFiles.get(0);
@@ -226,5 +221,6 @@ public class MediaScannerServiceTestCase {
         Assert.assertEquals(album.getPath(), file.getParentPath());
         Assert.assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPath());
         Assert.assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
+        Assert.assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
     }
 }

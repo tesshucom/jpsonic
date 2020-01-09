@@ -3,6 +3,7 @@ package org.airsonic.player.spring;
 import org.apache.commons.configuration2.ImmutableConfiguration;
 import org.springframework.core.env.PropertySource;
 
+@SuppressWarnings("rawtypes")
 public class CommonsConfigurationPropertySource extends PropertySource {
 
     private final ImmutableConfiguration configuration;

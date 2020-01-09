@@ -25,6 +25,7 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlpha
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
+@SpringBootTest
 public class ArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;

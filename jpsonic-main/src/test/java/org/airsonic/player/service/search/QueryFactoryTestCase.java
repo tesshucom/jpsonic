@@ -30,8 +30,8 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
@@ -48,11 +48,7 @@ import static org.junit.Assert.assertEquals;
  * If you face a problem reaping from 3.x to 7.x
  * It may be faster to look at the query than to look at the API.
  */
-@ContextConfiguration(locations = {
-        "/applicationContext-service.xml",
-        "/applicationContext-cache.xml",
-        "/applicationContext-testdb.xml",
-        "/applicationContext-mockSonos.xml"})
+@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class QueryFactoryTestCase {
     

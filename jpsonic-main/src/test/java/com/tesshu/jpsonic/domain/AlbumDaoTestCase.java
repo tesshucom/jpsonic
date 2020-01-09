@@ -25,18 +25,24 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors; 
+import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
 import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+@SpringBootTest
 public class AlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
