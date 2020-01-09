@@ -117,8 +117,8 @@ public class UPnPService {
         try {
             LOG.info("Starting UPnP service...");
             createService();
-            if (0 < SettingsService.getDefaultUPnpPort()) {
-                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnpPort());
+            if (0 < SettingsService.getDefaultUPnPPort()) {
+                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
             } else {
                 LOG.info("Starting UPnP service - Done!");
             }
@@ -128,8 +128,8 @@ public class UPnPService {
     }
 
     private synchronized void createService() {
-        UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnpPort()
-                ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnpPort())
+        UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
+                ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
                 : new ApacheUpnpServiceConfiguration();
         upnpService = new UpnpServiceImpl(upnpConf);
         // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)

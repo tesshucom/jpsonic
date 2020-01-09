@@ -154,6 +154,8 @@ public class SettingsService {
     private static final String KEY_DATABASE_MYSQL_VARCHAR_MAXLENGTH = "DatabaseMysqlMaxlength";
     private static final String KEY_DATABASE_USERTABLE_QUOTE = "DatabaseUsertableQuote";
 
+    private static final String KEY_UPNP_PORT = "UPNP_PORT";
+
     // Default values.
     private static final String DEFAULT_JWT_KEY = null;
     private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) \u3084(\u30E4\u30E6\u30E8) \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) \u308F(\u30EF\u30F2\u30F3)";
@@ -328,9 +330,9 @@ public class SettingsService {
     public static String getDefaultJDBCUrl() {
         return "jdbc:hsqldb:file:" + getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
     }
-    
-    public static int getDefaultUPnpPort() {
-        return Optional.ofNullable(System.getProperty("UPNP_PORT")).map(x -> Integer.parseInt(x)).orElse(DEFAULT_UPNP_PORT);
+
+    public static int getDefaultUPnPPort() {
+        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x)).orElse(DEFAULT_UPNP_PORT);
     }
 
     public static File getLogFile() {
