@@ -248,7 +248,7 @@ public class SettingsService {
     private static final Integer DEFAULT_DATABASE_MYSQL_VARCHAR_MAXLENGTH = 512;
     private static final String DEFAULT_DATABASE_USERTABLE_QUOTE = null;
     
-    private static final int DEFAULT_UPNP_PORT = 4041;
+    private static final int DEFAULT_UPNP_PORT = -1;
 
     // Array of obsolete keys.  Used to clean property file.
     private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort", "PortForwardingLocalPort",

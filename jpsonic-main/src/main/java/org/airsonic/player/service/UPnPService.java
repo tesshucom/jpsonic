@@ -19,11 +19,13 @@
  */
 package org.airsonic.player.service;
 
+import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
 import org.airsonic.player.service.upnp.MSMediaReceiverRegistrarService;
 import org.airsonic.player.util.FileUtil;
 import org.fourthline.cling.DefaultUpnpServiceConfiguration;
 import org.fourthline.cling.UpnpService;
+import org.fourthline.cling.UpnpServiceConfiguration;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
@@ -115,18 +117,23 @@ public class UPnPService {
         try {
             LOG.info("Starting UPnP service...");
             createService();
-            LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnpPort());
+            if (0 < SettingsService.getDefaultUPnpPort()) {
+                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnpPort());
+            } else {
+                LOG.info("Starting UPnP service - Done!");
+            }
         } catch (Throwable x) {
             LOG.error("Failed to start UPnP service: " + x, x);
         }
     }
 
     private synchronized void createService() {
-        upnpService = new UpnpServiceImpl(new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnpPort()));
-
+        UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnpPort()
+                ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnpPort())
+                : new ApacheUpnpServiceConfiguration();
+        upnpService = new UpnpServiceImpl(upnpConf);
         // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
         upnpService.getControlPoint().search();
-
     }
 
     public void setMediaServerEnabled(boolean enabled) {
