@@ -191,7 +191,7 @@ public class AnalyzerFactoryTestCase {
          * It is not included in the Java default stopword. Default set as Airsonic
          * index stop word.
          */
-        String queryIndexArticle = "el la los las le les";
+        String queryIndexArticle = "el la las le les";
 
         /*
          * Non-article in the default Stopward. In cases, it may be used for song names

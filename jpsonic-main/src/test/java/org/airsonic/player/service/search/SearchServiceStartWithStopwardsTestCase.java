@@ -57,8 +57,7 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
 
         criteria.setQuery("will");
         SearchResult result = searchService.search(criteria, folders, IndexType.ARTIST_ID3);
-        // XXX 3.x -> 8.x : The filter is properly applied to the input(Stopward)
-        // XXX airsonic -> jpsonic : jpsonic's Stopwords are already for music search
+        // Will hit because Airsonic's stopword is defined(#1235)
         Assert.assertEquals("Williams hit by \"will\" ", 1, result.getTotalHits());
 
         criteria.setQuery("the");
