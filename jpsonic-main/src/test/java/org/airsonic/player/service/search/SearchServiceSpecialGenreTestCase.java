@@ -49,12 +49,12 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
      * in src/test/resources/MEDIAS/Search/SpecialGenre/ARTIST1/ALBUM_A.
      * In FILE01 to FILE16, Special strings for Lucene syntax are stored
      * as tag values ​​of Genre.
-     * 
+     *
      * Legacy can not search all these genres.
      * (Strictly speaking, the genre field is not created at index creation.)
      *
      * // XXX 3.x -> 8.x : Do the process more strictly.
-     * 
+     *
      *  - Values ​​that can be cross-referenced with DB are stored in the index.
      *  - Search is also possible with user's readable value (file tag value).
      *  - However, there is an exception in parentheses.
@@ -92,10 +92,10 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
 
         /*
          * // XXX 3.x -> 8.x : Brackets ()
-         * 
+         *
          * Lucene can handle these.
          * However, brackets are specially parsed before the index creation process.
-         * 
+         *
          * This string is never stored in the index.
          * This is the only exception.
          */
@@ -107,17 +107,22 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
 
         /*
          * // XXX 3.x -> 8.x : Brackets {}[]
-         * 
+         *
          * Lucene can handle these.
          * However, brackets are specially parsed before the index creation process.
-         * 
+         *
          * This can be done with a filter that performs the reverse process
          * on the input values ​​when searching.
          * As a result, the values ​​stored in the file can be retrieved by search.
-         * 
+         *
          * @see AnalyzerFactory
+<<<<<<< HEAD:jpsonic-main/src/test/java/org/airsonic/player/service/search/SearchServiceSpecialGenreTestCase.java
          * 
          *
+=======
+         *
+         * >>>>>
+>>>>>>> ec426fc:airsonic-main/src/test/java/org/airsonic/player/service/search/SearchServiceSpecialGenreTestCase.java
          */
         songs = searchService.getRandomSongs(simpleStringCriteria.apply("{}"));
         Assert.assertEquals(1, songs.size());// XXX 3.x -> 8.x : Searchable
@@ -205,7 +210,7 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
 
         /*
          * Search by genre string registered in file.
-         * 
+         *
          * The value stored in the index is different from legacy.
          * Domain value is kept as it is.
          */
@@ -257,12 +262,12 @@ public class SearchServiceSpecialGenreTestCase extends AbstractAirsonicHomeTest 
 
     /*
      * Other special strings. (FILE19)
-     * 
+     *
      * {'“『【【】】[︴○◎@ $〒→+]ＦＵＬＬ－ＷＩＤＴＨCæsar's
-     * 
+     *
      * Legacy stores with Analyze,
      * so searchable characters are different.
-     * 
+     *
      */
     @Test
     public void testOthers() {

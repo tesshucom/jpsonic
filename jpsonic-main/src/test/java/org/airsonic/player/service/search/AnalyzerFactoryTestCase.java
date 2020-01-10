@@ -191,7 +191,7 @@ public class AnalyzerFactoryTestCase {
          * It is not included in the Java default stopword. Default set as Airsonic
          * index stop word.
          */
-        String queryIndexArticle = "el la los las le les";
+        String queryIndexArticle = "el la las le les";
 
         /*
          * Non-article in the default Stopward. In cases, it may be used for song names
@@ -296,12 +296,12 @@ public class AnalyzerFactoryTestCase {
      */
     @Test
     public void testArtistStopward() {
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "CV").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "feat").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST,  "with").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "CV").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "feat").size());
-        assertEquals(0, toTermString(FieldNames.ARTIST_READING,  "with").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST, "with").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "CV").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "feat").size());
+        assertEquals(0, toTermString(FieldNames.ARTIST_READING, "with").size());
     }
 
     /**

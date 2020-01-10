@@ -297,7 +297,7 @@ public class CoverArtController implements LastModified {
                 throw new RuntimeException(e);
             }
         } else {
-            is =  new FileInputStream(file);
+            is = new FileInputStream(file);
             mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
         }
         return Pair.of(is, mimeType);
@@ -382,13 +382,11 @@ public class CoverArtController implements LastModified {
                     in = getImageInputStream(coverArt);
                     if (in == null) {
                         reason = "getImageInputStream";
-                    }
-                    else {
+                    } else {
                         BufferedImage bimg = ImageIO.read(in);
                         if (bimg == null) {
                             reason = "ImageIO.read";
-                        }
-                        else {
+                        } else {
                             return scale(bimg, size, size);
                         }
                     }
