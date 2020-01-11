@@ -25,6 +25,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.WriteStatus;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     private SettingsService settingsService;
 
-    public RootUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
         super(dispatcher, util);
         this.settingsService = settingsService;
     }

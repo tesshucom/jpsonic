@@ -31,6 +31,7 @@ import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -66,11 +67,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, MusicIndexService musicIndexService, Ehcache indexCache) {
-        super(dispatcher, util);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
-        this.musicIndexService = musicIndexService;
+    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, MusicIndexService mi, Ehcache indexCache) {
+        super(d, u);
+        this.util = u;
+        this.mediaFileService = m;
+        this.musicIndexService = mi;
         this.indexCache = indexCache;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }

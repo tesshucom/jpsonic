@@ -45,87 +45,70 @@ import org.fourthline.cling.support.contentdirectory.ContentDirectoryException;
 import org.fourthline.cling.support.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
+@DependsOn({"rootUpnpProcessor","mediaFileUpnpProcessor"})
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
     private final int COUNT_MAX = 50;
 
-    @Autowired
-    private RootUpnpProcessor rootProcessor;
-
-    @Lazy
-    @Qualifier("mediaFileUpnpProcessor")
-    @Autowired
-    private MediaFileUpnpProcessor mediaFileProcessor;
-
-    @Lazy
-    @Autowired
-    private PlaylistUpnpProcessor playlistProcessor;
-
-    @Lazy
-    @Qualifier("albumUpnpProcessor")
-    @Autowired
-    private AlbumUpnpProcessor albumProcessor;
-
-    @Lazy
-    @Qualifier("recentAlbumUpnpProcessor")
-    @Autowired
-    private RecentAlbumUpnpProcessor recentAlbumProcessor;
-
-    @Lazy
-    @Qualifier("recentAlbumId3UpnpProcessor")
-    @Autowired
-    private RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
-
-    @Lazy
-    @Autowired
-    private ArtistUpnpProcessor artistProcessor;
-
-    @Lazy
-    @Autowired
-    private AlbumByGenreUpnpProcessor albumByGenreProcessor;
-
-    @Lazy
-    @Autowired
-    private SongByGenreUpnpProcessor songByGenreProcessor;
-
-    @Lazy
-    @Qualifier("indexUpnpProcessor")
-    @Autowired
-    private IndexUpnpProcessor indexProcessor;
-
-    @Lazy
-    @Qualifier("podcastUpnpProcessor")
-    @Autowired
-    private PodcastUpnpProcessor podcastProcessor;
-
-    @Lazy
-    @Qualifier("randomAlbumUpnpProcessor")
-    @Autowired
-    private RandomAlbumUpnpProcessor randomAlbumProcessor;
-
-    @Lazy
-    @Qualifier("randomSongUpnpProcessor")
-    @Autowired
-    private RandomSongUpnpProcessor randomSongProcessor;
+    private final RootUpnpProcessor rootProcessor;
+    private final MediaFileUpnpProcessor mediaFileProcessor;
+    private final PlaylistUpnpProcessor playlistProcessor;
+    private final AlbumUpnpProcessor albumProcessor;
+    private final RecentAlbumUpnpProcessor recentAlbumProcessor;
+    private final RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
+    private final ArtistUpnpProcessor artistProcessor;
+    private final AlbumByGenreUpnpProcessor albumByGenreProcessor;
+    private final SongByGenreUpnpProcessor songByGenreProcessor;
+    private final IndexUpnpProcessor indexProcessor;
+    private final PodcastUpnpProcessor podcastProcessor;
+    private final RandomAlbumUpnpProcessor randomAlbumProcessor;
+    private final RandomSongUpnpProcessor randomSongProcessor;
 
     private final UPnPCriteriaDirector criteriaDirector;
-
     private final SearchService searchService;
 
-    public DispatchingContentDirectory(UPnPCriteriaDirector c, SearchService s) {
+    public DispatchingContentDirectory(
+            RootUpnpProcessor rp, //
+            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp, //
+            @Lazy PlaylistUpnpProcessor playp, //
+            @Lazy @Qualifier("albumUpnpProcessor") AlbumUpnpProcessor ap, //
+            @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap, //
+            @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip, //
+            @Lazy ArtistUpnpProcessor arP, //
+            @Lazy AlbumByGenreUpnpProcessor abgp, //
+            @Lazy SongByGenreUpnpProcessor sbgp, //
+            @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip, //
+            @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp, //
+            @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap, //
+            @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp, //
+            UPnPCriteriaDirector cd, //
+            SearchService ss) {
         super();
-        this.criteriaDirector = c;
-        this.searchService = s;
+        this.rootProcessor = rp;
+        this.mediaFileProcessor = mfp;
+        this.playlistProcessor = playp;
+        this.albumProcessor = ap;
+        this.recentAlbumProcessor = rap;
+        this.recentAlbumId3Processor = raip;
+        this.artistProcessor = arP;
+        this.albumByGenreProcessor = abgp;
+        this.songByGenreProcessor = sbgp;
+        this.indexProcessor = ip;
+        this.podcastProcessor = podp;
+        this.randomAlbumProcessor = randomap;
+        this.randomSongProcessor = randomsp;
+        this.criteriaDirector = cd;
+        this.searchService = ss;
     }
 
     @Override

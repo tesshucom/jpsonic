@@ -25,6 +25,7 @@ import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -40,10 +41,10 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PlayerService playerService) {
-        super(dispatcher, util, mediaFileService, playerService);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
+    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
+        super(d, u, m, p);
+        this.util = u;
+        this.mediaFileService = m;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_PREFIX);
     }
 

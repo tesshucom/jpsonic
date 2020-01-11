@@ -28,6 +28,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -41,10 +42,10 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
 
     private final UpnpProcessorUtil util;
 
-    public SongByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SearchService searchService) {
-        super(dispatcher, util);
-        this.util = util;
-        this.searchService = searchService;
+    public SongByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, SearchService s) {
+        super(d, u);
+        this.util = u;
+        this.searchService = s;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_SONG_BY_GENRE_PREFIX);
     }
 

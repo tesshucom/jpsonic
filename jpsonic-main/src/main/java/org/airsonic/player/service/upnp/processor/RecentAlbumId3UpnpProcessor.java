@@ -26,6 +26,7 @@ import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -42,10 +43,10 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, AlbumDao albumDao, CoverArtLogic coverArtLogic) {
-        super(dispatcher, util, mediaFileService, albumDao, coverArtLogic);
-        this.util = util;
-        this.albumDao = albumDao;
+    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+        super(d, u, m, a, c);
+        this.util = u;
+        this.albumDao = a;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RECENT_ID3_PREFIX);
     }
 

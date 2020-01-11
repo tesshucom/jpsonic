@@ -25,6 +25,7 @@ import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -40,7 +41,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final static int RANDOM_MAX = 50;
 
-    public RandomSongUpnpProcessor(UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p, SearchService s) {
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p, SearchService s) {
         super(d, u, m, p);
         this.util = u;
         this.searchService = s;

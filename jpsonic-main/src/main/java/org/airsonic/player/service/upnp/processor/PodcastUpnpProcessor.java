@@ -35,6 +35,7 @@ import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -62,12 +63,12 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     private final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
 
-    public PodcastUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, PodcastService podcastService, CoverArtLogic coverArtLogic) {
-        super(dispatcher, util);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
-        this.podcastService = podcastService;
-        this.coverArtLogic = coverArtLogic;
+    public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PodcastService p, CoverArtLogic c) {
+        super(d, u);
+        this.util = u;
+        this.mediaFileService = m;
+        this.podcastService = p;
+        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PODCAST_PREFIX);
     }
 
