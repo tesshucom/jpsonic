@@ -3,6 +3,7 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.IndexId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
@@ -30,6 +31,7 @@ public interface UpnpProcessDispatcher {
     final String CONTAINER_ID_RECENT_PREFIX = "recent";
     final String CONTAINER_ID_RECENT_ID3_PREFIX = "recentId3";
     final String CONTAINER_ID_INDEX_PREFIX = "index";
+    final String CONTAINER_ID_INDEX_ID3_PREFIX = "indexId3";
     final String CONTAINER_ID_PODCAST_PREFIX = "podcast";
     final String CONTAINER_ID_RANDOM_ALBUM = "randomAlbum";
     final String CONTAINER_ID_RANDOM_SONG = "randomSong";
@@ -53,6 +55,8 @@ public interface UpnpProcessDispatcher {
     SongByGenreUpnpProcessor getSongByGenreProcessor();
 
     IndexUpnpProcessor getIndexProcessor();
+
+    IndexId3UpnpProcessor getIndexId3Processor();
 
     PodcastUpnpProcessor getPodcastProcessor();
 
@@ -83,6 +87,8 @@ public interface UpnpProcessDispatcher {
                 return getSongByGenreProcessor();
             case CONTAINER_ID_INDEX_PREFIX:
                 return getIndexProcessor();
+            case CONTAINER_ID_INDEX_ID3_PREFIX:
+                return getIndexId3Processor();
             case CONTAINER_ID_PODCAST_PREFIX:
                 return getPodcastProcessor();
             case CONTAINER_ID_RANDOM_ALBUM:

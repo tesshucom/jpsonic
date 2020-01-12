@@ -28,6 +28,7 @@ import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.IndexId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
@@ -53,7 +54,7 @@ import org.springframework.stereotype.Service;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
-@DependsOn({"rootUpnpProcessor","mediaFileUpnpProcessor"})
+@DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
@@ -70,6 +71,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final AlbumByGenreUpnpProcessor albumByGenreProcessor;
     private final SongByGenreUpnpProcessor songByGenreProcessor;
     private final IndexUpnpProcessor indexProcessor;
+    private final IndexId3UpnpProcessor indexId3Processor;
     private final PodcastUpnpProcessor podcastProcessor;
     private final RandomAlbumUpnpProcessor randomAlbumProcessor;
     private final RandomSongUpnpProcessor randomSongProcessor;
@@ -88,6 +90,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy AlbumByGenreUpnpProcessor abgp, //
             @Lazy SongByGenreUpnpProcessor sbgp, //
             @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip, //
+            @Lazy IndexId3UpnpProcessor iip, //
             @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp, //
             @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap, //
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp, //
@@ -104,6 +107,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         this.albumByGenreProcessor = abgp;
         this.songByGenreProcessor = sbgp;
         this.indexProcessor = ip;
+        this.indexId3Processor = iip;
         this.podcastProcessor = podp;
         this.randomAlbumProcessor = randomap;
         this.randomSongProcessor = randomsp;
@@ -225,6 +229,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public IndexUpnpProcessor getIndexProcessor() {
         return indexProcessor;
+    }
+
+    public IndexId3UpnpProcessor getIndexId3Processor() {
+        return indexId3Processor;
     }
 
     @Override

@@ -117,7 +117,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
     }
 
-    private URI createArtistArtURI(Artist artist) {
+    public URI createArtistArtURI(Artist artist) {
         return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(artist))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));

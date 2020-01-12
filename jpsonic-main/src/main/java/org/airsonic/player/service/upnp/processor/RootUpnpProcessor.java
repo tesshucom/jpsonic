@@ -85,6 +85,9 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaIndexVisible()) {
             containers.add(getDispatcher().getIndexProcessor().createRootContainer());
         }
+        if (settingsService.isDlnaIndexId3Visible()) {
+            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
+        }
         if (settingsService.isDlnaFolderVisible()) {
             containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
         }

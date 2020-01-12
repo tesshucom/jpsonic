@@ -36,6 +36,12 @@ public class EhcacheConfiguration {
         return cacheFactory.getCache("randomCache");
     }
 
+    public enum IndexCacheKey {
+        FILE_STRUCTURE, ID3
+    }
+
+    ;
+
     @Bean
     public Ehcache indexCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("indexCache");

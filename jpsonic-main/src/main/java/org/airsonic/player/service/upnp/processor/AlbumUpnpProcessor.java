@@ -172,7 +172,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return new PersonWithRole[] { new PersonWithRole(artist) };
     }
 
-    private URI createAlbumArtURI(Album album) {
+    public URI createAlbumArtURI(Album album) {
         return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(album))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));

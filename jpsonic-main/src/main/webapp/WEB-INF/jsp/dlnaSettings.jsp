@@ -80,6 +80,14 @@
         </tr>
         <tr>
             <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaIndexId3Visible" id="dlnaIndexId3Visible" ${model.dlnaIndexId3Visible? "checked": ""}/>
+                <label for="dlnaIndexId3Visible"><fmt:message key="dlna.title.indexid3"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaFolderVisible" id="dlnaFolderVisible" ${model.dlnaFolderVisible? "checked": ""}/>

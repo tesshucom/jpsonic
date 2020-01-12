@@ -27,6 +27,7 @@ import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
+import org.airsonic.player.spring.EhcacheConfiguration.IndexCacheKey;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
@@ -185,11 +186,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     private final synchronized void refreshIndex() {
-        Element element = indexCache.getQuiet("content");
+        Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
             content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
-            indexCache.put(new Element("content", content));
+            indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
             indexesMap = new HashMap<>();
             indexes.forEach(i -> indexesMap.put(i.getId(), i));

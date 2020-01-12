@@ -120,6 +120,7 @@ public class SettingsService {
     private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE = "DlnaRecentAlbumId3Visible";
     private static final String KEY_DLNA_INDEX_VISIBLE = "DlnaIndexVisible";
+    private static final String KEY_DLNA_INDEX_ID3_VISIBLE = "DlnaIndexId3Visible";
     private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
@@ -220,6 +221,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_INDEX_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_INDEX_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
@@ -1390,6 +1392,14 @@ public class SettingsService {
 
     public void setDlnaIndexVisible(boolean b) {
         setBoolean(KEY_DLNA_INDEX_VISIBLE, b);
+    }
+
+    public boolean isDlnaIndexId3Visible() {
+        return getBoolean(KEY_DLNA_INDEX_ID3_VISIBLE, DEFAULT_DLNA_INDEX_ID3_VISIBLE);
+    }
+
+    public void setDlnaIndexId3Visible(boolean b) {
+        setBoolean(KEY_DLNA_INDEX_ID3_VISIBLE, b);
     }
 
     public boolean isDlnaPodcastVisible() {

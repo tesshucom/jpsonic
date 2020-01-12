@@ -238,7 +238,7 @@ used with JMX monitors.
            statistics="false"/>
 
     <cache name="indexCache"
-           maxElementsInMemory="1"
+           maxElementsInMemory="2"
            eternal="false"
            timeToIdleSeconds="180"
            timeToLiveSeconds="180"

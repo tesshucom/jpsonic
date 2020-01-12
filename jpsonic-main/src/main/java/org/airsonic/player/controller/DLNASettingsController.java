@@ -73,6 +73,7 @@ public class DLNASettingsController {
         map.put("dlnaRandomAlbumVisible", settingsService.isDlnaRandomAlbumVisible());
         map.put("dlnaRandomSongVisible", settingsService.isDlnaRandomSongVisible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
+        map.put("dlnaIndexId3Visible", settingsService.isDlnaIndexId3Visible());
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
         map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
 
@@ -107,6 +108,7 @@ public class DLNASettingsController {
         boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomAlbumVisible", false);
         boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
+        boolean dlnaIndexId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexId3Visible", false);
         boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
         boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request, "dlnaGuestPublish", false);
         
@@ -131,6 +133,7 @@ public class DLNASettingsController {
         settingsService.setDlnaRandomAlbumVisible(dlnaRandomAlbumVisible);
         settingsService.setDlnaRandomSongVisible(dlnaRandomSongVisible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
+        settingsService.setDlnaIndexId3Visible(dlnaIndexId3Visible);
         settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
         settingsService.setDlnaGuestPublish(dlnaGuestPublish);
 
