@@ -2,9 +2,11 @@ package org.airsonic.player.service.upnp.processor;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 
+import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
@@ -29,14 +31,17 @@ public class UpnpProcessorUtil {
     private final SettingsService settingsService;
 
     private final TranscodingService transcodingService;
+    
+    private final MusicFolderDao musicFolderDao;
 
     private static ResourceBundle resourceBundle;
 
-    public UpnpProcessorUtil(JpsonicComparators comparators, JWTSecurityService securityService, SettingsService settingsService, TranscodingService transcodingService) {
-        this.settingsService = settingsService;
-        this.securityService = securityService;
-        this.comparators = comparators;
-        this.transcodingService = transcodingService;
+    public UpnpProcessorUtil(JpsonicComparators c, JWTSecurityService jwt, SettingsService ss, TranscodingService ts, MusicFolderDao md) {
+        settingsService = ss;
+        securityService = jwt;
+        comparators = c;
+        musicFolderDao = md;
+        transcodingService = ts;
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder) {
@@ -52,6 +57,9 @@ public class UpnpProcessorUtil {
     }
 
     public List<MusicFolder> getAllMusicFolders() {
+        if (settingsService.isDlnaGuestPublish()) {
+            return musicFolderDao.getMusicFoldersForUser(User.USERNAME_GUEST);
+        }
         return settingsService.getAllMusicFolders();
     }
 

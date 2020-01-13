@@ -123,6 +123,7 @@ public class SettingsService {
     private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
+    private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
@@ -222,6 +223,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
 
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
@@ -1412,6 +1414,14 @@ public class SettingsService {
 
     public void setDlnaPodcastVisible(boolean b) {
         setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
+    }
+
+    public boolean isDlnaGuestPublish() {
+        return getBoolean(KEY_DLNA_GUEST_PUBLISH, DEFAULT_DLNA_GUEST_PUBLISH);
+    }
+
+    public void setDlnaGuestPublish(boolean b) {
+        setBoolean(KEY_DLNA_GUEST_PUBLISH, b);
     }
 
     public boolean isSonosEnabled() {

@@ -74,6 +74,7 @@ public class DLNASettingsController {
         map.put("dlnaRandomSongVisible", settingsService.isDlnaRandomSongVisible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
+        map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
 
         model.addAttribute("model", map);
         return "dlnaSettings";
@@ -107,6 +108,7 @@ public class DLNASettingsController {
         boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
         boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
+        boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request, "dlnaGuestPublish", false);
         
         boolean isEnabledStateChange =
                 !(settingsService.isDlnaEnabled() == dlnaEnabled
@@ -130,6 +132,7 @@ public class DLNASettingsController {
         settingsService.setDlnaRandomSongVisible(dlnaRandomSongVisible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
         settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
+        settingsService.setDlnaGuestPublish(dlnaGuestPublish);
 
         settingsService.save();
 

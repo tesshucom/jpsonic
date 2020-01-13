@@ -128,14 +128,6 @@
         </tr>
         <tr>
             <td></td>
-            <td></td>
-            <td colspan="2">
-                <input type="checkbox" name=dlnaGenreCountVisible id="dlnaGenreCountVisible" style="margin-left:2em" ${model.dlnaGenreCountVisible? "checked": ""}/>
-                <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaRecentAlbumVisible" id="dlnaRecentAlbumVisible" ${model.dlnaRecentAlbumVisible? "checked": ""}/>
@@ -172,6 +164,28 @@
             <td colspan="2">
                 <input type="checkbox" name="dlnaPodcastVisible" id="dlnaPodcastVisible" ${model.dlnaPodcastVisible? "checked": ""}/>
                 <label for="dlnaPodcastVisible"><fmt:message key="dlna.title.podcast"/></label>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.viewopt"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name=dlnaGenreCountVisible id="dlnaGenreCountVisible" ${model.dlnaGenreCountVisible? "checked": ""}/>
+                <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+            </td>
+        </tr>
+
+		<tr><td colspan="3">&nbsp;</td></tr>
+
+        <tr>
+            <td><fmt:message key="dlnasettings.accesscontrol"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name=dlnaGuestPublish id="dlnaGuestPublish" ${model.dlnaGuestPublish? "checked": ""}/>
+                <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
             </td>
         </tr>
 

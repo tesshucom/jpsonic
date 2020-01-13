@@ -99,6 +99,9 @@ public class PlaylistService {
     }
 
     public List<Playlist> getAllPlaylists() {
+        if (settingsService.isDlnaGuestPublish()) {
+            return sort(playlistDao.getReadablePlaylistsForUser(User.USERNAME_GUEST));
+        }
         return sort(playlistDao.getAllPlaylists());
     }
 
