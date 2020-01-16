@@ -124,6 +124,7 @@ public class SettingsService {
     private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
+    private static final String KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = "DlnaRandomSongByArtistVisible";
     private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
@@ -225,6 +226,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
 
     private static final boolean DEFAULT_SONOS_ENABLED = false;
@@ -1406,6 +1408,10 @@ public class SettingsService {
         return getBoolean(KEY_DLNA_PODCAST_VISIBLE, DEFAULT_DLNA_PODCAST_VISIBLE);
     }
 
+    public void setDlnaPodcastVisible(boolean b) {
+        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
+    }
+
     public boolean isDlnaRandomAlbumVisible() {
         return getBoolean(KEY_DLNA_RANDOM_ALBUM_VISIBLE, DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE);
     }
@@ -1422,8 +1428,12 @@ public class SettingsService {
         setBoolean(KEY_DLNA_RANDOM_SONG_VISIBLE, b);
     }
 
-    public void setDlnaPodcastVisible(boolean b) {
-        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
+    public boolean isDlnaRandomSongByArtistVisible() {
+        return getBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE);
+    }
+
+    public void setDlnaRandomSongByArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, b);
     }
 
     public boolean isDlnaGuestPublish() {
@@ -1529,6 +1539,7 @@ public class SettingsService {
             return s;
         }
     }
+
     public void setSmtpPassword(String smtpPassword) {
         try {
             smtpPassword = StringUtil.utf8HexEncode(smtpPassword);

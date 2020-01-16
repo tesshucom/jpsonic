@@ -81,6 +81,8 @@ public class MediaFile {
     private String composerSort;
     private int order;
 
+    private transient int rownum;
+
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
@@ -542,6 +544,14 @@ public class MediaFile {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public int getRownum() {
+        return rownum;
+    }
+
+    public void setRownum(int rownum) {
+        this.rownum = rownum;
     }
 
     @Override

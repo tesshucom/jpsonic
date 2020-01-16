@@ -118,6 +118,9 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaRandomSongVisible()) {
             containers.add(getDispatcher().getRandomSongProcessor().createRootContainer());
         }
+        if (settingsService.isDlnaRandomSongByArtistVisible()) {
+            containers.add(getDispatcher().getRandomSongByArtistProcessor().createRootContainer());
+        }
         if (settingsService.isDlnaPodcastVisible()) {
             containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
         }

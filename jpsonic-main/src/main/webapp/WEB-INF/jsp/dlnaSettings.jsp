@@ -170,6 +170,14 @@
             <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
+                <input type="checkbox" name="dlnaRandomSongByArtistVisible" id="dlnaRandomSongByArtistVisible" ${model.dlnaRandomSongByArtistVisible? "checked": ""}/>
+                <label for="dlnaRandomSongByArtistVisible"><fmt:message key="dlna.title.randomSongByArtist"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
                 <input type="checkbox" name="dlnaPodcastVisible" id="dlnaPodcastVisible" ${model.dlnaPodcastVisible? "checked": ""}/>
                 <label for="dlnaPodcastVisible"><fmt:message key="dlna.title.podcast"/></label>
             </td>

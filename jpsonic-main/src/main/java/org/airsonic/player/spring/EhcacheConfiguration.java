@@ -31,6 +31,12 @@ public class EhcacheConfiguration {
         return cacheFactory.getCache("searchCache");
     }
 
+    public enum RandomCacheKey {
+        ALBUM, SONG, SONG_BY_ARTIST
+    }
+
+    ;
+
     @Bean
     public Ehcache randomCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("randomCache");

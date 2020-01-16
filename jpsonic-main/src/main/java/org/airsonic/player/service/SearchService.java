@@ -21,6 +21,7 @@
 package org.airsonic.player.service;
 
 import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -88,6 +89,25 @@ public interface SearchService {
      * @return List of random albums.
      */
     List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders);
+
+    /**
+     * Returns random songs.
+     * The song returned by this list is limited to MesiaType=SONG.
+     * In other words, PODCAST, AUDIOBOOK and VIDEO are not included.
+     * 
+     * This method uses a very short-lived cache.
+     * This cache is not for long-running transactions like paging,
+     * but for short-term repetitive calls.
+     * 
+     * @since 107.0.0
+     * @param count        Number of albums to return.
+     * @param offset       offset
+     * @param casheMax     Data duplication due to paging is avoided
+     *                     when the cache is an iterative call within the valid period.
+     * @param musicFolders Only return albums from these folders.
+     * @return List of random albums.
+     */
+    List<MediaFile> getRandomSongsByArtist(Artist Artist, int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
      * Returns a number of random albums.

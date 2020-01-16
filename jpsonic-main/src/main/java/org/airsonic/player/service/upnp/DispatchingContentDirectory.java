@@ -34,6 +34,7 @@ import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongByArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
@@ -75,6 +76,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final PodcastUpnpProcessor podcastProcessor;
     private final RandomAlbumUpnpProcessor randomAlbumProcessor;
     private final RandomSongUpnpProcessor randomSongProcessor;
+    private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
 
     private final UPnPCriteriaDirector criteriaDirector;
     private final SearchService searchService;
@@ -94,25 +96,27 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp, //
             @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap, //
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp, //
+            @Lazy RandomSongByArtistUpnpProcessor randomsbap, //
             UPnPCriteriaDirector cd, //
             SearchService ss) {
         super();
-        this.rootProcessor = rp;
-        this.mediaFileProcessor = mfp;
-        this.playlistProcessor = playp;
-        this.albumProcessor = ap;
-        this.recentAlbumProcessor = rap;
-        this.recentAlbumId3Processor = raip;
-        this.artistProcessor = arP;
-        this.albumByGenreProcessor = abgp;
-        this.songByGenreProcessor = sbgp;
-        this.indexProcessor = ip;
-        this.indexId3Processor = iip;
-        this.podcastProcessor = podp;
-        this.randomAlbumProcessor = randomap;
-        this.randomSongProcessor = randomsp;
-        this.criteriaDirector = cd;
-        this.searchService = ss;
+        rootProcessor = rp;
+        mediaFileProcessor = mfp;
+        playlistProcessor = playp;
+        albumProcessor = ap;
+        recentAlbumProcessor = rap;
+        recentAlbumId3Processor = raip;
+        artistProcessor = arP;
+        albumByGenreProcessor = abgp;
+        songByGenreProcessor = sbgp;
+        indexProcessor = ip;
+        indexId3Processor = iip;
+        podcastProcessor = podp;
+        randomAlbumProcessor = randomap;
+        randomSongProcessor = randomsp;
+        randomSongByArtistProcessor = randomsbap;
+        criteriaDirector = cd;
+        searchService = ss;
     }
 
     @Override
@@ -248,6 +252,10 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public RandomSongUpnpProcessor getRandomSongProcessor() {
         return randomSongProcessor;
+    }
+
+    public RandomSongByArtistUpnpProcessor getRandomSongByArtistProcessor() {
+        return randomSongByArtistProcessor;
     }
 
 }

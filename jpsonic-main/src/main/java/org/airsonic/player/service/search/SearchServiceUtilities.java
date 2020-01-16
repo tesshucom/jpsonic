@@ -32,6 +32,7 @@ import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -97,9 +98,6 @@ public class SearchServiceUtilities {
     private Random random;
 
     private Random secureRandom;
-
-    public static final String CASHE_KEY_RANDOM_ALBUM = "randomAlbum";
-    public static final String CASHE_KEY_RANDOM_SONG = "randomSong";
 
     {
         try {
@@ -240,10 +238,13 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
-    private final String createCacheKey(String key, int casheMax, List<MusicFolder> musicFolders) {
+    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(",").append(casheMax).append("[");
         musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        if (!isEmpty(additional)) {
+            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(","));
+        }
         b.append("]");
         return b.toString();
     }
@@ -262,7 +263,20 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<Integer>> getCache(String key, int casheMax, List<MusicFolder> musicFolders) {
+    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
+        List<MediaFile> mediaFiles = null;
+        Element element = null;
+        synchronized (randomCache) {
+            element = randomCache.get(createCacheKey(key, casheMax, musicFolders, additional));
+        }
+        if (!isEmpty(element)) {
+            mediaFiles = (List<MediaFile>) element.getObjectValue();
+        }
+        return Optional.ofNullable(mediaFiles);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
         Element element = null;
         synchronized (randomCache) {
@@ -280,9 +294,15 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(String key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
         synchronized (randomCache) {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
+        }
+    }
+
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value, String... additional) {
+        synchronized (randomCache) {
+            randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
         }
     }
 

@@ -9,6 +9,7 @@ import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongByArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
@@ -35,6 +36,7 @@ public interface UpnpProcessDispatcher {
     final String CONTAINER_ID_PODCAST_PREFIX = "podcast";
     final String CONTAINER_ID_RANDOM_ALBUM = "randomAlbum";
     final String CONTAINER_ID_RANDOM_SONG = "randomSong";
+    final String CONTAINER_ID_RANDOM_SONG_BY_ARTIST = "randomSongByArtist";
 
     RootUpnpProcessor getRootProcessor();
 
@@ -63,6 +65,8 @@ public interface UpnpProcessDispatcher {
     RandomAlbumUpnpProcessor getRandomAlbumProcessor();
 
     RandomSongUpnpProcessor getRandomSongProcessor();
+
+    RandomSongByArtistUpnpProcessor getRandomSongByArtistProcessor();
 
     @SuppressWarnings("rawtypes")
     default UpnpContentProcessor findProcessor(String type) {
@@ -95,6 +99,8 @@ public interface UpnpProcessDispatcher {
                 return getRandomAlbumProcessor();
             case CONTAINER_ID_RANDOM_SONG:
                 return getRandomSongProcessor();
+            case CONTAINER_ID_RANDOM_SONG_BY_ARTIST:
+                return getRandomSongByArtistProcessor();
         }
         return null;
     }
