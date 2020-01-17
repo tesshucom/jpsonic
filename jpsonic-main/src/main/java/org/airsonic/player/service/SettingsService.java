@@ -58,6 +58,8 @@ public class SettingsService {
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
     private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
 
+    private static final boolean DEFAULT_SCAN_ON_BOOT = false;
+
     // Global settings.
     private static final String KEY_INDEX_STRING = "IndexString";
     private static final String KEY_IGNORED_ARTICLES = "IgnoredArticles";
@@ -326,6 +328,10 @@ public class SettingsService {
         ensureDirectoryPresent(home);
 
         return home;
+    }
+
+    public static boolean isScanOnBoot() {
+        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s)).orElse(DEFAULT_SCAN_ON_BOOT);
     }
 
     private static String getFileSystemAppName() {
