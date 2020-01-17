@@ -116,6 +116,15 @@ public class MediaScannerService {
 
         LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
 
+        // In addition, create index immediately if it doesn't exist on disk.
+        if (SettingsService.isScanOnBoot() && neverScanned()) {
+            LOG.info("Media library never scanned. Doing it now.");
+            scanLibrary();
+        }
+    }
+
+    boolean neverScanned() {
+        return indexManager.getStatistics() == null;
     }
 
     /**
