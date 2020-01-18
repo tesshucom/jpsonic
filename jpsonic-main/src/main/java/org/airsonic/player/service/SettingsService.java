@@ -127,6 +127,7 @@ public class SettingsService {
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
     private static final String KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = "DlnaRandomSongByArtistVisible";
+    private static final String KEY_DLNA_RANDOM_MAX = "DlnaRandomMax";
     private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
@@ -230,6 +231,8 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
+    private static final int DEFAULT_DLNA_RANDOM_MAX = 50;
+
 
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
@@ -1448,6 +1451,16 @@ public class SettingsService {
 
     public void setDlnaGuestPublish(boolean b) {
         setBoolean(KEY_DLNA_GUEST_PUBLISH, b);
+    }
+
+    public int getDlnaRandomMax() {
+        return getInt(KEY_DLNA_RANDOM_MAX, DEFAULT_DLNA_RANDOM_MAX);
+    }
+
+    public void setDlnaRandomMax(int i) {
+        if (0 < i) {
+            setInt(KEY_DLNA_RANDOM_MAX, i);
+        }
     }
 
     public boolean isSonosEnabled() {

@@ -298,7 +298,7 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        List<MediaFile> songs = mediaFileDao.getRandomSongsForAlbumArtist(count, artist.getName(), musicFolders, (range, limit) -> {
+        List<MediaFile> songs = mediaFileDao.getRandomSongsForAlbumArtist(casheMax, artist.getName(), musicFolders, (range, limit) -> {
             List<Integer> randoms = new ArrayList<>();
             while (randoms.size() < Math.min(limit, range)) {
                 Integer random = util.nextInt.apply(range);

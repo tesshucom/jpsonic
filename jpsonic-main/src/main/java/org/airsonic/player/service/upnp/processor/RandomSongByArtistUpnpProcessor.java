@@ -23,6 +23,7 @@ import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
@@ -44,14 +45,14 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
     private final UpnpProcessorUtil util;
     private final ArtistDao artistDao;
     private final SearchService searchService;
+    private final SettingsService settingsService;
 
-    private final static int RANDOM_MAX = 50;
-
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, SearchService s) {
+    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         artistDao = a;
         searchService = s;
+        settingsService = ss;
         setRootId(CONTAINER_ID_RANDOM_SONG_BY_ARTIST);
     }
 
@@ -78,8 +79,8 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
     }
 
     @Override
-    public List<Artist> getItems(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists(offset, maxResults, util.getAllMusicFolders());
+    public List<Artist> getItems(long offset, long count) {
+        return artistDao.getAlphabetialArtists(offset, count, util.getAllMusicFolders());
     }
 
     public Artist getItemById(String id) {
@@ -88,13 +89,15 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        // Because there is no count cache, it is difficult to return accurate values
-        return RANDOM_MAX;
+        return settingsService.getDlnaRandomMax();
     }
 
     @Override
-    public List<MediaFile> getChildren(Artist artist, long offset, long maxResults) {
-        return searchService.getRandomSongsByArtist(artist, (int) maxResults, (int) offset, RANDOM_MAX, util.getAllMusicFolders());
+    public List<MediaFile> getChildren(Artist artist, long first, long maxResults) {
+        int randomMax = settingsService.getDlnaRandomMax();
+        int offset = (int) first;
+        int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
+        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax, util.getAllMusicFolders());
     }
 
     @Override

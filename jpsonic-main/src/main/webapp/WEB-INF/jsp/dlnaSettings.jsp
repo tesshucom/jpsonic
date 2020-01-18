@@ -189,8 +189,16 @@
             <td><fmt:message key="dlnasettings.viewopt"/></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
-                <input type="checkbox" name=dlnaGenreCountVisible id="dlnaGenreCountVisible" ${model.dlnaGenreCountVisible? "checked": ""}/>
+                <input type="checkbox" name="dlnaGenreCountVisible" id="dlnaGenreCountVisible" ${model.dlnaGenreCountVisible? "checked": ""}/>
                 <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label>
+                <input type="text" size="24" maxlength="4" name="dlnaRandomMax" id="dlnaRandomMax" value="<c:out value='${model.dlnaRandomMax}' />"/>
             </td>
         </tr>
 
@@ -200,7 +208,7 @@
             <td><fmt:message key="dlnasettings.accesscontrol"/></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
-                <input type="checkbox" name=dlnaGuestPublish id="dlnaGuestPublish" ${model.dlnaGuestPublish? "checked": ""}/>
+                <input type="checkbox" name="dlnaGuestPublish" id="dlnaGuestPublish" ${model.dlnaGuestPublish? "checked": ""}/>
                 <label for=dlnaGuestPublish><fmt:message key="dlnasettings.guestpublish"/></label>
             </td>
         </tr>

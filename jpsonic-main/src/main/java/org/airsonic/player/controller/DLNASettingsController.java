@@ -76,8 +76,8 @@ public class DLNASettingsController {
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
         map.put("dlnaIndexId3Visible", settingsService.isDlnaIndexId3Visible());
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
+        map.put("dlnaRandomMax", settingsService.getDlnaRandomMax());
         map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
-
         model.addAttribute("model", map);
         return "dlnaSettings";
     }
@@ -112,8 +112,9 @@ public class DLNASettingsController {
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
         boolean dlnaIndexId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexId3Visible", false);
         boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
+        int dlnaRandomMax = ServletRequestUtils.getIntParameter(request, "dlnaRandomMax", 50);
         boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request, "dlnaGuestPublish", false);
-        
+
         boolean isEnabledStateChange =
                 !(settingsService.isDlnaEnabled() == dlnaEnabled
                 && !isEmpty(dlnaServerName) && dlnaServerName.equals(settingsService.getDlnaServerName())
@@ -138,6 +139,7 @@ public class DLNASettingsController {
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
         settingsService.setDlnaIndexId3Visible(dlnaIndexId3Visible);
         settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
+        settingsService.setDlnaRandomMax(dlnaRandomMax);
         settingsService.setDlnaGuestPublish(dlnaGuestPublish);
 
         settingsService.save();

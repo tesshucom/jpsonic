@@ -21,6 +21,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -39,12 +40,13 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final SearchService searchService;
 
-    private final static int RANDOM_MAX = 50;
+    private final SettingsService settingsService;
 
-    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p, SearchService s) {
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p, SearchService s, SettingsService ss) {
         super(d, u, m, p);
         this.util = u;
         this.searchService = s;
+        this.settingsService = ss;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG);
     }
 
@@ -53,10 +55,11 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
         setRootTitleWithResource("dlna.title.randomSong");
     }
 
-    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
-        if (offset < RANDOM_MAX) {
-            long count = RANDOM_MAX < offset + max ? RANDOM_MAX - offset : max;
+        int randomMax = settingsService.getDlnaRandomMax();
+        if (offset < randomMax) {
+            long count = randomMax < offset + maxResults ? randomMax - offset : maxResults;
             getItems(offset, count).forEach(a -> addItem(didl, a));
         }
         return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
@@ -64,15 +67,15 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     @Override
     public int getItemCount() {
-        // Create a fixed 50 list considering speed.
-        return RANDOM_MAX;
+        return settingsService.getDlnaRandomMax();
     }
 
     @Override
-    public List<MediaFile> getItems(long first, long max) {
+    public List<MediaFile> getItems(long first, long maxResults) {
+        int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
-        int count = (offset + (int) max) > RANDOM_MAX ? RANDOM_MAX - offset : (int) max;
-        return searchService.getRandomSongs(count, offset, RANDOM_MAX, util.getAllMusicFolders());
+        int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
+        return searchService.getRandomSongs(count, offset, randomMax, util.getAllMusicFolders());
     }
 
 }
