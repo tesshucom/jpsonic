@@ -19,11 +19,17 @@
  */
 package org.airsonic.player.service;
 
+import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.dao.UserDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.Avatar;
+import org.airsonic.player.domain.InternetRadio;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.Theme;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
@@ -39,12 +45,20 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
+
 
 /**
  * Provides persistent storage of application settings and preferences.
@@ -292,6 +306,8 @@ public class SettingsService {
     private AvatarDao avatarDao;
     @Autowired
     private ApacheCommonsConfigurationService configurationService;
+    @Autowired
+    private Ehcache indexCache;
 
     private String[] cachedCoverArtFileTypesArray;
     private String[] cachedMusicFileTypesArray;
@@ -1094,6 +1110,7 @@ public class SettingsService {
     public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
         cachedMusicFoldersPerUser.remove(username);
+        indexCache.removeAll();
     }
 
     /**
@@ -1145,6 +1162,7 @@ public class SettingsService {
     public void clearMusicFolderCache() {
         cachedMusicFolders = null;
         cachedMusicFoldersPerUser.clear();
+        indexCache.removeAll();
     }
 
     /**

@@ -20,10 +20,16 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genres;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaLibraryStatistics;
+import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.IndexManager;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -37,7 +43,10 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +84,8 @@ public class MediaScannerService {
     private int scanCount;
     @Autowired
     private MediaFileJPSupport mediaFileJPSupport;
+    @Autowired
+    private Ehcache indexCache;
 
     @PostConstruct
     public void init() {
@@ -185,6 +196,7 @@ public class MediaScannerService {
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
             mediaFileService.clearMemoryCache();
+            indexCache.removeAll();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : settingsService.getAllMusicFolders()) {

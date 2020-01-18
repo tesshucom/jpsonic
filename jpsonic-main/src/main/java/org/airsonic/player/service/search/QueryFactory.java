@@ -241,7 +241,7 @@ public class QueryFactory {
     public Query getRandomSongs(List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
-                .add(toFolderQuery.apply(true, musicFolders), Occur.SHOULD)
+                .add(toFolderQuery.apply(false, musicFolders), Occur.MUST)
                 .build();
     }
 
