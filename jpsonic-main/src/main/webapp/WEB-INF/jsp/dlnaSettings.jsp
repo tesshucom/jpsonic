@@ -191,6 +191,7 @@
             <td colspan="2">
                 <input type="checkbox" name="dlnaGenreCountVisible" id="dlnaGenreCountVisible" ${model.dlnaGenreCountVisible? "checked": ""}/>
                 <label for="dlnaGenreCountVisible"><fmt:message key="dlnasettings.genreCountVisible"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnagenrecountvisible"/></c:import>
             </td>
         </tr>
         <tr>

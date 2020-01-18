@@ -128,7 +128,7 @@ public class DLNASettingsController {
         settingsService.setDlnaArtistVisible(dlnaArtistVisible);
         settingsService.setDlnaAlbumByGenreVisible(dlnaAlbumByGenreVisible);
         settingsService.setDlnaSongByGenreVisible(dlnaSongByGenreVisible);
-        settingsService.setDlnaGenreCountVisible(dlnaGenreCountVisible);
+        settingsService.setDlnaGenreCountVisible(dlnaGuestPublish ? false : dlnaGenreCountVisible);
         settingsService.setDlnaFolderVisible(dlnaFolderVisible);
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
