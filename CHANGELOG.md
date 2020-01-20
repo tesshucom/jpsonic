@@ -3,10 +3,32 @@
 # jpsonic/jpsonic
 # -->
 
+## v107.0.0
+#### Based on *airsonic 10.6.0-SNAPSHOT 64fad6a*
+
+> [64fad6a]
+> Startup exception suppression, ListenBrainz support, player slider re-implementation, small web screen improvements, etc.
+
+  * [fix] Update cxf to 3.3.5(CVE-2019-17573).
+  * [fix] Fixed a bug where some DLNA items could not be used.
+  * [update] Change DLNA startup port option.
+        From this version, the startup port of UPnP server can be changed by -DUPNP_PORT.
+        Airsonic has assigned a default UPnP port to 4041.
+        Jpsonic will still make the same automatic assignment.
+        If specified port with startup option, will follow it.
+  * [update] Add folder access control option to DLNA.
+        When this function is turned on, the folders published on DLNA are limited to the music folder specified by the guest user.
+  * [update] Add two new items to DLNA (Id3 tag based index and random songs per artist).
+  * [update] Add an option to specify the size of the random list used in DLNA.
+        You can change the upper sizeof three items related to the random list..
+  * [update] DLNA index cache improvements.
+        The index cache can be up to 2 minutes, but will be automatically cleared if needed.
+        Change to clear the cache automatically after scanning, changing media folder permissions, and changing music folder settings.
+
 ## v106.1.1
 #### Based on *airsonic 10.5.0-RELEASE*
 
-  * [fix] Update Tomcat to 8.5.50 (CVE-2019-12418, CVE-2019-17563 CVE).
+  * [fix] Update Tomcat to 8.5.50 (CVE-2019-12418, CVE-2019-17563).
 
 Critical security fix.
 The following measures taken.
