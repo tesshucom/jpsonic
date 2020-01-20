@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>10.5.0-RELEASE</version>
+        <version>10.6.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>106.1.1-RELEASE</jpsonic.version>
+        <jpsonic.version>107.0.0-RELEASE</jpsonic.version>
         <jetty.version>9.4.24.v20191120</jetty.version>
     </properties>
 
@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.8.3</version>
+            <version>3.9.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
@@ -166,7 +166,6 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
             <version>2.5.0</version>
-            <scope>runtime</scope>
             <!-- this wants to pull in commons-logging v1.2 which conflicts with other dependencies -->
             <exclusions>
                 <exclusion>
@@ -605,6 +604,11 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.atilika.kuromoji</groupId>
             <artifactId>kuromoji-ipadic</artifactId>
             <version>0.9.0</version>
@@ -744,6 +748,15 @@
              -->
         </plugins>
     </build>
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jxr-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+        </plugins>
+    </reporting>
     <profiles>
         <profile>
             <id>tomcat-embed</id>

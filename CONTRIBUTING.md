@@ -17,6 +17,7 @@ want a `.war` as quick as possible, you can use this instead:
 $ mvn -Dmaven.test.skip=true clean package 
 ```
 
+
 # Suggesting modifications
 
 Airsonic's source code is hosted on [github](https://github.com/airsonic/airsonic/),

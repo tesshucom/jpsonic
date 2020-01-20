@@ -29,6 +29,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.PlaylistContainer;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -47,11 +48,11 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
 
     private final CoverArtLogic coverArtLogic;
 
-    public PlaylistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, PlaylistService playlistService, CoverArtLogic coverArtLogic) {
-        super(dispatcher, util);
-        this.util = util;
-        this.playlistService = playlistService;
-        this.coverArtLogic = coverArtLogic;
+    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p, CoverArtLogic c) {
+        super(d, u);
+        this.util = u;
+        this.playlistService = p;
+        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_PLAYLIST_PREFIX);
     }
 

@@ -248,10 +248,39 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
-        if (!radio.isEnabled()) { throw new Exception("Radio is not enabled"); }
+        if (!radio.isEnabled()) {
+            throw new Exception("Radio is not enabled");
+        }
 
         Player player = resolvePlayer();
         return doPlayInternetRadio(request, player, radio).setStartPlayerAt(0);
+    }
+
+    /**
+     * @param index Start playing at this index, or play whole playlist if {@code null}.
+     */
+    public PlayQueueInfo addPlaylist(int id, Integer index) throws Exception {
+        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+
+        String username = securityService.getCurrentUsername(request);
+        boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();
+
+        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        if (!files.isEmpty() && index != null) {
+            if (queueFollowingSongs) {
+                files = files.subList(index, files.size());
+            } else {
+                files = Arrays.asList(files.get(index));
+            }
+        }
+
+        // Remove non-present files
+        files.removeIf(file -> !file.isPresent());
+
+        // Add to the play queue
+        int[] ids = files.stream().mapToInt(f -> f.getId()).toArray();
+        return doAdd(request, response, ids, index);
     }
 
     /**
@@ -275,6 +304,8 @@ public class PlayQueueService {
 
         // Remove non-present files
         files.removeIf(file -> !file.isPresent());
+
+        // Play now
         Player player = getCurrentPlayer(request, response);
         return doPlay(request, player, files).setStartPlayerAt(0);
     }

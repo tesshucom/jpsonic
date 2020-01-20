@@ -76,9 +76,12 @@ public class MediaFile {
     private String albumArtistReading;
     private String albumArtistSort;
     private String musicBrainzReleaseId;
+    private String musicBrainzRecordingId;
     private String composer;
     private String composerSort;
     private int order;
+
+    private transient int rownum;
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
@@ -86,7 +89,8 @@ public class MediaFile {
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
                      Date childrenLastUpdated, boolean present, int version,
                      String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading,
-                     String musicBrainzReleaseId, String composer, String composerSort, String albumArtistReading, int order) {
+                     String musicBrainzReleaseId, String musicBrainzRecordingId,
+                     String composer, String composerSort, String albumArtistReading, int order) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -124,6 +128,7 @@ public class MediaFile {
         this.albumArtistSort = albumArtistSort;
         this.albumReading = albumReading;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
+        this.musicBrainzRecordingId = musicBrainzRecordingId;
         this.composer = composer;
         this.composerSort = composerSort;
         this.albumArtistReading = albumArtistReading;
@@ -415,6 +420,14 @@ public class MediaFile {
         this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
+    public String getMusicBrainzRecordingId() {
+        return musicBrainzRecordingId;
+    }
+
+    public void setMusicBrainzRecordingId(String musicBrainzRecordingId) {
+        this.musicBrainzRecordingId = musicBrainzRecordingId;
+    }
+
     /**
      * Returns when the children was last updated in the database.
      */
@@ -531,6 +544,14 @@ public class MediaFile {
 
     public void setOrder(int order) {
         this.order = order;
+    }
+
+    public int getRownum() {
+        return rownum;
+    }
+
+    public void setRownum(int rownum) {
+        this.rownum = rownum;
     }
 
     @Override

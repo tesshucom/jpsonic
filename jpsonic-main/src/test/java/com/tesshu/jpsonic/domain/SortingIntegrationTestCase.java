@@ -38,6 +38,7 @@ import org.airsonic.player.service.search.IndexType;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,7 @@ import static org.junit.Assert.assertTrue;
  * Test to correct sort inconsistencies.
  * Testing may not be possible on an OS that does not support fsync.
  */
+@SpringBootTest
 public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;

@@ -7,10 +7,6 @@
 
     <script type="text/javascript" language="javascript">
         function init() {
-            <c:if test="${model.listReloadDelay gt 0}">
-            setTimeout("refresh()", ${model.listReloadDelay * 1000});
-            </c:if>
-
             <c:if test="${not model.musicFoldersExist}">
             $().toastmessage("showNoticeToast", "<fmt:message key="top.missing"/>");
             </c:if>
@@ -42,7 +38,7 @@
     <h2>${model.welcomeSubtitle}</h2>
 </c:if>
 
-<h2>
+<p>
     <c:forTokens items="random newest starred highest frequent recent decade genre alphabetical" delims=" " var="cat" varStatus="loopStatus">
         <c:if test="${loopStatus.count > 1}">&nbsp;|&nbsp;</c:if>
         <sub:url var="url" value="home.view">
@@ -59,7 +55,7 @@
         </c:choose>
 
     </c:forTokens>
-</h2>
+</p>
 
 <%@ include file="homePager.jsp" %>
 

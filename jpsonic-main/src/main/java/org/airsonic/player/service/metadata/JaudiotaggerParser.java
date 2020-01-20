@@ -33,6 +33,7 @@ import org.jaudiotagger.tag.reference.GenreTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -49,6 +50,7 @@ import java.util.regex.Pattern;
  * @author Sindre Mehus
  */
 @Service
+@Order(0)
 public class JaudiotaggerParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(JaudiotaggerParser.class);
@@ -93,6 +95,7 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDiscNumber(parseInteger(getTagField(tag, FieldKey.DISC_NO)));
                 metaData.setTrackNumber(parseTrackNumber(getTagField(tag, FieldKey.TRACK)));
                 metaData.setMusicBrainzReleaseId(getTagField(tag, FieldKey.MUSICBRAINZ_RELEASEID));
+                metaData.setMusicBrainzRecordingId(getTagField(tag, FieldKey.MUSICBRAINZ_TRACK_ID));
                 metaData.setArtistSort(getTagField(tag, FieldKey.ARTIST_SORT));
                 metaData.setAlbumSort(getTagField(tag, FieldKey.ALBUM_SORT));
                 metaData.setTitleSort(getTagField(tag, FieldKey.TITLE_SORT));
@@ -134,7 +137,7 @@ public class JaudiotaggerParser extends MetaDataParser {
             return null;
         }
     }
-    
+
     /**
      * Returns all tags supported by id3v1.
      */
@@ -165,42 +168,27 @@ public class JaudiotaggerParser extends MetaDataParser {
      * track numbers on the form "4/12".
      */
     private Integer parseTrackNumber(String trackNumber) {
-        if (trackNumber == null) {
-            return null;
-        }
-
-        Integer result = null;
-
-        try {
-            result = Integer.valueOf(trackNumber);
-        } catch (NumberFormatException x) {
-            Matcher matcher = TRACK_NUMBER_PATTERN.matcher(trackNumber);
-            if (matcher.matches()) {
-                try {
-                    result = Integer.valueOf(matcher.group(1));
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            }
-        }
-
-        if (Integer.valueOf(0).equals(result)) {
-            return null;
-        }
-        return result;
+        return parseIntegerPattern(trackNumber, TRACK_NUMBER_PATTERN);
     }
 
     private Integer parseYear(String year) {
-        if (year == null) {
+        return parseIntegerPattern(year, YEAR_NUMBER_PATTERN);
+    }
+
+    private Integer parseIntegerPattern(String str, Pattern pattern) {
+        if (str == null) {
             return null;
         }
 
         Integer result = null;
 
         try {
-            result = Integer.valueOf(year);
+            result = Integer.valueOf(str);
         } catch (NumberFormatException x) {
-            Matcher matcher = YEAR_NUMBER_PATTERN.matcher(year);
+            if (pattern == null) {
+                return null;
+            }
+            Matcher matcher = pattern.matcher(str);
             if (matcher.matches()) {
                 try {
                     result = Integer.valueOf(matcher.group(1));
@@ -218,18 +206,7 @@ public class JaudiotaggerParser extends MetaDataParser {
 
     private Integer parseInteger(String s) {
         s = StringUtils.trimToNull(s);
-        if (s == null) {
-            return null;
-        }
-        try {
-            Integer result = Integer.valueOf(s);
-            if (Integer.valueOf(0).equals(result)) {
-                return null;
-            }
-            return result;
-        } catch (NumberFormatException x) {
-            return null;
-        }
+        return parseIntegerPattern(s, null);
     }
 
     /**

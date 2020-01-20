@@ -34,6 +34,7 @@ import org.fourthline.cling.support.model.PersonWithRole;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -58,7 +59,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -171,7 +172,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return new PersonWithRole[] { new PersonWithRole(artist) };
     }
 
-    private URI createAlbumArtURI(Album album) {
+    public URI createAlbumArtURI(Album album) {
         return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(album))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));

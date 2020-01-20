@@ -20,6 +20,7 @@ if [[ $# -lt 1 ]] || [[ ! "$1" == "java"* ]]; then
      -Djpsonic.defaultMusicFolder=$JPSONIC_DIR/music \
      -Djpsonic.defaultPodcastFolder=$JPSONIC_DIR/podcasts \
      -Djpsonic.defaultPlaylistFolder=$JPSONIC_DIR/playlists \
+     -DUPNP_PORT=$UPNP_PORT \
      -Djava.awt.headless=true \
      "${java_opts_array[@]}" \
      -jar jpsonic.war "$@"

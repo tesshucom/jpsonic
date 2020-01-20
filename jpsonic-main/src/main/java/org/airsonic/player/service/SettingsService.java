@@ -19,11 +19,17 @@
  */
 package org.airsonic.player.service;
 
+import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.dao.UserDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.Avatar;
+import org.airsonic.player.domain.InternetRadio;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.Theme;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
@@ -39,12 +45,20 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
+
 
 /**
  * Provides persistent storage of application settings and preferences.
@@ -57,6 +71,8 @@ public class SettingsService {
     // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
     private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
+
+    private static final boolean DEFAULT_SCAN_ON_BOOT = false;
 
     // Global settings.
     private static final String KEY_INDEX_STRING = "IndexString";
@@ -120,9 +136,13 @@ public class SettingsService {
     private static final String KEY_DLNA_RECENT_ALBUM_VISIBLE = "DlnaRecentAlbumVisible";
     private static final String KEY_DLNA_RECENT_ALBUM_ID3_VISIBLE = "DlnaRecentAlbumId3Visible";
     private static final String KEY_DLNA_INDEX_VISIBLE = "DlnaIndexVisible";
+    private static final String KEY_DLNA_INDEX_ID3_VISIBLE = "DlnaIndexId3Visible";
     private static final String KEY_DLNA_PODCAST_VISIBLE = "DlnaPodcastVisible";
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
+    private static final String KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = "DlnaRandomSongByArtistVisible";
+    private static final String KEY_DLNA_RANDOM_MAX = "DlnaRandomMax";
+    private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
@@ -154,10 +174,12 @@ public class SettingsService {
     private static final String KEY_DATABASE_MYSQL_VARCHAR_MAXLENGTH = "DatabaseMysqlMaxlength";
     private static final String KEY_DATABASE_USERTABLE_QUOTE = "DatabaseUsertableQuote";
 
+    private static final String KEY_UPNP_PORT = "UPNP_PORT";
+
     // Default values.
     private static final String DEFAULT_JWT_KEY = null;
     private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) \u3084(\u30E4\u30E6\u30E8) \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) \u308F(\u30EF\u30F2\u30F3)";
-    private static final String DEFAULT_IGNORED_ARTICLES = "The El La Los Las Le Les";
+    private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
     private static final String DEFAULT_PLAYLIST_FOLDER = Util.getDefaultPlaylistFolder();
     private static final String DEFAULT_MUSIC_FILE_TYPES = "mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus";
@@ -217,9 +239,14 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RECENT_ALBUM_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_INDEX_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_INDEX_ID3_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_PODCAST_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
+    private static final int DEFAULT_DLNA_RANDOM_MAX = 50;
+
 
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
@@ -247,6 +274,8 @@ public class SettingsService {
     private static final String DEFAULT_DATABASE_CONFIG_JNDI_NAME = null;
     private static final Integer DEFAULT_DATABASE_MYSQL_VARCHAR_MAXLENGTH = 512;
     private static final String DEFAULT_DATABASE_USERTABLE_QUOTE = null;
+    
+    private static final int DEFAULT_UPNP_PORT = -1;
 
     // Array of obsolete keys.  Used to clean property file.
     private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort", "PortForwardingLocalPort",
@@ -277,6 +306,8 @@ public class SettingsService {
     private AvatarDao avatarDao;
     @Autowired
     private ApacheCommonsConfigurationService configurationService;
+    @Autowired
+    private Ehcache indexCache;
 
     private String[] cachedCoverArtFileTypesArray;
     private String[] cachedMusicFileTypesArray;
@@ -318,6 +349,10 @@ public class SettingsService {
         return home;
     }
 
+    public static boolean isScanOnBoot() {
+        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s)).orElse(DEFAULT_SCAN_ON_BOOT);
+    }
+
     private static String getFileSystemAppName() {
         String home = getJpsonicHome().getPath();
         return home.contains("libresonic") ? "libresonic" : "jpsonic";
@@ -325,6 +360,10 @@ public class SettingsService {
 
     public static String getDefaultJDBCUrl() {
         return "jdbc:hsqldb:file:" + getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
+    }
+
+    public static int getDefaultUPnPPort() {
+        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x)).orElse(DEFAULT_UPNP_PORT);
     }
 
     public static File getLogFile() {
@@ -975,7 +1014,7 @@ public class SettingsService {
                 String[] lines = StringUtil.readLines(in);
 
                 for (String line : lines) {
-                    locales.add(parseLocale(line));
+                    locales.add(StringUtil.parseLocale(line));
                 }
 
             } catch (IOException x) {
@@ -984,21 +1023,6 @@ public class SettingsService {
             }
         }
         return locales.toArray(new Locale[locales.size()]);
-    }
-
-    private Locale parseLocale(String line) {
-        String[] s = line.split("_");
-        String language = s[0];
-        String country = "";
-        String variant = "";
-
-        if (s.length > 1) {
-            country = s[1];
-        }
-        if (s.length > 2) {
-            variant = s[2];
-        }
-        return new Locale(language, country, variant);
     }
 
     /**
@@ -1086,6 +1110,7 @@ public class SettingsService {
     public void setMusicFoldersForUser(String username, List<Integer> musicFolderIds) {
         musicFolderDao.setMusicFoldersForUser(username, musicFolderIds);
         cachedMusicFoldersPerUser.remove(username);
+        indexCache.removeAll();
     }
 
     /**
@@ -1137,6 +1162,7 @@ public class SettingsService {
     public void clearMusicFolderCache() {
         cachedMusicFolders = null;
         cachedMusicFoldersPerUser.clear();
+        indexCache.removeAll();
     }
 
     /**
@@ -1219,9 +1245,10 @@ public class SettingsService {
         settings.setQueueFollowingSongs(true);
         settings.setDefaultAlbumList(AlbumListType.RANDOM);
         settings.setLastFmEnabled(false);
-        settings.setListReloadDelay(60);
+        settings.setListenBrainzEnabled(false);
         settings.setLastFmUsername(null);
         settings.setLastFmPassword(null);
+        settings.setListenBrainzToken(null);
         settings.setChanged(new Date());
         settings.setPaginationSize(40);
 
@@ -1396,8 +1423,20 @@ public class SettingsService {
         setBoolean(KEY_DLNA_INDEX_VISIBLE, b);
     }
 
+    public boolean isDlnaIndexId3Visible() {
+        return getBoolean(KEY_DLNA_INDEX_ID3_VISIBLE, DEFAULT_DLNA_INDEX_ID3_VISIBLE);
+    }
+
+    public void setDlnaIndexId3Visible(boolean b) {
+        setBoolean(KEY_DLNA_INDEX_ID3_VISIBLE, b);
+    }
+
     public boolean isDlnaPodcastVisible() {
         return getBoolean(KEY_DLNA_PODCAST_VISIBLE, DEFAULT_DLNA_PODCAST_VISIBLE);
+    }
+
+    public void setDlnaPodcastVisible(boolean b) {
+        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
     }
 
     public boolean isDlnaRandomAlbumVisible() {
@@ -1416,8 +1455,30 @@ public class SettingsService {
         setBoolean(KEY_DLNA_RANDOM_SONG_VISIBLE, b);
     }
 
-    public void setDlnaPodcastVisible(boolean b) {
-        setBoolean(KEY_DLNA_PODCAST_VISIBLE, b);
+    public boolean isDlnaRandomSongByArtistVisible() {
+        return getBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE);
+    }
+
+    public void setDlnaRandomSongByArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, b);
+    }
+
+    public boolean isDlnaGuestPublish() {
+        return getBoolean(KEY_DLNA_GUEST_PUBLISH, DEFAULT_DLNA_GUEST_PUBLISH);
+    }
+
+    public void setDlnaGuestPublish(boolean b) {
+        setBoolean(KEY_DLNA_GUEST_PUBLISH, b);
+    }
+
+    public int getDlnaRandomMax() {
+        return getInt(KEY_DLNA_RANDOM_MAX, DEFAULT_DLNA_RANDOM_MAX);
+    }
+
+    public void setDlnaRandomMax(int i) {
+        if (0 < i) {
+            setInt(KEY_DLNA_RANDOM_MAX, i);
+        }
     }
 
     public boolean isSonosEnabled() {
@@ -1515,6 +1576,7 @@ public class SettingsService {
             return s;
         }
     }
+
     public void setSmtpPassword(String smtpPassword) {
         try {
             smtpPassword = StringUtil.utf8HexEncode(smtpPassword);

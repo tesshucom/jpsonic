@@ -14,8 +14,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
@@ -25,11 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@ContextConfiguration(locations = {
-        "/applicationContext-service.xml",
-        "/applicationContext-cache.xml",
-        "/applicationContext-testdb.xml",
-        "/applicationContext-mockSonos.xml" })
+@SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class UPnPCriteriaDirectorTestCase extends AbstractAirsonicHomeTest {
 

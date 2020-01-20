@@ -72,9 +72,12 @@ public class DLNASettingsController {
         map.put("dlnaRecentAlbumId3Visible", settingsService.isDlnaRecentAlbumId3Visible());
         map.put("dlnaRandomAlbumVisible", settingsService.isDlnaRandomAlbumVisible());
         map.put("dlnaRandomSongVisible", settingsService.isDlnaRandomSongVisible());
+        map.put("dlnaRandomSongByArtistVisible", settingsService.isDlnaRandomSongByArtistVisible());
         map.put("dlnaIndexVisible", settingsService.isDlnaIndexVisible());
+        map.put("dlnaIndexId3Visible", settingsService.isDlnaIndexId3Visible());
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
-
+        map.put("dlnaRandomMax", settingsService.getDlnaRandomMax());
+        map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
         model.addAttribute("model", map);
         return "dlnaSettings";
     }
@@ -105,9 +108,13 @@ public class DLNASettingsController {
         boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumId3Visible", false);
         boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomAlbumVisible", false);
         boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
+        boolean dlnaRandomSongByArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongByArtistVisible", false);
         boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
+        boolean dlnaIndexId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexId3Visible", false);
         boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
-        
+        int dlnaRandomMax = ServletRequestUtils.getIntParameter(request, "dlnaRandomMax", 50);
+        boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request, "dlnaGuestPublish", false);
+
         boolean isEnabledStateChange =
                 !(settingsService.isDlnaEnabled() == dlnaEnabled
                 && !isEmpty(dlnaServerName) && dlnaServerName.equals(settingsService.getDlnaServerName())
@@ -121,15 +128,19 @@ public class DLNASettingsController {
         settingsService.setDlnaArtistVisible(dlnaArtistVisible);
         settingsService.setDlnaAlbumByGenreVisible(dlnaAlbumByGenreVisible);
         settingsService.setDlnaSongByGenreVisible(dlnaSongByGenreVisible);
-        settingsService.setDlnaGenreCountVisible(dlnaGenreCountVisible);
+        settingsService.setDlnaGenreCountVisible(dlnaGuestPublish ? false : dlnaGenreCountVisible);
         settingsService.setDlnaFolderVisible(dlnaFolderVisible);
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);
         settingsService.setDlnaRecentAlbumId3Visible(dlnaRecentAlbumId3Visible);
         settingsService.setDlnaRandomAlbumVisible(dlnaRandomAlbumVisible);
         settingsService.setDlnaRandomSongVisible(dlnaRandomSongVisible);
+        settingsService.setDlnaRandomSongByArtistVisible(dlnaRandomSongByArtistVisible);
         settingsService.setDlnaIndexVisible(dlnaIndexVisible);
+        settingsService.setDlnaIndexId3Visible(dlnaIndexId3Visible);
         settingsService.setDlnaPodcastVisible(dlnaPodcastVisible);
+        settingsService.setDlnaRandomMax(dlnaRandomMax);
+        settingsService.setDlnaGuestPublish(dlnaGuestPublish);
 
         settingsService.save();
 

@@ -199,8 +199,7 @@ public class MediaFileService {
      * @param sort               Whether to sort files in the same directory.
      * @return All children media files.
      */
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
-            boolean sort, boolean useFastCache) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort, boolean useFastCache) {
 
         if (!parent.isDirectory()) {
             return Collections.emptyList();
@@ -562,6 +561,7 @@ public class MediaFileService {
                 mediaFile.setArtistSort(metaData.getArtistSort());
                 mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
+                mediaFile.setMusicBrainzRecordingId(metaData.getMusicBrainzRecordingId());
                 mediaFile.setComposer(metaData.getComposer());
                 mediaFile.setComposerSort(metaData.getComposerSort());
                 mediaFileJPSupport.analyze(mediaFile);

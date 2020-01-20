@@ -1,14 +1,11 @@
 package org.airsonic.player;
 
-import org.airsonic.player.controller.AvatarUploadController;
 import org.airsonic.player.controller.JAXBWriter;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.service.MediaScannerService;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,9 +16,9 @@ import java.util.stream.Collectors;
 
 public class TestCaseUtils {
 
-    private static File jpsonicHomeDirForTest = null;
+    private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
+    private static File jpsonicHomeDirForTest = null;
 
     /**
      * Returns the path of the JPSONIC_HOME directory to use for tests. This will
@@ -89,15 +86,6 @@ public class TestCaseUtils {
      */
     public static Integer recordsInTable(String tableName, DaoHelper daoHelper) {
         return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName, Integer.class);
-    }
-
-    public static ApplicationContext loadSpringApplicationContext(String baseResources) {
-        String applicationContextService = baseResources + "applicationContext-service.xml";
-        String applicationContextCache = baseResources + "applicationContext-cache.xml";
-
-        String[] configLocations = new String[] { TestCaseUtils.class.getClass().getResource(applicationContextCache).toString(),
-                TestCaseUtils.class.getClass().getResource(applicationContextService).toString() };
-        return new ClassPathXmlApplicationContext(configLocations);
     }
 
     /**

@@ -32,6 +32,7 @@ import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.document.Document;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -56,11 +57,11 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Termination used by SearchService.
- * 
+ *
  * Since SearchService operates as a proxy for storage (DB) using lucene,
  * there are many redundant descriptions different from essential data processing.
  * This class is a transfer class for saving those redundant descriptions.
- * 
+ *
  * Exception handling is not termination,
  * so do not include exception handling in this class.
  */
@@ -97,9 +98,6 @@ public class SearchServiceUtilities {
     private Random random;
 
     private Random secureRandom;
-
-    public static final String CASHE_KEY_RANDOM_ALBUM = "randomAlbum";
-    public static final String CASHE_KEY_RANDOM_SONG = "randomSong";
 
     {
         try {
@@ -187,7 +185,7 @@ public class SearchServiceUtilities {
 
     public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType,
             int subjectId) {
-        if (indexType == IndexType.ALBUM | indexType == IndexType.SONG) {
+        if (indexType == IndexType.ALBUM || indexType == IndexType.SONG) {
             return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
         } else if (indexType == IndexType.ALBUM_ID3) {
             return addIgnoreNull(collection, albumDao.getAlbum(subjectId));
@@ -212,8 +210,8 @@ public class SearchServiceUtilities {
     public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType,
             Document subject) {
         int documentId = getId.apply(subject);
-        if (subjectIndexType == IndexType.ARTIST | subjectIndexType == IndexType.ALBUM
-                | subjectIndexType == IndexType.SONG) {
+        if (subjectIndexType == IndexType.ARTIST || subjectIndexType == IndexType.ALBUM
+                || subjectIndexType == IndexType.SONG) {
             addMediaFileIfAnyMatch.accept(dist.getMediaFiles(), documentId);
         } else if (subjectIndexType == IndexType.ARTIST_ID3) {
             addArtistId3IfAnyMatch.accept(dist.getArtists(), documentId);
@@ -240,10 +238,13 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
-    private final String createCacheKey(String key, int casheMax, List<MusicFolder> musicFolders) {
+    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(",").append(casheMax).append("[");
         musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        if (!isEmpty(additional)) {
+            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(","));
+        }
         b.append("]");
         return b.toString();
     }
@@ -262,7 +263,20 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<Integer>> getCache(String key, int casheMax, List<MusicFolder> musicFolders) {
+    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
+        List<MediaFile> mediaFiles = null;
+        Element element = null;
+        synchronized (randomCache) {
+            element = randomCache.get(createCacheKey(key, casheMax, musicFolders, additional));
+        }
+        if (!isEmpty(element)) {
+            mediaFiles = (List<MediaFile>) element.getObjectValue();
+        }
+        return Optional.ofNullable(mediaFiles);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
         Element element = null;
         synchronized (randomCache) {
@@ -280,9 +294,15 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(String key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<Integer> value) {
         synchronized (randomCache) {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders), value));
+        }
+    }
+
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value, String... additional) {
+        synchronized (randomCache) {
+            randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
         }
     }
 

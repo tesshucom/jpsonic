@@ -34,6 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.BiFunction;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Provides database services for media files.
@@ -46,7 +49,7 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +
                                                 "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, " +
                                                 "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, " +
-                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id, " +
+                                                "version, artist_reading, title_sort, album_sort, artist_sort, album_artist_sort, album_reading, mb_release_id, mb_recording_id, " +
                                                 "composer, composer_sort, album_artist_reading, _order";
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -56,6 +59,7 @@ public class MediaFileDao extends AbstractDao {
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
+    private final RowMapper<MediaFile> iRowMapper = new MediaFileInternalRowMapper();
     private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
     private final RowMapper<Genre> genreRowMapper = new GenreMapper();
     private final RowMapper<MediaFile> artistSortCandidateMapper = new ArtistSortCandidateMapper();
@@ -129,6 +133,70 @@ public class MediaFileDao extends AbstractDao {
                 "where " +
                 "media_file.id = playlist_file.media_file_id and " +
                 "playlist_file.playlist_id = ? and present ", 0, playlistId);
+    }
+
+    public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
+            BiFunction< /** range */ Integer, /** limit */ Integer, List<Integer>> randomCallback) {
+
+        String type = MediaFile.MediaType.MUSIC.name();
+
+        /* Run the query twice. */
+
+        /*
+         * Get the number of records that match the conditions, to generate a set of
+         * random numbers according to the number. Therefore, if the number of cases at
+         * this time is too large, the subsequent performance is likely to be affected.
+         * If the number isn't too large, it doesn't matter much.
+         */
+        int countAll = queryForInt("select count(*) from media_file where present and type = ? and album_artist = ?", 0, type, albumArtist);
+        List<Integer> randomRownum = randomCallback.apply(countAll, limit);
+
+        Map<String, Object> args = new HashMap<>();
+        args.put("type", type);
+        args.put("artist", albumArtist);
+        args.put("randomRownum", randomRownum);
+        args.put("limit", limit);
+
+        /*
+         * Perform a conditional search and add a line number.
+         * Returns the result whose line number is included in the random number set.
+         * 
+         * There are some technical barriers to this query.
+         * 
+         *  (1) It must be a line number acquisition method that can be executed in all DBs.
+         *  (2) It is simpler to join using unnest.
+         *  However, hsqldb traditionally has a problem with unnest, and the operation specification differs depending on the version.
+         *  In addition, compatibility of each DB may be affected.
+         *  
+         *  Therefore, we use a very primitive query that combines COUNT and IN here.
+         *  
+         *  IN allows you to get the smallest song subset corresponding to random numbers,
+         *  but unlike JOIN, the order of random numbers is destroyed.
+         */
+        List<MediaFile> tmpResult = namedQuery(
+                "select " + QUERY_COLUMNS + ", foo.irownum from " +
+                "    (select " +
+                "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, * " +
+                "    from (select * " +
+                "        from media_file " +
+                "        where type = :type " +
+                "        and album_artist = :artist " +
+                "        order by _order, album_artist, album) boo " +
+                ") as foo " + 
+                "where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
+
+        /* Restore the order lost in IN. */
+        Map<Integer, MediaFile> map = new HashMap<>();
+        tmpResult.forEach(m -> map.put(m.getRownum(), m));
+        List<MediaFile> result = new ArrayList<>();
+        randomRownum.forEach(i -> {
+            MediaFile m = map.get(i);
+            if (!isEmpty(m)) {
+                result.add(m);
+            }
+        });
+
+        return Collections.unmodifiableList(result);
     }
 
     public List<MediaFile> getSongsForAlbum(String artist, String album) {
@@ -226,6 +294,7 @@ public class MediaFileDao extends AbstractDao {
                      "album_artist_sort=?, " +
                      "album_reading=?, " +
                      "mb_release_id=?, " +
+                     "mb_recording_id=?, " +
                      "composer=?, " +
                      "composer_sort=?, " +
                      "album_artist_reading=?, " +
@@ -248,6 +317,7 @@ public class MediaFileDao extends AbstractDao {
                        file.getAlbumArtistSort(),
                        file.getAlbumReading(),
                        file.getMusicBrainzReleaseId(),
+                       file.getMusicBrainzRecordingId(),
                        file.getComposer(),
                        file.getComposerSort(),
                        file.getAlbumArtistReading(),
@@ -272,7 +342,7 @@ public class MediaFileDao extends AbstractDao {
                    file.getCreated(), file.getChanged(), file.getLastScanned(),
                    file.getChildrenLastUpdated(), file.isPresent(), VERSION,
                    file.getArtistReading(), file.getTitleSort(), file.getAlbumSort(), file.getArtistSort(), file.getAlbumArtistSort(), file.getAlbumReading(),
-                   file.getMusicBrainzReleaseId(), file.getComposer(), file.getComposerSort(), file.getAlbumArtistReading(), -1);
+                   file.getMusicBrainzReleaseId(), file.getMusicBrainzRecordingId(), file.getComposer(), file.getComposerSort(), file.getAlbumArtistReading(), -1);
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -955,8 +1025,20 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(38),
                     rs.getString(39),
                     rs.getString(40),
-                    rs.getInt(41));
+                    rs.getString(41),
+                    rs.getInt(42));
         }
+    }
+
+    private static class MediaFileInternalRowMapper extends MediaFileMapper {
+
+        @Override
+        public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
+            MediaFile mediaFile = super.mapRow(rs, rowNum);
+            mediaFile.setRownum(rs.getInt("irownum"));
+            return mediaFile;
+        }
+
     }
 
     private static class MusicFileInfoMapper implements RowMapper<MediaFile> {

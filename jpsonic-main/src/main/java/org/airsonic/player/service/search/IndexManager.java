@@ -36,6 +36,7 @@ import org.airsonic.player.util.Util;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexNotFoundException;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -74,7 +75,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 /**
  * Function class that is strongly linked to the lucene index implementation.
  * Legacy has an implementation in SearchService.
- * 
+ *
  * If the index CRUD and search functionality are in the same class,
  * there is often a dependency conflict on the class used.
  * Although the interface of SearchService is left to maintain the legacy implementation,
@@ -88,7 +89,7 @@ public class IndexManager {
     /**
      * Schema version of Airsonic index.
      * It may be incremented in the following cases:
-     * 
+     *
      *  - Incompatible update case in Lucene index implementation
      *  - When schema definition is changed due to modification of AnalyzerFactory,
      *    DocumentFactory or the class that they use.
@@ -368,8 +369,10 @@ public class IndexManager {
                 } else {
                     LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
                 }
+            } catch (IndexNotFoundException e) {
+                LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(), indexDirectory.getAbsolutePath());
             } catch (IOException e) {
-                LOG.error("Failed to initialize SearcherManager.", e);
+                LOG.warn("Failed to initialize SearcherManager.", e);
             }
         }
         try {

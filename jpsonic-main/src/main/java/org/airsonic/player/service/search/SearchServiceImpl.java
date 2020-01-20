@@ -25,6 +25,7 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
+import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
 import org.slf4j.Logger;
@@ -39,8 +40,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.airsonic.player.service.search.IndexType.*;
-import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_ALBUM;
-import static org.airsonic.player.service.search.SearchServiceUtilities.CASHE_KEY_RANDOM_SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
@@ -237,7 +236,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<Integer>> addSubToResult = (ids) ->
             ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
                 .forEach(id -> util.addIgnoreNull(result, SONG, id));
-        util.getCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders).ifPresent(addSubToResult);
+        util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
@@ -264,7 +263,7 @@ public class SearchServiceImpl implements SearchService {
                 docs.remove(randomPos);
             }
 
-            util.putCache(CASHE_KEY_RANDOM_SONG, casheMax, musicFolders, ids);
+            util.putCache(RandomCacheKey.SONG, casheMax, musicFolders, ids);
 
             addSubToResult.accept(ids);
 
@@ -275,6 +274,47 @@ public class SearchServiceImpl implements SearchService {
         }
 
         return result;
+    }
+
+    private final int min(Integer... integers) {
+        int min = Integer.MAX_VALUE;
+        for (int i : integers) {
+            min = Integer.min(min, i);
+        }
+        return min;
+    }
+    
+    @Override
+    public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+
+        final List<MediaFile> result = new ArrayList<>();
+        Consumer<List<MediaFile>> addSubToResult = (files) -> {
+            List<MediaFile> sub = files.subList((int) offset, min(files.size(), (int) (offset + count), casheMax));
+            result.addAll(sub);
+        };
+
+        util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName()).ifPresent(addSubToResult);
+        if (0 < result.size()) {
+            return result;
+        }
+
+        List<MediaFile> songs = mediaFileDao.getRandomSongsForAlbumArtist(casheMax, artist.getName(), musicFolders, (range, limit) -> {
+            List<Integer> randoms = new ArrayList<>();
+            while (randoms.size() < Math.min(limit, range)) {
+                Integer random = util.nextInt.apply(range);
+                if (!randoms.contains(random)) {
+                    randoms.add(random);
+                }
+            }
+            return randoms;
+        });
+
+        util.putCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, songs, artist.getName());
+
+        addSubToResult.accept(songs);
+
+        return result;
+
     }
 
     @Override
@@ -330,7 +370,7 @@ public class SearchServiceImpl implements SearchService {
         Consumer<List<Integer>> addSubToResult = (ids) ->
             ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
                 .forEach(id -> util.addIgnoreNull(result, ALBUM_ID3, id));
-        util.getCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
+        util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
@@ -357,7 +397,7 @@ public class SearchServiceImpl implements SearchService {
                 docs.remove(randomPos);
             }
 
-            util.putCache(CASHE_KEY_RANDOM_ALBUM, casheMax, musicFolders, ids);
+            util.putCache(RandomCacheKey.ALBUM, casheMax, musicFolders, ids);
 
             addSubToResult.accept(ids);
 

@@ -31,6 +31,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicArtist;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -49,11 +50,11 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     
     private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, ArtistDao artistDao, CoverArtLogic coverArtLogic) {
-        super(dispatcher, util);
-        this.util = util;
-        this.artistDao = artistDao;
-        this.coverArtLogic = coverArtLogic;
+    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, CoverArtLogic c) {
+        super(d, u);
+        this.util = u;
+        this.artistDao = a;
+        this.coverArtLogic = c;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ARTIST_PREFIX);
     }
 
@@ -116,7 +117,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
     }
 
-    private URI createArtistArtURI(Artist artist) {
+    public URI createArtistArtURI(Artist artist) {
         return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
                 .queryParam("id", coverArtLogic.createKey(artist))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));

@@ -28,6 +28,7 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -49,11 +50,11 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     private final MediaFileService mediaFileService;
 
-    public AlbumByGenreUpnpProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, MediaFileService mediaFileService, SearchService searchService) {
-        super(dispatcher, util);
-        this.util = util;
-        this.mediaFileService = mediaFileService;
-        this.searchService = searchService;
+    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, SearchService s) {
+        super(d, u);
+        this.util = u;
+        this.mediaFileService = m;
+        this.searchService = s;
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_ALBUM_BY_GENRE_PREFIX);
     }
 

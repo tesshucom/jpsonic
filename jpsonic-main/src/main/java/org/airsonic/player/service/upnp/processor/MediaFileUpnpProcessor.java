@@ -38,6 +38,7 @@ import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
 import org.seamless.util.MimeType;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -60,7 +61,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
+    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;

@@ -101,13 +101,13 @@ public class DocumentFactory {
         doc.add(new StoredField(field, value, TYPE_KEY));
     };
 
-    private BiConsumer<@NonNull  Document, @NonNull String> fieldMediatype = (doc, value) ->
+    private BiConsumer<@NonNull Document, @NonNull String> fieldMediatype = (doc, value) ->
         fieldKey.accept(doc, FieldNames.MEDIA_TYPE, value);
 
-    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> 
+    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) ->
         fieldKey.accept(doc, FieldNames.FOLDER, value);
 
-    public BiFunction<@NonNull String, @Nullable String, List<Field>>  createWordsFields = (fieldName, value) ->
+    public BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName, value) ->
         Arrays.asList(new TextField(fieldName, value, Store.NO), new SortedDocValuesField(fieldName, new BytesRef(value)));
 
     private Consumer<@NonNull Document, @NonNull String, @Nullable String> fieldWords = (doc, fieldName, value) -> {
@@ -155,7 +155,7 @@ public class DocumentFactory {
 
     /**
      * Create a document.
-     * 
+     *
      * @param mediaFile target of document
      * @return document
      * @since legacy
@@ -176,7 +176,7 @@ public class DocumentFactory {
 
     /**
      * Create a document.
-     * 
+     *
      * @param mediaFile target of document
      * @return document
      * @since legacy
@@ -194,7 +194,7 @@ public class DocumentFactory {
 
     /**
      * Create a document.
-     * 
+     *
      * @param album target of document
      * @return document
      * @since legacy
@@ -214,7 +214,7 @@ public class DocumentFactory {
 
     /**
      * Create a document.
-     * 
+     *
      * @param artist target of document
      * @param musicFolder target folder exists
      * @return document
@@ -224,10 +224,10 @@ public class DocumentFactory {
      *  XXX 3.x -> 8.x :
      *  Only null check specification of createArtistId3Document is different from legacy.
      *  (The reason is only to simplify the function.)
-     *  
+     *
      *  Since the field of domain object Album is nonnull,
      *  null check was not performed.
-     *  
+     *
      *  In implementation ARTIST and ALBUM became nullable,
      *  but null is not input at this point in data flow.
      */
@@ -243,7 +243,7 @@ public class DocumentFactory {
 
     /**
      * Create a document.
-     * 
+     *
      * @param mediaFile target of document
      * @return document
      * @since legacy

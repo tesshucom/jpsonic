@@ -3,11 +3,13 @@ package org.airsonic.player.service.upnp;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.IndexId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.MediaFileUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongByArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
@@ -30,9 +32,11 @@ public interface UpnpProcessDispatcher {
     final String CONTAINER_ID_RECENT_PREFIX = "recent";
     final String CONTAINER_ID_RECENT_ID3_PREFIX = "recentId3";
     final String CONTAINER_ID_INDEX_PREFIX = "index";
+    final String CONTAINER_ID_INDEX_ID3_PREFIX = "indexId3";
     final String CONTAINER_ID_PODCAST_PREFIX = "podcast";
     final String CONTAINER_ID_RANDOM_ALBUM = "randomAlbum";
     final String CONTAINER_ID_RANDOM_SONG = "randomSong";
+    final String CONTAINER_ID_RANDOM_SONG_BY_ARTIST = "randomSongByArtist";
 
     RootUpnpProcessor getRootProcessor();
 
@@ -54,11 +58,15 @@ public interface UpnpProcessDispatcher {
 
     IndexUpnpProcessor getIndexProcessor();
 
+    IndexId3UpnpProcessor getIndexId3Processor();
+
     PodcastUpnpProcessor getPodcastProcessor();
 
     RandomAlbumUpnpProcessor getRandomAlbumProcessor();
 
     RandomSongUpnpProcessor getRandomSongProcessor();
+
+    RandomSongByArtistUpnpProcessor getRandomSongByArtistProcessor();
 
     @SuppressWarnings("rawtypes")
     default UpnpContentProcessor findProcessor(String type) {
@@ -83,12 +91,16 @@ public interface UpnpProcessDispatcher {
                 return getSongByGenreProcessor();
             case CONTAINER_ID_INDEX_PREFIX:
                 return getIndexProcessor();
+            case CONTAINER_ID_INDEX_ID3_PREFIX:
+                return getIndexId3Processor();
             case CONTAINER_ID_PODCAST_PREFIX:
                 return getPodcastProcessor();
             case CONTAINER_ID_RANDOM_ALBUM:
                 return getRandomAlbumProcessor();
             case CONTAINER_ID_RANDOM_SONG:
                 return getRandomSongProcessor();
+            case CONTAINER_ID_RANDOM_SONG_BY_ARTIST:
+                return getRandomSongByArtistProcessor();
         }
         return null;
     }
