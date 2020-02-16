@@ -24,8 +24,8 @@ import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
@@ -61,7 +61,7 @@ public class PlaylistService {
     @Autowired
     private JMediaFileDao mediaFileDao;
     @Autowired
-    private PlaylistDao playlistDao;
+    private JPlaylistDao playlistDao;
     @Autowired
     private SecurityService securityService;
     @Autowired
@@ -75,7 +75,7 @@ public class PlaylistService {
 
     public PlaylistService(
             JMediaFileDao mediaFileDao,
-            PlaylistDao playlistDao,
+            JPlaylistDao playlistDao,
             SecurityService securityService,
             SettingsService settingsService,
             List<PlaylistExportHandler> exportHandlers,

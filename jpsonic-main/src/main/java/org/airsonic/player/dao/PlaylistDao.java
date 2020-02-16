@@ -72,10 +72,6 @@ public class PlaylistDao extends AbstractDao {
         return queryOne("select " + QUERY_COLUMNS + " from playlist where id=?", rowMapper, id);
     }
 
-    public int getCountAll() {
-        return queryForInt("select count(id) from playlist", 0);
-    }
-
     public List<Playlist> getAllPlaylists() {
         return query("select " + QUERY_COLUMNS + " from playlist", rowMapper);
     }
