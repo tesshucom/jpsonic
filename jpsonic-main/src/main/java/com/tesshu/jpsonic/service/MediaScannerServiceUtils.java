@@ -18,11 +18,11 @@
  */
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 
-import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -43,7 +43,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Provide analysis of Japanese name.
  */
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "albumDao", "mediaFileJPSupport", "indexManager", "jpsonicComparators" })
+@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "mediaFileJPSupport", "indexManager", "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JMediaFileService.class);
@@ -51,7 +51,7 @@ public class MediaScannerServiceUtils {
     private final SettingsService settingsService;
     private final JMediaFileDao mediaFileDao;
     private final JArtistDao artistDao;
-    private final AlbumDao albumDao;
+    private final JAlbumDao albumDao;
     private final MediaFileJPSupport mediaFileJPSupport;
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
@@ -60,7 +60,7 @@ public class MediaScannerServiceUtils {
             SettingsService settingsService,
             JMediaFileDao mediaFileDao,
             JArtistDao artistDao,
-            AlbumDao albumDao,
+            JAlbumDao albumDao,
             MediaFileJPSupport mediaFileJPSupport,
             IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {

@@ -18,8 +18,8 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
-import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.SearchService;
@@ -44,7 +44,7 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, AlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
+    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
         super(d, u, m, a, c);
         this.util = u;
         this.searchService = s;
