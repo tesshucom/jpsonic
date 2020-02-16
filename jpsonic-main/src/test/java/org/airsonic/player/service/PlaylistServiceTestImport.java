@@ -1,6 +1,8 @@
 package org.airsonic.player.service;
 
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.dao.JMediaFileDao;
+
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -68,7 +70,7 @@ public class PlaylistServiceTestImport {
     @Before
     public void setup() {
         playlistService = new PlaylistService(
-                mediaFileDao,
+                new JMediaFileDao(mediaFileDao),
                 playlistDao,
                 securityService,
                 settingsService,

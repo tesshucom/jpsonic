@@ -20,6 +20,7 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -86,6 +87,8 @@ public class MediaScannerService {
     private MediaFileJPSupport mediaFileJPSupport;
     @Autowired
     private Ehcache indexCache;
+    @Autowired
+    private MediaScannerServiceUtils utils;
 
     @PostConstruct
     public void init() {
@@ -189,9 +192,7 @@ public class MediaScannerService {
 
             scanCount = 0;
 
-            artistDao.clearOrder();
-            albumDao.clearOrder();
-            mediaFileDao.clearOrder();
+            utils.clearOrder();
 
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
@@ -233,18 +234,18 @@ public class MediaScannerService {
             LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
 
             // Update artistSort
-            mediaFileService.updateArtistSort();
+            utils.updateArtistSort();
 
             // Update albumSort
-            mediaFileService.updateAlbumSort();
+            utils.updateAlbumSort();
 
             // Update order
             if (settingsService.isSortStrict()) {
                 LOG.info(
                         "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                mediaFileService.updateArtistOrder();
-                mediaFileService.updateAlbumOrder();
-                mediaFileService.updateFileStructureOrder();
+                utils.updateArtistOrder();
+                utils.updateAlbumOrder();
+                utils.updateFileStructureOrder();
             } else {
                 LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
             }

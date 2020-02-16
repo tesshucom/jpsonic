@@ -18,10 +18,11 @@
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
 package org.airsonic.player.service.upnp.processor;
+
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -43,7 +44,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, AlbumDao a, CoverArtLogic c) {
         super(d, u, m, a, c);
         this.util = u;
         this.albumDao = a;
