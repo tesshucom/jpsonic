@@ -106,16 +106,6 @@ public class JMediaFileDao extends AbstractDao {
         update("update media_file set _order = -1");
     }
 
-    @Deprecated
-    public void clearSort() { // @formatter:off
-        update("update media_file set artist_sort = null where type in(?, ?) and present",
-                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-        update("update media_file set album_artist_sort = null where type in(?, ?) and present",
-                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-        update("update media_file set album_sort = null where type in(?, ?) and present",
-                MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-    } // @formatter:on
-
     public void createOrUpdateMediaFile(MediaFile file) {
         deligate.createOrUpdateMediaFile(file);
     }
@@ -378,21 +368,6 @@ public class JMediaFileDao extends AbstractDao {
         String sql = "update media_file set album_sort = ? where album = ? and type = ?";
         LOG.trace("Updating media file {}", album);
         return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
-    }
-
-    /**
-     * Update artistSorts all.
-     * 
-     * @param artist     The artist to update.
-     * @param artistSort Update value.
-     */
-    @Transactional
-    @Deprecated
-    public int updateArtistSort(String artist, String artistSort) {
-        LOG.trace("Updating media file at {}", artist);
-        String sql = "update media_file set artist_sort = ? where artist = ? and type in (?, ?)";
-        LOG.trace("Updating media file {}", artist);
-        return update(sql, artistSort, artist, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
     }
 
     public void updateGenres(List<Genre> genres) {
