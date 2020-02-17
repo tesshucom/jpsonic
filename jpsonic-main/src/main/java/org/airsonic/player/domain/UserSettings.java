@@ -311,7 +311,6 @@ public class UserSettings {
     public static class Visibility {
         private boolean isTrackNumberVisible;
         private boolean isArtistVisible;
-        private boolean isComposerVisible;
         private boolean isAlbumVisible;
         private boolean isGenreVisible;
         private boolean isYearVisible;
@@ -319,15 +318,21 @@ public class UserSettings {
         private boolean isDurationVisible;
         private boolean isFormatVisible;
         private boolean isFileSizeVisible;
+        // JP >>>>
+        private boolean isComposerVisible;
+        // <<<< JP
 
         public Visibility() {}
 
-        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean composerVisible, boolean albumVisible,
+        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible,
                           boolean genreVisible, boolean yearVisible, boolean bitRateVisible,
-                          boolean durationVisible, boolean formatVisible, boolean fileSizeVisible) {
+                          boolean durationVisible, boolean formatVisible, boolean fileSizeVisible,
+                          // JP >>>>
+                          boolean composerVisible
+                          // <<<< JP
+        ) {
             isTrackNumberVisible = trackNumberVisible;
             isArtistVisible = artistVisible;
-            isComposerVisible = composerVisible;
             isAlbumVisible = albumVisible;
             isGenreVisible = genreVisible;
             isYearVisible = yearVisible;
@@ -335,6 +340,9 @@ public class UserSettings {
             isDurationVisible = durationVisible;
             isFormatVisible = formatVisible;
             isFileSizeVisible = fileSizeVisible;
+            // JP >>>>
+            isComposerVisible = composerVisible;
+            // <<<< JP
         }
 
         public boolean isTrackNumberVisible() {
@@ -351,14 +359,6 @@ public class UserSettings {
 
         public void setArtistVisible(boolean artistVisible) {
             isArtistVisible = artistVisible;
-        }
-
-        public boolean isComposerVisible() {
-            return isComposerVisible;
-        }
-
-        public void setComposerVisible(boolean isComposerVisible) {
-            this.isComposerVisible = isComposerVisible;
         }
 
         public boolean isAlbumVisible() {
@@ -416,5 +416,14 @@ public class UserSettings {
         public void setFileSizeVisible(boolean fileSizeVisible) {
             isFileSizeVisible = fileSizeVisible;
         }
+
+        public boolean isComposerVisible() {
+            return isComposerVisible;
+        }
+
+        public void setComposerVisible(boolean isComposerVisible) {
+            this.isComposerVisible = isComposerVisible;
+        }
+
     }
 }
