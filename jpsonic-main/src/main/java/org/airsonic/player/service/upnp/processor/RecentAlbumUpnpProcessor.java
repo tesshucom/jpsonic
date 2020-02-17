@@ -18,8 +18,8 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -37,11 +37,11 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
 
     private final static int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
+    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
         super(d, u, m, p);
         this.util = u;
         this.mediaFileService = m;

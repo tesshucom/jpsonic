@@ -19,14 +19,14 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.AlbumDao;
+import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -49,9 +49,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
 
-    private final AlbumDao albumDao;
+    private final JAlbumDao albumDao;
 
     private final CoverArtLogic coverArtLogic;
 
@@ -59,7 +59,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -78,7 +78,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
      */
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
-        List<Album> selectedItems = albumDao.getAlphabeticalAlbums(firstResult, maxResults, false, true, util.getAllMusicFolders());
+        List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true, util.getAllMusicFolders());
         for (Album item : selectedItems) {
             addItem(didl, item);
         }
@@ -112,7 +112,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @Override
     public List<Album> getItems(long offset, long maxResults) {
-        return albumDao.getAlphabeticalAlbums(offset, maxResults, false, true, util.getAllMusicFolders());
+        return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getAllMusicFolders());
     }
 
     public Album getItemById(String id) {

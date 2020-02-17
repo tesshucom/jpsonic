@@ -26,7 +26,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -36,15 +36,20 @@ import java.util.regex.Pattern;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
+@DependsOn({ "settingsService", "mediaFileJPSupport" })
 public class JpsonicComparators {
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
 
-    @Autowired
-    private MediaFileJPSupport mediaFileJPSupport;
+    private final MediaFileJPSupport mediaFileJPSupport;
+
+    public JpsonicComparators(SettingsService settingsService, MediaFileJPSupport mediaFileJPSupport) {
+        super();
+        this.settingsService = settingsService;
+        this.mediaFileJPSupport = mediaFileJPSupport;
+    }
 
     public Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());

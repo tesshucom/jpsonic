@@ -20,7 +20,6 @@
 package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -37,11 +36,14 @@ import java.util.*;
  */
 @Repository
 public class ArtistDao extends AbstractDao {
-    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, reading, sort, _order";
+    private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, " +
+            // JP >>>>
+            "sort, reading, _order";
+            // <<<< JP
+
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Artist> rowMapper = new ArtistMapper();
-    private final RowMapper<Artist> sortCandidateMapper = new SortCandidateMapper();
 
     /**
      * Returns the artist with the given name.
@@ -95,31 +97,32 @@ public class ArtistDao extends AbstractDao {
                      "last_scanned=?," +
                      "present=?," +
                      "folder_id=?," +
-                     "reading=?," +
+                     // JP >>>>
                      "sort=?, " +
+                     "reading=?," +
                      "_order=? " +
+                     // <<<< JP
                      "where name=?";
 
         int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), artist.getOrder(), artist.getName());
+                artist.isPresent(), artist.getFolderId(),
+                // JP >>>>
+                artist.getSort(),
+                artist.getReading(),
+                artist.getOrder(),
+                // <<<< JP
+                artist.getName());
 
         if (n == 0) {
             update("insert into artist (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                    artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
-                    artist.isPresent(), artist.getFolderId(), artist.getReading(), artist.getSort(), -1);
+                    artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(), artist.isPresent(), artist.getFolderId(),
+                    // JP >>>>
+                    artist.getSort(), artist.getReading(), -1);
+                    // <<<< JP
         }
 
         int id = queryForInt("select id from artist where name=?", null, artist.getName());
         artist.setId(id);
-    }
-
-    public int getArtistsCount(final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return 0;
-        }
-        Map<String, Object> args = new HashMap<>();
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("select count(id) from artist where present and folder_id in (:folders)", 0, args);
     }
 
     /**
@@ -130,7 +133,7 @@ public class ArtistDao extends AbstractDao {
      * @param musicFolders Only return artists that have at least one album in these folders.
      * @return Artists in alphabetical order.
      */
-    public List<Artist> getAlphabetialArtists(final long offset, final long count, final List<MusicFolder> musicFolders) {
+    public List<Artist> getAlphabetialArtists(final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -140,7 +143,7 @@ public class ArtistDao extends AbstractDao {
         args.put("offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                "order by _order, reading limit :count offset :offset", rowMapper, args);
+                "order by _order, reading, name limit :count offset :offset", rowMapper, args);
     }
 
     /**
@@ -222,47 +225,20 @@ public class ArtistDao extends AbstractDao {
                     rs.getTimestamp(5),
                     rs.getBoolean(6),
                     rs.getInt(7),
+                    // JP >>>>
                     rs.getString(8),
                     rs.getString(9),
                     rs.getInt(10));
+                    // <<<< JP
         }
     }
 
-    public void clearOrder() {
-        update("update artist set _order = -1");
-        update("delete from artist where reading is null");// #311
+    public RowMapper<Artist> getArtistMapper() {
+        return rowMapper;
     }
 
-    public List<Artist> getSortCandidate() {
-        return query("select distinct a.name ,m.album_artist_sort from artist a \n" +
-                " join media_file m " +
-                " on a.name = m.album_artist " +
-                " where  " +
-                " a.reading is not null and a.sort is null " +
-                " and a.present and m.present and m.type=? " +
-                " and m.album_artist_sort is not null " +
-                " and m.artist_sort <> m.album_artist_sort " +
-                " and a.reading <> m.album_artist_sort " +
-                " and m.album_artist = a.name ",
-                sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
+    public String getQueryColoms() {
+        return QUERY_COLUMNS;
     }
 
-    public List<Artist> getSortedArtists() {
-        return query("select " + QUERY_COLUMNS +
-                " from artist" +
-                " where" +
-                " reading is not null" +
-                " or sort is not null" +
-                " and present",
-                rowMapper);
-    }
-
-    private static class SortCandidateMapper implements RowMapper<Artist> {
-        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Artist artist = new Artist();
-            artist.setName(rs.getString(1));
-            artist.setSort(rs.getString(2));
-            return artist;
-        }
-    }
 }

@@ -19,7 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.ArtistDao;
+import com.tesshu.jpsonic.dao.JArtistDao;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SearchService;
@@ -43,11 +43,11 @@ import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_I
 public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artist, MediaFile> {
 
     private final UpnpProcessorUtil util;
-    private final ArtistDao artistDao;
+    private final JArtistDao artistDao;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, SearchService s, SettingsService ss) {
+    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a, SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         artistDao = a;
@@ -80,7 +80,7 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
 
     @Override
     public List<Artist> getItems(long offset, long count) {
-        return artistDao.getAlphabetialArtists(offset, count, util.getAllMusicFolders());
+        return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getAllMusicFolders());
     }
 
     public Artist getItemById(String id) {

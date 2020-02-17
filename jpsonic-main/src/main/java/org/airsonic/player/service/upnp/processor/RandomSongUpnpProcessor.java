@@ -17,8 +17,9 @@
  Copyright 2019 (C) tesshu.com
  */
 package org.airsonic.player.service.upnp.processor;
+
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
@@ -42,7 +43,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p, SearchService s, SettingsService ss) {
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p, SearchService s, SettingsService ss) {
         super(d, u, m, p);
         this.util = u;
         this.searchService = s;

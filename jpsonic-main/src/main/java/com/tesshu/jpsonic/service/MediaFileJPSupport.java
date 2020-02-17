@@ -27,7 +27,7 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -47,16 +47,21 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  * Provide analysis of Japanese name.
  */
 @Component
+@DependsOn({ "settingsService" })
 public class MediaFileJPSupport {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
 
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
+
+    public MediaFileJPSupport(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     private final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new,
             StringBuilder::append, StringBuilder::append, StringBuilder::toString);

@@ -43,20 +43,33 @@ public class Album {
     private Date lastScanned;
     private boolean present;
     private Integer folderId;
-    private String artistReading;
-    private String artistSort;
-    private String nameReading;
-    private String nameSort;
-    private int order;
     private String musicBrainzReleaseId;
+
+    // JP >>>>
+
+    // Tags newly supported by Jpsonic.
+    private String artistSort;
+    private String nameSort;
+
+    // Cleansing or analysis results.
+    private String artistReading;
+    private String nameReading;
+
+    // Default is -1. Registered when scanning by if option selected.
+    private int order;
+
+    // <<<< JP
 
     public Album() {
     }
 
-    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
-            String coverArtPath, Integer year, String genre, int playCount, Date lastPlayed, String comment,
-            Date created, Date lastScanned, boolean present, Integer folderId, String artistReading, String artistSort,
-            String nameReading, String nameSort, int order, String musicBrainzReleaseId) {
+    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds, String coverArtPath,
+            Integer year, String genre, int playCount, Date lastPlayed, String comment, Date created, Date lastScanned,
+            boolean present, Integer folderId, String musicBrainzReleaseId,
+            // JP >>>>
+            String artistSort, String nameSort, String artistReading, String nameReading, int order
+            // <<<< JP
+    ) {
         this.id = id;
         this.path = path;
         this.name = name;
@@ -73,12 +86,14 @@ public class Album {
         this.lastScanned = lastScanned;
         this.folderId = folderId;
         this.present = present;
+        this.musicBrainzReleaseId = musicBrainzReleaseId;
+        // JP >>>>
         this.artistSort = artistSort;
-        this.artistReading = artistReading;
         this.nameSort = nameSort;
+        this.artistReading = artistReading;
         this.nameReading = nameReading;
         this.order = order;
-        this.musicBrainzReleaseId = musicBrainzReleaseId;
+        // <<<< JP
     }
 
     public int getId() {
@@ -209,12 +224,12 @@ public class Album {
         return folderId;
     }
 
-    public String getArtistReading() {
-        return artistReading;
+    public String getMusicBrainzReleaseId() {
+        return musicBrainzReleaseId;
     }
 
-    public void setArtistReading(String artistReading) {
-        this.artistReading = artistReading;
+    public void setMusicBrainzReleaseId(String musicBrainzReleaseId) {
+        this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
     public String getArtistSort() {
@@ -225,14 +240,6 @@ public class Album {
         this.artistSort = artistSort;
     }
 
-    public String getNameReading() {
-        return nameReading;
-    }
-
-    public void setNameReading(String nameReading) {
-        this.nameReading = nameReading;
-    }
-
     public String getNameSort() {
         return nameSort;
     }
@@ -241,20 +248,28 @@ public class Album {
         this.nameSort = nameSort;
     }
 
+    public String getArtistReading() {
+        return artistReading;
+    }
+
+    public void setArtistReading(String artistReading) {
+        this.artistReading = artistReading;
+    }
+
+    public String getNameReading() {
+        return nameReading;
+    }
+
+    public void setNameReading(String nameReading) {
+        this.nameReading = nameReading;
+    }
+
     public int getOrder() {
         return order;
     }
 
     public void setOrder(int order) {
         this.order = order;
-    }
-
-    public String getMusicBrainzReleaseId() {
-        return musicBrainzReleaseId;
-    }
-
-    public void setMusicBrainzReleaseId(String musicBrainzReleaseId) {
-        this.musicBrainzReleaseId = musicBrainzReleaseId;
     }
 
 }

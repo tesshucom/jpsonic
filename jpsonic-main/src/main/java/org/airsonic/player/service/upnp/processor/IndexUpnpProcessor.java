@@ -18,13 +18,13 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.service.JMediaFileService;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.airsonic.player.spring.EhcacheConfiguration.IndexCacheKey;
@@ -56,7 +56,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
 
     private final MusicIndexService musicIndexService;
 
@@ -68,7 +68,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, MusicIndexService mi, Ehcache indexCache) {
+    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicIndexService mi, Ehcache indexCache) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;

@@ -20,7 +20,7 @@
 
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.dao.MediaFileDao;
+import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
@@ -60,7 +60,7 @@ public class SearchServiceImpl implements SearchService {
     private SettingsService settingsService;
 
     @Autowired
-    private MediaFileDao mediaFileDao;
+    private JMediaFileDao mediaFileDao;
 
     @Override
     public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,

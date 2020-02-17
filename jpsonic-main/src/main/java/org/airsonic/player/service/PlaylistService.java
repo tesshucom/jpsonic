@@ -22,9 +22,10 @@ package org.airsonic.player.service;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
+
+import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
@@ -58,9 +59,9 @@ public class PlaylistService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlaylistService.class);
     @Autowired
-    private MediaFileDao mediaFileDao;
+    private JMediaFileDao mediaFileDao;
     @Autowired
-    private PlaylistDao playlistDao;
+    private JPlaylistDao playlistDao;
     @Autowired
     private SecurityService securityService;
     @Autowired
@@ -73,8 +74,8 @@ public class PlaylistService {
     private JpsonicComparators comparators;
 
     public PlaylistService(
-            MediaFileDao mediaFileDao,
-            PlaylistDao playlistDao,
+            JMediaFileDao mediaFileDao,
+            JPlaylistDao playlistDao,
             SecurityService securityService,
             SettingsService settingsService,
             List<PlaylistExportHandler> exportHandlers,

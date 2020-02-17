@@ -41,7 +41,10 @@ import java.util.*;
 public class AlbumDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, " +
                                           "year, genre, play_count, last_played, comment, created, last_scanned, present, " +
-                                          "folder_id, artist_reading, artist_sort, name_reading, name_sort, _order, mb_release_id";
+                                          "folder_id, mb_release_id, " +
+                                          // JP >>>>
+                                          "artist_sort, name_sort, artist_reading, name_reading, _order";
+                                          // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
@@ -94,16 +97,6 @@ public class AlbumDao extends AbstractDao {
         return null;
     }
 
-    public int getAlbumsCountForArtist(final String artist, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return 0;
-        }
-        Map<String, Object> args = new HashMap<>();
-        args.put("artist", artist);
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("select count(id) from album where artist = :artist and present and folder_id in (:folders)", 0, args);
-    }
-
     public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
@@ -115,21 +108,6 @@ public class AlbumDao extends AbstractDao {
                           + " from album where artist = :artist and present and folder_id in (:folders) " +
                           "order by _order, name",
                           rowMapper, args);
-    }
-
-    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear, final List<MusicFolder> musicFolders) {
-        if (musicFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        Map<String, Object> args = new HashMap<>();
-        args.put("artist", artist);
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        args.put("offset", offset);
-        args.put("count", count);
-        return namedQuery("select " + QUERY_COLUMNS +
-                " from album where artist = :artist and present and folder_id in (:folders) " +
-                "order by " + (byYear ? "year" : "_order") + ", name limit :count offset :offset",
-                rowMapper, args);
     }
 
     /**
@@ -153,28 +131,41 @@ public class AlbumDao extends AbstractDao {
                      "last_scanned=?," +
                      "present=?, " +
                      "folder_id=?, " +
-                     "artist_reading=?, " +
+                     "mb_release_id=?, " +
+                     // JP >>>>
                      "artist_sort=?, " +
-                     "name_reading=?, " +
                      "name_sort=?, " +
-                     "_order=?, " +
-                     "mb_release_id=? " +
+                     "artist_reading=?, " +
+                     "name_reading=?, " +
+                     "_order=? " +
+                     // <<<< JP
                      "where artist=? and name=?";
 
-        int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(),
-                album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(),
-                album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(),
-                album.getArtistReading(), album.getArtistSort(), album.getNameReading(), album.getNameSort(),
-                album.getOrder(), album.getMusicBrainzReleaseId(), album.getArtist(), album.getName());
+        int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(),
+                       album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
+                       album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
+                       // JP >>>>
+                       album.getArtistSort(),
+                       album.getNameSort(),
+                       album.getArtistReading(),
+                       album.getNameReading(), 
+                       album.getOrder(),
+                       // <<<< JP
+                       album.getArtist(), album.getName());
 
         if (n == 0) {
-            update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                    album.getPath(), album.getName(), album.getArtist(), album.getSongCount(),
-                    album.getDurationSeconds(), album.getCoverArtPath(), album.getYear(), album.getGenre(),
-                    album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
-                    album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getArtistReading(),
-                    album.getArtistSort(), album.getNameReading(), album.getNameSort(), -1,
-                    album.getMusicBrainzReleaseId());
+
+            update("insert into album (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")", album.getPath(),
+                   album.getName(), album.getArtist(), album.getSongCount(), album.getDurationSeconds(),
+                   album.getCoverArtPath(), album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(),
+                   album.getComment(), album.getCreated(), album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
+                   // JP >>>>
+                   album.getArtistSort(),
+                   album.getNameSort(),
+                   album.getArtistReading(),
+                   album.getNameReading(),
+                   -1);
+                   // <<<< JP
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(), album.getName());
@@ -191,7 +182,7 @@ public class AlbumDao extends AbstractDao {
      * @param ignoreCase   Use case insensitive sorting
      * @return Albums in alphabetical order.
      */
-    public List<Album> getAlphabeticalAlbums(final long offset, final long count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -277,7 +268,7 @@ public class AlbumDao extends AbstractDao {
      * @param musicFolders Only return albums from these folders.
      * @return The most recently added albums.
      */
-    public List<Album> getNewestAlbums(final long offset, final long count, final List<MusicFolder> musicFolders) {
+    public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
@@ -377,11 +368,6 @@ public class AlbumDao extends AbstractDao {
         }
     }
 
-    public void clearOrder() {
-        update("update album set _order = -1");
-        update("delete from album where name_reading is null or artist_reading is null ");// #311
-    }
-
     public List<Integer> getExpungeCandidates() {
         return queryForInts("select id from album where not present");
     }
@@ -429,11 +415,21 @@ public class AlbumDao extends AbstractDao {
                     rs.getBoolean(15),
                     rs.getInt(16),
                     rs.getString(17),
+                    // JP >>>>
                     rs.getString(18),
                     rs.getString(19),
                     rs.getString(20),
-                    rs.getInt(21),
-                    rs.getString(22));
+                    rs.getString(21),
+                    rs.getInt(22));
+                    // <<<< JP
         }
+    }
+
+    public RowMapper<Album> getAlbumMapper() {
+        return rowMapper;
+    }
+
+    public String getQueryColoms() {
+        return QUERY_COLUMNS;
     }
 }

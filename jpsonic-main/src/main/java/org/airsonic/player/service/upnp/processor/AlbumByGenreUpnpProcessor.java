@@ -18,9 +18,9 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
@@ -48,9 +48,9 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     private final SearchService searchService;
 
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
 
-    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, SearchService s) {
+    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, SearchService s) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
