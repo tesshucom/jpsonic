@@ -110,7 +110,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.9.0</version>
+            <version>3.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
@@ -139,17 +139,17 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>8.2.0</version>
+            <version>8.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>8.2.0</version>
+            <version>8.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-misc</artifactId>
-            <version>8.2.0</version>
+            <version>8.4.1</version>
         </dependency>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -165,7 +165,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
-            <version>2.5.0</version>
+            <version>2.7.0</version>
             <!-- this wants to pull in commons-logging v1.2 which conflicts with other dependencies -->
             <exclusions>
                 <exclusion>
@@ -184,7 +184,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.3.3</version>
+            <version>1.4</version>
         </dependency>
 
         <dependency>
@@ -222,7 +222,7 @@
 			<groupId>org.checkerframework</groupId>
 			<artifactId>checker-qual</artifactId>
 			<scope>compile</scope>
-			<version>2.5.2</version>
+			<version>2.10.0</version>
 		</dependency>
 
         <dependency>
@@ -302,7 +302,7 @@
         <dependency>
             <groupId>org.eclipse.persistence</groupId>
             <artifactId>org.eclipse.persistence.moxy</artifactId>
-            <version>2.7.3</version>
+            <version>2.7.6</version>
         </dependency>
 
         <dependency>
@@ -385,7 +385,7 @@
         <dependency>
             <groupId>de.triology.recaptchav2-java</groupId>
             <artifactId>recaptchav2-java</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.3</version>
         </dependency>
 
         <!-- SONOS API / WSDL SUPPORT -->
@@ -429,7 +429,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
-            <version>2.4</version>
+            <version>2.6</version>
             <exclusions>
                 <exclusion>
                     <groupId>commons-logging</groupId>
@@ -466,7 +466,7 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
-            <version>3.6.0</version>
+            <version>3.6.3</version>
         </dependency>
 
         <dependency>
@@ -557,10 +557,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
             <scope>runtime</scope>
@@ -588,19 +584,19 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.5</version>
+            <version>42.2.10</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>5.1.43</version>
+            <version>8.0.19</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>2.1.2</version>
+            <version>2.5.4</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -621,7 +617,7 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-kuromoji</artifactId>
-            <version>8.2.0</version>
+            <version>8.4.1</version>
         </dependency>
     </dependencies>
 
