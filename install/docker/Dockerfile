@@ -3,7 +3,7 @@ FROM alpine:3.9
 LABEL description="Jpsonic is a free, web-based media streamer, providing ubiquitious access to your music." \
       url="https://github.com/jpsonic/jpsonic"
 
-ENV JPSONIC_PORT=4040 JPSONIC_DIR=/jpsonic CONTEXT_PATH=/ UPNP_PORT=4041
+ENV JPSONIC_PORT=4040 JPSONIC_DIR=/jpsonic CONTEXT_PATH=/ UPNP_PORT=4041 JVM_HEAP=256m
 
 WORKDIR $JPSONIC_DIR
 
