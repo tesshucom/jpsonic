@@ -464,7 +464,7 @@ public class SettingsService {
         return getProperty(KEY_IGNORED_ARTICLES, DEFAULT_IGNORED_ARTICLES);
     }
 
-    String[] getIgnoredArticlesAsArray() {
+    public String[] getIgnoredArticlesAsArray() {
         return getIgnoredArticles().split("\\s+");
     }
 
@@ -476,7 +476,7 @@ public class SettingsService {
         return getProperty(KEY_SHORTCUTS, DEFAULT_SHORTCUTS);
     }
 
-    String[] getShortcutsAsArray() {
+    public String[] getShortcutsAsArray() {
         return StringUtil.split(getShortcuts());
     }
 
