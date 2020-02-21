@@ -19,7 +19,6 @@
  */
 package org.airsonic.player.service;
 
-import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AlbumDao;
@@ -83,8 +82,6 @@ public class MediaScannerService {
     @Autowired
     private AlbumDao albumDao;
     private int scanCount;
-    @Autowired
-    private MediaFileJPSupport mediaFileJPSupport;
     @Autowired
     private Ehcache indexCache;
     @Autowired
@@ -258,7 +255,7 @@ public class MediaScannerService {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);
             scanning = false;
-            mediaFileJPSupport.clear();
+            utils.clearMemoryCache();
         }
     }
 
