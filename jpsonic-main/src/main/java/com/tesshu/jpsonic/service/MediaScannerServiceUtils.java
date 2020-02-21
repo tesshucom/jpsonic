@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 
 import org.airsonic.player.domain.Album;
@@ -50,7 +51,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * for UPnP where there is a possibility of paging in all communications.
  */
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "mediaFileJPSupport", "indexManager", "jpsonicComparators" })
+@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JMediaFileService.class);
@@ -59,7 +60,7 @@ public class MediaScannerServiceUtils {
     private final JMediaFileDao mediaFileDao;
     private final JArtistDao artistDao;
     private final JAlbumDao albumDao;
-    private final MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
@@ -68,7 +69,7 @@ public class MediaScannerServiceUtils {
             JMediaFileDao mediaFileDao,
             JArtistDao artistDao,
             JAlbumDao albumDao,
-            MediaFileJPSupport mediaFileJPSupport,
+            JapaneseReadingUtils utils,
             IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
@@ -76,7 +77,7 @@ public class MediaScannerServiceUtils {
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.mediaFileJPSupport = mediaFileJPSupport;
+        this.utils = utils;
         this.indexManager = indexManager;
         this.comparators = jpsonicComparator;
     } // @formatter:on
@@ -101,7 +102,7 @@ public class MediaScannerServiceUtils {
     public void updateAlbumSort() {
 
         List<MediaFile> candidates = mediaFileDao.getAlbumSortCandidate();
-        List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
+        List<MediaFile> toBeUpdates = utils.createAlbumSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
         for (MediaFile toBeUpdate : toBeUpdates) {
@@ -188,13 +189,13 @@ public class MediaScannerServiceUtils {
     public void updateArtistSort() {
 
         List<MediaFile> candidates = mediaFileDao.getArtistSortCandidate();
-        List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
+        List<MediaFile> toBeUpdates = utils.createArtistSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
         for (MediaFile toBeUpdate : toBeUpdates) {
             MediaFile artist = mediaFileDao.getMediaFile(toBeUpdate.getId());
             artist.setArtistSort(toBeUpdate.getArtistSort());
-            mediaFileJPSupport.analyze(artist);
+            utils.analyze(artist);
             mediaFileDao.createOrUpdateMediaFile(artist);
             indexManager.index(artist);
             Artist a = artistDao.getArtist(artist.getArtist());
@@ -283,7 +284,7 @@ public class MediaScannerServiceUtils {
      * Update the order of all mediaFile records.
      */
     public void clearMemoryCache() {
-        mediaFileJPSupport.clear();
+        utils.clear();
     }
 
 }

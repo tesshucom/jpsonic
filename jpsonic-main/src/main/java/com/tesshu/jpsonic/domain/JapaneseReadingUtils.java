@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.domain;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
@@ -48,7 +48,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  */
 @Component
 @DependsOn({ "settingsService" })
-public class MediaFileJPSupport {
+public class JapaneseReadingUtils {
 
     private final SettingsService settingsService;
 
@@ -58,7 +58,7 @@ public class MediaFileJPSupport {
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
 
-    public MediaFileJPSupport(SettingsService settingsService) {
+    public JapaneseReadingUtils(SettingsService settingsService) {
         super();
         this.settingsService = settingsService;
     }

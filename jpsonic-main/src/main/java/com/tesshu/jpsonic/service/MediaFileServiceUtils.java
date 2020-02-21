@@ -1,5 +1,6 @@
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
@@ -11,16 +12,16 @@ import org.springframework.stereotype.Component;
  * Supplement processing that is lacking in legacy services.
  */
 @Component
-@DependsOn({ "mediaFileJPSupport", "jpsonicComparators" })
+@DependsOn({ "japaneseReadingUtils", "jpsonicComparators" })
 public class MediaFileServiceUtils {
 
-    private final MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
 
     private final JpsonicComparators jpsonicComparator;
 
-    public MediaFileServiceUtils(MediaFileJPSupport mediaFileJPSupport, JpsonicComparators jpsonicComparator) {
+    public MediaFileServiceUtils(JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {
         super();
-        this.mediaFileJPSupport = mediaFileJPSupport;
+        this.utils = utils;
         this.jpsonicComparator = jpsonicComparator;
     }
 
@@ -31,7 +32,7 @@ public class MediaFileServiceUtils {
      * @param m
      */
     public void analyze(MediaFile m) {
-        mediaFileJPSupport.analyze(m);
+        utils.analyze(m);
     }
 
     /**

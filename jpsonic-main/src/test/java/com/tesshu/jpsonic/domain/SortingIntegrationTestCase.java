@@ -38,9 +38,7 @@ import org.airsonic.player.service.search.IndexType;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,8 +58,6 @@ import static org.junit.Assert.assertTrue;
  * Test to correct sort inconsistencies.
  * Testing may not be possible on an OS that does not support fsync.
  */
-@SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
 public class SortingIntegrationTestCase extends AbstractAirsonicHomeTest {
 

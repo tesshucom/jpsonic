@@ -1,5 +1,6 @@
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 
 import org.airsonic.player.domain.Artist;
@@ -34,19 +35,19 @@ import java.util.TreeMap;
  * that they can be used naturally.
  */
 @Component
-@DependsOn({ "settingsService", "mediaFileService", "mediaFileJPSupport", "jpsonicComparators" })
+@DependsOn({ "settingsService", "mediaFileService", "japaneseReadingUtils", "jpsonicComparators" })
 public class MusicIndexServiceUtils {
 
     private final SettingsService settingsService;
     private final MediaFileService mediaFileService;
-    private final MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
     private final JpsonicComparators comparators;
 
-    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, MediaFileJPSupport jpSupport, JpsonicComparators comp) {
+    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, JapaneseReadingUtils utils, JpsonicComparators comp) {
         super();
         this.settingsService = s;
         this.mediaFileService = m;
-        this.mediaFileJPSupport = jpSupport;
+        this.utils = utils;
         this.comparators = comp;
     }
 
@@ -55,7 +56,7 @@ public class MusicIndexServiceUtils {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Collator c = comparators.createCollator();
         for (Artist artist : artists) {
-            String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
+            String sortableName = createSortableName(utils.createIndexableName(artist), ignoredArticles);
             result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, c));
         }
         return result;
@@ -77,7 +78,7 @@ public class MusicIndexServiceUtils {
                     continue;
                 }
 
-                String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(child), ignoredArticles);
+                String sortableName = createSortableName(utils.createIndexableName(child), ignoredArticles);
                 MusicIndex.SortableArtistWithMediaFiles artist = artistMap.get(sortableName);
                 if (artist == null) {
                     artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, c);
