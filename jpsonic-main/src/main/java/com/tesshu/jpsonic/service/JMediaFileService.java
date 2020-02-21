@@ -29,6 +29,10 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.List;
 
+/**
+ * Extended service of MediaFileService. The purpose is a paging extension,
+ * mainly used in UpnP.
+ */
 @Service
 @DependsOn({ "mediaFileDao", "mediaFileService" })
 public class JMediaFileService {
