@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
@@ -34,53 +34,53 @@ import static org.junit.Assert.assertNull;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
-public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
+public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
-    private MediaFileJPSupport support;
+    private JapaneseReadingUtils utils;
 
     @Test
     public void testCreateReading() {
-        assertEquals("アイウエオ", support.createReading("あいうえお"));
-        assertEquals("アイウエオ", support.createReading("アイウエオ"));
-        assertEquals("ァィゥェォ", support.createReading("ァィゥェォ"));
-        assertEquals("ァィゥェォ", support.createReading("ｧｨｩｪｫ"));
-        assertEquals("アイウエオ", support.createReading("ｱｲｳｴｵ"));
-        assertEquals("アイウエオ", support.createReading("亜伊鵜絵尾"));
-        assertEquals("ABCDE", support.createReading("ABCDE"));
-        assertEquals("ABCDE", support.createReading("ＡＢＣＤＥ"));
-        assertEquals("アルファベータガンマ", support.createReading("αβγ"));
-        assertEquals("ツンク♂", support.createReading("つんく♂"));
-        assertEquals("bad communication", support.createReading("bad communication"));
-        assertEquals("BAD COMMUNICATION", support.createReading("BAD COMMUNICATION"));
-        assertEquals("BAD COMMUNICATION", support.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertEquals("イヌトネコ", support.createReading("犬とネコ"));
-        assertEquals(" 「」()()[][];!!??##123", support.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
-        assertEquals("Cæsar", support.createReading("Cæsar"));
-        assertEquals("Alfee", support.createReading("The Alfee"));
+        assertEquals("アイウエオ", utils.createReading("あいうえお"));
+        assertEquals("アイウエオ", utils.createReading("アイウエオ"));
+        assertEquals("ァィゥェォ", utils.createReading("ァィゥェォ"));
+        assertEquals("ァィゥェォ", utils.createReading("ｧｨｩｪｫ"));
+        assertEquals("アイウエオ", utils.createReading("ｱｲｳｴｵ"));
+        assertEquals("アイウエオ", utils.createReading("亜伊鵜絵尾"));
+        assertEquals("ABCDE", utils.createReading("ABCDE"));
+        assertEquals("ABCDE", utils.createReading("ＡＢＣＤＥ"));
+        assertEquals("アルファベータガンマ", utils.createReading("αβγ"));
+        assertEquals("ツンク♂", utils.createReading("つんく♂"));
+        assertEquals("bad communication", utils.createReading("bad communication"));
+        assertEquals("BAD COMMUNICATION", utils.createReading("BAD COMMUNICATION"));
+        assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals("イヌトネコ", utils.createReading("犬とネコ"));
+        assertEquals(" 「」()()[][];!!??##123", utils.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", utils.createReading("Cæsar"));
+        assertEquals("Alfee", utils.createReading("The Alfee"));
     }
 
     @Test
     public void testAnalyzeSort() {
-        assertEquals("あいうえお", support.normalize("あいうえお"));
-        assertEquals("アイウエオ", support.normalize("アイウエオ"));
-        assertEquals("ァィゥェォ", support.normalize("ァィゥェォ"));
-        assertEquals("ァィゥェォ", support.normalize("ｧｨｩｪｫ"));
-        assertEquals("アイウエオ", support.normalize("ｱｲｳｴｵ"));
-        assertEquals("亜伊鵜絵尾", support.normalize("亜伊鵜絵尾"));
-        assertEquals("ABCDE", support.normalize("ABCDE"));
-        assertEquals("ABCDE", support.normalize("ＡＢＣＤＥ"));
-        assertEquals("αβγ", support.normalize("αβγ"));
-        assertEquals("つんく♂", support.normalize("つんく♂"));
-        assertEquals("bad communication", support.normalize("bad communication"));
-        assertEquals("BAD COMMUNICATION", support.normalize("BAD COMMUNICATION"));
-        assertEquals("BAD COMMUNICATION", support.normalize("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertEquals("犬とネコ", support.normalize("犬とネコ"));
-        assertEquals("読み", support.normalize("読み"));
-        assertEquals("(読み)", support.normalize("(読み)"));
-        assertEquals(" 「」()()[][];!!??##123", support.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
-        assertEquals("Cæsar", support.createReading("Cæsar"));
-        assertEquals("Alfee", support.createReading("The Alfee"));
+        assertEquals("あいうえお", utils.normalize("あいうえお"));
+        assertEquals("アイウエオ", utils.normalize("アイウエオ"));
+        assertEquals("ァィゥェォ", utils.normalize("ァィゥェォ"));
+        assertEquals("ァィゥェォ", utils.normalize("ｧｨｩｪｫ"));
+        assertEquals("アイウエオ", utils.normalize("ｱｲｳｴｵ"));
+        assertEquals("亜伊鵜絵尾", utils.normalize("亜伊鵜絵尾"));
+        assertEquals("ABCDE", utils.normalize("ABCDE"));
+        assertEquals("ABCDE", utils.normalize("ＡＢＣＤＥ"));
+        assertEquals("αβγ", utils.normalize("αβγ"));
+        assertEquals("つんく♂", utils.normalize("つんく♂"));
+        assertEquals("bad communication", utils.normalize("bad communication"));
+        assertEquals("BAD COMMUNICATION", utils.normalize("BAD COMMUNICATION"));
+        assertEquals("BAD COMMUNICATION", utils.normalize("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals("犬とネコ", utils.normalize("犬とネコ"));
+        assertEquals("読み", utils.normalize("読み"));
+        assertEquals("(読み)", utils.normalize("(読み)"));
+        assertEquals(" 「」()()[][];!!??##123", utils.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", utils.createReading("Cæsar"));
+        assertEquals("Alfee", utils.createReading("The Alfee"));
     }
 
     private BiFunction<String, String, MediaFile> toMediaFile = (artist, artistSort) -> {
@@ -95,7 +95,7 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
         mediaFile.setArtist(artist);
         mediaFile.setArtistSort(artist);
         mediaFile.setPath(path);
-        support.analyze(mediaFile);
+        utils.analyze(mediaFile);
         return mediaFile;
     };
 
@@ -103,85 +103,85 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
     public void testanalyzeIfSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertNull(artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "あいうえお");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertEquals("あいうえお", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "アイウエオ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertEquals("アイウエオ", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ァィゥェォ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ァィゥェォ", artist.getArtistReading());
         assertEquals("ァィゥェォ", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ｧｨｩｪｫ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ァィゥェォ", artist.getArtistReading());
         assertEquals("ァィゥェォ", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ｱｲｳｴｵ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertEquals("アイウエオ", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "亜伊鵜絵尾");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertEquals("亜伊鵜絵尾", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ABCDE");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ABCDE", artist.getArtistReading());
         assertEquals("ABCDE", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ＡＢＣＤＥ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ABCDE", artist.getArtistReading());
         assertEquals("ABCDE", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "αβγ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("アルファベータガンマ", artist.getArtistReading());
         assertEquals("αβγ", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "つんく♂");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ツンク♂", artist.getArtistReading());
         assertEquals("つんく♂", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("BAD COMMUNICATION", artist.getArtistReading());
         assertEquals("BAD COMMUNICATION", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, "部屋とYシャツと私");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals("ヘヤトYシャツトワタシ", artist.getArtistReading());
         assertEquals("部屋とYシャツと私", artist.getArtistSort());
 
         artist = toMediaFile.apply(null, " 「」（）()［］[]；;！!？?＃#１２３");
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertEquals(" 「」()()[][];;!!??##123", artist.getArtistReading());
         assertEquals(" 「」()()[][];;!!??##123", artist.getArtistSort());
@@ -192,85 +192,85 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
     public void testanalyzeIfNoSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertNull(artist.getArtist());
         assertNull(artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("あいうえお", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("あいうえお", artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("アイウエオ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("アイウエオ", artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ァィゥェォ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ァィゥェォ", artist.getArtist());
         assertEquals("ァィゥェォ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ｧｨｩｪｫ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ｧｨｩｪｫ", artist.getArtist());
         assertEquals("ァィゥェォ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ｱｲｳｴｵ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ｱｲｳｴｵ", artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("亜伊鵜絵尾", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("亜伊鵜絵尾", artist.getArtist());
         assertEquals("アイウエオ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ABCDE", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ABCDE", artist.getArtist());
         assertEquals("ABCDE", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ＡＢＣＤＥ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ＡＢＣＤＥ", artist.getArtist());
         assertEquals("ABCDE", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("αβγ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("αβγ", artist.getArtist());
         assertEquals("アルファベータガンマ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("つんく♂", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("つんく♂", artist.getArtist());
         assertEquals("ツンク♂", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ", artist.getArtist());
         assertEquals("BAD COMMUNICATION", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply("部屋とYシャツと私", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals("部屋とYシャツと私", artist.getArtist());
         assertEquals("ヘヤトYシャツトワタシ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
         artist = toMediaFile.apply(" 「」（）()［］[]；;！!？?＃#１２３", null);
-        support.analyze(artist);
+        utils.analyze(artist);
         assertEquals(" 「」（）()［］[]；;！!？?＃#１２３", artist.getArtist());
         assertEquals(" 「」()()[][];;!!??##123", artist.getArtistReading());
         assertNull(artist.getArtistSort());
@@ -284,32 +284,32 @@ public class MediaFileJPSupportTestCase extends AbstractAirsonicHomeTest {
         assertEquals("  ", file.getPath());
         assertEquals("アイウエオ", toAnalyzedMediaFile.apply("あいうえお", "dummyPath").getArtistReading());
 
-        assertEquals("dummyPath", support.createIndexableName(toAnalyzedMediaFile.apply("あいうえお", "dummyPath")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedMediaFile.apply("あいうえお", "非alpha")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedMediaFile.apply("アイウエオ", "非alpha")));
-        assertEquals("ァィゥェォ", support.createIndexableName(toAnalyzedMediaFile.apply("ァィゥェォ", "非alpha")));
-        assertEquals("ァィゥェォ", support.createIndexableName(toAnalyzedMediaFile.apply("ｧｨｩｪｫ", "非alpha")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedMediaFile.apply("ｱｲｳｴｵ", "非alpha")));
-        assertEquals("アイウエオ", support.createIndexableName(toAnalyzedMediaFile.apply("亜伊鵜絵尾", "非alpha")));
+        assertEquals("dummyPath", utils.createIndexableName(toAnalyzedMediaFile.apply("あいうえお", "dummyPath")));
+        assertEquals("アイウエオ", utils.createIndexableName(toAnalyzedMediaFile.apply("あいうえお", "非alpha")));
+        assertEquals("アイウエオ", utils.createIndexableName(toAnalyzedMediaFile.apply("アイウエオ", "非alpha")));
+        assertEquals("ァィゥェォ", utils.createIndexableName(toAnalyzedMediaFile.apply("ァィゥェォ", "非alpha")));
+        assertEquals("ァィゥェォ", utils.createIndexableName(toAnalyzedMediaFile.apply("ｧｨｩｪｫ", "非alpha")));
+        assertEquals("アイウエオ", utils.createIndexableName(toAnalyzedMediaFile.apply("ｱｲｳｴｵ", "非alpha")));
+        assertEquals("アイウエオ", utils.createIndexableName(toAnalyzedMediaFile.apply("亜伊鵜絵尾", "非alpha")));
 
-        assertEquals("ABCDE", support.createIndexableName(toAnalyzedMediaFile.apply("ABCDE", "非alpha")));
-        assertEquals("ABCDE", support.createIndexableName(toAnalyzedMediaFile.apply("ＡＢＣＤＥ", "非alpha")));
-        assertEquals("アルファベータガンマ", support.createIndexableName(toAnalyzedMediaFile.apply("αβγ", "非alpha")));
-        assertEquals("ツンク♂", support.createIndexableName(toAnalyzedMediaFile.apply("つんく♂", "非alpha")));
+        assertEquals("ABCDE", utils.createIndexableName(toAnalyzedMediaFile.apply("ABCDE", "非alpha")));
+        assertEquals("ABCDE", utils.createIndexableName(toAnalyzedMediaFile.apply("ＡＢＣＤＥ", "非alpha")));
+        assertEquals("アルファベータガンマ", utils.createIndexableName(toAnalyzedMediaFile.apply("αβγ", "非alpha")));
+        assertEquals("ツンク♂", utils.createIndexableName(toAnalyzedMediaFile.apply("つんく♂", "非alpha")));
 
         assertEquals("BAD COMMUNICATION",
-                support.createIndexableName(toAnalyzedMediaFile.apply("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ", "非alpha")));
+                utils.createIndexableName(toAnalyzedMediaFile.apply("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ", "非alpha")));
         assertEquals("「」()()[][];;!!??##123",
-                support.createIndexableName(toAnalyzedMediaFile.apply("「」（）()［］[]；;！!？?＃#１２３", "非alpha")));
+                utils.createIndexableName(toAnalyzedMediaFile.apply("「」（）()［］[]；;！!？?＃#１２３", "非alpha")));
 
-        assertEquals("ゴウヒロミ", support.createIndexableName(toAnalyzedMediaFile.apply("ゴウヒロミ", "非alpha")));
-        assertEquals("パミュパミュ", support.createIndexableName(toAnalyzedMediaFile.apply("ぱみゅぱみゅ", "非alpha")));
+        assertEquals("ゴウヒロミ", utils.createIndexableName(toAnalyzedMediaFile.apply("ゴウヒロミ", "非alpha")));
+        assertEquals("パミュパミュ", utils.createIndexableName(toAnalyzedMediaFile.apply("ぱみゅぱみゅ", "非alpha")));
 
         file = toAnalyzedMediaFile.apply("倖田來未", "非alpha");
         file.setArtistSort("こうだくみ");
         file.setPath("非alpha");
-        support.analyze(file);
-        assertEquals("コウダクミ", support.createIndexableName(file));
+        utils.analyze(file);
+        assertEquals("コウダクミ", utils.createIndexableName(file));
 
     }
 

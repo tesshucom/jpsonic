@@ -21,6 +21,7 @@ package com.tesshu.jpsonic.service;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 
 import org.airsonic.player.domain.Album;
@@ -40,10 +41,17 @@ import java.util.List;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
- * Provide analysis of Japanese name.
+ * Utility class for injecting into legacy MediaScannerService. Supplement
+ * processing that is lacking in legacy services.
+ * 
+ * These are the logics for determining the order of all records. It also
+ * affects the speed of sorting, but the purpose is to respond to paging.
+ * 
+ * Paging is used in REST and WEB. In addition, it is a mandatory requirement
+ * for UPnP where there is a possibility of paging in all communications.
  */
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "mediaFileJPSupport", "indexManager", "jpsonicComparators" })
+@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(JMediaFileService.class);
@@ -52,7 +60,7 @@ public class MediaScannerServiceUtils {
     private final JMediaFileDao mediaFileDao;
     private final JArtistDao artistDao;
     private final JAlbumDao albumDao;
-    private final MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
@@ -61,7 +69,7 @@ public class MediaScannerServiceUtils {
             JMediaFileDao mediaFileDao,
             JArtistDao artistDao,
             JAlbumDao albumDao,
-            MediaFileJPSupport mediaFileJPSupport,
+            JapaneseReadingUtils utils,
             IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
@@ -69,11 +77,14 @@ public class MediaScannerServiceUtils {
         this.mediaFileDao = mediaFileDao;
         this.artistDao = artistDao;
         this.albumDao = albumDao;
-        this.mediaFileJPSupport = mediaFileJPSupport;
+        this.utils = utils;
         this.indexManager = indexManager;
         this.comparators = jpsonicComparator;
     } // @formatter:on
 
+    /**
+     * Update the order of all album records.
+     */
     public void updateAlbumOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
@@ -86,12 +97,12 @@ public class MediaScannerServiceUtils {
     }
 
     /**
-     * Supplement DIRECTOEY sort/reading of MediaFile.
+     * Updates the sort / reading properties required for album sorting.
      */
     public void updateAlbumSort() {
 
         List<MediaFile> candidates = mediaFileDao.getAlbumSortCandidate();
-        List<MediaFile> toBeUpdates = mediaFileJPSupport.createAlbumSortToBeUpdate(candidates);
+        List<MediaFile> toBeUpdates = utils.createAlbumSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
         for (MediaFile toBeUpdate : toBeUpdates) {
@@ -149,12 +160,18 @@ public class MediaScannerServiceUtils {
 
     }
 
+    /**
+     * Clears all orders registered in the repository.
+     */
     public void clearOrder() {
         mediaFileDao.clearOrder();
         artistDao.clearOrder();
         albumDao.clearOrder();
     }
 
+    /**
+     * Update the order of all artist records.
+     */
     public void updateArtistOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
@@ -166,19 +183,19 @@ public class MediaScannerServiceUtils {
         }
     }
 
-    /*
-     * Supplement DIRECTOEY sort/reading of MediaFile.
+    /**
+     * Updates the sort / reading properties required for artist sorting.
      */
     public void updateArtistSort() {
 
         List<MediaFile> candidates = mediaFileDao.getArtistSortCandidate();
-        List<MediaFile> toBeUpdates = mediaFileJPSupport.createArtistSortToBeUpdate(candidates);
+        List<MediaFile> toBeUpdates = utils.createArtistSortToBeUpdate(candidates);
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
 
         for (MediaFile toBeUpdate : toBeUpdates) {
             MediaFile artist = mediaFileDao.getMediaFile(toBeUpdate.getId());
             artist.setArtistSort(toBeUpdate.getArtistSort());
-            mediaFileJPSupport.analyze(artist);
+            utils.analyze(artist);
             mediaFileDao.createOrUpdateMediaFile(artist);
             indexManager.index(artist);
             Artist a = artistDao.getArtist(artist.getArtist());
@@ -237,6 +254,9 @@ public class MediaScannerServiceUtils {
 
     }
 
+    /**
+     * Update the order of all mediaFile records.
+     */
     public void updateFileStructureOrder() {
 
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
@@ -259,4 +279,12 @@ public class MediaScannerServiceUtils {
         }
 
     }
+
+    /**
+     * Update the order of all mediaFile records.
+     */
+    public void clearMemoryCache() {
+        utils.clear();
+    }
+
 }

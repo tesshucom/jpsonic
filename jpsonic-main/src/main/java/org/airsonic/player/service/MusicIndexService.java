@@ -19,10 +19,13 @@
  */
 package org.airsonic.player.service;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.service.MediaFileJPSupport;
+import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.MusicFolderContent;
+import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,8 +33,13 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.Serializable;
-import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 /**
  * Provides services for grouping artists by index.
@@ -46,9 +54,7 @@ public class MusicIndexService {
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
-    private MediaFileJPSupport mediaFileJPSupport;
-    @Autowired
-    private JpsonicComparators comparators;
+    private MusicIndexServiceUtils utils;
 
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
@@ -162,55 +168,15 @@ public class MusicIndexService {
         return result;
     }
 
+    // JP >>>>
     private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
-        String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        String[] shortcuts = settingsService.getShortcutsAsArray();
-        SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
-        Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
-
-        Collator c = comparators.createCollator();
-        for (MusicFolder folder : folders) {
-
-            MediaFile root = mediaFileService.getMediaFile(folder.getPath(), !refresh);
-            List<MediaFile> children = mediaFileService.getChildrenOf(root, false, true, true, !refresh);
-            for (MediaFile child : children) {
-                if (shortcutSet.contains(child.getName())) {
-                    continue;
-                }
-
-                String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(child), ignoredArticles);
-                MusicIndex.SortableArtistWithMediaFiles artist = artistMap.get(sortableName);
-                if (artist == null) {
-                    artist = new MusicIndex.SortableArtistWithMediaFiles(child.getName(), sortableName, c);
-                    artistMap.put(sortableName, artist);
-                }
-                artist.addMediaFile(child);
-            }
-        }
-
-        return new ArrayList<MusicIndex.SortableArtistWithMediaFiles>(artistMap.values());
+        return utils.createSortableArtists(folders, refresh);
     }
 
     private List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
-        List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
-        String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        Collator c = comparators.createCollator();
-        for (Artist artist : artists) {
-            String sortableName = createSortableName(mediaFileJPSupport.createIndexableName(artist), ignoredArticles);
-            result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, c));
-        }
-        return result;
+        return utils.createSortableArtists(artists);
     }
-
-    private String createSortableName(String name, String[] ignoredArticles) {
-        String uppercaseName = name.toUpperCase();
-        for (String article : ignoredArticles) {
-            if (uppercaseName.startsWith(article.toUpperCase() + " ")) {
-                return name.substring(article.length() + 1) + ", " + article;
-            }
-        }
-        return name;
-    }
+    // <<<< JP
 
     /**
      * Returns the music index to which the given artist belongs.
@@ -240,8 +206,6 @@ public class MusicIndexService {
     }
 
     private static class MusicIndexComparator implements Comparator<MusicIndex>, Serializable {
-
-        private static final long serialVersionUID = 1L;
 
         private List<MusicIndex> indexes;
 

@@ -18,7 +18,6 @@
  */
 package com.tesshu.jpsonic.domain;
 
-import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
@@ -36,19 +35,19 @@ import java.util.regex.Pattern;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
-@DependsOn({ "settingsService", "mediaFileJPSupport" })
+@DependsOn({ "settingsService", "japaneseReadingUtils" })
 public class JpsonicComparators {
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
     private final SettingsService settingsService;
 
-    private final MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
 
-    public JpsonicComparators(SettingsService settingsService, MediaFileJPSupport mediaFileJPSupport) {
+    public JpsonicComparators(SettingsService settingsService, JapaneseReadingUtils utils) {
         super();
         this.settingsService = settingsService;
-        this.mediaFileJPSupport = mediaFileJPSupport;
+        this.utils = utils;
     }
 
     public Collator createCollator() {
@@ -149,8 +148,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Playlist o1, Playlist o2) {
-                mediaFileJPSupport.analyze(o1);
-                mediaFileJPSupport.analyze(o2);
+                utils.analyze(o1);
+                utils.analyze(o2);
                 return c.compare(o1.getReading(), o2.getReading());
             }
         };
@@ -167,8 +166,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Genre o1, Genre o2) {
-                mediaFileJPSupport.analyze(o1);
-                mediaFileJPSupport.analyze(o2);
+                utils.analyze(o1);
+                utils.analyze(o2);
                 return c.compare(o1.getReading(), o2.getReading());
             }
         };
