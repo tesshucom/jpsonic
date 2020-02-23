@@ -103,14 +103,27 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Album o1, Album o2) {
-                if (isByYear && !isEmpty(o1.getYear())) {
-                    return o1.getYear().compareTo(o2.getYear());
+                if (isByYear) {
+                    return nullSafeCompare(o1.getYear(), o2.getYear(), false);
                 } else if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
                 return c.compare(o1.getNameReading(), o2.getNameReading());
             }
         };
+    }
+
+    private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {
+        if (a == null && b == null) {
+            return 0;
+        }
+        if (a == null) {
+            return nullIsSmaller ? -1 : 1;
+        }
+        if (b == null) {
+            return nullIsSmaller ? 1 : -1;
+        }
+        return a.compareTo(b);
     }
 
     public boolean isSortAlbumsByYear(String artist) {

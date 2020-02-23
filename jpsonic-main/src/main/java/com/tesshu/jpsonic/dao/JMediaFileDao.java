@@ -151,7 +151,13 @@ public class JMediaFileDao extends AbstractDao {
         Map<String, Object> args = new HashMap<>();
         args.put("type", MediaFile.MediaType.DIRECTORY.name());
         args.put("folders", MusicFolder.toPathList(musicFolders));
-        return namedQuery("select " + getQueryColoms() + " from media_file where type = :type and folder in (:folders) and present ", rowMapper, args);
+        return namedQuery(// @formatter:off
+                "select " + getQueryColoms() + " from media_file " +
+                "where " +
+                "type = :type and " +
+                "folder in (:folders) and " +
+                "present and " +
+                "artist is not null", rowMapper, args); // @formatter:on
     }
 
     public List<MediaFile> getArtistSortCandidate() { // @formatter:off

@@ -98,7 +98,7 @@ public class WashingTestCase extends AbstractAirsonicHomeTest {
         // Album with tag
         Album album2 = albumDao.getAlbum("倖田來未", "Best ～first things～ [Disc 2]");
         assertEquals("Best ～first things～ [Disc 2]", album2.getName());
-        assertEquals("Best ~first things~ Disc 2", album2.getNameReading());
+        assertEquals("Best ~first things~ [Disc 2]", album2.getNameReading());
         assertEquals("Best ~first things~ Disc 2", album2.getNameSort());
         assertEquals("倖田來未", album2.getArtist());
         assertEquals("コウダクミ", album2.getArtistReading());
