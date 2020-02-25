@@ -106,14 +106,14 @@ public class MusicFolderSettingsController {
 
         // to be before dao#expunge
         MediaLibraryStatistics statistics = indexManager.getStatistics();
-        if (statistics != null) {
+        if (statistics != null && !mediaScannerService.isScanning()) {
             LOG.debug("Cleaning search index...");
             indexManager.startIndexing();
             indexManager.expunge();
             indexManager.stopIndexing(statistics);
             LOG.debug("Search index cleanup complete.");
         } else {
-            LOG.warn("Missing index statistics - index probably hasn't been created yet. Not expunging index.");
+            LOG.warn("Missing index statistics - index probably hasn't been created yet or during scanning. Not expunging index.");
         }
 
         LOG.debug("Cleaning database...");
