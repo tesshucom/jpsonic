@@ -5,5 +5,5 @@
      dMP dMMMMP"  VMMMb  dMP dMP dMP dMP dMP dMP      
 dK .dMP dMP     dP .dMP dMP.aMP dMP dMP dMP dMP.aMP   
 VMMMP" dMP      VMMMP"  VMMMP" dMP dMP dMP  VMMMP"    
-                                  ${application.version}
+                Powered by Airsonic ${application.version}
 
