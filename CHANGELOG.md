@@ -3,6 +3,19 @@
 # jpsonic/jpsonic
 # -->
 
+## v107.1.0
+#### Based on *airsonic 10.6.0-SNAPSHOT 80ccd82*
+
+> [80ccd82]
+> Numerous library updates, Popup improvements, health check page added etc.
+
+  * [fix] Update Tomcat to 8.5.51(CVE-2020-1935, CVE-2019-17569).
+  * [fix] Fix not to perform cleanup during scan.
+  * [fix] Sorting fixes and testing enhance.
+     - Fix classify English (words starting with the alphabet) and others.
+     - Fix for sorting of titles including parentheses and numbers.
+     - Fix to sort correctly on Home > All.
+
 ## v107.0.0
 #### Based on *airsonic 10.6.0-SNAPSHOT 64fad6a*
 

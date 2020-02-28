@@ -18,7 +18,6 @@
  */
 package com.tesshu.jpsonic.domain;
 
-import com.tesshu.jpsonic.service.MediaFileJPSupport;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
@@ -26,7 +25,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.text.Collator;
@@ -36,15 +35,20 @@ import java.util.regex.Pattern;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Component
+@DependsOn({ "settingsService", "japaneseReadingUtils" })
 public class JpsonicComparators {
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
 
-    @Autowired
-    private MediaFileJPSupport mediaFileJPSupport;
+    private final JapaneseReadingUtils utils;
+
+    public JpsonicComparators(SettingsService settingsService, JapaneseReadingUtils utils) {
+        super();
+        this.settingsService = settingsService;
+        this.utils = utils;
+    }
 
     public Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
@@ -99,14 +103,27 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Album o1, Album o2) {
-                if (isByYear && !isEmpty(o1.getYear())) {
-                    return o1.getYear().compareTo(o2.getYear());
+                if (isByYear) {
+                    return nullSafeCompare(o1.getYear(), o2.getYear(), false);
                 } else if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
                 return c.compare(o1.getNameReading(), o2.getNameReading());
             }
         };
+    }
+
+    private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {
+        if (a == null && b == null) {
+            return 0;
+        }
+        if (a == null) {
+            return nullIsSmaller ? -1 : 1;
+        }
+        if (b == null) {
+            return nullIsSmaller ? 1 : -1;
+        }
+        return a.compareTo(b);
     }
 
     public boolean isSortAlbumsByYear(String artist) {
@@ -144,8 +161,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Playlist o1, Playlist o2) {
-                mediaFileJPSupport.analyze(o1);
-                mediaFileJPSupport.analyze(o2);
+                utils.analyze(o1);
+                utils.analyze(o2);
                 return c.compare(o1.getReading(), o2.getReading());
             }
         };
@@ -162,8 +179,8 @@ public class JpsonicComparators {
 
             @Override
             public int compare(Genre o1, Genre o2) {
-                mediaFileJPSupport.analyze(o1);
-                mediaFileJPSupport.analyze(o2);
+                utils.analyze(o1);
+                utils.analyze(o2);
                 return c.compare(o1.getReading(), o2.getReading());
             }
         };

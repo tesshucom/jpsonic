@@ -19,12 +19,12 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.Player;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
@@ -57,11 +57,11 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final UpnpProcessorUtil util;
 
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
 
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PlayerService p) {
+    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;

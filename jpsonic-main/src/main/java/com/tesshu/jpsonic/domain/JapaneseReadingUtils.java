@@ -16,7 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service;
+package com.tesshu.jpsonic.domain;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
@@ -27,7 +27,7 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
@@ -47,16 +47,29 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
  * Provide analysis of Japanese name.
  */
 @Component
-public class MediaFileJPSupport {
+@DependsOn({ "settingsService" })
+public class JapaneseReadingUtils {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
 
-    public static final Pattern ALPHA = Pattern.compile("^[a-zA-Z]+$");
+    public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
+
+    public JapaneseReadingUtils(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
+
+    /* AtoZ only true. */
+    private boolean isStartWithAlpha(String s) {
+        if (isEmpty(s)) {
+            return false;
+        }
+        return ALPHA.matcher(s.substring(0, 1)).matches();
+    }
 
     private final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new,
             StringBuilder::append, StringBuilder::append, StringBuilder::toString);
@@ -78,7 +91,23 @@ public class MediaFileJPSupport {
         }
         return ignoredArticles;
     }
-    
+
+    private String createIgnoredArticles(String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        /* @see MusicIndexService#createSortableName */
+        String lower = s.toLowerCase();
+        String result = s;
+        for (String article : getIgnoredArticles()) {
+            if (lower.startsWith(article.toLowerCase() + " ")) {
+                // reading = lower.substring(article.length() + 1) + ", " + article;
+                result = result.substring(article.length() + 1);
+            }
+        }
+        return result;
+    }
+
     String createReading(String s) {
         if (isEmpty(s)) {
             return null;
@@ -88,16 +117,7 @@ public class MediaFileJPSupport {
         }
         List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
         String reading = tokens.stream().map(readingAnalysis).collect(join);
-
-        /* @see MusicIndexService#createSortableName */
-        String lower = reading.toLowerCase();
-        for (String article : getIgnoredArticles()) {
-            if (lower.startsWith(article.toLowerCase() + " ")) {
-                // reading = lower.substring(article.length() + 1) + ", " + article;
-                reading = reading.substring(article.length() + 1);
-            }
-        }
-
+        reading = createIgnoredArticles(reading);
         readingMap.put(s, reading);
         return reading;
     }
@@ -107,13 +127,31 @@ public class MediaFileJPSupport {
     }
 
     public void analyze(MediaFile m) {
+
         m.setArtistSort(isEmpty(m.getArtistSort()) ? null : normalize(m.getArtistSort()));
-        m.setArtistReading(createReading(isEmpty(m.getArtistSort()) ? m.getArtist() : m.getArtistSort()));
+        String artist = createIgnoredArticles(m.getArtist());
+        if (isStartWithAlpha(artist)) {
+            m.setArtistReading(createReading(artist));
+        } else {
+            m.setArtistReading(createReading(isEmpty(m.getArtistSort()) ? artist : m.getArtistSort()));
+        }
+
         m.setAlbumArtistSort(isEmpty(m.getAlbumArtistSort()) ? null : normalize(m.getAlbumArtistSort()));
-        m.setAlbumArtistReading(
-                createReading(isEmpty(m.getAlbumArtistSort()) ? m.getAlbumArtist() : m.getAlbumArtistSort()));
+        String albumArtist = createIgnoredArticles(m.getAlbumArtist());
+        if (isStartWithAlpha(albumArtist)) {
+            m.setAlbumArtistReading(createReading(albumArtist));
+        } else {
+            m.setAlbumArtistReading(createReading(isEmpty(m.getAlbumArtistSort()) ? albumArtist : m.getAlbumArtistSort()));
+        }
+
         m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort()));
-        m.setAlbumReading(createReading(isEmpty(m.getAlbumSort()) ? m.getAlbumName() : m.getAlbumSort()));
+        String album = createIgnoredArticles(m.getAlbumName());
+        if (isStartWithAlpha(album)) {
+            m.setAlbumReading(createReading(album));
+        } else {
+            m.setAlbumReading(createReading(isEmpty(m.getAlbumSort()) ? album : m.getAlbumSort()));
+        }
+
     }
     
     public void analyze(Playlist p) {
@@ -147,7 +185,7 @@ public class MediaFileJPSupport {
 
     public String createIndexableName(MediaFile mediaFile) {
         String indexableName = mediaFile.getName();
-        if (settingsService.isIndexEnglishPrior() && ALPHA.matcher(mediaFile.getName().substring(0, 1)).matches()) {
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
             indexableName = mediaFile.getName();
         } else if (!isEmpty(mediaFile.getArtistReading())) {
             indexableName = mediaFile.getArtistReading();
@@ -159,7 +197,7 @@ public class MediaFileJPSupport {
 
     public String createIndexableName(Artist artist) {
         String indexableName = artist.getName();
-        if (settingsService.isIndexEnglishPrior() && ALPHA.matcher(artist.getName().substring(0, 1)).matches()) {
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
             indexableName = artist.getName();
         } else if (!isEmpty(artist.getReading())) {
             indexableName = artist.getReading();

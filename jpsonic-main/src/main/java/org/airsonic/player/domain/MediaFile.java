@@ -68,29 +68,50 @@ public class MediaFile {
     private Date childrenLastUpdated;
     private boolean present;
     private int version;
-    private String titleSort;
-    private String albumReading;
-    private String albumSort;
-    private String artistReading;
-    private String artistSort;
-    private String albumArtistReading;
-    private String albumArtistSort;
     private String musicBrainzReleaseId;
     private String musicBrainzRecordingId;
+
+    // JP >>>>
+
+    // Tags newly supported by Jpsonic.
     private String composer;
+    private String artistSort;
+    private String albumSort;
+    private String titleSort;
+    private String albumArtistSort;
     private String composerSort;
+
+    // Cleansing or analysis results. Significant impact on index size.
+    private String artistReading;
+    private String albumReading;
+    private String albumArtistReading;
+
+    // Default is -1. Registered when scanning by if option selected.
     private int order;
 
+    // Row number used internally during processing.
     private transient int rownum;
+
+    // <<<< JP
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
                      String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
                      boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
                      String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
-                     Date childrenLastUpdated, boolean present, int version,
-                     String artistReading, String titleSort, String albumSort, String artistSort, String albumArtistSort, String albumReading,
-                     String musicBrainzReleaseId, String musicBrainzRecordingId,
-                     String composer, String composerSort, String albumArtistReading, int order) {
+                     Date childrenLastUpdated, boolean present, int version, String musicBrainzReleaseId, String musicBrainzRecordingId,
+                     // JP >>>>
+                     String composer,
+                     String artistSort,
+                     String albumSort,
+                     String titleSort,
+                     String albumArtistSort,
+                     String composerSort,
+                     String artistReading,
+                     String albumReading,
+                     String albumArtistReading,
+                     int order
+                     // <<<< JP
+                     ) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -121,18 +142,20 @@ public class MediaFile {
         this.childrenLastUpdated = childrenLastUpdated;
         this.present = present;
         this.version = version;
-        this.artistReading = artistReading;
-        this.titleSort = titleSort;
-        this.albumSort = albumSort;
-        this.artistSort = artistSort;
-        this.albumArtistSort = albumArtistSort;
-        this.albumReading = albumReading;
         this.musicBrainzReleaseId = musicBrainzReleaseId;
         this.musicBrainzRecordingId = musicBrainzRecordingId;
+        // JP >>>>
         this.composer = composer;
+        this.artistSort = artistSort;
+        this.albumSort = albumSort;
+        this.titleSort = titleSort;
+        this.albumArtistSort = albumArtistSort;
         this.composerSort = composerSort;
+        this.artistReading = artistReading;
+        this.albumReading = albumReading;
         this.albumArtistReading = albumArtistReading;
         this.order = order;
+        // <<<< JP
     }
 
     public MediaFile() {
@@ -466,28 +489,14 @@ public class MediaFile {
         return coverArtPath == null ? null : new File(coverArtPath);
     }
 
-    public String getArtistReading() {
-        return artistReading;
+    // JP >>>>
+
+    public String getComposer() {
+        return composer;
     }
 
-    public void setArtistReading(String artistReading) {
-        this.artistReading = artistReading;
-    }
-
-    public String getTitleSort() {
-        return titleSort;
-    }
-
-    public void setTitleSort(String titleSort) {
-        this.titleSort = titleSort;
-    }
-
-    public String getAlbumSort() {
-        return albumSort;
-    }
-
-    public void setAlbumSort(String albumSort) {
-        this.albumSort = albumSort;
+    public void setComposer(String composer) {
+        this.composer = composer;
     }
 
     public String getArtistSort() {
@@ -498,6 +507,22 @@ public class MediaFile {
         this.artistSort = artistSort;
     }
 
+    public String getAlbumSort() {
+        return albumSort;
+    }
+
+    public void setAlbumSort(String albumSort) {
+        this.albumSort = albumSort;
+    }
+
+    public String getTitleSort() {
+        return titleSort;
+    }
+
+    public void setTitleSort(String titleSort) {
+        this.titleSort = titleSort;
+    }
+
     public String getAlbumArtistSort() {
         return albumArtistSort;
     }
@@ -506,28 +531,28 @@ public class MediaFile {
         this.albumArtistSort = albumArtistSort;
     }
 
-    public String getAlbumReading() {
-        return albumReading;
-    }
-
-    public void setAlbumReading(String albumReading) {
-        this.albumReading = albumReading;
-    }
-
-    public String getComposer() {
-        return composer;
-    }
-
-    public void setComposer(String composer) {
-        this.composer = composer;
-    }
-
     public String getComposerSort() {
         return composerSort;
     }
 
     public void setComposerSort(String composerSort) {
         this.composerSort = composerSort;
+    }
+
+    public String getArtistReading() {
+        return artistReading;
+    }
+
+    public void setArtistReading(String artistReading) {
+        this.artistReading = artistReading;
+    }
+
+    public String getAlbumReading() {
+        return albumReading;
+    }
+
+    public void setAlbumReading(String albumReading) {
+        this.albumReading = albumReading;
     }
 
     public String getAlbumArtistReading() {
@@ -553,6 +578,8 @@ public class MediaFile {
     public void setRownum(int rownum) {
         this.rownum = rownum;
     }
+
+    // <<<< JP
 
     @Override
     public String toString() {

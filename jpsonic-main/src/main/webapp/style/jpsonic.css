@@ -617,6 +617,16 @@ img#show-left-frame {
 	margin-top:-5px;
 }
 
+div.ui-tooltip {
+	font-size: 90%;
+	line-height: 140%;
+	max-width: 400px;
+	box-shadow: none;
+	background-color: #fff7d1;
+	border-radius: 6px;
+	border: 1px solid #3333;
+}
+
 .monospace {
 	font-family: monospace;
 }

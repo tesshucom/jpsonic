@@ -34,15 +34,28 @@ public class Artist {
     private Date lastScanned;
     private boolean present;
     private Integer folderId;
-    private String reading;
+
+    // JP >>>>
+
+    // Tags newly supported by Jpsonic.
     private String sort;
+
+    // Cleansing or analysis results.
+    private String reading;
+
+    // Default is -1. Registered when scanning by if option selected.
     private int order;
+
+    // <<<< JP
 
     public Artist() {
     }
 
     public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present, Integer folderId,
-            String reading, String sort, int order) {
+            // JP >>>>
+            String sort, String reading, int order
+            // <<<< JP
+    ) {
         this.id = id;
         this.name = name;
         this.coverArtPath = coverArtPath;
@@ -50,9 +63,11 @@ public class Artist {
         this.lastScanned = lastScanned;
         this.present = present;
         this.folderId = folderId;
-        this.reading = reading;
+        // JP >>>>
         this.sort = sort;
+        this.reading = reading;
         this.order = order;
+        // <<<< JP
     }
 
     public int getId() {
@@ -111,20 +126,20 @@ public class Artist {
         return folderId;
     }
 
-    public String getReading() {
-        return reading;
-    }
-
-    public void setReading(String reading) {
-        this.reading = reading;
-    }
-
     public String getSort() {
         return sort;
     }
 
     public void setSort(String sort) {
         this.sort = sort;
+    }
+
+    public String getReading() {
+        return reading;
+    }
+
+    public void setReading(String reading) {
+        this.reading = reading;
     }
 
     public int getOrder() {

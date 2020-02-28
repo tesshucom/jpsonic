@@ -95,7 +95,7 @@ public class IndexManager {
      *    DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 18;
+    private static final int INDEX_VERSION = 19;
 
     /**
      * Literal name of index top directory.
@@ -371,8 +371,10 @@ public class IndexManager {
                 }
             } catch (IndexNotFoundException e) {
                 LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(), indexDirectory.getAbsolutePath());
+                return null;
             } catch (IOException e) {
                 LOG.warn("Failed to initialize SearcherManager.", e);
+                return null;
             }
         }
         try {

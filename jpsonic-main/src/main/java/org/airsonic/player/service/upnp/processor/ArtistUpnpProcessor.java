@@ -19,7 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.dao.ArtistDao;
+import com.tesshu.jpsonic.dao.JArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -45,12 +45,10 @@ import java.util.List;
 public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     private final UpnpProcessorUtil util;
-
-    private final ArtistDao artistDao;
-    
+    private final JArtistDao artistDao;
     private final CoverArtLogic coverArtLogic;
 
-    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, ArtistDao a, CoverArtLogic c) {
+    public ArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a, CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.artistDao = a;
@@ -82,7 +80,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
 
     @Override
     public List<Artist> getItems(long offset, long maxResults) {
-        return artistDao.getAlphabetialArtists(offset, maxResults, util.getAllMusicFolders());
+        return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
     public Artist getItemById(String id) {

@@ -18,10 +18,11 @@
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
 package org.airsonic.player.service.upnp.processor;
-import org.airsonic.player.dao.AlbumDao;
+
+import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
@@ -39,11 +40,11 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final UpnpProcessorUtil util;
 
-    private final AlbumDao albumDao;
+    private final JAlbumDao albumDao;
 
     private final static int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, AlbumDao a, CoverArtLogic c) {
+    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c) {
         super(d, u, m, a, c);
         this.util = u;
         this.albumDao = a;
@@ -84,7 +85,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
         if (offset != 0 && 0 != limit && 0 < max) {
             offset = offset - 1;
         }
-        albums = albumDao.getNewestAlbums(offset, count, util.getAllMusicFolders());
+        albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album viewAll = new Album();
             viewAll.setName(util.getResource("dlna.element.allalbums"));

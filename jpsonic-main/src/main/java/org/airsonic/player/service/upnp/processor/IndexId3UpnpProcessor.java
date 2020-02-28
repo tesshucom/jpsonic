@@ -18,16 +18,15 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.dao.JAlbumDao;
+import com.tesshu.jpsonic.service.JMediaFileService;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
-
-import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.airsonic.player.spring.EhcacheConfiguration.IndexCacheKey;
@@ -64,10 +63,10 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
     private final UpnpProcessorUtil util;
-    private final MediaFileService mediaFileService;
+    private final JMediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final ArtistDao artistDao;
-    private final AlbumDao albumDao;
+    private final JAlbumDao albumDao;
 
     private final Ehcache indexCache;
 
@@ -77,7 +76,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private List<Id3Wrapper> topNodes;
 
-    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, MusicIndexService mi, ArtistDao ad, AlbumDao ald, Ehcache indexCache) {
+    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
