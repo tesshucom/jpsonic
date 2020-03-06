@@ -16,7 +16,7 @@
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
         <jpsonic.version>107.1.0-RELEASE</jpsonic.version>
-        <jetty.version>9.4.24.v20191120</jetty.version>
+        <jetty.version>9.4.27.v20200227</jetty.version>
     </properties>
 
     <dependencies>
@@ -649,7 +649,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.21.RELEASE</version>
+                <version>1.5.22.RELEASE</version>
                 <configuration>
                     <mainClass>org.airsonic.player.Application</mainClass>
                     <layout>WAR</layout>
