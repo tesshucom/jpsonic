@@ -16,7 +16,7 @@
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
         <jpsonic.version>107.1.0-RELEASE</jpsonic.version>
-        <jetty.version>9.4.24.v20191120</jetty.version>
+        <jetty.version>9.4.27.v20200227</jetty.version>
     </properties>
 
     <dependencies>
