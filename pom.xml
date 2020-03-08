@@ -192,7 +192,8 @@
                 <version>4.7.2</version>
             </dependency>
 
-            <!-- tomcat -->
+            <!-- Tomcat dependencies are normally managed by Spring Boot, but we handle
+                 patch version updates ourselves in order to fix CVEs. -->
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
