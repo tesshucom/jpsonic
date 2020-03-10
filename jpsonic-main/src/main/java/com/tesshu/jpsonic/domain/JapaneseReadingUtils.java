@@ -93,6 +93,25 @@ public class JapaneseReadingUtils {
         readingMap.clear();
     }
 
+    private boolean containsJapanese(String s) {
+        if (isEmpty(s)) {
+            return false;
+        }
+        for (int i = 0; i < s.length(); i++) {
+            char ch = s.charAt(i);
+            Character.UnicodeBlock block = Character.UnicodeBlock.of(ch);
+            // @formatter:off
+            if (Character.UnicodeBlock.HIRAGANA.equals(block)
+                    || Character.UnicodeBlock.KATAKANA.equals(block)
+                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(block)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(block)
+                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(block))
+                return true;
+            // @formatter:on
+        }
+        return false;
+    }
+
     public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
         List<MediaFile> toBeUpdate = new ArrayList<>();
         for (MediaFile candidate : candidates) {
@@ -209,7 +228,11 @@ public class JapaneseReadingUtils {
         String s = createIgnoredArticles(sort);
         String reading = null;
         if (isStartWithAlpha(n)) {
-            reading = createReading(n);
+            if (isStartWithAlpha(s) && containsJapanese(s)) {
+                reading = createReading(s);
+            } else {
+                reading = createReading(n);
+            }
         } else {
             reading = createReading(defaultIfBlank(s, n));
         }

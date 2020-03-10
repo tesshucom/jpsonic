@@ -28,188 +28,208 @@ public class JpsonicComparatorsTestUtils {
     @Documented
     private @interface ComparatorsDecisions { // @formatter:off
         @interface Conditions {
-            @interface isAlpha {}
-            @interface isNum {}
-            @interface isAlphaNum {}
-            @interface isFullWidth {}
-            @interface isHalfWidth {}
-            @interface isUpper {}
-            @interface isLigature {}
-            @interface isChiChar {}
-            @interface isHira {}
-            @interface isKata {}
-            @interface isSmallKana {}
-            @interface isDullness {}
-            @interface isPsound {}
-            @interface isSymbol {}
-            @interface isWithArticle {}
-            @interface isRequireJapaneseReadingAnalysis {}
+            @interface name {
+                @interface isAlpha {}
+                @interface isNum {}
+                @interface isAlphaNum {}
+                @interface isFullWidth {}
+                @interface isHalfWidth {}
+                @interface isUpper {}
+                @interface isLigature {}
+                @interface isChiChar {}
+                @interface isHira {}
+                @interface isKata {}
+                @interface isSmallKana {}
+                @interface isDullness {}
+                @interface isPsound {}
+                @interface isSymbol {}
+                @interface isWithArticle {}
+                @interface isRequireJapaneseReadingAnalysis {}
+            }
+            @interface year {
+                @interface isSpecified {}
+            }
+            @interface reading {
+                @interface isJapaneseAll {}
+                @interface isFirstWithEnAndContainsJp {}
+            }
         }
     } // @formatter:on
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d10() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d20() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d60() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d70() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    private void d80() {
-    }
-
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    private void d90() {
-    }
-
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d98() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d99() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.reading.isJapaneseAll
     private void dabcde() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isUpper
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.reading.isFirstWithEnAndContainsJp
+    private void dabcいうえおあ() {
+    }
+
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.reading.isFirstWithEnAndContainsJp
+    private void dabc亜伊鵜絵尾() {
+    }
+
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isUpper
+    @ComparatorsDecisions.Conditions.reading.isJapaneseAll
     private void dＢＣＤＥＡ() {
     }
 
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isLigature
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isLigature
     private void dĆḊÉÁḂ() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isUpper
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isUpper
     private void dDEABC() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isWithArticle
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isWithArticle
     
     private void dtheeabcd() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode1() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode2() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode19() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d亜伊鵜絵尾() {
     }
 
-    @ComparatorsDecisions.Conditions.isSymbol
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isSymbol
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void dαβγ() {
     }
 
-    @ComparatorsDecisions.Conditions.isHira
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dいうえおあ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dゥェォァィ() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void dｴｵｱｲｳ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void dｪｫｧｨｩ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dぉぁぃぅぇ() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dオアイウエ() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d春夏秋冬() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void d貼られる() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isPsound
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isPsound
     private void dパラレル() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isDullness
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isDullness
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d馬力() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d張り切る() {
     }
 
-    @ComparatorsDecisions.Conditions.isHira
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dはるなつあきふゆ() {
     }
 
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isSymbol
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSymbol
     private void dSymbolくんつ() {
     }
 
@@ -240,11 +260,11 @@ public class JpsonicComparatorsTestUtils {
                     "50",
                     "60",
                     "70",
-                    "80",
-                    "90",
                     "98", // Enter year in year field
                     "99", // Enter year in year field
                     "abcde", // Enter Japanese in the sort field
+                    "abcいうえおあ", // Turn over by reading
+                    "abc亜伊鵜絵尾", // Turn over by reading
                     "ＢＣＤＥＡ", // Enter Japanese in the sort field
                     "ĆḊÉÁḂ",
                     "DEABC",
@@ -275,16 +295,30 @@ public class JpsonicComparatorsTestUtils {
 
         MediaFile file = new MediaFile();
         if ("abcde".equals(name)) {
+            file.setArtist(name);
             file.setAlbumArtist(name);
+            file.setArtistSort("エービーシーディーイー");
             file.setAlbumArtistSort("エービーシーディーイー");
         } else if ("ＢＣＤＥＡ".equals(name)) {
+            file.setArtist(name);
             file.setAlbumArtist(name);
+            file.setArtistSort("ビーシーディーイーエー");
             file.setAlbumArtistSort("ビーシーディーイーエー");
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setArtist(name);
+            file.setAlbumArtist(name);
+            file.setArtistSort("abcあいうえお");
+            file.setAlbumArtistSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setArtist(name);
+            file.setAlbumArtist(name);
+            file.setArtistSort("abcいうえおあ");
+            file.setAlbumArtistSort("abcいうえおあ");
         } else {
+            file.setArtist(name);
             file.setAlbumArtist(name);
         }
 
-        file.setArtist(name);
         file.setTitle(name);
         file.setPath(name);
         file.setMediaType(MediaType.DIRECTORY);
@@ -325,6 +359,12 @@ public class JpsonicComparatorsTestUtils {
         } else if ("ＢＣＤＥＡ".equals(name)) {
             file.setAlbumName(name);
             file.setAlbumSort("ビーシーディーイーエー");
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setAlbumName(name);
+            file.setAlbumSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setAlbumName(name);
+            file.setAlbumSort("abcいうえおあ");
         } else {
             file.setAlbumName(name);
         }
