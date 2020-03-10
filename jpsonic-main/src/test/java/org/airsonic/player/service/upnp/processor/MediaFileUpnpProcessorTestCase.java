@@ -32,8 +32,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.jPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
 
 public class MediaFileUpnpProcessorTestCase extends AbstractAirsonicHomeTest {

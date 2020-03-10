@@ -31,8 +31,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.childrenList;
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.jPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.childrenList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.jPSonicNaturalList;
 
 import static org.junit.Assert.assertEquals;
 

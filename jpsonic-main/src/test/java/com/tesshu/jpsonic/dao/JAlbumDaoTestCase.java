@@ -36,8 +36,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
 @SpringBootConfiguration
@@ -74,12 +73,6 @@ public class JAlbumDaoTestCase extends AbstractAirsonicHomeTest {
     public void testGetAlphabeticalAlbums() {
         List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
-    }
-
-    @Test
-    public void testGetAlphabeticalNumAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(1)));
-        assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }

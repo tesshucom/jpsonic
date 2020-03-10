@@ -233,7 +233,7 @@ public class JpsonicComparatorsTestUtils {
     private void dSymbolくんつ() {
     }
 
-    /**
+    /*
      * Dictionary order that Japanese feel natural.
      * 
      *  - Generally, it is divided into "Eng/Num" and Japanese.
@@ -287,6 +287,105 @@ public class JpsonicComparatorsTestUtils {
                     "張り切る",
                     "はるなつあきふゆ",
                     "♂くんつ")); // @formatter:on
+
+    /*
+     * Expected sequence number.
+     * Whether serial number processing has been performed can be determined
+     * by some elements included in jPSonicNaturalList.
+     * Use this list if need to do a full pattern test.
+     */
+    private final static List<String> alphaNumList = // @formatter:off
+            unmodifiableList(Arrays.asList(
+                    "09X Radonius",
+                    "10X Radonius",
+                    "20X Radonius",
+                    "20X Radonius Prime",
+                    "30X Radonius",
+                    "40X Radonius",
+                    "200X Radonius",
+                    "1000X Radonius Maximus",
+                    "Allegia 6R Clasteron",
+                    "Allegia 50B Clasteron",
+                    "Allegia 50 Clasteron",
+                    "Allegia 51 Clasteron",
+                    "Allegia 500 Clasteron",
+                    "Alpha 2",
+                    "Alpha 2A",
+                    "Alpha 2A-900",
+                    "Alpha 2A-8000",
+                    "Alpha 100",
+                    "Alpha 200",
+                    "Callisto Morphamax",
+                    "Callisto Morphamax 500",
+                    "Callisto Morphamax 600",
+                    "Callisto Morphamax 700",
+                    "Callisto Morphamax 5000",
+                    "Callisto Morphamax 6000 SE",
+                    "Callisto Morphamax 6000 SE2",
+                    "Callisto Morphamax 7000",
+                    "Xiph Xlater 5",
+                    "Xiph Xlater 40",
+                    "Xiph Xlater 50",
+                    "Xiph Xlater 58",
+                    "Xiph Xlater 300",
+                    "Xiph Xlater 500",
+                    "Xiph Xlater 2000",
+                    "Xiph Xlater 5000",
+                    "Xiph Xlater 10000")); // @formatter:on
+
+    static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), albums.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), albums.get(i).getName());
+            }
+        }
+    }
+
+    static void assertAlphanumArtistOrder(List<Artist> artists, Integer... ignores) {
+        assertEquals(alphaNumList.size(), artists.size());
+        for (int i = 0; i < alphaNumList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", alphaNumList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
+    static void assertArtistOrder(List<Artist> artists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), artists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
+    static void assertGenreOrder(List<Genre> genres, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), genres.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), genres.get(i).getName());
+            }
+        }
+    }
+
+    static void assertMediafileOrder(List<MediaFile> files, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), files.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), files.get(i).getName());
+            }
+        }
+    }
+
+    static void assertPlaylistOrder(List<Playlist> playlists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), playlists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), playlists.get(i).getName());
+            }
+        }
+    }
 
     @Autowired
     private JapaneseReadingUtils utils;
@@ -418,6 +517,24 @@ public class JpsonicComparatorsTestUtils {
         return album;
     };
 
+    List<Album> createReversedAlbums() {
+        List<Album> albums = jPSonicNaturalList.stream().map(toAlbum).collect(toList());
+        reverse(albums);
+        return albums;
+    }
+
+    List<Artist> createReversedAlphanum() {
+        List<Artist> artists = alphaNumList.stream().map(toArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
+    List<Artist> createReversedArtists() {
+        List<Artist> artists = jPSonicNaturalList.stream().map(toArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
     List<Genre> createReversedGenres() {
         List<Genre> genres = new ArrayList<>();
         for (int i = 0; i < jPSonicNaturalList.size(); i++) {
@@ -427,20 +544,8 @@ public class JpsonicComparatorsTestUtils {
         return genres;
     }
 
-    List<Playlist> createReversedPlaylists() {
-        List<Playlist> playlists = jPSonicNaturalList.stream().map(toPlaylist).collect(toList());
-        reverse(playlists);
-        return playlists;
-    }
-
-    List<Artist> createReversedArtists() {
-        List<Artist> artists = jPSonicNaturalList.stream().map(toArtist).collect(toList());
-        reverse(artists);
-        return artists;
-    }
-
-    List<Album> createReversedAlbums() {
-        List<Album> albums = jPSonicNaturalList.stream().map(toAlbum).collect(toList());
+    List<MediaFile> createReversedMediAlbums() {
+        List<MediaFile> albums = jPSonicNaturalList.stream().map(toMediaAlbum).collect(toList());
         reverse(albums);
         return albums;
     }
@@ -451,10 +556,10 @@ public class JpsonicComparatorsTestUtils {
         return artists;
     }
 
-    List<MediaFile> createReversedMediAlbums() {
-        List<MediaFile> albums = jPSonicNaturalList.stream().map(toMediaAlbum).collect(toList());
-        reverse(albums);
-        return albums;
+    List<Playlist> createReversedPlaylists() {
+        List<Playlist> playlists = jPSonicNaturalList.stream().map(toPlaylist).collect(toList());
+        reverse(playlists);
+        return playlists;
     }
 
     MediaFile createVariousMedifile() {
@@ -463,48 +568,4 @@ public class JpsonicComparatorsTestUtils {
         return file;
     }
 
-    static void assertGenreOrder(List<Genre> genres, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), genres.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), genres.get(i).getName());
-            }
-        }
-    }
-
-    static void assertPlaylistOrder(List<Playlist> playlists, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), playlists.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), playlists.get(i).getName());
-            }
-        }
-    }
-
-    static void assertArtistOrder(List<Artist> artists, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), artists.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
-            }
-        }
-    }
-
-    static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), albums.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), albums.get(i).getName());
-            }
-        }
-    }
-
-    static void assertMediafileOrder(List<MediaFile> files, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), files.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), files.get(i).getName());
-            }
-        }
-    }
 }

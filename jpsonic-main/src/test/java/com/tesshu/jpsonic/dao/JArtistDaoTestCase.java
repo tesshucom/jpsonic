@@ -33,8 +33,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateAlphaNumList;
-import static com.tesshu.jpsonic.domain.SortingIntegrationTestCase.validateJPSonicNaturalList;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
 import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
@@ -69,12 +68,6 @@ public class JArtistDaoTestCase extends AbstractAirsonicHomeTest {
     public void testGetAlphabetialArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
         assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
-    }
-
-    @Test
-    public void testGetAlphabetialNumArtists() {
-        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(1)));
-        assertTrue(validateAlphaNumList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
     }
 
 }
