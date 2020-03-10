@@ -740,7 +740,12 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Playlist> playlists = testUtils.createReversedPlaylists();
         Collections.sort(playlists, comparators.playlistOrder());
-        assertPlaylistOrder(playlists, 14, 15, 16);
+        assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
+
+        // Playlist can not be specified reading from outside (so alphabetical)
+        assertEquals("abc亜伊鵜絵尾", playlists.get(8).getName());
+        assertEquals("abcいうえおあ", playlists.get(9).getName());
+
         assertEquals("episode 1", playlists.get(14).getName());
         assertEquals("episode 19", playlists.get(15).getName());
         assertEquals("episode 2", playlists.get(16).getName());
@@ -755,7 +760,12 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Playlist> playlists = testUtils.createReversedPlaylists();
         Collections.sort(playlists, comparators.playlistOrder());
-        assertPlaylistOrder(playlists, 14, 15, 16);
+        assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
+
+        // Playlist can not be specified reading from outside (so alphabetical)
+        assertEquals("abc亜伊鵜絵尾", playlists.get(8).getName());
+        assertEquals("abcいうえおあ", playlists.get(9).getName());
+
         assertEquals("episode 1", playlists.get(14).getName());
         assertEquals("episode 2", playlists.get(15).getName());
         assertEquals("episode 19", playlists.get(16).getName());
@@ -769,7 +779,12 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrder(false));
-        assertGenreOrder(genres);
+
+        assertGenreOrder(genres, 8, 9);
+
+        // Genre can not be specified reading from outside (so count)
+        assertEquals("abcいうえおあ", genres.get(8).getName());
+        assertEquals("abc亜伊鵜絵尾", genres.get(9).getName());
     }
 
     @ComparatorsDecisions.Conditions.GenreOrder.isSortByAlbum
@@ -781,7 +796,11 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrder(true));
-        assertGenreOrder(genres);
+
+        assertGenreOrder(genres, 8, 9);
+        // Genre can not be specified reading from outside (so count)
+        assertEquals("abcいうえおあ", genres.get(8).getName());
+        assertEquals("abc亜伊鵜絵尾", genres.get(9).getName());
     }
 
     @ComparatorsDecisions.Actions.genreAlphabeticalOrder
@@ -792,7 +811,13 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreAlphabeticalOrder());
-        assertGenreOrder(genres, 14, 15, 16);
+
+        assertGenreOrder(genres, 8, 9, 14, 15, 16);
+
+        // Genre can not be specified reading from outside (so alphabetical)
+        assertEquals("abc亜伊鵜絵尾", genres.get(8).getName());
+        assertEquals("abcいうえおあ", genres.get(9).getName());
+
         assertEquals("episode 1", genres.get(14).getName());
         assertEquals("episode 19", genres.get(15).getName());
         assertEquals("episode 2", genres.get(16).getName());
@@ -807,7 +832,12 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreAlphabeticalOrder());
-        assertGenreOrder(genres, 14, 15, 16);
+        assertGenreOrder(genres, 8, 9, 14, 15, 16);
+
+        // Genre can not be specified reading from outside (so alphabetical)
+        assertEquals("abc亜伊鵜絵尾", genres.get(8).getName());
+        assertEquals("abcいうえおあ", genres.get(9).getName());
+
         assertEquals("episode 1", genres.get(14).getName());
         assertEquals("episode 2", genres.get(15).getName());
         assertEquals("episode 19", genres.get(16).getName());
