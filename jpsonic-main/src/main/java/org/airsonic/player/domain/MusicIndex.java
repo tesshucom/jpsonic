@@ -20,8 +20,8 @@
 package org.airsonic.player.domain;
 
 import java.io.Serializable;
-import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,8 +39,6 @@ import java.util.Objects;
  * @author Sindre Mehus
  */
 public class MusicIndex implements Serializable {
-
-    private static final long serialVersionUID = 1L;
 
     public static final MusicIndex OTHER = new MusicIndex("#");
 
@@ -121,12 +119,12 @@ public class MusicIndex implements Serializable {
 
         private final String name;
         private final String sortableName;
-        private final Collator collator;
+        private final Comparator<SortableArtist> c;
 
-        public SortableArtist(String name, String sortableName, Collator collator) {
+        public SortableArtist(String name, String sortableName, Comparator<SortableArtist> c) {
             this.name = name;
             this.sortableName = sortableName;
-            this.collator = collator;
+            this.c = c;
         }
 
         public String getName() {
@@ -138,7 +136,7 @@ public class MusicIndex implements Serializable {
         }
 
         public int compareTo(SortableArtist other) {
-            return collator.compare(sortableName, other.sortableName);
+            return c.compare(this, other);
         }
     }
 
@@ -146,8 +144,8 @@ public class MusicIndex implements Serializable {
 
         private final List<MediaFile> mediaFiles = new ArrayList<MediaFile>();
 
-        public SortableArtistWithMediaFiles(String name, String sortableName, Collator collator) {
-            super(name, sortableName, collator);
+        public SortableArtistWithMediaFiles(String name, String sortableName, Comparator<SortableArtist> c) {
+            super(name, sortableName, c);
         }
 
         public void addMediaFile(MediaFile mediaFile) {
@@ -163,8 +161,8 @@ public class MusicIndex implements Serializable {
 
         private final Artist artist;
 
-        public SortableArtistWithArtist(String name, String sortableName, Artist artist, Collator collator) {
-            super(name, sortableName, collator);
+        public SortableArtistWithArtist(String name, String sortableName, Artist artist, Comparator<SortableArtist> c) {
+            super(name, sortableName, c);
             this.artist = artist;
         }
 

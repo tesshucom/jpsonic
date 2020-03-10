@@ -40,7 +40,7 @@ public class RecentAlbumUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Albums"));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Albums"));
         musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 

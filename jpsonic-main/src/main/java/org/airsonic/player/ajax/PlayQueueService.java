@@ -39,6 +39,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.util.*;
 
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+
 /**
  * Provides AJAX-enabled services for manipulating the play queue of a player.
  * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
@@ -668,7 +672,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.TRACK);
+        player.getPlayQueue().sort(comparators.mediaFileOrderBy(TRACK));
         return convert(request, player, false);
     }
 
@@ -676,7 +680,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ARTIST, comparators.createCollator());
+        player.getPlayQueue().sort(comparators.mediaFileOrderBy(ARTIST));
         return convert(request, player, false);
     }
 
@@ -684,7 +688,7 @@ public class PlayQueueService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
-        player.getPlayQueue().sort(PlayQueue.SortOrder.ALBUM, comparators.createCollator());
+        player.getPlayQueue().sort(comparators.mediaFileOrderBy(ALBUM));
         return convert(request, player, false);
     }
 
