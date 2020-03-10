@@ -27,6 +27,8 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
@@ -41,6 +43,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
@@ -50,46 +53,67 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 @DependsOn({ "settingsService" })
 public class JapaneseReadingUtils {
 
-    private final SettingsService settingsService;
-
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
+
+    private final SettingsService settingsService;
+
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
+    private List<String> ignoredArticles;
 
     public JapaneseReadingUtils(SettingsService settingsService) {
         super();
         this.settingsService = settingsService;
     }
 
-    /* AtoZ only true. */
-    private boolean isStartWithAlpha(String s) {
-        if (isEmpty(s)) {
-            return false;
-        }
-        return ALPHA.matcher(s.substring(0, 1)).matches();
+    public void analyze(Genre g) {
+        g.setReading(createReading(defaultIfBlank(g.getName(), g.getReading())));
     }
 
-    private final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new,
-            StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+    public void analyze(MediaFile m) {
 
-    private final Function<Token, String> readingAnalysis = token -> {
-        if (KATAKANA.matcher(token.getSurface()).matches()
-                || ALPHA.matcher(token.getSurface()).matches()
-                || ASTER.equals(token.getReading())) {
-            return token.getSurface();
-        }
-        return token.getReading();
-    };
-    
-    private List<String> ignoredArticles;
+        m.setArtistSort(isEmpty(m.getArtistSort()) ? null : normalize(m.getArtistSort())); // TODO #406
+        m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
 
-    private List<String> getIgnoredArticles() {
-        if (ObjectUtils.isEmpty(ignoredArticles)) {
-            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        m.setAlbumArtistSort(isEmpty(m.getAlbumArtistSort()) ? null : normalize(m.getAlbumArtistSort())); // TODO #406
+        m.setAlbumArtistReading(createReading(m.getAlbumArtist(), m.getAlbumArtistSort()));
+
+        m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort())); // TODO #406
+        m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
+
+    }
+
+    public void analyze(Playlist p) {
+        p.setReading(createReading(defaultIfBlank(p.getName(), p.getReading())));
+    }
+
+    public void clear() {
+        readingMap.clear();
+    }
+
+    public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
+                candidate.setAlbumSort(candidate.getAlbumSort());
+                toBeUpdate.add(candidate);
+            }
         }
-        return ignoredArticles;
+        return toBeUpdate;
+    }
+
+    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
+        List<MediaFile> toBeUpdate = new ArrayList<>();
+        for (MediaFile candidate : candidates) {
+            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
+                candidate.setId(candidate.getId());
+                candidate.setArtistSort(candidate.getArtistSort());
+                toBeUpdate.add(candidate);
+            }
+        }
+        return toBeUpdate;
     }
 
     private String createIgnoredArticles(String s) {
@@ -108,66 +132,34 @@ public class JapaneseReadingUtils {
         return result;
     }
 
-    String createReading(String s) {
-        if (isEmpty(s)) {
-            return null;
+    public String createIndexableName(Artist artist) {
+        String indexableName = artist.getName();
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
+            indexableName = artist.getName();
+        } else if (!isEmpty(artist.getReading())) {
+            indexableName = artist.getReading();
+        } else if (!isEmpty(artist.getSort())) {
+            indexableName = createIndexableName(createReading(artist.getSort()));
         }
-        if (readingMap.containsKey(s)) {
-            return readingMap.get(s);
-        }
-        List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
-        String reading = tokens.stream().map(readingAnalysis).collect(join);
-        reading = createIgnoredArticles(reading);
-        readingMap.put(s, reading);
-        return reading;
+        return createIndexableName(indexableName);
     }
 
-    String normalize(String s) {
-        return Normalizer.normalize(s, Normalizer.Form.NFKC);
-    }
-
-    public void analyze(MediaFile m) {
-
-        m.setArtistSort(isEmpty(m.getArtistSort()) ? null : normalize(m.getArtistSort()));
-        String artist = createIgnoredArticles(m.getArtist());
-        if (isStartWithAlpha(artist)) {
-            m.setArtistReading(createReading(artist));
-        } else {
-            m.setArtistReading(createReading(isEmpty(m.getArtistSort()) ? artist : m.getArtistSort()));
+    public String createIndexableName(MediaFile mediaFile) {
+        String indexableName = mediaFile.getName();
+        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
+            indexableName = mediaFile.getName();
+        } else if (!isEmpty(mediaFile.getArtistReading())) {
+            indexableName = mediaFile.getArtistReading();
+        } else if (!isEmpty(mediaFile.getArtistSort())) {
+            indexableName = createIndexableName(createReading(mediaFile.getArtistSort()));
         }
-
-        m.setAlbumArtistSort(isEmpty(m.getAlbumArtistSort()) ? null : normalize(m.getAlbumArtistSort()));
-        String albumArtist = createIgnoredArticles(m.getAlbumArtist());
-        if (isStartWithAlpha(albumArtist)) {
-            m.setAlbumArtistReading(createReading(albumArtist));
-        } else {
-            m.setAlbumArtistReading(createReading(isEmpty(m.getAlbumArtistSort()) ? albumArtist : m.getAlbumArtistSort()));
-        }
-
-        m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort()));
-        String album = createIgnoredArticles(m.getAlbumName());
-        if (isStartWithAlpha(album)) {
-            m.setAlbumReading(createReading(album));
-        } else {
-            m.setAlbumReading(createReading(isEmpty(m.getAlbumSort()) ? album : m.getAlbumSort()));
-        }
-
-    }
-    
-    public void analyze(Playlist p) {
-        p.setReading(isEmpty(p.getReading()) ? createReading(p.getName()) : p.getReading());
-    }
-
-    public void analyze(Genre g) {
-        g.setReading(isEmpty(g.getReading()) ? createReading(g.getName()) : g.getReading());
-    }
-
-    public void clear() {
-        readingMap.clear();
+        return createIndexableName(indexableName);
     }
 
     /**
-     * This method returns the normalized Artist name that can also be used to create the index prefix.
+     * This method returns the normalized Artist name that can also be used to
+     * create the index prefix.
+     * 
      * @param mediaFile
      * @return indexable Name
      */
@@ -183,51 +175,63 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    public String createIndexableName(MediaFile mediaFile) {
-        String indexableName = mediaFile.getName();
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
-            indexableName = mediaFile.getName();
-        } else if (!isEmpty(mediaFile.getArtistReading())) {
-            indexableName = mediaFile.getArtistReading();
-        } else if (!isEmpty(mediaFile.getArtistSort())) {
-            indexableName = createIndexableName(createReading(mediaFile.getArtistSort()));
+    String createReading(String s) {
+        if (isEmpty(s)) {
+            return null;
         }
-        return createIndexableName(indexableName);
-    }
-
-    public String createIndexableName(Artist artist) {
-        String indexableName = artist.getName();
-        if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
-            indexableName = artist.getName();
-        } else if (!isEmpty(artist.getReading())) {
-            indexableName = artist.getReading();
-        } else if (!isEmpty(artist.getSort())) {
-            indexableName = createIndexableName(createReading(artist.getSort()));
+        if (readingMap.containsKey(s)) {
+            return readingMap.get(s);
         }
-        return createIndexableName(indexableName);
-    }
+        List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
 
-    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
-        List<MediaFile> toBeUpdate = new ArrayList<>();
-        for (MediaFile candidate : candidates) {
-            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
-                candidate.setId(candidate.getId());
-                candidate.setArtistSort(candidate.getArtistSort());
-                toBeUpdate.add(candidate);
+        // @formatter:off
+        final Collector<String, StringBuilder, String> join =
+                Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+
+        final Function<Token, String> readingAnalysis = token -> {
+            if (KATAKANA.matcher(token.getSurface()).matches() 
+                   || ALPHA.matcher(token.getSurface()).matches()
+                   || ASTER.equals(token.getReading())) {
+                return token.getSurface();
             }
-        }
-        return toBeUpdate;
+            return token.getReading();
+        };
+        // @formatter:on
+
+        String reading = tokens.stream().map(readingAnalysis).collect(join);
+        reading = createIgnoredArticles(reading);
+        readingMap.put(s, reading);
+        return reading;
     }
 
-    public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
-        List<MediaFile> toBeUpdate = new ArrayList<>();
-        for (MediaFile candidate : candidates) {
-            if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
-                candidate.setAlbumSort(candidate.getAlbumSort());
-                toBeUpdate.add(candidate);
-            }
+    private @NonNull String createReading(@NonNull String name, @Nullable String sort) {
+        String n = createIgnoredArticles(name);
+        String s = createIgnoredArticles(sort);
+        String reading = null;
+        if (isStartWithAlpha(n)) {
+            reading = createReading(n);
+        } else {
+            reading = createReading(defaultIfBlank(s, n));
         }
-        return toBeUpdate;
+        return reading;
     }
 
+    private List<String> getIgnoredArticles() {
+        if (ObjectUtils.isEmpty(ignoredArticles)) {
+            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        }
+        return ignoredArticles;
+    }
+
+    /* AtoZ only true. */
+    private boolean isStartWithAlpha(String s) {
+        if (isEmpty(s)) {
+            return false;
+        }
+        return ALPHA.matcher(s.substring(0, 1)).matches();
+    }
+
+    String normalize(String s) {
+        return Normalizer.normalize(s, Normalizer.Form.NFKC);
+    }
 }
