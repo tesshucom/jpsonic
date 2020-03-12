@@ -23,7 +23,6 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.PlayQueue;
-import org.airsonic.player.domain.PlayQueue.SortOrder;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
@@ -49,6 +48,7 @@ import java.util.SortedMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -153,7 +153,11 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
     public void testIndex() throws Exception {
         List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService.getIndexedArtists(musicFoldersToUse, true);
-        List<String> artists = m.values().stream().flatMap(files -> files.stream()).flatMap(files -> files.getMediaFiles().stream()).map(file -> file.getName()).collect(Collectors.toList());
+        List<String> artists = m.values().stream()
+                .flatMap(files -> files.stream())
+                .flatMap(files -> files.getMediaFiles().stream())
+                .map(file -> file.getName())
+                .collect(Collectors.toList());
         assertTrue(validateIndexList(artists));
     }
 
@@ -172,23 +176,6 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
     }
 
     @Test
-    public void testPlayQueueSortByAlbum() throws IOException {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(false);
-        List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(1));
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("ARTIST");
-        criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFoldersToUse, IndexType.ALBUM);
-        PlayQueue playQueue = new PlayQueue();
-        playQueue.addFiles(true, result.getMediaFiles());
-        playQueue.shuffle();
-        playQueue.sort(SortOrder.ALBUM, comparators.createCollator());
-        List<String> albums = playQueue.getFiles().stream().map(m -> m.getAlbumName()).collect(Collectors.toList());
-        assertTrue(validateJPSonicNaturalList(albums));
-    }
-
-    @Test
     public void testPlayQueueSortByArtist() throws IOException {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
@@ -200,7 +187,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
-        playQueue.sort(SortOrder.ARTIST, comparators.createCollator());
+        playQueue.sort(comparators.mediaFileOrderBy(ARTIST));
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
         assertTrue(validateJPSonicNaturalList(artists));
     }

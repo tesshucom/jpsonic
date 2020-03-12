@@ -88,7 +88,7 @@ public class MediaScannerServiceUtils {
     public void updateAlbumOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
-        albums.sort(comparators.albumAlphabeticalOrder());
+        albums.sort(comparators.albumOrderByAlpha());
         int i = 0;
         for (Album album : albums) {
             album.setOrder(i++);
@@ -261,7 +261,7 @@ public class MediaScannerServiceUtils {
 
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
-        artists.sort(comparators.mediaFileAlphabeticalOrder());
+        artists.sort(comparators.mediaFileOrderByAlpha());
 
         int i = 0;
         for (MediaFile artist : artists) {
@@ -270,7 +270,7 @@ public class MediaScannerServiceUtils {
         }
 
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, folders);
-        albums.sort(comparators.mediaFileAlphabeticalOrder());
+        albums.sort(comparators.mediaFileOrderByAlpha());
 
         i = 0;
         for (MediaFile album : albums) {

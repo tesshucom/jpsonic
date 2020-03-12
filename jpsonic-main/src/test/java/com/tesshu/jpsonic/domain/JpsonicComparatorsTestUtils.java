@@ -393,29 +393,21 @@ public class JpsonicComparatorsTestUtils {
     private final Function<String, MediaFile> toMediaArtist = (name) -> {
 
         MediaFile file = new MediaFile();
+
+        file.setArtist(name);
+        file.setAlbumArtist(name);
         if ("abcde".equals(name)) {
-            file.setArtist(name);
-            file.setAlbumArtist(name);
             file.setArtistSort("エービーシーディーイー");
             file.setAlbumArtistSort("エービーシーディーイー");
         } else if ("ＢＣＤＥＡ".equals(name)) {
-            file.setArtist(name);
-            file.setAlbumArtist(name);
             file.setArtistSort("ビーシーディーイーエー");
             file.setAlbumArtistSort("ビーシーディーイーエー");
         } else if ("abcいうえおあ".equals(name)) {
-            file.setArtist(name);
-            file.setAlbumArtist(name);
             file.setArtistSort("abcあいうえお");
             file.setAlbumArtistSort("abcあいうえお");
         } else if ("abc亜伊鵜絵尾".equals(name)) {
-            file.setArtist(name);
-            file.setAlbumArtist(name);
             file.setArtistSort("abcいうえおあ");
             file.setAlbumArtistSort("abcいうえおあ");
-        } else {
-            file.setArtist(name);
-            file.setAlbumArtist(name);
         }
 
         file.setTitle(name);
@@ -448,24 +440,52 @@ public class JpsonicComparatorsTestUtils {
         return artist;
     };
 
+    private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
+
+        MediaFile file = new MediaFile();
+        file.setArtist(name);
+        file.setAlbumName(name);
+        file.setTitle(name);
+        if ("abcde".equals(name)) {
+            file.setArtistSort("エービーシーディーイー");
+            file.setAlbumSort("エービーシーディーイー");
+            file.setTitleSort("エービーシーディーイー");
+        } else if ("ＢＣＤＥＡ".equals(name)) {
+            file.setArtistSort("ビーシーディーイーエー");
+            file.setAlbumSort("ビーシーディーイーエー");
+            file.setTitleSort("ビーシーディーイーエー");
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setArtistSort("abcあいうえお");
+            file.setAlbumSort("abcあいうえお");
+            file.setTitleSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setArtistSort("abcいうえおあ");
+            file.setAlbumSort("abcいうえおあ");
+            file.setTitleSort("abcいうえおあ");
+        }
+        file.setTrackNumber(trackNumber);
+        file.setPath(name);
+        file.setMediaType(MediaType.MUSIC);
+
+        utils.analyze(file);
+
+        return file;
+    };
+
+    
     private final Function<String, MediaFile> toMediaAlbum = (name) -> {
 
         MediaFile file = new MediaFile();
 
+        file.setAlbumName(name);
         if ("abcde".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("エービーシーディーイー");
         } else if ("ＢＣＤＥＡ".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("ビーシーディーイーエー");
         } else if ("abcいうえおあ".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("abcあいうえお");
         } else if ("abc亜伊鵜絵尾".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("abcいうえおあ");
-        } else {
-            file.setAlbumName(name);
         }
 
         if ("98".equals(name)) {
@@ -542,6 +562,15 @@ public class JpsonicComparatorsTestUtils {
         }
         reverse(genres);
         return genres;
+    }
+
+    List<MediaFile> createReversedMediaSongs() {
+        List<MediaFile> songs = new ArrayList<>();
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            songs.add(toMediaSong.apply(jPSonicNaturalList.get(i), jPSonicNaturalList.size() - i));
+        }
+        reverse(songs);
+        return songs;
     }
 
     List<MediaFile> createReversedMediAlbums() {

@@ -19,9 +19,9 @@
  */
 package org.airsonic.player.domain;
 
-import java.util.*;
+import org.apache.commons.lang.StringUtils;
 
-import static org.apache.commons.lang.StringUtils.defaultIfBlank;
+import java.util.*;
 
 /**
  * A play queue is a list of music files that are associated to a remote player.
@@ -241,49 +241,57 @@ public class PlayQueue {
         }
     }
 
+    // JP >>>>
     /**
      * Sorts the playlist according to the given sort order.
      */
-    public synchronized void sort(final SortOrder sortOrder) {
-        sort(sortOrder, null);
-    }
-
-    /**
-     * Sorts the playlist according to the given sort order.
-     */
-    public synchronized void sort(final SortOrder sortOrder, Comparator<Object> comparator) {
+    public synchronized void sort(Comparator<MediaFile> comparator) {
         makeBackup();
         MediaFile currentFile = getCurrentFile();
-        
-        Collections.sort(files, new Comparator<MediaFile>() {
-            public int compare(MediaFile a, MediaFile b) {
-                switch (sortOrder) {
-                    case TRACK:
-                        Integer trackA = a.getTrackNumber();
-                        Integer trackB = b.getTrackNumber();
-                        if (trackA == null) {
-                            trackA = 0;
-                        }
-                        if (trackB == null) {
-                            trackB = 0;
-                        }
-                        return trackA.compareTo(trackB);
+        files.sort(comparator);
+        if (currentFile != null) {
+            index = files.indexOf(currentFile);
+        }
+    }
+    // <<<< JP
 
-                    case ARTIST:
-                        String artistA = defaultIfBlank(a.getArtistReading(), a.getArtist());
-                        String artistB = defaultIfBlank(b.getArtistReading(), b.getArtist());
-                        return null == comparator ? artistA.compareToIgnoreCase(artistB)
-                                : comparator.compare(artistA, artistB);
-                    case ALBUM:
-                        String albumA = defaultIfBlank(a.getAlbumReading(), a.getAlbumName());
-                        String albumB = defaultIfBlank(b.getAlbumReading(), b.getAlbumName());
-                        return null == comparator ? albumA.compareToIgnoreCase(albumB) : comparator.compare(albumA, albumB);
-                    default:
-                        return 0;
-                }
+    /**
+     * Sorts the playlist according to the given sort order.
+     * @deprecated Use {@link #sort(Comparator)}
+     */
+    @Deprecated
+    public synchronized void sort(final SortOrder sortOrder) {
+        makeBackup();
+        MediaFile currentFile = getCurrentFile();
+
+        Comparator<MediaFile> comparator = (a, b) -> {
+            switch (sortOrder) {
+                case TRACK:
+                    Integer trackA = a.getTrackNumber();
+                    Integer trackB = b.getTrackNumber();
+                    if (trackA == null) {
+                        trackA = 0;
+                    }
+                    if (trackB == null) {
+                        trackB = 0;
+                    }
+                    return trackA.compareTo(trackB);
+
+                case ARTIST:
+                    String artistA = StringUtils.trimToEmpty(a.getArtist());
+                    String artistB = StringUtils.trimToEmpty(b.getArtist());
+                    return artistA.compareTo(artistB);
+
+                case ALBUM:
+                    String albumA = StringUtils.trimToEmpty(a.getAlbumName());
+                    String albumB = StringUtils.trimToEmpty(b.getAlbumName());
+                    return albumA.compareTo(albumB);
+                default:
+                    return 0;
             }
-        });
+        };
 
+        files.sort(comparator);
         if (currentFile != null) {
             index = files.indexOf(currentFile);
         }
