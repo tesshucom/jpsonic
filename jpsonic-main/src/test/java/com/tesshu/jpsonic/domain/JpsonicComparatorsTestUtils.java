@@ -1,3 +1,21 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2020 (C) tesshu.com
+ */
 package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.domain.Album;
@@ -5,6 +23,8 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
+import org.airsonic.player.domain.MusicIndex.SortableArtist;
+import org.airsonic.player.domain.MusicIndex.SortableArtistWithMediaFiles;
 import org.airsonic.player.domain.Playlist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,6 +44,9 @@ import static org.junit.Assert.assertEquals;
 
 @Component
 public class JpsonicComparatorsTestUtils {
+    
+    @Autowired
+    private JpsonicComparators comparators;
 
     @Documented
     private @interface ComparatorsDecisions { // @formatter:off
@@ -387,6 +410,15 @@ public class JpsonicComparatorsTestUtils {
         }
     }
 
+    static void assertSortableArtistOrder(List<SortableArtist> artists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), artists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
     @Autowired
     private JapaneseReadingUtils utils;
 
@@ -430,6 +462,9 @@ public class JpsonicComparatorsTestUtils {
         return playlist;
     };
 
+    
+    
+    
     private final Function<String, Artist> toArtist = (name) -> {
         MediaFile file = toMediaArtist.apply(name);
         Artist artist = new Artist();
@@ -440,6 +475,11 @@ public class JpsonicComparatorsTestUtils {
         return artist;
     };
 
+    private final Function<String, SortableArtist> toSortableArtist = (name) -> {
+        MediaFile file = toMediaArtist.apply(name);
+        return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(), comparators.sortableArtistOrder());
+    };
+    
     private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
 
         MediaFile file = new MediaFile();
@@ -591,6 +631,13 @@ public class JpsonicComparatorsTestUtils {
         return playlists;
     }
 
+    List<SortableArtist> createReversedSortableArtists() {
+        List<SortableArtist> artists = jPSonicNaturalList.stream().map(toSortableArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
+    
     MediaFile createVariousMedifile() {
         MediaFile file = new MediaFile();
         file.setArtist("various");

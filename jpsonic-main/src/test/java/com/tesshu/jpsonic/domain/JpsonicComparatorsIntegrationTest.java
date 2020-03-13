@@ -14,7 +14,7 @@
  You should have received a copy of the GNU General Public License
  along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
 
- Copyright 2019 (C) tesshu.com
+ Copyright 2020 (C) tesshu.com
  */
 package com.tesshu.jpsonic.domain;
 

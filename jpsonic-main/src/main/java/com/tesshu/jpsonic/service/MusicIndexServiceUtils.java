@@ -7,14 +7,15 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicIndex;
+import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,7 +55,7 @@ public class MusicIndexServiceUtils {
     public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
-        Collator c = comparators.createCollator();
+        Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (Artist artist : artists) {
             String sortableName = createSortableName(utils.createIndexableName(artist), ignoredArticles);
             result.add(new MusicIndex.SortableArtistWithArtist(artist.getName(), sortableName, artist, c));
@@ -68,7 +69,7 @@ public class MusicIndexServiceUtils {
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
         Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
 
-        Collator c = comparators.createCollator();
+        Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {
 
             MediaFile root = mediaFileService.getMediaFile(folder.getPath(), !refresh);

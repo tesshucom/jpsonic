@@ -1,3 +1,21 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2020 (C) tesshu.com
+ */
 package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.domain.Album;
@@ -5,6 +23,8 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
+import org.airsonic.player.domain.MusicIndex;
+import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
@@ -17,6 +37,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.lang.annotation.Documented;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,7 +50,10 @@ import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtist
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -66,6 +90,7 @@ public class JpsonicComparatorsTest {
                 @interface Genre {
                     @interface isSortByAlbum {}
                 }
+                @interface SortableArtist {}
             }
         }
         @interface Actions {
@@ -79,8 +104,28 @@ public class JpsonicComparatorsTest {
             @interface playlistOrder {}
             @interface genreOrder {}
             @interface genreOrderByAlpha {}
+            @interface sortableArtistOrder{}
         }
     } // @formatter:on
+
+    /*
+     * Quoted and modified from SortableArtistTestCase
+     *
+     * Copyright 2020 (C) tesshu.com
+     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
+     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     */
+    private class TestSortableArtist extends MusicIndex.SortableArtist {
+
+        public TestSortableArtist(String sortableName) {
+            super(sortableName, sortableName, comparators.sortableArtistOrder());
+        }
+
+        @Override
+        public String toString() {
+            return getSortableName();
+        }
+    }
 
     @ClassRule
     public static final HomeRule classRule = new HomeRule();
@@ -1006,6 +1051,37 @@ public class JpsonicComparatorsTest {
         assertEquals("episode 19", genres.get(16).getName());
     }
 
+    @ComparatorsDecisions.Conditions.Target.SortableArtist
+    @ComparatorsDecisions.Actions.sortableArtistOrder
+    @Test
+    public void c52() {
+        settingsService.setSortAlphanum(false);
+        settingsService.setSortAlbumsByYear(false);
+        settingsService.setProhibitSortVarious(false);
+        List<SortableArtist> artists = testUtils.createReversedSortableArtists();
+        Collections.sort(artists);
+        assertSortableArtistOrder(artists, 14, 15, 16);
+        assertEquals("episode 1", artists.get(14).getName());
+        assertEquals("episode 19", artists.get(15).getName());
+        assertEquals("episode 2", artists.get(16).getName());
+    }
+
+    @ComparatorsDecisions.Conditions.isSortAlphanum
+    @ComparatorsDecisions.Conditions.Target.SortableArtist
+    @ComparatorsDecisions.Actions.sortableArtistOrder
+    @Test
+    public void c53() {
+        settingsService.setSortAlphanum(true);
+        settingsService.setSortAlbumsByYear(false);
+        settingsService.setProhibitSortVarious(false);
+        List<SortableArtist> artists = testUtils.createReversedSortableArtists();
+        Collections.sort(artists);
+        assertSortableArtistOrder(artists, 14, 15, 16);
+        assertEquals("episode 1", artists.get(14).getName());
+        assertEquals("episode 2", artists.get(15).getName());
+        assertEquals("episode 19", artists.get(16).getName());
+    }
+
     /*
      * Full pattern test for serial numbers.
      * Whether serial number processing has been performed can be determined
@@ -1022,8 +1098,30 @@ public class JpsonicComparatorsTest {
     }
 
     /*
+     * Quoted from SortableArtistTestCase
+     * Jpsonic does not change the behavior of legacy test specifications.
+     *
+     * Copyright 2020 (C) tesshu.com
+     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
+     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     */
+    @Test
+    public void testCollation() {
+        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+
+        artists.add(new TestSortableArtist("p\u00e9ch\u00e9"));
+        artists.add(new TestSortableArtist("peach"));
+        artists.add(new TestSortableArtist("p\u00eache"));
+
+        Collections.sort(artists);
+        assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString());
+    }
+    
+    /*
      * Quoted from MediaFileComparatorTestCase
-     * Copyright 2019 (C) tesshu.com
+     * Jpsonic does not change the behavior of legacy test specifications.
+     *
+     * Copyright 2020 (C) tesshu.com
      * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
      * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
      */
@@ -1069,7 +1167,9 @@ public class JpsonicComparatorsTest {
 
     /*
      * Quoted from MediaFileComparatorTestCase
-     * Copyright 2019 (C) tesshu.com
+     * Jpsonic does not change the behavior of legacy test specifications.
+     *
+     * Copyright 2020 (C) tesshu.com
      * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
      * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
      */
@@ -1133,5 +1233,81 @@ public class JpsonicComparatorsTest {
 
         assertEquals(-1, comparator.compare(discXtrack1, disc5track2));
         assertEquals(1, comparator.compare(disc5track2, discXtrack1));
+    }
+
+    /*
+     * Quoted from SortableArtistTestCase
+     * Jpsonic does not change the behavior of legacy test specifications.
+     *
+     * Copyright 2020 (C) tesshu.com
+     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
+     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     */
+    @Test
+    public void testSorting() {
+        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+
+        artists.add(new TestSortableArtist("ABBA"));
+        artists.add(new TestSortableArtist("Abba"));
+        artists.add(new TestSortableArtist("abba"));
+        artists.add(new TestSortableArtist("ACDC"));
+        artists.add(new TestSortableArtist("acdc"));
+        artists.add(new TestSortableArtist("ACDC"));
+        artists.add(new TestSortableArtist("abc"));
+        artists.add(new TestSortableArtist("ABC"));
+
+        Collections.sort(artists);
+        assertEquals("[abba, Abba, ABBA, abc, ABC, acdc, ACDC, ACDC]", artists.toString());
+    }
+
+    /*
+     * Quoted from SortableArtistTestCase
+     * Jpsonic does not change the behavior of legacy test specifications.
+     *
+     * Copyright 2020 (C) tesshu.com
+     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
+     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     */
+    @Test
+    public void testSortingWithAccents() {
+        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+
+        TestSortableArtist a1 = new TestSortableArtist("Sea");
+        TestSortableArtist a2 = new TestSortableArtist("SEB");
+        TestSortableArtist a3 = new TestSortableArtist("Seb");
+        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b");
+        TestSortableArtist a5 = new TestSortableArtist("Sed");
+        TestSortableArtist a6 = new TestSortableArtist("See");
+
+        assertTrue(a1.compareTo(a1) == 0);
+        assertTrue(a1.compareTo(a2) < 0);
+        assertTrue(a1.compareTo(a3) < 0);
+        assertTrue(a1.compareTo(a4) < 0);
+        assertTrue(a1.compareTo(a5) < 0);
+        assertTrue(a1.compareTo(a6) < 0);
+
+        assertTrue(a2.compareTo(a1) > 0);
+        assertTrue(a3.compareTo(a1) > 0);
+        assertTrue(a4.compareTo(a1) > 0);
+        assertTrue(a5.compareTo(a1) > 0);
+        assertTrue(a6.compareTo(a1) > 0);
+
+        assertTrue(a4.compareTo(a1) > 0);
+        assertTrue(a4.compareTo(a2) > 0);
+        assertTrue(a4.compareTo(a3) > 0);
+        assertTrue(a4.compareTo(a4) == 0);
+        assertTrue(a4.compareTo(a5) < 0);
+        assertTrue(a4.compareTo(a6) < 0);
+
+        artists.add(a1);
+        artists.add(a2);
+        artists.add(a3);
+        artists.add(a4);
+        artists.add(a5);
+        artists.add(a6);
+
+        Collections.shuffle(artists);
+        Collections.sort(artists);
+        assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString());
     }
 }

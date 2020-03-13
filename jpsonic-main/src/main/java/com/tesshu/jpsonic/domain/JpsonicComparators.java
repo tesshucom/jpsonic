@@ -23,6 +23,7 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
+import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
@@ -34,6 +35,12 @@ import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+/**
+ * This class provides Comparator for domain objects.
+ *
+ * The sorting rules can be changed with some global options and are dynamic.
+ * Executed through this class whenever domain objects in the system are sorted.
+ */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
 public class JpsonicComparators {
@@ -60,7 +67,7 @@ public class JpsonicComparators {
      * Returns a Comparator that sorts by year or dictionary order according to the settings
      * @return Comparator
      */
-    public Comparator<Album> albumOrder() {
+    public Comparator<Album> albumOrder() { // TODO Delete if unnecessary
         return new Comparator<Album>() {
 
             private final Comparator<Object> c = createCollator();
@@ -114,7 +121,10 @@ public class JpsonicComparators {
         };
     }
 
-    public Collator createCollator() {
+    /**
+     * Returns Collator which is used as standard in Jpsonic.
+     */
+    private final Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
@@ -137,12 +147,12 @@ public class JpsonicComparators {
         };
     }
 
-    private boolean isSortAlbumsByYear(MediaFile parent) {
+    private final boolean isSortAlbumsByYear(MediaFile parent) {
         return settingsService.isSortAlbumsByYear()
                 && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
-    public boolean isSortAlbumsByYear(String artist) {
+    public final boolean isSortAlbumsByYear(String artist) {
         return settingsService.isSortAlbumsByYear()
                 && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(artist.toLowerCase()).matches()));
@@ -154,7 +164,7 @@ public class JpsonicComparators {
      *
      * @return
      */
-    public MediaFileComparator mediaFileOrder() {
+    public MediaFileComparator mediaFileOrder() { // TODO Merge methods
         return mediaFileOrder(null);
     }
 
@@ -245,4 +255,16 @@ public class JpsonicComparators {
         };
     }
 
+    public Comparator<SortableArtist> sortableArtistOrder() {
+
+        return new Comparator<SortableArtist>() {
+
+            private final Collator c = createCollator();
+
+            @Override
+            public int compare(SortableArtist o1, SortableArtist o2) {
+                return c.compare(o1.getSortableName(), o2.getSortableName());
+            }
+        };
+    }
 }
