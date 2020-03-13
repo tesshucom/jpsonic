@@ -175,7 +175,7 @@ public class MediaScannerServiceUtils {
     public void updateArtistOrder() {
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        artists.sort(comparators.artistOrder());
+        artists.sort(comparators.artistOrderByAlpha());
         int i = 0;
         for (Artist artist : artists) {
             artist.setOrder(i++);

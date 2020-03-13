@@ -94,8 +94,7 @@ public class JpsonicComparatorsTest {
             }
         }
         @interface Actions {
-            @interface artistOrder {}
-            @interface albumOrder {}
+            @interface artistOrderByAlpha {}
             @interface albumOrderByAlpha {}
             @interface mediaFileOrder {}
             @interface mediaFileOrderWithParent {}
@@ -139,7 +138,7 @@ public class JpsonicComparatorsTest {
     @Autowired
     private SettingsService settingsService;
 
-    @ComparatorsDecisions.Actions.artistOrder
+    @ComparatorsDecisions.Actions.artistOrderByAlpha
     @ComparatorsDecisions.Conditions.Target.Artist
     @Test
     public void c00() {
@@ -147,7 +146,7 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedArtists();
-        Collections.sort(artists, comparators.artistOrder());
+        Collections.sort(artists, comparators.artistOrderByAlpha());
         assertArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 19", artists.get(15).getName());
@@ -156,14 +155,14 @@ public class JpsonicComparatorsTest {
 
     @ComparatorsDecisions.Conditions.isSortAlphanum
     @ComparatorsDecisions.Conditions.Target.Artist
-    @ComparatorsDecisions.Actions.artistOrder
+    @ComparatorsDecisions.Actions.artistOrderByAlpha
     @Test
     public void c01() {
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedArtists();
-        Collections.sort(artists, comparators.artistOrder());
+        Collections.sort(artists, comparators.artistOrderByAlpha());
         assertArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 2", artists.get(15).getName());
@@ -199,68 +198,6 @@ public class JpsonicComparatorsTest {
         assertEquals("episode 1", albums.get(14).getName());
         assertEquals("episode 2", albums.get(15).getName());
         assertEquals("episode 19", albums.get(16).getName());
-    }
-
-    @ComparatorsDecisions.Conditions.Target.Artist
-    @ComparatorsDecisions.Actions.albumOrder
-    @Test
-    public void c04() {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(false);
-        settingsService.setProhibitSortVarious(false);
-        List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrder());
-        assertAlbumOrder(albums, 14, 15, 16);
-        assertEquals("episode 1", albums.get(14).getName());
-        assertEquals("episode 19", albums.get(15).getName());
-        assertEquals("episode 2", albums.get(16).getName());
-    }
-
-    @ComparatorsDecisions.Conditions.isSortAlphanum
-    @ComparatorsDecisions.Conditions.Target.Artist
-    @ComparatorsDecisions.Actions.albumOrder
-    @Test
-    public void c05() {
-        settingsService.setSortAlphanum(true);
-        settingsService.setSortAlbumsByYear(false);
-        settingsService.setProhibitSortVarious(false);
-        List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrder());
-        assertAlbumOrder(albums, 14, 15, 16);
-        assertEquals("episode 1", albums.get(14).getName());
-        assertEquals("episode 2", albums.get(15).getName());
-        assertEquals("episode 19", albums.get(16).getName());
-    }
-
-    @ComparatorsDecisions.Conditions.isSortAlbumsByYear
-    @ComparatorsDecisions.Conditions.Target.Album
-    @ComparatorsDecisions.Actions.albumOrder
-    @Test
-    public void c06() {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(true);
-        settingsService.setProhibitSortVarious(false);
-        List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrder());
-        assertEquals("98", albums.get(0).getName());
-        assertEquals("99", albums.get(1).getName());
-        assertEquals("10", albums.get(2).getName());
-    }
-
-    @ComparatorsDecisions.Conditions.isSortAlphanum
-    @ComparatorsDecisions.Conditions.isSortAlbumsByYear
-    @ComparatorsDecisions.Conditions.Target.Album
-    @ComparatorsDecisions.Actions.albumOrder
-    @Test
-    public void c07() {
-        settingsService.setSortAlphanum(true);
-        settingsService.setSortAlbumsByYear(true);
-        settingsService.setProhibitSortVarious(false);
-        List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrder());
-        assertEquals("98", albums.get(0).getName());
-        assertEquals("99", albums.get(1).getName());
-        assertEquals("10", albums.get(2).getName());
     }
 
     @ComparatorsDecisions.Conditions.Target.MediaFile
@@ -1093,7 +1030,7 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedAlphanum();
-        Collections.sort(artists, comparators.artistOrder());
+        Collections.sort(artists, comparators.artistOrderByAlpha());
         assertAlphanumArtistOrder(artists);
     }
 

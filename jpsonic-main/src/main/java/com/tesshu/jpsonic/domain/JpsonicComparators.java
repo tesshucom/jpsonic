@@ -64,31 +64,8 @@ public class JpsonicComparators {
     }
 
     /**
-     * Returns a Comparator that sorts by year or dictionary order according to the settings
-     * @return Comparator
-     */
-    public Comparator<Album> albumOrder() { // TODO Delete if unnecessary
-        return new Comparator<Album>() {
-
-            private final Comparator<Object> c = createCollator();
-
-            private final boolean isByYear = settingsService.isSortAlbumsByYear();
-
-            @Override
-            public int compare(Album o1, Album o2) {
-                if (isByYear) {
-                    return nullSafeCompare(o1.getYear(), o2.getYear(), false);
-                } else if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
-                    return o1.getOrder() - o2.getOrder();
-                }
-                return c.compare(o1.getNameReading(), o2.getNameReading());
-            }
-        };
-    }
-
-    /**
-     * Returns a comparator that sorts in dictionary order regardless of the setting.
-     * (Used places are limited)
+     * Returns a comparator that sorts in dictionary order.
+     * 
      * @return Comparator
      */
     public Comparator<Album> albumOrderByAlpha() {
@@ -106,7 +83,12 @@ public class JpsonicComparators {
         };
     }
 
-    public Comparator<Artist> artistOrder() {
+    /**
+     * Returns a comparator that sorts in dictionary order.
+     * 
+     * @return Comparator
+     */
+    public Comparator<Artist> artistOrderByAlpha() {
         return new Comparator<Artist>() {
 
             private final Collator c = createCollator();
@@ -226,19 +208,6 @@ public class JpsonicComparators {
      */
     public MediaFileComparator mediaFileOrderByAlpha() {
         return new JpMediaFileComparator(false, createCollator());
-    }
-
-    private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {
-        if (a == null && b == null) {
-            return 0;
-        }
-        if (a == null) {
-            return nullIsSmaller ? -1 : 1;
-        }
-        if (b == null) {
-            return nullIsSmaller ? 1 : -1;
-        }
-        return a.compareTo(b);
     }
 
     public Comparator<Playlist> playlistOrder() {
