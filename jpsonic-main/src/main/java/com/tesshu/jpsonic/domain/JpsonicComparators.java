@@ -26,6 +26,8 @@ import org.airsonic.player.domain.MediaFileComparator;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
@@ -134,20 +136,10 @@ public class JpsonicComparators {
                 && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
-    public final boolean isSortAlbumsByYear(String artist) {
+    public final boolean isSortAlbumsByYear(@Nullable String artist) {
         return settingsService.isSortAlbumsByYear()
                 && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
                         && isVarious.matcher(artist.toLowerCase()).matches()));
-    }
-
-    /**
-     * Return the comparator for sorting MediaFiles having various MediaTypes.
-     * The result is affected by the global settings related to sorting.
-     *
-     * @return
-     */
-    public MediaFileComparator mediaFileOrder() { // TODO Merge methods
-        return mediaFileOrder(null);
     }
 
     /**
@@ -155,10 +147,11 @@ public class JpsonicComparators {
      * Mainly used when expanding files.
      * The result is affected by the global settings related to sorting.
      *
-     * @param parent
+     * @param parent The common parent of the list to sort. Null for
+     *               hierarchy-independent or top-level sorting.
      * @return
      */
-    public MediaFileComparator mediaFileOrder(MediaFile parent) {
+    public MediaFileComparator mediaFileOrder(@Nullable MediaFile parent) {
         return new JpMediaFileComparator(isSortAlbumsByYear(parent), createCollator());
     }
 
@@ -169,7 +162,7 @@ public class JpsonicComparators {
      * @param orderBy
      * @return
      */
-    public Comparator<MediaFile> mediaFileOrderBy(OrderBy orderBy) {
+    public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return new Comparator<MediaFile>() {
 
             private final Comparator<Object> c = createCollator();
