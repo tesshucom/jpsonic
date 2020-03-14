@@ -18,7 +18,6 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
-import com.tesshu.jpsonic.domain.SortingIntegrationTestCase;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.Album;
@@ -51,7 +50,7 @@ public class PlaylistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Artists"));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
@@ -94,7 +93,7 @@ public class PlaylistUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
         if (0 == playlistDao.getAllPlaylists().size()) {
             List<String> shallow = new ArrayList<>();
-            shallow.addAll(SortingIntegrationTestCase.jPSonicNaturalList);
+            shallow.addAll(UpnpProcessorTestUtils.jPSonicNaturalList);
             Collections.shuffle(shallow);
             shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
         }

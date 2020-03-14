@@ -1,3 +1,21 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2020 (C) tesshu.com
+ */
 package com.tesshu.jpsonic.domain;
 
 import org.airsonic.player.domain.Album;
@@ -5,6 +23,8 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
+import org.airsonic.player.domain.MusicIndex.SortableArtist;
+import org.airsonic.player.domain.MusicIndex.SortableArtistWithMediaFiles;
 import org.airsonic.player.domain.Playlist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,196 +44,219 @@ import static org.junit.Assert.assertEquals;
 
 @Component
 public class JpsonicComparatorsTestUtils {
+    
+    @Autowired
+    private JpsonicComparators comparators;
 
     @Documented
     private @interface ComparatorsDecisions { // @formatter:off
         @interface Conditions {
-            @interface isAlpha {}
-            @interface isNum {}
-            @interface isAlphaNum {}
-            @interface isFullWidth {}
-            @interface isHalfWidth {}
-            @interface isUpper {}
-            @interface isLigature {}
-            @interface isChiChar {}
-            @interface isHira {}
-            @interface isKata {}
-            @interface isSmallKana {}
-            @interface isDullness {}
-            @interface isPsound {}
-            @interface isSymbol {}
-            @interface isWithArticle {}
-            @interface isRequireJapaneseReadingAnalysis {}
+            @interface name {
+                @interface isAlpha {}
+                @interface isNum {}
+                @interface isAlphaNum {}
+                @interface isFullWidth {}
+                @interface isHalfWidth {}
+                @interface isUpper {}
+                @interface isLigature {}
+                @interface isChiChar {}
+                @interface isHira {}
+                @interface isKata {}
+                @interface isSmallKana {}
+                @interface isDullness {}
+                @interface isPsound {}
+                @interface isSymbol {}
+                @interface isWithArticle {}
+                @interface isRequireJapaneseReadingAnalysis {}
+            }
+            @interface year {
+                @interface isSpecified {}
+            }
+            @interface reading {
+                @interface isJapaneseAll {}
+                @interface isFirstWithEnAndContainsJp {}
+            }
         }
     } // @formatter:on
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d10() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d20() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d60() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void d70() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    private void d80() {
-    }
-
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    private void d90() {
-    }
-
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d98() {
     }
 
-    @ComparatorsDecisions.Conditions.isNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.year.isSpecified
     private void d99() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.reading.isJapaneseAll
     private void dabcde() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isUpper
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.reading.isFirstWithEnAndContainsJp
+    private void dabcいうえおあ() {
+    }
+
+    @ComparatorsDecisions.Conditions.name.isNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.reading.isFirstWithEnAndContainsJp
+    private void dabc亜伊鵜絵尾() {
+    }
+
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isUpper
+    @ComparatorsDecisions.Conditions.reading.isJapaneseAll
     private void dＢＣＤＥＡ() {
     }
 
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isLigature
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isLigature
     private void dĆḊÉÁḂ() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isUpper
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isUpper
     private void dDEABC() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlpha
-    @ComparatorsDecisions.Conditions.isHalfWidth
-    @ComparatorsDecisions.Conditions.isWithArticle
+    @ComparatorsDecisions.Conditions.name.isAlpha
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isWithArticle
     
     private void dtheeabcd() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode1() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode2() {
     }
 
-    @ComparatorsDecisions.Conditions.isAlphaNum
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isAlphaNum
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void depisode19() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d亜伊鵜絵尾() {
     }
 
-    @ComparatorsDecisions.Conditions.isSymbol
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isSymbol
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void dαβγ() {
     }
 
-    @ComparatorsDecisions.Conditions.isHira
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dいうえおあ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dゥェォァィ() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void dｴｵｱｲｳ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isHalfWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isHalfWidth
     private void dｪｫｧｨｩ() {
     }
 
-    @ComparatorsDecisions.Conditions.isSmallKana
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSmallKana
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dぉぁぃぅぇ() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dオアイウエ() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d春夏秋冬() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void d貼られる() {
     }
 
-    @ComparatorsDecisions.Conditions.isKata
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isPsound
+    @ComparatorsDecisions.Conditions.name.isKata
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isPsound
     private void dパラレル() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isDullness
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isDullness
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d馬力() {
     }
 
-    @ComparatorsDecisions.Conditions.isChiChar
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isRequireJapaneseReadingAnalysis
+    @ComparatorsDecisions.Conditions.name.isChiChar
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isRequireJapaneseReadingAnalysis
     private void d張り切る() {
     }
 
-    @ComparatorsDecisions.Conditions.isHira
-    @ComparatorsDecisions.Conditions.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isHira
+    @ComparatorsDecisions.Conditions.name.isFullWidth
     private void dはるなつあきふゆ() {
     }
 
-    @ComparatorsDecisions.Conditions.isFullWidth
-    @ComparatorsDecisions.Conditions.isSymbol
+    @ComparatorsDecisions.Conditions.name.isFullWidth
+    @ComparatorsDecisions.Conditions.name.isSymbol
     private void dSymbolくんつ() {
     }
 
-    /**
+    /*
      * Dictionary order that Japanese feel natural.
      * 
      *  - Generally, it is divided into "Eng/Num" and Japanese.
@@ -233,18 +276,18 @@ public class JpsonicComparatorsTestUtils {
      * Therefore, in order to arrange correctly in Japanese,
      * a function to convert to Japanese reading and support for sort tags are required.
      */
-    private final static List<String> jPSonicNaturalList = // @formatter:off
+    final static List<String> jPSonicNaturalList = // @formatter:off
             unmodifiableList(Arrays.asList(
                     "10", // Enter year in year field
                     "20",
                     "50",
                     "60",
                     "70",
-                    "80",
-                    "90",
                     "98", // Enter year in year field
                     "99", // Enter year in year field
                     "abcde", // Enter Japanese in the sort field
+                    "abcいうえおあ", // Turn over by reading
+                    "abc亜伊鵜絵尾", // Turn over by reading (Register by replacing "reading" intentionally)
                     "ＢＣＤＥＡ", // Enter Japanese in the sort field
                     "ĆḊÉÁḂ",
                     "DEABC",
@@ -268,23 +311,146 @@ public class JpsonicComparatorsTestUtils {
                     "はるなつあきふゆ",
                     "♂くんつ")); // @formatter:on
 
+    /*
+     * Expected sequence number.
+     * Whether serial number processing has been performed can be determined
+     * by some elements included in jPSonicNaturalList.
+     * Use this list if need to do a full pattern test.
+     */
+    private final static List<String> alphaNumList = // @formatter:off
+            unmodifiableList(Arrays.asList(
+                    "09X Radonius",
+                    "10X Radonius",
+                    "20X Radonius",
+                    "20X Radonius Prime",
+                    "30X Radonius",
+                    "40X Radonius",
+                    "200X Radonius",
+                    "1000X Radonius Maximus",
+                    "Allegia 6R Clasteron",
+                    "Allegia 50B Clasteron",
+                    "Allegia 50 Clasteron",
+                    "Allegia 51 Clasteron",
+                    "Allegia 500 Clasteron",
+                    "Alpha 2",
+                    "Alpha 2A",
+                    "Alpha 2A-900",
+                    "Alpha 2A-8000",
+                    "Alpha 100",
+                    "Alpha 200",
+                    "Callisto Morphamax",
+                    "Callisto Morphamax 500",
+                    "Callisto Morphamax 600",
+                    "Callisto Morphamax 700",
+                    "Callisto Morphamax 5000",
+                    "Callisto Morphamax 6000 SE",
+                    "Callisto Morphamax 6000 SE2",
+                    "Callisto Morphamax 7000",
+                    "Xiph Xlater 5",
+                    "Xiph Xlater 40",
+                    "Xiph Xlater 50",
+                    "Xiph Xlater 58",
+                    "Xiph Xlater 300",
+                    "Xiph Xlater 500",
+                    "Xiph Xlater 2000",
+                    "Xiph Xlater 5000",
+                    "Xiph Xlater 10000")); // @formatter:on
+
+    static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), albums.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), albums.get(i).getName());
+            }
+        }
+    }
+
+    static void assertAlphanumArtistOrder(List<Artist> artists, Integer... ignores) {
+        assertEquals(alphaNumList.size(), artists.size());
+        for (int i = 0; i < alphaNumList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", alphaNumList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
+    static void assertArtistOrder(List<Artist> artists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), artists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
+    static void assertGenreOrder(List<Genre> genres, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), genres.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), genres.get(i).getName());
+            }
+        }
+    }
+
+    static void assertMediafileOrder(List<MediaFile> files, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), files.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), files.get(i).getName());
+            }
+        }
+    }
+
+    static void assertPlaylistOrder(List<Playlist> playlists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), playlists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), playlists.get(i).getName());
+            }
+        }
+    }
+
+    static void assertSortableArtistOrder(List<SortableArtist> artists, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), artists.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
+            }
+        }
+    }
+
+    public static void validateNaturalList(List<String> l, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), l.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), l.get(i));
+            }
+        }
+    }
+
     @Autowired
     private JapaneseReadingUtils utils;
 
     private final Function<String, MediaFile> toMediaArtist = (name) -> {
 
         MediaFile file = new MediaFile();
-        if ("abcde".equals(name)) {
-            file.setAlbumArtist(name);
-            file.setAlbumArtistSort("エービーシーディーイー");
-        } else if ("ＢＣＤＥＡ".equals(name)) {
-            file.setAlbumArtist(name);
-            file.setAlbumArtistSort("ビーシーディーイーエー");
-        } else {
-            file.setAlbumArtist(name);
-        }
 
         file.setArtist(name);
+        file.setAlbumArtist(name);
+        if ("abcde".equals(name)) {
+            file.setArtistSort("エービーシーディーイー");
+            file.setAlbumArtistSort("エービーシーディーイー");
+        } else if ("ＢＣＤＥＡ".equals(name)) {
+            file.setArtistSort("ビーシーディーイーエー");
+            file.setAlbumArtistSort("ビーシーディーイーエー");
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setArtistSort("abcあいうえお");
+            file.setAlbumArtistSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setArtistSort("abcいうえおあ");
+            file.setAlbumArtistSort("abcいうえおあ");
+        }
+
         file.setTitle(name);
         file.setPath(name);
         file.setMediaType(MediaType.DIRECTORY);
@@ -305,6 +471,9 @@ public class JpsonicComparatorsTestUtils {
         return playlist;
     };
 
+    
+    
+    
     private final Function<String, Artist> toArtist = (name) -> {
         MediaFile file = toMediaArtist.apply(name);
         Artist artist = new Artist();
@@ -315,18 +484,57 @@ public class JpsonicComparatorsTestUtils {
         return artist;
     };
 
+    private final Function<String, SortableArtist> toSortableArtist = (name) -> {
+        MediaFile file = toMediaArtist.apply(name);
+        return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(), comparators.sortableArtistOrder());
+    };
+
+    private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
+
+        MediaFile file = new MediaFile();
+        file.setArtist(name);
+        file.setAlbumName(name);
+        file.setTitle(name);
+        if ("abcde".equals(name)) {
+            file.setArtistSort("エービーシーディーイー");
+            file.setAlbumSort("エービーシーディーイー");
+            file.setTitleSort("エービーシーディーイー");
+        } else if ("ＢＣＤＥＡ".equals(name)) {
+            file.setArtistSort("ビーシーディーイーエー");
+            file.setAlbumSort("ビーシーディーイーエー");
+            file.setTitleSort("ビーシーディーイーエー");
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setArtistSort("abcあいうえお");
+            file.setAlbumSort("abcあいうえお");
+            file.setTitleSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setArtistSort("abcいうえおあ");
+            file.setAlbumSort("abcいうえおあ");
+            file.setTitleSort("abcいうえおあ");
+        }
+        file.setTrackNumber(trackNumber);
+        file.setPath(name);
+        file.setMediaType(MediaType.MUSIC);
+
+        utils.analyze(file);
+
+        return file;
+    };
+
+    
     private final Function<String, MediaFile> toMediaAlbum = (name) -> {
 
         MediaFile file = new MediaFile();
 
+        file.setAlbumName(name);
         if ("abcde".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("エービーシーディーイー");
         } else if ("ＢＣＤＥＡ".equals(name)) {
-            file.setAlbumName(name);
             file.setAlbumSort("ビーシーディーイーエー");
-        } else {
-            file.setAlbumName(name);
+        } else if ("abcいうえおあ".equals(name)) {
+            file.setAlbumSort("abcあいうえお");
+        } else if ("abc亜伊鵜絵尾".equals(name)) {
+            file.setAlbumSort("abcいうえおあ");
         }
 
         if ("98".equals(name)) {
@@ -378,6 +586,24 @@ public class JpsonicComparatorsTestUtils {
         return album;
     };
 
+    List<Album> createReversedAlbums() {
+        List<Album> albums = jPSonicNaturalList.stream().map(toAlbum).collect(toList());
+        reverse(albums);
+        return albums;
+    }
+
+    List<Artist> createReversedAlphanum() {
+        List<Artist> artists = alphaNumList.stream().map(toArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
+    List<Artist> createReversedArtists() {
+        List<Artist> artists = jPSonicNaturalList.stream().map(toArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
     List<Genre> createReversedGenres() {
         List<Genre> genres = new ArrayList<>();
         for (int i = 0; i < jPSonicNaturalList.size(); i++) {
@@ -387,20 +613,17 @@ public class JpsonicComparatorsTestUtils {
         return genres;
     }
 
-    List<Playlist> createReversedPlaylists() {
-        List<Playlist> playlists = jPSonicNaturalList.stream().map(toPlaylist).collect(toList());
-        reverse(playlists);
-        return playlists;
+    List<MediaFile> createReversedMediaSongs() {
+        List<MediaFile> songs = new ArrayList<>();
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            songs.add(toMediaSong.apply(jPSonicNaturalList.get(i), jPSonicNaturalList.size() - i));
+        }
+        reverse(songs);
+        return songs;
     }
 
-    List<Artist> createReversedArtists() {
-        List<Artist> artists = jPSonicNaturalList.stream().map(toArtist).collect(toList());
-        reverse(artists);
-        return artists;
-    }
-
-    List<Album> createReversedAlbums() {
-        List<Album> albums = jPSonicNaturalList.stream().map(toAlbum).collect(toList());
+    List<MediaFile> createReversedMediAlbums() {
+        List<MediaFile> albums = jPSonicNaturalList.stream().map(toMediaAlbum).collect(toList());
         reverse(albums);
         return albums;
     }
@@ -411,60 +634,23 @@ public class JpsonicComparatorsTestUtils {
         return artists;
     }
 
-    List<MediaFile> createReversedMediAlbums() {
-        List<MediaFile> albums = jPSonicNaturalList.stream().map(toMediaAlbum).collect(toList());
-        reverse(albums);
-        return albums;
+    List<Playlist> createReversedPlaylists() {
+        List<Playlist> playlists = jPSonicNaturalList.stream().map(toPlaylist).collect(toList());
+        reverse(playlists);
+        return playlists;
     }
 
+    List<SortableArtist> createReversedSortableArtists() {
+        List<SortableArtist> artists = jPSonicNaturalList.stream().map(toSortableArtist).collect(toList());
+        reverse(artists);
+        return artists;
+    }
+
+    
     MediaFile createVariousMedifile() {
         MediaFile file = new MediaFile();
         file.setArtist("various");
         return file;
     }
 
-    static void assertGenreOrder(List<Genre> genres, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), genres.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), genres.get(i).getName());
-            }
-        }
-    }
-
-    static void assertPlaylistOrder(List<Playlist> playlists, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), playlists.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), playlists.get(i).getName());
-            }
-        }
-    }
-
-    static void assertArtistOrder(List<Artist> artists, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), artists.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), artists.get(i).getName());
-            }
-        }
-    }
-
-    static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), albums.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), albums.get(i).getName());
-            }
-        }
-    }
-
-    static void assertMediafileOrder(List<MediaFile> files, Integer... ignores) {
-        assertEquals(jPSonicNaturalList.size(), files.size());
-        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
-            if (!(0 <= Arrays.binarySearch(ignores, i))) {
-                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), files.get(i).getName());
-            }
-        }
-    }
 }

@@ -44,7 +44,7 @@ public class SongByGenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Artists"));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
