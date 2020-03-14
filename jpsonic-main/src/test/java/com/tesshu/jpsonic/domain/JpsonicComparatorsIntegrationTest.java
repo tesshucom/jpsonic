@@ -18,6 +18,7 @@
  */
 package com.tesshu.jpsonic.domain;
 
+import org.airsonic.player.controller.MainController;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -49,43 +50,67 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static java.util.Collections.unmodifiableList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * Integration test where JpsonicComparators are used. This is where legacy
+ * sorting behavior changes for some data.
+ */
 @SpringBootTest
 public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
-    public final static List<String> indexList = Collections.unmodifiableList(
-            Arrays.asList(
-                    "abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ｴｵｱｲｳ", "オアイウエ",
-                    "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ",
-                    "10", "20", "30", "40", "50", "60", "70", "80", "90", "98", "99", "ゥェォァィ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "♂くんつ"));
+    private final static List<String> indexList = // @formatter:off
+            unmodifiableList(Arrays.asList(
+                    "abcde",
+                    "abcいうえおあ", // Turn over by reading
+                    "abc亜伊鵜絵尾", // Turn over by reading
+                    "ＢＣＤＥＡ",
+                    "ĆḊÉÁḂ",
+                    "DEABC",
+                    "the eabcd",
+                    "episode 1",
+                    "episode 2",
+                    "episode 19",
+                    "亜伊鵜絵尾",
+                    "αβγ",
+                    "いうえおあ",
+                    "ｴｵｱｲｳ",
+                    "オアイウエ",
+                    "春夏秋冬",
+                    "貼られる",
+                    "パラレル",
+                    "馬力",
+                    "張り切る",
+                    "はるなつあきふゆ",
+                    "10", // # Num
+                    "20", // # Num
+                    "50", // # Num
+                    "60", // # Num
+                    "70", // # Num
+                    "98", // # Num
+                    "99", // # Num
+                    "ゥェォァィ", // # SmallKana　(Not used at the beginning of a word/Generally prohibited characters in index)
+                    "ｪｫｧｨｩ", // # SmallKana
+                    "ぉぁぃぅぇ", // # SmallKana
+                    "♂くんつ") // # Symbol
+                    ); // @formatter:on
 
-    public final static List<String> jPSonicNaturalList = Collections.unmodifiableList(
-            Arrays.asList(
-                    "10", "20", "30", "40", "50", "60", "70", "80", "90", "98","99",
-                    "abcde", "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ",
-                    "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));;
-
-    public final static List<String> childrenList = Collections.unmodifiableList(
-            Arrays.asList(
-                    "empty30", "empty29", "empty28", "empty27", "empty26", "empty25", "empty24", "empty23", "empty22", "empty21", 
-                    "empty20", "empty19", "empty18", "empty17", "empty16", "empty15", "empty14", "empty13", "empty12", "empty11", 
-                    "empty10", "empty09", "empty08", "empty07", "empty06", "empty05", "empty04", "empty03", "empty02", "empty01", "empty00"));
+    public static boolean validateIndexList(List<String> l) {
+        return indexList.equals(l);
+    }
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
-        musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(2, musicDir2, "Albums", true, new Date()));
-        File musicDir3 = new File(resolveBaseMediaPath.apply("Sort/ArtistsAlphaNum"));
-        musicFolders.add(new MusicFolder(3, musicDir3, "ArtistsAlphaNum", true, new Date()));
-        File musicDir4 = new File(resolveBaseMediaPath.apply("Sort/AlbumsAlphaNum"));
-        musicFolders.add(new MusicFolder(4, musicDir4, "AlbumsAlphaNum", true, new Date()));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Compare"));
+        musicFolders.add(new MusicFolder(1, musicDir, "test date for sorting", true, new Date()));
     }
+
+    @Autowired
+    private MainController mainController;
 
     @Autowired
     private MusicIndexService musicIndexService;
@@ -112,6 +137,9 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
     @Before
     public void setup() throws Exception {
+        settingsService.setSortAlphanum(true);
+        settingsService.setSortAlbumsByYear(false);
+        settingsService.setProhibitSortVarious(false);
         populateDatabaseOnlyOnce();
 
         Function<String, Playlist> toPlaylist = (title) -> {
@@ -127,7 +155,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
         if (0 == playlistDao.getAllPlaylists().size()) {
             List<String> shallow = new ArrayList<>();
-            shallow.addAll(jPSonicNaturalList);
+            shallow.addAll(JpsonicComparatorsTestUtils.jPSonicNaturalList);
             Collections.shuffle(shallow);
             shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
         }
@@ -135,74 +163,92 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
         /*
          * Should be more than 30 elements.
          */
-        assertEquals(31, indexList.size());
-        assertEquals(31, jPSonicNaturalList.size());
-        assertEquals(31, childrenList.size());
+        assertEquals(32, indexList.size());
+        assertEquals(32, JpsonicComparatorsTestUtils.jPSonicNaturalList.size());
 
     }
 
-    public static boolean validateIndexList(List<String> l) {
-        return indexList.equals(l);
-    }
-
-    public static boolean validateJPSonicNaturalList(List<String> l) {
-        return jPSonicNaturalList.equals(l);
-    }
-
+    /**
+     * {@link MainController#getMultiFolderChildren}
+     * 
+     * @throws IOException
+     */
     @Test
-    public void testIndex() throws Exception {
+    public void testGetMultiFolderChildren() throws IOException {
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setQuery("10");
+        criteria.setCount(Integer.MAX_VALUE);
+        SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        List<MediaFile> artists = mainController.getMultiFolderChildren(result.getMediaFiles());
+        List<String> artistNames = artists.stream().map(m -> m.getName()).collect(Collectors.toList());
+        JpsonicComparatorsTestUtils.validateNaturalList(artistNames);
+    }
+
+    /**
+     * {@link PlaylistService#getAllPlaylists()}
+     */
+    @Test
+    public void testGetAllPlaylists() {
+        List<Playlist> all = playlistService.getAllPlaylists();
+        List<String> names = all.stream().map(p -> p.getName()).collect(Collectors.toList());
+        JpsonicComparatorsTestUtils.validateNaturalList(names, 8, 9);
+        /*
+         * Since the reading of playlist name cannot be registered, it is sorted
+         * according to the reading analysis of the server.
+         */
+        assertEquals("abc亜伊鵜絵尾", names.get(8));
+        assertEquals("abcいうえおあ", names.get(9));
+    }
+
+    /**
+     * {@link MediaFileService#getChildrenOf(MediaFile, boolean, boolean, boolean, boolean)}
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testGetChildrenOf() {
+        SearchCriteria criteria = new SearchCriteria();
+        criteria.setQuery("10");
+        criteria.setCount(Integer.MAX_VALUE);
+        SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true, true);
+        List<String> albums = files.stream().map(m -> m.getName()).collect(Collectors.toList());
+        JpsonicComparatorsTestUtils.validateNaturalList(albums);
+    }
+
+    /**
+     * {@link MusicIndexService#getIndexedArtists(List, boolean)}
+     * 
+     * @throws IOException
+     */
+    @Test
+    public void testGetIndexedArtists() throws Exception { // @formatter:off
         List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService.getIndexedArtists(musicFoldersToUse, true);
+        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m =
+                musicIndexService.getIndexedArtists(musicFoldersToUse, true);
         List<String> artists = m.values().stream()
                 .flatMap(files -> files.stream())
                 .flatMap(files -> files.getMediaFiles().stream())
                 .map(file -> file.getName())
                 .collect(Collectors.toList());
         assertTrue(validateIndexList(artists));
-    }
+    } // @formatter:on
 
+    /**
+     * {@link PlayQueue#sort(java.util.Comparator)}
+     */
     @Test
-    public void testAlbumDirectory() {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(false);
-        List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(1));
+    public void testPlayQueueSort() {
         SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("ARTIST");
+        criteria.setQuery("empty");
         criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFoldersToUse, IndexType.ARTIST);
-        List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true, true);
-        List<String> albums = files.stream().map(m -> m.getName()).collect(Collectors.toList());
-        assertTrue(validateJPSonicNaturalList(albums));
-    }
-
-    @Test
-    public void testPlayQueueSortByArtist() throws IOException {
-        settingsService.setSortAlphanum(false);
-        settingsService.setSortAlbumsByYear(false);
-        List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("ALBUM abcde");
-        criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFoldersToUse, IndexType.ALBUM);
+        SearchResult result = searchService.search(criteria, musicFolders, IndexType.SONG);
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();
         playQueue.sort(comparators.mediaFileOrderBy(ARTIST));
         List<String> artists = playQueue.getFiles().stream().map(m -> m.getArtist()).collect(Collectors.toList());
-        assertTrue(validateJPSonicNaturalList(artists));
-    }
-
-    @Test
-    public void testPlaylistServiceGetAll() throws Exception {
-        List<Playlist> all = playlistService.getAllPlaylists();
-        assertTrue(validateJPSonicNaturalList(all.stream().map(p -> p.getName()).collect(Collectors.toList())));
-    }
-
-    /*
-     * DB dependent. Sort rules vary depending on the DB.
-     */
-    public void testAlbumAllOfHome() {
-        // pending!
+        JpsonicComparatorsTestUtils.validateNaturalList(artists);
     }
 
 }

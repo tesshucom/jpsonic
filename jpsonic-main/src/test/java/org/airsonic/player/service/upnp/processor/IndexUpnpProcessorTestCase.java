@@ -32,9 +32,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.indexList;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.jPSonicNaturalList;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
+import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.indexList;
+import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.jPSonicNaturalList;
+import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.validateJPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
 
 public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
@@ -43,7 +43,7 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Artists"));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
         musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 

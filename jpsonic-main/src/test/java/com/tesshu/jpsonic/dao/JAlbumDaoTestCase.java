@@ -18,6 +18,7 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
@@ -31,13 +32,9 @@ import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
-import static org.junit.Assert.assertTrue;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
@@ -48,10 +45,8 @@ public class JAlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir1, "Albums", true, new Date()));
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/AlbumsAlphaNum"));
-        musicFolders.add(new MusicFolder(2, musicDir2, "AlbumsAlphaNum", true, new Date()));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Compare"));
+        musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
@@ -71,8 +66,9 @@ public class JAlbumDaoTestCase extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabeticalAlbums() {
-        List<Album> all = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, Arrays.asList(musicFolders.get(0)));
-        assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
+        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName()).collect(Collectors.toList());
+        JpsonicComparatorsTestUtils.validateNaturalList(names);
     }
 
 }

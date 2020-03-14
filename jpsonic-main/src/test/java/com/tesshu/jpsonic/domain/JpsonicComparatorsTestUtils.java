@@ -276,7 +276,7 @@ public class JpsonicComparatorsTestUtils {
      * Therefore, in order to arrange correctly in Japanese,
      * a function to convert to Japanese reading and support for sort tags are required.
      */
-    private final static List<String> jPSonicNaturalList = // @formatter:off
+    final static List<String> jPSonicNaturalList = // @formatter:off
             unmodifiableList(Arrays.asList(
                     "10", // Enter year in year field
                     "20",
@@ -287,7 +287,7 @@ public class JpsonicComparatorsTestUtils {
                     "99", // Enter year in year field
                     "abcde", // Enter Japanese in the sort field
                     "abcいうえおあ", // Turn over by reading
-                    "abc亜伊鵜絵尾", // Turn over by reading
+                    "abc亜伊鵜絵尾", // Turn over by reading (Register by replacing "reading" intentionally)
                     "ＢＣＤＥＡ", // Enter Japanese in the sort field
                     "ĆḊÉÁḂ",
                     "DEABC",
@@ -419,6 +419,15 @@ public class JpsonicComparatorsTestUtils {
         }
     }
 
+    public static void validateNaturalList(List<String> l, Integer... ignores) {
+        assertEquals(jPSonicNaturalList.size(), l.size());
+        for (int i = 0; i < jPSonicNaturalList.size(); i++) {
+            if (!(0 <= Arrays.binarySearch(ignores, i))) {
+                assertEquals("(" + i + ") -> ", jPSonicNaturalList.get(i), l.get(i));
+            }
+        }
+    }
+
     @Autowired
     private JapaneseReadingUtils utils;
 
@@ -479,7 +488,7 @@ public class JpsonicComparatorsTestUtils {
         MediaFile file = toMediaArtist.apply(name);
         return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(), comparators.sortableArtistOrder());
     };
-    
+
     private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
 
         MediaFile file = new MediaFile();

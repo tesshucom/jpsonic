@@ -55,6 +55,11 @@ import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortab
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy
+ * test specifications. This is because the range not defined in the legacy test
+ * specification has been expanded.
+ */
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc

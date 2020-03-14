@@ -18,6 +18,7 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
@@ -33,9 +34,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.validateJPSonicNaturalList;
-import static org.junit.Assert.assertTrue;
-
 @SpringBootTest
 public class JArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
@@ -43,10 +41,8 @@ public class JArtistDaoTestCase extends AbstractAirsonicHomeTest {
 
     {
         musicFolders = new ArrayList<>();
-        File musicDir1 = new File(resolveBaseMediaPath.apply("Sort/Artists"));
-        musicFolders.add(new MusicFolder(1, musicDir1, "Artists", true, new Date()));
-        File musicDir2 = new File(resolveBaseMediaPath.apply("Sort/ArtistsAlphaNum"));
-        musicFolders.add(new MusicFolder(2, musicDir2, "ArtistsAlphaNum", true, new Date()));
+        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Compare"));
+        musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
     @Autowired
@@ -67,7 +63,7 @@ public class JArtistDaoTestCase extends AbstractAirsonicHomeTest {
     @Test
     public void testGetAlphabetialArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
-        assertTrue(validateJPSonicNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList())));
+        JpsonicComparatorsTestUtils.validateNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList()));
     }
 
 }
