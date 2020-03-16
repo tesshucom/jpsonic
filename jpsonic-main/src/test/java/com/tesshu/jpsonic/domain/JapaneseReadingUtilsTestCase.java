@@ -55,9 +55,22 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("BAD COMMUNICATION", utils.createReading("BAD COMMUNICATION"));
         assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
         assertEquals("イヌトネコ", utils.createReading("犬とネコ"));
-        assertEquals(" 「」()()[][];!!??##123", utils.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals(" ｢｣()()[][];!!??##123", utils.createReading("　「」（）()［］[]；！!？?＃#１２３"));
         assertEquals("Cæsar", utils.createReading("Cæsar"));
         assertEquals("Alfee", utils.createReading("The Alfee"));
+        assertEquals("コンピューター", utils.createReading("コンピューター"));
+        assertEquals("アイ～ウエ", utils.createReading("あい～うえ"));
+        assertEquals("アイウエ～", utils.createReading("あいうえ～"));
+        assertEquals("～アイウエ", utils.createReading("～あいうえ"));
+        assertEquals("ア～イ～ウ～エ", utils.createReading("あ～い～う～え"));
+        assertEquals("     ", utils.createReading("　　　　　"));
+        assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
+        assertEquals("Best ～first things～", utils.createReading("Best ～first things～"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("Dvořák: Symphonies #7-9", utils.createReading("Dvořák: Symphonies #7-9"));
+        assertEquals("フクヤママサハル", utils.createReading("福山雅治"));// Readable case
+        assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃"));// Unreadable case
+        assertEquals("倖タ來ヒツジ", utils.createReading("倖田來未"));// Unreadable case
     }
 
     @Test
@@ -78,9 +91,22 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("犬とネコ", utils.normalize("犬とネコ"));
         assertEquals("読み", utils.normalize("読み"));
         assertEquals("(読み)", utils.normalize("(読み)"));
-        assertEquals(" 「」()()[][];!!??##123", utils.createReading(" 「」（）()［］[]；！!？?＃#１２３"));
-        assertEquals("Cæsar", utils.createReading("Cæsar"));
-        assertEquals("Alfee", utils.createReading("The Alfee"));
+        assertEquals(" ｢｣()()[][];!!??##123", utils.normalize("　「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", utils.normalize("Cæsar"));
+        assertEquals("The Alfee", utils.normalize("The Alfee"));
+        assertEquals("コンピューター", utils.normalize("コンピューター"));
+        assertEquals("あい～うえ", utils.normalize("あい～うえ"));
+        assertEquals("あいうえ～", utils.normalize("あいうえ～"));
+        assertEquals("～あいうえ", utils.normalize("～あいうえ"));
+        assertEquals("あ～い～う～え", utils.normalize("あ～い～う～え"));
+        assertEquals("     ", utils.normalize("　　　　　"));
+        assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
+        assertEquals("Best ～first things～", utils.normalize("Best ～first things～"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.normalize("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("Dvořák: Symphonies #7-9", utils.normalize("Dvořák: Symphonies #7-9"));
+        assertEquals("福山雅治", utils.normalize("福山雅治"));
+        assertEquals("サシハラ莉乃", utils.normalize("サシハラ莉乃"));
+        assertEquals("倖田來未", utils.normalize("倖田來未"));
     }
 
     private BiFunction<String, String, MediaFile> toMediaFile = (artist, artistSort) -> {
@@ -100,7 +126,7 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
     };
 
     @Test
-    public void testanalyzeIfSortExists() {
+    public void testAnalyzeIfSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
         utils.analyze(artist);
@@ -180,16 +206,16 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("ヘヤトYシャツトワタシ", artist.getArtistReading());
         assertEquals("部屋とYシャツと私", artist.getArtistSort());
 
-        artist = toMediaFile.apply(null, " 「」（）()［］[]；;！!？?＃#１２３");
+        artist = toMediaFile.apply(null, "　「」（）()［］[]；！!？?＃#１２３");
         utils.analyze(artist);
         assertNull(artist.getArtist());
-        assertEquals(" 「」()()[][];;!!??##123", artist.getArtistReading());
-        assertEquals(" 「」()()[][];;!!??##123", artist.getArtistSort());
+        assertEquals(" ｢｣()()[][];!!??##123", artist.getArtistReading());
+        assertEquals(" ｢｣()()[][];!!??##123", artist.getArtistSort());
 
     }
 
     @Test
-    public void testanalyzeIfNoSortExists() {
+    public void testAnalyzeIfNoSortExists() {
 
         MediaFile artist = toMediaFile.apply(null, null);
         utils.analyze(artist);
@@ -269,10 +295,10 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("ヘヤトYシャツトワタシ", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
-        artist = toMediaFile.apply(" 「」（）()［］[]；;！!？?＃#１２３", null);
+        artist = toMediaFile.apply("　「」（）()［］[]；！!？?＃#１２３", null);
         utils.analyze(artist);
-        assertEquals(" 「」（）()［］[]；;！!？?＃#１２３", artist.getArtist());
-        assertEquals(" 「」()()[][];;!!??##123", artist.getArtistReading());
+        assertEquals("　「」（）()［］[]；！!？?＃#１２３", artist.getArtist());
+        assertEquals(" ｢｣()()[][];!!??##123", artist.getArtistReading());
         assertNull(artist.getArtistSort());
 
     }
@@ -299,8 +325,8 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
 
         assertEquals("BAD COMMUNICATION",
                 utils.createIndexableName(toAnalyzedMediaFile.apply("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ", "非alpha")));
-        assertEquals("「」()()[][];;!!??##123",
-                utils.createIndexableName(toAnalyzedMediaFile.apply("「」（）()［］[]；;！!？?＃#１２３", "非alpha")));
+        assertEquals(" ｢｣()()[][];!!??##123",
+                utils.createIndexableName(toAnalyzedMediaFile.apply("　「」（）()［］[]；！!？?＃#１２３", "非alpha")));
 
         assertEquals("ゴウヒロミ", utils.createIndexableName(toAnalyzedMediaFile.apply("ゴウヒロミ", "非alpha")));
         assertEquals("パミュパミュ", utils.createIndexableName(toAnalyzedMediaFile.apply("ぱみゅぱみゅ", "非alpha")));
@@ -311,6 +337,13 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         utils.analyze(file);
         assertEquals("コウダクミ", utils.createIndexableName(file));
 
+        file = toAnalyzedMediaFile.apply("DJ FUMI★YEAH!", "alpha");
+        file.setArtistSort("DJ FUMIYA");
+        utils.analyze(file);
+        assertEquals("DJ FUMI★YEAH!", file.getArtist());
+        assertEquals("DJ FUMI★YEAH!", file.getArtistReading());
+        assertEquals("DJ FUMIYA", file.getArtistSort());
+        assertEquals("alpha", utils.createIndexableName(file));
     }
 
 }
