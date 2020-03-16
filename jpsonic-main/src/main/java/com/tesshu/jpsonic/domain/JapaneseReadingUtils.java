@@ -42,7 +42,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
+import java.util.stream.Stream;
 
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -56,6 +58,7 @@ public class JapaneseReadingUtils {
     public static final Pattern ALPHA = Pattern.compile("^[a-zA-Zａ-ｚＡ-Ｚ]+$");
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
+    private static final String TILDE = "\uff5e"; // Special usage for Japanese
 
     private final SettingsService settingsService;
 
@@ -74,13 +77,13 @@ public class JapaneseReadingUtils {
 
     public void analyze(MediaFile m) {
 
-        m.setArtistSort(isEmpty(m.getArtistSort()) ? null : normalize(m.getArtistSort())); // TODO #406
+        m.setArtistSort(normalize(m.getArtistSort()));
         m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
 
-        m.setAlbumArtistSort(isEmpty(m.getAlbumArtistSort()) ? null : normalize(m.getAlbumArtistSort())); // TODO #406
+        m.setAlbumArtistSort(normalize(m.getAlbumArtistSort()));
         m.setAlbumArtistReading(createReading(m.getAlbumArtist(), m.getAlbumArtistSort()));
 
-        m.setAlbumSort(isEmpty(m.getAlbumSort()) ? null : normalize(m.getAlbumSort())); // TODO #406
+        m.setAlbumSort(normalize(m.getAlbumSort()));
         m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
 
     }
@@ -93,23 +96,22 @@ public class JapaneseReadingUtils {
         readingMap.clear();
     }
 
-    private boolean containsJapanese(String s) {
-        if (isEmpty(s)) {
+    boolean containsJapanese(String str) {
+        if (isEmpty(str)) {
             return false;
         }
-        for (int i = 0; i < s.length(); i++) {
-            char ch = s.charAt(i);
-            Character.UnicodeBlock block = Character.UnicodeBlock.of(ch);
+        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             // @formatter:off
-            if (Character.UnicodeBlock.HIRAGANA.equals(block)
-                    || Character.UnicodeBlock.KATAKANA.equals(block)
-                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(block)
-                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(block)
-                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(block))
+            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
+            if (Character.UnicodeBlock.HIRAGANA.equals(b)
+                    || Character.UnicodeBlock.KATAKANA.equals(b)
+                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
+                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)) {
                 return true;
-            // @formatter:on
-        }
-        return false;
+            } // @formatter:on
+            return false;
+        });
     }
 
     public List<MediaFile> createAlbumSortToBeUpdate(List<MediaFile> candidates) {
@@ -142,7 +144,10 @@ public class JapaneseReadingUtils {
         /* @see MusicIndexService#createSortableName */
         String lower = s.toLowerCase();
         String result = s;
-        for (String article : getIgnoredArticles()) {
+        if (ObjectUtils.isEmpty(ignoredArticles)) {
+            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
+        }
+        for (String article : ignoredArticles) {
             if (lower.startsWith(article.toLowerCase() + " ")) {
                 // reading = lower.substring(article.length() + 1) + ", " + article;
                 result = result.substring(article.length() + 1);
@@ -201,7 +206,7 @@ public class JapaneseReadingUtils {
         if (readingMap.containsKey(s)) {
             return readingMap.get(s);
         }
-        List<Token> tokens = tokenizer.tokenize(Normalizer.normalize(s, Normalizer.Form.NFKC));
+        List<Token> tokens = tokenizer.tokenize(normalize(s));
 
         // @formatter:off
         final Collector<String, StringBuilder, String> join =
@@ -217,8 +222,7 @@ public class JapaneseReadingUtils {
         };
         // @formatter:on
 
-        String reading = tokens.stream().map(readingAnalysis).collect(join);
-        reading = createIgnoredArticles(reading);
+        String reading = createIgnoredArticles(tokens.stream().map(readingAnalysis).collect(join));
         readingMap.put(s, reading);
         return reading;
     }
@@ -239,13 +243,6 @@ public class JapaneseReadingUtils {
         return reading;
     }
 
-    private List<String> getIgnoredArticles() {
-        if (ObjectUtils.isEmpty(ignoredArticles)) {
-            ignoredArticles = Arrays.asList(settingsService.getIgnoredArticles().split("\\s+"));
-        }
-        return ignoredArticles;
-    }
-
     /* AtoZ only true. */
     private boolean isStartWithAlpha(String s) {
         if (isEmpty(s)) {
@@ -254,7 +251,37 @@ public class JapaneseReadingUtils {
         return ALPHA.matcher(s.substring(0, 1)).matches();
     }
 
-    String normalize(String s) {
-        return Normalizer.normalize(s, Normalizer.Form.NFKC);
+    /**
+     * There is no easy way to normalize Japanese words. Uses relatively natural
+     * NFKC, eliminates over-processing and adds under-processing.
+     *
+     * @param s
+     * @return
+     */
+    final String normalize(@Nullable String s) {
+        if (isEmpty(s)) {
+            return null;
+        }
+        // Normalize except for certain strings with NFKC
+        StringBuilder excluded = new StringBuilder();
+        int start = 0;
+        int i = s.indexOf(TILDE);
+        if (-1 != i) {
+            while (-1 != i) {
+                excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
+                excluded.append(TILDE);
+                start = i + 1;
+                i = s.indexOf(TILDE, i + 1);
+            }
+            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
+        } else {
+            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
+        }
+
+        // Convert certain strings additionally
+        String expanded = excluded.toString();
+        expanded = expanded.replaceAll("\u300c", "\uff62");// Japanese braces
+        expanded = expanded.replaceAll("\u300d", "\uff63");// Japanese braces
+        return expanded;
     }
 }
