@@ -51,13 +51,14 @@ public class MediaFileDao extends AbstractDao {
                                                 ", " +
                                                 "composer, artist_sort, album_sort, title_sort, album_artist_sort, composer_sort, " +
                                                 "artist_reading, album_reading, album_artist_reading, " +
+                                                "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " +
                                                 "_order";
                                                 // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
 
-    private static final int JP_VERSION = 7;
+    private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
@@ -182,6 +183,10 @@ public class MediaFileDao extends AbstractDao {
                      "artist_reading=?, " +
                      "album_reading=?, " +
                      "album_artist_reading=?, " +
+                     "artist_sort_raw=?, " +
+                     "album_sort_raw=?, " +
+                     "album_artist_sort_raw=?, " +
+                     "composer_sort_raw=?, " +
                      "_order=? " +
                      // <<<< JP
                      "where path=?";
@@ -205,6 +210,10 @@ public class MediaFileDao extends AbstractDao {
                        file.getArtistReading(),
                        file.getAlbumReading(),
                        file.getAlbumArtistReading(),
+                       file.getArtistSortRaw(),
+                       file.getAlbumSortRaw(),
+                       file.getAlbumArtistSortRaw(),
+                       file.getComposerSortRaw(),
                        file.getOrder(),
                        // <<<< JP
                        file.getPath());
@@ -235,6 +244,10 @@ public class MediaFileDao extends AbstractDao {
                    file.getArtistReading(),
                    file.getAlbumReading(),
                    file.getAlbumArtistReading(),
+                   file.getArtistSortRaw(),
+                   file.getAlbumSortRaw(),
+                   file.getAlbumArtistSortRaw(),
+                   file.getComposerSortRaw(),
                    -1);
                    // <<<< JP
         }
@@ -848,7 +861,11 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(39),
                     rs.getString(40),
                     rs.getString(41),
-                    rs.getInt(42));
+                    rs.getString(42),
+                    rs.getString(43),
+                    rs.getString(44),
+                    rs.getString(45),
+                    rs.getInt(46));
                     // <<<< JP
         }
     }

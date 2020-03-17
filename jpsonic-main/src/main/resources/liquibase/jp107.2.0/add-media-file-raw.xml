@@ -1,0 +1,54 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+        
+    <changeSet id="add-media-file-artist_sort_raw" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="artist_sort_raw" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="artist_sort_raw" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-media-file-album_sort_raw" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="album_sort_raw" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="album_sort_raw" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-media-file-album_artist_sort_raw" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="album_artist_sort_raw" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="album_artist_sort_raw" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-media-file-composer_sort_raw" author="tesshu">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="media_file" columnName="composer_sort_raw" />
+            </not>
+        </preConditions>
+        <addColumn tableName="media_file">
+            <column name="composer_sort_raw" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
