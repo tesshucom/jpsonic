@@ -71,23 +71,57 @@ public class MediaFile {
     private String musicBrainzReleaseId;
     private String musicBrainzRecordingId;
 
-    // JP >>>>
+    // JP >>>> (May be renameColumn in later version)
 
-    // Tags newly supported by Jpsonic.
+    /* Tags newly supported by Jpsonic. */
     private String composer;
+
+    /*
+     * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that
+     * holds a value to be passed to Lucene.
+     * 
+     * Unlike the original value, cleansing is performed. If the original tag does
+     * not exist, the value is generated using a Japanese parsing engine. After
+     * these processes, merging is performed if there are multiple sort-values for
+     * one word. These process are necessary to remove dirty data, prevent search
+     * dropouts, and reduce the size of the search index.
+     * 
+     * This field will be the input to Lucene, but will not be used in normal SQL
+     * searches.
+     */
     private String artistSort;
     private String albumSort;
     private String titleSort;
     private String albumArtistSort;
     private String composerSort;
 
-    // Cleansing or analysis results. Significant impact on index size.
+    /*
+     * A sort key created using either Sort/Name. The Japanese sorting rule is
+     * "English depends on notation, Japanese depends on phonemes". Therefore, it is
+     * impossible to sort by referring to only one existing field. Based on this
+     * rule, sort keys are created from mixed English-Japanese words, English words
+     * and Japanese words.
+     */
     private String artistReading;
     private String albumReading;
     private String albumArtistReading;
-
-    // Default is -1. Registered when scanning by if option selected.
+    
+    /*
+     * In the case of DB, string of the reading comparison depends on its sorting
+     * implementation . To do it strictly, do it in Java. This field holds the
+     * result of Java sorting and reproduces the same sort in all DBs. It also
+     * contributes to speeding up.
+     */
     private int order;
+
+    /*
+     * Transcription of ID3 tag data.
+     * 
+     */
+    private String artistSortRaw;
+    private String albumSortRaw;
+    private String albumArtistSortRaw;
+    private String composerSortRaw;
 
     // Row number used internally during processing.
     private transient int rownum;
@@ -109,6 +143,10 @@ public class MediaFile {
                      String artistReading,
                      String albumReading,
                      String albumArtistReading,
+                     String artistSortRaw,
+                     String albumSortRaw,
+                     String albumArtistSortRaw,
+                     String composerSortRaw,
                      int order
                      // <<<< JP
                      ) {
@@ -154,6 +192,10 @@ public class MediaFile {
         this.artistReading = artistReading;
         this.albumReading = albumReading;
         this.albumArtistReading = albumArtistReading;
+        this.artistSortRaw = artistSortRaw;
+        this.albumSortRaw = albumSortRaw;
+        this.albumArtistSortRaw = albumArtistSortRaw;
+        this.composerSortRaw = composerSortRaw;
         this.order = order;
         // <<<< JP
     }
@@ -561,6 +603,38 @@ public class MediaFile {
 
     public void setAlbumArtistReading(String albumArtistReading) {
         this.albumArtistReading = albumArtistReading;
+    }
+
+    public String getArtistSortRaw() {
+        return artistSortRaw;
+    }
+
+    public void setArtistSortRaw(String artistSortRaw) {
+        this.artistSortRaw = artistSortRaw;
+    }
+
+    public String getAlbumSortRaw() {
+        return albumSortRaw;
+    }
+
+    public void setAlbumSortRaw(String albumSortRaw) {
+        this.albumSortRaw = albumSortRaw;
+    }
+
+    public String getAlbumArtistSortRaw() {
+        return albumArtistSortRaw;
+    }
+
+    public void setAlbumArtistSortRaw(String albumArtistSortRaw) {
+        this.albumArtistSortRaw = albumArtistSortRaw;
+    }
+
+    public String getComposerSortRaw() {
+        return composerSortRaw;
+    }
+
+    public void setComposerSortRaw(String composerSortRaw) {
+        this.composerSortRaw = composerSortRaw;
     }
 
     public int getOrder() {
