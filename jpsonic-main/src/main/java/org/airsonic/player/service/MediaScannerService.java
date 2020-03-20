@@ -47,6 +47,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -64,6 +65,9 @@ public class MediaScannerService {
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
     private boolean scanning;
+
+    // for debug
+    private boolean isJpsonicCleansingProcess = true;
 
     private ScheduledExecutorService scheduler;
 
@@ -190,11 +194,12 @@ public class MediaScannerService {
             scanCount = 0;
 
             utils.clearOrder();
+            indexCache.removeAll();
 
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
+
             mediaFileService.clearMemoryCache();
-            indexCache.removeAll();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : settingsService.getAllMusicFolders()) {
@@ -206,7 +211,7 @@ public class MediaScannerService {
             File podcastFolder = new File(settingsService.getPodcastFolder());
             if (podcastFolder.exists()) {
                 scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                        statistics, albumCount, genres, true);
+                         statistics, albumCount, genres, true);
             }
 
             LOG.info("Scanned media library with " + scanCount + " entries.");
@@ -227,24 +232,21 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
+            if (isJpsonicCleansingProcess) {
 
-            LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+                LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+                utils.updateSortOfArtist();
+                utils.updateSortOfAlbum();
+                LOG.info("[1/2] Done.");
 
-            // Update artistSort
-            utils.updateArtistSort();
+                if (settingsService.isSortStrict()) {
+                    LOG.info("[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                    utils.updateOrderOfAll();
+                } else {
+                    LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+                }
+                LOG.info("[2/2] Done.");
 
-            // Update albumSort
-            utils.updateAlbumSort();
-
-            // Update order
-            if (settingsService.isSortStrict()) {
-                LOG.info(
-                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                utils.updateArtistOrder();
-                utils.updateAlbumOrder();
-                utils.updateFileStructureOrder();
-            } else {
-                LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
             }
 
             LOG.info("Completed media library scan.");
@@ -315,6 +317,9 @@ public class MediaScannerService {
         }
     }
 
+    /*
+     * The decision rules here have room to verify from legacy
+     */
     private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
         String artist;
         String reading;
@@ -333,28 +338,35 @@ public class MediaScannerService {
             return;
         }
 
-        Album album = albumDao.getAlbumForFile(file);
-        if (album == null) {
-            album = new Album();
-            album.setPath(file.getParentPath());
-            album.setName(file.getAlbumName());
-            album.setNameReading(file.getAlbumReading());
-            album.setNameSort(file.getAlbumSort());
-            album.setArtist(artist);
-            album.setArtistReading(reading);
-            album.setArtistSort(sort);
-            album.setCreated(file.getChanged());
+        Album maybe = albumDao.getAlbumForFile(file);
+        if (maybe == null) {
+            maybe = new Album();
+            maybe.setPath(file.getParentPath());
+            maybe.setName(file.getAlbumName());
+            maybe.setNameReading(file.getAlbumReading());
+            maybe.setNameSort(file.getAlbumSort());
+            maybe.setArtist(artist);
+            maybe.setArtistReading(reading);
+            maybe.setArtistSort(sort);
+            maybe.setCreated(file.getChanged());
         }
+
+        final Album album = maybe;
 
         if (file.getMusicBrainzReleaseId() != null) {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
-        if (file.getYear() != null) {
-            album.setYear(file.getYear());
-        }
-        if (file.getGenre() != null) {
-            album.setGenre(file.getGenre());
-        }
+
+        Optional<MediaFile> firstChild = mediaFileDao.getChildrenOf(album.getPath()).stream().findFirst();
+        firstChild.ifPresent(child -> {
+            if (file.getYear() != null && file.getYear().equals(child.getYear())) {
+                album.setYear(file.getYear());
+            }
+            if (file.getGenre() != null && file.getGenre().equals(child.getGenre())) {
+                album.setGenre(file.getGenre());
+            }
+        });
+
         MediaFile parent = mediaFileService.getParentOf(file);
         if (parent != null && parent.getCoverArtPath() != null) {
             album.setCoverArtPath(parent.getCoverArtPath());
@@ -423,6 +435,14 @@ public class MediaScannerService {
         if (firstEncounter) {
             indexManager.index(artist, musicFolder);
         }
+    }
+
+    public boolean isJpsonicCleansingProcess() {
+        return isJpsonicCleansingProcess;
+    }
+
+    public void setJpsonicCleansingProcess(boolean isJpsonicCleansingProcess) {
+        this.isJpsonicCleansingProcess = isJpsonicCleansingProcess;
     }
 
     public void setSettingsService(SettingsService settingsService) {

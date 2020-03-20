@@ -233,10 +233,6 @@ public class ArtistDao extends AbstractDao {
         }
     }
 
-    public RowMapper<Artist> getArtistMapper() {
-        return rowMapper;
-    }
-
     public String getQueryColoms() {
         return QUERY_COLUMNS;
     }

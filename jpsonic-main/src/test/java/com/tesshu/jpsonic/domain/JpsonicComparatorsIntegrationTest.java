@@ -137,10 +137,10 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
     @Before
     public void setup() throws Exception {
+        settingsService.setSortStrict(true);
         settingsService.setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
-        populateDatabaseOnlyOnce();
 
         Function<String, Playlist> toPlaylist = (title) -> {
             Date now = new Date();
@@ -150,22 +150,31 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
             playlist.setCreated(now);
             playlist.setChanged(now);
             playlist.setShared(false);
+            try {
+                Thread.sleep(200);
+                // Creating a large number of playlists in an instant can be inconsistent with
+                // consistency ...
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             return playlist;
         };
 
-        if (0 == playlistDao.getAllPlaylists().size()) {
-            List<String> shallow = new ArrayList<>();
-            shallow.addAll(JpsonicComparatorsTestUtils.jPSonicNaturalList);
-            Collections.shuffle(shallow);
-            shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
-        }
+        populateDatabaseOnlyOnce(() -> {
+            if (0 == playlistDao.getAllPlaylists().size()) {
+                List<String> shallow = new ArrayList<>();
+                shallow.addAll(JpsonicComparatorsTestUtils.jPSonicNaturalList);
+                Collections.shuffle(shallow);
+                shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
+            }
+            return true;
+        });
 
         /*
          * Should be more than 30 elements.
          */
         assertEquals(32, indexList.size());
         assertEquals(32, JpsonicComparatorsTestUtils.jPSonicNaturalList.size());
-
     }
 
     /**

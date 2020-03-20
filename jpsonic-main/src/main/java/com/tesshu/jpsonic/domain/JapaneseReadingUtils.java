@@ -76,20 +76,23 @@ public class JapaneseReadingUtils {
     }
 
     public void analyze(MediaFile m) {
-
         m.setArtistSort(normalize(m.getArtistSort()));
         m.setArtistReading(createReading(m.getArtist(), m.getArtistSort()));
-
         m.setAlbumArtistSort(normalize(m.getAlbumArtistSort()));
         m.setAlbumArtistReading(createReading(m.getAlbumArtist(), m.getAlbumArtistSort()));
-
         m.setAlbumSort(normalize(m.getAlbumSort()));
         m.setAlbumReading(createReading(m.getAlbumName(), m.getAlbumSort()));
-
     }
 
     public void analyze(Playlist p) {
         p.setReading(createReading(defaultIfBlank(p.getName(), p.getReading())));
+    }
+
+    public void analyze(SortCandidate c) {
+        c.setReading(createReading(c.getName(), c.getSort()));
+        if (isEmpty(c.getSort())) {
+            c.setSort(c.getReading());
+        }
     }
 
     public void clear() {
@@ -119,18 +122,6 @@ public class JapaneseReadingUtils {
         for (MediaFile candidate : candidates) {
             if (!candidate.getAlbumReading().equals(candidate.getAlbumSort())) {
                 candidate.setAlbumSort(candidate.getAlbumSort());
-                toBeUpdate.add(candidate);
-            }
-        }
-        return toBeUpdate;
-    }
-
-    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
-        List<MediaFile> toBeUpdate = new ArrayList<>();
-        for (MediaFile candidate : candidates) {
-            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
-                candidate.setId(candidate.getId());
-                candidate.setArtistSort(candidate.getArtistSort());
                 toBeUpdate.add(candidate);
             }
         }
