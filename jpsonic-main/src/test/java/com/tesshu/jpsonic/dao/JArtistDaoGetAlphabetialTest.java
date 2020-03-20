@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @SpringBootTest
-public class JArtistDaoTestCase extends AbstractAirsonicHomeTest {
+public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 

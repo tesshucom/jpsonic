@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
-public class JAlbumDaoTestCase extends AbstractAirsonicHomeTest {
+public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
