@@ -18,6 +18,7 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
@@ -83,6 +84,12 @@ public class JMediaFileDao extends AbstractDao {
 
     }
 
+    private static class SortCandidateMapper implements RowMapper<SortCandidate> {
+        public SortCandidate mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new SortCandidate(rs.getString(1), rs.getString(2));
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(JMediaFileDao.class);
 
     private final MediaFileDao deligate;
@@ -90,6 +97,7 @@ public class JMediaFileDao extends AbstractDao {
     private final RowMapper<Genre> genreRowMapper;
     private final RowMapper<MediaFile> iRowMapper;
     private final RowMapper<MediaFile> artistSortCandidateMapper;
+    private final SortCandidateMapper sortCandidateMapper;
     private final RowMapper<MediaFile> albumSortCandidateMapper;
 
     public JMediaFileDao(MediaFileDao deligate) {
@@ -100,6 +108,7 @@ public class JMediaFileDao extends AbstractDao {
         iRowMapper = new MediaFileInternalRowMapper(rowMapper);
         artistSortCandidateMapper = new ArtistSortCandidateMapper();
         albumSortCandidateMapper = new AlbumSortCandidateMapper();
+        sortCandidateMapper = new SortCandidateMapper();
     }
 
     public void clearOrder() {
@@ -160,6 +169,7 @@ public class JMediaFileDao extends AbstractDao {
                 "artist is not null", rowMapper, args); // @formatter:on
     }
 
+    @Deprecated
     public List<MediaFile> getArtistSortCandidate() { // @formatter:off
         return query(
                 "select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
@@ -339,6 +349,75 @@ public class JMediaFileDao extends AbstractDao {
                 " and type = ? and present",
                 rowMapper, MediaFile.MediaType.ALBUM.name());
     } // @formatter:on
+
+    /*
+     * Looks for duplicate sort tags, creates and returns a list in the order in
+     * which corrections are desired.
+     * The validate target is Persons(albumArtist/Artist/Composer) and sort-tags for them.
+     *
+     * If there are multiple sort tags against one artist, an adverse effect occurs.
+     * Index bloat of Lucene, search dropouts, etc. are direct consequences.
+     * Also, when creating sort keys using sort tags,
+     * there is a problem that if the tags are not uniform,
+     * consistency will be lost.
+     * Therefore, multiple sort tags are merged internally.
+     * These are determined at the time of scanning.
+     *
+     * If there are multiple sort tags,
+     * they are processed according to the rules that determine which is correct.
+     * Jpsonic uses the following concept to determine the correct tag.
+     *
+     * - The latest(changed) file should be more reliable.
+     * - Most reliable in the following order: album_artist_sort/artist_sort/composer_sort
+     *
+     * This is because the priorities are easy to recursively reflect the user's intentions.
+     */
+    public List<SortCandidate> guessSort() { // @formatter:off
+        List<SortCandidate> candidates = query(
+            "select name, sort, source, type_prior, duplicate_persons_with_priority.changed from " +
+                    "   (select distinct name, sort, source, " +
+                    "       case type " +
+                    "           when 'DIRECTORY' THEN 1 " +
+                    "           when 'ALBUM' THEN 2 " +
+                    "           when 'MUSIC' THEN 3 " +
+                    "           when 'VIDEO' THEN 4 " +
+                    "           when 'PODCAST' THEN 5 " +
+                    "           when 'AUDIOBOOK' THEN 6 " +
+                    "           else 7 " +
+                    "       end as type_prior, changed " +
+                    "   from " +
+                    "       (select distinct album_artist as name, album_artist_sort as sort, 1 as source, type, changed from media_file where album_artist is not null and album_artist_sort is not null and present " +
+                    "       union select distinct artist as name, artist_sort as sort, 2 as source, type, changed from media_file where artist is not null and artist_sort is not null and present " +
+                    "       union select distinct composer as name, composer_sort as sort, 3 as source, type, changed from media_file where composer is not null and composer_sort is not null and present " +
+                    "       ) as person_all_with_priority " +
+                    "       where name in " +
+                    "           (select name from " +
+                    "               (select name, count(sort) from " +
+                    "                   (select distinct name, sort from " +
+                    "                       (select distinct album_artist as name, album_artist_sort as sort from media_file where album_artist is not null and album_artist_sort is not null and present " +
+                    "                       union select distinct artist as name, artist_sort as sort from media_file where artist is not null and artist_sort is not null and present " +
+                    "                       union select distinct composer as name, composer_sort as sort from media_file where composer is not null and composer_sort is not null and present " +
+                    "                       ) person_union " +
+                    "                   ) duplicate " +
+                    "               group by name " +
+                    "               having 1 < count(sort) " +
+                    "           ) duplicate_names) " +
+                    "   ) duplicate_persons_with_priority " +
+                    "   join media_file m on type <> 'DIRECTORY' and type <> 'ALBUM' and name in(album_artist, artist ,composer) " +
+                    "   group by name, sort, source, type_prior, duplicate_persons_with_priority.changed " +
+                    "   having max(m.changed) = duplicate_persons_with_priority.changed " +
+                    "order by name, changed desc, source, type_prior ",
+            sortCandidateMapper); // @formatter:on
+
+        List<SortCandidate> result = new ArrayList<>();
+        candidates.forEach((candidate) -> {
+            if (!result.stream().anyMatch(r -> r.getName().equals(candidate.getName()))) {
+                result.add(candidate);
+            }
+        });
+
+        return result;
+    }
 
     public void markNonPresent(Date lastScanned) {
         deligate.markNonPresent(lastScanned);

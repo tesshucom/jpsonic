@@ -23,6 +23,9 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -30,6 +33,12 @@ import java.util.function.Function;
  * Abstract class for scanning MusicFolder.
  */
 public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
+
+    public interface BeforeScan extends Supplier<Boolean> {
+    }
+
+    public interface AfterScan extends Supplier<Boolean> {
+    }
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAirsonicHomeTest.class);
 
@@ -88,6 +97,14 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
     @Override
     public final void populateDatabaseOnlyOnce() {
+        populateDatabaseOnlyOnce(null);
+    }
+
+    public final void populateDatabaseOnlyOnce(BeforeScan beforeScan) {
+        populateDatabaseOnlyOnce(beforeScan, null);
+    }
+
+    public final void populateDatabaseOnlyOnce(BeforeScan beforeScan, AfterScan afterscan) {
         if (!dataBasePopulated().get()) {
             dataBasePopulated().set(true);
             getMusicFolders().forEach(musicFolderDao::createMusicFolder);
@@ -100,7 +117,25 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+
+            if (!isEmpty(beforeScan)) {
+                if (beforeScan.get()) {
+                    LOG.debug("Pre-processing of scan was called.");
+                } else {
+                    LOG.debug("Pre-scan processing may have a problem with the call.");
+                }
+            }
+
             TestCaseUtils.execScan(mediaScannerService);
+
+            if (!isEmpty(afterscan)) {
+                if (afterscan.get()) {
+                    LOG.debug("Post-processing of scan was called.");
+                } else {
+                    LOG.debug("Post-scan processing may have a problem with the call.");
+                }
+            }
+
             LOG.debug("--- Report of records count per table ---");
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
             records.keySet().stream().filter(s ->
@@ -135,12 +170,12 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
         }
     }
 
-    protected void setSortStrict(boolean isSortStrict) {
-        settingsService.setSortStrict(isSortStrict);
-    }
-
     protected void setSortAlphanum(boolean isSortStrict) {
         settingsService.setSortAlphanum(true);
+    }
+
+    protected void setSortStrict(boolean isSortStrict) {
+        settingsService.setSortStrict(isSortStrict);
     }
 
 }

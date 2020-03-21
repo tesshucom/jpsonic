@@ -355,6 +355,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
                         <configuration>
+                            <excludes>${test.excludes}</excludes>
                         </configuration>
                 </plugin>
                 <plugin>
@@ -455,36 +456,13 @@
             <modules>
                 <module>subsonic-rest-api</module>
                 <module>jpsonic-sonos-api</module>
+                <module>jpsonic-upnp-template</module>
                 <module>jpsonic-main</module>
             </modules>
             <properties>
-                <!-- #1186 Temporarily skip a test. -->
                 <test.excludes>
-                    org.airsonic.player.service.search.*TestCase.java
-                </test.excludes>
-            </properties>
-        </profile>
-        <profile>
-            <id>docker</id>
-            <modules>
-                <module>subsonic-rest-api</module>
-                <module>jpsonic-sonos-api</module>
-                <module>jpsonic-main</module>
-                <module>install/docker</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>integration-test</id>
-            <modules>
-                <module>subsonic-rest-api</module>
-                <module>jpsonic-sonos-api</module>
-                <module>jpsonic-main</module>
-                <module>install/docker</module>
-            </modules>
-            <properties>
-                <test.excludes>
-                    org.airsonic.player.**.*TestCase.java,
-                    org.airsonic.player.**.*Test.java,
+                    com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.java,
+                    com.tesshu.jpsonic.dao.JMediaFileDaoGuessSortTest.java
                 </test.excludes>
             </properties>
         </profile>
