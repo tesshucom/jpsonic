@@ -2,6 +2,7 @@
 # README.md
 # jpsonic/jpsonic
 -->
+
 [![Build Status](https://travis-ci.org/tesshucom/jpsonic.svg?branch=master)](https://travis-ci.org/tesshucom/jpsonic)
 
 Jpsonic
@@ -10,22 +11,34 @@ Jpsonic
 What is Jpsonic?
 -----------------
 
+<table>
+<tr>
+<td>
 Jpsonic is a free, web-based media streamer, providing ubiquitous access to your music.
 
 Use it to share your music with friends, or to listen to your own music while at work.
-
 Based on Java technology, Jpsonic runs on most platforms, including Windows, Mac, Linux and Unix variants.
 
 Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
+</td>
+<td>
+<img src="contrib/assets/screenshot.jpg" width="200">
+</td>
+</tr>
+</table>
 
-![Screenshot](contrib/assets/screenshot.jpg)
-
-Features
+What is the difference from Airsonic?
 -----------------
 
- - Jpsonic has changed the context and data area so that it does not interfere with Subsonic or Arisonic and even simultaneous operation is possible.
- - The default language is set to JP so as to be intimate with Japanese people, but you can use other languages depending on your choice.
- - Available tags have been expanded. Supports generic tags.
+Optimized for Japanese needs.
+The language processing suitable for Japanese and the DLNA function frequently used by Japanese are enhanced.
+
+Even if the server is linked to a famous external service, Japanese song information may not be easily linked.
+For this reason, Jpsonic is focusing on enhancing tag processing via CDDB.
+Sony/Apple tag specifications, which have a significant impact on commercial areas in Japan, are taken into account.
+
+<details>
+<summary>Tags supported by Jpsonic</summary>
 
 |tag name |tag id|Subsonic/Airsonic |Jpsonic |Music Center (SONY) |itunes (APPLE)
 |:---|:---|:---:|:---:|:---:|:---:|
@@ -44,38 +57,131 @@ Features
 |track no|TRCK |● |● |● |●
 |disk no|TPOS |● |● |● |●
 
-### index
+</details>
 
-Many character types such as alphabet / hiragana / katakana / kanji / symbols are used in Japanese.
+The reason Jpsonic refers to the SONY/APPLE specification is that their specifications take into account global multilingual support.
+
+Features
+-----------------
+
+### Enhanced meta processing
+
+To process Japanese well on a machine requires a lengthy mechanism. Conversely, if the system can handle Japanese well, it may be easy a little easier to support languages in other countries. Jpsonic will work without conflict, except in special cases like other chinese-character (except JP) and Arabic.
+
+<details>
+<summary>Enhanced index function</summary>
+
+<table>
+<tr>
+<td>
+ 
+Many character types such as alphabet/hiragana/katakana/chinese character/symbols are used in Japanese.
+
 Jpsonic correctly classifies them and creates a Japanese index.
 It is a very general and easy-to-understand index for Japanese people, just like Japanese dictionaries, bank branch names, telephone directories and karaoke indexes.
+</td>
+<td>
+<img src="contrib/assets/jp-index.png" width="200">
+</td>
+</tr>
+</table>
 
-![Screenshot](contrib/assets/jp-index.png)
+Also, Japanese generally read ligatures in English.
+Therefore, decomposable ligatures are categorized alphabetically by default.
+Even if used by non-Japanese, the index will be slightly different from Airsonic.
 
-### sort
+</details>
 
- - Advanced sorting is available with options. (Albums of artists starting with "various" are not sorted by year / sorted considering serial numbers)
- - Sort by name is expanded to allow for Japanese character string sorting.
- - Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
+<details>
+<summary>Enhanced sort function</summary>
 
-![Screenshot](contrib/assets/jp-sort.png)
+<table>
+<tr>
+<td>
 
-These are solved by two ways of the server's Japanese analysis function and tag reading.
-Therefore, not only can you handle files using CDDB perfectly.
-It is also possible to mix it with "old format files" or "raw Japanese name files / directories that are not tag edited".
+ - Sort by name is expanded to allow for Japanese character string sorting. Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
+ - Advanced sorting is available with options. (``Albums of artists starting with "various" are not sorted by year`` / ``sorted considering serial numbers``)
 
-### search
+</td>
+<td>
+<img src="contrib/assets/jp-sort.png" width="200">
+</td>
+</tr>
+</table>
+
+Jpsonic does special processing for sort tags.
+
+ - Strings are washed (full-width, half-width, etc.).
+ - If multiple Sort tags are registered for one name in the library, they will be merged
+ - If the tag is not registered and the name is Japanese, it will be supplemented by Japanese analysis
+
+CDDB sort tags are not perfect.
+These are necessary to achieve perfect sorting, reduce the size of the index and prevent missing searches.
+
+These are done automatically after the scan.
+
+</details>
+
+<details>
+<summary>Japanese searchable</summary>
+
+<table>
+<tr>
+<td>
 
 In addition to regular Japanese phrase search, artists can also use phonetic search and forward match.
-
-![Screenshot](contrib/assets/jp-search.jpg)
 
 Generally, Japanese people unconsciously input 'Reading' and then convert them into appropriate character types by IME conversion.
 Jpsonic enables searching during Japanese translation.
 
+</td>
+<td>
+<img src="contrib/assets/jp-search.jpg" width="200">
+</td>
+</tr>
+</table>
+
+The search engine analyzer has been changed to a Japanese analyzer.
+This does not mean that only Japanese people can use it.
+Of course, Japanese people also listen to songs other than Japanese.
+
+</details>
+
+### Extension of DLNA function
+
+<table>
+<tr>
+<td>
+<img src="contrib/assets/dlna.jpg" width="200">
+</td>
+<td>
+
+DLNA (UPnP) is hardly improved in Subsonic/Airsonic.
+
+But DLNA (UPnP) is still popular in Japan, and OpenHome is also Hot.
+For this reason, Jpsonic has many new features.
+
+You can add or delete items you want to use from the setting screen.
+These features include those that are not supported on the web.
+Id3 index and higher entropy shuffle etc.
+
+Unlike Subsonic/Airsonic, Jpsonic has integrated and refactored sort-logic.
+Therefore, tree expansion on UPnP works faster than Subsonic/Airsonic.
+Of course, all sort-logic of Web/REST/UPnP work with the same rules.
+
+</td>
+</tr>
+</table>
+
+For Jpsonic DLNA, you can specify the Music Folder to be published.
+You can also use apps that support voice search, such as [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en).
+
 
 History
 -----
+
+<details>
+<summary>Subsonic, Libresonic, Airsonic</summary>
 
 The original *[Subsonic](http://www.subsonic.org/)* is developed by [Sindre Mehus](mailto:sindre@activeobjects.no). *Subsonic* was open source through version 6.0-beta1, and closed-source from then onwards.
 
@@ -84,12 +190,25 @@ The original *[Subsonic](http://www.subsonic.org/)* is developed by [Sindre Mehu
 Around July 2017, it was discovered that Eugene had different intentions/goals for the project than some contributors had. 
 *Airsonic* was created in order to provide a full-featured, stable, self-hosted media server based on the Subsonic codebase that is free, open source, and community driven.
 
-Around July 2018, *Jpsonic* was created in order to strengthen browsing and searching in Japanese which is a weak point since *Subsonic*.
+</details>
+
+<details>
+<summary>Jpsonic</summary>
+
+Around July 2018, *Jpsonic* was created in order to strengthen browsing and searching in Japanese.
+
+In Japan, Subsonic is famous, but Airsonic was not yet well known.
+Today, Airsonic, with its great engineers and great community, is gaining recognition.
+
 
 ![history](contrib/assets/history.png)
 
-In Japan, Subsonic is famous but Airsonic is not well known yet.
-Many Japanese will notice more about Airsonic, which has excellent engineers and a wonderful community.
+Jpsonic had to update its indexing, sorting, and searching due to its characteristics.
+Many of these features have bug fixes or enhancements.
+An update to the Jpsonic search engine has been provided to Airsonic.
+Therefore, the design of the search function of Airsonic and Jpsonic is a bit similar.
+
+</details>
 
 Cherry Blossoms
 -----
