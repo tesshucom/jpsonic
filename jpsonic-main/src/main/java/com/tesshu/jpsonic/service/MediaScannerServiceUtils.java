@@ -23,7 +23,6 @@ import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import com.tesshu.jpsonic.domain.SortCandidate;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -47,7 +46,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * 
  * These are the logics for determining the order of all records. It also
  * affects the speed of sorting, but the purpose is to respond to paging.
- * 
+ *
  * Paging is used in REST and WEB. In addition, it is a mandatory requirement
  * for UPnP where there is a possibility of paging in all communications.
  */
@@ -84,22 +83,47 @@ public class MediaScannerServiceUtils {
     } // @formatter:on
 
     /**
-     * Update the order of all album records.
+     * Update the order of all mediaFile records.
      */
-    public void updateAlbumOrder() {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
-        albums.sort(comparators.albumOrderByAlpha());
-        int i = 0;
-        for (Album album : albums) {
-            album.setOrder(i++);
-            albumDao.createOrUpdateAlbum(album);
-        }
+    public void clearMemoryCache() {
+        utils.clear();
+    }
+
+    /**
+     * Clears all orders registered in the repository.
+     */
+    public void clearOrder() {
+        mediaFileDao.clearOrder();
+        artistDao.clearOrder();
+        albumDao.clearOrder();
+    }
+
+    /**
+     * Search for and merge names havingmultiple sorts-tag,
+     * in all　Artist/AlbumArtist/Composer records.
+     */
+    public void mergePersonsSort() {
+        // WIP : successor method of updateArtistSort
+        mediaFileDao.guessSort().forEach(c -> {
+            utils.analyze(c);
+            artistDao.updateArtistSort(c);
+            albumDao.updateArtistSort(c);
+            mediaFileDao.updateArtistSort(c);
+        });
+    }
+
+    public void copyPersonsSort() {
+        // WIP : successor method of updateArtistSort
+    }
+
+    public void compensatePersonsSort() {
+        // WIP : successor method of updateArtistSort
     }
 
     /**
      * Updates the sort / reading properties required for album sorting.
      */
+    @Deprecated
     public void updateAlbumSort() {
 
         List<MediaFile> candidates = mediaFileDao.getAlbumSortCandidate();
@@ -158,45 +182,6 @@ public class MediaScannerServiceUtils {
             }
         }
         LOG.debug(albums.size() + " sorted id3 albums. " + maybe + " id3 album rows reversal.");
-
-    }
-
-    /**
-     * Clears all orders registered in the repository.
-     */
-    public void clearOrder() {
-        mediaFileDao.clearOrder();
-        artistDao.clearOrder();
-        albumDao.clearOrder();
-    }
-
-    /**
-     * Update the order of all artist records.
-     */
-    public void updateArtistOrder() {
-        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        artists.sort(comparators.artistOrderByAlpha());
-        int i = 0;
-        for (Artist artist : artists) {
-            artist.setOrder(i++);
-            artistDao.createOrUpdateArtist(artist);
-        }
-    }
-
-    /**
-     * Search for and merge names havingmultiple sorts-tag,
-     * in all　Artist/AlbumArtist/Composer records.
-     */
-    public void mergePersonsSort() {
-
-        // WIP : successor method of updateArtistSort
-
-        List<SortCandidate> candidates = mediaFileDao.guessSort();
-
-        candidates.forEach(c -> {
-            List<MediaFile> dirtySorts = mediaFileDao.getDirtySorts(c);
-        });
 
     }
 
@@ -273,9 +258,37 @@ public class MediaScannerServiceUtils {
     }
 
     /**
+     * Update the order of all album records.
+     */
+    public void updateOrderOfAlbum() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, folders);
+        albums.sort(comparators.albumOrderByAlpha());
+        int i = 0;
+        for (Album album : albums) {
+            album.setOrder(i++);
+            albumDao.createOrUpdateAlbum(album);
+        }
+    }
+
+    /**
+     * Update the order of all artist records.
+     */
+    public void updateOrderOfArtist() {
+        List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
+        List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
+        artists.sort(comparators.artistOrderByAlpha());
+        int i = 0;
+        for (Artist artist : artists) {
+            artist.setOrder(i++);
+            artistDao.createOrUpdateArtist(artist);
+        }
+    }
+
+    /**
      * Update the order of all mediaFile records.
      */
-    public void updateFileStructureOrder() {
+    public void updateOrderOfFileStructure() {
 
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
         List<MediaFile> artists = mediaFileDao.getArtistAll(folders);
@@ -296,13 +309,6 @@ public class MediaScannerServiceUtils {
             mediaFileDao.createOrUpdateMediaFile(album);
         }
 
-    }
-
-    /**
-     * Update the order of all mediaFile records.
-     */
-    public void clearMemoryCache() {
-        utils.clear();
     }
 
 }

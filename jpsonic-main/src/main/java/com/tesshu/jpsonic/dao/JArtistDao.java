@@ -18,6 +18,8 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.SortCandidate;
+
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;
@@ -87,6 +89,7 @@ public class JArtistDao extends AbstractDao {
         return namedQueryForInt("select count(id) from artist where present and folder_id in (:folders)", 0, args);
     }
 
+    @Deprecated
     public List<Artist> getSortCandidate() { // @formatter:off
         return query("select distinct a.name ,m.album_artist_sort from artist a \n" +
                 " join media_file m " +
@@ -101,6 +104,7 @@ public class JArtistDao extends AbstractDao {
                 sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
     } // @formatter:on
 
+    @Deprecated
     public List<Artist> getSortedArtists() { // @formatter:off
         return query("select " + deligate.getQueryColoms() +
                 " from artist" +
@@ -109,6 +113,14 @@ public class JArtistDao extends AbstractDao {
                 " or sort is not null" +
                 " and present",
                 rowMapper);
+    } // @formatter:on
+
+    public void updateArtistSort(SortCandidate candidate) { // @formatter:off
+        update("update artist set reading = ?, sort = ? where present and name = ? and (sort <> ? or sort is null)",
+                candidate.getReading(),
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
     } // @formatter:on
 
 }

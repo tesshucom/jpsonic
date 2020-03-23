@@ -18,6 +18,8 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.SortCandidate;
+
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
@@ -54,6 +56,7 @@ public class JAlbumDao extends AbstractDao {
         return deligate.getAlbum(id);
     }
 
+    @Deprecated
     public Album getAlbum(String artistName, String albumName) {
         return deligate.getAlbum(artistName, albumName);
     }
@@ -89,6 +92,7 @@ public class JAlbumDao extends AbstractDao {
         // @formatter:on
     }
 
+    @Deprecated
     public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
         return deligate.getAlbumsForArtist(artist, musicFolders);
     }
@@ -100,4 +104,13 @@ public class JAlbumDao extends AbstractDao {
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
+
+    public void updateArtistSort(SortCandidate candidate) { // @formatter:off
+        update("update album set artist_reading = ?, artist_sort = ? where present and artist = ? and (artist_sort <> ? or artist_sort is null)",
+                candidate.getReading(),
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
+    } // @formatter:on
+
 }

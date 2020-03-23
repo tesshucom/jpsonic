@@ -136,6 +136,7 @@ public class JMediaFileDao extends AbstractDao {
                 "order by _order limit :count offset :offset", rowMapper, args);
     } // @formatter:on
 
+    @Deprecated
     public List<MediaFile> getAlbumSortCandidate() { // @formatter:off
         return query(
                 " select m.id as id, m.album as album, m.album_reading, dic.album_sort as album_sort"
@@ -360,6 +361,7 @@ public class JMediaFileDao extends AbstractDao {
                 MediaFile.MediaType.PODCAST.name(), count, offset);
     } // @formatter:on
 
+    @Deprecated
     public List<MediaFile> getSortedAlbums() { // @formatter:off
         return query("select " + getQueryColoms() +
                 " from media_file" +
@@ -392,39 +394,30 @@ public class JMediaFileDao extends AbstractDao {
      */
     public List<SortCandidate> guessSort() { // @formatter:off
         List<SortCandidate> candidates = query(
-            "select name, sort, source, type_prior, duplicate_persons_with_priority.changed from " +
-                    "   (select distinct name, sort, source, " +
-                    "       case type " +
-                    "           when 'DIRECTORY' THEN 1 " +
-                    "           when 'ALBUM' THEN 2 " +
-                    "           when 'MUSIC' THEN 3 " +
-                    "           when 'VIDEO' THEN 4 " +
-                    "           when 'PODCAST' THEN 5 " +
-                    "           when 'AUDIOBOOK' THEN 6 " +
-                    "           else 7 " +
-                    "       end as type_prior, changed " +
-                    "   from " +
-                    "       (select distinct album_artist as name, album_artist_sort as sort, 1 as source, type, changed from media_file where album_artist is not null and album_artist_sort is not null and present " +
-                    "       union select distinct artist as name, artist_sort as sort, 2 as source, type, changed from media_file where artist is not null and artist_sort is not null and present " +
-                    "       union select distinct composer as name, composer_sort as sort, 3 as source, type, changed from media_file where composer is not null and composer_sort is not null and present " +
-                    "       ) as person_all_with_priority " +
-                    "       where name in " +
-                    "           (select name from " +
-                    "               (select name, count(sort) from " +
-                    "                   (select distinct name, sort from " +
-                    "                       (select distinct album_artist as name, album_artist_sort as sort from media_file where album_artist is not null and album_artist_sort is not null and present " +
-                    "                       union select distinct artist as name, artist_sort as sort from media_file where artist is not null and artist_sort is not null and present " +
-                    "                       union select distinct composer as name, composer_sort as sort from media_file where composer is not null and composer_sort is not null and present " +
-                    "                       ) person_union " +
-                    "                   ) duplicate " +
-                    "               group by name " +
-                    "               having 1 < count(sort) " +
-                    "           ) duplicate_names) " +
-                    "   ) duplicate_persons_with_priority " +
-                    "   join media_file m on type <> 'DIRECTORY' and type <> 'ALBUM' and name in(album_artist, artist ,composer) " +
-                    "   group by name, sort, source, type_prior, duplicate_persons_with_priority.changed " +
-                    "   having max(m.changed) = duplicate_persons_with_priority.changed " +
-                    "order by name, changed desc, source, type_prior ",
+            "select name, sort, source, duplicate_persons_with_priority.changed from " +
+            "   (select distinct name, sort, source, changed " +
+            "   from " +
+            "       (select distinct album_artist as name, album_artist_sort as sort, 1 as source, type, changed from media_file where type = 'MUSIC' and album_artist is not null and album_artist_sort is not null and present " +
+            "       union select distinct artist as name, artist_sort as sort, 2 as source, type, changed from media_file where type = 'MUSIC' and artist is not null and artist_sort is not null and present " +
+            "       union select distinct composer as name, composer_sort as sort, 3 as source, type, changed from media_file where type = 'MUSIC' and composer is not null and composer_sort is not null and present " +
+            "       ) as person_all_with_priority " +
+            "       where name in " +
+            "           (select name from " +
+            "               (select name, count(sort) from " +
+            "                   (select distinct name, sort from " +
+            "                       (select distinct album_artist as name, album_artist_sort as sort from media_file where type = 'MUSIC' and album_artist is not null and album_artist_sort is not null and present " +
+            "                       union select distinct artist as name, artist_sort as sort from media_file where type = 'MUSIC' and artist is not null and artist_sort is not null and present " +
+            "                       union select distinct composer as name, composer_sort as sort from media_file where type = 'MUSIC' and composer is not null and composer_sort is not null and present " +
+            "                       ) person_union " +
+            "                   ) duplicate " +
+            "               group by name " +
+            "               having 1 < count(sort) " +
+            "           ) duplicate_names) " +
+            "   ) duplicate_persons_with_priority " +
+            "   join media_file m on type = 'MUSIC' and name in(album_artist, artist ,composer) " +
+            "   group by name, sort, source, duplicate_persons_with_priority.changed " +
+            "   having max(m.changed) = duplicate_persons_with_priority.changed " +
+            "order by name, changed desc, source ",
             sortCandidateMapper); // @formatter:on
 
         List<SortCandidate> result = new ArrayList<>();
@@ -451,6 +444,7 @@ public class JMediaFileDao extends AbstractDao {
      * @param artist          The artist to update.
      * @param albumArtistSort Update value.
      */
+    @Deprecated
     @Transactional
     public int updateAlbumArtistSort(String artist, String albumArtistSort) {
         LOG.trace("Updating media file at {}", artist);
@@ -465,6 +459,7 @@ public class JMediaFileDao extends AbstractDao {
      * @param album     The artist to update.
      * @param albumSort Update value.
      */
+    @Deprecated
     @Transactional
     public int updateAlbumSort(String album, String albumSort) {
         LOG.trace("Updating media file at {}", album);
@@ -472,6 +467,24 @@ public class JMediaFileDao extends AbstractDao {
         LOG.trace("Updating media file {}", album);
         return update(sql, albumSort, album, MediaFile.MediaType.ALBUM.name());
     }
+
+    public void updateArtistSort(SortCandidate candidate) { // @formatter:off
+        update("update media_file set artist_reading = ?, artist_sort = ? " +
+                "where present and artist = ? and (artist_sort is null or artist_sort <> ?)",
+                candidate.getReading(), candidate.getSort(),
+                candidate.getName(), candidate.getSort());
+        update("update media_file set album_artist_reading = ?, album_artist_sort = ? " +
+                "where present and type not in ('DIERECTORY', 'ALBUM') and album_artist = ? and (album_artist_sort is null or album_artist_sort <> ?)",
+                candidate.getReading(),
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
+        update("update media_file set composer_sort = ? " +
+                "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
+    } // @formatter:on
 
     public void updateGenres(List<Genre> genres) {
         deligate.updateGenres(genres);

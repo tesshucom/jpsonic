@@ -461,8 +461,9 @@
             </modules>
             <properties>
                 <test.excludes>
+                    com.tesshu.jpsonic.dao.JMediaFileDaoGuessSortTest.java,
                     com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest.java,
-                    com.tesshu.jpsonic.dao.JMediaFileDaoGuessSortTest.java
+                    com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortTest
                 </test.excludes>
             </properties>
         </profile>
