@@ -204,6 +204,25 @@ public class JMediaFileDao extends AbstractDao {
                 "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present ", 0, playlistId);
     } // @formatter:on
 
+    /*
+     * Returns records where Sort does not match for the specified name and Sort.
+     * Takes a single argument because UNNEST is not available.
+     */
+    public List<MediaFile> getDirtySorts(SortCandidate candidates) {
+        Map<String, Object> args = new HashMap<>();
+        args.put("name", candidates.getName());
+        args.put("sort", candidates.getSort());
+        // @formatter:off
+        return namedQuery(
+                "select " + getQueryColoms() + " from media_file " +
+                "where " +
+                "    (artist = :name and (artist_sort <> :sort or artist_sort is null )) or " +
+                "    (album_artist = :name and (album_artist_sort <> :sort or album_artist_sort is null )) or " +
+                "    (composer = :name and (composer_sort <> :sort or composer_sort is null )) ",
+                rowMapper, args);
+        // @formatter:on
+    }
+
     public List<MediaFile> getFilesInPlaylist(int playlistId) {
         return deligate.getFilesInPlaylist(playlistId);
 
@@ -352,25 +371,24 @@ public class JMediaFileDao extends AbstractDao {
 
     /*
      * Looks for duplicate sort tags, creates and returns a list in the order in
-     * which corrections are desired.
-     * The validate target is Persons(albumArtist/Artist/Composer) and sort-tags for them.
+     * which corrections are desired. The validate target is
+     * Persons(albumArtist/Artist/Composer) and sort-tags for them.
      *
      * If there are multiple sort tags against one artist, an adverse effect occurs.
-     * Index bloat of Lucene, search dropouts, etc. are direct consequences.
-     * Also, when creating sort keys using sort tags,
-     * there is a problem that if the tags are not uniform,
-     * consistency will be lost.
-     * Therefore, multiple sort tags are merged internally.
-     * These are determined at the time of scanning.
+     * Index bloat of Lucene, search dropouts, etc. are direct consequences. Also,
+     * when creating sort keys using sort tags, there is a problem that if the tags
+     * are not uniform, consistency will be lost. Therefore, multiple sort tags are
+     * merged internally. These are determined at the time of scanning.
      *
-     * If there are multiple sort tags,
-     * they are processed according to the rules that determine which is correct.
-     * Jpsonic uses the following concept to determine the correct tag.
+     * If there are multiple sort tags, they are processed according to the rules
+     * that determine which is correct. Jpsonic uses the following concept to
+     * determine the correct tag.
      *
-     * - The latest(changed) file should be more reliable.
-     * - Most reliable in the following order: album_artist_sort/artist_sort/composer_sort
+     * - The latest(changed) file should be more reliable. - Most reliable in the
+     * following order: album_artist_sort/artist_sort/composer_sort
      *
-     * This is because the priorities are easy to recursively reflect the user's intentions.
+     * This is because the priorities are easy to recursively reflect the user's
+     * intentions.
      */
     public List<SortCandidate> guessSort() { // @formatter:off
         List<SortCandidate> candidates = query(

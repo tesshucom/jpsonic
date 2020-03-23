@@ -23,6 +23,7 @@ import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.SortCandidate;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -184,8 +185,25 @@ public class MediaScannerServiceUtils {
     }
 
     /**
+     * Search for and merge names havingmultiple sorts-tag,
+     * in all　Artist/AlbumArtist/Composer records.
+     */
+    public void mergePersonsSort() {
+
+        // WIP : successor method of updateArtistSort
+
+        List<SortCandidate> candidates = mediaFileDao.guessSort();
+
+        candidates.forEach(c -> {
+            List<MediaFile> dirtySorts = mediaFileDao.getDirtySorts(c);
+        });
+
+    }
+
+    /**
      * Updates the sort / reading properties required for artist sorting.
      */
+    @Deprecated
     public void updateArtistSort() {
 
         List<MediaFile> candidates = mediaFileDao.getArtistSortCandidate();
