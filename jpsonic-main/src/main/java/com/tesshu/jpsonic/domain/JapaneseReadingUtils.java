@@ -90,6 +90,9 @@ public class JapaneseReadingUtils {
 
     public void analyze(SortCandidate c) {
         c.setReading(createReading(c.getName(), c.getSort()));
+        if (isEmpty(c.getSort())) {
+            c.setSort(c.getReading());
+        }
     }
 
     public void clear() {

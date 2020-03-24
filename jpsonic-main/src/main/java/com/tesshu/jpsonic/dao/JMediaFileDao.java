@@ -200,6 +200,22 @@ public class JMediaFileDao extends AbstractDao {
         return queryForInt("select count(id) from media_file where parent_path=? and present", 0, path);
     }
 
+    public List<SortCandidate> getCopyableSorts() { // @formatter:off
+        return query(
+                "select known.name , known.sort from ( " +
+                "    select distinct artist as name from media_file where present and type in ('DIRECTORY', 'ALBUM') and (artist is not null and artist_sort is null)  " +
+                "    union select distinct album_artist as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (album_artist is not null and album_artist_sort is null)  " +
+                "    union select distinct composer as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (composer is not null and composer_sort is null) ) unknown " +
+                "join " +
+                "    (select distinct name, sort from " +
+                "        (select distinct album_artist as name, album_artist_sort as sort from media_file where type = 'MUSIC' and album_artist is not null and album_artist_sort is not null and present " +
+                "        union select distinct artist as name, artist_sort as sort from media_file where type = 'MUSIC' and artist is not null and artist_sort is not null and present " +
+                "        union select distinct composer as name, composer_sort as sort from media_file where type = 'MUSIC' and composer is not null and composer_sort is not null and present) person_union " +
+                "    ) known " +
+                "on known.name = unknown.name ",
+                sortCandidateMapper); // @formatter:on
+    }
+
     public int getCountInPlaylist(int playlistId) { // @formatter:off
         return queryForInt("select count(*) from playlist_file, media_file " +
                 "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present ", 0, playlistId);
@@ -250,6 +266,16 @@ public class JMediaFileDao extends AbstractDao {
 
     public MediaFile getMediaFile(String path) {
         return deligate.getMediaFile(path);
+    }
+
+    public List<SortCandidate> getNoSorts() { // @formatter:off
+        return query(
+                "select name, null as sort from( " +
+                        "   select distinct artist as name from media_file where present and type in ('DIRECTORY', 'ALBUM') and (artist is not null and artist_sort is null)  " +
+                        "   union select distinct album_artist as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (album_artist is not null and album_artist_sort is null)  " +
+                        "   union select distinct composer as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (composer is not null and composer_sort is null)  " +
+                        "   ) no_sorts ",
+                sortCandidateMapper); // @formatter:on
     }
 
     public List<MediaFile> getRandomSongsForAlbumArtist(// @formatter:off
@@ -392,7 +418,7 @@ public class JMediaFileDao extends AbstractDao {
      * This is because the priorities are easy to recursively reflect the user's
      * intentions.
      */
-    public List<SortCandidate> guessSort() { // @formatter:off
+    public List<SortCandidate> guessSorts() { // @formatter:off
         List<SortCandidate> candidates = query(
             "select name, sort, source, duplicate_persons_with_priority.changed from " +
             "   (select distinct name, sort, source, changed " +

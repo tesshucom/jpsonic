@@ -346,4 +346,21 @@ public class JapaneseReadingUtilsTestCase extends AbstractAirsonicHomeTest {
         assertEquals("alpha", utils.createIndexableName(file));
     }
 
+    @Test
+    public void testAnalyzeSortCandidate() {
+
+        SortCandidate candidate = new SortCandidate("Antonín Dvořák", null);
+        utils.analyze(candidate);
+        assertEquals("Antonín Dvořák", candidate.getName());
+        assertEquals("Antonín Dvořák", candidate.getReading());
+        assertEquals("Antonín Dvořák", candidate.getSort());
+
+        candidate = new SortCandidate("奥田民生", null);
+        utils.analyze(candidate);
+        assertEquals("奥田民生", candidate.getName());
+        assertEquals("オクダタミオ", candidate.getReading());
+        assertEquals("オクダタミオ", candidate.getSort());
+
+    }
+
 }

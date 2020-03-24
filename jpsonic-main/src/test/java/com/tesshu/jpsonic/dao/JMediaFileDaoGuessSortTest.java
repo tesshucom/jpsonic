@@ -300,7 +300,7 @@ public class JMediaFileDaoGuessSortTest extends AbstractAirsonicHomeTest {
 
         mediaScannerService.setJpsonicCleansingProcess(true);
 
-        candidates = mediaFileDao.guessSort();
+        candidates = mediaFileDao.guessSorts();
     }
 
     @Test

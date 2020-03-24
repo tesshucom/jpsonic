@@ -99,25 +99,40 @@ public class MediaScannerServiceUtils {
     }
 
     /**
-     * Search for and merge names havingmultiple sorts-tag,
-     * in all　Artist/AlbumArtist/Composer records.
+     * Generates a sort that has not been set for a tag.
+     */
+    public void compensatePersonsSort() {
+        // WIP : successor method of updateArtistSort
+        mediaFileDao.getNoSorts().forEach(c -> {
+            utils.analyze(c);
+            mediaFileDao.updateArtistSort(c);
+        });
+    }
+
+    /**
+     * Copy from other determined sorts for records where the name exists and the
+     * sort is missing.
+     */
+    public void copyPersonsSort() {
+        // WIP : successor method of updateArtistSort
+        mediaFileDao.getCopyableSorts().forEach(c -> {
+            utils.analyze(c);
+            mediaFileDao.updateArtistSort(c);
+        });
+    }
+
+    /**
+     * Unify the multiple sort of Artist / AlbumArtist / Composer are set for the
+     * sort with the highest priority.
      */
     public void mergePersonsSort() {
         // WIP : successor method of updateArtistSort
-        mediaFileDao.guessSort().forEach(c -> {
+        mediaFileDao.guessSorts().forEach(c -> {
             utils.analyze(c);
             artistDao.updateArtistSort(c);
             albumDao.updateArtistSort(c);
             mediaFileDao.updateArtistSort(c);
         });
-    }
-
-    public void copyPersonsSort() {
-        // WIP : successor method of updateArtistSort
-    }
-
-    public void compensatePersonsSort() {
-        // WIP : successor method of updateArtistSort
     }
 
     /**
