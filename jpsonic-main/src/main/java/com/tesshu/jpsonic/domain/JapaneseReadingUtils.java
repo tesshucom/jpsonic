@@ -128,19 +128,6 @@ public class JapaneseReadingUtils {
         return toBeUpdate;
     }
 
-    @Deprecated
-    public List<MediaFile> createArtistSortToBeUpdate(List<MediaFile> candidates) {
-        List<MediaFile> toBeUpdate = new ArrayList<>();
-        for (MediaFile candidate : candidates) {
-            if (!candidate.getArtistReading().equals(candidate.getArtistSort())) {
-                candidate.setId(candidate.getId());
-                candidate.setArtistSort(candidate.getArtistSort());
-                toBeUpdate.add(candidate);
-            }
-        }
-        return toBeUpdate;
-    }
-
     private String createIgnoredArticles(String s) {
         if (isEmpty(s)) {
             return null;

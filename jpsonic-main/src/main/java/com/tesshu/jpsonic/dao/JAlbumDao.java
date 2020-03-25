@@ -32,6 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
 @Repository("jalbumDao")
 @DependsOn({ "albumDao" })
 public class JAlbumDao extends AbstractDao {
@@ -104,6 +107,20 @@ public class JAlbumDao extends AbstractDao {
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
+
+    public List<Integer> getToBeFixedSort(List<SortCandidate> candidates) {
+        if (isEmpty(candidates) || 0 == candidates.size()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
+        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        return namedQuery(// @formatter:off
+                "select id from album where present and artist in (:names) and (artist_sort is null or artist_sort not in(:sotes)) order by id",
+            (rs, rowNum) -> {
+                return rs.getInt(1);
+            }, args);
+    } // @formatter:on
 
     public void updateArtistSort(SortCandidate candidate) { // @formatter:off
         update("update album set artist_reading = ?, artist_sort = ? where present and artist = ? and (artist_sort <> ? or artist_sort is null)",

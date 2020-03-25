@@ -35,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.io.File;
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +50,29 @@ import static org.junit.Assert.fail;
 @SpringBootTest
 public class JMediaFileDaoGuessSortTest extends AbstractAirsonicHomeTest {
 
+    @Documented
+    private @interface ComparatorsDecisions { // @formatter:off
+        @interface Actions {
+            @interface getDuplicateSort {}
+        }
+        @interface DataConditions {
+            @interface FieldToSetDifferentSortValue {
+                @interface AlbumArtist {}
+                @interface Artist {}
+                @interface Composer {}
+            }
+            @interface NumberOfFiles {
+                @interface Multi {}
+                @interface Single {}
+            }
+            @interface SetChangeDate {}
+            @interface TagArtistAndDirectoryArtist {
+                @interface Match {}
+                @interface NoMatch {}
+            }
+        }
+    } // @formatter:on
+
     private static List<MusicFolder> musicFolders;
 
     {
@@ -56,37 +80,20 @@ public class JMediaFileDaoGuessSortTest extends AbstractAirsonicHomeTest {
         File musicDir = new File(resolveBaseMediaPath.apply("Sort/Duplicate"));
         musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
-
+    
     @Autowired
     private JMediaFileDao mediaFileDao;
-    
+
+    @Autowired
+    private JArtistDao artistDao;
+
+    @Autowired
+    private JAlbumDao albumDao;
+
     @Autowired
     private MediaScannerService mediaScannerService;
 
     private List<SortCandidate> candidates;
-
-    @Documented
-    private @interface ComparatorsDecisions { // @formatter:off
-        @interface DataConditions {
-            @interface TagArtistAndDirectoryArtist {
-                @interface NoMatch {}
-                @interface Match {}
-            }
-            @interface NumberOfFiles {
-                @interface Single {}
-                @interface Multi {}
-            }
-            @interface FieldToSetDifferentSortValue {
-                @interface Artist {}
-                @interface AlbumArtist {}
-                @interface Composer {}
-            }
-            @interface SetChangeDate {}
-        }
-        @interface Actions {
-            @interface getDuplicateSort {}
-        }
-    } // @formatter:on
 
     @ComparatorsDecisions.DataConditions.TagArtistAndDirectoryArtist.NoMatch
     @ComparatorsDecisions.DataConditions.NumberOfFiles.Single
@@ -423,6 +430,19 @@ public class JMediaFileDaoGuessSortTest extends AbstractAirsonicHomeTest {
 
             });
         });
+    }
+
+    @Test
+    public void testGetToBeFixedSort() {
+        assertEquals(0, mediaFileDao.getToBeFixedSort(null).size());
+        assertEquals(0, mediaFileDao.getToBeFixedSort(Collections.emptyList()).size());
+        assertEquals(22, mediaFileDao.getToBeFixedSort(candidates).size());
+        assertEquals(0, albumDao.getToBeFixedSort(null).size());
+        assertEquals(0, albumDao.getToBeFixedSort(Collections.emptyList()).size());
+        assertEquals(5, albumDao.getToBeFixedSort(candidates).size());
+        assertEquals(0, artistDao.getToBeFixedSort(null).size());
+        assertEquals(0, artistDao.getToBeFixedSort(Collections.emptyList()).size());
+        assertEquals(5, artistDao.getToBeFixedSort(candidates).size());
     }
 
 }

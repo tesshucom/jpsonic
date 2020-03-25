@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.function.BiFunction;
 
+import static java.util.stream.Collectors.toList;
 import static org.airsonic.player.dao.MediaFileDao.getGenreColoms;
 import static org.airsonic.player.dao.MediaFileDao.getQueryColoms;
 import static org.springframework.util.ObjectUtils.isEmpty;
@@ -44,6 +44,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @DependsOn({ "mediaFileDao" })
 public class JMediaFileDao extends AbstractDao {
 
+    @Deprecated
     private static class AlbumSortCandidateMapper implements RowMapper<MediaFile> {
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
             MediaFile file = new MediaFile();
@@ -51,17 +52,6 @@ public class JMediaFileDao extends AbstractDao {
             file.setAlbumName(rs.getString(2));
             file.setAlbumReading(rs.getString(3));
             file.setAlbumSort(rs.getString(4));
-            return file;
-        }
-    }
-
-    private static class ArtistSortCandidateMapper implements RowMapper<MediaFile> {
-        public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
-            MediaFile file = new MediaFile();
-            file.setId(rs.getInt(1));
-            file.setArtist(rs.getString(2));
-            file.setArtistReading(rs.getString(3));
-            file.setArtistSort(rs.getString(4));
             return file;
         }
     }
@@ -84,20 +74,13 @@ public class JMediaFileDao extends AbstractDao {
 
     }
 
-    private static class SortCandidateMapper implements RowMapper<SortCandidate> {
-        public SortCandidate mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new SortCandidate(rs.getString(1), rs.getString(2));
-        }
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(JMediaFileDao.class);
 
     private final MediaFileDao deligate;
     private final RowMapper<MediaFile> rowMapper;
     private final RowMapper<Genre> genreRowMapper;
     private final RowMapper<MediaFile> iRowMapper;
-    private final RowMapper<MediaFile> artistSortCandidateMapper;
-    private final SortCandidateMapper sortCandidateMapper;
+    private final RowMapper<SortCandidate> sortCandidateMapper;
     private final RowMapper<MediaFile> albumSortCandidateMapper;
 
     public JMediaFileDao(MediaFileDao deligate) {
@@ -106,9 +89,10 @@ public class JMediaFileDao extends AbstractDao {
         rowMapper = deligate.getMediaFileMapper();
         genreRowMapper = deligate.getGenreMapper();
         iRowMapper = new MediaFileInternalRowMapper(rowMapper);
-        artistSortCandidateMapper = new ArtistSortCandidateMapper();
         albumSortCandidateMapper = new AlbumSortCandidateMapper();
-        sortCandidateMapper = new SortCandidateMapper();
+        sortCandidateMapper = (rs, rowNum) -> {
+            return new SortCandidate(rs.getString(1), rs.getString(2));
+        };
     }
 
     public void clearOrder() {
@@ -169,19 +153,6 @@ public class JMediaFileDao extends AbstractDao {
                 "present and " +
                 "artist is not null", rowMapper, args); // @formatter:on
     }
-
-    @Deprecated
-    public List<MediaFile> getArtistSortCandidate() { // @formatter:off
-        return query(
-                "select m.id as id, m.artist as artist, artist_reading, dic.artist_sort as artist_sort from media_file m "
-                        + "join (select distinct  artist, artist_sort from media_file where artist_sort is not null  and present order by artist) dic "
-                        + "on dic.artist = m.artist "
-                        + "where type = ? and present "
-                        + "and artist_reading is not null "
-                        + "order by artist, artist_sort",
-                        artistSortCandidateMapper,
-                        MediaFile.MediaType.DIRECTORY.name());
-    } // @formatter:on
 
     /**
      * Returns the media file that are direct children of the given path.
@@ -397,6 +368,42 @@ public class JMediaFileDao extends AbstractDao {
                 rowMapper, MediaFile.MediaType.ALBUM.name());
     } // @formatter:on
 
+    public List<Integer> getToBeFixedSort(List<SortCandidate> candidates) {
+        if (isEmpty(candidates) || 0 == candidates.size()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
+        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        return namedQuery(// @formatter:off
+                "select distinct id " +
+                "from (select id " +
+                "   from media_file " +
+                "   where present " +
+                "   and artist in (:names) " +
+                "   and (artist_sort is null " +
+                "       or artist_sort not in(:sotes)) " +
+                "   union " +
+                "   select id " +
+                "   from media_file " +
+                "   where present " +
+                "   and type not in ('DIERECTORY', 'ALBUM') " +
+                "   and album_artist in (:names) " +
+                "   and (album_artist_sort is null " +
+                "       or album_artist_sort not in(:sotes)) " +
+                "   union " +
+                "   select id " +
+                "   from media_file " +
+                "   where present " +
+                "   and type not in ('DIERECTORY', 'ALBUM') " +
+                "   and composer in (:names) " +
+                "   and (composer_sort is null " +
+                "       or composer_sort not in(:sotes))) to_be_fixed " +
+                "order by id", (rs, rowNum) -> {
+                return rs.getInt(1);
+            }, args);
+    } // @formatter:on
+
     /*
      * Looks for duplicate sort tags, creates and returns a list in the order in
      * which corrections are desired. The validate target is
@@ -465,28 +472,12 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     /**
-     * Update albumArtistSorts all.
-     * 
-     * @param artist          The artist to update.
-     * @param albumArtistSort Update value.
-     */
-    @Deprecated
-    @Transactional
-    public int updateAlbumArtistSort(String artist, String albumArtistSort) {
-        LOG.trace("Updating media file at {}", artist);
-        String sql = "update media_file set album_artist_sort = ? where artist = ? and artist_reading <> ? and type in (?, ?)";
-        LOG.trace("Updating media file {}", artist);
-        return update(sql, albumArtistSort, artist, albumArtistSort, MediaFile.MediaType.DIRECTORY.name(), MediaFile.MediaType.ALBUM.name());
-    }
-
-    /**
      * Update albumSorts all.
      * 
      * @param album     The artist to update.
      * @param albumSort Update value.
      */
     @Deprecated
-    @Transactional
     public int updateAlbumSort(String album, String albumSort) {
         LOG.trace("Updating media file at {}", album);
         String sql = "update media_file set album_sort = ? where album = ? and type = ?";
@@ -501,15 +492,12 @@ public class JMediaFileDao extends AbstractDao {
                 candidate.getName(), candidate.getSort());
         update("update media_file set album_artist_reading = ?, album_artist_sort = ? " +
                 "where present and type not in ('DIERECTORY', 'ALBUM') and album_artist = ? and (album_artist_sort is null or album_artist_sort <> ?)",
-                candidate.getReading(),
-                candidate.getSort(),
-                candidate.getName(),
-                candidate.getSort());
+                candidate.getReading(), candidate.getSort(),
+                candidate.getName(), candidate.getSort());
         update("update media_file set composer_sort = ? " +
                 "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
                 candidate.getSort(),
-                candidate.getName(),
-                candidate.getSort());
+                candidate.getName(), candidate.getSort());
     } // @formatter:on
 
     public void updateGenres(List<Genre> genres) {

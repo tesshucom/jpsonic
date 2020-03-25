@@ -19,6 +19,8 @@
 package org.airsonic.player.dao;
 
 import com.google.common.base.Supplier;
+import com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortTest;
+
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -38,7 +40,11 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
+ * @deprecated A test class was provisionally provided at the transition of processing.
+ * Content overlaps with MediaScannerServiceUtilsMergeSortTest.
+ * {@link MediaScannerServiceUtilsMergeSortTest}
  */
+@Deprecated
 public class MediaFileDaoFullFieldsTestCase extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;

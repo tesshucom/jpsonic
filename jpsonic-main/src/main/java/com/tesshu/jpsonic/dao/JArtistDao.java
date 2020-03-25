@@ -23,40 +23,30 @@ import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;
-import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jartistDao")
 @DependsOn({ "artistDao" })
 public class JArtistDao extends AbstractDao {
 
-    private static class SortCandidateMapper implements RowMapper<Artist> {
-        public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Artist artist = new Artist();
-            artist.setName(rs.getString(1));
-            artist.setSort(rs.getString(2));
-            return artist;
-        }
-    }
-
     private final ArtistDao deligate;
     private final RowMapper<Artist> rowMapper;
-    private final RowMapper<Artist> sortCandidateMapper;
 
     public JArtistDao(ArtistDao deligate) {
         super();
         this.deligate = deligate;
         rowMapper = deligate.getArtistMapper();
-        sortCandidateMapper = new SortCandidateMapper();
     }
 
     public void clearOrder() {
@@ -90,21 +80,6 @@ public class JArtistDao extends AbstractDao {
     }
 
     @Deprecated
-    public List<Artist> getSortCandidate() { // @formatter:off
-        return query("select distinct a.name ,m.album_artist_sort from artist a \n" +
-                " join media_file m " +
-                " on a.name = m.album_artist " +
-                " where  " +
-                " a.reading is not null and a.sort is null " +
-                " and a.present and m.present and m.type=? " +
-                " and m.album_artist_sort is not null " +
-                " and m.artist_sort <> m.album_artist_sort " +
-                " and a.reading <> m.album_artist_sort " +
-                " and m.album_artist = a.name ",
-                sortCandidateMapper, MediaFile.MediaType.MUSIC.name());
-    } // @formatter:on
-
-    @Deprecated
     public List<Artist> getSortedArtists() { // @formatter:off
         return query("select " + deligate.getQueryColoms() +
                 " from artist" +
@@ -113,6 +88,20 @@ public class JArtistDao extends AbstractDao {
                 " or sort is not null" +
                 " and present",
                 rowMapper);
+    } // @formatter:on
+
+    public List<Integer> getToBeFixedSort(List<SortCandidate> candidates) {
+        if (isEmpty(candidates) || 0 == candidates.size()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
+        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        return namedQuery(// @formatter:off
+                "select id from artist where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
+            (rs, rowNum) -> {
+                return rs.getInt(1);
+            }, args);
     } // @formatter:on
 
     public void updateArtistSort(SortCandidate candidate) { // @formatter:off

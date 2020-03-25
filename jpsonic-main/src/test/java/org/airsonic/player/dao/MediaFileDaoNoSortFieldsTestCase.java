@@ -19,6 +19,7 @@
 package org.airsonic.player.dao;
 
 import com.google.common.base.Supplier;
+import com.tesshu.jpsonic.service.MediaScannerServiceUtilsMergeSortTest;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -40,7 +41,11 @@ import static org.junit.Assert.assertTrue;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
+ * @deprecated A test class was provisionally provided at the transition of processing.
+ * Content overlaps with MediaScannerServiceUtilsMergeSortTest.
+ * {@link MediaScannerServiceUtilsMergeSortTest}
  */
+@Deprecated
 public class MediaFileDaoNoSortFieldsTestCase extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;
@@ -93,11 +98,11 @@ public class MediaFileDaoNoSortFieldsTestCase extends AbstractAirsonicHomeTest {
         assertNull(mediaFile.getAlbumSort());
 
         assertEquals("アルバムアーティスト", mediaFile.getAlbumArtist());
-        assertEquals("アルバムアーティスト", mediaFile.getAlbumArtistReading());
-        assertNull(mediaFile.getAlbumArtistSort());
+        assertEquals("アルバムアーティストメイ(ヨミ)", mediaFile.getAlbumArtistReading()); // #406 Copied from other data during scanning
+        assertEquals("アルバムアーティスト名(読み)", mediaFile.getAlbumArtistSort()); // #406 Copied from other data during scanning
 
         assertEquals("作曲者", mediaFile.getComposer());
-        assertNull(mediaFile.getComposerSort());
+        assertEquals("作曲者(読み)",mediaFile.getComposerSort());
 
         assertEquals(Integer.valueOf(3), mediaFile.getDiscNumber());
         assertEquals("ジャンル", mediaFile.getGenre());

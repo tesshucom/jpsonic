@@ -23,6 +23,7 @@ import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
+import com.tesshu.jpsonic.domain.SortCandidate;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -30,15 +31,13 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
-import org.apache.commons.lang.builder.EqualsBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
+import java.util.LinkedHashSet;
 import java.util.List;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Utility class for injecting into legacy MediaScannerService. Supplement
@@ -101,38 +100,30 @@ public class MediaScannerServiceUtils {
     /**
      * Generates a sort that has not been set for a tag.
      */
-    public void compensatePersonsSort() {
-        // WIP : successor method of updateArtistSort
-        mediaFileDao.getNoSorts().forEach(c -> {
-            utils.analyze(c);
-            mediaFileDao.updateArtistSort(c);
-        });
+    private FixedIds compensatePersonsSort() {
+        List<SortCandidate> candidates = mediaFileDao.getNoSorts();
+        candidates.forEach(c -> utils.analyze(c));
+        return updatePersonsSort(candidates);
     }
 
     /**
      * Copy from other determined sorts for records where the name exists and the
      * sort is missing.
      */
-    public void copyPersonsSort() {
-        // WIP : successor method of updateArtistSort
-        mediaFileDao.getCopyableSorts().forEach(c -> {
-            utils.analyze(c);
-            mediaFileDao.updateArtistSort(c);
-        });
+    private FixedIds copyPersonsSort() {
+        List<SortCandidate> candidates = mediaFileDao.getCopyableSorts();
+        candidates.forEach(c -> utils.analyze(c));
+        return updatePersonsSort(candidates);
     }
 
     /**
      * Unify the multiple sort of Artist / AlbumArtist / Composer are set for the
      * sort with the highest priority.
      */
-    public void mergePersonsSort() {
-        // WIP : successor method of updateArtistSort
-        mediaFileDao.guessSorts().forEach(c -> {
-            utils.analyze(c);
-            artistDao.updateArtistSort(c);
-            albumDao.updateArtistSort(c);
-            mediaFileDao.updateArtistSort(c);
-        });
+    FixedIds mergePersonsSort() {
+        List<SortCandidate> candidates = mediaFileDao.guessSorts();
+        candidates.forEach(c -> utils.analyze(c));
+        return updatePersonsSort(candidates);
     }
 
     /**
@@ -200,76 +191,24 @@ public class MediaScannerServiceUtils {
 
     }
 
-    /**
-     * Updates the sort / reading properties required for artist sorting.
-     */
-    @Deprecated
     public void updateArtistSort() {
+        FixedIds merged = mergePersonsSort();
+        FixedIds copied = copyPersonsSort();
+        FixedIds compensated = compensatePersonsSort();
+        updateIndex(merged, copied, compensated);
+    }
 
-        List<MediaFile> candidates = mediaFileDao.getArtistSortCandidate();
-        List<MediaFile> toBeUpdates = utils.createArtistSortToBeUpdate(candidates);
+    private void updateIndex(FixedIds... fixedIds) {
+        FixedIds fixedIdAll = new FixedIds();
+        for (FixedIds toBeFixed : fixedIds) {
+            fixedIdAll.mediaFileIds.addAll(toBeFixed.mediaFileIds);
+            fixedIdAll.artistIds.addAll(toBeFixed.artistIds);
+            fixedIdAll.albumIds.addAll(toBeFixed.albumIds);
+        }
+        fixedIdAll.mediaFileIds.forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-
-        for (MediaFile toBeUpdate : toBeUpdates) {
-            MediaFile artist = mediaFileDao.getMediaFile(toBeUpdate.getId());
-            artist.setArtistSort(toBeUpdate.getArtistSort());
-            utils.analyze(artist);
-            mediaFileDao.createOrUpdateMediaFile(artist);
-            indexManager.index(artist);
-            Artist a = artistDao.getArtist(artist.getArtist());
-            // @formatter:off
-            if (!isEmpty(a) && !new EqualsBuilder()
-                    .append(a.getName(), artist.getAlbumArtist())
-                    .append(a.getReading(), artist.getAlbumArtistReading())
-                    .append(a.getSort(), artist.getAlbumArtistSort())
-                    .isEquals()) {
-                // usually pass!
-                final Artist artistId3 = a;
-                artistId3.setName(artist.getArtist());
-                artistId3.setReading(artist.getArtistReading());
-                artistId3.setSort(artist.getArtistSort());
-                artistDao.createOrUpdateArtist(artistId3);
-                folders.stream().filter(m -> m.getId().equals(artistId3.getId())).findFirst().ifPresent(m -> indexManager.index(artistId3, m));
-            }
-            // @formatter:on
-        }
-        LOG.info("{} records of artist-sort were updated.", toBeUpdates.size());
-
-        // The following processes require testing
-
-        int maybe = 0;
-
-        List<Artist> candidatesid3 = artistDao.getSortCandidate();
-        for (Artist candidate : candidatesid3) {
-            Artist artist = artistDao.getArtist(candidate.getName());
-            if (!candidate.getSort().equals(artist.getSort())) {
-                artist.setSort(candidate.getSort());
-                // update db
-                artistDao.createOrUpdateArtist(artist);
-                maybe++;
-                // update index
-                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
-            }
-        }
-        LOG.debug(candidatesid3.size() + " update candidates for id3 albumArtistSort. " + maybe + " rows reversal.");
-
-        int updated = 0;
-
-        updated = 0;
-        for (Artist candidate : candidatesid3) {
-            Artist artist = artistDao.getArtist(candidate.getName());
-            if (null != artist) {
-                // update db
-                updated += mediaFileDao.updateAlbumArtistSort(candidate.getName(), candidate.getSort());
-                // update index
-                folders.stream().filter(m -> artist.getFolderId().equals(m.getId())).findFirst().ifPresent(m -> indexManager.index(artist, m));
-                maybe++;
-            } else {
-                LOG.info(" > " + candidate.getName() + "@" + candidate.getSort() + " does not exist in id 3.");
-            }
-        }
-        LOG.debug(candidatesid3.size() + " update candidates for file structure albumArtistSort. " + updated + " rows reversal.");
-
+        fixedIdAll.artistIds.forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
+        fixedIdAll.albumIds.forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     /**
@@ -324,6 +263,25 @@ public class MediaScannerServiceUtils {
             mediaFileDao.createOrUpdateMediaFile(album);
         }
 
+    }
+
+    private FixedIds updatePersonsSort(List<SortCandidate> candidates) {
+        FixedIds ids = new FixedIds();
+        ids.mediaFileIds.addAll(mediaFileDao.getToBeFixedSort(candidates));
+        ids.artistIds.addAll(artistDao.getToBeFixedSort(candidates));
+        ids.albumIds.addAll(albumDao.getToBeFixedSort(candidates));
+        candidates.forEach(c -> {
+            mediaFileDao.updateArtistSort(c);
+            artistDao.updateArtistSort(c);
+            albumDao.updateArtistSort(c);
+        });
+        return ids;
+    }
+
+    private final class FixedIds {
+        private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<Integer>();
+        private LinkedHashSet<Integer> artistIds = new LinkedHashSet<Integer>();
+        private LinkedHashSet<Integer> albumIds = new LinkedHashSet<Integer>();
     }
 
 }
