@@ -40,14 +40,33 @@ import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
- * Utility class for injecting into legacy MediaScannerService. Supplement
- * processing that is lacking in legacy services.
- * 
- * These are the logics for determining the order of all records. It also
- * affects the speed of sorting, but the purpose is to respond to paging.
+ * Utility class for injecting into legacy MediaScannerService.
+ * Supplement processing that is lacking in legacy services.
  *
- * Paging is used in REST and WEB. In addition, it is a mandatory requirement
- * for UPnP where there is a possibility of paging in all communications.
+ * Update the Sort tag so that it can be used in subsequent processing.
+ * Also, the order is determined using the Sort tag.
+ *
+ * [merge]
+ * If multiple Sort tags exist for one name, unify them in order of priority.
+ *
+ * [copy]
+ * Copy if missing tag exists and can be resolved with the merged tag.
+ *
+ * [compensation]
+ * If the tag is missing and cannot be resolved by merge/copy,
+ * generate it from the name.
+ * If it is Japanese, it is converted from notation to phoneme.
+ *
+ * - Eliminate inconsistencies and dropouts in search results
+ * - Compress index size by unifying data
+ * - Perform a perfect sort
+ * - In particular, in the case of Japanese,
+ *   a sort search considering phonemes is realized.
+ *   Prevent dropouts when searching by voice.
+ *
+ * Paging is used for REST and WEB, but assumes full sorting.
+ * In addition, it is a mandatory requirement for UPnP
+ * where there is a possibility of paging in all communications.
  */
 @Component
 @DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
@@ -110,7 +129,7 @@ public class MediaScannerServiceUtils {
      * Copy from other determined sorts for records where the name exists and the
      * sort is missing.
      */
-    private FixedIds copyPersonsSort() {
+    FixedIds copyPersonsSort() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updatePersonsSort(candidates);
