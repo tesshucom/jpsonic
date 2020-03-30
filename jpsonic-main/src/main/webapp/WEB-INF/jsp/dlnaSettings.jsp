@@ -81,7 +81,7 @@
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaIndexId3Visible" id="dlnaIndexId3Visible" ${model.dlnaIndexId3Visible? "checked": ""}/>
-                <label for="dlnaIndexId3Visible"><fmt:message key="dlna.title.indexid3"/>(ID3)</label>
+                <label for="dlnaIndexId3Visible"><fmt:message key="dlna.title.indexid3"/> [ID3]</label>
             </td>
         </tr>
         <tr>
@@ -97,7 +97,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaArtistVisible" id="dlnaArtistVisible" ${model.dlnaArtistVisible? "checked": ""}/>
-                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/>(ID3)</label>
+                <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/> [ID3]</label>
             </td>
         </tr>
         <tr>
@@ -105,7 +105,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaAlbumVisible" id="dlnaAlbumVisible" ${model.dlnaAlbumVisible? "checked": ""}/>
-                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/>(ID3)</label>
+                <label for="dlnaAlbumVisible"><fmt:message key="dlna.title.albums"/> [ID3]</label>
             </td>
         </tr>
         <tr>
@@ -145,15 +145,7 @@
             <td></td>
             <td colspan="2">
                 <input type="checkbox" name="dlnaRecentAlbumId3Visible" id="dlnaRecentAlbumId3Visible" ${model.dlnaRecentAlbumId3Visible? "checked": ""}/>
-                <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/>(ID3)</label>
-            </td>
-        </tr>
-        <tr>
-            <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
-            <td colspan="2">
-                <input type="checkbox" name="dlnaRandomAlbumVisible" id="dlnaRandomAlbumVisible" ${model.dlnaRandomAlbumVisible? "checked": ""}/>
-                <label for="dlnaRandomAlbumVisible"><fmt:message key="dlna.title.randomAlbum"/></label>
+                <label for="dlnaRecentAlbumId3Visible"><fmt:message key="dlna.title.recentAlbumsId3"/> [ID3]</label>
             </td>
         </tr>
         <tr>
@@ -168,8 +160,24 @@
             <td></td>
             <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
             <td colspan="2">
+                <input type="checkbox" name="dlnaRandomAlbumVisible" id="dlnaRandomAlbumVisible" ${model.dlnaRandomAlbumVisible? "checked": ""}/>
+                <label for="dlnaRandomAlbumVisible"><fmt:message key="dlna.title.randomAlbum"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
                 <input type="checkbox" name="dlnaRandomSongByArtistVisible" id="dlnaRandomSongByArtistVisible" ${model.dlnaRandomSongByArtistVisible? "checked": ""}/>
                 <label for="dlnaRandomSongByArtistVisible"><fmt:message key="dlna.title.randomSongByArtist"/></label>
+            </td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <input type="checkbox" name="dlnaRandomSongByFolderArtistVisible" id="dlnaRandomSongByFolderArtistVisible" ${model.dlnaRandomSongByFolderArtistVisible? "checked": ""}/>
+                <label for="dlnaRandomSongByFolderArtistVisible"><fmt:message key="dlna.title.randomSongByFolderArtist"/></label>
             </td>
         </tr>
         <tr>

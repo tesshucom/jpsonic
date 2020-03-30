@@ -141,6 +141,7 @@ public class SettingsService {
     private static final String KEY_DLNA_RANDOM_ALBUM_VISIBLE = "DlnaRandomAlbumVisible";
     private static final String KEY_DLNA_RANDOM_SONG_VISIBLE = "DlnaRandomSongVisible";
     private static final String KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = "DlnaRandomSongByArtistVisible";
+    private static final String KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE = "DlnaRandomSongByFolderArtistVisible";
     private static final String KEY_DLNA_RANDOM_MAX = "DlnaRandomMax";
     private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
@@ -244,6 +245,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_RANDOM_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
     private static final int DEFAULT_DLNA_RANDOM_MAX = 50;
 
@@ -1457,6 +1459,14 @@ public class SettingsService {
 
     public boolean isDlnaRandomSongByArtistVisible() {
         return getBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE);
+    }
+
+    public void setDlnaRandomSongByFolderArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, b);
+    }
+
+    public boolean isDlnaRandomSongByFolderArtistVisible() {
+        return getBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE);
     }
 
     public void setDlnaRandomSongByArtistVisible(boolean b) {

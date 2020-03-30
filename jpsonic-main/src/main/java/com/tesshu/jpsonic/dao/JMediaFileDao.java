@@ -213,6 +213,10 @@ public class JMediaFileDao extends AbstractDao {
          * If the number isn't too large, it doesn't matter much.
          */
         int countAll = queryForInt("select count(*) from media_file where present and type = ? and album_artist = ?", 0, type, albumArtist);
+        if (0 == countAll) {
+            return Collections.emptyList();
+        }
+
         List<Integer> randomRownum = randomCallback.apply(countAll, limit);
 
         Map<String, Object> args = new HashMap<>();

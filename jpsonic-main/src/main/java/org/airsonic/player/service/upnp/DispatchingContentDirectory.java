@@ -35,6 +35,7 @@ import org.airsonic.player.service.upnp.processor.PlaylistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.PodcastUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomAlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomSongByArtistUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.RandomSongByFolderArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RandomSongUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.RecentAlbumUpnpProcessor;
@@ -77,28 +78,30 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RandomAlbumUpnpProcessor randomAlbumProcessor;
     private final RandomSongUpnpProcessor randomSongProcessor;
     private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
+    private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
 
     private final UPnPCriteriaDirector criteriaDirector;
     private final SearchService searchService;
 
-    public DispatchingContentDirectory(
-            RootUpnpProcessor rp, //
-            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp, //
-            @Lazy PlaylistUpnpProcessor playp, //
-            @Lazy @Qualifier("albumUpnpProcessor") AlbumUpnpProcessor ap, //
-            @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap, //
-            @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip, //
-            @Lazy ArtistUpnpProcessor arP, //
-            @Lazy AlbumByGenreUpnpProcessor abgp, //
-            @Lazy SongByGenreUpnpProcessor sbgp, //
-            @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip, //
-            @Lazy IndexId3UpnpProcessor iip, //
-            @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp, //
-            @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap, //
-            @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp, //
-            @Lazy RandomSongByArtistUpnpProcessor randomsbap, //
-            UPnPCriteriaDirector cd, //
-            SearchService ss) {
+    public DispatchingContentDirectory(// @formatter:off
+            RootUpnpProcessor rp,
+            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp,
+            @Lazy PlaylistUpnpProcessor playp,
+            @Lazy @Qualifier("albumUpnpProcessor") AlbumUpnpProcessor ap,
+            @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap,
+            @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip,
+            @Lazy ArtistUpnpProcessor arP,
+            @Lazy AlbumByGenreUpnpProcessor abgp,
+            @Lazy SongByGenreUpnpProcessor sbgp,
+            @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip,
+            @Lazy IndexId3UpnpProcessor iip,
+            @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp,
+            @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap,
+            @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
+            @Lazy RandomSongByArtistUpnpProcessor randomsbap,
+            @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
+            UPnPCriteriaDirector cd,
+            SearchService ss) { // @formatter:on
         super();
         rootProcessor = rp;
         mediaFileProcessor = mfp;
@@ -115,6 +118,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         randomAlbumProcessor = randomap;
         randomSongProcessor = randomsp;
         randomSongByArtistProcessor = randomsbap;
+        randomSongByFolderArtistProcessor = randomsbfap;
         criteriaDirector = cd;
         searchService = ss;
     }
@@ -254,8 +258,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         return randomSongProcessor;
     }
 
+    @Override
     public RandomSongByArtistUpnpProcessor getRandomSongByArtistProcessor() {
         return randomSongByArtistProcessor;
+    }
+
+    @Override
+    public RandomSongByFolderArtistUpnpProcessor getRandomSongByFolderArtistProcessor() {
+        return randomSongByFolderArtistProcessor;
     }
 
 }
