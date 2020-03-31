@@ -32,8 +32,11 @@ import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.airsonic.player.spring.EhcacheConfiguration.IndexCacheKey;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
+import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI;
 import org.fourthline.cling.support.model.container.Container;
+import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.subsonic.restapi.ArtistID3;
@@ -44,6 +47,7 @@ import javax.annotation.PostConstruct;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,10 +115,16 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return createBrowseResult(didl, 1, 1);
     }
 
+    private void applyId(Id3Wrapper item, Container container) {
+        container.setId(CONTAINER_ID_INDEX_ID3_PREFIX + OBJECT_ID_SEPARATOR + item.getId());
+        container.setTitle(item.getName());
+        container.setChildCount(getChildSizeOf(item));
+    }
+
     public Container createContainer(Id3Wrapper item) {
-        MusicAlbum container = new MusicAlbum();
         int id = toRawId(item.getId());
         if (item.isAlbum()) {
+            MusicAlbum container = new MusicAlbum();
             Album album = new Album();
             album.setId(id);
             container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(album) });
@@ -122,16 +132,24 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                 container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
             }
             container.setDescription(item.getComment());
+            applyParentId(item, container);
+            applyId(item, container);
+            return container;
         } else if (item.isArtist()) {
+            MusicArtist container = new MusicArtist();
             Artist artist = new Artist();
             artist.setId(id);
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getArtistProcessor().createArtistArtURI(artist) });
+            URI uri = getDispatcher().getArtistProcessor().createArtistArtURI(artist);
+            container.setProperties(Arrays.asList(new ALBUM_ART_URI(uri)));
+            applyParentId(item, container);
+            applyId(item, container);
+            return container;
+        } else {
+            GenreContainer container = new GenreContainer();
+            applyParentId(item, container);
+            applyId(item, container);
+            return container;
         }
-        container.setId(CONTAINER_ID_INDEX_ID3_PREFIX + OBJECT_ID_SEPARATOR + item.getId());
-        container.setTitle(item.getName());
-        container.setChildCount(getChildSizeOf(item));
-        applyParentId(item, container);
-        return container;
     }
 
     @Override
@@ -189,22 +207,24 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void applyParentId(Id3Wrapper item, MusicAlbum container) {
-        if (item.isIndex()) {
-            container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
-        } else if (item.isArtist()) {
-            for (String id : indexesMap.keySet()) {
-                IndexID3 index = indexesMap.get(id).getIndexId3();
-                index.getArtist().stream()
-                    .filter(a -> a.getId().equals(item.getId()))
-                    .findFirst()
-                    .ifPresent(a -> container.setParentID(id));
-            }
-        } else if (item.isAlbum()) {
-            Artist artist = artistDao.getArtist(item.getArtist());
-            if (!isEmpty(artist)) {
-                container.setParentID(createArtistId(artist.getId()));
-            }
+    private final void applyParentId(Id3Wrapper index, GenreContainer container) {
+        container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
+    }
+
+    private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
+        for (String id : indexesMap.keySet()) {
+            IndexID3 index = indexesMap.get(id).getIndexId3();
+            index.getArtist().stream()
+                .filter(a -> a.getId().equals(artist.getId()))
+                .findFirst()
+                .ifPresent(a -> container.setParentID(id));
+        }
+    }
+
+    private final void applyParentId(Id3Wrapper album, MusicAlbum container) {
+        Artist artist = artistDao.getArtist(album.getArtist());
+        if (!isEmpty(artist)) {
+            container.setParentID(createArtistId(artist.getId()));
         }
     }
 

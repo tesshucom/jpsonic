@@ -35,6 +35,8 @@ import org.fourthline.cling.support.model.DIDLObject.Property.UPNP.ALBUM_ART_URI
 import org.fourthline.cling.support.model.Res;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.fourthline.cling.support.model.container.MusicArtist;
+import org.fourthline.cling.support.model.container.StorageFolder;
 import org.fourthline.cling.support.model.item.Item;
 import org.fourthline.cling.support.model.item.MusicTrack;
 import org.seamless.util.MimeType;
@@ -83,17 +85,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return createBrowseResult(didl, 1, 1);
     }
 
-    public Container createContainer(MediaFile item) {
-        MusicAlbum container = new MusicAlbum();
-        if (item.isAlbum()) {
-            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(item) });
-            if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
-            }
-            container.setDescription(item.getComment());
-        } else if (item.isDirectory()) {
-            container.setAlbumArtURIs(new URI[] { createArtistArtURI(item) });
-        }
+    private void applyId(MediaFile item, Container container) {
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
@@ -105,7 +97,29 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         } else {
             container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
         }
-        return container;
+    }
+
+    public Container createContainer(MediaFile item) {
+        if (item.isAlbum()) {
+            MusicAlbum container = new MusicAlbum();
+            container.setAlbumArtURIs(new URI[] { createAlbumArtURI(item) });
+            if (item.getArtist() != null) {
+                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
+            }
+            container.setDescription(item.getComment());
+            applyId(item, container);
+            return container;
+        } else if (item.isDirectory()) {
+            if (isEmpty(item.getArtist())) {
+                StorageFolder container = new StorageFolder();
+                applyId(item, container);
+                return container;
+            }
+            MusicArtist container = new MusicArtist();
+            applyId(item, container);
+            return container;
+        }
+        return null;
     }
 
     @Override
