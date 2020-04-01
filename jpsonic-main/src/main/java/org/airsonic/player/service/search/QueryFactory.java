@@ -136,7 +136,7 @@ public class QueryFactory {
         /* If Field's Tokenizer is different, token's length may not match. **/
         int maxTermLength = fieldsQuerys.stream()
                 .map(l -> l.size())
-                .max(Integer::compare).get();
+                .max(Integer::compare).orElse(0);
 
         if (0 < fieldsQuerys.size()) {
             for (int i = 0; i < maxTermLength; i++) {
