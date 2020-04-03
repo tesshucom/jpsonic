@@ -173,8 +173,21 @@ Of course, all sort-logic of Web/REST/UPnP work with the same rules.
 </tr>
 </table>
 
+<table>
+<tr>
+<td>
+
 For Jpsonic DLNA, you can specify the Music Folder to be published.
 You can also use apps that support voice search, such as [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en).
+
+</td>
+<td>
+<img src="contrib/assets/dlna-setting.jpg" width="200">
+</td>
+</tr>
+</table>
+
+
 
 
 History

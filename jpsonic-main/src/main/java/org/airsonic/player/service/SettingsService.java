@@ -1461,16 +1461,16 @@ public class SettingsService {
         return getBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE);
     }
 
-    public void setDlnaRandomSongByFolderArtistVisible(boolean b) {
-        setBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, b);
+    public void setDlnaRandomSongByArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, b);
     }
 
     public boolean isDlnaRandomSongByFolderArtistVisible() {
         return getBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE);
     }
 
-    public void setDlnaRandomSongByArtistVisible(boolean b) {
-        setBoolean(KEY_DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE, b);
+    public void setDlnaRandomSongByFolderArtistVisible(boolean b) {
+        setBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, b);
     }
 
     public boolean isDlnaGuestPublish() {
