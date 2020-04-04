@@ -317,9 +317,6 @@ public class MediaScannerService {
         }
     }
 
-    /*
-     * The decision rules here have room to verify from legacy
-     */
     private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
         String artist;
         String reading;
@@ -357,12 +354,18 @@ public class MediaScannerService {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
 
+        // see #414
         Optional<MediaFile> firstChild = mediaFileDao.getChildrenOf(album.getPath()).stream().findFirst();
         firstChild.ifPresent(child -> {
-            if (file.getYear() != null && file.getYear().equals(child.getYear())) {
+            if (album.getName() != null && album.getName().equals(child.getAlbumName())) {
+                if (file.getYear() != null && file.getYear().equals(child.getYear())) {
+                    album.setYear(file.getYear());
+                }
+                if (file.getGenre() != null && file.getGenre().equals(child.getGenre())) {
+                    album.setGenre(file.getGenre());
+                }
+            } else {
                 album.setYear(file.getYear());
-            }
-            if (file.getGenre() != null && file.getGenre().equals(child.getGenre())) {
                 album.setGenre(file.getGenre());
             }
         });
