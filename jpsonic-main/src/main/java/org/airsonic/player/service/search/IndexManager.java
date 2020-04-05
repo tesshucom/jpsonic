@@ -95,7 +95,7 @@ public class IndexManager {
      *    DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 19;
+    private static final int INDEX_VERSION = 20;
 
     /**
      * Literal name of index top directory.
@@ -534,7 +534,7 @@ public class IndexManager {
                 List<Genre> albumGenres = new ArrayList<Genre>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
-                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                    albumGenres.sort(comparators.genreOrderByAlpha());
                 }
                 multiGenreMaster.put(GenreSort.ALBUM_ALPHABETICAL, albumGenres);
                 return albumGenres;
@@ -547,7 +547,7 @@ public class IndexManager {
                 List<Genre> albumGenres = new ArrayList<Genre>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
-                    albumGenres.sort(comparators.genreAlphabeticalOrder());
+                    albumGenres.sort(comparators.genreOrderByAlpha());
                 }
                 multiGenreMaster.put(GenreSort.SONG_ALPHABETICAL, albumGenres);
                 return albumGenres;

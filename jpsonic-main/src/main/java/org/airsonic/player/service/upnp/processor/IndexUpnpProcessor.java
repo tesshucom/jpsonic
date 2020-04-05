@@ -31,7 +31,9 @@ import org.airsonic.player.spring.EhcacheConfiguration.IndexCacheKey;
 import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.container.Container;
+import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
+import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -101,22 +103,39 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return createBrowseResult(didl, 1, 1);
     }
 
+    private void applyId(MediaFile item, Container container) {
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setTitle(item.getName());
+        container.setChildCount(getChildSizeOf(item));
+        if (!isIndex(item) && !mediaFileService.isRoot(item)) {
+            MediaFile parent = mediaFileService.getParentOf(item);
+            if (parent != null) {
+                container.setParentID(String.valueOf(parent.getId()));
+            }
+        } else {
+            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
+        }
+    }
+
     public Container createContainer(MediaFile item) {
-        MusicAlbum container = new MusicAlbum();
         if (item.isAlbum()) {
+            MusicAlbum container = new MusicAlbum();
             container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
             if (item.getArtist() != null) {
                 container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
             }
             container.setDescription(item.getComment());
-        } else if (item.isDirectory()) {
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createArtistArtURI(item) });
+            applyId(item, container);
+            return container;
+        } else if (isIndex(item.getId())) {
+            GenreContainer container = new GenreContainer();
+            applyId(item, container);
+            return container;
+        } else {
+            MusicArtist container = new MusicArtist();
+            applyId(item, container);
+            return container;
         }
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-        container.setTitle(item.getName());
-        container.setChildCount(getChildSizeOf(item));
-        applyParentId(item, container);
-        return container;
     }
 
     @Override
@@ -174,21 +193,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void applyParentId(MediaFile item, MusicAlbum container) {
-        if (!isIndex(item) && !mediaFileService.isRoot(item)) {
-            MediaFile parent = mediaFileService.getParentOf(item);
-            if (parent != null) {
-                container.setParentID(String.valueOf(parent.getId()));
-            }
-        } else {
-            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
-        }
-    }
-
     private final synchronized void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
+            INDEX_IDS.set(Integer.MIN_VALUE);
             content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
             indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());

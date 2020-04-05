@@ -512,12 +512,16 @@ public class MediaFileService {
                 mediaFile.setWidth(metaData.getWidth());
                 mediaFile.setTitleSort(metaData.getTitleSort());
                 mediaFile.setAlbumSort(metaData.getAlbumSort());
+                mediaFile.setAlbumSortRaw(metaData.getAlbumSort());
                 mediaFile.setArtistSort(metaData.getArtistSort());
+                mediaFile.setArtistSortRaw(metaData.getArtistSort());
                 mediaFile.setAlbumArtistSort(metaData.getAlbumArtistSort());
+                mediaFile.setAlbumArtistSortRaw(metaData.getAlbumArtistSort());
                 mediaFile.setMusicBrainzReleaseId(metaData.getMusicBrainzReleaseId());
                 mediaFile.setMusicBrainzRecordingId(metaData.getMusicBrainzRecordingId());
                 mediaFile.setComposer(metaData.getComposer());
                 mediaFile.setComposerSort(metaData.getComposerSort());
+                mediaFile.setComposerSortRaw(metaData.getComposerSort());
                 utils.analyze(mediaFile);
             }
             String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
@@ -547,8 +551,10 @@ public class MediaFileService {
                         MetaData metaData = parser.getMetaData(firstChild);
                         mediaFile.setArtist(metaData.getAlbumArtist());
                         mediaFile.setArtistSort(metaData.getAlbumArtistSort());
+                        mediaFile.setArtistSortRaw(metaData.getAlbumArtistSort());
                         mediaFile.setAlbumName(metaData.getAlbumName());
                         mediaFile.setAlbumSort(metaData.getAlbumSort());
+                        mediaFile.setAlbumSortRaw(metaData.getAlbumSort());
                         mediaFile.setYear(metaData.getYear());
                         mediaFile.setGenre(metaData.getGenre());
                     }

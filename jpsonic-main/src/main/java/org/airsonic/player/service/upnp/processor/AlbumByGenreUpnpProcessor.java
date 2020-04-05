@@ -27,6 +27,7 @@ import org.fourthline.cling.support.model.BrowseResult;
 import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
+import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -75,38 +76,32 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     @Override
     public Container createContainer(MediaFile item) {
-        if (!isEmpty(item.getMediaType())) {
-            MusicAlbum container = new MusicAlbum();
-            container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
-            if (item.getArtist() != null) {
-                container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
-            }
-            container.setDescription(item.getComment());
-            container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
-            container.setTitle(item.getName());
-            container.setChildCount(getChildSizeOf(item));
-            if (!mediaFileService.isRoot(item)) {
-                MediaFile parent = mediaFileService.getParentOf(item);
-                if (parent != null) {
-                    container.setParentID(String.valueOf(parent.getId()));
-                }
-            } else {
-                container.setParentID(getRootId());
-            }
-            return container;
-
+        MusicAlbum container = new MusicAlbum();
+        container.setAlbumArtURIs(new URI[] { getDispatcher().getMediaFileProcessor().createAlbumArtURI(item) });
+        if (item.getArtist() != null) {
+            container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
         }
-        return null;
+        container.setDescription(item.getComment());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setTitle(item.getName());
+        container.setChildCount(getChildSizeOf(item));
+        if (!mediaFileService.isRoot(item)) {
+            MediaFile parent = mediaFileService.getParentOf(item);
+            if (parent != null) {
+                container.setParentID(String.valueOf(parent.getId()));
+            }
+        } else {
+            container.setParentID(getRootId());
+        }
+        return container;
     }
 
     private final Container createContainer(MediaFile item, String index) {
-        MusicAlbum container = new MusicAlbum();
-        if (isEmpty(item.getMediaType())) {
-            container.setParentID(getRootId());
-            container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
-            container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
-            container.setChildCount(isEmpty(item.getComment()) ? 0 : Integer.parseInt(item.getComment()));
-        }
+        GenreContainer container = new GenreContainer();
+        container.setParentID(getRootId());
+        container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
+        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
+        container.setChildCount(isEmpty(item.getComment()) ? 0 : Integer.parseInt(item.getComment()));
         return container;
     }
 

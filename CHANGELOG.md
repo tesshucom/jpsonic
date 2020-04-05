@@ -3,8 +3,43 @@
 # jpsonic/jpsonic
 # -->
 
-## v107.1.0
+
+## v107.2.0
 #### Based on *airsonic 10.6.0-SNAPSHOT 80ccd82*
+
+  * [fix] Update Jetty to 9.4.27.v20200227 (CVE-2020-1935).
+  * [fix] Update Jackson to 2.10.3 (CVE-2020-8840, CVE-2019-20330)
+  * [fix] Update commons-configuration2 to 2.7 (CVE-2020-1953)
+  * [fix] Update cxf to 3.3.6 (CVE-2020-1954)
+  * [fix] Fixed a bug that albums with specific data patterns may not be scanned correctly.
+    This is a legacy implementation bug.
+    Existing web pages will not be affected, but will affect REST and Jpsonic UPnP implementations.
+  * [fix] Fix the bug that only specific pattern queries are skipped in UPnP search.
+    Improved song search using artist/composer as key.
+  * [update] Change the sort-tag-rearrangement process of after scan.
+    Merge processing when there are multiple sort-tags in one name has been changed to stricter processing.
+     - In addition to album, artist, albumArtist sort-tags, composer is included in the target.
+     - In the case of the sort tag of the person name, it takes precedence in the order of changeDate/albumArtist/artist/composer.
+     - In the case of the sort tag of album name, it takes precedence changeDate.
+  * [update] Change the conditions under which sort-tags are used for indexing and sorting.
+     - Previously, sort-tags were not used if the first string of name was alphabetic.
+     - Changed to use sort tag if name and sort tag start with alphabet and if sort tag contains Japanese.
+  * [update] Add a column to keep original sort-tag in DB. Currently it does not provide any new features by itself.
+       It is intended for future tag-checkers, or to address the need for users to write and check SQL.
+  * [update] UPnP display item name changed(En).
+       - RecentAlbums & RecentAlbums(ID3) -> Recently added albums & Recently tagged albums.
+  * [update] New display items have been added in UPnP.
+       - MusicFolder/Artist/RandomSong.
+  * [update] Improved the class of container sent by UPnP. Some clients have effects such as improved icon display.
+  * [update] The UPnP setting screen has been improved so that the relationship between the selected item and the display name can be easily understood.
+  * [update] Changed UPnP to not display artist images obtained from external services.
+    (The implementation displaying the tag image of ID3 instead is not deleted.)
+    Because this is not a proper implementation under Japanese law.
+    In later versions, the same policy will also remove images of artists located except for UPnP.
+    If a better solution is implemented in the future, it will be modified again to display the image.
+
+<details>
+<summary>v107.1.0 based on airsonic 10.6.0-SNAPSHOT 80ccd82</summary>
 
 > [80ccd82]
 > Numerous library updates, Popup improvements, health check page added etc.
@@ -15,9 +50,10 @@
      - Fix classify English (words starting with the alphabet) and others.
      - Fix for sorting of titles including parentheses and numbers.
      - Fix to sort correctly on Home > All.
+</details>
 
-## v107.0.0
-#### Based on *airsonic 10.6.0-SNAPSHOT 64fad6a*
+<details>
+<summary>v107.0.0 based on airsonic 10.6.0-SNAPSHOT 64fad6a</summary>
 
 > [64fad6a]
 > Startup exception suppression, ListenBrainz support, player slider re-implementation, small web screen improvements, etc.
@@ -37,9 +73,10 @@
   * [update] DLNA index cache improvements.
         The index cache can be up to 2 minutes, but will be automatically cleared if needed.
         Change to clear the cache automatically after scanning, changing media folder permissions, and changing music folder settings.
+</details>
 
-## v106.1.1
-#### Based on *airsonic 10.5.0-RELEASE*
+<details>
+<summary>v106.1.1 based on airsonic 10.5.0-RELEASE</summary>
 
   * [fix] Update Tomcat to 8.5.50 (CVE-2019-12418, CVE-2019-17563).
 
@@ -51,9 +88,10 @@ The following measures taken.
  - Jetty will continue to change to a compilable configuration. However,
    since it does not respond to threats, no official distribution will be made.
    It only supports arbitrary compilation.
+</details>
 
-## v106.1.0
-#### Based on *airsonic 10.5.0-RELEASE*
+<details>
+<summary>v106.1.0 based on airsonic 10.5.0-RELEASE</summary>
 
   * [fix] Fixed server startup flow.
 	This is fix for potential issue with Airsonic 10.5.0.
@@ -72,9 +110,10 @@ The following measures taken.
 	Genre (song), shuffle (album), shuffle (song), and podcast are newly added.
   * [update] Added sorting option to genre master.
 	Added option to display in dictionary order.
+</details>
 
-## v106.0.0
-#### Based on *airsonic 10.5.0-RELEASE*
+<details>
+<summary>v106.0.0 based on airsonic 10.5.0-RELEASE</summary>
 
 ###### General
 
@@ -99,14 +138,16 @@ The following measures taken.
   * [update] Fixed the title search of DLNA to work correctly.
              DLNA title search can be selected as ID3/FileStructure (default is FileStructure and same search as Web) 
   * [update] Added an option to display the number of items in the genre 
+</details>
 
-## v105.2.1
-#### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
+<details>
+<summary>v105.2.1 based on airsonic 10.5.0-SNAPSHOT 06e36ff</summary>
 
   * [fix] Fixed bug that fail when migrating with postgres from v105.1.0 to v105.2.0.
+</details>
 
-## v105.2.0
-#### Based on *airsonic 10.5.0-SNAPSHOT 06e36ff*
+<details>
+<summary>v105.2.0 based on airsonic 10.5.0-SNAPSHOT 06e36ff</summary>
 
 > [06e36ff]
 > 
@@ -118,9 +159,10 @@ The following measures taken.
   * [update] The sorting algorithm and settings shared internally. Most features now work with the same sorting rules.
   * [update] DNLA Japanese language support has started. Provides title translation and complete dictionary sorting.
   * [update] Added an option to strictly sort DNLA/REST-ID3 in the sorting options. Necessary when handling DNLA in Japanese.
+</details>
 
-## v105.1.0
-#### Based on *airsonic 10.5.0-SNAPSHOT eb4c5a0*
+<details>
+<summary>v105.1.0 based on airsonic 10.5.0-SNAPSHOT eb4c5a0</summary>
 
 > [eb4c5a0]
 > 
@@ -134,9 +176,10 @@ The following measures taken.
   * [update] Improved sorting of Play queue. Change to ignore upper/lower case.
   * [update] Add advanced sorting options. (Changing Various artist sorting rules / Sort serial numbers)
   * [update] Add artist-specific stopwords. "CV, feat, with" are ignored when searching the Artist field.
+</details>
 
-## v105.0.0
-#### Based on *airsonic 10.5.0-SNAPSHOT 3c5735e*
+<details>
+<summary>v105.0.0 based on airsonic 10.5.0-SNAPSHOT 3c5735e</summary>
 
 > [3c5735e]
 > 
@@ -151,15 +194,17 @@ The following measures taken.
     It depends on the platform.
     NativePRNG is tried and SHA1PRNG is used if it is not supported.
     If neither is available, use the same random function as before.
+</details>
 
-## v104.0.0
-#### Based on *airsonic 10.4.0-RELEASE*
+<details>
+<summary>v104.0.0 based on airsonic 10.4.0-RELEASE</summary>
 
   * [update] Theme update. Changed the main theme image to SVG and updated CSS.
   * [update] Temporary workaround for the issue of stopping the scan when the wrong pattern data is read at scan time.
+</details>
 
-## v103.0.1
-#### Based on *airsonic 10.4.0-SNAPSHOT c834bde*
+<details>
+<summary>v103.0.1 based on airsonic 10.4.0-c834bde</summary>
 
 > [c834bde]
 > 
@@ -167,9 +212,10 @@ The following measures taken.
 
   * fix problems moving to the next song automatically
   * fix Progress bar
+</details>
 
-## v103.0.0
-#### Based on *airsonic 10.4.0-SNAPSHOT 2bfaea2*
+<details>
+<summary>v103.0.0 based on airsonic 10.4.0-SNAPSHOT 2bfaea2</summary>
 
 > [2bfaea2]
 > 
@@ -181,9 +227,10 @@ The following measures taken.
   * Various minor fixes related to javascript.
   * Streaming test enhancements
   etc
+</details>
 
-## v102.0.0
-#### Based on *airsonic 10.3.1-RELEASE*
+<details>
+<summary>v102.0.0 based on airsonic 10.3.1-RELEASE</summary>
 
 > [10.3.1-RELEASE]
 > 
@@ -193,9 +240,10 @@ The following measures taken.
   * [fix] Fixed a bug that property may be overwritten with values other than firstChild when updating artistSort of AlbumId3.
   * [update] Added processing to delete unnecessary data from lucene index when scanning.
   * [update] Added multi genre support.
+</details>
 
-## v101.1.0
-#### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
+<details>
+<summary>v101.1.0 based on airsonic 10.3.0-SNAPSHOT c3a1980</summary>
 
   * Security update (spring:CVE-2019-3795)
   * [update] Compatible with ID3v2.4. For files in ID3v2.4 format, will be load additional readable fields.
@@ -206,9 +254,10 @@ The following measures taken.
   * [update] Added automatic generation change of search index. 
              When updating with definition changes, if the existing index data is old, will be delete it without reading it.
              You can recover only to the normal state by scanning once.
+</details>
 
-## v101.0.1
-#### Based on *airsonic 10.3.0-SNAPSHOT c3a1980*
+<details>
+<summary>v101.0.1 based on airsonic 10.3.0-SNAPSHOT c3a1980</summary>
 
 > [c3a1980]
 > 
@@ -217,9 +266,10 @@ The following measures taken.
   * [fix] Fixed the problem of duplicate results in random search.
   * [fix] Fixed the problem that double registration occurs when creating search index.
   * [fix] Fixed a bug that DNLA which was occured in v101.0.0 can not be used.
+</details>
 
-## v101.0.0
-#### Based on *airsonic 10.3.0-SNAPSHOT e330eeb*
+<details>
+<summary>v101.0.0 based on airsonic 10.3.0-SNAPSHOT e330eeb</summary>
 
 > [e330eeb]
 > 
@@ -229,9 +279,10 @@ The following measures taken.
 
   * [fix] Fixed to prevent Java errors on the screen if a search is made when there is no search index data.
   * [fix] Fixed double search issue with random search.
+</details>
 
-## v100.1.0
-#### Based on *airsonic 10.2.1-RELEASE*
+<details>
+<summary>v100.1.0 based on airsonic 10.2.1-RELEASE</summary>
 
   * Security update (checkstyle:CVE-2019-9658) There is no impact on already running servers
   * [fix] Fixed a bug that search cannot be performed if Music Folder exist with a specific string pattern.
@@ -243,26 +294,33 @@ The following measures taken.
     (1) and (3) are indexed as necessary to take into account the amount of data in order to eliminate Japanese ambiguity.
   * [update] Fix for speed improvement Index reading cache, deletion of unnecessary copies, etc.
     Covers redundant, time-consuming Japanese processing and performs as fast as Airsonic and Subsonic.
+</details>
 
-## v100.0.0
-#### Based on *airsonic 10.2.1-RELEASE*
+<details>
+<summary>v100.0.0 based on airsonic 10.2.1-RELEASE</summary>
 
   * Security update (stax:CVE-2018-20222) Prevent xxe during parse
   * Based on airsonic 10.2.1-RELEASE.
   * Jpsonic public repository has been created. The version check and release page has been changed to refer public repository.
+</details>
 
-## v2.3.0
+<details>
+<summary>v2.3.0</summary>
 
   * Security update (stax:CVE-2018-1000840)
   * Fix for embedded Jetty compilation for evaluation purposes.
   * Based on airsonic e4bb808 (2019-2) Pull translations from transifex.
+</details>
 
-## v2.2.6
+<details>
+<summary>v2.2.6</summary>
 
   * Security update (jackson-databind:CVE-2018-19360 - CVE-2018-19362, CVE-2018-14718 - CVE-2018-14721)
   * Based on airsonic adc2241 (2019-1) Fix broken keyboard shortcuts, defrag on HSQLDB, connection pooling for external database etc.
+</details>
 
-## v2.2.5
+<details>
+<summary>v2.2.5</summary>
 
   * Security update (guava:CVE-2018-10237)
   * Suppress CVE by false positives(stax:CVE-2017-16224, slf4j:CVE-2018-8088)
@@ -270,77 +328,100 @@ The following measures taken.
   * Based on airsonic 77ca475 (2018-12) Screen modification, updating of various libraries, modification of test content, etc.
    - Modification of partial wording accompanying cleanup of overall translation
    - Image replacement related to adding icons for various devices
+</details>
 
-## v2.2.4
+<details>
+<summary>v2.2.4</summary>
 
   * Fixed a bug where part of the start argument was not correctly recognized
     (jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
   * Introduction of Airsonic integration test using Docker
+</details>
 
-## v2.2.3
+<details>
+<summary>v2.2.3</summary>
 
   * Security update for cxf(CVE-2018-8039)
   * Based on airsonic 685f4fa (2018-10)
+</details>
 
-## v2.2.2
+<details>
+<summary>v2.2.2</summary>
 
   * Improvement of Japanese Song search accuracy.
   * Random search fault correction.
   * Based on airsonic 8ba0bc8 (2018-8)
+</details>
 
-## v2.2.1
+<details>
+<summary>v2.2.1</summary>
 
   * Security fix (LDAP authentication without a password).
   * Based upon Airsonic 10.2.0-SNAPSHOT f6905de(2018-8)
   * Start build test with travis.
+</details>
 
-## v2.2
+<details>
+<summary>v2.2</summary>
 
   * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
   * Added index rebuilding process after scanning.
   * Based upon Airsonic 10.2.0-SNAPSHOT 8d3c0ec(2018-7)
+</details>
 
-## v2.1
+<details>
+<summary>v2.1</summary>
 
   * Update of lucene-core(3.0.3 -> 7.4.0).
   * Simple Japanese phrase search.
+</details>
 
-## v2.0
-
-  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
-
-## v2.0
+<details>
+<summary>v2.0</summary>
 
   * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
+</details>
 
-## v1.3
+<details>
+<summary>v1.3</summary>
 
   * It corresponds to ALBUM_SORT
   * Final release based upon Airsonic 10.1.1-RELEASE
+</details>
 
-## v1.2.2
+<details>
+<summary>v1.2.2</summary>
 
   * It corresponds to ARTIST_SORT, ALBUM_ARTIST_SORT
   * Fixed a bug that caused case ignoring excessively. (Alphabet is originally A-Za-z)
+</details>
 
-## v1.2.1
+<details>
+<summary>v1.2.1</summary>
 
   * Fixed bug related to sort of id 3
+</details>
 
-## v1.2
+<details>
+<summary>v1.2</summary>
 
   * Supports sorting using not only morphological analysis but also tag analysis
+</details>
 
-## v1.1
+<details>
+<summary>v1.1</summary>
 
   * Japanese index / Artist sort (id3)
   * Duplicate records may be included in getAlbunList Fixed a problem
   * Change DLNA icon
+</details>
 
-## v1.0
+<details>
+<summary>v1.0</summary>
 
   * Japanese index / Artist sort (File structure)
   * Fixed bug in Lang of biography
   * Default Japanese
   * First release as Jpsonic
   * Based upon Airsonic 10.1.1-RELEASE
+</details>

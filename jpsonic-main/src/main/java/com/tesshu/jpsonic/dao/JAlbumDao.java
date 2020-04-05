@@ -18,6 +18,8 @@
  */
 package com.tesshu.jpsonic.dao;
 
+import com.tesshu.jpsonic.domain.SortCandidate;
+
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
@@ -29,6 +31,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jalbumDao")
 @DependsOn({ "albumDao" })
@@ -54,10 +59,6 @@ public class JAlbumDao extends AbstractDao {
         return deligate.getAlbum(id);
     }
 
-    public Album getAlbum(String artistName, String albumName) {
-        return deligate.getAlbum(artistName, albumName);
-    }
-
     public int getAlbumCount(final List<MusicFolder> musicFolders) {
         return deligate.getAlbumCount(musicFolders);
     }
@@ -69,7 +70,10 @@ public class JAlbumDao extends AbstractDao {
         Map<String, Object> args = new HashMap<>();
         args.put("artist", artist);
         args.put("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt("select count(id) from album where artist = :artist and present and folder_id in (:folders)", 0, args);
+        return namedQueryForInt(// @formatter:off
+                "select count(id) from album " +
+                "where artist = :artist and present and folder_id in (:folders)", 0, args);
+        // @formatter:on
     }
 
     public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear, final List<MusicFolder> musicFolders) {
@@ -81,16 +85,12 @@ public class JAlbumDao extends AbstractDao {
         args.put("folders", MusicFolder.toIdList(musicFolders));
         args.put("offset", offset);
         args.put("count", count);
-        // @formatter:off
-        return namedQuery("select " + deligate.getQueryColoms() +
-                " from album where artist = :artist and present and folder_id in (:folders) " +
-                "order by " + (byYear ? "year" : "_order") + ", name limit :count offset :offset",
+        return namedQuery(// @formatter:off
+                "select " + deligate.getQueryColoms() + " from album " +
+                "where artist = :artist and present and folder_id in (:folders) " +
+                "    order by " + (byYear ? "year" : "_order") + ", name limit :count offset :offset",
                 deligate.getAlbumMapper(), args);
         // @formatter:on
-    }
-
-    public List<Album> getAlbumsForArtist(final String artist, final List<MusicFolder> musicFolders) {
-        return deligate.getAlbumsForArtist(artist, musicFolders);
     }
 
     public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
@@ -100,4 +100,57 @@ public class JAlbumDao extends AbstractDao {
     public List<Album> getNewestAlbums(final int offset, final int count, final List<MusicFolder> musicFolders) {
         return deligate.getNewestAlbums(offset, count, musicFolders);
     }
+
+    public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
+        if (isEmpty(candidates) || 0 == candidates.size()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
+        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        return namedQuery(// @formatter:off
+                "select id from album " +
+                "where present and name in (:names) " +
+                    "and (name_sort is null or name_sort not in(:sotes)) order by id",
+            (rs, rowNum) -> {
+                return rs.getInt(1);
+            }, args);
+    } // @formatter:on
+
+    public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
+        if (isEmpty(candidates) || 0 == candidates.size()) {
+            return Collections.emptyList();
+        }
+        Map<String, Object> args = new HashMap<>();
+        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
+        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        return namedQuery(// @formatter:off
+                "select id from album " +
+                "where present and artist in (:names) " +
+                "    and (artist_sort is null or artist_sort not in(:sotes)) order by id",
+            (rs, rowNum) -> {
+                return rs.getInt(1);
+            }, args);
+    } // @formatter:on
+
+    public void updateAlbumSort(SortCandidate candidate) {
+        update(// @formatter:off
+                "update album set name_reading = ?, name_sort = ? " +
+                "where present and name = ? and (name_sort <> ? or name_sort is null)",
+                candidate.getReading(),
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
+    } // @formatter:on
+
+    public void updateArtistSort(SortCandidate candidate) {
+        update(// @formatter:off
+                "update album set artist_reading = ?, artist_sort = ? " +
+                "where present and artist = ? and (artist_sort <> ? or artist_sort is null)",
+                candidate.getReading(),
+                candidate.getSort(),
+                candidate.getName(),
+                candidate.getSort());
+    } // @formatter:on
+
 }
