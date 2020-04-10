@@ -93,31 +93,36 @@ public class JaudiotaggerParser extends MetaDataParser {
 
         Tag tag = audioFile.getTag();
         if (tag != null) {
-
+            metaData.setAlbumArtist(getTagField(tag, FieldKey.ALBUM_ARTIST));
             metaData.setAlbumName(getTagField(tag, FieldKey.ALBUM));
-            metaData.setTitle(getTagField(tag, FieldKey.TITLE));
-            metaData.setYear(parseIntegerPattern(getTagField(tag, FieldKey.YEAR), YEAR_NUMBER_PATTERN));
-            metaData.setGenre(mapGenre(getTagField(tag, FieldKey.GENRE)));
+            metaData.setArtist(getTagField(tag, FieldKey.ARTIST));
             metaData.setDiscNumber(parseInteger(getTagField(tag, FieldKey.DISC_NO)));
-            metaData.setTrackNumber(parseIntegerPattern(getTagField(tag, FieldKey.TRACK), TRACK_NUMBER_PATTERN));
-            metaData.setMusicBrainzReleaseId(getTagField(tag, FieldKey.MUSICBRAINZ_RELEASEID));
+            metaData.setGenre(mapGenre(getTagField(tag, FieldKey.GENRE)));
             metaData.setMusicBrainzRecordingId(getTagField(tag, FieldKey.MUSICBRAINZ_TRACK_ID));
+            metaData.setMusicBrainzReleaseId(getTagField(tag, FieldKey.MUSICBRAINZ_RELEASEID));
+            metaData.setTitle(getTagField(tag, FieldKey.TITLE));
+            metaData.setTrackNumber(parseIntegerPattern(getTagField(tag, FieldKey.TRACK), TRACK_NUMBER_PATTERN));
+            metaData.setYear(parseIntegerPattern(getTagField(tag, FieldKey.YEAR), YEAR_NUMBER_PATTERN));
+            // JP >>>>
             metaData.setArtistSort(getTagField(tag, FieldKey.ARTIST_SORT));
             metaData.setAlbumSort(getTagField(tag, FieldKey.ALBUM_SORT));
             metaData.setTitleSort(getTagField(tag, FieldKey.TITLE_SORT));
             metaData.setAlbumArtistSort(getTagField(tag, FieldKey.ALBUM_ARTIST_SORT));
             metaData.setComposer(getTagField(tag, FieldKey.COMPOSER));
             metaData.setComposerSort(getTagField(tag, FieldKey.COMPOSER_SORT));
-            metaData.setArtist(getTagField(tag, FieldKey.ARTIST));
-            metaData.setAlbumArtist(getTagField(tag, FieldKey.ALBUM_ARTIST));
+            // <<<< JP
 
             if (StringUtils.isBlank(metaData.getArtist())) {
                 metaData.setArtist(metaData.getAlbumArtist());
+                // JP >>>>
                 metaData.setArtistSort(metaData.getAlbumArtistSort());
+                // <<<< JP
             }
             if (StringUtils.isBlank(metaData.getAlbumArtist())) {
                 metaData.setAlbumArtist(metaData.getArtist());
+                // JP >>>>
                 metaData.setAlbumArtistSort(metaData.getArtistSort());
+                // <<<< JP
             }
 
         }
