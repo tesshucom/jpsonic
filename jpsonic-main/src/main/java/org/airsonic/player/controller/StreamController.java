@@ -159,13 +159,13 @@ public class StreamController {
 
                 // Wrangle response length and ranges.
                 //
-                // Support ranges as long as we're not transcoding blindly; video is always assumed to transcode
-                if (file.isVideo() || ! parameters.isRangeAllowed()) {
+                // Support ranges as long as we're not transcoding; video is always assumed to transcode
+                if (file.isVideo()) {
                     // Use chunked transfer; do not accept range requests
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.setHeader("Accept-Ranges", "none");
                 } else {
-                    // Partial content permitted because either know or expect to be able to predict the final size
+                    // Not transcoding, partial content permitted because we know the final size
                     long contentLength;
                     // If range was requested, respond in kind
                     range = getRange(request, file.getDurationSeconds(), fileLengthExpected);
@@ -255,12 +255,6 @@ public class StreamController {
                                 sendDummyDelayed(buf, out);
                             }
                         } else {
-                            if (fileLengthExpected != null && bytesWritten <= fileLengthExpected
-                                && bytesWritten + n > fileLengthExpected) {
-                                LOG.warn("Stream output exceeded expected length of {}. It is likely that "
-                                    + "the transcoder is not adhering to the bitrate limit or the media "
-                                    + "source is corrupted or has grown larger", fileLengthExpected);
-                            }
                             out.write(buf, 0, n);
                             bytesWritten += n;
                         }
@@ -333,6 +327,29 @@ public class StreamController {
             return mediaFileService.getMediaFile(id);
         }
         return null;
+    }
+
+    private long getFileLength(TranscodingService.Parameters parameters) {
+        MediaFile file = parameters.getMediaFile();
+
+        if (!parameters.isDownsample() && !parameters.isTranscode()) {
+            return file.getFileSize();
+        }
+        Integer duration = file.getDurationSeconds();
+        Integer maxBitRate = parameters.getMaxBitRate();
+
+        if (duration == null) {
+            LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
+            return file.getFileSize();
+        }
+
+        if (maxBitRate == null) {
+            LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");
+            return file.getFileSize();
+        }
+
+        // Over-estimate size a bit (2 seconds) so don't cut off early in case of small calculation differences
+        return (duration + 2) * (long)maxBitRate * 1000L / 8L;
     }
 
     @Nullable
