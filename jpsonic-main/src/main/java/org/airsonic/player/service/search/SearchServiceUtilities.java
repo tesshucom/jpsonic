@@ -29,7 +29,6 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
@@ -44,7 +43,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -52,6 +50,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -220,13 +219,11 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final String[] validate(String[] Fields, SearchCriteria criteria) {
-        boolean composerUsable = criteria.isIncludeComposer();
-        List<String> fields = new ArrayList<>();
-        Arrays.asList(Fields).stream()
-                .filter(f -> composerUsable ? true : !FieldNames.COMPOSER.equals(f))
-                .filter(f -> composerUsable ? true : !FieldNames.COMPOSER_READING.equals(f)).forEach(e -> fields.add(e));
-        return fields.toArray(new String[fields.size()]);
+    public final String[] filterComposer(String[] Fields, boolean includeComposer) {
+        return Arrays.asList(Fields).stream()
+                .filter(f -> includeComposer ? true : !FieldNames.COMPOSER.equals(f))
+                .filter(f -> includeComposer ? true : !FieldNames.COMPOSER_READING.equals(f))
+                .collect(Collectors.toList()).toArray(new String[0]);
     }
 
     private final String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {

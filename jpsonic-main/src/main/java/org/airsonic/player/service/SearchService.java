@@ -27,10 +27,9 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.RandomSearchCriteria;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
-import org.airsonic.player.service.search.IndexType;
-import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.UPnPSearchCriteria;
 
 import java.util.List;
 
@@ -49,15 +48,16 @@ public interface SearchService {
      * It is the most popular search inherited from legacy servers
      * and has been used from the Web and REST since ancient times.
      * 
+     * @since 107.3.0
      * @return search　result
      */
-    SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders, IndexType indexType);
+    SearchResult search(SearchCriteria criteria);
 
     /**
-     * Perform a search that comply with the UPnP Service Template with UPnPSearchCriteria.
+     * Perform a search that comply with the UPnP Service Template with UPnPCriteria.
      * Criteria is built using a dedicated Director class (UPnPCriteriaDirector).
      * 
-     * @param <T> see UPnPSearchCriteria#getAssignableClass
+     * @param <T> see UPnPCriteria#getAssignableClass
      * @since 106.1.0
      * @return search　result
      */

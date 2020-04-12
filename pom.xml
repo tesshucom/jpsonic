@@ -467,6 +467,8 @@
                          tests with large amounts of IO and advance data changes are not suitable for Travis)
 
                         mvn clean test -DfailIfNoTests=false  -Dtest=com/tesshu/jpsonic/*/*.java
+                        mvn clean test -DfailIfNoTests=false  -Dtest=org/airsonic/player/service/search/*.java
+
                         Or run alone.
                     -->
                     com.tesshu.jpsonic.dao.JMediaFileDaoGuessPersonsSortsTest,

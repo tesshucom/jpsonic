@@ -23,7 +23,6 @@ package org.airsonic.player.service.search;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
-import org.airsonic.player.domain.SearchCriteria;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -180,7 +179,7 @@ public class QueryFactory {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = util.validate(indexType.getFields(), criteria);
+        String[] fields = util.filterComposer(indexType.getFields(), criteria.isIncludeComposer());
         Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 

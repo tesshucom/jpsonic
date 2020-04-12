@@ -5,7 +5,6 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.util.HomeRule;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class UPnPCriteriaDirectorTestCase extends AbstractAirsonicHomeTest {
+public class UPnPSearchCriteriaDirectorTestCase extends AbstractAirsonicHomeTest {
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -50,7 +49,7 @@ public class UPnPCriteriaDirectorTestCase extends AbstractAirsonicHomeTest {
     SettingsService settingsService;
 
     @Resource
-    UPnPCriteriaDirector builder;
+    UPnPSearchCriteriaDirector builder;
 
     private String path = "";
     private String fid = "";

@@ -28,13 +28,18 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.airsonic.player.util.StringUtil;
 import org.airsonic.player.util.Util;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
 import java.util.*;
 
 import static org.airsonic.player.service.NetworkService.getBaseUrl;
@@ -45,6 +50,9 @@ import static org.airsonic.player.service.NetworkService.getBaseUrl;
  */
 @Service
 public class SonosHelper {
+
+
+    private static final Logger LOG = LoggerFactory.getLogger(SonosHelper.class);
 
     public static final String JPSONIC_CLIENT_ID = "sonos";
 
@@ -72,6 +80,8 @@ public class SonosHelper {
     private PodcastService podcastService;
     @Autowired
     private CoverArtLogic coverArtLogic;
+    @Autowired
+    private SearchCriteriaDirector director;
 
     public List<AbstractMedia> forRoot() {
         MediaMetadata shuffle = new MediaMetadata();
@@ -528,23 +538,24 @@ public class SonosHelper {
 
     public MediaList forSearch(String query, int offset, int count, IndexType indexType, String username, HttpServletRequest request) {
 
-        SearchCriteria searchCriteria = new SearchCriteria();
-        searchCriteria.setCount(count);
-        searchCriteria.setOffset(offset);
-        searchCriteria.setQuery(query);
-        searchCriteria.setIncludeComposer(settingsService.isSearchComposer());
+        MediaList result = new MediaList();
+
+        boolean includeComposer = settingsService.isSearchComposer();
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
-        SearchResult searchResult = searchService.search(searchCriteria, musicFolders, indexType);
-
-        MediaList result = new MediaList();
-        result.setTotal(searchResult.getTotalHits());
-        result.setIndex(offset);
-        result.setCount(searchResult.getMediaFiles().size());
-        for (MediaFile mediaFile : searchResult.getMediaFiles()) {
-            result.getMediaCollectionOrMediaMetadata().add(forMediaFile(mediaFile, username, request));
+        try {
+            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders, indexType);
+            SearchResult searchResult = searchService.search(criteria);
+            result.setTotal(searchResult.getTotalHits());
+            result.setIndex(offset);
+            result.setCount(searchResult.getMediaFiles().size());
+            for (MediaFile mediaFile : searchResult.getMediaFiles()) {
+                result.getMediaCollectionOrMediaMetadata().add(forMediaFile(mediaFile, username, request));
+            }
+        } catch (IOException e) {
+            // Usually unreachable
+            LOG.warn("Search query generation failed.", e.getMessage());
         }
-
         return result;
     }
 

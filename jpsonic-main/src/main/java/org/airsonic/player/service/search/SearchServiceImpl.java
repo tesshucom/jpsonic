@@ -24,7 +24,6 @@ import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.*;
@@ -63,8 +62,7 @@ public class SearchServiceImpl implements SearchService {
     private JMediaFileDao mediaFileDao;
 
     @Override
-    public SearchResult search(SearchCriteria criteria, List<MusicFolder> musicFolders,
-            IndexType indexType) {
+    public SearchResult search(SearchCriteria criteria) {
 
         SearchResult result = new SearchResult();
         int offset = criteria.getOffset();
@@ -74,32 +72,31 @@ public class SearchServiceImpl implements SearchService {
         if (count <= 0)
             return result;
 
-        IndexSearcher searcher = indexManager.getSearcher(indexType);
+        IndexSearcher searcher = indexManager.getSearcher(criteria.getIndexType());
         if (isEmpty(searcher)) {
             return result;
         }
 
         try {
-            Query query = queryFactory.search(criteria, musicFolders, indexType);
 
-            TopDocs topDocs = searcher.search(query, offset + count);
+            TopDocs topDocs = searcher.search(criteria.getParsedQuery(), offset + count);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             result.setTotalHits(totalHits);
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
             for (int i = start; i < end; i++) {
-                util.addIfAnyMatch(result, indexType, searcher.doc(topDocs.scoreDocs[i].doc));
+                util.addIfAnyMatch(result, criteria.getIndexType(), searcher.doc(topDocs.scoreDocs[i].doc));
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.getIndexType(), criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            indexManager.release(indexType, searcher);
+            indexManager.release(criteria.getIndexType(), searcher);
         }
         return result;
     }

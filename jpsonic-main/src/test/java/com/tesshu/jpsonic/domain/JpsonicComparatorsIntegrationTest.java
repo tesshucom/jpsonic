@@ -25,7 +25,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
@@ -33,6 +32,8 @@ import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,6 +131,9 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
     @Autowired
     private JpsonicComparators comparators;
 
+    @Autowired
+    private SearchCriteriaDirector director;
+
     @Override
     public List<MusicFolder> getMusicFolders() {
         return musicFolders;
@@ -184,10 +188,8 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
      */
     @Test
     public void testGetMultiFolderChildren() throws IOException {
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("10");
-        criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ARTIST);
+        SearchResult result = searchService.search(criteria);
         List<MediaFile> artists = mainController.getMultiFolderChildren(result.getMediaFiles());
         List<String> artistNames = artists.stream().map(m -> m.getName()).collect(Collectors.toList());
         JpsonicComparatorsTestUtils.validateNaturalList(artistNames);
@@ -215,11 +217,9 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
      * @throws IOException
      */
     @Test
-    public void testGetChildrenOf() {
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("10");
-        criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+    public void testGetChildrenOf() throws IOException {
+        SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.ARTIST);
+        SearchResult result = searchService.search(criteria);
         List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true, true);
         List<String> albums = files.stream().map(m -> m.getName()).collect(Collectors.toList());
         JpsonicComparatorsTestUtils.validateNaturalList(albums);
@@ -245,13 +245,12 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
     /**
      * {@link PlayQueue#sort(java.util.Comparator)}
+     * @throws IOException 
      */
     @Test
-    public void testPlayQueueSort() {
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery("empty");
-        criteria.setCount(Integer.MAX_VALUE);
-        SearchResult result = searchService.search(criteria, musicFolders, IndexType.SONG);
+    public void testPlayQueueSort() throws IOException {
+        SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG);
+        SearchResult result = searchService.search(criteria);
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());
         playQueue.shuffle();

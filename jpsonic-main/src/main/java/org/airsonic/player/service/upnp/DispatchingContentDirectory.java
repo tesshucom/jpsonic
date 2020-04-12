@@ -23,8 +23,8 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.search.UPnPCriteriaDirector;
-import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
+import org.airsonic.player.service.search.UPnPSearchCriteria;
+import org.airsonic.player.service.search.UPnPSearchCriteriaDirector;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
@@ -80,7 +80,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
     private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
 
-    private final UPnPCriteriaDirector criteriaDirector;
+    private final UPnPSearchCriteriaDirector director;
     private final SearchService searchService;
 
     public DispatchingContentDirectory(// @formatter:off
@@ -100,7 +100,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
             @Lazy RandomSongByArtistUpnpProcessor randomsbap,
             @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
-            UPnPCriteriaDirector cd,
+            UPnPSearchCriteriaDirector cd,
             SearchService ss) { // @formatter:on
         super();
         rootProcessor = rp;
@@ -119,7 +119,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         randomSongProcessor = randomsp;
         randomSongByArtistProcessor = randomsbap;
         randomSongByFolderArtistProcessor = randomsbfap;
-        criteriaDirector = cd;
+        director = cd;
         searchService = ss;
     }
 
@@ -177,14 +177,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             count = COUNT_MAX - offset;
         }
 
-        UPnPSearchCriteria upnpCriteria = criteriaDirector.construct(offset, count, upnpSearchQuery);
+        UPnPSearchCriteria criteria = director.construct(offset, count, upnpSearchQuery);
 
-        if (Artist.class == upnpCriteria.getAssignableClass()) {
-            return getArtistProcessor().toBrowseResult(searchService.search(upnpCriteria));
-        } else if (Album.class == upnpCriteria.getAssignableClass()) {
-            return getAlbumProcessor().toBrowseResult(searchService.search(upnpCriteria));
-        } else if (MediaFile.class == upnpCriteria.getAssignableClass()) {
-            return getMediaFileProcessor().toBrowseResult(searchService.search(upnpCriteria));
+        if (Artist.class == criteria.getAssignableClass()) {
+            return getArtistProcessor().toBrowseResult(searchService.search(criteria));
+        } else if (Album.class == criteria.getAssignableClass()) {
+            return getAlbumProcessor().toBrowseResult(searchService.search(criteria));
+        } else if (MediaFile.class == criteria.getAssignableClass()) {
+            return getMediaFileProcessor().toBrowseResult(searchService.search(criteria));
         }
 
         return new BrowseResult(StringUtils.EMPTY, 0, 0L, 0L);
