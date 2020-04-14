@@ -33,6 +33,7 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.Documented;
 import java.util.Arrays;
 import java.util.List;
 
@@ -41,6 +42,36 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class SearchCriteriaDirectorTest {
+
+    @Documented
+    private @interface DirectorDecisions {
+        @interface Conditions {
+            @SuppressWarnings("unused")
+            @interface searchInput {}
+            @SuppressWarnings("unused")
+            @interface offset {}
+            @SuppressWarnings("unused")
+            @interface count {}
+            @interface includeComposer {
+                @interface FALSE {}
+                @interface TRUE {}
+            }
+            @interface musicFolders {
+                @interface SINGLE_FOLDERS {}
+                @interface MULTI_FOLDERS {}
+            }
+            @interface indexType {
+                @interface ARTIST {}
+                @interface ALBUM {}
+                @interface SONG {}
+                @interface ARTIST_ID3 {}
+                @interface ALBUM_ID3 {}
+            }
+        }
+        @interface Actions {
+            @interface construct {}
+        }
+    }
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -82,6 +113,187 @@ public class SearchCriteriaDirectorTest {
     private final int offset = 10;
     private final int count = Integer.MAX_VALUE;
     private final boolean includeComposer = false;
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c01() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ARTIST);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.TRUE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c02() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ARTIST);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.MULTI_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c03() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ARTIST);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c04() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ALBUM);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.TRUE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c05() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ALBUM);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.MULTI_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c06() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ALBUM);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.SONG
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c07() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.SONG);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.TRUE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.SONG
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c08() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.SONG);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2 (cmpR:abc*)^1.1 cmp:abc*) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2 (cmpR:123*)^1.1 cmp:123*)) +(f:" + PATH1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.MULTI_FOLDERS
+    @DirectorDecisions.Conditions.indexType.SONG
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c09() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.SONG);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                criteria.getParsedQuery().toString());
+    }
+    
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c10() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ARTIST_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.TRUE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c11() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ARTIST_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.MULTI_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ARTIST_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c12() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c13() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ALBUM_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.TRUE
+    @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c14() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ALBUM_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                criteria.getParsedQuery().toString());
+    }
+
+    @DirectorDecisions.Conditions.includeComposer.FALSE
+    @DirectorDecisions.Conditions.musicFolders.MULTI_FOLDERS
+    @DirectorDecisions.Conditions.indexType.ALBUM_ID3
+    @DirectorDecisions.Actions.construct
+    @Test
+    public void c15() throws IOException {
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ALBUM_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+                criteria.getParsedQuery().toString());
+    }
 
     @Test
     public void testSearchAlbum() throws IOException {

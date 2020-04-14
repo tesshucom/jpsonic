@@ -34,7 +34,7 @@ public class SearchCriteriaDirector {
     public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
         SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders, indexType);
         // TODO #407 Support for exact match/prefix/ phrase search
-        criteria.setParsedQuery(queryFactory.search(criteria, musicFolders, indexType));
+        criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
         return criteria;
     }
 

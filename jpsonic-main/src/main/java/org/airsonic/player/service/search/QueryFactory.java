@@ -168,19 +168,19 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}.
      * 
-     * @param criteria criteria
+     * @param searchInput searchInput
+     * @param includeComposer includeComposer
      * @param musicFolders musicFolders
      * @param indexType {@link IndexType}
      * @return Query
      * @throws IOException When parsing of MultiFieldQueryParser fails
      */
-    public Query search(SearchCriteria criteria, List<MusicFolder> musicFolders,
+    public Query search(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
             IndexType indexType) throws IOException {
-
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = util.filterComposer(indexType.getFields(), criteria.isIncludeComposer());
-        Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
+        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
+        Query multiFieldQuery = createMultiFieldWildQuery(fields, searchInput, indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
