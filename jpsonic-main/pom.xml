@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>10.6.0-SNAPSHOT</version>
+        <version>10.6.0-RELEASE</version>
     </parent>
 
     <properties>
@@ -669,10 +669,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <reuseForks>false</reuseForks>
-                    <!-- #1186 Temporarily skip a test. -->
-                    <excludes>
-                        <exclude>org.airsonic.player.service.InternetRadioServiceTest</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
