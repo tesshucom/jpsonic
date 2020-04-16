@@ -23,7 +23,6 @@ package org.airsonic.player.service.search;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
-import org.airsonic.player.domain.SearchCriteria;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -169,19 +168,19 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}.
      * 
-     * @param criteria criteria
+     * @param searchInput searchInput
+     * @param includeComposer includeComposer
      * @param musicFolders musicFolders
      * @param indexType {@link IndexType}
      * @return Query
      * @throws IOException When parsing of MultiFieldQueryParser fails
      */
-    public Query search(SearchCriteria criteria, List<MusicFolder> musicFolders,
+    public Query search(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
             IndexType indexType) throws IOException {
-
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
 
-        String[] fields = util.validate(indexType.getFields(), criteria);
-        Query multiFieldQuery = createMultiFieldWildQuery(fields, criteria.getQuery(), indexType);
+        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
+        Query multiFieldQuery = createMultiFieldWildQuery(fields, searchInput, indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;

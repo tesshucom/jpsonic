@@ -109,10 +109,10 @@ public class MusicFolderSettingsController {
         /*
          * indexManager#expunge depends on DB delete flag.
          * For consistency, clean of DB and Lucene must run in one block.
-         * 
+         *
          * Lucene's writing is exclusive.
          * This process cannot be performed
-         * while during Scan or Scan has never been performed.
+         * while during scan or scan has never been performed.
          */
         if (statistics != null && !mediaScannerService.isScanning()) {
 

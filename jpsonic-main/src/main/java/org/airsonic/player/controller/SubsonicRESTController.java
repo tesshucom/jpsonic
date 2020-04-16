@@ -34,6 +34,8 @@ import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.i18n.LocaleResolver;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.airsonic.player.util.StringUtil;
 import org.airsonic.player.util.Util;
 import org.apache.commons.lang.StringUtils;
@@ -140,6 +142,8 @@ public class SubsonicRESTController {
     private LocaleResolver localeResolver;
     @Autowired
     private CoverArtLogic logic;
+    @Autowired
+    private SearchCriteriaDirector director;
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
 
@@ -682,14 +686,13 @@ public class SubsonicRESTController {
             query.append(title);
         }
 
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery(query.toString().trim());
-        criteria.setCount(getIntParameter(request, "count", 20));
-        criteria.setOffset(getIntParameter(request, "offset", 0));
-        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());
+        int offset = getIntParameter(request, "offset", 0);
+        int count = getIntParameter(request, "count", 20);
+        boolean includeComposer = settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        SearchCriteria criteria = director.construct(query.toString().trim(), offset, count, includeComposer, musicFolders, IndexType.SONG);
 
-        org.airsonic.player.domain.SearchResult result = searchService.search(criteria, musicFolders, IndexType.SONG);
+        org.airsonic.player.domain.SearchResult result = searchService.search(criteria);
         org.subsonic.restapi.SearchResult searchResult = new org.subsonic.restapi.SearchResult();
         searchResult.setOffset(result.getOffset());
         searchResult.setTotalHits(result.getTotalHits());
@@ -708,31 +711,33 @@ public class SubsonicRESTController {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
-        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
 
         SearchResult2 searchResult = new SearchResult2();
 
-        String query = request.getParameter("query");
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery(StringUtils.trimToEmpty(query));
-        criteria.setCount(getIntParameter(request, "artistCount", 20));
-        criteria.setOffset(getIntParameter(request, "artistOffset", 0));
-        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());        
-        org.airsonic.player.domain.SearchResult artists = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        String searchInput = StringUtils.trimToEmpty(request.getParameter("query"));
+        int offset = getIntParameter(request, "artistOffset", 0);
+        int count = getIntParameter(request, "artistCount", 20);
+        boolean includeComposer = settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
+        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
+
+        SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
+        org.airsonic.player.domain.SearchResult artists = searchService.search(criteria);
         for (MediaFile mediaFile : artists.getMediaFiles()) {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
         }
 
-        criteria.setCount(getIntParameter(request, "albumCount", 20));
-        criteria.setOffset(getIntParameter(request, "albumOffset", 0));
-        org.airsonic.player.domain.SearchResult albums = searchService.search(criteria, musicFolders, IndexType.ALBUM);
+        offset = getIntParameter(request, "albumOffset", 0);
+        count = getIntParameter(request, "albumCount", 20);
+        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+        org.airsonic.player.domain.SearchResult albums = searchService.search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
         }
 
-        criteria.setCount(getIntParameter(request, "songCount", 20));
-        criteria.setOffset(getIntParameter(request, "songOffset", 0));
-        org.airsonic.player.domain.SearchResult songs = searchService.search(criteria, musicFolders, IndexType.SONG);
+        offset = getIntParameter(request, "songOffset", 0);
+        count = getIntParameter(request, "songCount", 20);
+        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
+        org.airsonic.player.domain.SearchResult songs = searchService.search(criteria);
         for (MediaFile mediaFile : songs.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, mediaFile, username));
         }
@@ -748,31 +753,33 @@ public class SubsonicRESTController {
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
-        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
 
         SearchResult3 searchResult = new SearchResult3();
 
-        String query = request.getParameter("query");
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setQuery(StringUtils.trimToEmpty(query));
-        criteria.setCount(getIntParameter(request, "artistCount", 20));
-        criteria.setOffset(getIntParameter(request, "artistOffset", 0));
-        criteria.setIncludeComposer(settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible());        
-        org.airsonic.player.domain.SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST_ID3);
+        String searchInput = StringUtils.trimToEmpty(request.getParameter("query"));
+        int offset = getIntParameter(request, "artistOffset", 0);
+        int count = getIntParameter(request, "artistCount", 20);
+        boolean includeComposer = settingsService.isSearchComposer() || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
+        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username, musicFolderId);
+
+        SearchCriteria criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ARTIST_ID3);
+        org.airsonic.player.domain.SearchResult result = searchService.search(criteria);
         for (org.airsonic.player.domain.Artist artist : result.getArtists()) {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
         }
 
-        criteria.setCount(getIntParameter(request, "albumCount", 20));
-        criteria.setOffset(getIntParameter(request, "albumOffset", 0));
-        result = searchService.search(criteria, musicFolders, IndexType.ALBUM_ID3);
+        offset = getIntParameter(request, "albumOffset", 0);
+        count = getIntParameter(request, "albumCount", 20);
+        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM_ID3);
+        result = searchService.search(criteria);
         for (Album album : result.getAlbums()) {
             searchResult.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
 
-        criteria.setCount(getIntParameter(request, "songCount", 20));
-        criteria.setOffset(getIntParameter(request, "songOffset", 0));
-        result = searchService.search(criteria, musicFolders, IndexType.SONG);
+        offset = getIntParameter(request, "songOffset", 0);
+        count = getIntParameter(request, "songCount", 20);
+        criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
+        result = searchService.search(criteria);
         for (MediaFile song : result.getMediaFiles()) {
             searchResult.getSong().add(createJaxbChild(player, song, username));
         }
@@ -2105,7 +2112,10 @@ public class SubsonicRESTController {
         if (u == null) {
             error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
-        } else if (org.airsonic.player.domain.User.USERNAME_ADMIN.equals(username)) {
+        } else if (user.getUsername().equals(username)) {
+            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
+            return;
+        } else if (securityService.isAdmin(username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change admin user");
             return;
         }
@@ -2160,7 +2170,15 @@ public class SubsonicRESTController {
         }
 
         String username = getRequiredStringParameter(request, "username");
-        if (org.airsonic.player.domain.User.USERNAME_ADMIN.equals(username)) {
+        org.airsonic.player.domain.User u = securityService.getUserByName(username);
+
+        if (u == null) {
+            error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            return;
+        } else if (user.getUsername().equals(username)) {
+            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");
+            return;
+        } else if (securityService.isAdmin(username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete admin user");
             return;
         }

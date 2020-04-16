@@ -26,7 +26,6 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
@@ -81,10 +80,6 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
     @Before
     public void setup() throws Exception {
         Date now = GregorianCalendar.getInstance().getTime();
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setCount(Integer.MAX_VALUE);
-        criteria.setQuery("file");
-
         mediaScannerService.setJpsonicCleansingProcess(false);
 
         populateDatabaseOnlyOnce(null, () -> {

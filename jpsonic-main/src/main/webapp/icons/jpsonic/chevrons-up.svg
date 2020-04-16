@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="svg8" width="30" height="30" version="1.1">
+	<defs/>
+	<circle id="circle2" cx="15.004" cy="15.003" r="14.297" style="fill:#9cc9fc;fill-rule:evenodd;stroke:#7eabdf;stroke-width:1.40677667"/>
+	<g id="g4570" transform="matrix(.92518 0 0 .92518 -27.974 -1.514)">
+		<path id="path4526" d="M54.12 7.976v13.321c0 .975-1.078-.162-3.19.082-2.71.336-4.623 2.46-4.616 4.456.007 1.997 2.209 3.344 4.916 3.008 3.193-.154 5.231-2.23 5.224-4.227V7.976z" class="st0" style="fill:#fff;fill-opacity:1;stroke-width:.04085599"/>
+		<path id="rect4528" d="M36.452 8.225h14.216v2.421H36.452z" class="st0" style="fill:#fff;fill-opacity:1;stroke-width:.04085599"/>
+		<path id="rect4530" d="M36.452 13.402h14.216v2.421H36.452z" class="st0" style="fill:#fff;fill-opacity:1;stroke-width:.04085599"/>
+		<path id="path4532" d="M36.452 23.757v2.42h7.673a4.117 4.117 0 01-.024-.412 5.07 5.07 0 01.416-2.008h-8.065z" class="st0" style="fill:#fff;fill-opacity:1;stroke-width:.04085599"/>
+		<path id="path4534" d="M50 19.852c.228-.026.449-.038.667-.042v-1.23H36.452V21h10.424A7.306 7.306 0 0150 19.852z" class="st0" style="fill:#fff;fill-opacity:1;stroke-width:.04085599"/>
+	</g>
+</svg>

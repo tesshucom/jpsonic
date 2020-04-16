@@ -26,6 +26,8 @@ import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -59,6 +61,8 @@ public class SearchController {
     private PlayerService playerService;
     @Autowired
     private SearchService searchService;
+    @Autowired
+    private SearchCriteriaDirector director;
 
     @GetMapping
     protected String displayForm() {
@@ -86,18 +90,20 @@ public class SearchController {
 
         if (query != null) {
 
-            SearchCriteria criteria = new SearchCriteria();
-            criteria.setCount(MATCH_COUNT);
-            criteria.setQuery(query);
-            criteria.setIncludeComposer(settingsService.isSearchComposer() || userSettings.getMainVisibility().isComposerVisible());
+            int offset = 0;
+            int count = MATCH_COUNT;
+            boolean includeComposer = settingsService.isSearchComposer() || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchResult artists = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
+            SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());
 
-            SearchResult albums = searchService.search(criteria, musicFolders, IndexType.ALBUM);
+            criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+            SearchResult albums = searchService.search(criteria);
             command.setAlbums(albums.getMediaFiles());
 
-            SearchResult songs = searchService.search(criteria, musicFolders, IndexType.SONG);
+            criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.SONG);
+            SearchResult songs = searchService.search(criteria);
             command.setSongs(songs.getMediaFiles());
 
             command.setPlayer(playerService.getPlayer(request, response));

@@ -55,7 +55,6 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.lucene.UPnPSearchCriteria;
 import org.airsonic.player.service.upnp.processor.UpnpProcessorUtil;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -85,7 +84,6 @@ import static org.apache.commons.lang3.StringUtils.SPACE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-
 /**
  * Director class for use Lucene's QueryBuilder at the same time as UPnP message
  * parsing.
@@ -97,9 +95,9 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  */
 @Component
 @Scope("prototype")
-public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
+public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UPnPCriteriaDirector.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UPnPSearchCriteriaDirector.class);
 
     private final QueryFactory queryFactory;
 
@@ -113,9 +111,16 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
 
     private BooleanQuery.Builder propExpQueryBuilder;
 
-    private UPnPSearchCriteria criteria;
-
     private Occur lastLogOp;
+    
+    private boolean includeComposer;
+    
+    private Class<?> assignableClass;
+    
+    private int offset;
+    private int count;
+    private String upnpSearchQuery;
+    private UPnPSearchCriteria result;
 
     BiConsumer<Boolean, String> notice = (b, message) -> {
         if (b)
@@ -132,7 +137,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
             "object.container.storageVolume",
             "object.container.storageFolder");
 
-    public UPnPCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
+    public UPnPSearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
         this.queryFactory = queryFactory;
         this.settingsService = settingsService;
         this.upnpUtil = util;
@@ -140,15 +145,15 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     public UPnPSearchCriteria construct(int offset, int count, String upnpSearchQuery) {
+        this.offset = offset;
+        this.count = count;
+        this.upnpSearchQuery = upnpSearchQuery;
         UPnPSearchCriteriaLexer lexer = new UPnPSearchCriteriaLexer(CharStreams.fromString(upnpSearchQuery));
         CommonTokenStream stream = new CommonTokenStream(lexer);
         UPnPSearchCriteriaParser parser = new UPnPSearchCriteriaParser(stream);
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(this, parser.parse());
-        criteria.setOffset(offset);
-        criteria.setCount(count);
-        criteria.setQuery(upnpSearchQuery);
-        return criteria;
+        return result;
     }
 
     @Override
@@ -187,7 +192,6 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
             throw createIllegal("The current version does not support searching for this class.", S, V, C);
         }
 
-        criteria = new UPnPSearchCriteria();
         if (C.startsWith("object.item.audioItem") || C.startsWith("object.item.videoItem")) {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
         } else {
@@ -201,18 +205,18 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
                     // artist
                     case "object.container.person":
                     case "object.container.person.musicArtist":
-                        criteria.setAssignableClass(Artist.class);
+                        assignableClass = Artist.class;
                         break;
 
                     // album
                     case "object.container.album":
                     case "object.container.album.musicAlbum":
-                        criteria.setAssignableClass(Album.class);
+                        assignableClass = Album.class;
                         break;
 
                     // audio
                     case "object.item.audioItem":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
@@ -220,7 +224,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
 
                     // video
                     case "object.item.videoItem":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
                         break;
 
@@ -235,25 +239,25 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     
                     // artist
                     case "object.container.person.musicArtist":
-                        criteria.setAssignableClass(Artist.class);
+                        assignableClass = Artist.class;
                         break;
 
                     // album
                     case "object.container.album.musicAlbum":
-                        criteria.setAssignableClass(Album.class);
+                        assignableClass = Album.class;
                         break;
 
                     // audio
                     case "object.item.audioItem.musicTrack":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
                         break;
                     case "object.item.audioItem.audioBroadcast":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
                         break;
                     case "object.item.audioItem.audioBook":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
                         break;
 
@@ -261,7 +265,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.videoItem.movie":
                     case "object.item.videoItem.videoBroadcast":
                     case "object.item.videoItem.musicVideoClip":
-                        criteria.setAssignableClass(MediaFile.class);
+                        assignableClass = MediaFile.class;
                         mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
                         break;
 
@@ -275,7 +279,7 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
                 break;
         }
 
-        criteria.setIncludeComposer(settingsService.isSearchComposer() && MediaFile.class == criteria.getAssignableClass());
+        includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
 
     }
 
@@ -355,10 +359,10 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
         List<String> fieldName = new ArrayList<String>();
 
         if ("dc:title".equals(S)) {
-            if (Album.class == criteria.getAssignableClass()) {
+            if (Album.class == assignableClass) {
                 fieldName.add(FieldNames.ALBUM_EX);
                 fieldName.add(FieldNames.ALBUM);
-            } else if (Artist.class == criteria.getAssignableClass()) {
+            } else if (Artist.class == assignableClass) {
                 fieldName.add(FieldNames.ARTIST_READING);
                 fieldName.add(FieldNames.ARTIST_EX);
                 fieldName.add(FieldNames.ARTIST);
@@ -506,7 +510,9 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
         Query folderQuery = queryFactory.toFolderQuery.apply(isId3, upnpUtil.getAllMusicFolders());
         mainQuery.add(folderQuery, Occur.MUST);
 
-        criteria.setParsedQuery(mainQuery.build());
+        result = new UPnPSearchCriteria(upnpSearchQuery, offset, count, includeComposer);
+        result.setAssignableClass(assignableClass);
+        result.setParsedQuery(mainQuery.build());
 
     }
 
@@ -575,16 +581,15 @@ public class UPnPCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
-        return queryFactory.createMultiFieldWildQuery(searchUtil.validate(fields, criteria), query, getIndexType());
+        return queryFactory.createMultiFieldWildQuery(searchUtil.filterComposer(fields, includeComposer), query, getIndexType());
     }
 
     private IndexType getIndexType() {
-        Class<?> clazz = criteria.getAssignableClass();
-        if (MediaFile.class == clazz) {
+        if (MediaFile.class == assignableClass) {
             return IndexType.SONG;
-        } else if (Artist.class == clazz) {
+        } else if (Artist.class == assignableClass) {
             return IndexType.ARTIST_ID3;
-        } else if (Album.class == clazz) {
+        } else if (Album.class == assignableClass) {
             return IndexType.ALBUM_ID3;
         }
         return null;

@@ -40,6 +40,8 @@ Sony/Apple tag specifications, which have a significant impact on commercial are
 <details>
 <summary>Tags supported by Jpsonic</summary>
 
+Supports multiple genres.
+
 |tag name |tag id|Subsonic/Airsonic |Jpsonic |Music Center (SONY) |itunes (APPLE)
 |:---|:---|:---:|:---:|:---:|:---:|
 |title |TIT2 |● |● |● |●
@@ -163,7 +165,7 @@ For this reason, Jpsonic has many new features.
 
 You can add or delete items you want to use from the setting screen.
 These features include those that are not supported on the web.
-Id3 index and higher entropy shuffle etc.
+Id3 index etc.
 
 Unlike Subsonic/Airsonic, Jpsonic has integrated and refactored sort-logic.
 Therefore, tree expansion on UPnP works faster than Subsonic/Airsonic.

@@ -23,7 +23,6 @@ import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.domain.SearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
 import org.junit.Before;
@@ -34,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,21 +51,9 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
     private IndexManager indexManager;
-
-    @Override
-    public List<MusicFolder> getMusicFolders() {
-        if (isEmpty(musicFolders)) {
-            musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath.apply("Music"));
-            musicFolders.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
-        }
-        return musicFolders;
-    }
-
-    @Before
-    public void setup() {
-        populateDatabaseOnlyOnce();
-    }
+    
+    @Autowired
+    private SearchCriteriaDirector director;
 
     @Autowired
     private MediaFileDao mediaFileDao;
@@ -82,28 +70,38 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
     @Autowired
     ResourceLoader resourceLoader;
 
+    @Override
+    public List<MusicFolder> getMusicFolders() {
+        if (isEmpty(musicFolders)) {
+            musicFolders = new ArrayList<>();
+            File musicDir = new File(resolveBaseMediaPath.apply("Music"));
+            musicFolders.add(new MusicFolder(1, musicDir, "Music", true, new Date()));
+        }
+        return musicFolders;
+    }
+
+    @Before
+    public void setup() {
+        populateDatabaseOnlyOnce();
+    }
+
     @Test
-    public void testExpunge() {
+    public void testExpunge() throws IOException {
 
-        SearchCriteria criteria = new SearchCriteria();
-        criteria.setOffset(0);
-        criteria.setCount(Integer.MAX_VALUE);
-        criteria.setQuery("_DIR_ Ravel");
+        int offset = 0;
+        int count = Integer.MAX_VALUE;
+        boolean includeComposer = false;
 
-        SearchCriteria criteriaSong = new SearchCriteria();
-        criteriaSong.setOffset(0);
-        criteriaSong.setCount(Integer.MAX_VALUE);
-        criteriaSong.setQuery("Gaspard");
-
-        SearchCriteria criteriaAlbumId3 = new SearchCriteria();
-        criteriaAlbumId3.setOffset(0);
-        criteriaAlbumId3.setCount(Integer.MAX_VALUE);
-        criteriaAlbumId3.setQuery("Complete Piano Works");
+        SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, includeComposer, musicFolders, IndexType.ARTIST);
+        SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, includeComposer, musicFolders, IndexType.ALBUM);
+        SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, includeComposer, musicFolders, IndexType.SONG);
+        SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, includeComposer, musicFolders, IndexType.ARTIST_ID3);
+        SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, includeComposer, musicFolders, IndexType.ALBUM_ID3);
 
         /* Delete DB record. */
 
         // artist
-        SearchResult result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        SearchResult result = searchService.search(criteriaArtist);
         assertEquals(2, result.getMediaFiles().size());
         assertEquals("_DIR_ Ravel", result.getMediaFiles().get(0).getName());
         assertEquals("_DIR_ Sixteen Horsepower", result.getMediaFiles().get(1).getName());
@@ -117,10 +115,9 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         assertEquals(2, candidates.size());
 
         // album
-        result = searchService.search(criteria, musicFolders, IndexType.ALBUM);
-        assertEquals(2, result.getMediaFiles().size());
+        result = searchService.search(criteriaAlbum);
+        assertEquals(1, result.getMediaFiles().size());
         assertEquals("_DIR_ Ravel - Complete Piano Works", result.getMediaFiles().get(0).getName());
-        assertEquals("_DIR_ Ravel - Chamber Music With Voice", result.getMediaFiles().get(1).getName());
 
         candidates = mediaFileDao.getAlbumExpungeCandidates();
         assertEquals(0, candidates.size());
@@ -128,10 +125,10 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         result.getMediaFiles().forEach(a -> mediaFileDao.deleteMediaFile(a.getPath()));
 
         candidates = mediaFileDao.getAlbumExpungeCandidates();
-        assertEquals(2, candidates.size());
+        assertEquals(1, candidates.size());
 
         // song
-        result = searchService.search(criteriaSong, musicFolders, IndexType.SONG);
+        result = searchService.search(criteriaSong);
         assertEquals(2, result.getMediaFiles().size());
         if ("01 - Gaspard de la Nuit - i. Ondine".equals(result.getMediaFiles().get(0).getName())) {
             assertEquals("02 - Gaspard de la Nuit - ii. Le Gibet", result.getMediaFiles().get(1).getName());
@@ -150,7 +147,7 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         assertEquals(2, candidates.size());
 
         // artistid3
-        result = searchService.search(criteria, musicFolders, IndexType.ARTIST_ID3);
+        result = searchService.search(criteriaArtistId3);
         assertEquals(1, result.getArtists().size());
         assertEquals("_DIR_ Ravel", result.getArtists().get(0).getName());
 
@@ -163,7 +160,7 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         assertEquals(4, candidates.size());
 
         // albumId3
-        result = searchService.search(criteriaAlbumId3, musicFolders, IndexType.ALBUM_ID3);
+        result = searchService.search(criteriaAlbumId3);
         assertEquals(1, result.getAlbums().size());
         assertEquals("Complete Piano Works", result.getAlbums().get(0).getName());
 
@@ -181,23 +178,22 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
         indexManager.stopIndexing(indexManager.getStatistics());
 
         /*
-         * Subsequent search results.
-         * Results can also be confirmed with Luke.
+         * Subsequent search results. Results can also be confirmed with Luke.
          */
 
-        result = searchService.search(criteria, musicFolders, IndexType.ARTIST);
+        result = searchService.search(criteriaArtist);
         assertEquals(0, result.getMediaFiles().size());
 
-        result = searchService.search(criteria, musicFolders, IndexType.ALBUM);
+        result = searchService.search(criteriaAlbum);
         assertEquals(0, result.getMediaFiles().size());
 
-        result = searchService.search(criteriaSong, musicFolders, IndexType.SONG);
+        result = searchService.search(criteriaSong);
         assertEquals(0, result.getMediaFiles().size());
 
-        result = searchService.search(criteria, musicFolders, IndexType.ARTIST_ID3);
+        result = searchService.search(criteriaArtistId3);
         assertEquals(0, result.getArtists().size());
 
-        result = searchService.search(criteriaAlbumId3, musicFolders, IndexType.ALBUM_ID3);
+        result = searchService.search(criteriaAlbumId3);
         assertEquals(0, result.getAlbums().size());
 
     }
