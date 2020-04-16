@@ -45,9 +45,9 @@
         </c:forEach>
     </audio>
 
-    <div class="detail" style="text-align:center;">Streaming by <a href="https://airsonic.github.io/"
+    <div class="detail" style="text-align:center;">Streaming by <a href="https://tesshu.com/"
 								   rel="noopener noreferrer"
-                                                                   target="_blank"><b>Airsonic</b></a></div>
+                                                                   target="_blank"><b>Jpsonic</b></a></div>
 
 </div>
 
