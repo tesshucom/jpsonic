@@ -3,6 +3,14 @@
 # jpsonic/jpsonic
 # -->
 
+## v108.0.0
+#### Based on *airsonic 10.6.0-RELEASE*
+
+  * [fix] Update jquery to 3.5.
+  * [fix] Fixed share psge icon image and link.
+  * [update] Removed artist image from biography on Web page.
+    Because this is not a proper implementation under Japanese law.
+    If a better solution is implemented in the future, it will be modified again to display the image.
 
 ## v107.2.0
 #### Based on *airsonic 10.6.0-SNAPSHOT 80ccd82*
