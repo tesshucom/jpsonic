@@ -269,7 +269,7 @@ public class InternalHelpController {
                 IndexReader reader = searcher.getIndexReader();
                 stat.setCount(reader.numDocs());
                 stat.setDeletedCount(reader.numDeletedDocs());
-                indexManager.release(IndexType.ALBUM, searcher);
+                indexManager.release(indexType, searcher);
             } else {
                 stat.setCount(0);
                 stat.setDeletedCount(0);

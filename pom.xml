@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.tesshu.jpsonic.player</groupId>
     <artifactId>jpsonic</artifactId>
-    <version>10.6.0-SNAPSHOT</version>
+    <version>10.6.0-RELEASE</version>
     <name>Jpsonic</name>
     <packaging>pom</packaging>
     <organization>
@@ -93,7 +93,7 @@
             <dependency>
                 <groupId>org.liquibase</groupId>
                 <artifactId>liquibase-core</artifactId>
-                <version>3.8.6</version>
+                <version>3.8.7</version>
             </dependency>
 
             <!-- Fix convergence issues -->
@@ -192,7 +192,8 @@
                 <version>4.7.2</version>
             </dependency>
 
-            <!-- tomcat -->
+            <!-- Tomcat dependencies are normally managed by Spring Boot, but we handle
+                 patch version updates ourselves in order to fix CVEs. -->
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>

@@ -2112,7 +2112,10 @@ public class SubsonicRESTController {
         if (u == null) {
             error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
-        } else if (org.airsonic.player.domain.User.USERNAME_ADMIN.equals(username)) {
+        } else if (user.getUsername().equals(username)) {
+            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
+            return;
+        } else if (securityService.isAdmin(username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change admin user");
             return;
         }
@@ -2167,7 +2170,15 @@ public class SubsonicRESTController {
         }
 
         String username = getRequiredStringParameter(request, "username");
-        if (org.airsonic.player.domain.User.USERNAME_ADMIN.equals(username)) {
+        org.airsonic.player.domain.User u = securityService.getUserByName(username);
+
+        if (u == null) {
+            error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            return;
+        } else if (user.getUsername().equals(username)) {
+            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");
+            return;
+        } else if (securityService.isAdmin(username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete admin user");
             return;
         }
