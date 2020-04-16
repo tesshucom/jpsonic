@@ -574,6 +574,16 @@ td.rightalign {
 .truncate.searchSongArtist{max-width:18%;width:18%;}
 .truncate.searchSongComposer{max-width:18%;width:18%;}
 
+table.artistInfoTable {
+    margin: 0 auto;
+	border: 1px solid #eaebee;
+	border-collapse: separate;
+	border-radius: 10px;
+	border-spacing: 0;
+	width: 80%;
+	line-height: 2em;
+}
+
 a {
 	font-size: 100%;
 	text-decoration: none
