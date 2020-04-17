@@ -128,6 +128,7 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDurationSeconds(audioHeader.getTrackLength());
             }
 
+
         } catch (Throwable x) {
             LOG.warn("Error when parsing tags in " + file, x);
         }
