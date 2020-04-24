@@ -9,13 +9,9 @@ daysUntilClose: 180
 
 # Issues or Pull Requests with these labels will never be considered stale. Set to `[]` to disable
 exemptLabels:
-  - 'enhancement'
   - 'type: enhancement'
-  - 'accepted'
-  - 'status: accepted'
-  - 'critical'
-  - 'priority: critical'
-  - 'neverstale'
+  - 'type: task'
+  - 'status: waiting-for-triage'
 
 # Set to true to ignore issues in a project (defaults to false)
 exemptProjects: false
@@ -24,7 +20,7 @@ exemptProjects: false
 exemptMilestones: false
 
 # Label to use when marking as stale
-staleLabel: stale
+staleLabel: 'status: bulk-closed'
 
 # Comment to post when marking as stale. Set to `false` to disable
 markComment: >
