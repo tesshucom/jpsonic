@@ -454,6 +454,29 @@ public class IndexManager {
                     }
                 });
 
+        if (settingsService.isSearchMethodChanged()) {
+            Arrays.stream(SettingsService.getJpsonicHome()
+                .listFiles((file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
+                .filter(dir -> dir.getName().equals(rootIndexDirectory.get().getName()))
+                .forEach(old -> {
+                    if (FileUtil.exists(old)) {
+                        LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
+                        try {
+                            if (old.isFile()) {
+                                FileUtils.deleteQuietly(old);
+                            } else {
+                                FileUtils.deleteDirectory(old);
+                            }
+                        } catch (IOException e) {
+                            // Log only if failed
+                            LOG.warn("Failed to delete the Index : ".concat(old.getAbsolutePath()), e);
+                        }
+                    }
+                });
+            settingsService.setSearchMethodChanged(false);
+            settingsService.save();
+        }
+
     }
 
     /**

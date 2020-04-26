@@ -24,6 +24,7 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.SettingsService;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -37,6 +38,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.util.BytesRef;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -45,12 +47,14 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * A factory that generates the documents to be stored in the index.
  */
 @Component
+@DependsOn({ "settingsService" })
 public class DocumentFactory {
 
     private static final FieldType TYPE_ID;
@@ -58,6 +62,8 @@ public class DocumentFactory {
     private static final FieldType TYPE_ID_NO_STORE;
 
     private static final FieldType TYPE_KEY;
+
+    private final SettingsService settingsService;
 
     static {
 
@@ -82,6 +88,10 @@ public class DocumentFactory {
         TYPE_KEY.setStored(false);
         TYPE_KEY.freeze();
 
+    }
+
+    public DocumentFactory(SettingsService settingsService) {
+        this.settingsService = settingsService;
     }
 
     @FunctionalInterface
@@ -124,7 +134,6 @@ public class DocumentFactory {
         fieldWords.accept(doc, FieldNames.GENRE, value);
     };
 
-
     private Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> {
         doc.add(new TextField(fieldName, value, Store.YES));
     };
@@ -164,9 +173,7 @@ public class DocumentFactory {
         Document doc = new Document();
         fieldId.accept(doc, mediaFile.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_READING,
-                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
+        acceptArtistReading(doc, mediaFile);
         fieldGenre.accept(doc, mediaFile.getGenre());
         fieldWords.accept(doc, FieldNames.ALBUM, mediaFile.getAlbumName());
         fieldWords.accept(doc, FieldNames.ALBUM_EX, mediaFile.getAlbumName());
@@ -185,9 +192,7 @@ public class DocumentFactory {
         Document doc = new Document();
         fieldId.accept(doc, mediaFile.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_READING,
-                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
+        acceptArtistReading(doc, mediaFile);
         fieldFolderPath.accept(doc, mediaFile.getFolder());
         return doc;
     }
@@ -203,8 +208,7 @@ public class DocumentFactory {
         Document doc = new Document();
         fieldId.accept(doc, album.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, album.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_EX, album.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, album.getArtistSort());
+        acceptArtistReading(doc, album);
         fieldGenre.accept(doc, album.getGenre());
         fieldWords.accept(doc, FieldNames.ALBUM, album.getName());
         fieldWords.accept(doc, FieldNames.ALBUM_EX, album.getName());
@@ -235,8 +239,7 @@ public class DocumentFactory {
         Document doc = new Document();
         fieldId.accept(doc, artist.getId());
         fieldWords.accept(doc, FieldNames.ARTIST, artist.getName());
-        fieldWords.accept(doc, FieldNames.ARTIST_EX, artist.getName());
-        fieldWords.accept(doc, FieldNames.ARTIST_READING, defaultIfEmpty(artist.getSort(), artist.getReading()));
+        acceptArtistReading(doc, artist);
         fieldFolderId.accept(doc, musicFolder.getId());
         return doc;
     }
@@ -255,11 +258,9 @@ public class DocumentFactory {
         fieldWords.accept(doc, FieldNames.TITLE, mediaFile.getTitle());
         fieldWords.accept(doc, FieldNames.TITLE_EX, mediaFile.getTitle());
         fieldWords.accept(doc, FieldNames.ARTIST, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_EX, mediaFile.getArtist());
-        fieldWords.accept(doc, FieldNames.ARTIST_READING,
-                defaultIfEmpty(mediaFile.getArtistSort(), mediaFile.getArtistReading()));
+        acceptArtistReading(doc, mediaFile);
         fieldWords.accept(doc, FieldNames.COMPOSER, mediaFile.getComposer());
-        fieldWords.accept(doc, FieldNames.COMPOSER_READING, mediaFile.getComposerSort());
+        acceptComposerReading(doc, mediaFile);
         fieldGenre.accept(doc, mediaFile.getGenre());
         fieldYear.accept(doc, FieldNames.YEAR, mediaFile.getYear());
         fieldFolderPath.accept(doc, mediaFile.getFolder());
@@ -271,6 +272,36 @@ public class DocumentFactory {
         fieldGenreKey.accept(doc, FieldNames.GENRE_KEY, mediaFile.getGenre());
         fieldGenre.accept(doc, mediaFile.getGenre());
         return doc;
+    }
+
+    private void acceptArtistReading(Document doc, String artist, String sort, String reading) {
+        String result = defaultIfEmpty(sort, reading);
+        if (!isEmpty(artist) && !artist.equals(result)) {
+            fieldWords.accept(doc, FieldNames.ARTIST_READING, result);
+        }
+        fieldWords.accept(doc, FieldNames.ARTIST_EX, artist);
+    }
+
+    private void acceptArtistReading(Document doc, MediaFile mediaFile) {
+        acceptArtistReading(doc, mediaFile.getArtist(), mediaFile.getArtistSort(), mediaFile.getArtistReading());
+    }
+
+    private void acceptArtistReading(Document doc, Artist artist) {
+        acceptArtistReading(doc, artist.getName(), artist.getSort(), artist.getReading());
+    }
+
+    private void acceptArtistReading(Document doc, Album album) {
+        acceptArtistReading(doc, album.getArtist(), album.getArtistSort(), album.getArtistReading());
+    }
+
+    private void acceptComposerReading(Document doc, MediaFile mediaFile) {
+        if (settingsService.isSearchMethodLegacy()) {
+            fieldWords.accept(doc, FieldNames.COMPOSER_READING, mediaFile.getComposerSort());
+        } else {
+            if (!isEmpty(mediaFile.getComposer()) && !mediaFile.getComposer().equals(mediaFile.getComposerSort())) {
+                fieldWords.accept(doc, FieldNames.COMPOSER_READING, mediaFile.getComposerSort());
+            }
+        }
     }
 
 }

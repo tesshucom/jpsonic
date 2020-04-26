@@ -581,7 +581,11 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {
-        return queryFactory.createMultiFieldWildQuery(searchUtil.filterComposer(fields, includeComposer), query, getIndexType());
+        String[] targetFields = searchUtil.filterComposer(fields, includeComposer);
+        if (settingsService.isSearchMethodLegacy()) {
+            return queryFactory.createMultiFieldWildQuery(targetFields, query, getIndexType());
+        }
+        return queryFactory.createPhraseQuery(targetFields, query, getIndexType());
     }
 
     private IndexType getIndexType() {

@@ -45,7 +45,7 @@ import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
+public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTest {
 
     @Documented
     private @interface DirectorDecisions { // @formatter:off
@@ -169,8 +169,8 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @Before
     public void setUp() {
 
-        settingsService.setSearchMethodLegacy(false);
-        analyzerFactory.setSearchMethodLegacy(false);
+        settingsService.setSearchMethodLegacy(true);
+        analyzerFactory.setSearchMethodLegacy(true);
         populateDatabaseOnlyOnce();
         settingsService.setSearchComposer(true);
         for (MusicFolder m : settingsService.getAllMusicFolders()) {
@@ -189,7 +189,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h01() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
-        assertEquals("+(((artR:\"test\"~1)^2.2 art:\"test\"~1)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPersonMusicArtist
@@ -199,7 +199,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h02() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
-        assertEquals("+(((artR:\"test\"~1)^2.2 art:\"test\"~1)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbum
@@ -209,7 +209,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h03() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
-        assertEquals("+(((alb:\"test\"~1)^4.6)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerAlbumMusicAlbum
@@ -219,7 +219,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h04() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
-        assertEquals("+(((alb:\"test\"~1)^4.6)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -232,7 +232,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h05() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -243,7 +243,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h06() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     // testException
@@ -334,7 +334,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h07() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
-        assertEquals("+(((artR:\"test\"~1)^2.2 art:\"test\"~1)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -344,7 +344,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h08() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
-        assertEquals("+(((alb:\"test\"~1)^4.6)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemMusicTrack
@@ -355,7 +355,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h09() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(m:MUSIC) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBroadcast
@@ -366,7 +366,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h10() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(m:PODCAST) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:PODCAST) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItemAudioBook
@@ -377,7 +377,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h11() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMovie
@@ -388,7 +388,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h12() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemVideoBroadcast
@@ -399,7 +399,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h13() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItemMusicVideoClip
@@ -410,7 +410,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     public void h14() {
         UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+(((tit:\"test\"~1)^4.4)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumPhotoAlbum
@@ -539,7 +539,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(50, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery1, criteria.getQuery());
-        assertEquals("+(((albEX:\"にほ ほん んご ごは はむ むず ずか かし しい\"~1)^4.6 (alb:\"に ほん ご は むずかしい\"~1)^4.6)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((albEX:にほんごはむずかしい*)^2.3 (alb:ほん*)^2.3) ((alb:ご*)^2.3) ((alb:むずかしい*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -555,7 +555,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(51, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery2, criteria.getQuery());
-        assertEquals("+(((artR:\"いき きも もの のが がか かり\"~1)^2.2 artEX:\"いき きも もの のが がか かり\"~1 art:\"いき もの が かり\"~1)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:いきものがかり*)^1.1 art:いき*) (art:もの*) (art:かり*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -571,7 +571,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(52, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery3, criteria.getQuery());
-        assertEquals("+(((artR:\"日本 本語 語て てす すと\"~1)^2.2 art:\"日本語 テスト\"~1)) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -591,7 +591,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(53, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
-        assertEquals("+(((titEX:\"なく くも もん んか\"~1)^4.6 (tit:\"なく もん か\"~1)^4.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -612,8 +612,8 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(54, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+(((cmpR:\"日本 本語 語て てす すと\"~1)^2.2 cmp:\"日本語 テスト\"~1) ((artR:\"日本 本語 語て てす すと\"~1)^2.8 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
-                + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((cmpR:日本語てすと*)^1.1 cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -635,7 +635,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(54, criteria.getCount());
         assertFalse(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+(() ((artR:\"日本 本語 語て てす すと\"~1)^2.8 (art:\"日本語 テスト\"~1)^2.4)) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+(() (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -652,7 +652,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         assertEquals(55, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery6, criteria.getQuery());
-        assertEquals("+(((tit:\"日本語 テスト\"~1)^4.4)) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:日本語*)^2.2) ((tit:テスト*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
 
 }

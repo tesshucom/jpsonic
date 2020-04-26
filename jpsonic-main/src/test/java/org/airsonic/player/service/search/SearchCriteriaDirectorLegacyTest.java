@@ -19,7 +19,9 @@
 package org.airsonic.player.service.search;
 
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class SearchCriteriaDirectorTest {
+public class SearchCriteriaDirectorLegacyTest {
 
     @Documented
     private @interface DirectorDecisions {
@@ -83,6 +85,18 @@ public class SearchCriteriaDirectorTest {
             return homeRule.apply(spring, description);
         }
     };
+
+    @Autowired
+    private AnalyzerFactory analyzerFactory;
+
+    @Autowired
+    private SettingsService settingsService;
+
+    @Before
+    public void setup() {
+        analyzerFactory.setSearchMethodLegacy(true);
+        settingsService.setSearchMethodLegacy(true);
+    }
 
     private static final String SEPA = System.getProperty("file.separator");
 

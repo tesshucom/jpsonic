@@ -4,6 +4,7 @@ package org.airsonic.player.service.search;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,7 +25,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * In the process of hardening the Analyzer implementation,
  * this problem is solved side by side.
  */
-public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHomeTest {
+public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;
 
@@ -33,6 +34,9 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
 
     @Autowired
     private SearchCriteriaDirector director;
+
+    @Autowired
+    private SettingsService settingsService;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -46,6 +50,7 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
 
     @Before
     public void setup() {
+        settingsService.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
     }
 
@@ -59,8 +64,13 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
 
         SearchCriteria criteria = director.construct("will", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
         SearchResult result = searchService.search(criteria);
-        // Will hit because Airsonic's stopword is defined(#1235)
-        Assert.assertEquals("Williams hit by \"will\" ", 1, result.getTotalHits());
+        // Will hit because Airsonic's stopword is defined(#1235) => This case does not hit because it is a phrase search rather than a term prefix match.
+        Assert.assertEquals("Williams hit by \"will\" ", 0, result.getTotalHits());
+
+        // XXX legacy -> phrase
+        criteria = director.construct("williams", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
+        result = searchService.search(criteria);
+        Assert.assertEquals("Williams hit by \"williams\" ", 1, result.getTotalHits());
 
         criteria = director.construct("the", offset, count, includeComposer, folders, IndexType.SONG);
         result = searchService.search(criteria);
@@ -69,14 +79,18 @@ public class SearchServiceStartWithStopwardsTestCase extends AbstractAirsonicHom
 
         criteria = director.construct("willi", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
-        // XXX 3.x -> 8.x : Normal forward matching
-        Assert.assertEquals("Williams hit by \"Williams\" ", 1, result.getTotalHits());
+        // XXX 3.x -> 8.x : Normal forward matching => This case does not hit because it is a phrase search rather than a term prefix match.
+        Assert.assertEquals("Williams hit by \"Williams\" ", 0, result.getTotalHits());
 
         criteria = director.construct("thea", offset, count, includeComposer, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching
-        Assert.assertEquals("Theater hit by \"thea\" ", 1, result.getTotalHits());
+        Assert.assertEquals("Theater hit by \"thea\" ", 0, result.getTotalHits()); // => This case does not hit because it is a phrase search rather than a term prefix match.
+
+        // XXX legacy -> phrase
+        criteria = director.construct("theater", offset, count, includeComposer, folders, IndexType.SONG);
+        result = searchService.search(criteria);
+        Assert.assertEquals("Theater hit by \"theater\" ", 1, result.getTotalHits());
 
     }
-
 }

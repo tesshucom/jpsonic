@@ -44,6 +44,8 @@ public class GeneralSettingsCommand {
     private boolean searchComposer;
     private boolean outputSearchQuery;
     private boolean gettingStartedEnabled;
+    private boolean searchMethodLegacy;
+    private boolean searchMethodChanged;
     private String welcomeTitle;
     private String welcomeSubtitle;
     private String welcomeMessage;
@@ -240,4 +242,20 @@ public class GeneralSettingsCommand {
         this.gettingStartedEnabled = gettingStartedEnabled;
     }
 
+    public boolean isSearchMethodLegacy() {
+        return searchMethodLegacy;
+    }
+
+    public void setSearchMethodLegacy(boolean searchMethodLegacy) {
+        this.searchMethodLegacy = searchMethodLegacy;
+    }
+
+    public boolean isSearchMethodChanged() {
+        return searchMethodChanged;
+    }
+
+    public void setSearchMethodChanged(boolean searchMethodChanged) {
+        this.searchMethodChanged = searchMethodChanged;
+    }
+    
 }

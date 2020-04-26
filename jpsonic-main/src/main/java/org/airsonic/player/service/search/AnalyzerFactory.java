@@ -20,30 +20,53 @@
 
 package org.airsonic.player.service.search;
 
+import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
+import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
+import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.GenreTokenizerFactory;
-import com.tesshu.jpsonic.service.search.analysis.HiraganaStopFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.Id3ArtistTokenizerFactory;
+import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilter;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
+import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
 
+import org.airsonic.player.service.SettingsService;
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.LowerCaseFilter;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.StopwordAnalyzerBase;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.WordlistLoader;
+import org.apache.lucene.analysis.cjk.CJKBigramFilter;
+import org.apache.lucene.analysis.cjk.CJKWidthFilter;
 import org.apache.lucene.analysis.cjk.CJKWidthFilterFactory;
 import org.apache.lucene.analysis.core.KeywordTokenizerFactory;
 import org.apache.lucene.analysis.core.LowerCaseFilterFactory;
 import org.apache.lucene.analysis.core.StopFilterFactory;
 import org.apache.lucene.analysis.custom.CustomAnalyzer;
 import org.apache.lucene.analysis.custom.CustomAnalyzer.Builder;
+import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
 import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilterFactory;
 import org.apache.lucene.analysis.ja.JapaneseTokenizerFactory;
+import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilter;
 import org.apache.lucene.analysis.miscellaneous.ASCIIFoldingFilterFactory;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.pattern.PatternReplaceFilterFactory;
+import org.apache.lucene.analysis.standard.StandardTokenizer;
+import org.apache.lucene.util.IOUtils;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
@@ -55,17 +78,38 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * It is held in this class.
  */
 @Component
+@DependsOn({ "settingsService" })
 public final class AnalyzerFactory {
 
     private Analyzer analyzer;
 
     private Analyzer queryAnalyzer;
 
-    public static final String STOP_TAGS = "org/apache/lucene/analysis/ja/stoptags.txt";
+    private String STOP_TAGS;
 
-    public static final String STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
+    private static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
 
-    public static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
+    private String STOP_WARDS;
+
+    boolean isSearchMethodLegacy;
+
+    // Package method for test. Only called from the constructor during normal
+    void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
+        this.isSearchMethodLegacy = isSearchMethodLegacy;
+        if (!isSearchMethodLegacy) {
+            STOP_WARDS = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
+            STOP_TAGS = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
+        } else {
+            STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
+            STOP_TAGS = "org/apache/lucene/analysis/ja/stoptags.txt";
+        }
+        analyzer = null;
+        queryAnalyzer = null;
+    }
+
+    public AnalyzerFactory(SettingsService settingsService) {
+        setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
+    }
 
     /*
      * XXX 3.x -> 8.x : Convert UAX#29 Underscore Analysis to Legacy Analysis
@@ -112,12 +156,12 @@ public final class AnalyzerFactory {
     }
 
     private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder, boolean isArtist) throws IOException {
-        builder.addTokenFilter(CJKWidthFilterFactory.class) // before StopFilter
+        builder.addTokenFilter(CJKWidthFilterFactory.class)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class)
                 .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WARDS, "ignoreCase", "true")
                 .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
-                // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : No longer meaningful in JapaneseTokenizer
+                // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : possession(issues#290)
         addTokenFilterForUnderscoreRemovalAroundToken(builder);
         return builder;
     }
@@ -133,12 +177,12 @@ public final class AnalyzerFactory {
                 .withTokenizer(KeywordTokenizerFactory.class);
     }
 
-    private Builder createGenreAnalyzerBuilder() throws IOException {
+    private Analyzer createGenreAnalyzer() throws IOException {
         Builder builder = CustomAnalyzer.builder().withTokenizer(GenreTokenizerFactory.class);
         addTokenFilterForTokenToDomainValue(builder);
         return builder.addTokenFilter(CJKWidthFilterFactory.class)
         .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal",
-        "false");
+        "false").build();
     }
 
 
@@ -151,56 +195,114 @@ public final class AnalyzerFactory {
             .addTokenFilter(PunctuationStemFilterFactory.class);
     }
 
-    private Builder createArtistExceptionalBuilder() throws IOException {
-        return createExceptionalAnalyzerBuilder()
-                .addTokenFilter(HiraganaStopFilterFactory.class, "passableOnlyAllHiragana", "false");
+    private Analyzer createReadingAnalyzer() throws IOException {
+        if (isSearchMethodLegacy) {
+            CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(Id3ArtistTokenizerFactory.class);
+            builder = basicFilters(builder, true)
+                    .addTokenFilter(PunctuationStemFilterFactory.class)
+                    .addTokenFilter(ToHiraganaFilterFactory.class);
+            return builder.build();
+        } 
+
+        CharArraySet stopWords4Artist = getWords(STOP_WARDS_FOR_ARTIST);
+        Set<String> stopTags = loadStopTags();
+        return new StopwordAnalyzerBase() {
+
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                final Tokenizer source = new StandardTokenizer();
+                TokenStream result = new CJKWidthFilter(source);
+                result = new ASCIIFoldingFilter(result, false);
+                result = new LowerCaseFilter(result);
+                result = new StopFilter(result, stopWords4Artist);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTags);
+                result = new PunctuationStemFilter(result);
+                result = new CJKBigramFilter(result);
+                result = new ToHiraganaFilter(result);
+                return new TokenStreamComponents(source, result);
+            }
+
+            @Override
+            protected TokenStream normalize(String fieldName, TokenStream in) {
+                TokenStream result = new CJKWidthFilter(in);
+                result = new LowerCaseFilter(result);
+                return result;
+            }
+
+        };
     }
 
-    private Builder createExceptionalBuilder() throws IOException {
-        return createExceptionalAnalyzerBuilder()
-                .addTokenFilter(HiraganaStopFilterFactory.class, "passableOnlyAllHiragana", "true");
+    private Analyzer createExAnalyzer(boolean isArtist) throws IOException {
+        if (isSearchMethodLegacy) {
+            ComplementaryFilter.Mode mode = isArtist ? Mode.STOP_WORDS_ONLY : Mode.STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY;
+            return createExceptionalAnalyzerBuilder()
+                    .addTokenFilter(ComplementaryFilterFactory.class, "mode", mode.value(), "stopwards", STOP_WARDS)
+                    .build();
+        }
+
+        Set<String> stopTags = loadStopTags();
+
+        return new StopwordAnalyzerBase() {
+
+            @Override
+            protected TokenStreamComponents createComponents(String fieldName) {
+                final Tokenizer source = new StandardTokenizer();
+                TokenStream result = new CJKWidthFilter(source);
+                result = new ASCIIFoldingFilter(result, false);
+                result = new LowerCaseFilter(result);
+                result = new PunctuationStemFilter(result);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTags);
+                result = new ComplementaryFilter(result, Mode.HIRA_KATA_ONLY, null);
+                result = new ToHiraganaFilter(result);
+                result = new CJKBigramFilter(result);
+                return new TokenStreamComponents(source, result);
+            }
+
+        };
+
     }
 
-    private Builder createId3ArtistAnalyzerBuilder() throws IOException {  
-        CustomAnalyzer.Builder builder = CustomAnalyzer.builder().withTokenizer(Id3ArtistTokenizerFactory.class);
-        builder = basicFilters(builder, true)
-                .addTokenFilter(PunctuationStemFilterFactory.class)
-                .addTokenFilter(ToHiraganaFilterFactory.class);
-        return builder;
+    private CharArraySet getWords(String wordsFile) throws IOException {
+        try (Reader reader = IOUtils.getDecodingReader(getClass().getResourceAsStream("/".concat(wordsFile)), UTF_8)) {
+            return WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
+        } catch (IOException e) {
+            throw e;
+        }
     }
 
-    /**
-     * Returns the Analyzer to use when generating the index.
-     *
-     * Whether this analyzer is applied to input values ​​depends on
-     * the definition of the document's fields.
-     *
-     * @return analyzer for index
-     * @see DocumentFactory
-     */
+    private Set<String> loadStopTags() throws IOException {
+        Set<String> stopTags = new HashSet<>();
+        CharArraySet cas = getWords(STOP_TAGS);
+        if (cas != null) {
+            for (Object element : cas) {
+                char chars[] = (char[]) element;
+                stopTags.add(new String(chars));
+            }
+        }
+        return stopTags;
+    }
+
     public Analyzer getAnalyzer() throws IOException {
         if (isEmpty(analyzer)) {
             try {
-
-                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder(false).build();
-                Analyzer artistAnalyzer = createDefaultAnalyzerBuilder(true).build();
-                Analyzer key = createKeywordAnalyzerBuilder().build();
-                Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
-                Analyzer genre = createGenreAnalyzerBuilder().build();
-                Analyzer artistExceptional = createArtistExceptionalBuilder().build();
-                Analyzer exceptional = createExceptionalBuilder().build();
+                
+                Analyzer artist = createDefaultAnalyzerBuilder(true).build();
+                Analyzer reading = createReadingAnalyzer();
+                Analyzer exceptional = createExAnalyzer(false);
+                Analyzer artistEx = createExAnalyzer(true);
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.GENRE_KEY, key);
-                analyzerMap.put(FieldNames.GENRE, genre);
-                analyzerMap.put(FieldNames.ARTIST, artistAnalyzer);
-                analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
-                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
-                analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
+                analyzerMap.put(FieldNames.GENRE_KEY, createKeywordAnalyzerBuilder().build());
+                analyzerMap.put(FieldNames.ARTIST, artist);
+                analyzerMap.put(FieldNames.COMPOSER, artist);
+                analyzerMap.put(FieldNames.ARTIST_READING, reading);
+                analyzerMap.put(FieldNames.COMPOSER_READING, reading);
                 analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
                 analyzerMap.put(FieldNames.TITLE_EX, exceptional);
+                analyzerMap.put(FieldNames.ARTIST_EX, artistEx);
+                analyzerMap.put(FieldNames.GENRE, createGenreAnalyzer());
 
-                this.analyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, analyzerMap);
+                this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(), analyzerMap);
 
             } catch (IOException e) {
                 throw new IOException("Error when initializing Analyzer.", e);
@@ -209,45 +311,10 @@ public final class AnalyzerFactory {
         return analyzer;
     }
 
-    /**
-     * Returns the analyzer to use when generating a query for index search.
-     *
-     * String processing handled by QueryFactory
-     * is limited to Lucene's modifier.
-     *
-     * The processing of the operands is expressed
-     * in the AnalyzerFactory implementation.
-     * Rules for tokenizing/converting input values ​
-     * should not be described in QueryFactory.
-     *
-     * @return analyzer for query
-     * @see QueryFactory
-     */
     public Analyzer getQueryAnalyzer() throws IOException {
         if (isEmpty(queryAnalyzer)) {
-            try {
-
-                Analyzer defaultAnalyzer = createDefaultAnalyzerBuilder(false).build();
-                Analyzer artistAnalyzer = createDefaultAnalyzerBuilder(true).build();
-                Analyzer genre = createGenreAnalyzerBuilder().build();
-                Analyzer id3Artist = createId3ArtistAnalyzerBuilder().build();
-                Analyzer artistExceptional = createArtistExceptionalBuilder().build();
-                Analyzer exceptional = createExceptionalBuilder().build();
-
-                Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.GENRE, genre);
-                analyzerMap.put(FieldNames.ARTIST, artistAnalyzer);
-                analyzerMap.put(FieldNames.ARTIST_READING, id3Artist);
-                analyzerMap.put(FieldNames.COMPOSER_READING, id3Artist);
-                analyzerMap.put(FieldNames.ARTIST_EX, artistExceptional);
-                analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
-                analyzerMap.put(FieldNames.TITLE_EX, exceptional);
-
-                this.queryAnalyzer = new PerFieldAnalyzerWrapper(defaultAnalyzer, analyzerMap);
-
-            } catch (IOException e) {
-                throw new IOException("Error when initializing Analyzer.", e);
-            }
+            // The definition is the same except for GENRE_KEY.
+            queryAnalyzer = getAnalyzer();
         }
         return queryAnalyzer;
     }

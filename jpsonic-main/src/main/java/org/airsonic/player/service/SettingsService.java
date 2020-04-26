@@ -122,6 +122,8 @@ public class SettingsService {
     private static final String KEY_SORT_STRICT = "SortStrict";
     private static final String KEY_SEARCH_COMPOSER = "SearchComposer";
     private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
+    private static final String KEY_SEARCH_METHOD_LEGACY = "SearchMethodLegacy";
+    private static final String KEY_SEARCH_METHOD_CHANGED = "SearchMethodChanged";
 
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -226,6 +228,8 @@ public class SettingsService {
     private static final boolean DEFAULT_SORT_STRICT = true;
     private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
+    private static final boolean DEFAULT_SEARCH_METHOD_LEGACY = false;
+    private static final boolean DEFAULT_KEY_SEARCH_METHOD_CHANGED = false;
 
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -874,6 +878,22 @@ public class SettingsService {
 
     public void setOutputSearchQuery(boolean b) {
         setBoolean(KEY_OUTPUT_SEARCH_QUERY, b);
+    }
+
+    public boolean isSearchMethodLegacy() {
+        return getBoolean(KEY_SEARCH_METHOD_LEGACY, DEFAULT_SEARCH_METHOD_LEGACY);
+    }
+
+    public void setSearchMethodLegacy(boolean b) {
+        setBoolean(KEY_SEARCH_METHOD_LEGACY, b);
+    }
+
+    public boolean isSearchMethodChanged() {
+        return getBoolean(KEY_SEARCH_METHOD_CHANGED, DEFAULT_KEY_SEARCH_METHOD_CHANGED);
+    }
+
+    public void setSearchMethodChanged(boolean b) {
+        setBoolean(KEY_SEARCH_METHOD_CHANGED, b);
     }
 
     public boolean getIgnoreSymLinks() {

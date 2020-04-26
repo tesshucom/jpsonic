@@ -67,6 +67,7 @@ public class GeneralSettingsController {
         command.setSortStrict(settingsService.isSortStrict());
         command.setSearchComposer(settingsService.isSearchComposer());
         command.setOutputSearchQuery(settingsService.isOutputSearchQuery());
+        command.setSearchMethodLegacy(settingsService.isSearchMethodLegacy());
         command.setGettingStartedEnabled(settingsService.isGettingStartedEnabled());
         command.setWelcomeTitle(settingsService.getWelcomeTitle());
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
@@ -130,6 +131,8 @@ public class GeneralSettingsController {
         settingsService.setSortStrict(command.isSortStrict());
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
+        settingsService.setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
+        settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
