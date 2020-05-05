@@ -244,7 +244,7 @@ public class JMediaFileDao extends AbstractDao {
         List<MediaFile> tmpResult = namedQuery(
                 "select " + getQueryColoms() + ", foo.irownum from " +
                 "    (select " +
-                "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, * " +
+                "        (select count(id) from media_file where id < boo.id and type = :type and album_artist = :artist) as irownum, boo.* " +
                 "    from (select * " +
                 "        from media_file " +
                 "        where type = :type " +

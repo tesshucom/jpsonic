@@ -45,6 +45,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -367,7 +368,15 @@ public class SettingsService {
     }
 
     public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getDefaultJDBCPath() + ";sql.enforce_size=false";
+        return "jdbc:hsqldb:file:" + getDefaultJDBCPath() + ";sql.enforce_size=false;sql.regular_names=false";
+    }
+
+    public static String getDBScript() {
+        return getDefaultJDBCPath() + ".script";
+    }
+
+    public static String getBackupDBScript(Path backupDir) {
+        return backupDir + "/" + getFileSystemAppName() + ".script";
     }
 
     public static String getDefaultJDBCUsername() {

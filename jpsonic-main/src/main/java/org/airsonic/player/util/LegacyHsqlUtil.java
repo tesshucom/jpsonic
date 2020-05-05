@@ -7,7 +7,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -119,6 +123,48 @@ public class LegacyHsqlUtil {
         return destination;
     }
 
+    public static void performAdditionOfScript(Path backupDir) throws IOException {
+
+        LOG.debug("Performing adding the script to the HSQLDB database script....");
+
+        final String setRegularNamesFalse = "SET DATABASE SQL REGULAR NAMES FALSE";
+        File script = new File(SettingsService.getDBScript());
+        File scriptBak = new File(SettingsService.getBackupDBScript(backupDir));
+
+        if (!scriptBak.exists()) {
+            LOG.warn("Script does not exist in HSQLDB database.");
+            return;
+        } else if (!script.canWrite()) {
+            LOG.warn("You do not have write permission for the script of HSQLDB database.");
+            return;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(scriptBak))) {
+            String line = reader.readLine();
+            if (null != line) {
+                line = line.trim();
+            }
+            boolean isRestrict = !setRegularNamesFalse.equals(line);
+            if (isRestrict) {
+                LOG.debug("Set the Restrict property to false.");
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(script, false))) {
+                    writer.write(setRegularNamesFalse + System.getProperty("line.separator"));
+                    writer.write(line + System.getProperty("line.separator"));
+                    int i = 1;
+                    while (null != (line = reader.readLine())) {
+                        i++;
+                        writer.write(line + System.getProperty("line.separator"));
+                        if (i % 100 == 0) {
+                            writer.flush();
+                        }
+                    }
+                    writer.close();
+                }
+            }
+            reader.close();
+        }
+    }
+
     /**
      * Perform an in-place database upgrade from HSQLDB 1.x to 2.x.
      */
@@ -151,10 +197,19 @@ public class LegacyHsqlUtil {
      */
     public static void upgradeHsqldbDatabaseSafely() {
         if (LegacyHsqlUtil.isHsqldbDatabaseUpgradeNeeded()) {
+            
+            Path backupDir = null;
             try {
-                performHsqldbDatabaseBackup();
+                backupDir = performHsqldbDatabaseBackup();
             } catch (Exception e) {
                 throw new RuntimeException("Failed to backup HSQLDB database before upgrade", e);
+            }
+            if (null != backupDir) {
+                try {
+                    performAdditionOfScript(backupDir);
+                } catch (Exception e) {
+                    throw new RuntimeException("Script verification/addition of HSQLDB database failed before upgrade", e);
+                }
             }
             try {
                 performHsqldbDatabaseUpgrade();
