@@ -3,17 +3,39 @@
 # jpsonic/jpsonic
 # -->
 
-## v108.0.0
-#### Based on *airsonic 10.6.0-RELEASE*
+## v109.0.0
+#### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+
+> Includes bug fixes for 10.6.1 and 10.6.2. Does not include updates to HSQLDB.
+> 
+> [eb4c5a0]
+> 
+>  - Update Sonos wsdl file
+>  - Refactor transcoding/downsampling bitrate limits
+>  - Change the default naming convention for podcasts
+>  - Update spring-boot to 2.2
+>  - Fixed a bug that the play button on the web does not start playing
+>  - Fix Last.FM scrobbling on AudioScrobbler API v1
+>  - Fix path issue on Windows(internal diagnostics page)
+>  - Fix UTF-8 detection on some systems using non-standard locales(internal diagnostics page)
+> 
+> In addition, library updates etc. 
+
+  * [fix] Updated apache-jsp to 9.4.28.v20200408(CVE-2020-1745). Compiling with the Tomcat profile is not affected.
+  * [update] Support for phrase search.
+
+<details>
+<summary>v108.0.0 based on airsonic 10.6.0-RELEASE</summary>
 
   * [fix] Update jquery to 3.5.
   * [fix] Fixed share psge icon image and link.
   * [update] Removed artist image from biography on Web page.
     Because this is not a proper implementation under Japanese law.
     If a better solution is implemented in the future, it will be modified again to display the image.
+</details>
 
-## v107.2.0
-#### Based on *airsonic 10.6.0-SNAPSHOT 80ccd82*
+<details>
+<summary>v107.2.0 based on airsonic 10.6.0-SNAPSHOT 80ccd82</summary>
 
   * [fix] Update Jetty to 9.4.27.v20200227 (CVE-2020-1935).
   * [fix] Update Jackson to 2.10.3 (CVE-2020-8840, CVE-2019-20330)
@@ -45,6 +67,7 @@
     Because this is not a proper implementation under Japanese law.
     In later versions, the same policy will also remove images of artists located except for UPnP.
     If a better solution is implemented in the future, it will be modified again to display the image.
+</details>
 
 <details>
 <summary>v107.1.0 based on airsonic 10.6.0-SNAPSHOT 80ccd82</summary>
@@ -313,3 +336,123 @@ The following measures taken.
 </details>
 
 <details>
+<summary>v2.3.0</summary>
+
+  * Security update (stax:CVE-2018-1000840)
+  * Fix for embedded Jetty compilation for evaluation purposes.
+  * Based on airsonic e4bb808 (2019-2) Pull translations from transifex.
+</details>
+
+<details>
+<summary>v2.2.6</summary>
+
+  * Security update (jackson-databind:CVE-2018-19360 - CVE-2018-19362, CVE-2018-14718 - CVE-2018-14721)
+  * Based on airsonic adc2241 (2019-1) Fix broken keyboard shortcuts, defrag on HSQLDB, connection pooling for external database etc.
+</details>
+
+<details>
+<summary>v2.2.5</summary>
+
+  * Security update (guava:CVE-2018-10237)
+  * Suppress CVE by false positives(stax:CVE-2017-16224, slf4j:CVE-2018-8088)
+  * Localization of version check. Changed Jpsonic update to notify management screen
+  * Based on airsonic 77ca475 (2018-12) Screen modification, updating of various libraries, modification of test content, etc.
+   - Modification of partial wording accompanying cleanup of overall translation
+   - Image replacement related to adding icons for various devices
+</details>
+
+<details>
+<summary>v2.2.4</summary>
+
+  * Fixed a bug where part of the start argument was not correctly recognized
+    (jpsonic.defaultMusicFolder, jpsonic.defaultPodcastFolder, jpsonic.defaultPlaylistFolder)
+  * Introduction of Airsonic integration test using Docker
+</details>
+
+<details>
+<summary>v2.2.3</summary>
+
+  * Security update for cxf(CVE-2018-8039)
+  * Based on airsonic 685f4fa (2018-10)
+</details>
+
+<details>
+<summary>v2.2.2</summary>
+
+  * Improvement of Japanese Song search accuracy.
+  * Random search fault correction.
+  * Based on airsonic 8ba0bc8 (2018-8)
+</details>
+
+<details>
+<summary>v2.2.1</summary>
+
+  * Security fix (LDAP authentication without a password).
+  * Based upon Airsonic 10.2.0-SNAPSHOT f6905de(2018-8)
+  * Start build test with travis.
+</details>
+
+<details>
+<summary>v2.2</summary>
+
+  * Forward search reinforcement of artist name. Corresponds to full name, hiragana, katakana.
+  * Added index rebuilding process after scanning.
+  * Based upon Airsonic 10.2.0-SNAPSHOT 8d3c0ec(2018-7)
+</details>
+
+<details>
+<summary>v2.1</summary>
+
+  * Update of lucene-core(3.0.3 -> 7.4.0).
+  * Simple Japanese phrase search.
+</details>
+
+<details>
+<summary>v2.0</summary>
+
+  * Based upon Airsonic 10.2.0-SNAPSHOT 83ef76a(2018-7)
+</details>
+
+<details>
+<summary>v1.3</summary>
+
+  * It corresponds to ALBUM_SORT
+  * Final release based upon Airsonic 10.1.1-RELEASE
+</details>
+
+<details>
+<summary>v1.2.2</summary>
+
+  * It corresponds to ARTIST_SORT, ALBUM_ARTIST_SORT
+  * Fixed a bug that caused case ignoring excessively. (Alphabet is originally A-Za-z)
+</details>
+
+<details>
+<summary>v1.2.1</summary>
+
+  * Fixed bug related to sort of id 3
+</details>
+
+<details>
+<summary>v1.2</summary>
+
+  * Supports sorting using not only morphological analysis but also tag analysis
+</details>
+
+<details>
+<summary>v1.1</summary>
+
+  * Japanese index / Artist sort (id3)
+  * Duplicate records may be included in getAlbunList Fixed a problem
+  * Change DLNA icon
+</details>
+
+<details>
+<summary>v1.0</summary>
+
+  * Japanese index / Artist sort (File structure)
+  * Fixed bug in Lang of biography
+  * Default Japanese
+  * First release as Jpsonic
+  * Based upon Airsonic 10.1.1-RELEASE
+</details>
