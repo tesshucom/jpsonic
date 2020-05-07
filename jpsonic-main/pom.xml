@@ -9,14 +9,15 @@
     <parent>
         <groupId>com.tesshu.jpsonic.player</groupId>
         <artifactId>jpsonic</artifactId>
-        <version>10.6.0-RELEASE</version>
+        <version>11.0.0-SNAPSHOT</version>
     </parent>
 
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>108.0.0-RELEASE</jpsonic.version>
-        <jetty.version>9.4.27.v20200227</jetty.version>
+        <jpsonic.version>109.0.0-RELEASE</jpsonic.version>
+        <jetty.version>9.4.28.v20200408</jetty.version>
+        <lucene.version>8.5.1</lucene.version>
     </properties>
 
     <dependencies>
@@ -66,6 +67,10 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-jmx</artifactId>
+        </dependency>
         <!-- END Metrics -->
 
         <!-- Spring -->
@@ -80,9 +85,9 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>javax.servlet.jsp</groupId>
-            <artifactId>javax.servlet.jsp-api</artifactId>
-            <version>2.3.3</version>
+            <groupId>jakarta.servlet.jsp</groupId>
+            <artifactId>jakarta.servlet.jsp-api</artifactId>
+            <version>2.3.6</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -110,7 +115,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.10.0</version>
+            <version>3.10.2</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
@@ -139,18 +144,34 @@
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-core</artifactId>
-            <version>8.4.1</version>
+            <version>${lucene.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-analyzers-common</artifactId>
-            <version>8.4.1</version>
+            <version>${lucene.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.lucene</groupId>
             <artifactId>lucene-misc</artifactId>
-            <version>8.4.1</version>
+            <version>${lucene.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-kuromoji</artifactId>
+            <version>${lucene.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atilika.kuromoji</groupId>
+            <artifactId>kuromoji-ipadic</artifactId>
+            <version>0.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>67.1</version>
+        </dependency>
+
         <dependency>
             <groupId>org.antlr</groupId>
             <artifactId>antlr4-runtime</artifactId>
@@ -306,8 +327,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
 
@@ -324,8 +345,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.mail</groupId>
-            <artifactId>javax.mail-api</artifactId>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
         </dependency>
 
         <dependency>
@@ -361,12 +382,16 @@
         <dependency>
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-core</artifactId>
+            <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
+            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
             <version>2.0.1</version>
         </dependency>
 
         <dependency>
             <groupId>org.fourthline.cling</groupId>
             <artifactId>cling-support</artifactId>
+            <!-- Cling removed the org.fourthline.cling.transport.impl.apache package in 2.1, which is needed to make Cling work with Tomcat. -->
+            <!-- Don't upgrade this unless you can test UPnP/DLNA support properly! -->
             <version>2.0.1</version>
         </dependency>
 
@@ -385,7 +410,7 @@
         <dependency>
             <groupId>de.triology.recaptchav2-java</groupId>
             <artifactId>recaptchav2-java</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
 
         <!-- SONOS API / WSDL SUPPORT -->
@@ -508,8 +533,8 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.validation</groupId>
-            <artifactId>validation-api</artifactId>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
         </dependency>
 
         <dependency>
@@ -558,17 +583,17 @@
         </dependency>
         <dependency>
             <groupId>com.sun.mail</groupId>
-            <artifactId>javax.mail</artifactId>
+            <artifactId>jakarta.mail</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
             <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>javax.xml.ws</groupId>
-            <artifactId>jaxws-api</artifactId>
+            <groupId>jakarta.xml.ws</groupId>
+            <artifactId>jakarta.xml.ws-api</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -578,13 +603,11 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.2</version>
-            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.10</version>
+            <version>42.2.12</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -596,28 +619,13 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>2.5.4</version>
+            <version>2.6.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atilika.kuromoji</groupId>
-            <artifactId>kuromoji-ipadic</artifactId>
-            <version>0.9.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.icu</groupId>
-            <artifactId>icu4j</artifactId>
-            <version>61.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-analyzers-kuromoji</artifactId>
-            <version>8.4.1</version>
         </dependency>
     </dependencies>
 
@@ -649,7 +657,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>1.5.22.RELEASE</version>
+                <version>2.2.6.RELEASE</version>
                 <configuration>
                     <mainClass>org.airsonic.player.Application</mainClass>
                     <layout>WAR</layout>
@@ -668,6 +676,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <skip>${surefire.skip}</skip>
                     <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>

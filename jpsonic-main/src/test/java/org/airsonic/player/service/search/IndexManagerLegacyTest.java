@@ -25,6 +25,7 @@ import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -42,7 +43,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
+public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;
 
@@ -64,6 +65,9 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
     @Autowired
     private AlbumDao albumDao;
 
+    @Autowired
+    private SettingsService settingsService;
+
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -82,6 +86,7 @@ public class IndexManagerTestCase extends AbstractAirsonicHomeTest {
 
     @Before
     public void setup() {
+        settingsService.setSearchMethodLegacy(true);
         populateDatabaseOnlyOnce();
     }
 

@@ -139,6 +139,18 @@
         <tr><td colspan="4">&nbsp;</td></tr>
 
         <tr>
+            <td><fmt:message key="generalsettings.searchmethod"/></td>
+            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td colspan="2">
+                <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
+                <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
+            </td>
+        </tr>
+
+        <tr><td colspan="4">&nbsp;</td></tr>
+
+        <tr>
             <td><fmt:message key="more.title"/></td>
             <td></td>
             <td><fmt:message key="generalsettings.musicmask"/></td>

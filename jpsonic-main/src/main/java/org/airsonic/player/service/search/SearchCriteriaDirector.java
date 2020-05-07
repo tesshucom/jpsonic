@@ -19,22 +19,34 @@
 package org.airsonic.player.service.search;
 
 import org.airsonic.player.domain.MusicFolder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.airsonic.player.service.SettingsService;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
 
 @Component
+@DependsOn({ "queryFactory", "settingsService" })
 public class SearchCriteriaDirector {
 
-    @Autowired
-    private QueryFactory queryFactory;
+    private final QueryFactory queryFactory;
+
+    private final SettingsService settingsService;
+    
+    public SearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService) {
+        super();
+        this.queryFactory = queryFactory;
+        this.settingsService = settingsService;
+    }
 
     public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
         SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders, indexType);
-        // TODO #407 Support for exact match/prefix/ phrase search
-        criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
+        if (settingsService.isSearchMethodLegacy()) {
+            criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
+        } else {
+            criteria.setParsedQuery(queryFactory.searchByPhrase(searchInput, includeComposer, musicFolders, indexType));
+        }
         return criteria;
     }
 

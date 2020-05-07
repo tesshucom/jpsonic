@@ -101,7 +101,6 @@ public class SettingsService {
     private static final String KEY_PODCAST_EPISODE_DOWNLOAD_COUNT = "PodcastEpisodeDownloadCount";
     private static final String KEY_DOWNLOAD_BITRATE_LIMIT = "DownloadBitrateLimit";
     private static final String KEY_UPLOAD_BITRATE_LIMIT = "UploadBitrateLimit";
-    private static final String KEY_DOWNSAMPLING_COMMAND = "DownsamplingCommand4";
     private static final String KEY_HLS_COMMAND = "HlsCommand3";
     private static final String KEY_JUKEBOX_COMMAND = "JukeboxCommand2";
     private static final String KEY_VIDEO_IMAGE_COMMAND = "VideoImageCommand";
@@ -122,6 +121,8 @@ public class SettingsService {
     private static final String KEY_SORT_STRICT = "SortStrict";
     private static final String KEY_SEARCH_COMPOSER = "SearchComposer";
     private static final String KEY_OUTPUT_SEARCH_QUERY = "OutputSearchQuery";
+    private static final String KEY_SEARCH_METHOD_LEGACY = "SearchMethodLegacy";
+    private static final String KEY_SEARCH_METHOD_CHANGED = "SearchMethodChanged";
 
     private static final String KEY_DLNA_ENABLED = "DlnaEnabled";
     private static final String KEY_DLNA_SERVER_NAME = "DlnaServerName";
@@ -205,7 +206,6 @@ public class SettingsService {
     private static final int DEFAULT_PODCAST_EPISODE_DOWNLOAD_COUNT = 1;
     private static final long DEFAULT_DOWNLOAD_BITRATE_LIMIT = 0;
     private static final long DEFAULT_UPLOAD_BITRATE_LIMIT = 0;
-    private static final String DEFAULT_DOWNSAMPLING_COMMAND = "ffmpeg -i %s -map 0:0 -b:a %bk -v 0 -f mp3 -";
     private static final String DEFAULT_HLS_COMMAND = "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -";
     private static final String DEFAULT_JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
     private static final String DEFAULT_VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
@@ -226,6 +226,8 @@ public class SettingsService {
     private static final boolean DEFAULT_SORT_STRICT = true;
     private static final boolean DEFAULT_SEARCH_COMPOSER = false;
     private static final boolean DEFAULT_OUTPUT_SEARCH_QUERY = false;
+    private static final boolean DEFAULT_SEARCH_METHOD_LEGACY = false;
+    private static final boolean DEFAULT_KEY_SEARCH_METHOD_CHANGED = false;
 
     private static final boolean DEFAULT_DLNA_ENABLED = false;
     private static final String DEFAULT_DLNA_SERVER_NAME = "Jpsonic";
@@ -281,8 +283,8 @@ public class SettingsService {
 
     // Array of obsolete keys.  Used to clean property file.
     private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort", "PortForwardingLocalPort",
-            "DownsamplingCommand", "DownsamplingCommand2", "DownsamplingCommand3", "AutoCoverBatch", "MusicMask",
-            "VideoMask", "CoverArtMask, HlsCommand", "HlsCommand2", "JukeboxCommand",
+            "DownsamplingCommand", "DownsamplingCommand2", "DownsamplingCommand3", "DownsamplingCommand4",
+            "AutoCoverBatch", "MusicMask", "VideoMask", "CoverArtMask, HlsCommand", "HlsCommand2", "JukeboxCommand",
             "CoverArtFileTypes", "UrlRedirectCustomHost", "CoverArtLimit", "StreamPort",
             "PortForwardingEnabled", "RewriteUrl", "UrlRedirectCustomUrl", "UrlRedirectContextPath",
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
@@ -710,14 +712,6 @@ public class SettingsService {
         setLong(KEY_UPLOAD_BITRATE_LIMIT, limit);
     }
 
-    public String getDownsamplingCommand() {
-        return getProperty(KEY_DOWNSAMPLING_COMMAND, DEFAULT_DOWNSAMPLING_COMMAND);
-    }
-
-    public void setDownsamplingCommand(String command) {
-        setProperty(KEY_DOWNSAMPLING_COMMAND, command);
-    }
-
     public String getHlsCommand() {
         return getProperty(KEY_HLS_COMMAND, DEFAULT_HLS_COMMAND);
     }
@@ -874,6 +868,22 @@ public class SettingsService {
 
     public void setOutputSearchQuery(boolean b) {
         setBoolean(KEY_OUTPUT_SEARCH_QUERY, b);
+    }
+
+    public boolean isSearchMethodLegacy() {
+        return getBoolean(KEY_SEARCH_METHOD_LEGACY, DEFAULT_SEARCH_METHOD_LEGACY);
+    }
+
+    public void setSearchMethodLegacy(boolean b) {
+        setBoolean(KEY_SEARCH_METHOD_LEGACY, b);
+    }
+
+    public boolean isSearchMethodChanged() {
+        return getBoolean(KEY_SEARCH_METHOD_CHANGED, DEFAULT_KEY_SEARCH_METHOD_CHANGED);
+    }
+
+    public void setSearchMethodChanged(boolean b) {
+        setBoolean(KEY_SEARCH_METHOD_CHANGED, b);
     }
 
     public boolean getIgnoreSymLinks() {

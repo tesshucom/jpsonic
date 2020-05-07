@@ -31,6 +31,7 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.search.BooleanClause.Occur;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.BoostQuery;
+import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
@@ -153,6 +154,37 @@ public class QueryFactory {
 
     };
 
+    final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
+
+        Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
+        BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
+
+        for (String fieldName : fieldNames) {
+            PhraseQuery.Builder phrase = new PhraseQuery.Builder();
+            boolean exists = false;
+            try (TokenStream stream = analyzer.tokenStream(fieldName, queryString)) {
+                stream.reset();
+                while (stream.incrementToken()) {
+                    String token = stream.getAttribute(CharTermAttribute.class).toString();
+                    if (!isEmpty(token)) {
+                        phrase.add(new Term(fieldName, token));
+                        exists = true;
+                    }
+                }
+            }
+            if (exists) {
+                phrase.setSlop(1);
+                if (indexType.getBoosts().containsKey(fieldName)) {
+                    fieldQuerys.add(new BoostQuery(phrase.build(), indexType.getBoosts().get(fieldName) * 2), Occur.SHOULD);
+                } else {
+                    fieldQuerys.add(phrase.build(), Occur.SHOULD);
+                }
+            }
+        }
+        return fieldQuerys.build();
+
+    };
+
     /*
      * XXX 3.x -> 8.x :
      * RangeQuery has been changed to not allow null.
@@ -181,6 +213,22 @@ public class QueryFactory {
 
         String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
         Query multiFieldQuery = createMultiFieldWildQuery(fields, searchInput, indexType);
+        mainQuery.add(multiFieldQuery, Occur.MUST);
+
+        boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;
+        Query folderQuery = toFolderQuery.apply(isId3, musicFolders);
+        mainQuery.add(folderQuery, Occur.MUST);
+
+        return mainQuery.build();
+
+    }
+
+    public Query searchByPhrase(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
+            IndexType indexType) throws IOException {
+        BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
+
+        String[] fields = util.filterComposer(indexType.getFields(), includeComposer);
+        Query multiFieldQuery = createPhraseQuery(fields, searchInput, indexType);
         mainQuery.add(multiFieldQuery, Occur.MUST);
 
         boolean isId3 = indexType == IndexType.ALBUM_ID3 || indexType == IndexType.ARTIST_ID3;

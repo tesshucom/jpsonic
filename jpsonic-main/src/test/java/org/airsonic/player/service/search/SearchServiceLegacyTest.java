@@ -14,6 +14,7 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
+public class SearchServiceLegacyTest extends AbstractAirsonicHomeTest {
 
     @Autowired
     private AlbumDao albumDao;
@@ -43,12 +44,16 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
 
     @Autowired
     private IndexManager indexManager;
-    
+
     @Autowired
     private SearchCriteriaDirector director;
 
+    @Autowired
+    private SettingsService settingsService;
+
     @Before
     public void setup() {
+        settingsService.setSearchMethodLegacy(true);
         populateDatabaseOnlyOnce();
     }
 
@@ -261,7 +266,7 @@ public class SearchServiceTestCase extends AbstractAirsonicHomeTest {
         String[] randomWords4Search = createRandomWords(countForEachMethod);
 
         Timer globalTimer = metrics
-                .timer(MetricRegistry.name(SearchServiceTestCase.class, "Timer.global"));
+                .timer(MetricRegistry.name(SearchServiceLegacyTest.class, "Timer.global"));
         final Timer.Context globalTimerContext = globalTimer.time();
 
         System.out.println("--- Random search (" + countForEachMethod * 4 + " times) ---");

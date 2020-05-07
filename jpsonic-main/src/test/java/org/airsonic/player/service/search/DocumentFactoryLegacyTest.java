@@ -24,8 +24,10 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
 import org.apache.lucene.document.Document;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,7 +48,7 @@ import static org.junit.Assert.assertNull;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class DocumentFactoryTestCase {
+public class DocumentFactoryLegacyTest {
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -64,6 +66,14 @@ public class DocumentFactoryTestCase {
 
     @Autowired
     private DocumentFactory documentFactory;
+
+    @Autowired
+    private SettingsService settingsService;
+
+    @Before
+    public void setup() {
+        settingsService.setSearchMethodLegacy(true);
+    }
 
     @Test
     public void testCreateAlbum() {

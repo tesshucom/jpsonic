@@ -1,10 +1,21 @@
 
 package org.airsonic.player.service.search;
 
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.HomeRule;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.Description;
+import org.junit.runners.model.Statement;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.rules.SpringClassRule;
+import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,9 +31,34 @@ import static org.junit.Assert.assertEquals;
  * These cases have the purpose of observing the current situation
  * and observing the impact of upgrading Lucene.
  */
-public class AnalyzerFactoryTestCase {
+@SpringBootTest
+public class AnalyzerFactoryTest {
 
-    private AnalyzerFactory analyzerFactory = new AnalyzerFactory();
+    @ClassRule
+    public static final SpringClassRule classRule = new SpringClassRule() {
+        HomeRule homeRule = new HomeRule();
+
+        @Override
+        public Statement apply(Statement base, Description description) {
+            Statement spring = super.apply(base, description);
+            return homeRule.apply(spring, description);
+        }
+    };
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
+
+    @Autowired
+    private AnalyzerFactory analyzerFactory;
+
+    @Autowired
+    private SettingsService settingsService;
+
+    @Before
+    public void setup() {
+        analyzerFactory.setSearchMethodLegacy(false);
+        settingsService.setSearchMethodLegacy(false);
+    }
 
     public void testTokenCounts() {
 
@@ -250,21 +286,21 @@ public class AnalyzerFactoryTestCase {
                     assertEquals("apply : " + n, 0, articleTerms.size());
                     assertEquals("apply : " + n, 0, indexArticleTerms.size());
                     assertEquals("through : " + n, 30, noStopTerms.size());
-                    assertEquals("apply : " + n, 0, jpStopTerms.size());
+                    assertEquals("apply : " + n, 110, jpStopTerms.size()); //XXX Legacy(0) -> Phrase(110)
                     break;
                 case FieldNames.ARTIST:
                     assertEquals("apply : " + n, 0, articleTerms.size());
                     assertEquals("apply : " + n, 0, indexArticleTerms.size());
                     assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
-                    assertEquals("apply : " + n, 53, jpStopTerms.size());//false positives?
+                    assertEquals("apply : " + n, 110, jpStopTerms.size()); //XXX Legacy(53) -> Phrase(110)
                     break;
                 case FieldNames.ARTIST_READING:
-                    assertEquals("apply : " + n, 0, articleTerms.size());
-                    assertEquals("apply : " + n, 0, indexArticleTerms.size());
-                    assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
-                    assertEquals("apply : " + n, 109, jpStopTerms.size());
+                    assertEquals("article : " + n, 0, articleTerms.size());
+                    assertEquals("indexArticle : " + n, 0, indexArticleTerms.size());
+                    assertEquals("noStop : " + n, 29, noStopTerms.size()); // with is removed
+                    assertEquals("jpStop : " + n, 152, jpStopTerms.size()); //XXX Legacy(109) -> Phrase(152)
                     break;
-                
+
                 default:
                     break;
             }
@@ -272,18 +308,11 @@ public class AnalyzerFactoryTestCase {
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             // to be affected by other filters
-            List<String> articleTerms = toTermString(n, queryArticle.replaceAll(" ", ""));
-            List<String> indexArticleTerms = toTermString(n, queryIndexArticle.replaceAll(" ", ""));
-            List<String> noStopTerms = toTermString(n, queryNoStop.replaceAll(" ", ""));
-            List<String> jpStopTerms = toTermString(n, queryJpStop.replaceAll(" ", ""));
             switch (n) {
                 case FieldNames.ARTIST_EX:
                 case FieldNames.ALBUM_EX:
                 case FieldNames.TITLE_EX:
-                    assertEquals("through : " + n, 1, articleTerms.size());
-                    assertEquals("through : " + n, 1, indexArticleTerms.size());
-                    assertEquals("apply : " + n, 0, noStopTerms.size());
-                    assertEquals("through : " + n, 1, jpStopTerms.size());
+                    //  #482 No longer used
                     break;
                 default:
                     break;
@@ -372,7 +401,6 @@ public class AnalyzerFactoryTestCase {
         String query = "Cæsarシーザー";
         String expected1a = "caesar";
         String expected1b = "シーザー";
-        String expected2 = "caesarしいざあ";
         String expected3 = "Caesarシーザー";
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
@@ -390,8 +418,11 @@ public class AnalyzerFactoryTestCase {
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
                 case FieldNames.ARTIST_READING:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected2, terms.get(0));
+                    assertEquals("apply : " + n, 4, terms.size());
+                    assertEquals("apply : " + n, "caesar", terms.get(0));
+                    assertEquals("apply : " + n, "しい", terms.get(1));
+                    assertEquals("apply : " + n, "ーざ", terms.get(2));
+                    assertEquals("apply : " + n, "ざあ", terms.get(3));
                     break;
                 case FieldNames.GENRE:
                     assertEquals("apply : " + n, 1, terms.size());
@@ -451,7 +482,6 @@ public class AnalyzerFactoryTestCase {
         String apply1 = "ABCabcアイウ";
         String apply1a = "abcabc";
         String apply1b = "アイウ";
-        String apply2 = "abcabcあいう";
         String query2 = "ぁぃぅ";
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
@@ -472,12 +502,15 @@ public class AnalyzerFactoryTestCase {
                 case FieldNames.TITLE_EX:
                 case FieldNames.ALBUM_EX:
                     terms = toTermString(n, query2);
-                    assertEquals("no case : " + n, 1, terms.size());
-                    assertEquals("no case " + n, query2, terms.get(0));
+                    assertEquals("no case : " + n, 2, terms.size());
+                    assertEquals("bigram : " + n, "ぁぃ", terms.get(0));
+                    assertEquals("bigram : " + n, "ぃぅ", terms.get(1));
                     break;
                 case FieldNames.ARTIST_READING:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, apply2, terms.get(0));
+                    assertEquals("apply : " + n, 3, terms.size());
+                    assertEquals("apply : " + n, apply1a, terms.get(0));
+                    assertEquals("apply : " + n, "あい", terms.get(1));
+                    assertEquals("apply : " + n, "いう", terms.get(2));
                     break;
                 case FieldNames.ARTIST:
                 case FieldNames.ALBUM:
@@ -500,7 +533,6 @@ public class AnalyzerFactoryTestCase {
 
         // Filter operation check only. Verify only some settings.
         String query = "ABCDEFGふ";
-        String expected1 = "abcdefgふ";
         String expected1a = "abcdefg";
         String expected1b = "ふ";
 
@@ -519,8 +551,9 @@ public class AnalyzerFactoryTestCase {
                     assertEquals("through : " + n, query, terms.get(0));
                     break;
                 case FieldNames.ARTIST_READING:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected1, terms.get(0));
+                    assertEquals("apply : " + n, 2, terms.size());
+                    assertEquals("apply : " + n, "abcdefg", terms.get(0));
+                    assertEquals("apply : " + n, "ふ", terms.get(1));
                     break;
                 case FieldNames.ARTIST:
                 case FieldNames.ALBUM:
@@ -798,7 +831,6 @@ public class AnalyzerFactoryTestCase {
         String passable1 = "ABC123あいう";
         String expected1 = "abc123あいう";
         String passable2 = "ABC123アイウ";
-        String expected2 = "abc123あいう";
 
         String n = FieldNames.ARTIST_READING;
 
@@ -806,14 +838,27 @@ public class AnalyzerFactoryTestCase {
         assertEquals("all Alpha : " + n, 2, terms.size());
         assertEquals("all Alpha : " + n, "blue", terms.get(0));
         assertEquals("all Alpha : " + n, "hearts", terms.get(1));
+
         terms = toTermString(n, notChange2);
         assertEquals("AlphaNum : " + n, 1, terms.size());
+
         terms = toTermString(n, passable1);
-        assertEquals("AlphaNumHiragana : " + n, 1, terms.size());
-        assertEquals("AlphaNumHiragana : " + n, expected1, terms.get(0));
+        assertEquals("ABC123あいう : " + n, 3, terms.size());
+        assertEquals("ABC123あいう : " + n, "abc123", terms.get(0));
+        assertEquals("ABC123あいう : " + n, "あい", terms.get(1));
+        assertEquals("ABC123あいう : " + n, "いう", terms.get(2));
+
+        terms = toTermString(n, expected1);
+        assertEquals("abc123あいう : " + n, 3, terms.size());
+        assertEquals("abc123あいう : " + n, "abc123", terms.get(0));
+        assertEquals("abc123あいう : " + n, "あい", terms.get(1));
+        assertEquals("abc123あいう : " + n, "いう", terms.get(2));
+
         terms = toTermString(n, passable2);
-        assertEquals("Hiragana : " + n, 1, terms.size());
-        assertEquals("Hiragana : " + n, expected2, terms.get(0));
+        assertEquals("ABC123アイウ : " + n, 3, terms.size());
+        assertEquals("abc123アイウ : " + n, "abc123", terms.get(0));
+        assertEquals("abc123アイウ: " + n, "あい", terms.get(1));
+        assertEquals("abc123アイウ : " + n, "いう", terms.get(2));
 
     }
 
@@ -826,24 +871,7 @@ public class AnalyzerFactoryTestCase {
      */
     @Test
     public void testHiraganaTermStemOnlyHiragana() {
-
-        String notPass1 = "THE BLUE HEARTS";
-        String notPass2 = "ABC123";
-        String notPass3 = "ABC123あいう";
-        String passable = "あいう";
-
-        String[] otherThanHiraganaFields = { FieldNames.ALBUM_EX, FieldNames.TITLE_EX };
-        Arrays.stream(otherThanHiraganaFields).forEach(n -> {
-            List<String> terms = toTermString(n, notPass1);
-            assertEquals("all Alpha : " + n, 0, terms.size());
-            terms = toTermString(n, notPass2);
-            assertEquals("AlphaNum : " + n, 0, terms.size());
-            terms = toTermString(n, notPass3);
-            assertEquals("AlphaNumHiragana : " + n, 0, terms.size());
-            terms = toTermString(n, passable);
-            assertEquals("Hiragana : " + n, 1, terms.size());
-            assertEquals("Hiragana : " + n, passable, terms.get(0));
-        });
+        //  #482 No longer used
     }
 
     /*
@@ -857,10 +885,6 @@ public class AnalyzerFactoryTestCase {
         String expected2 = "bc";
         String expected2a = "b";
         String expected2b = "c";
-        String queryJp = "ふ︴い";
-        String expectedJp = "ふい";
-        String queryStop = "the︴これら";
-        String expectedStop = "theこれら";
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
@@ -884,13 +908,8 @@ public class AnalyzerFactoryTestCase {
                     break;
                 case FieldNames.TITLE_EX:
                 case FieldNames.ALBUM_EX:
-                    terms = toTermString(n, queryJp);
-                    assertEquals("token through filtered : " + n, 1, terms.size());
-                    assertEquals("token through filtered : " + n, expectedJp, terms.get(0));
                 case FieldNames.ARTIST_EX:
-                    terms = toTermString(n, queryStop);
-                    assertEquals("token through filtered : " + n, 1, terms.size());
-                    assertEquals("token through filtered : " + n, expectedStop, terms.get(0));
+                    //  #482 No longer used
                     break;
                 default:
                     break;
@@ -914,7 +933,7 @@ public class AnalyzerFactoryTestCase {
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class)
+            LoggerFactory.getLogger(AnalyzerFactoryTest.class)
                     .error("Error during Token processing.", e);
         }
         return result;
@@ -933,7 +952,7 @@ public class AnalyzerFactoryTestCase {
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTestCase.class)
+            LoggerFactory.getLogger(AnalyzerFactoryTest.class)
                     .error("Error during Token processing.", e);
         }
         return result;
