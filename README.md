@@ -125,17 +125,20 @@ These are done automatically after the scan.
 </details>
 
 <details>
-<summary>Japanese searchable</summary>
+<summary>Enhanced search function</summary>
 
 <table>
 <tr>
 <td>
+Supports phrase search.
+In addition, the sort tags corresponding to each field will also be searched.
 
-In addition to regular Japanese phrase search, artists can also use phonetic search and forward match.
+When searching, Japanese people enter the reading.
+Finally, convert to an appropriate character type with IME conversion.
+People in the countries that use Ideograph unknowingly perform complicated input procedures.
+Jpsonic allows you to search while inputting IME conversion.
 
-Generally, Japanese people unconsciously input 'Reading' and then convert them into appropriate character types by IME conversion.
-Jpsonic enables searching during Japanese translation.
-
+In addition to the phrase search, the old Subsonic search, the multi term search, is also maintained. It can be switched by the option.
 </td>
 <td>
 <img src="contrib/assets/jp-search.jpg" width="200">
