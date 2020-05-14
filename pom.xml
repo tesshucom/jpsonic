@@ -438,6 +438,8 @@
                                 <!-- Needed by Apache CXF -->
                                 <ignoredUnusedDeclaredDependency>jakarta.xml.ws:jakarta.xml.ws-api</ignoredUnusedDeclaredDependency>
                                 <ignoredUnusedDeclaredDependency>jakarta.xml.bind:jakarta.xml.bind-api</ignoredUnusedDeclaredDependency>
+                                <!-- Needed by Jetty compile only -->
+                                <ignoredUnusedDeclaredDependency>jakarta.websocket:jakarta.websocket-all</ignoredUnusedDeclaredDependency>
                             </ignoredUnusedDeclaredDependencies>
                         </configuration>
                     </execution>
