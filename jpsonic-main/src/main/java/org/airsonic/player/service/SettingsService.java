@@ -45,6 +45,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -362,8 +363,28 @@ public class SettingsService {
         return home.contains("libresonic") ? "libresonic" : "jpsonic";
     }
 
+    public static String getDefaultJDBCPath() {
+        return getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
+    }
+
     public static String getDefaultJDBCUrl() {
-        return "jdbc:hsqldb:file:" + getJpsonicHome().getPath() + "/db/" + getFileSystemAppName();
+        return "jdbc:hsqldb:file:" + getDefaultJDBCPath() + ";sql.enforce_size=false;sql.regular_names=false";
+    }
+
+    public static String getDBScript() {
+        return getDefaultJDBCPath() + ".script";
+    }
+
+    public static String getBackupDBScript(Path backupDir) {
+        return backupDir + "/" + getFileSystemAppName() + ".script";
+    }
+
+    public static String getDefaultJDBCUsername() {
+        return "sa";
+    }
+
+    public static String getDefaultJDBCPassword() {
+        return "";
     }
 
     public static int getDefaultUPnPPort() {

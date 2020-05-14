@@ -41,7 +41,6 @@ public class TestCaseUtils {
     }
 
     /**
-     *
      * @return current REST api version.
      */
     public static String restApiVersion() {
@@ -50,23 +49,20 @@ public class TestCaseUtils {
 
     /**
      * Cleans the JPSONIC_HOME directory used for tests.
-     *
-     * @throws IOException
      */
     public static void cleanJpsonicHomeForTest() throws IOException {
 
         File jpsonicHomeDir = new File(jpsonicHomePathForTest());
         if (jpsonicHomeDir.exists() && jpsonicHomeDir.isDirectory()) {
-            System.out.println("Delete jpsonic home (ie. " + jpsonicHomeDir.getAbsolutePath() + ").");
+            LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.getAbsolutePath());
             try {
                 FileUtils.deleteDirectory(jpsonicHomeDir);
             } catch (IOException e) {
-                System.out.println("Error while deleting jpsonic home.");
+                LOG.warn("Error while deleting jpsonic home.");
                 e.printStackTrace();
                 throw e;
             }
         }
-
     }
 
     /**
@@ -76,20 +72,25 @@ public class TestCaseUtils {
      * @return Map table name -> records count
      */
     public static Map<String, Integer> recordsInAllTables(DaoHelper daoHelper) {
-        List<String> tableNames = daoHelper.getJdbcTemplate()
-                .queryForList("" + "select table_name " + "from information_schema.system_tables " + "where table_name not like 'SYSTEM%'", String.class);
-        return tableNames.stream().collect(Collectors.toMap(table -> table, table -> recordsInTable(table, daoHelper)));
+        List<String> tableNames = daoHelper.getJdbcTemplate().queryForList("" +
+                      "select table_name " +
+                      "from information_schema.system_tables " +
+                      "where table_type <> 'SYSTEM TABLE'"
+              , String.class);
+
+        return tableNames.stream()
+                .collect(Collectors.toMap(table -> table, table -> recordsInTable(table,daoHelper)));
     }
 
     /**
      * Counts records in a table.
      */
     public static Integer recordsInTable(String tableName, DaoHelper daoHelper) {
-        return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName, Integer.class);
+        return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName,Integer.class);
     }
 
     /**
-     * Scans the music library * @param mediaScannerService
+     * Scans the music library   * @param mediaScannerService
      */
     public static void execScan(MediaScannerService mediaScannerService) {
         // TODO create a synchronous scan
@@ -102,7 +103,5 @@ public class TestCaseUtils {
                 e.printStackTrace();
             }
         }
-
     }
-
 }
