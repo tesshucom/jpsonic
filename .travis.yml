@@ -8,7 +8,6 @@ script:
 
 matrix:
   include:
-  - jdk: openjdk8
   - jdk: openjdk9
   - jdk: openjdk11
   - jdk: openjdk12
