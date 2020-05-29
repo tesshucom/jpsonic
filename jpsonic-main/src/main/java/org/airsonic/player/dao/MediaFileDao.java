@@ -53,7 +53,7 @@ public class MediaFileDao extends AbstractDao {
                                                 "composer, artist_sort, album_sort, title_sort, album_artist_sort, composer_sort, " +
                                                 "artist_reading, album_reading, album_artist_reading, " +
                                                 "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " +
-                                                "_order";
+                                                "media_file_order";
                                                 // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -188,7 +188,7 @@ public class MediaFileDao extends AbstractDao {
                      "album_sort_raw=?, " +
                      "album_artist_sort_raw=?, " +
                      "composer_sort_raw=?, " +
-                     "_order=? " +
+                     "media_file_order=? " +
                      // <<<< JP
                      "where path=?";
 
@@ -366,10 +366,10 @@ public class MediaFileDao extends AbstractDao {
         args.put("offset", offset);
         String namedQuery =
                 "select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) and present " +
-                "order by _order, album_reading limit :count offset :offset";
+                "order by media_file_order, album_reading limit :count offset :offset";
         if (byArtist) {
             namedQuery =
-                    "select distinct " + prefix(QUERY_COLUMNS, "al") + ", ar._order as ar_order, al._order as al_order "
+                    "select distinct " + prefix(QUERY_COLUMNS, "al") + ", ar.media_file_order as ar_order, al.media_file_order as al_order "
                             + "from media_file al join media_file ar on ar.path = al.parent_path "
                             + "where al.type = :type and al.folder in (:folders) and al.present " +
                     "order by ar_order, al.artist_reading, al_order, al.album_reading limit :count offset :offset";

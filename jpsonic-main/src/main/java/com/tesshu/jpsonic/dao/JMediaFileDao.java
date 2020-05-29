@@ -60,7 +60,7 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     public void clearOrder() {
-        update("update media_file set _order = -1");
+        update("update media_file set media_file_order = -1");
     }
 
     public void createOrUpdateMediaFile(MediaFile file) {
@@ -81,7 +81,7 @@ public class JMediaFileDao extends AbstractDao {
         return namedQuery(// @formatter:off
                 "select " + getQueryColoms() + " from media_file " +
                 "where type = :type and folder in (:folders) and present and genre in (:genres) " +
-                "order by _order limit :count offset :offset", rowMapper, args);
+                "order by media_file_order limit :count offset :offset", rowMapper, args);
     } // @formatter:on
 
     public List<MediaFile> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, final List<MusicFolder> musicFolders) {
@@ -108,7 +108,7 @@ public class JMediaFileDao extends AbstractDao {
      * @return The list of children.
      */
     public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) { // @formatter:off
-        String order = byYear ? "year" : "_order";
+        String order = byYear ? "year" : "media_file_order";
         return query("select " + getQueryColoms() + " from media_file " +
                 "where parent_path=? and present " +
                 "order by " + order + " limit ? offset ?", rowMapper, path, count, offset);
@@ -249,7 +249,7 @@ public class JMediaFileDao extends AbstractDao {
                 "        from media_file " +
                 "        where type = :type " +
                 "        and album_artist = :artist " +
-                "        order by _order, album_artist, album) boo " +
+                "        order by media_file_order, album_artist, album) boo " +
                 ") as foo " + 
                 "where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
 
@@ -283,7 +283,7 @@ public class JMediaFileDao extends AbstractDao {
                           "join media_file ar on al.parent_path = ar.path " +
                           "where s.type in (:types) and s.genre in (:genres) " +
                           "and s.present and s.folder in (:folders) " +
-                          "order by ar._order, al._order, s.track_number " +
+                          "order by ar.media_file_order, al.media_file_order, s.track_number " +
                           "limit :count offset :offset ", rowMapper, args);
     } // @formatter:on
 

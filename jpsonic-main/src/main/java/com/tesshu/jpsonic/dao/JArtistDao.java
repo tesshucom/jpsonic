@@ -47,7 +47,7 @@ public class JArtistDao extends AbstractDao {
     }
 
     public void clearOrder() {
-        update("update artist set _order = -1");
+        update("update artist set artist_order = -1");
         update("delete from artist where reading is null");// #311
     }
 

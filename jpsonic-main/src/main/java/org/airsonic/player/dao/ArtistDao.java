@@ -38,7 +38,7 @@ import java.util.*;
 public class ArtistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, " +
             // JP >>>>
-            "sort, reading, _order";
+            "sort, reading, artist_order";
             // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -100,7 +100,7 @@ public class ArtistDao extends AbstractDao {
                      // JP >>>>
                      "sort=?, " +
                      "reading=?," +
-                     "_order=? " +
+                     "artist_order=? " +
                      // <<<< JP
                      "where name=?";
 
@@ -143,7 +143,7 @@ public class ArtistDao extends AbstractDao {
         args.put("offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
-                "order by _order, reading, name limit :count offset :offset", rowMapper, args);
+                "order by artist_order, reading, name limit :count offset :offset", rowMapper, args);
     }
 
     /**
