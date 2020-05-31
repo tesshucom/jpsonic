@@ -93,11 +93,7 @@
         for (var i = 0; i < ${fn:length(model.files)}; i++) {
             var checkbox = $("#songIndex" + i);
             if (checkbox != null) {
-                if (b) {
-                    checkbox.attr("checked", "checked");
-                } else {
-                    checkbox.removeAttr("checked");
-                }
+                checkbox.prop("checked", b);
             }
         }
     }

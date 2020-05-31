@@ -37,7 +37,7 @@ PARAMETERS
                 <sub:param name="id" value="${param.id}"/>
             </sub:url>
             <a href="${videoUrl}" target="main">
-                <img src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>"
+                <img src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" style="cursor:pointer; height:18px;"
                      title="<fmt:message key='common.play'/>"></a>
         </c:when>
         <c:when test="${not empty param.onPlay}">

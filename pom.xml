@@ -282,6 +282,7 @@
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
                         </archive>
+                        <warSourceExcludes>**/config.rb,**/koala-config.json</warSourceExcludes>
                     </configuration>
                 </plugin>
                 <plugin>
