@@ -137,6 +137,18 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>28.2-jre</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>org.checkerframework</artifactId>
+                        <groupId>checker-qual</groupId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker-qual</artifactId>
+                <scope>compile</scope>
+                <version>3.3.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>

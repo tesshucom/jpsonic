@@ -242,8 +242,6 @@
         <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>
-            <scope>compile</scope>
-            <version>2.10.0</version>
         </dependency>
 
         <dependency>
@@ -625,7 +623,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.12</version>
+            <version>42.2.13</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
