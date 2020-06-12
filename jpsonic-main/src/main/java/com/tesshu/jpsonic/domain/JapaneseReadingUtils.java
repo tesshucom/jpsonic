@@ -60,10 +60,35 @@ public class JapaneseReadingUtils {
     private static final String ASTER = "*";
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
 
+    public static boolean isPunctuation(char ch) {
+        switch (Character.getType(ch)) {
+            case Character.SPACE_SEPARATOR:
+            case Character.LINE_SEPARATOR:
+            case Character.PARAGRAPH_SEPARATOR:
+            case Character.CONTROL:
+            case Character.FORMAT:
+            case Character.DASH_PUNCTUATION:
+            case Character.START_PUNCTUATION:
+            case Character.END_PUNCTUATION:
+            case Character.CONNECTOR_PUNCTUATION:
+            case Character.OTHER_PUNCTUATION:
+            case Character.MATH_SYMBOL:
+            case Character.CURRENCY_SYMBOL:
+            case Character.MODIFIER_SYMBOL:
+            case Character.OTHER_SYMBOL:
+            case Character.INITIAL_QUOTE_PUNCTUATION:
+            case Character.FINAL_QUOTE_PUNCTUATION:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private final SettingsService settingsService;
 
     private final Tokenizer tokenizer = new Tokenizer();
     private Map<String, String> readingMap = new HashMap<>();
+    private Map<String, String> truncatedReadingMap = new HashMap<>();
     private List<String> ignoredArticles;
 
     public JapaneseReadingUtils(SettingsService settingsService) {
@@ -97,9 +122,13 @@ public class JapaneseReadingUtils {
 
     public void clear() {
         readingMap.clear();
+        truncatedReadingMap.clear();
     }
 
-    boolean containsJapanese(String str) {
+    /**
+     * 
+     */
+    boolean isJapaneseReadable(String str) {
         if (isEmpty(str)) {
             return false;
         }
@@ -110,7 +139,8 @@ public class JapaneseReadingUtils {
                     || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
-                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)) {
+                    || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
+                    || Character.UnicodeBlock.GREEK.equals(b)) {
                 return true;
             } // @formatter:on
             return false;
@@ -223,7 +253,7 @@ public class JapaneseReadingUtils {
         String s = createIgnoredArticles(sort);
         String reading = null;
         if (isStartWithAlpha(n)) {
-            if (isStartWithAlpha(s) && containsJapanese(s)) {
+            if (isStartWithAlpha(s) && isJapaneseReadable(s)) {
                 reading = createReading(s);
             } else {
                 reading = createReading(n);
@@ -232,6 +262,24 @@ public class JapaneseReadingUtils {
             reading = createReading(defaultIfBlank(s, n));
         }
         return reading;
+    }
+
+    boolean isJapaneseReading(String str) {
+        if (isEmpty(str)) {
+            return false;
+        }
+        return Stream.of(str.split(EMPTY)).anyMatch(s -> {
+            // @formatter:off
+            Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
+            if (Character.UnicodeBlock.HIRAGANA.equals(b)
+                    || Character.UnicodeBlock.KATAKANA.equals(b)
+                    || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
+                    || (Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
+                            && s.chars().anyMatch(c -> (65382 <= c && c <= 65437)))) {
+                return true;
+            } // @formatter:on
+            return false;
+        });
     }
 
     /* AtoZ only true. */
@@ -275,4 +323,29 @@ public class JapaneseReadingUtils {
         expanded = expanded.replaceAll("\u300d", "\uff63");// Japanese braces
         return expanded;
     }
+
+    /**
+     * Delete a specific Punctuation.
+     * This result value is not persisted in DB.
+     * @param japaneseReading string after analysis
+     * @return
+     */
+    public String removePunctuationFromJapaneseReading(String japaneseReading) {
+        if (isJapaneseReading(japaneseReading)) {
+            if (truncatedReadingMap.containsKey(japaneseReading)) {
+                return truncatedReadingMap.get(japaneseReading);
+            }
+            StringBuilder b = new StringBuilder();
+            for (char c : japaneseReading.toCharArray()) {
+                if (!isPunctuation(c)) {
+                    b.append(c);
+                }
+            }
+            String truncatedReading = b.toString();
+            truncatedReadingMap.put(japaneseReading, truncatedReading);
+            return truncatedReading;
+        }
+        return japaneseReading;
+    }
+
 }

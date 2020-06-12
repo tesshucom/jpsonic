@@ -29,7 +29,9 @@ import org.springframework.context.annotation.ComponentScan;
 import java.util.function.BiFunction;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
@@ -71,6 +73,7 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("フクヤママサハル", utils.createReading("福山雅治"));// Readable case
         assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃"));// Unreadable case
         assertEquals("倖タ來ヒツジ", utils.createReading("倖田來未"));// Unreadable case
+        assertEquals("オクダ ミンセイ", utils.createReading("奥田　民生"));// Unreadable case
     }
 
     @Test
@@ -361,6 +364,80 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("オクダタミオ", candidate.getReading());
         assertEquals("オクダタミオ", candidate.getSort());
 
+    }
+    
+    @Test
+    public void testIsJapaneseReadable() {
+        assertTrue(utils.isJapaneseReadable("あいうえお"));
+        assertTrue(utils.isJapaneseReadable("アイウエオ"));
+        assertTrue(utils.isJapaneseReadable("ァィゥェォ"));
+        assertTrue(utils.isJapaneseReadable("ｧｨｩｪｫ"));
+        assertTrue(utils.isJapaneseReadable("ｱｲｳｴｵ"));
+        assertTrue(utils.isJapaneseReadable("亜伊鵜絵尾"));
+        assertFalse(utils.isJapaneseReadable("ABCDE"));
+        assertTrue(utils.isJapaneseReadable("ＡＢＣＤＥ"));
+        assertTrue(utils.isJapaneseReadable("αβγ"));
+        assertTrue(utils.isJapaneseReadable("つんく♂"));
+        assertFalse(utils.isJapaneseReadable("bad communication"));
+        assertFalse(utils.isJapaneseReadable("BAD COMMUNICATION"));
+        assertTrue(utils.isJapaneseReadable("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertTrue(utils.isJapaneseReadable("犬とネコ"));
+        assertTrue(utils.isJapaneseReadable("読み"));
+        assertTrue(utils.isJapaneseReadable("(読み)"));
+        assertTrue(utils.isJapaneseReadable("　「」（）()［］[]；！!？?＃#１２３"));
+        assertFalse(utils.isJapaneseReadable("Cæsar"));
+        assertFalse(utils.isJapaneseReadable("The Alfee"));
+        assertTrue(utils.isJapaneseReadable("コンピューター"));
+        assertTrue(utils.isJapaneseReadable("あい～うえ"));
+        assertTrue(utils.isJapaneseReadable("あいうえ～"));
+        assertTrue(utils.isJapaneseReadable("～あいうえ"));
+        assertTrue(utils.isJapaneseReadable("あ～い～う～え"));
+        assertTrue(utils.isJapaneseReadable("　　　　　"));
+        assertFalse(utils.isJapaneseReadable("[Disc 3]"));
+        assertTrue(utils.isJapaneseReadable("Best ～first things～"));
+        assertFalse(utils.isJapaneseReadable("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertFalse(utils.isJapaneseReadable("Dvořák: Symphonies #7-9"));
+        assertTrue(utils.isJapaneseReadable("福山雅治"));
+        assertTrue(utils.isJapaneseReadable("サシハラ莉乃"));
+        assertTrue(utils.isJapaneseReadable("倖田來未"));
+        assertTrue(utils.isJapaneseReadable("奥田民生"));
+        
+        /*
+         * Some words are misjudged, but need not be complete.
+         * No problem if reading is generated correctly.
+         */
+        assertEquals("ABCDE", utils.createReading("ＡＢＣＤＥ"));
+        assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals(" ｢｣()()[][];!!??##123", utils.createReading("　「」（）()［］[]；！!？?＃#１２３"));
+
+    }
+
+    @Test
+    public void testRemovePunctuationFromJapaneseReading() {
+        assertEquals("あいうえお", utils.removePunctuationFromJapaneseReading("あいうえお"));
+        assertEquals("アイウエオ", utils.removePunctuationFromJapaneseReading("アイウエオ"));
+        assertEquals("ァィゥェォ", utils.removePunctuationFromJapaneseReading("ァィゥェォ"));
+        assertEquals("アルファベータガンマ", utils.removePunctuationFromJapaneseReading("アルファベータガンマ"));
+        assertEquals("ツンク", utils.removePunctuationFromJapaneseReading("ツンク♂"));
+        assertEquals("イヌトネコ", utils.removePunctuationFromJapaneseReading("イヌトネコ"));
+        assertEquals(" ｢｣()()[][];!!??##123", utils.removePunctuationFromJapaneseReading(" ｢｣()()[][];!!??##123"));
+        assertEquals("コンピューター", utils.removePunctuationFromJapaneseReading("コンピューター"));
+        assertEquals("アイウエ", utils.removePunctuationFromJapaneseReading("アイ～ウエ"));
+        assertEquals("アイウエ", utils.removePunctuationFromJapaneseReading("アイウエ～"));
+        assertEquals("アイウエ", utils.removePunctuationFromJapaneseReading("～アイウエ"));
+        assertEquals("アイウエ", utils.removePunctuationFromJapaneseReading("ア～イ～ウ～エ"));
+        assertEquals("     ", utils.removePunctuationFromJapaneseReading("     "));
+        assertEquals("[Disc 3]", utils.removePunctuationFromJapaneseReading("[Disc 3]"));
+        assertEquals("Best ～first things～", utils.removePunctuationFromJapaneseReading("Best ～first things～"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.removePunctuationFromJapaneseReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("Dvořák: Symphonies #7-9", utils.removePunctuationFromJapaneseReading("Dvořák: Symphonies #7-9"));
+        assertEquals("フクヤママサハル", utils.removePunctuationFromJapaneseReading("フクヤママサハル"));
+        assertEquals("サシハラ莉乃", utils.removePunctuationFromJapaneseReading("サシハラ莉乃"));
+        assertEquals("倖タ來ヒツジ", utils.removePunctuationFromJapaneseReading("倖タ來ヒツジ"));
+        assertEquals("シンディローパー", utils.removePunctuationFromJapaneseReading("シンディローパー"));
+        assertEquals("シンディローパー", utils.removePunctuationFromJapaneseReading("シンディ ローパー"));
+        assertEquals("シンディローパー", utils.removePunctuationFromJapaneseReading("シンディ・ローパー"));
+        assertEquals("シンディローパー", utils.removePunctuationFromJapaneseReading("シンディ・ローパー"));
     }
 
 }
