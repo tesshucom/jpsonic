@@ -63,6 +63,7 @@ public class DLNASettingsController {
 
         map.put("dlnaAlbumVisible", settingsService.isDlnaAlbumVisible());
         map.put("dlnaArtistVisible", settingsService.isDlnaArtistVisible());
+        map.put("dlnaArtistByFolderVisible", settingsService.isDlnaArtistByFolderVisible());
         map.put("dlnaAlbumByGenreVisible", settingsService.isDlnaAlbumByGenreVisible());
         map.put("dlnaSongByGenreVisible", settingsService.isDlnaSongByGenreVisible());
         map.put("dlnaGenreCountVisible", settingsService.isDlnaGenreCountVisible());
@@ -100,6 +101,7 @@ public class DLNASettingsController {
 
         boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumVisible", false);
         boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistVisible", false);
+        boolean dlnaArtistByFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistByFolderVisible", false);
         boolean dlnaAlbumByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumByGenreVisible", false);
         boolean dlnaSongByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaSongByGenreVisible", false);
         boolean dlnaGenreCountVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaGenreCountVisible", false);
@@ -128,6 +130,7 @@ public class DLNASettingsController {
 
         settingsService.setDlnaAlbumVisible(dlnaAlbumVisible);
         settingsService.setDlnaArtistVisible(dlnaArtistVisible);
+        settingsService.setDlnaArtistByFolderVisible(dlnaArtistByFolderVisible);
         settingsService.setDlnaAlbumByGenreVisible(dlnaAlbumByGenreVisible);
         settingsService.setDlnaSongByGenreVisible(dlnaSongByGenreVisible);
         settingsService.setDlnaGenreCountVisible(dlnaGuestPublish ? false : dlnaGenreCountVisible);

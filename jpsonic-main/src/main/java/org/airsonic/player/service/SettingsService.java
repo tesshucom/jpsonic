@@ -130,6 +130,7 @@ public class SettingsService {
     private static final String KEY_DLNA_BASE_LAN_URL = "DlnaBaseLANURL";
     private static final String KEY_DLNA_ALBUM_VISIBLE = "DlnaAlbumVisible";
     private static final String KEY_DLNA_ARTIST_VISIBLE = "DlnaArtistVisible";
+    private static final String KEY_DLNA_ARTIST_BY_FOLDER_VISIBLE = "DlnaArtistByFolderVisible";
     private static final String KEY_DLNA_ALBUM_BY_GENRE_VISIBLE = "DlnaAlbumByGenreVisible";
     private static final String KEY_DLNA_SONG_BY_GENRE_VISIBLE = "DlnaSongByGenreVisible";
     private static final String KEY_DLNA_GENRE_COUNT_VISIBLE = "DlnaGenreCountVisible";
@@ -235,6 +236,7 @@ public class SettingsService {
     private static final String DEFAULT_DLNA_BASE_LAN_URL = null;
     private static final boolean DEFAULT_DLNA_ALBUM_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_ARTIST_VISIBLE = true;
+    private static final boolean DEFAULT_DLNA_ARTIST_BY_FOLDER_VISIBLE = false;
     private static final boolean DEFAULT_DLNA_ALBUM_BY_GENRE_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_SONG_BY_GENRE_VISIBLE = true;
     private static final boolean DEFAULT_DLNA_GENRE_COUNT_VISIBLE = false;
@@ -1390,6 +1392,14 @@ public class SettingsService {
 
     public void setDlnaArtistVisible(boolean b) {
         setBoolean(KEY_DLNA_ARTIST_VISIBLE, b);
+    }
+
+    public boolean isDlnaArtistByFolderVisible() {
+        return getBoolean(KEY_DLNA_ARTIST_BY_FOLDER_VISIBLE, DEFAULT_DLNA_ARTIST_BY_FOLDER_VISIBLE);
+    }
+
+    public void setDlnaArtistByFolderVisible(boolean b) {
+        setBoolean(KEY_DLNA_ARTIST_BY_FOLDER_VISIBLE, b);
     }
 
     public boolean isDlnaAlbumByGenreVisible() {
