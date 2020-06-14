@@ -556,7 +556,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jetty</artifactId>
             <scope>provided</scope>
-            <version>2.2.7.RELEASE</version>
+            <version>2.3.1.RELEASE</version>
             <exclusions>
                 <exclusion>
                     <groupId>jakarta.websocket</groupId>
