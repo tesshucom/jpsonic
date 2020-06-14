@@ -19,7 +19,6 @@
 package com.tesshu.jpsonic.dao;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
-
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;

@@ -20,7 +20,6 @@ package com.tesshu.jpsonic.dao;
 
 import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.domain.SortCandidate;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;

@@ -1,7 +1,6 @@
 package org.airsonic.player.service.upnp.processor;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;

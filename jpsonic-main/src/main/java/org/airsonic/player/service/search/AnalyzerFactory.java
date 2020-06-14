@@ -29,7 +29,6 @@ import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilter;
 import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
-
 import org.airsonic.player.service.SettingsService;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
