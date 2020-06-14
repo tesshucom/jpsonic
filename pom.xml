@@ -19,7 +19,7 @@
         <cxf.version>3.3.6</cxf.version>
         <jackson.version>2.11.0</jackson.version>
         <tomcat.version>9.0.36</tomcat.version>
-        <log4j.version>2.13.2</log4j.version>
+        <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
     </properties>
 
