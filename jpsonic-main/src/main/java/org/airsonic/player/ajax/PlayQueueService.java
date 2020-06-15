@@ -21,7 +21,6 @@ package org.airsonic.player.ajax;
 
 import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlayQueueDao;

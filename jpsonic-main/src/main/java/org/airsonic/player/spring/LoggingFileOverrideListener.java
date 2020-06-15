@@ -18,7 +18,7 @@ public class LoggingFileOverrideListener implements ApplicationListener<Applicat
     public void onApplicationEvent(ApplicationEnvironmentPreparedEvent event) {
         @SuppressWarnings("rawtypes")
         PropertySource ps = new MapPropertySource("LogFileLocationPS",
-                Collections.singletonMap(LogFile.FILE_PROPERTY, SettingsService.getLogFile().getAbsolutePath()));
+                Collections.singletonMap(LogFile.FILE_NAME_PROPERTY, SettingsService.getLogFile().getAbsolutePath()));
         event.getEnvironment().getPropertySources().addLast(ps);
     }
 

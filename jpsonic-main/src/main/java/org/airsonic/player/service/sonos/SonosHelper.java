@@ -22,7 +22,6 @@ package org.airsonic.player.service.sonos;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.*;
-
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.logic.CoverArtLogic;

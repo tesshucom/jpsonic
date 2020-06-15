@@ -21,7 +21,6 @@ package com.tesshu.jpsonic.domain;
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
 import com.ibm.icu.text.Transliterator;
-
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;

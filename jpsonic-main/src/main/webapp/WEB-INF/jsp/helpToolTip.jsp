@@ -31,8 +31,10 @@ PARAMETERS
     <fmt:param value="Airsonic"/>
 </fmt:message>
 
+<c:set var="oldStr" value='\"' />
+<c:set var="newStr" value='&quot;' />
 <img id="looltop-${param.topic}"
-     src="${imageUrl}"
-     alt="${fn:replace(text, '\"', '&quot;')}"
-     title="${fn:replace(text, '\"', '&quot;')}"
+     src='${imageUrl}'
+     alt='${fn:replace(text, oldStr, newStr)}'
+     title='${fn:replace(text, oldStr, newStr)}'
 />

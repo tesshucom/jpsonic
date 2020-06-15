@@ -19,7 +19,6 @@
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
-
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.MediaFileService;
