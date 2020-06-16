@@ -29,10 +29,6 @@
             <name>Local Repository</name>
             <url>file://${project.basedir}/../repo</url>
         </repository>
-        <repository>
-            <id>jaudiotagger-repository</id>
-            <url>https://dl.bintray.com/ijabz/maven</url>
-        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -386,6 +382,11 @@
                         <individualFiles>false</individualFiles>
                         <shasumSummary>true</shasumSummary>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
                 </plugin>
             </plugins>
         </pluginManagement>

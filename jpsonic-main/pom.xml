@@ -290,9 +290,9 @@
         </dependency>
 
         <dependency>
-            <groupId>net.jthink</groupId>
+            <groupId>com.tesshucom</groupId>
             <artifactId>jaudiotagger</artifactId>
-            <version>2.2.5</version>
+            <version>2.2.6-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -653,6 +653,26 @@
     <build>
         <finalName>jpsonic</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <executions>
+                    <execution>
+                       <id>install-jaudiotagger</id>
+                       <phase>clean</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+                            <file>../repo/com/tesshucom/jaudiotagger/2.2.6-SNAPSHOT/jaudiotagger-2.2.6-SNAPSHOT.jar</file>
+                            <groupId>com.tesshucom</groupId>
+                            <artifactId>jaudiotagger</artifactId>
+                            <version>2.2.6-SNAPSHOT</version>
+                            <packaging>jar</packaging>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
