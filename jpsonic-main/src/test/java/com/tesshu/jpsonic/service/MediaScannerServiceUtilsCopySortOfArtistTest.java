@@ -37,6 +37,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 /**
  * If SORT exists for one name and null-sort data exists, unify it to SORT.
@@ -107,12 +108,18 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
         artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
 
         assertEquals(2, files.size());
-        assertEquals("file1", files.get(0).getName());
-        assertEquals("case1", files.get(0).getArtist());
-        assertEquals("artistA", files.get(0).getArtistSort());
-        assertEquals("file2", files.get(1).getName());
-        assertEquals("case1", files.get(1).getArtist());
-        assertEquals("artistA", files.get(1).getArtistSort());
+        files.forEach(f -> {
+            switch (f.getName()) {
+                case "file1":
+                case "file2":
+                    assertEquals("case1", f.getArtist());
+                    assertEquals("artistA", f.getArtistSort());
+                    break;
+                default:
+                    fail();
+                    break;
+            }
+        });
 
         assertEquals(1, artistID3s.size());
         assertEquals("case1", artistID3s.get(0).getName());

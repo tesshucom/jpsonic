@@ -155,3 +155,6 @@ local.properties
 
 # Code Recommenders
 .recommenders/
+
+# SASS caches
+.sass-cache

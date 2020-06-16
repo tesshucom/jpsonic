@@ -3,8 +3,32 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.0.0
+## v109.1.0
 #### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+
+> Jpsonic will be developed for LTS Java11 from this version.
+> Compatibility with Java 11 or later is given priority, and compatibility with Java 10 or earlier is not necessarily guaranteed.
+
+#### fix
+
+  * Updated ant to 1.10.8(CVE-2020-1945).
+  * Updated spring-boot-dependencies to 2.2.7(CVE-2020-5407).
+  * Updated websocket to 2.0.0-M1(CVE-2020-11050).
+
+#### Other updates
+
+  * Numerous library updates ([diff...](https://github.com/tesshucom/jpsonic/compare/0d68d71...ce8633c)).
+  * Update hsqldb to 2.5
+  * Add new display item to Upnp (MusicFolder/Artist/Album/Song). 
+  * Add special processing for searching by Japanese voice input.
+    You can search for artists that include a delimiter by typing without the delimiter.
+    It has no effect on anything other than Japanese.
+  * CSS reorganization using SCSS (Jpsonic theme only).
+    Currently the JSP modifications are limited,
+    but in the later versions, the keyboard operability and CSS classes etc will be modified.
+
+<details>
+<summary>v109.0.0 based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
 > Includes bug fixes for 10.6.1 and 10.6.2. Does not include updates to HSQLDB.
 > 
@@ -23,6 +47,7 @@
 
   * [fix] Updated apache-jsp to 9.4.28.v20200408(CVE-2020-1745). Compiling with the Tomcat profile is not affected.
   * [update] Support for phrase search.
+</details>
 
 <details>
 <summary>v108.0.0 based on airsonic 10.6.0-RELEASE</summary>

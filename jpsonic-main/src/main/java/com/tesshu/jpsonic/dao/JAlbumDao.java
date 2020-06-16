@@ -19,7 +19,6 @@
 package com.tesshu.jpsonic.dao;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
-
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
@@ -47,7 +46,7 @@ public class JAlbumDao extends AbstractDao {
     }
 
     public void clearOrder() {
-        update("update album set _order = -1");
+        update("update album set album_order = -1");
         update("delete from album where name_reading is null or artist_reading is null ");// #311
     }
 
@@ -88,7 +87,7 @@ public class JAlbumDao extends AbstractDao {
         return namedQuery(// @formatter:off
                 "select " + deligate.getQueryColoms() + " from album " +
                 "where artist = :artist and present and folder_id in (:folders) " +
-                "    order by " + (byYear ? "year" : "_order") + ", name limit :count offset :offset",
+                "    order by " + (byYear ? "year" : "album_order") + ", name limit :count offset :offset",
                 deligate.getAlbumMapper(), args);
         // @formatter:on
     }

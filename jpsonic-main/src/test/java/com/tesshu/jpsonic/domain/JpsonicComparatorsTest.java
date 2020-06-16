@@ -51,7 +51,6 @@ import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreO
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
 import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 

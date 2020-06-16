@@ -22,7 +22,6 @@ package org.airsonic.player.service;
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
 import chameleon.playlist.SpecificPlaylistProvider;
-
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
 import com.tesshu.jpsonic.domain.JpsonicComparators;

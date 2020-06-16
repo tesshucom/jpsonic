@@ -21,7 +21,6 @@ package org.airsonic.player.service.upnp.processor;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
-
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;

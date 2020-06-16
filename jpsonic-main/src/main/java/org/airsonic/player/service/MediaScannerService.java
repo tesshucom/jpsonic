@@ -47,7 +47,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -335,41 +334,22 @@ public class MediaScannerService {
             return;
         }
 
-        Album maybe = albumDao.getAlbumForFile(file);
-        if (maybe == null) {
-            maybe = new Album();
-            maybe.setPath(file.getParentPath());
-            maybe.setName(file.getAlbumName());
-            maybe.setNameReading(file.getAlbumReading());
-            maybe.setNameSort(file.getAlbumSort());
-            maybe.setArtist(artist);
-            maybe.setArtistReading(reading);
-            maybe.setArtistSort(sort);
-            maybe.setCreated(file.getChanged());
+        Album album = albumDao.getAlbumForFile(file);
+        if (album == null) {
+            album = new Album();
+            album.setPath(file.getParentPath());
+            album.setName(file.getAlbumName());
+            album.setNameReading(file.getAlbumReading());
+            album.setNameSort(file.getAlbumSort());
+            album.setArtist(artist);
+            album.setArtistReading(reading);
+            album.setArtistSort(sort);
+            album.setCreated(file.getChanged());
         }
-
-        final Album album = maybe;
 
         if (file.getMusicBrainzReleaseId() != null) {
             album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
         }
-
-        // see #414
-        Optional<MediaFile> firstChild = mediaFileDao.getChildrenOf(album.getPath()).stream().findFirst();
-        firstChild.ifPresent(child -> {
-            if (album.getName() != null && album.getName().equals(child.getAlbumName())) {
-                if (file.getYear() != null && file.getYear().equals(child.getYear())) {
-                    album.setYear(file.getYear());
-                }
-                if (file.getGenre() != null && file.getGenre().equals(child.getGenre())) {
-                    album.setGenre(file.getGenre());
-                }
-            } else {
-                album.setYear(file.getYear());
-                album.setGenre(file.getGenre());
-            }
-        });
-
         MediaFile parent = mediaFileService.getParentOf(file);
         if (parent != null && parent.getCoverArtPath() != null) {
             album.setCoverArtPath(parent.getCoverArtPath());
@@ -382,6 +362,13 @@ public class MediaScannerService {
             album.setSongCount(0);
             Integer n = albumCount.get(artist);
             albumCount.put(artist, n == null ? 1 : n + 1);
+            // see #414 Change properties only on firstEncounter
+            if (file.getYear() != null) {
+                album.setYear(file.getYear());
+            }
+            if (file.getGenre() != null) {
+                album.setGenre(file.getGenre());
+            }
         }
         if (file.getDurationSeconds() != null) {
             album.setDurationSeconds(album.getDurationSeconds() + file.getDurationSeconds());

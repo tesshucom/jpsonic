@@ -27,6 +27,7 @@ import org.airsonic.player.service.search.UPnPSearchCriteria;
 import org.airsonic.player.service.search.UPnPSearchCriteriaDirector;
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.ArtistByFolderUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
@@ -70,6 +71,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RecentAlbumUpnpProcessor recentAlbumProcessor;
     private final RecentAlbumId3UpnpProcessor recentAlbumId3Processor;
     private final ArtistUpnpProcessor artistProcessor;
+    private final ArtistByFolderUpnpProcessor artistByFolderProcessor;
     private final AlbumByGenreUpnpProcessor albumByGenreProcessor;
     private final SongByGenreUpnpProcessor songByGenreProcessor;
     private final IndexUpnpProcessor indexProcessor;
@@ -91,6 +93,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap,
             @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip,
             @Lazy ArtistUpnpProcessor arP,
+            @Lazy ArtistByFolderUpnpProcessor abfP,
             @Lazy AlbumByGenreUpnpProcessor abgp,
             @Lazy SongByGenreUpnpProcessor sbgp,
             @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip,
@@ -110,6 +113,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         recentAlbumProcessor = rap;
         recentAlbumId3Processor = raip;
         artistProcessor = arP;
+        artistByFolderProcessor = abfP;
         albumByGenreProcessor = abgp;
         songByGenreProcessor = sbgp;
         indexProcessor = ip;
@@ -222,6 +226,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public ArtistUpnpProcessor getArtistProcessor() {
         return artistProcessor;
+    }
+
+    @Override
+    public ArtistByFolderUpnpProcessor getArtistByFolderProcessor() {
+        return artistByFolderProcessor;
     }
 
     @Override

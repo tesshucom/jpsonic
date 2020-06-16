@@ -920,11 +920,7 @@
 
     function selectAll(b) {
         for (var i = 0; i < songs.length; i++) {
-            if (b) {
-                $("#songIndex" + (i + 1)).attr("checked", "checked");
-            } else {
-                $("#songIndex" + (i + 1)).removeAttr("checked");
-            }
+        	$("#songIndex" + (i + 1)).prop("checked", b);
         }
     }
 

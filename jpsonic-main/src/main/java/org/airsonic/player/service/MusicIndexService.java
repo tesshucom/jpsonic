@@ -20,7 +20,6 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
-
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;

@@ -2,6 +2,7 @@ package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.AlbumUpnpProcessor;
+import org.airsonic.player.service.upnp.processor.ArtistByFolderUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.ArtistUpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexId3UpnpProcessor;
 import org.airsonic.player.service.upnp.processor.IndexUpnpProcessor;
@@ -27,6 +28,7 @@ public interface UpnpProcessDispatcher {
     final String CONTAINER_ID_FOLDER_PREFIX = "folder";
     final String CONTAINER_ID_ALBUM_PREFIX = "album";
     final String CONTAINER_ID_ARTIST_PREFIX = "artist";
+    final String CONTAINER_ID_ARTIST_BY_FOLDER_PREFIX = "artistByFolder";
     final String CONTAINER_ID_ARTISTALBUM_PREFIX = "artistalbum";
     final String CONTAINER_ID_ALBUM_BY_GENRE_PREFIX = "abg";
     final String CONTAINER_ID_SONG_BY_GENRE_PREFIX = "sbg";
@@ -53,6 +55,8 @@ public interface UpnpProcessDispatcher {
     RecentAlbumId3UpnpProcessor getRecentAlbumId3Processor();
 
     ArtistUpnpProcessor getArtistProcessor();
+
+    ArtistByFolderUpnpProcessor getArtistByFolderProcessor();
 
     AlbumByGenreUpnpProcessor getAlbumByGenreProcessor();
 
@@ -89,6 +93,8 @@ public interface UpnpProcessDispatcher {
                 return getRecentAlbumId3Processor();
             case CONTAINER_ID_ARTIST_PREFIX:
                 return getArtistProcessor();
+            case CONTAINER_ID_ARTIST_BY_FOLDER_PREFIX:
+                return getArtistByFolderProcessor();
             case CONTAINER_ID_ALBUM_BY_GENRE_PREFIX:
                 return getAlbumByGenreProcessor();
             case CONTAINER_ID_SONG_BY_GENRE_PREFIX:

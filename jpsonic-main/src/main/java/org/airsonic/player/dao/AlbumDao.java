@@ -43,7 +43,7 @@ public class AlbumDao extends AbstractDao {
                                           "year, genre, play_count, last_played, comment, created, last_scanned, present, " +
                                           "folder_id, mb_release_id, " +
                                           // JP >>>>
-                                          "artist_sort, name_sort, artist_reading, name_reading, _order";
+                                          "artist_sort, name_sort, artist_reading, name_reading, album_order";
                                           // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -106,7 +106,7 @@ public class AlbumDao extends AbstractDao {
         args.put("folders", MusicFolder.toIdList(musicFolders));
         return namedQuery("select " + QUERY_COLUMNS
                           + " from album where artist = :artist and present and folder_id in (:folders) " +
-                          "order by _order, name",
+                          "order by album_order, name",
                           rowMapper, args);
     }
 
@@ -137,7 +137,7 @@ public class AlbumDao extends AbstractDao {
                      "name_sort=?, " +
                      "artist_reading=?, " +
                      "name_reading=?, " +
-                     "_order=? " +
+                     "album_order=? " +
                      // <<<< JP
                      "where artist=? and name=?";
 
@@ -192,9 +192,9 @@ public class AlbumDao extends AbstractDao {
         args.put("offset", offset);
         String orderBy;
         if (ignoreCase) {
-            orderBy = byArtist ? "LOWER(artist_reading), _order, LOWER(name_reading)" : "_order, LOWER(name_reading)";
+            orderBy = byArtist ? "LOWER(artist_reading), album_order, LOWER(name_reading)" : "album_order, LOWER(name_reading)";
         } else {
-            orderBy = byArtist ? "artist_reading, _order, name_reading" : "_order, name_reading";
+            orderBy = byArtist ? "artist_reading, album_order, name_reading" : "album_order, name_reading";
         }
 
         return namedQuery("select " + QUERY_COLUMNS + " from album where present and folder_id in (:folders) " +

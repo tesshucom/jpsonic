@@ -121,8 +121,15 @@
                             <input type="checkbox" name="dlnaArtistVisible" id="dlnaArtistVisible" ${model.dlnaArtistVisible? "checked": ""}/>
                             <label for="dlnaArtistVisible"><fmt:message key="dlna.title.artists"/> [ID3]</label>
                         </td>
-                        <td>
+                        <td rowspan="2">
                             <fmt:message key="dlna.title.artists"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+                        <td colspan="2">
+                            <input type="checkbox" name="dlnaArtistByFolderVisible" id="dlnaArtistByFolderVisible" ${model.dlnaArtistByFolderVisible? "checked": ""}/>
+                            <label for="dlnaArtistByFolderVisible"><fmt:message key="dlna.title.artistsByFolder"/> [ID3]</label>
                         </td>
                     </tr>
                     <tr>

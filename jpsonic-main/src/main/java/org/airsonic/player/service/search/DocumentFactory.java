@@ -20,6 +20,7 @@
 
 package org.airsonic.player.service.search;
 
+import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -54,7 +55,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * A factory that generates the documents to be stored in the index.
  */
 @Component
-@DependsOn({ "settingsService" })
+@DependsOn({ "settingsService", "japaneseReadingUtils" })
 public class DocumentFactory {
 
     private static final FieldType TYPE_ID;
@@ -64,6 +65,8 @@ public class DocumentFactory {
     private static final FieldType TYPE_KEY;
 
     private final SettingsService settingsService;
+    
+    private final JapaneseReadingUtils readingUtils;
 
     static {
 
@@ -90,8 +93,9 @@ public class DocumentFactory {
 
     }
 
-    public DocumentFactory(SettingsService settingsService) {
+    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
         this.settingsService = settingsService;
+        this.readingUtils = readingUtils;
     }
 
     @FunctionalInterface
@@ -277,7 +281,10 @@ public class DocumentFactory {
     private void acceptArtistReading(Document doc, String artist, String sort, String reading) {
         String result = defaultIfEmpty(sort, reading);
         if (!isEmpty(artist) && !artist.equals(result)) {
-            fieldWords.accept(doc, FieldNames.ARTIST_READING, result);
+            fieldWords.accept(doc, FieldNames.ARTIST_READING,
+                    settingsService.isSearchMethodLegacy()
+                        ? result
+                        : readingUtils.removePunctuationFromJapaneseReading(result));
         }
         fieldWords.accept(doc, FieldNames.ARTIST_EX, artist);
     }
