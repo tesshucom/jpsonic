@@ -14,6 +14,7 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
+        <maven.compiler.release>11</maven.compiler.release>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.3.6</cxf.version>
@@ -396,11 +397,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
                     <encoding>UTF-8</encoding>
                     <verbose>false</verbose>
-                    <compilerVersion>1.8</compilerVersion>
                     <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
