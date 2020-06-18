@@ -150,6 +150,7 @@ public class JAXBWriter {
             if (jsonp) {
                 writer.append(");");
             }
+            //
             httpResponse.getWriter().append(writer.getBuffer());
         } catch (JAXBException | IOException x) {
             LOG.error("Failed to marshal JAXB", x);
