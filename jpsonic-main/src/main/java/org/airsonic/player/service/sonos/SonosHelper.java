@@ -40,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 
 import static org.airsonic.player.service.NetworkService.getBaseUrl;
 
@@ -218,7 +219,7 @@ public class SonosHelper {
             return result;
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 

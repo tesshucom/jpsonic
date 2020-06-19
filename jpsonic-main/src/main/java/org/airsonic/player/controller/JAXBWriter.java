@@ -45,6 +45,7 @@ import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.CompletionException;
 
 import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
@@ -67,7 +68,7 @@ public class JAXBWriter {
             datatypeFactory = DatatypeFactory.newInstance();
             restProtocolVersion = getRESTProtocolVersion();
         } catch (Exception x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 
@@ -79,7 +80,7 @@ public class JAXBWriter {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             return marshaller;
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 
@@ -93,7 +94,7 @@ public class JAXBWriter {
             marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
             return marshaller;
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 
@@ -153,7 +154,7 @@ public class JAXBWriter {
             httpResponse.getWriter().append(writer.getBuffer());
         } catch (JAXBException | IOException x) {
             LOG.error("Failed to marshal JAXB", x);
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 

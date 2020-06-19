@@ -54,7 +54,7 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         User user = new User("muff1nman", "secret", "noemail") {
             @Override
             public boolean isPlaylistRole() {
-                throw new RuntimeException();
+                throw new IllegalStateException();
             }
         };
 

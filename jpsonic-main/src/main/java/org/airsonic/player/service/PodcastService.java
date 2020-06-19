@@ -686,13 +686,13 @@ public class PodcastService {
         File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
 
         if (!podcastDir.canWrite()) {
-            throw new RuntimeException("The podcasts directory " + podcastDir + " isn't writeable.");
+            throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
         if (!channelDir.exists()) {
             boolean ok = channelDir.mkdirs();
             if (!ok) {
-                throw new RuntimeException("Failed to create directory " + channelDir);
+                throw new IllegalStateException("Failed to create directory " + channelDir);
             }
 
             MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);

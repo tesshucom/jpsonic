@@ -73,7 +73,7 @@ public class AvatarUploadController {
 
         // Check that we have a file upload request.
         if (!ServletFileUpload.isMultipartContent(request)) {
-            throw new Exception("Illegal request.");
+            throw new IllegalArgumentException("Illegal request.");
         }
 
         Map<String, Object> map = new HashMap<String, Object>();
