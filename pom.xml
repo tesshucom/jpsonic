@@ -14,7 +14,6 @@
     <inceptionYear>2016</inceptionYear>
 
     <properties>
-        <maven.compiler.release>11</maven.compiler.release>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.3.6</cxf.version>
@@ -22,6 +21,7 @@
         <tomcat.version>9.0.36</tomcat.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
+        <compile.version>1.8</compile.version>
     </properties>
 
     <repositories>
@@ -397,6 +397,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
+                    <source>${compile.version}</source>
+                    <target>${compile.version}</target>
+                    <compilerVersion>${compile.version}</compilerVersion>
                     <encoding>UTF-8</encoding>
                     <verbose>false</verbose>
                     <showWarnings>true</showWarnings>
@@ -467,6 +470,13 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>release11</id>
+            <properties>
+                <maven.compiler.release>11</maven.compiler.release>
+                <compile.version>11</compile.version>
+            </properties>
+        </profile>
         <profile>
             <id>unit-test</id>
             <modules>
