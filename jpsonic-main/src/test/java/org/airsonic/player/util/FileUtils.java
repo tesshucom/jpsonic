@@ -6,15 +6,18 @@ import java.io.*;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
     public static boolean copyFile(final File toCopy, final File destFile) {
-        try {
-            return FileUtils.copyStream(new FileInputStream(toCopy), new FileOutputStream(destFile));
-        } catch (final FileNotFoundException e) {
+        try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
+            InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
+            return FileUtils.copyStream(is, os);
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return false;
@@ -86,9 +89,11 @@ public class FileUtils {
     }
 
     private static boolean copyStream(final InputStream is, final File f) {
-        try {
-            return FileUtils.copyStream(is, new FileOutputStream(f));
+        try (OutputStream os = Files.newOutputStream(Paths.get(f.toURI()))) {
+            return FileUtils.copyStream(is, os);
         } catch (final FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (final IOException e) {
             e.printStackTrace();
         }
         return false;

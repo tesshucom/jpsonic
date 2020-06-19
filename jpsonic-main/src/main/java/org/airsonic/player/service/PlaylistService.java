@@ -42,9 +42,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -312,7 +313,7 @@ public class PlaylistService {
                 }
             }
         }
-        InputStream in = new FileInputStream(file);
+        InputStream in = Files.newInputStream(Paths.get(file.toURI()));
         try {
             // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
             //   a specific account to use for auto-imported playlists, so use the first admin account

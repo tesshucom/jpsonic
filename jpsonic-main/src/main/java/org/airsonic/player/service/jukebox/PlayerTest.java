@@ -3,7 +3,9 @@ package org.airsonic.player.service.jukebox;
 import javax.swing.*;
 
 import java.awt.*;
-import java.io.FileInputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @author Sindre Mehus
@@ -51,7 +53,8 @@ public class PlayerTest implements AudioPlayer.Listener {
 
     private void createPlayer() {
         try {
-            player = new AudioPlayer(new FileInputStream("/Users/sindre/Downloads/sample.au"), this);
+            File f = new File("/Users/sindre/Downloads/sample.au");
+            player = new AudioPlayer(Files.newInputStream(Paths.get(f.toURI())), this);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

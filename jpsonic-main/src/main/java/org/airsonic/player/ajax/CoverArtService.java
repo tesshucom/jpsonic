@@ -38,9 +38,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -116,7 +117,7 @@ public class CoverArtService {
                 backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
 
                 // Write file.
-                output = new FileOutputStream(newCoverFile);
+                output = Files.newOutputStream(Paths.get(newCoverFile.toURI()));
                 IOUtils.copy(input, output);
 
                 MediaFile dir = mediaFileService.getMediaFile(path);
