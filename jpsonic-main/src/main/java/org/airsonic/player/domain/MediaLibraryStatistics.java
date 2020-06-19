@@ -57,7 +57,7 @@ public class MediaLibraryStatistics {
         reset();
     }
 
-    protected void reset() {
+    protected final void reset() {
         artistCount = 0;
         albumCount = 0;
         songCount = 0;
