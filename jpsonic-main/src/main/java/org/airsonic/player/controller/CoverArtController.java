@@ -55,6 +55,8 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -246,7 +248,7 @@ public class CoverArtController implements LastModified {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
                     if (image == null) {
-                        throw new Exception("Unable to decode image.");
+                        throw new ExecutionException(new IOException("Unable to decode image."));
                     }
                     out = Files.newOutputStream(Paths.get(cachedImage.toURI()));
                     ImageIO.write(image, encoding, out);
@@ -295,7 +297,7 @@ public class CoverArtController implements LastModified {
                 mimeType = artwork.getMimeType();
             } catch (Exception e) {
                 LOG.debug("Could not read artwork from file {}", mediaFile);
-                throw new RuntimeException(e);
+                throw new CompletionException(e);
             }
         } else {
             is = Files.newInputStream(Paths.get(file.toURI()));

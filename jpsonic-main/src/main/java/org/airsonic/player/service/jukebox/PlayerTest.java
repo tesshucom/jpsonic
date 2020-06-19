@@ -6,6 +6,7 @@ import java.awt.*;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.concurrent.CompletionException;
 
 /**
  * @author Sindre Mehus
@@ -56,7 +57,7 @@ public class PlayerTest implements AudioPlayer.Listener {
             File f = new File("/Users/sindre/Downloads/sample.au");
             player = new AudioPlayer(Files.newInputStream(Paths.get(f.toURI())), this);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 

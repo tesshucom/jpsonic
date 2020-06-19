@@ -42,7 +42,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Provides AJAX-enabled services for changing cover art images.
@@ -110,7 +112,7 @@ public class CoverArtService {
                 // Check permissions.
                 File newCoverFile = new File(path, "cover." + suffix);
                 if (!securityService.isWriteAllowed(newCoverFile)) {
-                    throw new Exception("Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath()));
+                    throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
                 }
 
                 // If file exists, create a backup.

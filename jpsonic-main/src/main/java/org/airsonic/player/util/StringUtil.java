@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -290,7 +291,7 @@ public final class StringUtil {
         try {
             return URLEncoder.encode(s, StringUtil.ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 
@@ -301,7 +302,7 @@ public final class StringUtil {
         try {
             return URLDecoder.decode(s, StringUtil.ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 

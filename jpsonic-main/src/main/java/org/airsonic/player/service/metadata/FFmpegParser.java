@@ -113,7 +113,7 @@ public class FFmpegParser extends MetaDataParser {
      */
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
-        throw new RuntimeException("setMetaData() not supported in " + getClass().getSimpleName());
+        throw new IllegalArgumentException("setMetaData() not supported in " + getClass().getSimpleName());
     }
 
     /**

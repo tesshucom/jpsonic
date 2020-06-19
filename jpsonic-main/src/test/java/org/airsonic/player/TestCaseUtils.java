@@ -33,7 +33,7 @@ public class TestCaseUtils {
             try {
                 jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_").toFile();
             } catch (IOException e) {
-                throw new RuntimeException("Error while creating temporary JPSONIC_HOME directory for tests");
+                throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests");
             }
             LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest.getAbsolutePath());
         }

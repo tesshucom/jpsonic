@@ -42,11 +42,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Provides services for loading and saving playlists to and from persistent storage.
@@ -204,7 +206,7 @@ public class PlaylistService {
         // TODO: handle other encodings
         final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
         if (inputSpecificPlaylist == null) {
-            throw new Exception("Unsupported playlist " + fileName);
+            throw new ExecutionException(new IOException("Unsupported playlist " + fileName));
         }
         PlaylistImportHandler importHandler = getImportHandler(inputSpecificPlaylist);
         LOG.debug("Using " + importHandler.getClass().getSimpleName() + " playlist import handler");
@@ -212,7 +214,7 @@ public class PlaylistService {
         Pair<List<MediaFile>, List<String>> result = importHandler.handle(inputSpecificPlaylist);
 
         if (result.getLeft().isEmpty() && !result.getRight().isEmpty()) {
-            throw new Exception("No songs in the playlist were found.");
+            throw new ExecutionException(new IOException("No songs in the playlist were found."));
         }
 
         for (String error : result.getRight()) {
