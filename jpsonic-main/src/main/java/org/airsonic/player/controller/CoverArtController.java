@@ -54,8 +54,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
@@ -89,6 +91,8 @@ public class CoverArtController implements LastModified {
     private Semaphore semaphore;
     @Autowired
     private CoverArtLogic logic;
+
+    private final static Map<String, Object> locks = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -243,11 +247,13 @@ public class CoverArtController implements LastModified {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
         File cachedImage = new File(getImageCacheDirectory(size), hash + "." + encoding);
 
-        // Synchronize to avoid concurrent writing to the same file.
-        synchronized (hash.intern()) {
+        Object lock = new Object();
+        synchronized (lock) {
 
-            // Is cache missing or obsolete?
-            if (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified()) {
+            locks.putIfAbsent(hash, lock);
+
+            if (lock.equals(locks.get(hash))
+                    && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 OutputStream out = null;
                 try {
                     semaphore.acquire();
@@ -258,18 +264,17 @@ public class CoverArtController implements LastModified {
                     out = Files.newOutputStream(Paths.get(cachedImage.toURI()));
                     ImageIO.write(image, encoding, out);
 
-                } catch (Throwable x) {
-                    // Delete corrupt (probably empty) thumbnail cache.
+                } catch (Throwable t) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to create thumbnail for " + request, x);
+                        LOG.warn("Failed to create thumbnail for " + request, t);
                     }
                     FileUtil.closeQuietly(out);
                     cachedImage.delete();
-                    throw new IOException("Failed to create thumbnail for " + request + ". " + x.getMessage());
-
+                    throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
                     FileUtil.closeQuietly(out);
+                    locks.remove(hash, lock);
                 }
             }
             return cachedImage;
