@@ -54,8 +54,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
@@ -89,6 +91,8 @@ public class CoverArtController implements LastModified {
     private Semaphore semaphore;
     @Autowired
     private CoverArtLogic logic;
+
+    private final static Map<String, Object> locks = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -243,10 +247,21 @@ public class CoverArtController implements LastModified {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
         File cachedImage = new File(getImageCacheDirectory(size), hash + "." + encoding);
 
-        // Synchronize to avoid concurrent writing to the same file.
-        synchronized (hash.intern()) {
+        Object lock = locks.get(hash);
+        while (lock != null) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("The image writing wait thread has been suspended. : " + request, e);
+                }
+            }
+            lock = locks.get(hash);
+        }
 
-            // Is cache missing or obsolete?
+        lock = new Object();
+        synchronized (lock) {
+            locks.put(hash, lock);
             if (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified()) {
                 OutputStream out = null;
                 try {
@@ -270,6 +285,7 @@ public class CoverArtController implements LastModified {
                 } finally {
                     semaphore.release();
                     FileUtil.closeQuietly(out);
+                    locks.remove(hash);
                 }
             }
             return cachedImage;
