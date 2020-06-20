@@ -103,9 +103,13 @@ public class UPnPService {
                         LOG.info("Disabling UPnP/DLNA media server");
                     }
                     upnpService.getRegistry().removeAllLocalDevices();
-                    System.err.println("Shutting down UPnP service...");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Shutting down UPnP service...");
+                    }
                     upnpService.shutdown();
-                    System.err.println("Shutting down UPnP service - Done!");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Shutting down UPnP service - Done!");
+                    }
                 }
                 return false;
             } else {

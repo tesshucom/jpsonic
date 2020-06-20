@@ -154,8 +154,11 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     | s.equals("MUSIC_FOLDER")
                     | s.equals("ALBUM")
                     | s.equals("GENRE"))
-                    .forEach(tableName ->
-                        System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
+                    .forEach(tableName -> {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
+                        }
+                    });
             if (LOG.isDebugEnabled()) {
                 LOG.debug("--- *********************** ---");
             }
