@@ -36,9 +36,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -265,8 +266,7 @@ public class TranscodingService {
         } catch (Exception x) {
             LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
         }
-
-        return new FileInputStream(parameters.getMediaFile().getFile());
+        return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
 
 

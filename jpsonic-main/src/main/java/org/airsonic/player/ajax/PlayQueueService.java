@@ -36,7 +36,9 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
@@ -252,7 +254,7 @@ public class PlayQueueService {
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
         if (!radio.isEnabled()) {
-            throw new Exception("Radio is not enabled");
+            throw new ExecutionException(new IOException(("Radio is not enabled")));
         }
 
         Player player = resolvePlayer();

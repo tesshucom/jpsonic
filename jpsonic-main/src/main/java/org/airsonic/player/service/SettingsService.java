@@ -433,7 +433,7 @@ public class SettingsService {
                 String message = "The directory " + home + " does not exist. Please create it and make it writable. " +
                         "(You can override the directory location by specifying -Djpsonic.home=... when " +
                         "starting the servlet container.)";
-                throw new RuntimeException(message);
+                throw new IllegalStateException(message);
             }
         }
     }

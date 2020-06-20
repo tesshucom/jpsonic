@@ -10,16 +10,23 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.concurrent.CompletionException;
+
+import static java.nio.file.StandardOpenOption.APPEND;
+import static java.nio.file.StandardOpenOption.CREATE;
 
 public class LegacyHsqlUtil {
 
@@ -146,7 +153,7 @@ public class LegacyHsqlUtil {
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(scriptBak))) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(scriptBak.toURI()))) {
             String line = reader.readLine();
             if (null != line) {
                 line = line.trim();
@@ -154,7 +161,7 @@ public class LegacyHsqlUtil {
             boolean isRestrict = !setRegularNamesFalse.equals(line);
             if (isRestrict) {
                 LOG.debug("Set the Restrict property to false.");
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(script, false))) {
+                try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(script.toURI()), CREATE, APPEND)) {
                     writer.write(setRegularNamesFalse + System.getProperty("line.separator"));
                     writer.write(line + System.getProperty("line.separator"));
                     int i = 1;
@@ -209,19 +216,19 @@ public class LegacyHsqlUtil {
             try {
                 backupDir = performHsqldbDatabaseBackup();
             } catch (Exception e) {
-                throw new RuntimeException("Failed to backup HSQLDB database before upgrade", e);
+                throw new CompletionException("Failed to backup HSQLDB database before upgrade", e);
             }
             if (null != backupDir) {
                 try {
                     performAdditionOfScript(backupDir);
                 } catch (Exception e) {
-                    throw new RuntimeException("Script verification/addition of HSQLDB database failed before upgrade", e);
+                    throw new CompletionException("Script verification/addition of HSQLDB database failed before upgrade", e);
                 }
             }
             try {
                 performHsqldbDatabaseUpgrade();
             } catch (Exception e) {
-                throw new RuntimeException("Failed to upgrade HSQLDB database", e);
+                throw new CompletionException("Failed to upgrade HSQLDB database", e);
             }
         }
     }

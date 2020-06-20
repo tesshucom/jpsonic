@@ -49,10 +49,14 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -193,11 +197,8 @@ public class CoverArtController implements LastModified {
 
     private void sendImage(File file, HttpServletResponse response) throws IOException {
         response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
-        InputStream in = new FileInputStream(file);
-        try {
+        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
             IOUtils.copy(in, response.getOutputStream());
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 
@@ -247,9 +248,9 @@ public class CoverArtController implements LastModified {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
                     if (image == null) {
-                        throw new Exception("Unable to decode image.");
+                        throw new ExecutionException(new IOException("Unable to decode image."));
                     }
-                    out = new FileOutputStream(cachedImage);
+                    out = Files.newOutputStream(Paths.get(cachedImage.toURI()));
                     ImageIO.write(image, encoding, out);
 
                 } catch (Throwable x) {
@@ -296,10 +297,10 @@ public class CoverArtController implements LastModified {
                 mimeType = artwork.getMimeType();
             } catch (Exception e) {
                 LOG.debug("Could not read artwork from file {}", mediaFile);
-                throw new RuntimeException(e);
+                throw new CompletionException(e);
             }
         } else {
-            is = new FileInputStream(file);
+            is = Files.newInputStream(Paths.get(file.toURI()));
             mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
         }
         return Pair.of(is, mimeType);

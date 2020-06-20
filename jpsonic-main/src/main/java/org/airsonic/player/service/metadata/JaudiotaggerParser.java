@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.CompletionException;
 import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -244,7 +245,7 @@ public class JaudiotaggerParser extends MetaDataParser {
 
         } catch (Throwable x) {
             LOG.warn("Failed to update tags for file " + file, x);
-            throw new RuntimeException("Failed to update tags for file " + file + ". " + x.getMessage(), x);
+            throw new CompletionException("Failed to update tags for file " + file + ". " + x.getMessage(), x);
         }
     }
 

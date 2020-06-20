@@ -25,6 +25,8 @@ import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -53,7 +55,7 @@ public class LastFmCache extends Cache {
 
     @Override
     public InputStream load(String cacheEntryName) {
-        try (FileInputStream in = new FileInputStream(getXmlFile(cacheEntryName))) {
+        try (InputStream in = Files.newInputStream(Paths.get(getXmlFile(cacheEntryName).toURI()))) {
             return new ByteArrayInputStream(IOUtils.toByteArray(in));
         } catch (Exception e) {
             return null;
@@ -74,7 +76,7 @@ public class LastFmCache extends Cache {
         OutputStream metaOut = null;
         try {
             File xmlFile = getXmlFile(cacheEntryName);
-            xmlOut = new FileOutputStream(xmlFile);
+            xmlOut = Files.newOutputStream(Paths.get(xmlFile.toURI()));
             IOUtils.copy(inputStream, xmlOut);
 
             File metaFile = getMetaFile(cacheEntryName);
@@ -82,8 +84,7 @@ public class LastFmCache extends Cache {
 
             // Note: Ignore the given expirationDate, since Last.fm sets it to just one day ahead.
             properties.setProperty("expiration-date", Long.toString(getExpirationDate()));
-
-            metaOut = new FileOutputStream(metaFile);
+            metaOut = Files.newOutputStream(Paths.get(metaFile.toURI()));
             properties.store(metaOut, null);
         } catch (Exception e) {
             // we ignore the exception. if something went wrong we just don't cache it.
@@ -112,7 +113,7 @@ public class LastFmCache extends Cache {
         InputStream in = null;
         try {
             Properties p = new Properties();
-            in = new FileInputStream(f);
+            in = Files.newInputStream(Paths.get(f.toURI()));
             p.load(in);
             long expirationDate = Long.valueOf(p.getProperty("expiration-date"));
             return expirationDate < System.currentTimeMillis();

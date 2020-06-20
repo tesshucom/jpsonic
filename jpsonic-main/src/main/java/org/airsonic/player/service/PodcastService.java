@@ -54,9 +54,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -363,7 +364,8 @@ public class PodcastService {
             HttpGet method = new HttpGet(imageUrl);
             try (CloseableHttpResponse response = client.execute(method)) {
                 in = response.getEntity().getContent();
-                out = new FileOutputStream(new File(dir, "cover." + getCoverArtSuffix(response)));
+                File f = new File(dir, "cover." + getCoverArtSuffix(response));
+                out = Files.newOutputStream(Paths.get(f.toURI()));
                 IOUtils.copy(in, out);
                 mediaFileService.refreshMediaFile(channelMediaFile);
             }
@@ -547,7 +549,7 @@ public class PodcastService {
                 in = response.getEntity().getContent();
 
                 File file = getFile(channel, episode);
-                out = new FileOutputStream(file);
+                out = Files.newOutputStream(Paths.get(file.toURI()));
 
                 episode.setStatus(PodcastStatus.DOWNLOADING);
                 episode.setBytesDownloaded(0L);
@@ -684,13 +686,13 @@ public class PodcastService {
         File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
 
         if (!podcastDir.canWrite()) {
-            throw new RuntimeException("The podcasts directory " + podcastDir + " isn't writeable.");
+            throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
         if (!channelDir.exists()) {
             boolean ok = channelDir.mkdirs();
             if (!ok) {
-                throw new RuntimeException("Failed to create directory " + channelDir);
+                throw new IllegalStateException("Failed to create directory " + channelDir);
             }
 
             MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);

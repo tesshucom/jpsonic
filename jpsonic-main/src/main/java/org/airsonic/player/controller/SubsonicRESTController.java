@@ -58,7 +58,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.airsonic.player.security.RESTRequestParameterProcessingFilter.decrypt;
 import static org.springframework.web.bind.ServletRequestUtils.*;
@@ -903,7 +905,7 @@ public class SubsonicRESTController {
                 // No action necessary.
                 break;
             default:
-                throw new Exception("Unknown jukebox action: '" + action + "'.");
+                throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
         }
 
         String username = securityService.getCurrentUsername(request);
@@ -1113,7 +1115,7 @@ public class SubsonicRESTController {
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbums(size, musicFolders);
         } else {
-            throw new Exception("Invalid list type: " + type);
+            throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
 
         AlbumList result = new AlbumList();
@@ -1159,7 +1161,7 @@ public class SubsonicRESTController {
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbumsId3(size, musicFolders);
         } else {
-            throw new Exception("Invalid list type: " + type);
+            throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
         AlbumList2 result = new AlbumList2();
         for (Album album : albums) {

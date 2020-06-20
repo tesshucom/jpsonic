@@ -26,8 +26,9 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -161,7 +162,7 @@ public class MediaScannerServiceTestCase {
         String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3";
         File artistDir = temporaryFolder.newFolder(directoryName);
         File musicFile = artistDir.toPath().resolve(fileName).toFile();
-        IOUtils.copy(resource, new FileOutputStream(musicFile));
+        IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
 
         MusicFolder musicFolder = new MusicFolder(1, temporaryFolder.getRoot(), "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);

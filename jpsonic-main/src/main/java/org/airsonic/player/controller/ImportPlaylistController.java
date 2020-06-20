@@ -37,9 +37,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * @author Sindre Mehus
@@ -72,7 +74,7 @@ public class ImportPlaylistController {
 
                     if ("file".equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
                         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
-                            throw new Exception("The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB.");
+                            throw new ExecutionException(new IOException("The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
                         }
                         String playlistName = FilenameUtils.getBaseName(item.getName());
                         String fileName = FilenameUtils.getName(item.getName());
