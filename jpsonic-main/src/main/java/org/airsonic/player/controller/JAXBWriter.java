@@ -145,7 +145,7 @@ public class JAXBWriter {
         try {
             StringWriter writer = new StringWriter();
             if (jsonp) {
-                writer.append(jsonpCallback).append('(');
+                writer.append(escape(jsonpCallback)).append('(');
             }
             marshaller.marshal(new ObjectFactory().createSubsonicResponse(jaxbResponse), writer);
             if (jsonp) {
@@ -158,6 +158,18 @@ public class JAXBWriter {
             }
             throw new CompletionException(x);
         }
+    }
+
+    private String escape(String raw) {
+        String escaped = raw;
+        escaped = escaped.replace("\\", "\\\\");
+        escaped = escaped.replace("\"", "\\\"");
+        escaped = escaped.replace("\b", "\\b");
+        escaped = escaped.replace("\f", "\\f");
+        escaped = escaped.replace("\n", "\\n");
+        escaped = escaped.replace("\r", "\\r");
+        escaped = escaped.replace("\t", "\\t");
+        return escaped;
     }
 
     public void writeErrorResponse(HttpServletRequest request, HttpServletResponse response,
