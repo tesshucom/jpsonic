@@ -42,7 +42,9 @@ public class LoginFailureListener implements ApplicationListener {
                 AbstractAuthenticationToken token = (AbstractAuthenticationToken) event.getSource();
                 Object details = token.getDetails();
                 if (details instanceof WebAuthenticationDetails) {
-                    LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
+                    }
                 }
             }
         }

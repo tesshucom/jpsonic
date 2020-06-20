@@ -91,7 +91,9 @@ public class AvatarUploadController {
                     createAvatar(fileName, data, username, map);
                 } else {
                     map.put("error", new Exception("Missing file."));
-                    LOG.warn("Failed to upload personal image. No file specified.");
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to upload personal image. No file specified.");
+                    }
                 }
                 break;
             }
@@ -102,7 +104,7 @@ public class AvatarUploadController {
         return new ModelAndView("avatarUploadResult","model",map);
     }
 
-    private void createAvatar(String fileName, byte[] data, String username, Map<String, Object> map) {
+    private void createAvatar(String fileName, final byte[] data, String username, Map<String, Object> map) {
 
         BufferedImage image;
         try {
@@ -114,6 +116,7 @@ public class AvatarUploadController {
             int height = image.getHeight();
             String mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(fileName));
 
+            byte[] imageData = new byte[0];
             // Scale down image if necessary.
             if (width > MAX_AVATAR_SIZE || height > MAX_AVATAR_SIZE) {
                 double scaleFactor = MAX_AVATAR_SIZE / (double)Math.max(width, height);
@@ -122,16 +125,19 @@ public class AvatarUploadController {
                 image = CoverArtController.scale(image, width, height);
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 ImageIO.write(image, "jpeg", out);
-                data = out.toByteArray();
+                imageData = out.toByteArray();
                 mimeType = StringUtil.getMimeType("jpeg");
                 map.put("resized", true);
             }
-            Avatar avatar = new Avatar(0, fileName, new Date(), mimeType, width, height, data);
+            Avatar avatar = new Avatar(0, fileName, new Date(), mimeType, width, height, imageData);
             settingsService.setCustomAvatar(avatar, username);
-            LOG.info("Created avatar '" + fileName + "' (" + data.length + " bytes) for user " + username);
-
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Created avatar '" + fileName + "' (" + imageData.length + " bytes) for user " + username);
+            }
         } catch (IOException x) {
-            LOG.warn("Failed to upload personal image: " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to upload personal image: " + x, x);
+            }
             map.put("error", x);
         }
     }

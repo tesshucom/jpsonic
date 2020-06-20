@@ -196,18 +196,28 @@ public class Application extends SpringBootServletInitializer implements WebServ
         try {
             Class<?> tomcatESCF = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
             if (tomcatESCF.isInstance(container)) {
-                LOG.info("Detected Tomcat web server");
-                LOG.debug("Attempting to optimize tomcat");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Detected Tomcat web server");
+                }
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Attempting to optimize tomcat");
+                }
                 Object tomcatESCFInstance = tomcatESCF.cast(container);
                 Class<?> tomcatApplicationClass = Class.forName("org.airsonic.player.TomcatApplication");
                 Method configure = ReflectionUtils.findMethod(tomcatApplicationClass, "configure", tomcatESCF);
                 configure.invoke(null, tomcatESCFInstance);
-                LOG.debug("Tomcat optimizations complete");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Tomcat optimizations complete");
+                }
             } else {
-                LOG.debug("Skipping tomcat optimization as we are not running on tomcat");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Skipping tomcat optimization as we are not running on tomcat");
+                }
             }
         } catch (NoClassDefFoundError | ClassNotFoundException e) {
-            LOG.debug("No tomcat classes found");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("No tomcat classes found");
+            }
         } catch (Exception e) {
             LOG.warn("An error happened while trying to optimize tomcat", e);
         }

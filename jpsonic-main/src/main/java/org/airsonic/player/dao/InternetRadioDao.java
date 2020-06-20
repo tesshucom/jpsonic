@@ -71,7 +71,9 @@ public class InternetRadioDao extends AbstractDao {
     public void createInternetRadio(InternetRadio radio) {
         String sql = "insert into internet_radio (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?)";
         update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(), radio.getChanged());
-        LOG.info("Created internet radio station " + radio.getName());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created internet radio station " + radio.getName());
+        }
     }
 
     /**
@@ -82,7 +84,9 @@ public class InternetRadioDao extends AbstractDao {
     public void deleteInternetRadio(Integer id) {
         String sql = "delete from internet_radio where id=?";
         update(sql, id);
-        LOG.info("Deleted internet radio station with ID " + id);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Deleted internet radio station with ID " + id);
+        }
     }
 
     /**

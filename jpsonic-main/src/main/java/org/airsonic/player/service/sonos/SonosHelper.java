@@ -337,7 +337,7 @@ public class SonosHelper {
         return result;
     }
 
-    public MediaList forAlbumList(AlbumListType albumListType, int offset, int count, String username, HttpServletRequest request) {
+    public MediaList forAlbumList(AlbumListType albumListType, int offset, final int count, String username, HttpServletRequest request) {
         if (albumListType == AlbumListType.DECADE) {
             return forDecades(offset, count);
         }
@@ -348,8 +348,9 @@ public class SonosHelper {
         MediaList mediaList = new MediaList();
 
         boolean includeShuffle = offset == 0;
+        int c = count;
         if (includeShuffle) {
-            count--;
+            c--;
             MediaMetadata shuffle = new MediaMetadata();
             shuffle.setItemType(ItemType.PROGRAM);
             shuffle.setId(SonosService.ID_SHUFFLE_ALBUMLIST_PREFIX + albumListType.getId());
@@ -357,7 +358,7 @@ public class SonosHelper {
             mediaList.getMediaCollectionOrMediaMetadata().add(shuffle);
         }
 
-        AlbumList albumList = createAlbumList(albumListType, offset - (includeShuffle ? 0 : 1), count, username);
+        AlbumList albumList = createAlbumList(albumListType, offset - (includeShuffle ? 0 : 1), c, username);
         for (MediaFile album : albumList.getAlbums()) {
             mediaList.getMediaCollectionOrMediaMetadata().add(forDirectory(album, request, username));
         }
@@ -554,7 +555,9 @@ public class SonosHelper {
             }
         } catch (IOException e) {
             // Usually unreachable
-            LOG.warn("Search query generation failed.", e.getMessage());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Search query generation failed.", e);
+            }
         }
         return result;
     }

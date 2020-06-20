@@ -50,8 +50,10 @@ public class SonosServiceRegistration {
         String localUrl = airsonicBaseUrl + "ws/Sonos";
         String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
 
-        LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP " + sonosControllerIp +
-                 ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
+        if (LOG.isInfoEnabled()) {
+            LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP " + sonosControllerIp +
+                     ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
+        }
 
         List<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
         params.add(Pair.of("sid", String.valueOf(sonosServiceId)));
@@ -74,7 +76,9 @@ public class SonosServiceRegistration {
         }
 
         String result = execute(controllerUrl, params);
-        LOG.info("Sonos controller returned: " + result);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Sonos controller returned: " + result);
+        }
     }
 
     private String execute(String url, List<Pair<String, String>> parameters) throws IOException {

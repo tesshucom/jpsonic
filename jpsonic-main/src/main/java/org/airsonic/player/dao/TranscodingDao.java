@@ -96,7 +96,9 @@ public class TranscodingDao extends AbstractDao {
         update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
                 transcoding.getTargetFormat(), transcoding.getStep1(),
                 transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive());
-        LOG.info("Created transcoding " + transcoding.getName());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created transcoding " + transcoding.getName());
+        }
     }
 
     /**
@@ -107,7 +109,9 @@ public class TranscodingDao extends AbstractDao {
     public void deleteTranscoding(Integer id) {
         String sql = "delete from transcoding2 where id=?";
         update(sql, id);
-        LOG.info("Deleted transcoding with ID " + id);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Deleted transcoding with ID " + id);
+        }
     }
 
     /**

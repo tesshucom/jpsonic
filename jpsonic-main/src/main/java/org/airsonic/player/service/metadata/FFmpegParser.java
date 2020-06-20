@@ -102,7 +102,9 @@ public class FFmpegParser extends MetaDataParser {
                 }
             }
         } catch (Throwable x) {
-            LOG.warn("Error when parsing metadata in " + file, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Error when parsing metadata in " + file, x);
+            }
         }
 
         return metaData;

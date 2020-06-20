@@ -99,11 +99,17 @@ public class UPnPService {
         running.getAndUpdate(bo -> {
             if (bo) {
                 if (upnpService != null) {
-                    LOG.info("Disabling UPnP/DLNA media server");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Disabling UPnP/DLNA media server");
+                    }
                     upnpService.getRegistry().removeAllLocalDevices();
-                    System.err.println("Shutting down UPnP service...");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Shutting down UPnP service...");
+                    }
                     upnpService.shutdown();
-                    System.err.println("Shutting down UPnP service - Done!");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Shutting down UPnP service - Done!");
+                    }
                 }
                 return false;
             } else {
@@ -115,15 +121,23 @@ public class UPnPService {
 
     private void startService() {
         try {
-            LOG.info("Starting UPnP service...");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Starting UPnP service...");
+            }
             createService();
             if (0 < SettingsService.getDefaultUPnPPort()) {
-                LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
+                }
             } else {
-                LOG.info("Starting UPnP service - Done!");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Starting UPnP service - Done!");
+                }
             }
         } catch (Throwable x) {
-            LOG.error("Failed to start UPnP service: " + x, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to start UPnP service: " + x, x);
+            }
         }
     }
 
@@ -141,9 +155,13 @@ public class UPnPService {
             ensureServiceStarted();
             try {
                 upnpService.getRegistry().addDevice(createMediaServerDevice());
-                LOG.info("Enabling UPnP/DLNA media server");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Enabling UPnP/DLNA media server");
+                }
             } catch (Exception x) {
-                LOG.error("Failed to start UPnP/DLNA media server: " + x, x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to start UPnP/DLNA media server: " + x, x);
+                }
             }
         } else {
             ensureServiceStopped();
