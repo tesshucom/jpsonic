@@ -130,7 +130,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     @Override
     public BrowseResult browse(String objectId, BrowseFlag browseFlag,
                                String filter, long firstResult,
-                               long maxResults, SortCriterion[] orderBy)
+                               final long maxResults, SortCriterion[] orderBy)
         throws ContentDirectoryException {
 
         if (isEmpty(objectId)) {
@@ -138,9 +138,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         }
 
         // maxResult == 0 means all.
-        if (maxResults == 0) {
-            maxResults = Long.MAX_VALUE;
-        }
+        long max = maxResults == 0 ? Long.MAX_VALUE : 0;
 
         BrowseResult returnValue = null;
         try {
@@ -158,9 +156,9 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             }
 
             if (isEmpty(itemId)) {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata() : processor.browseRoot(filter, firstResult, maxResults, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata() : processor.browseRoot(filter, firstResult, max, orderBy);
             } else {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, maxResults, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, max, orderBy);
             }
             return returnValue;
         } catch (Throwable x) {

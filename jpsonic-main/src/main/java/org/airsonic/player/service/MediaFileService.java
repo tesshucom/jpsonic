@@ -152,7 +152,7 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPath());
     }
 
-    private MediaFile checkLastModified(MediaFile mediaFile, boolean useFastCache) {
+    private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
         if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION
                 && !settingsService.isIgnoreFileTimestamps()
                 && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
@@ -164,9 +164,9 @@ public class MediaFileService {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Updating database file from disk (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
         }
-        mediaFile = createMediaFile(mediaFile.getFile());
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-        return mediaFile;
+        MediaFile mf = createMediaFile(mediaFile.getFile());
+        mediaFileDao.createOrUpdateMediaFile(mf);
+        return mf;
     }
 
     /**
@@ -597,10 +597,10 @@ public class MediaFileService {
         return MediaFile.MediaType.MUSIC;
     }
 
-    public void refreshMediaFile(MediaFile mediaFile) {
-        mediaFile = createMediaFile(mediaFile.getFile());
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-        mediaFileMemoryCache.remove(mediaFile.getFile());
+    public void refreshMediaFile(final MediaFile mediaFile) {
+        MediaFile mf = createMediaFile(mediaFile.getFile());
+        mediaFileDao.createOrUpdateMediaFile(mf);
+        mediaFileMemoryCache.remove(mf.getFile());
     }
 
     private void putInMemoryCache(File file, MediaFile mediaFile) {

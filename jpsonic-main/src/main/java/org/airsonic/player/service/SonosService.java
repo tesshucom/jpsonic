@@ -399,7 +399,7 @@ public class SonosService implements SonosSoap {
         return null;
     }
 
-    private void addItemToPlaylist(int playlistId, String id, int index) throws CustomFault {
+    private void addItemToPlaylist(int playlistId, String id, final int index) throws CustomFault {
         if (StringUtils.isBlank(id)) {
             return;
         }
@@ -420,11 +420,12 @@ public class SonosService implements SonosSoap {
             }
         }
         List<MediaFile> existingSongs = playlistService.getFilesInPlaylist(playlistId);
-        if (index == -1) {
-            index = existingSongs.size();
+        int i = index;
+        if (i == -1) {
+            i = existingSongs.size();
         }
 
-        existingSongs.addAll(index, newSongs);
+        existingSongs.addAll(i, newSongs);
         playlistService.setFilesInPlaylist(playlistId, existingSongs);
     }
 
