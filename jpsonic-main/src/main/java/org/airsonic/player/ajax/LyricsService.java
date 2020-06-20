@@ -64,14 +64,12 @@ public class LyricsService {
      * @param song   The song.
      * @return The lyrics, never <code>null</code> .
      */
-    public LyricsInfo getLyrics(String artist, String song) {
+    public LyricsInfo getLyrics(final String artist, final String song) {
         LyricsInfo lyrics = new LyricsInfo();
         try {
 
-            artist = StringUtil.urlEncode(artist);
-            song = StringUtil.urlEncode(song);
-
-            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist=" + artist + "&song=" + song;
+            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist=" +
+                    StringUtil.urlEncode(artist) + "&song=" + StringUtil.urlEncode(song);
             String xml = executeGetRequest(url);
             lyrics = parseSearchResult(xml);
 

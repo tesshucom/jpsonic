@@ -167,11 +167,12 @@ public class PlayQueue {
      * @param mediaFiles The music files to add.
      * @param index Where to add them.
      */
-    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, int index) {
+    public synchronized void addFilesAt(Iterable<MediaFile> mediaFiles, final int index) {
         makeBackup();
+        int i = index;
         for (MediaFile mediaFile : mediaFiles) {
-            files.add(index, mediaFile);
-            index++;
+            files.add(i, mediaFile);
+            i++;
         }
         setStatus(Status.PLAYING);
     }
@@ -206,13 +207,14 @@ public class PlayQueue {
      *
      * @param index The playlist index.
      */
-    public synchronized void removeFileAt(int index) {
+    public synchronized void removeFileAt(final int index) {
         makeBackup();
-        index = Math.max(0, Math.min(index, size() - 1));
-        if (this.index > index) {
+        int i = index;
+        i = Math.max(0, Math.min(i, size() - 1));
+        if (this.index > i) {
             this.index--;
         }
-        files.remove(index);
+        files.remove(i);
 
         this.index = Math.max(0, Math.min(this.index, size() - 1));
     }

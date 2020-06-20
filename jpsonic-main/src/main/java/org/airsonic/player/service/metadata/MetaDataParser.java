@@ -155,15 +155,14 @@ public abstract class MetaDataParser {
      * @param trackNumber If specified, this is the "true" track number.
      * @return The title with the track number removed, e.g., "Back In Black".
      */
-    protected String removeTrackNumberFromTitle(String title, Integer trackNumber) {
-        title = title.trim();
+    protected String removeTrackNumberFromTitle(final String title, Integer trackNumber) {
+        String result = title.trim();
 
         // Don't remove numbers if true track number is missing, or if title does not start with it.
-        if (trackNumber == null || !title.matches("0?" + trackNumber + "[. -].*")) {
-            return title;
+        if (trackNumber == null || !result.matches("0?" + trackNumber + "[. -].*")) {
+            return result;
         }
-
-        String result = title.replaceFirst("^\\d{2}[. -]+", "");
+        result = result.replaceFirst("^\\d{2}[. -]+", "");
         return result.isEmpty() ? title : result;
     }
 }

@@ -364,7 +364,7 @@ public class SecurityService implements UserDetailsService {
      * @param folder The folder in question.
      * @return Whether the given file is located in the given folder.
      */
-    protected boolean isFileInFolder(String file, String folder) {
+    protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;
         }
@@ -374,10 +374,7 @@ public class SecurityService implements UserDetailsService {
         }
 
         // Convert slashes.
-        file = file.replace('\\', '/');
-        folder = folder.replace('\\', '/');
-
-        return file.toUpperCase().startsWith(folder.toUpperCase());
+        return file.replace('\\', '/').toUpperCase().startsWith(folder.replace('\\', '/').toUpperCase());
     }
 
     public void setSettingsService(SettingsService settingsService) {

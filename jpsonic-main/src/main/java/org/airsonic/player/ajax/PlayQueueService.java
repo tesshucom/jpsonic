@@ -692,7 +692,7 @@ public class PlayQueueService {
         return convert(request, player, serverSidePlaylist, 0);
     }
 
-    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist, int offset) {
+    private PlayQueueInfo convert(HttpServletRequest request, Player player, final boolean serverSidePlaylist, int offset) {
 
         PlayQueue playQueue = player.getPlayQueue();
 
@@ -706,7 +706,7 @@ public class PlayQueueService {
         boolean isCurrentPlayer = player.getIpAddress() != null && player.getIpAddress().equals(request.getRemoteAddr());
         boolean isStopEnabled = playQueue.getStatus() == PlayQueue.Status.PLAYING && !player.isExternalWithPlaylist();
         boolean m3uSupported = player.isExternal() || player.isExternalWithPlaylist();
-        serverSidePlaylist = player.isAutoControlEnabled() && m3uSupported && isCurrentPlayer && serverSidePlaylist;
+        boolean isServerSidePlaylist = player.isAutoControlEnabled() && m3uSupported && isCurrentPlayer && serverSidePlaylist;
 
         float gain = jukeboxService.getGain(player);
 
@@ -716,7 +716,7 @@ public class PlayQueueService {
             playQueue.isRepeatEnabled(),
             playQueue.isShuffleRadioEnabled(),
             playQueue.isInternetRadioEnabled(),
-            serverSidePlaylist,
+            isServerSidePlaylist,
             gain
         );
     }
