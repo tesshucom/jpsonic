@@ -141,12 +141,14 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         return null;
     }
 
-    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username, String password, String salt, String token, Authentication previousAuth) {
+    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username, final String password, String salt, String token, Authentication previousAuth) {
 
         // Previously authenticated and username not overridden?
         if (username == null && previousAuth != null) {
             return null;
         }
+
+        String pass = password;
 
         if (salt != null && token != null) {
             User user = securityService.getUserByName(username);
@@ -158,11 +160,11 @@ public class RESTRequestParameterProcessingFilter implements Filter {
                 return SubsonicRESTController.ErrorCode.NOT_AUTHENTICATED;
             }
 
-            password = user.getPassword();
+            pass = user.getPassword();
         }
 
-        if (password != null) {
-            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+        if (pass != null) {
+            UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, pass);
             authRequest.setDetails(authenticationDetailsSource.buildDetails(httpRequest));
             try {
                 Authentication authResult = authenticationManager.authenticate(authRequest);

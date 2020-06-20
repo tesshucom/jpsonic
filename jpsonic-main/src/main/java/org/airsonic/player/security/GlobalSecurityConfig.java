@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@SuppressWarnings("PMD.AvoidReassigningParameters") // configure method is influenced by 3rd-party style
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {

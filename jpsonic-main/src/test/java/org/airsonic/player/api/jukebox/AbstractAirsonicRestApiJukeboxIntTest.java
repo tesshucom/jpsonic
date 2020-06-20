@@ -52,11 +52,11 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
         public BeanPostProcessor convertToSpy() {
             return new BeanPostProcessor() {
                 @Override
-                public Object postProcessAfterInitialization(Object bean, String beanName) {
+                public Object postProcessAfterInitialization(final Object bean, String beanName) {
                     if (bean instanceof PlayerDaoPlayQueueFactory) {
                         PlayerDaoPlayQueueFactory temp = (PlayerDaoPlayQueueFactory) spy(bean);
                         doReturn(spy(temp.createPlayQueue())).when(temp).createPlayQueue();
-                        bean = temp;
+                        return temp;
                     }
                     return bean;
                 }
