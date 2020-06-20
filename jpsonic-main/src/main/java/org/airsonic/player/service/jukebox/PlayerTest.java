@@ -1,5 +1,8 @@
 package org.airsonic.player.service.jukebox;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 
 import java.awt.*;
@@ -13,6 +16,8 @@ import java.util.concurrent.CompletionException;
  * @version $Id$
  */
 public class PlayerTest implements AudioPlayer.Listener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerTest.class);
 
     private AudioPlayer player;
 
@@ -66,7 +71,9 @@ public class PlayerTest implements AudioPlayer.Listener {
     }
 
     public void stateChanged(AudioPlayer player, AudioPlayer.State state) {
-        System.out.println(state);
+        if (LOG.isInfoEnabled()) {
+            LOG.info(state.name());
+        }
     }
 }
 
