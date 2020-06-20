@@ -46,9 +46,9 @@ public class UtilTest {
         stringStringMap.put("totalLengthInBytes", "2930491082");
         stringStringMap.put("scanDate", "1568350960725");
         MediaLibraryStatistics statistics = Util.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
-        assertEquals(new Integer(5), statistics.getAlbumCount());
-        assertEquals(new Integer(4), statistics.getSongCount());
-        assertEquals(new Integer(910823), statistics.getArtistCount());
+        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
+        assertEquals(Integer.valueOf(4), statistics.getSongCount());
+        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
         assertEquals(new Long(30L), statistics.getTotalDurationInSeconds());
         assertEquals(new Long(2930491082L), statistics.getTotalLengthInBytes());
         assertEquals(new Date(1568350960725L), statistics.getScanDate());
@@ -65,9 +65,9 @@ public class UtilTest {
         stringStringMap.put("scanDate", "1568350960725");
         stringStringMap.put("extraneousData", "nothingHereToLookAt");
         MediaLibraryStatistics statistics = Util.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
-        assertEquals(new Integer(5), statistics.getAlbumCount());
-        assertEquals(new Integer(4), statistics.getSongCount());
-        assertEquals(new Integer(910823), statistics.getArtistCount());
+        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
+        assertEquals(Integer.valueOf(4), statistics.getSongCount());
+        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
         assertEquals(new Long(30L), statistics.getTotalDurationInSeconds());
         assertEquals(new Long(2930491082L), statistics.getTotalLengthInBytes());
         assertEquals(new Date(1568350960725L), statistics.getScanDate());
