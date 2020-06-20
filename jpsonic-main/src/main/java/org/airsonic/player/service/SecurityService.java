@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -54,6 +55,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
+
+    private static final Pattern noTraversal = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
     @Autowired
     private UserDao userDao;
@@ -255,6 +258,10 @@ public class SecurityService implements UserDetailsService {
     public boolean isReadAllowed(String path) {
         // Allowed to read from both music folder and podcast folder.
         return isInMusicFolder(path) || isInPodcastFolder(path);
+    }
+
+    public boolean isNoTraversal(String path) {
+        return noTraversal.matcher(path).matches();
     }
 
     /**
