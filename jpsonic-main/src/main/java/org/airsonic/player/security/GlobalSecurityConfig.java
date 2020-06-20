@@ -70,7 +70,9 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         auth.userDetailsService(securityService);
         String jwtKey = settingsService.getJWTKey();
         if (StringUtils.isBlank(jwtKey)) {
-            LOG.warn("Generating new jwt key");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Generating new jwt key");
+            }
             jwtKey = JWTSecurityService.generateKey();
             settingsService.setJWTKey(jwtKey);
             settingsService.save();
@@ -173,15 +175,21 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             boolean development = SettingsService.isDevelopmentMode();
             if (StringUtils.isBlank(rememberMeKey) && !development) {
                 // ...if it is empty, generate a random key on startup (default).
-                LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Generating a new ephemeral 'remember me' key in a secure way.");
+                }
                 rememberMeKey = generateRememberMeKey();
             } else if (StringUtils.isBlank(rememberMeKey) && development) {
                 // ...if we are in development mode, we can use a fixed key.
-                LOG.warn("Using a fixed 'remember me' key because we're in development mode, this is INSECURE.");
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Using a fixed 'remember me' key because we're in development mode, this is INSECURE.");
+                }
                 rememberMeKey = DEVELOPMENT_REMEMBER_ME_KEY;
             } else {
                 // ...otherwise, use the custom key directly.
-                LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Using a fixed 'remember me' key from system properties, this is insecure.");
+                }
             }
 
             http

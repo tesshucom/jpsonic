@@ -554,7 +554,9 @@ public class SonosHelper {
             }
         } catch (IOException e) {
             // Usually unreachable
-            LOG.warn("Search query generation failed.", e.getMessage());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Search query generation failed.", e);
+            }
         }
         return result;
     }

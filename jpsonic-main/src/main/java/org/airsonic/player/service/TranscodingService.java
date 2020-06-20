@@ -262,9 +262,13 @@ public class TranscodingService {
             }
 
         } catch (IOException x) {
-            LOG.warn("Transcoder failed: {}. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Transcoder failed: {}. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
+            }
         } catch (Exception x) {
-            LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
+            }
         }
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
@@ -391,7 +395,9 @@ public class TranscodingService {
                     tmpFile = File.createTempFile("airsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();
                     FileUtils.copyFile(new File(path), tmpFile);
-                    LOG.debug("Created tmp file: " + tmpFile);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Created tmp file: " + tmpFile);
+                    }
                     cmd = cmd.replace("%s", tmpFile.getPath());
                 } else {
                     cmd = cmd.replace("%s", path);
@@ -431,7 +437,9 @@ public class TranscodingService {
         for (Transcoding transcoding : transcodingsForPlayer) {
             // special case for now as video must have a transcoding
             if (mediaFile.isVideo() && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
-                LOG.debug("Detected source to target format match for video");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Detected source to target format match for video");
+                }
                 return transcoding;
             }
             for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
@@ -509,12 +517,16 @@ public class TranscodingService {
         Integer maxBitRate = parameters.getMaxBitRate();
 
         if (duration == null) {
-            LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
+            }
             return null;
         }
 
         if (maxBitRate == null) {
-            LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");
+            }
             return null;
         }
 
@@ -553,9 +565,13 @@ public class TranscodingService {
         if (!dir.exists()) {
             boolean ok = dir.mkdir();
             if (ok) {
-                LOG.info("Created directory " + dir);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Created directory " + dir);
+                }
             } else {
-                LOG.warn("Failed to create directory " + dir);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create directory " + dir);
+                }
             }
         }
         return dir;

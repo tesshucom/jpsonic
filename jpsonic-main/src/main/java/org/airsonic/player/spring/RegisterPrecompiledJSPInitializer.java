@@ -30,9 +30,13 @@ public class RegisterPrecompiledJSPInitializer implements ServletContextInitiali
     @Override
     public void onStartup(ServletContext servletContext) {
         if (SettingsService.isDevelopmentMode()) {
-            LOG.debug("Not registering precompiled jsps");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Not registering precompiled jsps");
+            }
         } else {
-            LOG.debug("Registering precompiled jsps");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Registering precompiled jsps");
+            }
             registerPrecompiledJSPs(servletContext);
         }
     }

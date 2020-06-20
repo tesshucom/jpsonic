@@ -159,7 +159,9 @@ public class IndexManager {
         try {
             writers.get(IndexType.ALBUM_ID3).updateDocument(primarykey, document);
         } catch (Exception x) {
-            LOG.error("Failed to create search index for " + album, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to create search index for " + album, x);
+            }
         }
     }
 
@@ -169,7 +171,9 @@ public class IndexManager {
         try {
             writers.get(IndexType.ARTIST_ID3).updateDocument(primarykey, document);
         } catch (Exception x) {
-            LOG.error("Failed to create search index for " + artist, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to create search index for " + artist, x);
+            }
         }
     }
 
@@ -192,7 +196,9 @@ public class IndexManager {
                 writers.get(IndexType.GENRE).updateDocument(primarykey, document);
             }
         } catch (Exception x) {
-            LOG.error("Failed to create search index for " + mediaFile, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to create search index for " + mediaFile, x);
+            }
         }
     }
 
@@ -298,7 +304,9 @@ public class IndexManager {
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
             writers.remove(type);
-            LOG.trace("Success to create or update search index : [" + type + "]");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Success to create or update search index : [" + type + "]");
+            }
         } catch (IOException e) {
             writers.remove(type);
             LOG.error("Failed to create search index.", e);
@@ -308,9 +316,13 @@ public class IndexManager {
         if (isUpdate && searchers.containsKey(type)) {
             try {
                 searchers.get(type).maybeRefresh();
-                LOG.trace("SearcherManager has been refreshed : [" + type + "]");
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("SearcherManager has been refreshed : [" + type + "]");
+                }
             } catch (IOException e) {
-                LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to refresh SearcherManager : [" + type + "]", e);
+                }
                 searchers.remove(type);
             }
         }
@@ -326,12 +338,16 @@ public class IndexManager {
         for (IndexType indexType : IndexType.values()) {
             IndexSearcher searcher = getSearcher(indexType);
             if (searcher == null) {
-                LOG.trace("No index for type " + indexType);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("No index for type " + indexType);
+                }
                 return null;
             }
             IndexReader indexReader = searcher.getIndexReader();
             if (!(indexReader instanceof DirectoryReader)) {
-                LOG.warn("Unexpected index type " + indexReader.getClass());
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Unexpected index type " + indexReader.getClass());
+                }
                 return null;
             }
             try {
@@ -342,12 +358,16 @@ public class IndexManager {
                     stats = currentStats;
                 } else {
                     if (!Objects.equals(stats, currentStats)) {
-                        LOG.warn("Index type " + indexType + " had differing stats data");
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Index type " + indexType + " had differing stats data");
+                        }
                         return null;
                     }
                 }
             } catch (IOException | IllegalArgumentException e) {
-                LOG.debug("Exception encountered while fetching index commit data", e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Exception encountered while fetching index commit data", e);
+                }
                 return null;
             }
         }
@@ -370,7 +390,9 @@ public class IndexManager {
                     LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
                 }
             } catch (IndexNotFoundException e) {
-                LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(), indexDirectory.getAbsolutePath());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(), indexDirectory.getAbsolutePath());
+                }
                 return null;
             } catch (IOException e) {
                 LOG.warn("Failed to initialize SearcherManager.", e);

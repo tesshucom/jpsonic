@@ -71,7 +71,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     public synchronized void updateJukebox(Player player, int offset) {
         User user = securityService.getUserByName(player.getUsername());
         if (!user.isJukeboxRole()) {
-            LOG.warn(user.getUsername() + " is not authorized for jukebox playback.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(user.getUsername() + " is not authorized for jukebox playback.");
+            }
             return;
         }
 
@@ -123,7 +125,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
             currentPlayingFile = file;
 
         } catch (Exception x) {
-            LOG.error("Error in jukebox: " + x, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Error in jukebox: " + x, x);
+            }
             FileUtil.closeQuietly(in);
         }
     }
@@ -157,7 +161,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void onSongStart(MediaFile file) {
-        LOG.info(player.getUsername() + " starting jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        if (LOG.isInfoEnabled()) {
+            LOG.info(player.getUsername() + " starting jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        }
         status = statusService.createStreamStatus(player);
         status.setFile(file.getFile());
         status.addBytesTransfered(file.getFileSize());
@@ -166,7 +172,9 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void onSongEnd(MediaFile file) {
-        LOG.info(player.getUsername() + " stopping jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        if (LOG.isInfoEnabled()) {
+            LOG.info(player.getUsername() + " stopping jukebox for \"" + FileUtil.getShortPath(file.getFile()) + "\"");
+        }
         if (status != null) {
             statusService.removeStreamStatus(status);
         }

@@ -91,7 +91,9 @@ public class AvatarUploadController {
                     createAvatar(fileName, data, username, map);
                 } else {
                     map.put("error", new Exception("Missing file."));
-                    LOG.warn("Failed to upload personal image. No file specified.");
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to upload personal image. No file specified.");
+                    }
                 }
                 break;
             }
@@ -128,10 +130,13 @@ public class AvatarUploadController {
             }
             Avatar avatar = new Avatar(0, fileName, new Date(), mimeType, width, height, data);
             settingsService.setCustomAvatar(avatar, username);
-            LOG.info("Created avatar '" + fileName + "' (" + data.length + " bytes) for user " + username);
-
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Created avatar '" + fileName + "' (" + data.length + " bytes) for user " + username);
+            }
         } catch (IOException x) {
-            LOG.warn("Failed to upload personal image: " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to upload personal image: " + x, x);
+            }
             map.put("error", x);
         }
     }

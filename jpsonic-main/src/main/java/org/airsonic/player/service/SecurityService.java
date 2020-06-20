@@ -194,7 +194,9 @@ public class SecurityService implements UserDetailsService {
     public void createUser(User user) {
         userDao.createUser(user);
         settingsService.setMusicFoldersForUser(user.getUsername(), MusicFolder.toIdList(settingsService.getAllMusicFolders()));
-        LOG.info("Created user " + user.getUsername());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created user " + user.getUsername());
+        }
     }
 
     /**
@@ -204,7 +206,9 @@ public class SecurityService implements UserDetailsService {
      */
     public void deleteUser(String username) {
         userDao.deleteUser(username);
-        LOG.info("Deleted user " + username);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Deleted user " + username);
+        }
         userCache.remove(username);
     }
 
