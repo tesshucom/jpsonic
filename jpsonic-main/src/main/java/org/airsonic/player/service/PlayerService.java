@@ -154,6 +154,7 @@ public class PlayerService {
                 path = "/";
             }
             cookie.setPath(path);
+            cookie.setSecure(true);
             response.addCookie(cookie);
         }
 
