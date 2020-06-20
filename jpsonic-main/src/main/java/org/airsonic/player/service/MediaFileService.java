@@ -128,6 +128,9 @@ public class MediaFileService {
      * @throws SecurityException If access is denied to the given file.
      */
     public MediaFile getMediaFile(String pathName) {
+        if (!securityService.isNoTraversal(pathName)) {
+            throw new SecurityException("Access denied to file : " + pathName);
+        }
         return getMediaFile(new File(pathName));
     }
 
