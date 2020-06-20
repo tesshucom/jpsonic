@@ -330,7 +330,9 @@ public class SettingsService {
 
         OBSOLETE_KEYS.forEach(oKey -> {
             if (configurationService.containsKey(oKey)) {
-                LOG.info("Removing obsolete property [" + oKey + ']');
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Removing obsolete property [" + oKey + ']');
+                }
                 configurationService.clearProperty(oKey);
             }
         });
@@ -409,8 +411,10 @@ public class SettingsService {
     }
 
     private void logServerInfo() {
-        LOG.info("Java: " + System.getProperty("java.version") +
-                 ", OS: " + System.getProperty("os.name"));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Java: " + System.getProperty("java.version") +
+                     ", OS: " + System.getProperty("os.name"));
+        }
     }
 
     public void save() {
@@ -787,7 +791,9 @@ public class SettingsService {
         try {
             return StringUtil.utf8HexDecode(s);
         } catch (Exception x) {
-            LOG.warn("Failed to decode LDAP manager password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to decode LDAP manager password.", x);
+            }
             return s;
         }
     }
@@ -796,7 +802,9 @@ public class SettingsService {
         try {
             ldapManagerPassword = StringUtil.utf8HexEncode(ldapManagerPassword);
         } catch (Exception x) {
-            LOG.warn("Failed to encode LDAP manager password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to encode LDAP manager password.", x);
+            }
         }
         setProperty(KEY_LDAP_MANAGER_PASSWORD, ldapManagerPassword);
     }
@@ -1025,11 +1033,15 @@ public class SettingsService {
                     } else if (elements.length == 3) {
                         themes.add(new Theme(elements[0], elements[1], elements[2]));
                     } else {
-                        LOG.warn("Failed to parse theme from line: [" + line + "].");
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to parse theme from line: [" + line + "].");
+                        }
                     }
                 }
             } catch (IOException x) {
-                LOG.error("Failed to resolve list of themes.", x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve list of themes.", x);
+                }
                 themes.add(new Theme("default", "Jpsonic default"));
             }
         }
@@ -1053,7 +1065,9 @@ public class SettingsService {
                 }
 
             } catch (IOException x) {
-                LOG.error("Failed to resolve list of locales.", x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve list of locales.", x);
+                }
                 locales.add(Locale.ENGLISH);
             }
         }
@@ -1623,7 +1637,9 @@ public class SettingsService {
         try {
             return StringUtil.utf8HexDecode(s);
         } catch (Exception x) {
-            LOG.warn("Failed to decode Smtp password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to decode Smtp password.", x);
+            }
             return s;
         }
     }
@@ -1632,7 +1648,9 @@ public class SettingsService {
         try {
             smtpPassword = StringUtil.utf8HexEncode(smtpPassword);
         } catch (Exception x) {
-            LOG.warn("Failed to encode Smtp password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to encode Smtp password.", x);
+            }
         }
         setProperty(KEY_SMTP_PASSWORD, smtpPassword);
     }

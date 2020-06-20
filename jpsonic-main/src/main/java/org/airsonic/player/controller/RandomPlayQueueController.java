@@ -229,7 +229,9 @@ public class RandomPlayQueueController {
                 genres = preAnalyzeds;
             } else {
                 // #267 Invalid search for genre containing specific string
-                LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                }
             }
         }
 

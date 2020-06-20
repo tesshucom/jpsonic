@@ -103,7 +103,9 @@ public final class FileUtil {
         });
 
         if (files == null) {
-            LOG.warn("Failed to list children for " + dir.getPath());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to list children for " + dir.getPath());
+            }
             return new File[0];
         }
         return files;

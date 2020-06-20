@@ -82,7 +82,9 @@ public class CoverArtService {
             saveCoverArt(mediaFile.getPath(), url);
             return null;
         } catch (Exception x) {
-            LOG.warn("Failed to save cover art for album " + albumId, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to save cover art for album " + albumId, x);
+            }
             return x.toString();
         }
     }
@@ -134,10 +136,14 @@ public class CoverArtService {
                         File coverFile = mediaFileService.getCoverArt(dir);
                         if (coverFile != null && !isMediaFile(coverFile) && !newCoverFile.equals(coverFile)) {
                             if (!coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"))) {
-                                LOG.warn("Unable to rename old image file " + coverFile);
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Unable to rename old image file " + coverFile);
+                                }
                                 break;
                             }
-                            LOG.info("Renamed old image file " + coverFile);
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Renamed old image file " + coverFile);
+                            }
 
                             // Must refresh again.
                             mediaFileService.refreshMediaFile(dir);
@@ -164,13 +170,19 @@ public class CoverArtService {
         if (newCoverFile.exists()) {
             if (backup.exists()) {
                 if (!backup.delete()) {
-                    LOG.warn("Failed to delete " + backup);
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to delete " + backup);
+                    }
                 }
             }
             if (newCoverFile.renameTo(backup)) {
-                LOG.info("Backed up old image file to " + backup);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Backed up old image file to " + backup);
+                }
             } else {
-                LOG.warn("Failed to create image file backup " + backup);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create image file backup " + backup);
+                }
             }
         }
     }

@@ -78,7 +78,9 @@ public class MusicFolderDao extends AbstractDao {
 
         Integer id = queryForInt("select max(id) from music_folder", 0);
         update("insert into music_folder_user (music_folder_id, username) select ?, username from " + userDao.getUserTable(), id);
-        LOG.info("Created music folder " + musicFolder.getPath());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created music folder " + musicFolder.getPath());
+        }
     }
 
     /**
@@ -89,7 +91,9 @@ public class MusicFolderDao extends AbstractDao {
     public void deleteMusicFolder(Integer id) {
         String sql = "delete from music_folder where id=?";
         update(sql, id);
-        LOG.info("Deleted music folder with ID " + id);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Deleted music folder with ID " + id);
+        }
     }
 
     /**

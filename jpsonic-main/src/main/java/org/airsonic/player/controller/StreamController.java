@@ -106,7 +106,9 @@ public class StreamController {
                 playQueue.addFiles(false, playlistService.getFilesInPlaylist(playlistId));
                 player.setPlayQueue(playQueue);
                 Util.setContentLength(response, playQueue.length());
-                LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
+                }
             }
 
             response.setHeader("Access-Control-Allow-Origin", "*");
@@ -211,7 +213,9 @@ public class StreamController {
             }
 
             if (fileLengthExpected != null) {
-                LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+                }
             }
 
             // Terminate any other streams to this player.
@@ -257,9 +261,11 @@ public class StreamController {
                         } else {
                             if (fileLengthExpected != null && bytesWritten <= fileLengthExpected
                                 && bytesWritten + n > fileLengthExpected) {
-                                LOG.warn("Stream output exceeded expected length of {}. It is likely that "
-                                    + "the transcoder is not adhering to the bitrate limit or the media "
-                                    + "source is corrupted or has grown larger", fileLengthExpected);
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Stream output exceeded expected length of {}. It is likely that "
+                                        + "the transcoder is not adhering to the bitrate limit or the media "
+                                        + "source is corrupted or has grown larger", fileLengthExpected);
+                                }
                             }
                             out.write(buf, 0, n);
                             bytesWritten += n;
@@ -274,10 +280,12 @@ public class StreamController {
             // and display a short error message.
             boolean shouldCatch = Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
             if (shouldCatch) {
-                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
-                        request.getRemoteAddr(),
-                        Util.getAnonymizedURLForRequest(request),
-                        e.getCause().toString());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
+                            request.getRemoteAddr(),
+                            Util.getAnonymizedURLForRequest(request),
+                            e.getCause().toString());
+                }
                 return;
             }
 
@@ -368,7 +376,9 @@ public class StreamController {
             return new HttpRange(byteOffset, null);
 
         } catch (Exception x) {
-            LOG.error("Failed to parse and convert time offset: " + offsetSeconds, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to parse and convert time offset: " + offsetSeconds, x);
+            }
             return null;
         }
     }

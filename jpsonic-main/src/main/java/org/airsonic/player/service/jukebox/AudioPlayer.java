@@ -60,7 +60,9 @@ public class AudioPlayer {
         AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, true);
         line = AudioSystem.getSourceDataLine(format);
         line.open(format);
-        LOG.debug("Opened line " + line);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Opened line " + line);
+        }
 
         if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
             gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
@@ -104,15 +106,21 @@ public class AudioPlayer {
         try {
             line.stop();
         } catch (Throwable x) {
-            LOG.warn("Failed to stop player: " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to stop player: " + x, x);
+            }
         }
         try {
             if (line.isOpen()) {
                 line.close();
-                LOG.debug("Closed line " + line);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Closed line " + line);
+                }
             }
         } catch (Throwable x) {
-            LOG.warn("Failed to close player: " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to close player: " + x, x);
+            }
         }
         FileUtil.closeQuietly(in);
     }
@@ -189,7 +197,9 @@ public class AudioPlayer {
                     }
                 }
             } catch (Throwable x) {
-                LOG.warn("Error when copying audio data: " + x, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Error when copying audio data: " + x, x);
+                }
             } finally {
                 close();
             }

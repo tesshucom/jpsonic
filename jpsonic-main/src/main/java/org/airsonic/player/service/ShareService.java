@@ -111,7 +111,9 @@ public class ShareService {
         for (MediaFile file : files) {
             shareDao.createSharedFiles(share.getId(), file.getPath());
         }
-        LOG.info("Created share '" + share.getName() + "' with " + files.size() + " file(s).");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created share '" + share.getName() + "' with " + files.size() + " file(s).");
+        }
 
         return share;
     }

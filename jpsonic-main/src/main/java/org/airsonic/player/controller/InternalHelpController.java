@@ -280,7 +280,9 @@ public class InternalHelpController {
         try (Analyzer analyzer = analyzerFactory.getAnalyzer()) {
             map.put("indexLuceneVersion", analyzer.getVersion().toString());
         } catch (IOException e) {
-            LOG.debug("Unable to gather information", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to gather information", e);
+            }
         }
     }
 
@@ -333,7 +335,9 @@ public class InternalHelpController {
                 String tableSchema = resultSet.getString("TABLE_SCHEM");
                 String tableName = resultSet.getString("TABLE_NAME");
                 String tableType = resultSet.getString("TABLE_TYPE");
-                LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
+                }
                 if (!"table".equalsIgnoreCase(tableType)) continue;   // Table type
                 // MariaDB has "null" schemas, while other databases use "public".
                 if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) continue;  // Table schema
@@ -341,13 +345,17 @@ public class InternalHelpController {
                     Long tableCount = daoHelper.getJdbcTemplate().queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
                     dbTableCount.put(tableName, tableCount);
                 } catch (Exception e) {
-                    LOG.debug("Unable to gather information", e);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Unable to gather information", e);
+                    }
                 }
             }
             map.put("dbTableCount", dbTableCount);
 
         } catch (SQLException e) {
-            LOG.debug("Unable to gather information", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Unable to gather information", e);
+            }
         }
 
         if (environment.acceptsProfiles("legacy")) {
@@ -417,7 +425,9 @@ public class InternalHelpController {
             }
             return lines;
         } catch (IOException e) {
-            LOG.warn("Could not open log file " + logFile, e);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Could not open log file " + logFile, e);
+            }
             return null;
         }
     }
@@ -426,10 +436,14 @@ public class InternalHelpController {
         for (String path : System.getenv("PATH").split(File.pathSeparator)) {
             File file = new File(path, executableName);
             if (file.exists()) {
-                LOG.debug("Found {} in {}", executableName, path);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Found {} in {}", executableName, path);
+                }
                 return file;
             } else {
-                LOG.debug("Looking for {} in {} (not found)", executableName, path);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Looking for {} in {} (not found)", executableName, path);
+                }
             }
         }
         return null;
