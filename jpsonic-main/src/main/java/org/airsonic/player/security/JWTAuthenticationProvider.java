@@ -58,9 +58,13 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     }
 
     private static boolean roughlyEqual(String expectedRaw, String requestedPathRaw) {
-        LOG.debug("Comparing expected [{}] vs requested [{}]", expectedRaw, requestedPathRaw);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Comparing expected [{}] vs requested [{}]", expectedRaw, requestedPathRaw);
+        }
         if (StringUtils.isEmpty(expectedRaw)) {
-            LOG.debug("False: empty expected");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("False: empty expected");
+            }
             return false;
         }
         try {
@@ -68,8 +72,10 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
             UriComponents requested = UriComponentsBuilder.fromUriString(requestedPathRaw).build();
 
             if (!Objects.equals(expected.getPath(), requested.getPath())) {
-                LOG.debug("False: expected path [{}] does not match requested path [{}]",
-                        expected.getPath(), requested.getPath());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("False: expected path [{}] does not match requested path [{}]",
+                            expected.getPath(), requested.getPath());
+                }
                 return false;
             }
 
@@ -80,7 +86,9 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
                     !difference.entriesOnlyOnLeft().isEmpty() ||
                     difference.entriesOnlyOnRight().size() != 1 ||
                     difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
-                LOG.debug("False: expected query params [{}] do not match requested query params [{}]", expected.getQueryParams(), requested.getQueryParams());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("False: expected query params [{}] do not match requested query params [{}]", expected.getQueryParams(), requested.getQueryParams());
+                }
                 return false;
             }
 

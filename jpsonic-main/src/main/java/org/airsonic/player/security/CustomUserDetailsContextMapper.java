@@ -56,7 +56,9 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
                                           Collection<? extends GrantedAuthority> authorities) {
         String dn = ctx.getNameInNamespace();
 
-        LOG.debug("Mapping user details from context with DN: " + dn);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Mapping user details from context with DN: " + dn);
+        }
 
         // User must be defined in Airsonic, unless auto-shadowing is enabled.
         User user = securityService.getUserByName(username, false);
@@ -69,7 +71,9 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             newUser.setStreamRole(true);
             newUser.setSettingsRole(true);
             securityService.createUser(newUser);
-            LOG.info("Created local user '" + username + "' for DN " + dn);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Created local user '" + username + "' for DN " + dn);
+            }
             user = securityService.getUserByName(username, false);
         }
 

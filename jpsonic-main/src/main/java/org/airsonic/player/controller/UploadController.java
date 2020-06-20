@@ -139,7 +139,9 @@ public class UploadController {
 
                         item.write(targetFile);
                         uploadedFiles.add(targetFile);
-                        LOG.info("Uploaded " + targetFile);
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Uploaded " + targetFile);
+                        }
 
                         if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
                             unzip(targetFile, unzippedFiles);
@@ -149,7 +151,9 @@ public class UploadController {
             }
 
         } catch (Exception x) {
-            LOG.warn("Uploading failed.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Uploading failed.", x);
+            }
             map.put("exception", x);
         } finally {
             if (status != null) {
@@ -167,7 +171,9 @@ public class UploadController {
     }
 
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
-        LOG.info("Unzipping " + file);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Unzipping " + file);
+        }
 
         try (ZipFile zipFile = new ZipFile(file)) {
 
@@ -199,7 +205,9 @@ public class UploadController {
                             }
                             outputStream.write(buf, 0, n);
                         }
-                        LOG.info("Unzipped " + entryFile);
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Unzipped " + entryFile);
+                        }
                         unzippedFiles.add(entryFile);
                     }
                 }
@@ -251,7 +259,9 @@ public class UploadController {
                     try {
                         Thread.sleep((long) sleepMillis);
                     } catch (InterruptedException x) {
-                        LOG.warn("Failed to sleep.", x);
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to sleep.", x);
+                        }
                     }
                 }
             }

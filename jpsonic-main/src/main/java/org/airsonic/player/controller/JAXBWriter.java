@@ -153,7 +153,9 @@ public class JAXBWriter {
             }
             httpResponse.getWriter().append(writer.getBuffer());
         } catch (JAXBException | IOException x) {
-            LOG.error("Failed to marshal JAXB", x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to marshal JAXB", x);
+            }
             throw new CompletionException(x);
         }
     }

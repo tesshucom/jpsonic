@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.GuardLogStatement") // Suppressed due to false detection of error method
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
@@ -79,7 +80,9 @@ public class BootstrapVerificationFilter implements Filter {
     private void logServerInfo(ServletRequest req) {
         if (!serverInfoLogged.getAndSet(true) && req instanceof HttpServletRequest) {
             String serverInfo = ((HttpServletRequest) req).getSession().getServletContext().getServerInfo();
-            LOG.info("Servlet container: " + serverInfo);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Servlet container: " + serverInfo);
+            }
         }
     }
 

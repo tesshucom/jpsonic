@@ -49,12 +49,16 @@ public class NetworkService {
             try {
                 uri = calculateProxyUri(request);
             } catch (Exception e) {
-                LOG.debug("Could not calculate proxy uri: " + e.getMessage());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Could not calculate proxy uri: " + e.getMessage());
+                }
                 uri = calculateNonProxyUri(request);
             }
 
             String baseUrl = uri.toString() + "/";
-            LOG.debug("Calculated base url to " + baseUrl);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Calculated base url to " + baseUrl);
+            }
             return baseUrl;
         } catch (MalformedURLException | URISyntaxException e) {
             throw new CompletionException("Could not calculate base url: ", e);

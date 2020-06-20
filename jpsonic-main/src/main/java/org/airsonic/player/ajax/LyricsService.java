@@ -76,15 +76,21 @@ public class LyricsService {
             lyrics = parseSearchResult(xml);
 
         } catch (HttpResponseException x) {
-            LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
+            }
             if (x.getStatusCode() == 503) {
                 lyrics.setTryLater(true);
             }
         } catch (SocketException | ConnectTimeoutException x) {
-            LOG.warn("Failed to get lyrics for song '{}': {}", song, x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get lyrics for song '{}': {}", song, x.toString());
+            }
             lyrics.setTryLater(true);
         } catch (Exception x) {
-            LOG.warn("Failed to get lyrics for song '" + song + "'.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get lyrics for song '" + song + "'.", x);
+            }
         }
         return lyrics;
     }

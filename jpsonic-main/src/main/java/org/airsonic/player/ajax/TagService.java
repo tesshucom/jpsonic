@@ -75,7 +75,9 @@ public class TagService {
             try {
                 trackNumber = Integer.valueOf(track);
             } catch (NumberFormatException x) {
-                LOG.warn("Illegal track number: " + track, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal track number: " + track, x);
+                }
             }
         }
 
@@ -84,7 +86,9 @@ public class TagService {
             try {
                 yearNumber = Integer.valueOf(year);
             } catch (NumberFormatException x) {
-                LOG.warn("Illegal year: " + year, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal year: " + year, x);
+                }
             }
         }
 
@@ -121,7 +125,9 @@ public class TagService {
             return "UPDATED";
 
         } catch (Exception x) {
-            LOG.warn("Failed to update tags for " + id, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to update tags for " + id, x);
+            }
             return x.getMessage();
         }
     }

@@ -284,7 +284,9 @@ public class UserDao extends AbstractDao {
             } else if (ROLE_ID_SHARE.equals(role)) {
                 user.setShareRole(true);
             } else {
-                LOG.warn("Unknown role: '" + role + '\'');
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Unknown role: '" + role + '\'');
+                }
             }
         }
     }

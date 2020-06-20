@@ -24,12 +24,14 @@ public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibas
         try {
             super.afterPropertiesSet();
         } catch (Exception e) {
-            LOG.error("===============================================");
-            LOG.error("An exception occurred during database migration");
-            LOG.error("A rollback file has been generated at " + rollbackFile);
-            LOG.error("Execute it within your database to rollback any changes");
-            LOG.error("The exception is as follows\n", e);
-            LOG.error("===============================================");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("===============================================");
+                LOG.error("An exception occurred during database migration");
+                LOG.error("A rollback file has been generated at " + rollbackFile);
+                LOG.error("Execute it within your database to rollback any changes");
+                LOG.error("The exception is as follows\n", e);
+                LOG.error("===============================================");
+            }
             throw(e);
         }
     }
