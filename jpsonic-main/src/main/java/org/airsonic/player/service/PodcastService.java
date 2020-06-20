@@ -167,9 +167,8 @@ public class PodcastService {
      *
      * @param url The URL of the Podcast channel.
      */
-    public void createChannel(String url) {
-        url = sanitizeUrl(url);
-        PodcastChannel channel = new PodcastChannel(url);
+    public void createChannel(final String url) {
+        PodcastChannel channel = new PodcastChannel(sanitizeUrl(url));
         int channelId = podcastDao.createChannel(channel);
 
         refreshChannels(Arrays.asList(getChannel(channelId)), true);
@@ -650,8 +649,8 @@ public class PodcastService {
     }
 
     private boolean isEpisodeDeleted(PodcastEpisode episode) {
-        episode = podcastDao.getEpisode(episode.getId());
-        return episode == null || episode.getStatus() == PodcastStatus.DELETED;
+        PodcastEpisode e = podcastDao.getEpisode(episode.getId());
+        return e == null || e.getStatus() == PodcastStatus.DELETED;
     }
 
     private void updateTags(File file, PodcastEpisode episode) {

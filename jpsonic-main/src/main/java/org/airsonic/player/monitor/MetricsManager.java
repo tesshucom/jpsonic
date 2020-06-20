@@ -43,9 +43,9 @@ public class MetricsManager {
     }
 
     private boolean metricsActivatedByConfiguration() {
-        if (metricsActivatedByConfiguration.get() == false) {
+        if (!metricsActivatedByConfiguration.get()) {
             synchronized (_lock) {
-                if (metricsActivatedByConfiguration.get() == false) {
+                if (!metricsActivatedByConfiguration.get()) {
                     configureMetricsActivation();
                 }
             }

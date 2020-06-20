@@ -96,7 +96,9 @@ public class M3UController {
         }
     }
 
-    private void createServerSidePlaylist(PrintWriter out, Player player, String url) {
+    private void createServerSidePlaylist(PrintWriter out, Player player, final String urlStr) {
+
+        String url = urlStr;
 
         url += "player=" + player.getId();
 

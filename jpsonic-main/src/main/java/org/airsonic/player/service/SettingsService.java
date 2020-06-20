@@ -798,15 +798,16 @@ public class SettingsService {
         }
     }
 
-    public void setLdapManagerPassword(String ldapManagerPassword) {
+    public void setLdapManagerPassword(final String ldapManagerPassword) {
+        String pass = "";
         try {
-            ldapManagerPassword = StringUtil.utf8HexEncode(ldapManagerPassword);
+            pass = StringUtil.utf8HexEncode(ldapManagerPassword);
         } catch (Exception x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to encode LDAP manager password.", x);
             }
         }
-        setProperty(KEY_LDAP_MANAGER_PASSWORD, ldapManagerPassword);
+        setProperty(KEY_LDAP_MANAGER_PASSWORD, pass);
     }
 
     public boolean isLdapAutoShadowing() {
@@ -1645,14 +1646,15 @@ public class SettingsService {
     }
 
     public void setSmtpPassword(String smtpPassword) {
+        String pass = "";
         try {
-            smtpPassword = StringUtil.utf8HexEncode(smtpPassword);
+            pass = StringUtil.utf8HexEncode(smtpPassword);
         } catch (Exception x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to encode Smtp password.", x);
             }
         }
-        setProperty(KEY_SMTP_PASSWORD, smtpPassword);
+        setProperty(KEY_SMTP_PASSWORD, pass);
     }
 
     public String getSmtpFrom() {

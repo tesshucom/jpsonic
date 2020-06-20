@@ -54,15 +54,16 @@ public class RESTFilter implements Filter {
         }
     }
 
-    private void handleException(Throwable x, HttpServletRequest request, HttpServletResponse response) {
-        if (x instanceof NestedServletException && x.getCause() != null) {
-            x = x.getCause();
+    private void handleException(final Throwable x, HttpServletRequest request, HttpServletResponse response) {
+        Throwable t = x;
+        if (t instanceof NestedServletException && t.getCause() != null) {
+            t = t.getCause();
         }
 
-        SubsonicRESTController.ErrorCode code = (x instanceof ServletRequestBindingException) ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
-        String msg = getErrorMessage(x);
+        SubsonicRESTController.ErrorCode code = (t instanceof ServletRequestBindingException) ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
+        String msg = getErrorMessage(t);
         if (LOG.isWarnEnabled()) {
-            LOG.warn("Error in REST API: " + msg, x);
+            LOG.warn("Error in REST API: " + msg, t);
         }
 
         try {

@@ -189,17 +189,18 @@ public class TranscodingService {
      * @param videoTranscodingSettings Parameters used when transcoding video. May be {@code null}.
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player player, Integer maxBitRate, String preferredTargetFormat,
+    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate, String preferredTargetFormat,
                                     VideoTranscodingSettings videoTranscodingSettings) {
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
+        Integer mb = maxBitRate; 
         if (maxBitRate == null) {
-            maxBitRate = TranscodeScheme.OFF.getMaxBitRate();
+            mb = TranscodeScheme.OFF.getMaxBitRate();
         }
 
-        TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(maxBitRate));
-        maxBitRate = transcodeScheme.getMaxBitRate();
+        TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(mb));
+        mb = transcodeScheme.getMaxBitRate();
 
         boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
@@ -210,8 +211,8 @@ public class TranscodingService {
         }
 
         if (mediaFile.isVideo()) {
-            if (maxBitRate == 0) {
-                maxBitRate = VideoPlayerController.DEFAULT_BIT_RATE;
+            if (mb == 0) {
+                mb = VideoPlayerController.DEFAULT_BIT_RATE;
             }
         } else {
             if (mediaFile.isVariableBitRate()) {
@@ -224,16 +225,16 @@ public class TranscodingService {
             }
         }
 
-        if (maxBitRate == 0 || (bitRate != 0 && bitRate < maxBitRate)) {
-            maxBitRate = bitRate;
+        if (mb == 0 || (bitRate != 0 && bitRate < mb)) {
+            mb = bitRate;
         }
 
-        if (transcoding != null && ((maxBitRate != 0 && (bitRate == 0 || bitRate > maxBitRate)) ||
+        if (transcoding != null && ((mb != 0 && (bitRate == 0 || bitRate > mb)) ||
             (preferredTargetFormat != null && ! mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat)))) {
             parameters.setTranscoding(transcoding);
         }
 
-        parameters.setMaxBitRate(maxBitRate == 0 ? null : maxBitRate);
+        parameters.setMaxBitRate(mb == 0 ? null : mb);
         parameters.setExpectedLength(getExpectedLength(parameters));
         parameters.setRangeAllowed(isRangeAllowed(parameters));
         return parameters;

@@ -108,11 +108,8 @@ public class MainController {
 
         int userPaginationPreference = userSettings.getPaginationSize();
 
-        if (userPaginationPreference <= 0) {
-            showAll = true;
-        }
-
-        boolean thereIsMoreSubDirs = trimToSize(showAll, subDirs, userPaginationPreference);
+        boolean isShowAll = userPaginationPreference <= 0 ? true : null == showAll ? false : showAll;
+        boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         boolean thereIsMoreSAlbums = false;
 
         mediaFileService.populateStarredDate(dir, username);
@@ -134,7 +131,7 @@ public class MainController {
         map.put("viewAsList", isViewAsList(request, userSettings));
         if (dir.isAlbum()) {
             List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
-            thereIsMoreSAlbums = trimToSize(showAll, siblingAlbums, userPaginationPreference);
+            thereIsMoreSAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
             map.put("siblingAlbums", siblingAlbums);
             map.put("artist", guessArtist(children));
             map.put("album", guessAlbum(children));
@@ -148,7 +145,7 @@ public class MainController {
         } catch (SecurityException x) {
             // Happens if Podcast directory is outside music folder.
         }
-        map.put("thereIsMore", (thereIsMoreSubDirs || thereIsMoreSAlbums) && !BooleanUtils.isTrue(showAll));
+        map.put("thereIsMore", (thereIsMoreSubDirs || thereIsMoreSAlbums) && !isShowAll);
 
         Integer userRating = ratingService.getRatingForUser(username, dir);
         Double averageRating = ratingService.getAverageRating(dir);

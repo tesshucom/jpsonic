@@ -42,14 +42,13 @@ public final class NATPMPRouter implements Router {
         }
     }
 
-    public void addPortMapping(int externalPort, int internalPort, int leaseDuration) {
-
+    public void addPortMapping(int externalPort, int internalPort, final int leaseDuration) {
+        int duration = leaseDuration;
         // Use one week if lease duration is "forever".
-        if (leaseDuration == 0) {
-            leaseDuration = 7 * 24 * 3600;
+        if (duration == 0) {
+            duration = 7 * 24 * 3600;
         }
-
-        MapRequestMessage map = new MapRequestMessage(true, internalPort, externalPort, leaseDuration, null);
+        MapRequestMessage map = new MapRequestMessage(true, internalPort, externalPort, duration, null);
         device.enqueueMessage(map);
         device.waitUntilQueueEmpty();
     }
