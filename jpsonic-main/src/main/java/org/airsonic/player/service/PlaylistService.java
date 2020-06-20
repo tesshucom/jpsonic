@@ -209,7 +209,9 @@ public class PlaylistService {
             throw new ExecutionException(new IOException("Unsupported playlist " + fileName));
         }
         PlaylistImportHandler importHandler = getImportHandler(inputSpecificPlaylist);
-        LOG.debug("Using " + importHandler.getClass().getSimpleName() + " playlist import handler");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Using " + importHandler.getClass().getSimpleName() + " playlist import handler");
+        }
 
         Pair<List<MediaFile>, List<String>> result = importHandler.handle(inputSpecificPlaylist);
 
@@ -218,7 +220,9 @@ public class PlaylistService {
         }
 
         for (String error : result.getRight()) {
-            LOG.warn("File in playlist '" + fileName + "' not found: " + error);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("File in playlist '" + fileName + "' not found: " + error);
+            }
         }
         Date now = new Date();
         Playlist playlist;
@@ -274,11 +278,17 @@ public class PlaylistService {
 
     public void importPlaylists() {
         try {
-            LOG.info("Starting playlist import.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Starting playlist import.");
+            }
             doImportPlaylists();
-            LOG.info("Completed playlist import.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Completed playlist import.");
+            }
         } catch (Throwable x) {
-            LOG.warn("Failed to import playlists: " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to import playlists: " + x, x);
+            }
         }
     }
 
@@ -297,7 +307,9 @@ public class PlaylistService {
             try {
                 importPlaylistIfUpdated(file, allPlaylists);
             } catch (Exception x) {
-                LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+                }
             }
         }
     }
@@ -320,7 +332,9 @@ public class PlaylistService {
             // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
             //   a specific account to use for auto-imported playlists, so use the first admin account
             importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName), fileName, in, existingPlaylist);
-            LOG.info("Auto-imported playlist " + file);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Auto-imported playlist " + file);
+            }
         } finally {
             FileUtil.closeQuietly(in);
         }

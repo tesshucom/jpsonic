@@ -74,6 +74,7 @@ import static org.springframework.web.bind.ServletRequestUtils.*;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.GuardLogStatement") // Suppressed due to false detection of error method
 @Controller
 @RequestMapping(value = "/rest", method = {RequestMethod.GET, RequestMethod.POST})
 public class SubsonicRESTController {
@@ -1444,7 +1445,9 @@ public class SubsonicRESTController {
             int id = ids[i];
             MediaFile file = mediaFileService.getMediaFile(id);
             if (file == null) {
-                LOG.warn("File to scrobble not found: " + id);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("File to scrobble not found: " + id);
+                }
                 continue;
             }
             Date time = times.length == 0 ? null : new Date(times[i]);

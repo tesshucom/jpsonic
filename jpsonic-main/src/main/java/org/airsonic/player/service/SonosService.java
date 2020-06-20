@@ -121,10 +121,14 @@ public class SonosService implements SonosSoap {
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
-            LOG.info("No Sonos controller found");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("No Sonos controller found");
+            }
             return;
         }
-        LOG.info("Found Sonos controllers: " + sonosControllers);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Found Sonos controllers: " + sonosControllers);
+        }
 
         String sonosServiceName = settingsService.getSonosServiceName();
         int sonosServiceId = settingsService.getSonosServiceId();
@@ -237,7 +241,9 @@ public class SonosService implements SonosSoap {
 
     @Override
     public GetExtendedMetadataResponse getExtendedMetadata(GetExtendedMetadata parameters) throws CustomFault {
-        LOG.debug("getExtendedMetadata: " + parameters.getId());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getExtendedMetadata: " + parameters.getId());
+        }
 
         int id = Integer.parseInt(parameters.getId());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
@@ -284,7 +290,9 @@ public class SonosService implements SonosSoap {
 
     @Override
     public GetSessionIdResponse getSessionId(GetSessionId parameters) throws CustomFault {
-        LOG.debug("getSessionId: " + parameters.getUsername());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getSessionId: " + parameters.getUsername());
+        }
         User user = securityService.getUserByName(parameters.getUsername());
         if (user == null || !StringUtils.equals(user.getPassword(), parameters.getPassword())) {
             throw new SonosSoapFault.LoginInvalid();
@@ -303,7 +311,9 @@ public class SonosService implements SonosSoap {
 
     @Override
     public GetMediaMetadataResponse getMediaMetadata(GetMediaMetadata parameters) throws CustomFault {
-        LOG.debug("getMediaMetadata: " + parameters.getId());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getMediaMetadata: " + parameters.getId());
+        }
 
         GetMediaMetadataResponse response = new GetMediaMetadataResponse();
 
@@ -324,7 +334,9 @@ public class SonosService implements SonosSoap {
     @Override
     public void getMediaURI(String id, MediaUriAction action, Integer secondsSinceExplicit, Holder<String> deviceSessionToken, Holder<String> getMediaURIResult, Holder<EncryptionContext> deviceSessionKey, Holder<EncryptionContext> contentKey, Holder<HttpHeaders> httpHeaders, Holder<Integer> uriTimeout, Holder<PositionInformation> positionInformation, Holder<String> privateDataFieldName) throws CustomFault {
         getMediaURIResult.value = sonosHelper.getMediaURI(Integer.parseInt(id), getUsername(), getRequest());
-        LOG.debug("getMediaURI: " + id + " -> " + getMediaURIResult.value);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getMediaURI: " + id + " -> " + getMediaURIResult.value);
+        }
     }
 
     @Override
@@ -507,7 +519,9 @@ public class SonosService implements SonosSoap {
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (messageContext == null || !(messageContext instanceof WrappedMessageContext)) {
-            LOG.error("Message context is null or not an instance of WrappedMessageContext.");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Message context is null or not an instance of WrappedMessageContext.");
+            }
             return null;
         }
 
@@ -526,7 +540,9 @@ public class SonosService implements SonosSoap {
                         o = unmarshaller.unmarshal((Node) o);
                     } catch (JAXBException e) {
                         // failed to get the credentials object from the headers
-                        LOG.error("JAXB error trying to unwrap credentials", e);
+                        if (LOG.isErrorEnabled()) {
+                            LOG.error("JAXB error trying to unwrap credentials", e);
+                        }
                     }
                 }
                 if (o instanceof Credentials) {
@@ -535,16 +551,22 @@ public class SonosService implements SonosSoap {
                     // Note: We're using the username as session ID.
                     String username = c.getSessionId();
                     if (username == null) {
-                        LOG.debug("No session id in credentials object, get from login");
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("No session id in credentials object, get from login");
+                        }
                         username = c.getLogin().getUsername();
                     }
                     return username;
                 } else {
-                    LOG.error("No credentials object");
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("No credentials object");
+                    }
                 }
             }
         } else {
-            LOG.error("No headers found");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("No headers found");
+            }
         }
         return null;
     }

@@ -68,7 +68,9 @@ public class ListenBrainzScrobbler {
         }
 
         if (queue.size() >= MAX_PENDING_REGISTRATION) {
-            LOG.warn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
+            }
             return;
         }
 
@@ -80,7 +82,9 @@ public class ListenBrainzScrobbler {
         try {
             queue.put(registrationData);
         } catch (InterruptedException x) {
-            LOG.warn("Interrupted while queuing ListenBrainz scrobble: " + x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Interrupted while queuing ListenBrainz scrobble: " + x.toString());
+            }
         }
     }
 
@@ -111,12 +115,16 @@ public class ListenBrainzScrobbler {
         }
 
         if (!submit(registrationData)) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at ListenBrainz.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at ListenBrainz.");
+            }
         } else {
-            LOG.info("Successfully registered " +
-                    (registrationData.submission ? "submission" : "now playing") +
-                     " for song '" + registrationData.title + "'" +
-                     " at ListenBrainz: " + registrationData.time);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Successfully registered " +
+                        (registrationData.submission ? "submission" : "now playing") +
+                         " for song '" + registrationData.title + "'" +
+                         " at ListenBrainz: " + registrationData.time);
+            }
         }
     }
     /**
@@ -193,7 +201,9 @@ public class ListenBrainzScrobbler {
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
                 } catch (Exception x) {
-                    LOG.warn("Error in ListenBrainz registration: " + x.toString());
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Error in ListenBrainz registration: " + x.toString());
+                    }
                 }
             }
         }
@@ -201,15 +211,21 @@ public class ListenBrainzScrobbler {
         private void handleNetworkError(RegistrationData registrationData, String errorMessage) {
             try {
                 queue.put(registrationData);
-                LOG.info("ListenBrainz registration for '" + registrationData.title +
-                         "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("ListenBrainz registration for '" + registrationData.title +
+                             "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                }
             } catch (InterruptedException x) {
-                LOG.error("Failed to reschedule ListenBrainz registration for '" + registrationData.title + "': " + x.toString());
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to reschedule ListenBrainz registration for '" + registrationData.title + "': " + x.toString());
+                }
             }
             try {
                 sleep(60L * 1000L);  // Wait 60 seconds.
             } catch (InterruptedException x) {
-                LOG.error("Failed to sleep after ListenBrainz registration failure for '" + registrationData.title + "': " + x.toString());
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to sleep after ListenBrainz registration failure for '" + registrationData.title + "': " + x.toString());
+                }
             }
         }
     }

@@ -35,7 +35,9 @@ public class TestCaseUtils {
             } catch (IOException e) {
                 throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests");
             }
-            LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest.getAbsolutePath());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest.getAbsolutePath());
+            }
         }
         return jpsonicHomeDirForTest.getAbsolutePath();
     }
@@ -54,11 +56,15 @@ public class TestCaseUtils {
 
         File jpsonicHomeDir = new File(jpsonicHomePathForTest());
         if (jpsonicHomeDir.exists() && jpsonicHomeDir.isDirectory()) {
-            LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.getAbsolutePath());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Delete jpsonic home (ie. {}).", jpsonicHomeDir.getAbsolutePath());
+            }
             try {
                 FileUtils.deleteDirectory(jpsonicHomeDir);
             } catch (IOException e) {
-                LOG.warn("Error while deleting jpsonic home.");
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Error while deleting jpsonic home.");
+                }
                 e.printStackTrace();
                 throw e;
             }

@@ -113,7 +113,9 @@ public class MediaScannerService {
         int hour = settingsService.getIndexCreationHour();
 
         if (daysBetween == -1) {
-            LOG.info("Automatic media scanning disabled.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Automatic media scanning disabled.");
+            }
             return;
         }
 
@@ -128,11 +130,15 @@ public class MediaScannerService {
 
         scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween), TimeUnit.MILLISECONDS);
 
-        LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
+        }
 
         // In addition, create index immediately if it doesn't exist on disk.
         if (SettingsService.isScanOnBoot() && neverScanned()) {
-            LOG.info("Media library never scanned. Doing it now.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Media library never scanned. Doing it now.");
+            }
             scanLibrary();
         }
     }
@@ -179,10 +185,14 @@ public class MediaScannerService {
     }
 
     private void doScanLibrary() {
-        LOG.info("Starting to scan media library.");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Starting to scan media library.");
+        }
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(
                 DateUtils.truncate(new Date(), Calendar.SECOND));
-        LOG.debug("New last scan date is " + statistics.getScanDate());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("New last scan date is " + statistics.getScanDate());
+        }
 
         try {
 
@@ -213,13 +223,18 @@ public class MediaScannerService {
                          statistics, albumCount, genres, true);
             }
 
-            LOG.info("Scanned media library with " + scanCount + " entries.");
-
-            LOG.info("Marking non-present files.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Scanned media library with " + scanCount + " entries.");
+                LOG.info("Marking non-present files.");
+            }
             mediaFileDao.markNonPresent(statistics.getScanDate());
-            LOG.info("Marking non-present artists.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Marking non-present artists.");
+            }
             artistDao.markNonPresent(statistics.getScanDate());
-            LOG.info("Marking non-present albums.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Marking non-present albums.");
+            }
             albumDao.markNonPresent(statistics.getScanDate());
 
             // Update statistics
@@ -233,22 +248,34 @@ public class MediaScannerService {
 
             if (isJpsonicCleansingProcess) {
 
-                LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+                }
                 utils.updateSortOfArtist();
                 utils.updateSortOfAlbum();
-                LOG.info("[1/2] Done.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("[1/2] Done.");
+                }
 
                 if (settingsService.isSortStrict()) {
-                    LOG.info("[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                    }
                     utils.updateOrderOfAll();
                 } else {
-                    LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+                    }
                 }
-                LOG.info("[2/2] Done.");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("[2/2] Done.");
+                }
 
             }
 
-            LOG.info("Completed media library scan.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Completed media library scan.");
+            }
 
         } catch (Throwable x) {
             LOG.error("Failed to scan media library.", x);
@@ -264,7 +291,9 @@ public class MediaScannerService {
                           Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
         scanCount++;
         if (scanCount % 250 == 0) {
-            LOG.info("Scanned media library with " + scanCount + " entries.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Scanned media library with " + scanCount + " entries.");
+            }
         }
 
         LOG.trace("Scanning file {}", file.getPath());

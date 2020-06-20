@@ -56,7 +56,9 @@ public class SonosFaultInterceptor extends AbstractSoapInterceptor {
     @Override
     public void handleMessage(SoapMessage message) throws Fault {
         Fault fault = (Fault) message.getContent(Exception.class);
-        LOG.warn("Error: " + fault, fault);
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Error: " + fault, fault);
+        }
 
         if (fault.getCause() instanceof SonosSoapFault) {
             SonosSoapFault cause = (SonosSoapFault) fault.getCause();

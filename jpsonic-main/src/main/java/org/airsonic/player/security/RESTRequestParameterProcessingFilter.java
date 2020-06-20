@@ -195,7 +195,9 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         try {
             jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
         } catch (Exception e) {
-            LOG.error("Failed to send error response.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to send error response.", e);
+            }
         }
     }
 

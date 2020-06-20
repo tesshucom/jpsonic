@@ -83,7 +83,9 @@ public class NowPlayingService {
         try {
             return convert(statusService.getPlayStatuses());
         } catch (Throwable x) {
-            LOG.error("Unexpected error in getNowPlaying: " + x, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unexpected error in getNowPlaying: " + x, x);
+            }
             return Collections.emptyList();
         }
     }

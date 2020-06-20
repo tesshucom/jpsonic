@@ -47,7 +47,9 @@ public class JWTSecurityService {
         UriComponents components = UriComponentsBuilder.fromUriString(path).build();
         String query = components.getQuery();
         String claim = components.getPath() + (!StringUtils.isBlank(query) ? "?" + components.getQuery() : "");
-        LOG.debug("Creating token with claim " + claim);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Creating token with claim " + claim);
+        }
         return JWT.create()
                 .withClaim(CLAIM_PATH, claim)
                 .withExpiresAt(expireDate)

@@ -61,12 +61,16 @@ public class RESTFilter implements Filter {
 
         SubsonicRESTController.ErrorCode code = (x instanceof ServletRequestBindingException) ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
         String msg = getErrorMessage(x);
-        LOG.warn("Error in REST API: " + msg, x);
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Error in REST API: " + msg, x);
+        }
 
         try {
             jaxbWriter.writeErrorResponse(request, response, code, msg);
         } catch (Exception e) {
-            LOG.error("Failed to write error response.", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to write error response.", e);
+            }
         }
     }
 
