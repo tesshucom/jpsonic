@@ -625,7 +625,7 @@ public class IndexManager {
                     try {
                         stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
                     } catch (Exception e) {
-                        LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e.toString());
+                        LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e);
                         break mayBeInit;
                     }
                     List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
