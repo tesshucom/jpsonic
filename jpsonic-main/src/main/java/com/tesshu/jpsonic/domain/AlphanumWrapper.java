@@ -61,7 +61,6 @@ class AlphanumWrapper extends Collator {
                     }
                 }
             } else {
-                deligate.compare(thisChunk, thatChunk);
                 result = null == deligate
                         ? thisChunk.compareToIgnoreCase(thatChunk)
                         : deligate.compare(thisChunk, thatChunk);

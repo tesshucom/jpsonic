@@ -217,15 +217,19 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     // audio
                     case "object.item.audioItem":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        }
                         break;
 
                     // video
                     case "object.item.videoItem":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        }
                         break;
 
                     default:
@@ -250,15 +254,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     // audio
                     case "object.item.audioItem.musicTrack":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        }
                         break;
                     case "object.item.audioItem.audioBroadcast":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        }
                         break;
                     case "object.item.audioItem.audioBook":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        }
                         break;
 
                     // video
@@ -266,7 +276,9 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.videoItem.videoBroadcast":
                     case "object.item.videoItem.musicVideoClip":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        }
                         break;
 
                     default:
