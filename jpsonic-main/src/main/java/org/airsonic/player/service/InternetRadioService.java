@@ -247,7 +247,9 @@ public class InternetRadioService {
         try (InputStream in = urlConnection.getInputStream()) {
             String contentEncoding = urlConnection.getContentEncoding();
             if (maxByteSize > 0) {
-                playlist = SpecificPlaylistFactory.getInstance().readFrom(new BoundedInputStream(in, maxByteSize), contentEncoding);
+                try (BoundedInputStream bis = new BoundedInputStream(in, maxByteSize)) {
+                    playlist = SpecificPlaylistFactory.getInstance().readFrom(bis, contentEncoding);
+                }
             } else {
                 playlist = SpecificPlaylistFactory.getInstance().readFrom(in, contentEncoding);
             }
