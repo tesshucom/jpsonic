@@ -187,15 +187,9 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         final String V = children.get(1).getText();
         final String C = children.get(2).getText();
 
+        mediaTypeQueryBuilder = new BooleanQuery.Builder();
         if (UNSUPPORTED_CLASS.contains(C)) {
-            mediaTypeQueryBuilder = null;
             throw createIllegal("The current version does not support searching for this class.", S, V, C);
-        }
-
-        if (C.startsWith("object.item.audioItem") || C.startsWith("object.item.videoItem")) {
-            mediaTypeQueryBuilder = new BooleanQuery.Builder();
-        } else {
-            mediaTypeQueryBuilder = null;
         }
 
         switch (V) {
