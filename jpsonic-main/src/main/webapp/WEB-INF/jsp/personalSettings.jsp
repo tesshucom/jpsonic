@@ -100,13 +100,13 @@
             <td style="text-align:center"><form:checkbox path="playlistVisibility.albumVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td><fmt:message key="personalsettings.composer"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.composerVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.composerVisible" cssClass="checkbox"/></td>
         </tr>
         <tr>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td><fmt:message key="personalsettings.genre"/></td>
             <td style="text-align:center"><form:checkbox path="mainVisibility.genreVisible" cssClass="checkbox"/></td>
             <td style="text-align:center"><form:checkbox path="playlistVisibility.genreVisible" cssClass="checkbox"/></td>

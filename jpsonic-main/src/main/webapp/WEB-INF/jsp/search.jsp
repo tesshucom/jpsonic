@@ -89,8 +89,8 @@
                         <th class="truncate searchAlbumAlbum"><fmt:message key="common.fields.album" /></th>
                         <th class="truncate 
                         <c:choose>
-                            <c:when test="${command.composerVisible && command.genreVisible}">searchAlbumAlbumartist1</c:when>
-                            <c:when test="${command.genreVisible}">searchAlbumAlbumartist2</c:when>
+                            <c:when test='${command.composerVisible && command.genreVisible}'>searchAlbumAlbumartist1</c:when>
+                            <c:when test='${command.genreVisible}'>searchAlbumAlbumartist2</c:when>
                             <c:otherwise></c:otherwise>
                         </c:choose>
                         "><fmt:message key="common.fields.albumartist" /></th>
@@ -145,7 +145,7 @@
                         <th class="truncate searchSongArtist"><fmt:message key="common.fields.artist" /></th>
                         <c:if test="${command.composerVisible}">
                             <th class="truncate 
-                            <c:if test="${command.genreVisible}">searchSongArtist</c:if>
+                            <c:if test='${command.genreVisible}'>searchSongArtist</c:if>
                             "><fmt:message key="common.fields.composer" /></th>
                         </c:if>
                         <c:if test="${command.genreVisible}">
