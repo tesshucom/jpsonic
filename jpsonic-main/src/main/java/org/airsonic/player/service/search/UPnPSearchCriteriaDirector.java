@@ -194,8 +194,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         if (C.startsWith("object.item.audioItem") || C.startsWith("object.item.videoItem")) {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
-        } else {
-            mediaTypeQueryBuilder = null;
         }
 
         switch (V) {
