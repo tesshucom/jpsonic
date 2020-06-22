@@ -16,7 +16,6 @@
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
         <jpsonic.version>109.1.1-SNAPSHOT</jpsonic.version>
-        <apache-jsp.version>9.4.30.v20200611</apache-jsp.version>
         <lucene.version>8.5.1</lucene.version>
     </properties>
 
@@ -583,7 +582,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jsp</artifactId>
-            <version>${apache-jsp.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -773,7 +771,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jspc-maven-plugin</artifactId>
-                <version>${apache-jsp.version}</version>
+                <version>${jetty-jsp.version}</version>
                 <executions>
                     <execution>
                         <id>jspc</id>
@@ -810,7 +808,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <boot.group.excludes>org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
+                <boot.group.excludes>org.eclipse.jetty.toolchain,org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
                 <boot.artifact.excludes>spring-boot-starter-jetty,apache-jsp,jakarta.websocket-all</boot.artifact.excludes>
             </properties>
         </profile>
