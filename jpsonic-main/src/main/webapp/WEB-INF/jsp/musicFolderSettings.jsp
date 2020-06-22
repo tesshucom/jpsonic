@@ -164,7 +164,7 @@
 
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="indexEnglishPrior" id="indexEnglishPrior" disabled="true"/>
                 <label for="sortAlbumsByYear"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
@@ -177,8 +177,8 @@
         <tr>
             <td colspan="2">
                 <p >
-                    <input type="submit" value="<fmt:message key="common.save"/>" style="margin-right:0.3em">
-                    <a href='nowPlaying.view'><input type="button" value="<fmt:message key="common.cancel"/>"></a>
+                    <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
+                    <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
                 </p>
             </td>
         </tr>

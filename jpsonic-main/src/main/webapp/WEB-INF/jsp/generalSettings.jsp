@@ -20,7 +20,7 @@
 
         <tr>
             <td><fmt:message key="generalsettings.language"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:select path="localeIndex" cssStyle="width:15em">
                     <c:forEach items="${command.locales}" var="locale" varStatus="loopStatus">
@@ -33,7 +33,7 @@
 
         <tr>
             <td><fmt:message key="generalsettings.theme"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:select path="themeIndex" cssStyle="width:15em">
                     <c:forEach items="${command.themes}" var="theme" varStatus="loopStatus">
@@ -48,7 +48,7 @@
 
         <tr>
             <td><fmt:message key="generalsettings.indexsettings"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td><fmt:message key="generalsettings.index"/></td>
             <td>
                 <form:input path="index" size="70"/>
@@ -79,7 +79,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="sortGenresByAlphabet" id="sortGenresByAlphabet"/>
                 <label for="sortGenresByAlphabet"><fmt:message key="generalsettings.sortgenresbyalphabet"/></label>
@@ -88,7 +88,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="prohibitSortVarious" id="prohibitSortVarious"/>
                 <label for="prohibitSortVarious"><fmt:message key="generalsettings.prohibitsortvarious"/></label>
@@ -97,7 +97,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="sortAlphanum" id="sortAlphanum"/>
                 <label for="sortAlphanum"><fmt:message key="generalsettings.sortalphanum"/></label>
@@ -106,7 +106,7 @@
         </tr>
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="sortStrict" id="sortStrict"/>
                 <label for="sortStrict"><fmt:message key="generalsettings.sortstrict"/></label>
@@ -118,7 +118,7 @@
 
         <tr>
             <td><fmt:message key="generalsettings.searchsettings"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="searchComposer" id="searchComposer"/>
                 <label for="searchComposer"><fmt:message key="generalsettings.searchcomposer"/></label>
@@ -128,7 +128,7 @@
 
         <tr>
             <td></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="outputSearchQuery" id="outputSearchQuery"/>
                 <label for="outputSearchQuery"><fmt:message key="generalsettings.outputsearchquery"/></label>
@@ -140,7 +140,7 @@
 
         <tr>
             <td><fmt:message key="generalsettings.searchmethod"/></td>
-            <td><img src="<spring:theme code="domestic"/>" class="domestic" alt=""></td>
+            <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
             <td colspan="2">
                 <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
                 <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
