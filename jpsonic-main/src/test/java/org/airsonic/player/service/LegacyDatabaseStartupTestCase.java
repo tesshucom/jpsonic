@@ -8,6 +8,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
@@ -16,6 +18,8 @@ import java.io.File;
 
 @SpringBootTest
 public class LegacyDatabaseStartupTestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LegacyDatabaseStartupTestCase.class);
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -44,7 +48,9 @@ public class LegacyDatabaseStartupTestCase {
 
     @Test
     public void testStartup() {
-        System.out.println("Successful startup");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Successful startup");            
+        }
     }
 
 }

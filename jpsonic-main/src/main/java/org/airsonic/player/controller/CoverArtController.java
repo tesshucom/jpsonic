@@ -49,10 +49,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -86,6 +92,8 @@ public class CoverArtController implements LastModified {
     @Autowired
     private CoverArtLogic logic;
 
+    private final static Map<String, Object> locks = new ConcurrentHashMap<>();
+
     @PostConstruct
     public void init() {
         semaphore = new Semaphore(settingsService.getCoverArtConcurrency());
@@ -103,7 +111,9 @@ public class CoverArtController implements LastModified {
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
-        LOG.trace("handleRequest - " + coverArtRequest);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("handleRequest - " + coverArtRequest);
+        }
         Integer size = ServletRequestUtils.getIntParameter(request, "size");
 
         // Send fallback image if no ID is given. (No need to cache it, since it will be cached in browser.)
@@ -115,7 +125,9 @@ public class CoverArtController implements LastModified {
         try {
             // Optimize if no scaling is required.
             if (size == null && coverArtRequest.getCoverArt() != null) {
-                LOG.trace("sendUnscaled - " + coverArtRequest);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("sendUnscaled - " + coverArtRequest);
+                }
                 sendUnscaled(coverArtRequest, response);
                 return;
             }
@@ -127,7 +139,9 @@ public class CoverArtController implements LastModified {
             File cachedImage = getCachedImage(coverArtRequest, size);
             sendImage(cachedImage, response);
         } catch (Exception e) {
-            LOG.debug("Sending fallback as an exception was encountered during normal cover art processing", e);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Sending fallback as an exception was encountered during normal cover art processing", e);
+            }
             sendFallback(size, response);
         }
 
@@ -193,11 +207,8 @@ public class CoverArtController implements LastModified {
 
     private void sendImage(File file, HttpServletResponse response) throws IOException {
         response.setContentType(StringUtil.getMimeType(FilenameUtils.getExtension(file.getName())));
-        InputStream in = new FileInputStream(file);
-        try {
+        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
             IOUtils.copy(in, response.getOutputStream());
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 
@@ -236,35 +247,35 @@ public class CoverArtController implements LastModified {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
         File cachedImage = new File(getImageCacheDirectory(size), hash + "." + encoding);
 
-        // Synchronize to avoid concurrent writing to the same file.
-        synchronized (hash.intern()) {
+        Object lock = new Object();
+        synchronized (lock) {
 
-            // Is cache missing or obsolete?
-            if (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified()) {
-//                LOG.info("Cache MISS - " + request + " (" + size + ")");
+            locks.putIfAbsent(hash, lock);
+
+            if (lock.equals(locks.get(hash))
+                    && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 OutputStream out = null;
                 try {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
                     if (image == null) {
-                        throw new Exception("Unable to decode image.");
+                        throw new ExecutionException(new IOException("Unable to decode image."));
                     }
-                    out = new FileOutputStream(cachedImage);
+                    out = Files.newOutputStream(Paths.get(cachedImage.toURI()));
                     ImageIO.write(image, encoding, out);
 
-                } catch (Throwable x) {
-                    // Delete corrupt (probably empty) thumbnail cache.
-                    LOG.warn("Failed to create thumbnail for " + request, x);
+                } catch (Throwable t) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to create thumbnail for " + request, t);
+                    }
                     FileUtil.closeQuietly(out);
                     cachedImage.delete();
-                    throw new IOException("Failed to create thumbnail for " + request + ". " + x.getMessage());
-
+                    throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
                     FileUtil.closeQuietly(out);
+                    locks.remove(hash, lock);
                 }
-            } else {
-//                LOG.info("Cache HIT - " + request + " (" + size + ")");
             }
             return cachedImage;
         }
@@ -295,11 +306,13 @@ public class CoverArtController implements LastModified {
                 is = new ByteArrayInputStream(artwork.getBinaryData());
                 mimeType = artwork.getMimeType();
             } catch (Exception e) {
-                LOG.debug("Could not read artwork from file {}", mediaFile);
-                throw new RuntimeException(e);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Could not read artwork from file {}", mediaFile);
+                }
+                throw new CompletionException(e);
             }
         } else {
-            is = new FileInputStream(file);
+            is = Files.newInputStream(Paths.get(file.toURI()));
             mimeType = StringUtil.getMimeType(FilenameUtils.getExtension(file.getName()));
         }
         return Pair.of(is, mimeType);
@@ -318,9 +331,13 @@ public class CoverArtController implements LastModified {
         dir = new File(dir, String.valueOf(size));
         if (!dir.exists()) {
             if (dir.mkdirs()) {
-                LOG.info("Created thumbnail cache " + dir);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Created thumbnail cache " + dir);
+                }
             } else {
-                LOG.error("Failed to create thumbnail cache " + dir);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to create thumbnail cache " + dir);
+                }
             }
         }
 
@@ -392,9 +409,13 @@ public class CoverArtController implements LastModified {
                             return scale(bimg, size, size);
                         }
                     }
-                    LOG.warn("Failed to process cover art " + coverArt + ": " + reason + " failed");
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to process cover art " + coverArt + ": " + reason + " failed");
+                    }
                 } catch (Throwable x) {
-                    LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);
+                    }
                 } finally {
                     FileUtil.closeQuietly(in);
                 }
@@ -642,9 +663,13 @@ public class CoverArtController implements LastModified {
                 if (result != null) {
                     return result;
                 }
-                LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
+                }
             } catch (Throwable x) {
-                LOG.warn("Failed to process cover art for " + mediaFile + ": " + x, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to process cover art for " + mediaFile + ": " + x, x);
+                }
             } finally {
                 FileUtil.closeQuietly(in);
             }

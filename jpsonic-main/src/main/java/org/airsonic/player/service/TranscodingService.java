@@ -36,9 +36,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -188,17 +189,18 @@ public class TranscodingService {
      * @param videoTranscodingSettings Parameters used when transcoding video. May be {@code null}.
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player player, Integer maxBitRate, String preferredTargetFormat,
+    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate, String preferredTargetFormat,
                                     VideoTranscodingSettings videoTranscodingSettings) {
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
+        Integer mb = maxBitRate; 
         if (maxBitRate == null) {
-            maxBitRate = TranscodeScheme.OFF.getMaxBitRate();
+            mb = TranscodeScheme.OFF.getMaxBitRate();
         }
 
-        TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(maxBitRate));
-        maxBitRate = transcodeScheme.getMaxBitRate();
+        TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(mb));
+        mb = transcodeScheme.getMaxBitRate();
 
         boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
         Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
@@ -209,8 +211,8 @@ public class TranscodingService {
         }
 
         if (mediaFile.isVideo()) {
-            if (maxBitRate == 0) {
-                maxBitRate = VideoPlayerController.DEFAULT_BIT_RATE;
+            if (mb == 0) {
+                mb = VideoPlayerController.DEFAULT_BIT_RATE;
             }
         } else {
             if (mediaFile.isVariableBitRate()) {
@@ -223,16 +225,16 @@ public class TranscodingService {
             }
         }
 
-        if (maxBitRate == 0 || (bitRate != 0 && bitRate < maxBitRate)) {
-            maxBitRate = bitRate;
+        if (mb == 0 || (bitRate != 0 && bitRate < mb)) {
+            mb = bitRate;
         }
 
-        if (transcoding != null && ((maxBitRate != 0 && (bitRate == 0 || bitRate > maxBitRate)) ||
+        if (transcoding != null && ((mb != 0 && (bitRate == 0 || bitRate > mb)) ||
             (preferredTargetFormat != null && ! mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat)))) {
             parameters.setTranscoding(transcoding);
         }
 
-        parameters.setMaxBitRate(maxBitRate == 0 ? null : maxBitRate);
+        parameters.setMaxBitRate(mb == 0 ? null : mb);
         parameters.setExpectedLength(getExpectedLength(parameters));
         parameters.setRangeAllowed(isRangeAllowed(parameters));
         return parameters;
@@ -261,12 +263,15 @@ public class TranscodingService {
             }
 
         } catch (IOException x) {
-            LOG.warn("Transcoder failed: {}. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Transcoder failed: {}. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
+            }
         } catch (Exception x) {
-            LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
+            }
         }
-
-        return new FileInputStream(parameters.getMediaFile().getFile());
+        return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
 
 
@@ -391,7 +396,9 @@ public class TranscodingService {
                     tmpFile = File.createTempFile("airsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();
                     FileUtils.copyFile(new File(path), tmpFile);
-                    LOG.debug("Created tmp file: " + tmpFile);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Created tmp file: " + tmpFile);
+                    }
                     cmd = cmd.replace("%s", tmpFile.getPath());
                 } else {
                     cmd = cmd.replace("%s", path);
@@ -431,7 +438,9 @@ public class TranscodingService {
         for (Transcoding transcoding : transcodingsForPlayer) {
             // special case for now as video must have a transcoding
             if (mediaFile.isVideo() && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
-                LOG.debug("Detected source to target format match for video");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Detected source to target format match for video");
+                }
                 return transcoding;
             }
             for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
@@ -509,12 +518,16 @@ public class TranscodingService {
         Integer maxBitRate = parameters.getMaxBitRate();
 
         if (duration == null) {
-            LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
+            }
             return null;
         }
 
         if (maxBitRate == null) {
-            LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");
+            }
             return null;
         }
 
@@ -553,9 +566,13 @@ public class TranscodingService {
         if (!dir.exists()) {
             boolean ok = dir.mkdir();
             if (ok) {
-                LOG.info("Created directory " + dir);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Created directory " + dir);
+                }
             } else {
-                LOG.warn("Failed to create directory " + dir);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create directory " + dir);
+                }
             }
         }
         return dir;

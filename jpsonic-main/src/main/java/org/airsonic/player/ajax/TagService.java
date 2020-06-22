@@ -52,30 +52,32 @@ public class TagService {
      * Updated tags for a given music file.
      *
      * @param id     The ID of the music file.
-     * @param track  The track number.
-     * @param artist The artist name.
-     * @param album  The album name.
-     * @param title  The song title.
-     * @param year   The release year.
-     * @param genre  The musical genre.
+     * @param trackStr  The track number.
+     * @param artistStr The artist name.
+     * @param albumStr  The album name.
+     * @param titleStr  The song title.
+     * @param yearStr   The release year.
+     * @param genreStr  The musical genre.
      * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary.
      *         Otherwise the error message is returned.
      */
-    public String setTags(int id, String track, String artist, String album, String title, String year, String genre) {
+    public String setTags(int id, String trackStr, String artistStr, String albumStr, String titleStr, String yearStr, String genreStr) {
 
-        track = StringUtils.trimToNull(track);
-        artist = StringUtils.trimToNull(artist);
-        album = StringUtils.trimToNull(album);
-        title = StringUtils.trimToNull(title);
-        year = StringUtils.trimToNull(year);
-        genre = StringUtils.trimToNull(genre);
+        String track = StringUtils.trimToNull(trackStr);
+        String artist = StringUtils.trimToNull(artistStr);
+        String album = StringUtils.trimToNull(albumStr);
+        String title = StringUtils.trimToNull(titleStr);
+        String year = StringUtils.trimToNull(yearStr);
+        String genre = StringUtils.trimToNull(genreStr);
 
         Integer trackNumber = null;
         if (track != null) {
             try {
                 trackNumber = Integer.valueOf(track);
             } catch (NumberFormatException x) {
-                LOG.warn("Illegal track number: " + track, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal track number: " + track, x);
+                }
             }
         }
 
@@ -84,7 +86,9 @@ public class TagService {
             try {
                 yearNumber = Integer.valueOf(year);
             } catch (NumberFormatException x) {
-                LOG.warn("Illegal year: " + year, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal year: " + year, x);
+                }
             }
         }
 
@@ -117,11 +121,14 @@ public class TagService {
             newMetaData.setTrackNumber(trackNumber);
             parser.setMetaData(file, newMetaData);
             mediaFileService.refreshMediaFile(file);
+            file = mediaFileService.getMediaFile(file.getId());
             mediaFileService.refreshMediaFile(mediaFileService.getParentOf(file));
             return "UPDATED";
 
         } catch (Exception x) {
-            LOG.warn("Failed to update tags for " + id, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to update tags for " + id, x);
+            }
             return x.getMessage();
         }
     }

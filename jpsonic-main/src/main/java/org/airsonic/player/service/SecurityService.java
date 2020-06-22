@@ -42,6 +42,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
@@ -54,6 +55,8 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
+
+    private static final Pattern noTraversal = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
     @Autowired
     private UserDao userDao;
@@ -194,7 +197,9 @@ public class SecurityService implements UserDetailsService {
     public void createUser(User user) {
         userDao.createUser(user);
         settingsService.setMusicFoldersForUser(user.getUsername(), MusicFolder.toIdList(settingsService.getAllMusicFolders()));
-        LOG.info("Created user " + user.getUsername());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created user " + user.getUsername());
+        }
     }
 
     /**
@@ -204,7 +209,9 @@ public class SecurityService implements UserDetailsService {
      */
     public void deleteUser(String username) {
         userDao.deleteUser(username);
-        LOG.info("Deleted user " + username);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Deleted user " + username);
+        }
         userCache.remove(username);
     }
 
@@ -251,6 +258,10 @@ public class SecurityService implements UserDetailsService {
     public boolean isReadAllowed(String path) {
         // Allowed to read from both music folder and podcast folder.
         return isInMusicFolder(path) || isInPodcastFolder(path);
+    }
+
+    public boolean isNoTraversal(String path) {
+        return noTraversal.matcher(path).matches();
     }
 
     /**
@@ -360,7 +371,7 @@ public class SecurityService implements UserDetailsService {
      * @param folder The folder in question.
      * @return Whether the given file is located in the given folder.
      */
-    protected boolean isFileInFolder(String file, String folder) {
+    protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;
         }
@@ -370,10 +381,7 @@ public class SecurityService implements UserDetailsService {
         }
 
         // Convert slashes.
-        file = file.replace('\\', '/');
-        folder = folder.replace('\\', '/');
-
-        return file.toUpperCase().startsWith(folder.toUpperCase());
+        return file.replace('\\', '/').toUpperCase().startsWith(folder.replace('\\', '/').toUpperCase());
     }
 
     public void setSettingsService(SettingsService settingsService) {

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Created by remi on 17/01/17.
@@ -20,7 +21,7 @@ public class MetricsManager {
     // Main metrics registry
     private static final MetricRegistry metrics = new MetricRegistry();
 
-    private static volatile Boolean metricsActivatedByConfiguration = null;
+    private static AtomicBoolean metricsActivatedByConfiguration = new AtomicBoolean(false);
     private static Object _lock = new Object();
 
     // Potential metrics reporters
@@ -28,7 +29,7 @@ public class MetricsManager {
 
     private void configureMetricsActivation() {
         if (configurationService.containsKey("Metrics")) {
-            metricsActivatedByConfiguration = Boolean.TRUE;
+            metricsActivatedByConfiguration.set(true);
 
             // Start a Metrics JMX reporter
             reporter = JmxReporter.forRegistry(metrics)
@@ -37,19 +38,19 @@ public class MetricsManager {
                     .build();
             reporter.start();
         } else {
-            metricsActivatedByConfiguration = Boolean.FALSE;
+            metricsActivatedByConfiguration.set(false);
         }
     }
 
     private boolean metricsActivatedByConfiguration() {
-        if (metricsActivatedByConfiguration == null) {
+        if (!metricsActivatedByConfiguration.get()) {
             synchronized (_lock) {
-                if (metricsActivatedByConfiguration == null) {
+                if (!metricsActivatedByConfiguration.get()) {
                     configureMetricsActivation();
                 }
             }
         }
-        return metricsActivatedByConfiguration;
+        return metricsActivatedByConfiguration.get();
     }
 
     /**

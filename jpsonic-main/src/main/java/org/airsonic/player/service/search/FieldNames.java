@@ -24,7 +24,7 @@ package org.airsonic.player.service.search;
  * Enum that symbolizes the field name used for lucene index.
  * This class is a division of what was once part of SearchService and added functionality.
  */
-class FieldNames {
+public final class FieldNames {
 
     private FieldNames() {
     }

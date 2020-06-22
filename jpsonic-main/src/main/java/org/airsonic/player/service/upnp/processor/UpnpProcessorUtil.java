@@ -65,7 +65,7 @@ public class UpnpProcessorUtil {
     public String getBaseUrl() {
         String dlnaBaseLANURL = settingsService.getDlnaBaseLANURL();
         if (StringUtils.isBlank(dlnaBaseLANURL)) {
-            throw new RuntimeException("DLNA Base LAN URL is not set correctly");
+            throw new IllegalArgumentException("DLNA Base LAN URL is not set correctly");
         }
         return dlnaBaseLANURL;
     }

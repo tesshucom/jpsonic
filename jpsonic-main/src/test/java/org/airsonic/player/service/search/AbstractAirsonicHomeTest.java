@@ -120,9 +120,13 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
             if (!isEmpty(beforeScan)) {
                 if (beforeScan.get()) {
-                    LOG.debug("Pre-processing of scan was called.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Pre-processing of scan was called.");
+                    }
                 } else {
-                    LOG.debug("Pre-scan processing may have a problem with the call.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Pre-scan processing may have a problem with the call.");
+                    }
                 }
             }
 
@@ -130,13 +134,19 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
             if (!isEmpty(afterscan)) {
                 if (afterscan.get()) {
-                    LOG.debug("Post-processing of scan was called.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Post-processing of scan was called.");
+                    }
                 } else {
-                    LOG.debug("Post-scan processing may have a problem with the call.");
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Post-scan processing may have a problem with the call.");
+                    }
                 }
             }
 
-            LOG.debug("--- Report of records count per table ---");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("--- Report of records count per table ---");
+            }
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
             records.keySet().stream().filter(s ->
                     s.equals("MEDIA_FILE")
@@ -144,9 +154,14 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     | s.equals("MUSIC_FOLDER")
                     | s.equals("ALBUM")
                     | s.equals("GENRE"))
-                    .forEach(tableName ->
-                        System.out.println("\t" + tableName + " : " + records.get(tableName).toString()));
-            LOG.debug("--- *********************** ---");
+                    .forEach(tableName -> {
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
+                        }
+                    });
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("--- *********************** ---");
+            }
             try {
                 // Await for Lucene to finish writing(asynchronous).
                 for (int i = 0; i < 5; i++) {

@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.CompletionException;
 import java.util.logging.LogManager;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -68,7 +69,9 @@ public class JaudiotaggerParser extends MetaDataParser {
         try {
             LogManager.getLogManager().reset();
         } catch (Throwable x) {
-            LOG.warn("Failed to turn off logging from Jaudiotagger.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to turn off logging from Jaudiotagger.", x);
+            }
         }
     }
 
@@ -130,7 +133,9 @@ public class JaudiotaggerParser extends MetaDataParser {
 
 
         } catch (Throwable x) {
-            LOG.warn("Error when parsing tags in " + file, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Error when parsing tags in " + file, x);
+            }
         }
 
         return metaData;
@@ -243,8 +248,10 @@ public class JaudiotaggerParser extends MetaDataParser {
             audioFile.commit();
 
         } catch (Throwable x) {
-            LOG.warn("Failed to update tags for file " + file, x);
-            throw new RuntimeException("Failed to update tags for file " + file + ". " + x.getMessage(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to update tags for file " + file, x);
+            }
+            throw new CompletionException("Failed to update tags for file " + file + ". " + x.getMessage(), x);
         }
     }
 
@@ -295,7 +302,9 @@ public class JaudiotaggerParser extends MetaDataParser {
         try {
             audioFile = AudioFileIO.read(file.getFile());
         } catch (Throwable e) {
-            LOG.warn("Failed to find cover art tag in " + file, e);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find cover art tag in " + file, e);
+            }
             return null;
         }
         Tag tag = audioFile.getTag();

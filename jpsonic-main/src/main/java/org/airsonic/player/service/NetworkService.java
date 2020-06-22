@@ -31,6 +31,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.concurrent.CompletionException;
 
 @Service
 public class NetworkService {
@@ -48,15 +49,19 @@ public class NetworkService {
             try {
                 uri = calculateProxyUri(request);
             } catch (Exception e) {
-                LOG.debug("Could not calculate proxy uri: " + e.getMessage());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Could not calculate proxy uri: " + e.getMessage());
+                }
                 uri = calculateNonProxyUri(request);
             }
 
             String baseUrl = uri.toString() + "/";
-            LOG.debug("Calculated base url to " + baseUrl);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Calculated base url to " + baseUrl);
+            }
             return baseUrl;
         } catch (MalformedURLException | URISyntaxException e) {
-            throw new RuntimeException("Could not calculate base url: " + e.getMessage());
+            throw new CompletionException("Could not calculate base url: ", e);
         }
     }
 
@@ -78,7 +83,7 @@ public class NetworkService {
             }
 
             if (!isValidXForwardedHost(xForardedHost)) {
-                throw new RuntimeException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
+                throw new IllegalArgumentException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
             }
         }
 
@@ -87,7 +92,7 @@ public class NetworkService {
         int port = proxyHost.getPort();
         String scheme = request.getHeader(X_FORWARDED_PROTO);
         if (StringUtils.isBlank(scheme)) {
-            throw new RuntimeException("Scheme not provided");
+            throw new IllegalArgumentException("Scheme not provided");
         }
 
         return new URI(scheme, null, host, port, urlPathHelper.getContextPath(request), null, null);

@@ -204,12 +204,12 @@ public class JapaneseReadingUtils {
      * This method returns the normalized Artist name that can also be used to
      * create the index prefix.
      * 
-     * @param mediaFile
+     * @param sort artist's sort string
      * @return indexable Name
      */
-    private String createIndexableName(String s) {
-        String indexableName = s;
-        char c = s.charAt(0);
+    private String createIndexableName(String sort) {
+        String indexableName = sort;
+        char c = sort.charAt(0);
         if (!(c <= '\u007e') || (c == '\u00a5') || (c == '\u203e')) {
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
             indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);

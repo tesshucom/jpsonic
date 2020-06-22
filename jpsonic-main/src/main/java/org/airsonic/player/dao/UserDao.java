@@ -98,7 +98,7 @@ public class UserDao extends AbstractDao {
         if (users.size() == 1) {
             user = users.iterator().next();
         } else if (users.size() > 1) {
-            throw new RuntimeException("Too many matching users");
+            throw new IllegalArgumentException("Too many matching users");
         }
         if (user != null) {
             readRoles(user);
@@ -284,7 +284,9 @@ public class UserDao extends AbstractDao {
             } else if (ROLE_ID_SHARE.equals(role)) {
                 user.setShareRole(true);
             } else {
-                LOG.warn("Unknown role: '" + role + '\'');
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Unknown role: '" + role + '\'');
+                }
             }
         }
     }

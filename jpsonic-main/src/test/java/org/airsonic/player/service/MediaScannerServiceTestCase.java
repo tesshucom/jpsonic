@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -26,8 +28,9 @@ import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,6 +55,8 @@ import static org.junit.Assert.assertNotNull;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class MediaScannerServiceTestCase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceTestCase.class);
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {
@@ -112,11 +117,19 @@ public class MediaScannerServiceTestCase {
         TestCaseUtils.execScan(mediaScannerService);
         globalTimerContext.stop();
 
-        System.out.println("--- Report of records count per table ---");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- Report of records count per table ---");
+        }
         Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-        records.keySet().forEach(tableName -> System.out.println(tableName + " : " + records.get(tableName).toString()));
-        System.out.println("--- *********************** ---");
+        records.keySet().forEach(tableName -> {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(tableName + " : " + records.get(tableName).toString());
+            }
+        });
 
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- *********************** ---");
+        }
 
         // Music Folder Music must have 3 children
         List<MediaFile> listeMusicChildren = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
@@ -125,18 +138,35 @@ public class MediaScannerServiceTestCase {
         List<MediaFile> listeMusic2Children = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
         Assert.assertEquals(1, listeMusic2Children.size());
 
-        System.out.println("--- List of all artists ---");
-        System.out.println("artistName#albumCount");
-        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolderDao.getAllMusicFolders());
-        allArtists.forEach(artist -> System.out.println(artist.getName() + "#" + artist.getAlbumCount()));
-        System.out.println("--- *********************** ---");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- List of all artists ---");
+            LOG.info("artistName#albumCount");
+        }
 
-        System.out.println("--- List of all albums ---");
-        System.out.println("name#artist");
+        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolderDao.getAllMusicFolders());
+        allArtists.forEach(artist -> {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(artist.getName() + "#" + artist.getAlbumCount());
+            }
+        });
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- *********************** ---");
+            LOG.info("--- List of all albums ---");
+            LOG.info("name#artist");
+        }
+
         List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, musicFolderDao.getAllMusicFolders());
-        allAlbums.forEach(album -> System.out.println(album.getName() + "#" + album.getArtist()));
+        allAlbums.forEach(album -> {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(album.getName() + "#" + album.getArtist());
+            }
+        });
         Assert.assertEquals(5, allAlbums.size());
-        System.out.println("--- *********************** ---");
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- *********************** ---");
+        }
 
         List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental", 0, 0, musicFolderDao.getAllMusicFolders());
         Assert.assertEquals(2, listeSongs.size());
@@ -148,7 +178,10 @@ public class MediaScannerServiceTestCase {
                 .build();
         reporter.report();
 
-        System.out.print("End");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("End");
+        }
+
     }
 
     @Test
@@ -161,7 +194,7 @@ public class MediaScannerServiceTestCase {
         String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3";
         File artistDir = temporaryFolder.newFolder(directoryName);
         File musicFile = artistDir.toPath().resolve(fileName).toFile();
-        IOUtils.copy(resource, new FileOutputStream(musicFile));
+        IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
 
         MusicFolder musicFolder = new MusicFolder(1, temporaryFolder.getRoot(), "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
@@ -169,7 +202,9 @@ public class MediaScannerServiceTestCase {
         TestCaseUtils.execScan(mediaScannerService);
         MediaFile mediaFile = mediaFileService.getMediaFile(musicFile);
         assertEquals(mediaFile.getFile().toString(), musicFile.toString());
-        System.out.println(mediaFile.getFile().getPath());
+        if (LOG.isInfoEnabled()) {
+            LOG.info(mediaFile.getFile().getPath());
+        }
         assertNotNull(mediaFile);
     }
 

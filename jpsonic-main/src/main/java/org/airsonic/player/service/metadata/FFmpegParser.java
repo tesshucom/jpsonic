@@ -102,7 +102,9 @@ public class FFmpegParser extends MetaDataParser {
                 }
             }
         } catch (Throwable x) {
-            LOG.warn("Error when parsing metadata in " + file, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Error when parsing metadata in " + file, x);
+            }
         }
 
         return metaData;
@@ -113,7 +115,7 @@ public class FFmpegParser extends MetaDataParser {
      */
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
-        throw new RuntimeException("setMetaData() not supported in " + getClass().getSimpleName());
+        throw new IllegalArgumentException("setMetaData() not supported in " + getClass().getSimpleName());
     }
 
     /**

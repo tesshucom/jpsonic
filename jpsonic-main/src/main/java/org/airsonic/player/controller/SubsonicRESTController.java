@@ -58,7 +58,9 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.datatype.XMLGregorianCalendar;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 import static org.airsonic.player.security.RESTRequestParameterProcessingFilter.decrypt;
 import static org.springframework.web.bind.ServletRequestUtils.*;
@@ -72,6 +74,7 @@ import static org.springframework.web.bind.ServletRequestUtils.*;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.GuardLogStatement") // Suppressed due to false detection of error method
 @Controller
 @RequestMapping(value = "/rest", method = {RequestMethod.GET, RequestMethod.POST})
 public class SubsonicRESTController {
@@ -168,8 +171,8 @@ public class SubsonicRESTController {
      * CAUTION : this method is required by mobile applications and must not be removed.
      */
     @RequestMapping("/getLicense")
-    public void getLicense(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getLicense(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         License license = new License();
 
         license.setEmail("airsonic@github.com");
@@ -187,8 +190,8 @@ public class SubsonicRESTController {
 
 
     @RequestMapping("/getMusicFolders")
-    public void getMusicFolders(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getMusicFolders(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
 
         MusicFolders musicFolders = new MusicFolders();
         String username = securityService.getCurrentUsername(request);
@@ -204,8 +207,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getIndexes")
-    public void getIndexes(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
         String username = securityService.getCurrentUser(request).getUsername();
 
@@ -274,8 +277,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getGenres")
-    public void getGenres(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getGenres(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         org.subsonic.restapi.Genres genres = new org.subsonic.restapi.Genres();
 
         for (org.airsonic.player.domain.Genre genre : searchService.getGenres(false)) {
@@ -291,8 +294,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSongsByGenre")
-    public void getSongsByGenre(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -314,8 +317,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtists")
-    public void getArtists(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getArtists(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         ArtistsID3 result = new ArtistsID3();
@@ -339,8 +342,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs")
-    public void getSimilarSongs(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "id");
@@ -366,8 +369,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs2")
-    public void getSimilarSongs2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "id");
@@ -394,8 +397,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getTopSongs")
-    public void getTopSongs(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getTopSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         String artist = getRequiredStringParameter(request, "artist");
@@ -416,8 +419,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo")
-    public void getArtistInfo(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getArtistInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "id");
@@ -452,8 +455,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo2")
-    public void getArtistInfo2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "id");
@@ -509,8 +512,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtist")
-    public void getArtist(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUsername(request);
         int id = getRequiredIntParameter(request, "id");
@@ -572,8 +575,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbum")
-    public void getAlbum(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -595,8 +598,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSong")
-    public void getSong(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getSong(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -617,8 +620,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getMusicDirectory")
-    public void getMusicDirectory(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -662,8 +665,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search")
-    public void search(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void search(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -706,8 +709,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search2")
-    public void search2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void search2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
@@ -748,8 +751,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search3")
-    public void search3(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void search3(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
@@ -790,8 +793,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlaylists")
-    public void getPlaylists(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getPlaylists(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
 
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         String authenticatedUsername = user.getUsername();
@@ -816,8 +819,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlaylist")
-    public void getPlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -845,8 +848,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/jukeboxControl")
-    public void jukeboxControl(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request, true);
+    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req, true);
 
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isJukeboxRole()) {
@@ -903,7 +906,7 @@ public class SubsonicRESTController {
                 // No action necessary.
                 break;
             default:
-                throw new Exception("Unknown jukebox action: '" + action + "'.");
+                throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
         }
 
         String username = securityService.getCurrentUsername(request);
@@ -943,8 +946,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createPlaylist")
-    public void createPlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request, true);
+    public void createPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req, true);
         String username = securityService.getCurrentUsername(request);
 
         Integer playlistId = getIntParameter(request, "playlistId");
@@ -988,8 +991,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updatePlaylist")
-    public void updatePlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request, true);
+    public void updatePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req, true);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "playlistId");
@@ -1056,8 +1059,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePlaylist")
-    public void deletePlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request, true);
+    public void deletePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req, true);
         String username = securityService.getCurrentUsername(request);
 
         int id = getRequiredIntParameter(request, "id");
@@ -1076,8 +1079,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList")
-    public void getAlbumList(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAlbumList(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1113,7 +1116,7 @@ public class SubsonicRESTController {
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbums(size, musicFolders);
         } else {
-            throw new Exception("Invalid list type: " + type);
+            throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
 
         AlbumList result = new AlbumList();
@@ -1127,8 +1130,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList2")
-    public void getAlbumList2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAlbumList2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         int size = getIntParameter(request, "size", 10);
         int offset = getIntParameter(request, "offset", 0);
@@ -1159,7 +1162,7 @@ public class SubsonicRESTController {
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbumsId3(size, musicFolders);
         } else {
-            throw new Exception("Invalid list type: " + type);
+            throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
         AlbumList2 result = new AlbumList2();
         for (Album album : albums) {
@@ -1171,8 +1174,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getRandomSongs")
-    public void getRandomSongs(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getRandomSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1200,8 +1203,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getVideos")
-    public void getVideos(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1219,8 +1222,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getNowPlaying")
-    public void getNowPlaying(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getNowPlaying(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         NowPlaying result = new NowPlaying();
 
         for (PlayStatus status : statusService.getPlayStatuses()) {
@@ -1368,8 +1371,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/download")
-    public void download(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void download(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isDownloadRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to download files.");
@@ -1392,8 +1395,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/stream")
-    public void stream(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void stream(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
@@ -1404,8 +1407,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/hls")
-    public void hls(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void hls(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
@@ -1425,8 +1428,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/scrobble")
-    public void scrobble(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         Player player = playerService.getPlayer(request, response);
 
@@ -1442,7 +1445,9 @@ public class SubsonicRESTController {
             int id = ids[i];
             MediaFile file = mediaFileService.getMediaFile(id);
             if (file == null) {
-                LOG.warn("File to scrobble not found: " + id);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("File to scrobble not found: " + id);
+                }
                 continue;
             }
             Date time = times.length == 0 ? null : new Date(times[i]);
@@ -1467,8 +1472,8 @@ public class SubsonicRESTController {
         starOrUnstar(request, response, false);
     }
 
-    private void starOrUnstar(HttpServletRequest request, HttpServletResponse response, boolean star) {
-        request = wrapRequest(request);
+    private void starOrUnstar(HttpServletRequest req, HttpServletResponse response, boolean star) {
+        HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUser(request).getUsername();
         for (int id : getIntParameters(request, "id")) {
@@ -1512,8 +1517,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred")
-    public void getStarred(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
@@ -1535,8 +1540,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred2")
-    public void getStarred2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getStarred2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         Integer musicFolderId = getIntParameter(request, "musicFolderId");
@@ -1558,8 +1563,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPodcasts")
-    public void getPodcasts(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         boolean includeEpisodes = getBooleanParameter(request, "includeEpisodes", true);
@@ -1596,8 +1601,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getNewestPodcasts")
-    public void getNewestPodcasts(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1633,8 +1638,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/refreshPodcasts")
-    public void refreshPodcasts(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void refreshPodcasts(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to administrate podcasts.");
@@ -1645,8 +1650,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createPodcastChannel")
-    public void createPodcastChannel(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to administrate podcasts.");
@@ -1659,8 +1664,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePodcastChannel")
-    public void deletePodcastChannel(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to administrate podcasts.");
@@ -1673,8 +1678,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePodcastEpisode")
-    public void deletePodcastEpisode(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to administrate podcasts.");
@@ -1687,8 +1692,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/downloadPodcastEpisode")
-    public void downloadPodcastEpisode(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to administrate podcasts.");
@@ -1707,8 +1712,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getInternetRadioStations")
-    public void getInternetRadioStations(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getInternetRadioStations(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
 
         InternetRadioStations result = new InternetRadioStations();
         for (InternetRadio radio : settingsService.getAllInternetRadios()) {
@@ -1725,8 +1730,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getBookmarks")
-    public void getBookmarks(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getBookmarks(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1750,8 +1755,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createBookmark")
-    public void createBookmark(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void createBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         int mediaFileId = getRequiredIntParameter(request, "id");
         long position = getRequiredLongParameter(request, "position");
@@ -1764,8 +1769,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteBookmark")
-    public void deleteBookmark(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void deleteBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUsername(request);
         int mediaFileId = getRequiredIntParameter(request, "id");
@@ -1775,8 +1780,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlayQueue")
-    public void getPlayQueue(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getPlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         Player player = playerService.getPlayer(request, response);
 
@@ -1806,8 +1811,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/savePlayQueue")
-    public void savePlayQueue(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void savePlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         List<Integer> mediaFileIds = Util.toIntegerList(getIntParameters(request, "id"));
         Integer current = getIntParameter(request, "current");
@@ -1826,8 +1831,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getShares")
-    public void getShares(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getShares(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
@@ -1848,8 +1853,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createShare")
-    public void createShare(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void createShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
@@ -1888,8 +1893,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteShare")
-    public void deleteShare(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void deleteShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         int id = getRequiredIntParameter(request, "id");
 
@@ -1908,8 +1913,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateShare")
-    public void updateShare(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void updateShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         int id = getRequiredIntParameter(request, "id");
 
@@ -1947,20 +1952,20 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getCoverArt")
-    public void getCoverArt(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getCoverArt(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         coverArtController.handleRequest(request, response);
     }
 
     @RequestMapping("/getAvatar")
-    public void getAvatar(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         avatarController.handleRequest(request, response);
     }
 
     @RequestMapping("/changePassword")
-    public void changePassword(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void changePassword(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         String username = getRequiredStringParameter(request, "username");
         String password = decrypt(getRequiredStringParameter(request, "password"));
@@ -1983,8 +1988,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getUser")
-    public void getUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         String username = getRequiredStringParameter(request, "username");
 
@@ -2006,8 +2011,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getUsers")
-    public void getUsers(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getUsers(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
 
         org.airsonic.player.domain.User currentUser = securityService.getCurrentUser(request);
         if (!currentUser.isAdminRole()) {
@@ -2061,8 +2066,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createUser")
-    public void createUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void createUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to create new users.");
@@ -2097,8 +2102,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateUser")
-    public void updateUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to update users.");
@@ -2161,8 +2166,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteUser")
-    public void deleteUser(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to delete users.");
@@ -2189,18 +2194,18 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getChatMessages")
-    public ResponseEntity<String> getChatMessages(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> getChatMessages(HttpServletRequest req, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
     @RequestMapping("/addChatMessage")
-    public ResponseEntity<String> addChatMessage(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<String> addChatMessage(HttpServletRequest req, HttpServletResponse response) {
         return ResponseEntity.status(HttpStatus.SC_GONE).body(NO_LONGER_SUPPORTED);
     }
 
     @RequestMapping("/getLyrics")
-    public void getLyrics(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getLyrics(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         String artist = request.getParameter("artist");
         String title = request.getParameter("title");
         LyricsInfo lyrics = lyricsService.getLyrics(artist, title);
@@ -2216,8 +2221,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/setRating")
-    public void setRating(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void setRating(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
         Integer rating = getRequiredIntParameter(request, "rating");
         if (rating == 0) {
             rating = null;
@@ -2237,8 +2242,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo")
-    public void getAlbumInfo(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
 
@@ -2256,8 +2261,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo2")
-    public void getAlbumInfo2(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        request = wrapRequest(request);
+    public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+        HttpServletRequest request = wrapRequest(req);
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
 
@@ -2298,15 +2303,15 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/startScan")
-    public void startScan(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void startScan(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         mediaScannerService.scanLibrary();
         getScanStatus(request, response);
     }
 
     @RequestMapping("/getScanStatus")
-    public void getScanStatus(HttpServletRequest request, HttpServletResponse response) {
-        request = wrapRequest(request);
+    public void getScanStatus(HttpServletRequest req, HttpServletResponse response) {
+        HttpServletRequest request = wrapRequest(req);
         ScanStatus scanStatus = new ScanStatus();
         scanStatus.setScanning(this.mediaScannerService.isScanning());
         scanStatus.setCount((long) this.mediaScannerService.getScanCount());

@@ -110,7 +110,9 @@ public class PlayerDao extends AbstractDao {
                player.getTechnology().name(), player.getClientId(), player.getJavaJukeboxMixer());
         addPlaylist(player);
 
-        LOG.info("Created player " + id + '.');
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Created player " + id + '.');
+        }
     }
 
     /**
@@ -137,7 +139,9 @@ public class PlayerDao extends AbstractDao {
         String sql = "delete from player where name is null and client_id is null and (last_seen is null or last_seen < ?)";
         int n = update(sql, cal.getTime());
         if (n > 0) {
-            LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
+            }
         }
     }
 

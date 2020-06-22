@@ -20,6 +20,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.charset.Charset;
+import java.util.concurrent.CompletionException;
 
 //@Component
 public class RegisterPrecompiledJSPInitializer implements ServletContextInitializer {
@@ -29,9 +30,13 @@ public class RegisterPrecompiledJSPInitializer implements ServletContextInitiali
     @Override
     public void onStartup(ServletContext servletContext) {
         if (SettingsService.isDevelopmentMode()) {
-            LOG.debug("Not registering precompiled jsps");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Not registering precompiled jsps");
+            }
         } else {
-            LOG.debug("Registering precompiled jsps");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Registering precompiled jsps");
+            }
             registerPrecompiledJSPs(servletContext);
         }
     }
@@ -68,7 +73,7 @@ public class RegisterPrecompiledJSPInitializer implements ServletContextInitiali
             } catch (java.io.IOException ignored) {}
             return webapp;
         } catch (JAXBException e) {
-            throw new RuntimeException("Could not parse precompiled-jsp-web.xml", e);
+            throw new CompletionException("Could not parse precompiled-jsp-web.xml", e);
         }
     }
 

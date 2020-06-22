@@ -54,9 +54,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -113,21 +114,29 @@ public class PodcastService {
                 for (PodcastEpisode episode : getEpisodes(channel.getId())) {
                     if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
                         deleteEpisode(episode.getId(), false);
-                        LOG.info("Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
+                        }
                     }
                 }
             }
             schedule();
         } catch (Throwable x) {
-            LOG.error("Failed to initialize PodcastService: " + x, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to initialize PodcastService: " + x, x);
+            }
         }
     }
 
     public synchronized void schedule() {
         Runnable task = () -> {
-            LOG.info("Starting scheduled Podcast refresh.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Starting scheduled Podcast refresh.");
+            }
             refreshAllChannels(true);
-            LOG.info("Completed scheduled Podcast refresh.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Completed scheduled Podcast refresh.");
+            }
         };
 
         if (scheduledRefresh != null) {
@@ -137,7 +146,9 @@ public class PodcastService {
         int hoursBetween = settingsService.getPodcastUpdateInterval();
 
         if (hoursBetween == -1) {
-            LOG.info("Automatic Podcast update disabled.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Automatic Podcast update disabled.");
+            }
             return;
         }
 
@@ -146,7 +157,9 @@ public class PodcastService {
 
         scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
         Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
-        LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at " + firstTime);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at " + firstTime);
+        }
     }
 
     /**
@@ -154,9 +167,8 @@ public class PodcastService {
      *
      * @param url The URL of the Podcast channel.
      */
-    public void createChannel(String url) {
-        url = sanitizeUrl(url);
-        PodcastChannel channel = new PodcastChannel(url);
+    public void createChannel(final String url) {
+        PodcastChannel channel = new PodcastChannel(sanitizeUrl(url));
         int channelId = podcastDao.createChannel(channel);
 
         refreshChannels(Arrays.asList(getChannel(channelId)), true);
@@ -265,7 +277,9 @@ public class PodcastService {
         for (PodcastChannel channel : channels) {
             try {
                 if (channel.getTitle() == null) {
-                    LOG.warn("Podcast channel id {} has null title", channel.getId());
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Podcast channel id {} has null title", channel.getId());
+                    }
                     continue;
                 }
                 File dir = getChannelDirectory(channel);
@@ -274,7 +288,9 @@ public class PodcastService {
                     channel.setMediaFileId(mediaFile.getId());
                 }
             } catch (Exception x) {
-                LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x, x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x, x);
+                }
             }
         }
         return channels;
@@ -326,7 +342,9 @@ public class PodcastService {
                 refreshEpisodes(channel, channelElement.getChildren("item"));
             }
         } catch (Exception x) {
-            LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), x);
+            }
             channel.setStatus(PodcastStatus.ERROR);
             channel.setErrorMessage(getErrorMessage(x));
             podcastDao.updateChannel(channel);
@@ -363,12 +381,15 @@ public class PodcastService {
             HttpGet method = new HttpGet(imageUrl);
             try (CloseableHttpResponse response = client.execute(method)) {
                 in = response.getEntity().getContent();
-                out = new FileOutputStream(new File(dir, "cover." + getCoverArtSuffix(response)));
+                File f = new File(dir, "cover." + getCoverArtSuffix(response));
+                out = Files.newOutputStream(Paths.get(f.toURI()));
                 IOUtils.copy(in, out);
                 mediaFileService.refreshMediaFile(channelMediaFile);
             }
         } catch (Exception x) {
-            LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "': " + x, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "': " + x, x);
+            }
         } finally {
             FileUtil.closeQuietly(in);
             FileUtil.closeQuietly(out);
@@ -423,14 +444,18 @@ public class PodcastService {
 
             Element enclosure = episodeElement.getChild("enclosure");
             if (enclosure == null) {
-                LOG.info("No enclosure found for episode " + title);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("No enclosure found for episode " + title);
+                }
                 continue;
             }
 
             String url = enclosure.getAttributeValue("url");
             url = sanitizeUrl(url);
             if (url == null) {
-                LOG.info("No enclosure URL found for episode " + title);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("No enclosure URL found for episode " + title);
+                }
                 continue;
             }
 
@@ -439,14 +464,18 @@ public class PodcastService {
                 try {
                     length = Long.valueOf(enclosure.getAttributeValue("length"));
                 } catch (Exception x) {
-                    LOG.warn("Failed to parse enclosure length.", x);
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to parse enclosure length.", x);
+                    }
                 }
 
                 Date date = parseDate(episodeElement.getChildTextTrim("pubDate"));
                 PodcastEpisode episode = new PodcastEpisode(null, channel.getId(), url, null, title, description, date,
                         duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);
-                LOG.info("Created Podcast episode " + title);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Created Podcast episode " + title);
+                }
             }
         }
 
@@ -481,7 +510,9 @@ public class PodcastService {
                 // Ignored.
             }
         }
-        LOG.warn("Failed to parse publish date: '" + s + "'.");
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Failed to parse publish date: '" + s + "'.");
+        }
         return null;
     }
 
@@ -523,11 +554,15 @@ public class PodcastService {
         OutputStream out = null;
 
         if (isEpisodeDeleted(episode)) {
-            LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+            }
             return;
         }
 
-        LOG.info("Starting to download Podcast from " + episode.getUrl());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Starting to download Podcast from " + episode.getUrl());
+        }
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
 
@@ -547,7 +582,7 @@ public class PodcastService {
                 in = response.getEntity().getContent();
 
                 File file = getFile(channel, episode);
-                out = new FileOutputStream(file);
+                out = Files.newOutputStream(Paths.get(file.toURI()));
 
                 episode.setStatus(PodcastStatus.DOWNLOADING);
                 episode.setBytesDownloaded(0L);
@@ -577,16 +612,22 @@ public class PodcastService {
                 }
 
                 if (isEpisodeDeleted(episode)) {
-                    LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+                    }
                     FileUtil.closeQuietly(out);
                     if (!file.delete()) {
-                        LOG.warn("Unable to delete " + file);
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Unable to delete " + file);
+                        }
                     }
                 } else {
                     addMediaFileIdToEpisodes(Arrays.asList(episode));
                     episode.setBytesDownloaded(bytesDownloaded);
                     podcastDao.updateEpisode(episode);
-                    LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
+                    }
                     FileUtil.closeQuietly(out);
                     updateTags(file, episode);
                     episode.setStatus(PodcastStatus.COMPLETED);
@@ -595,7 +636,9 @@ public class PodcastService {
                 }
             }
         } catch (Exception x) {
-            LOG.warn("Failed to download Podcast from " + episode.getUrl(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to download Podcast from " + episode.getUrl(), x);
+            }
             episode.setStatus(PodcastStatus.ERROR);
             episode.setErrorMessage(getErrorMessage(x));
             podcastDao.updateEpisode(episode);
@@ -606,8 +649,8 @@ public class PodcastService {
     }
 
     private boolean isEpisodeDeleted(PodcastEpisode episode) {
-        episode = podcastDao.getEpisode(episode.getId());
-        return episode == null || episode.getStatus() == PodcastStatus.DELETED;
+        PodcastEpisode e = podcastDao.getEpisode(episode.getId());
+        return e == null || e.getStatus() == PodcastStatus.DELETED;
     }
 
     private void updateTags(File file, PodcastEpisode episode) {
@@ -624,7 +667,9 @@ public class PodcastService {
                 mediaFileService.refreshMediaFile(mediaFile);
             }
         } catch (Exception x) {
-            LOG.warn("Failed to update tags for podcast " + episode.getUrl(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to update tags for podcast " + episode.getUrl(), x);
+            }
         }
     }
 
@@ -649,7 +694,9 @@ public class PodcastService {
         int episodesToDelete = Math.max(0, episodes.size() - episodeCount);
         for (int i = 0; i < episodesToDelete; i++) {
             deleteEpisode(episodes.get(i).getId(), true);
-            LOG.info("Deleted old Podcast episode " + episodes.get(i).getUrl());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Deleted old Podcast episode " + episodes.get(i).getUrl());
+            }
         }
     }
 
@@ -684,13 +731,13 @@ public class PodcastService {
         File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
 
         if (!podcastDir.canWrite()) {
-            throw new RuntimeException("The podcasts directory " + podcastDir + " isn't writeable.");
+            throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
         if (!channelDir.exists()) {
             boolean ok = channelDir.mkdirs();
             if (!ok) {
-                throw new RuntimeException("Failed to create directory " + channelDir);
+                throw new IllegalStateException("Failed to create directory " + channelDir);
             }
 
             MediaFile mediaFile = mediaFileService.getMediaFile(channelDir);

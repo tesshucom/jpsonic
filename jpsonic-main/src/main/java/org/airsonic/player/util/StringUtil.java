@@ -31,6 +31,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.*;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -180,10 +181,10 @@ public final class StringUtil {
     /**
      * Formats a duration with H:MM:SS, e.g., "1:33:45"
      */
-    public static String formatDurationHMMSS(int seconds) {
+    public static String formatDurationHMMSS(final int sec) {
+        int seconds = sec;
         int hours = seconds / 3600;
         seconds -= hours * 3600;
-
         return String.format("%d:%s%s", hours, seconds < 600 ? "0" : "", formatDurationMSS(seconds));
     }
 
@@ -290,7 +291,7 @@ public final class StringUtil {
         try {
             return URLEncoder.encode(s, StringUtil.ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 
@@ -301,7 +302,7 @@ public final class StringUtil {
         try {
             return URLDecoder.decode(s, StringUtil.ENCODING_UTF8);
         } catch (UnsupportedEncodingException x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 
@@ -372,11 +373,12 @@ public final class StringUtil {
      * @param filename The filename in question.
      * @return The filename with special characters replaced by underscores.
      */
-    public static String fileSystemSafe(String filename) {
+    public static String fileSystemSafe(final String filename) {
+        String result = filename;
         for (String s : FILE_SYSTEM_UNSAFE) {
-            filename = filename.replace(s, "-");
+            result = result.replace(s, "-");
         }
-        return filename;
+        return result;
     }
 
     public static String removeMarkup(String s) {

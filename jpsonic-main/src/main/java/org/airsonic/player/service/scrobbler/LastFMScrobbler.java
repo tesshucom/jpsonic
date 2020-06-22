@@ -79,7 +79,9 @@ public class LastFMScrobbler {
         }
 
         if (queue.size() >= MAX_PENDING_REGISTRATION) {
-            LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
+            }
             return;
         }
 
@@ -91,7 +93,9 @@ public class LastFMScrobbler {
         try {
             queue.put(registrationData);
         } catch (InterruptedException x) {
-            LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
+            }
         }
     }
 
@@ -135,12 +139,18 @@ public class LastFMScrobbler {
         }
 
         if (lines[0].startsWith("FAILED")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm: " + lines[0]);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm: " + lines[0]);
+            }
         } else if (lines[0].startsWith("BADSESSION")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm.  Invalid session.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm.  Invalid session.");
+            }
         } else if (lines[0].startsWith("OK")) {
-            LOG.info("Successfully registered " + (registrationData.submission ? "submission" : "now playing") +
-                      " for song '" + registrationData.title + "' for user " + registrationData.username + " at Last.fm: " + registrationData.time);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Successfully registered " + (registrationData.submission ? "submission" : "now playing") +
+                          " for song '" + registrationData.title + "' for user " + registrationData.username + " at Last.fm: " + registrationData.time);
+            }
         }
     }
 
@@ -171,27 +181,37 @@ public class LastFMScrobbler {
         String[] lines = executeGetRequest(uri);
 
         if (lines[0].startsWith("BANNED")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Client version is banned.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Client version is banned.");
+            }
             return null;
         }
 
         if (lines[0].startsWith("BADAUTH")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Wrong username or password.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Wrong username or password.");
+            }
             return null;
         }
 
         if (lines[0].startsWith("BADTIME")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Bad timestamp, please check local clock.");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm. Bad timestamp, please check local clock.");
+            }
             return null;
         }
 
         if (lines[0].startsWith("FAILED")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm: " + lines[0]);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm: " + lines[0]);
+            }
             return null;
         }
 
         if (!lines[0].startsWith("OK")) {
-            LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm.  Unknown response: " + lines[0]);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.title + "' at Last.fm.  Unknown response: " + lines[0]);
+            }
             return null;
         }
 
@@ -270,7 +290,9 @@ public class LastFMScrobbler {
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
                 } catch (Exception x) {
-                    LOG.warn("Error in Last.fm registration: " + x.toString());
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Error in Last.fm registration: " + x.toString());
+                    }
                 }
             }
         }
@@ -278,15 +300,21 @@ public class LastFMScrobbler {
         private void handleNetworkError(RegistrationData registrationData, String errorMessage) {
             try {
                 queue.put(registrationData);
-                LOG.info("Last.fm registration for '" + registrationData.title +
-                         "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Last.fm registration for '" + registrationData.title +
+                             "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                }
             } catch (InterruptedException x) {
-                LOG.error("Failed to reschedule Last.fm registration for '" + registrationData.title + "': " + x.toString());
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to reschedule Last.fm registration for '" + registrationData.title + "': " + x.toString());
+                }
             }
             try {
                 sleep(60L * 1000L);  // Wait 60 seconds.
             } catch (InterruptedException x) {
-                LOG.error("Failed to sleep after Last.fm registration failure for '" + registrationData.title + "': " + x.toString());
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to sleep after Last.fm registration failure for '" + registrationData.title + "': " + x.toString());
+                }
             }
         }
     }

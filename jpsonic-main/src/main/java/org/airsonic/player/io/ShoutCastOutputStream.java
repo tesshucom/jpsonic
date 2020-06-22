@@ -169,17 +169,17 @@ public class ShoutCastOutputStream extends OutputStream {
         }
     }
 
-    private byte[] createStreamTitle(String title) {
+    private byte[] createStreamTitle(final String title) {
         // Remove any quotes from the title.
-        title = title.replaceAll("'", "");
+        String result = title.replaceAll("'", "");
 
         // Convert non-ascii characters to similar ascii characters.
         for (char[] chars : ShoutCastOutputStream.CHAR_MAP) {
-            title = title.replace(chars[0], chars[1]);
+            result = result.replace(chars[0], chars[1]);
         }
 
-        title = "StreamTitle='" + title + "';";
-        return title.getBytes(StandardCharsets.US_ASCII);
+        result = "StreamTitle='" + result + "';";
+        return result.getBytes(StandardCharsets.US_ASCII);
     }
 
     /**

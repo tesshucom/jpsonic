@@ -38,10 +38,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Provides AJAX-enabled services for changing cover art images.
@@ -79,7 +82,9 @@ public class CoverArtService {
             saveCoverArt(mediaFile.getPath(), url);
             return null;
         } catch (Exception x) {
-            LOG.warn("Failed to save cover art for album " + albumId, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to save cover art for album " + albumId, x);
+            }
             return x.toString();
         }
     }
@@ -109,14 +114,14 @@ public class CoverArtService {
                 // Check permissions.
                 File newCoverFile = new File(path, "cover." + suffix);
                 if (!securityService.isWriteAllowed(newCoverFile)) {
-                    throw new Exception("Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath()));
+                    throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
                 }
 
                 // If file exists, create a backup.
                 backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
 
                 // Write file.
-                output = new FileOutputStream(newCoverFile);
+                output = Files.newOutputStream(Paths.get(newCoverFile.toURI()));
                 IOUtils.copy(input, output);
 
                 MediaFile dir = mediaFileService.getMediaFile(path);
@@ -131,10 +136,14 @@ public class CoverArtService {
                         File coverFile = mediaFileService.getCoverArt(dir);
                         if (coverFile != null && !isMediaFile(coverFile) && !newCoverFile.equals(coverFile)) {
                             if (!coverFile.renameTo(new File(coverFile.getCanonicalPath() + ".old"))) {
-                                LOG.warn("Unable to rename old image file " + coverFile);
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Unable to rename old image file " + coverFile);
+                                }
                                 break;
                             }
-                            LOG.info("Renamed old image file " + coverFile);
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Renamed old image file " + coverFile);
+                            }
 
                             // Must refresh again.
                             mediaFileService.refreshMediaFile(dir);
@@ -161,13 +170,19 @@ public class CoverArtService {
         if (newCoverFile.exists()) {
             if (backup.exists()) {
                 if (!backup.delete()) {
-                    LOG.warn("Failed to delete " + backup);
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to delete " + backup);
+                    }
                 }
             }
             if (newCoverFile.renameTo(backup)) {
-                LOG.info("Backed up old image file to " + backup);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Backed up old image file to " + backup);
+                }
             } else {
-                LOG.warn("Failed to create image file backup " + backup);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to create image file backup " + backup);
+                }
             }
         }
     }
