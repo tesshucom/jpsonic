@@ -598,6 +598,13 @@
             </properties>
         </profile>
         <profile>
+            <id>release14</id>
+            <properties>
+                <maven.compiler.release>14</maven.compiler.release>
+                <compile.version>14</compile.version>
+            </properties>
+        </profile>
+        <profile>
             <id>unit-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
