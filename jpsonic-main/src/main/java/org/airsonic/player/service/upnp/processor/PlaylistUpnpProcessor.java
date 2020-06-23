@@ -81,7 +81,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     public List<Playlist> getItems(long offset, long maxResults) {
         // Currently sorting on the Java side(Using sublist because less affected).
         List<Playlist> playlists = playlistService.getAllPlaylists();
-        return org.airsonic.player.util.Util.subList(playlists, offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(playlists, offset, maxResults);
     }
 
     public Playlist getItemById(String id) {

@@ -203,7 +203,7 @@ public class Application extends SpringBootServletInitializer implements WebServ
                     LOG.debug("Attempting to optimize tomcat");
                 }
                 Object tomcatESCFInstance = tomcatESCF.cast(container);
-                Class<?> tomcatApplicationClass = Class.forName("org.airsonic.player.TomcatApplication");
+                Class<?> tomcatApplicationClass = Class.forName("org.airsonic.player.TomcatApplicationHelper");
                 Method configure = ReflectionUtils.findMethod(tomcatApplicationClass, "configure", tomcatESCF);
                 configure.invoke(null, tomcatESCFInstance);
                 if (LOG.isDebugEnabled()) {

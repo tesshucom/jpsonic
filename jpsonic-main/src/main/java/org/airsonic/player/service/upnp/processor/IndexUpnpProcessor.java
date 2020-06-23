@@ -48,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.airsonic.player.util.Util.subList;
+import static org.airsonic.player.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service

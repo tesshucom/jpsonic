@@ -135,7 +135,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     @Override
     public List<PodcastChannel> getItems(long offset, long maxResults) {
-        return org.airsonic.player.util.Util.subList(podcastService.getAllChannels(), offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(podcastService.getAllChannels(), offset, maxResults);
     }
 
     public PodcastChannel getItemById(String id) {
@@ -149,7 +149,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     @Override
     public List<PodcastEpisode> getChildren(PodcastChannel channel, long offset, long maxResults) {
-        return org.airsonic.player.util.Util.subList(podcastService.getEpisodes(channel.getId()), offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset, maxResults);
     }
 
     public void addChild(DIDLContent didl, PodcastEpisode child) {

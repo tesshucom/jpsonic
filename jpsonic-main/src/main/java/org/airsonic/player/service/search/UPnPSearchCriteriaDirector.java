@@ -216,9 +216,9 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.audioItem":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
                         }
                         break;
 
@@ -226,7 +226,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.videoItem":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
                         }
                         break;
 
@@ -253,19 +253,19 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.audioItem.musicTrack":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
                         }
                         break;
                     case "object.item.audioItem.audioBroadcast":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
                         }
                         break;
                     case "object.item.audioItem.audioBook":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
                         }
                         break;
 
@@ -275,7 +275,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.videoItem.musicVideoClip":
                         assignableClass = MediaFile.class;
                         if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
                         }
                         break;
 
@@ -370,23 +370,23 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         if ("dc:title".equals(S)) {
             if (Album.class == assignableClass) {
-                fieldName.add(FieldNames.ALBUM_EX);
-                fieldName.add(FieldNames.ALBUM);
+                fieldName.add(FieldNamesConstants.ALBUM_EX);
+                fieldName.add(FieldNamesConstants.ALBUM);
             } else if (Artist.class == assignableClass) {
-                fieldName.add(FieldNames.ARTIST_READING);
-                fieldName.add(FieldNames.ARTIST_EX);
-                fieldName.add(FieldNames.ARTIST);
+                fieldName.add(FieldNamesConstants.ARTIST_READING);
+                fieldName.add(FieldNamesConstants.ARTIST_EX);
+                fieldName.add(FieldNamesConstants.ARTIST);
             } else {
-                fieldName.add(FieldNames.TITLE_EX);
-                fieldName.add(FieldNames.TITLE);
+                fieldName.add(FieldNamesConstants.TITLE_EX);
+                fieldName.add(FieldNamesConstants.TITLE);
             }
         } else if ("dc:creator".equals(S)) {
-            fieldName.add(FieldNames.COMPOSER_READING);
-            fieldName.add(FieldNames.COMPOSER);
+            fieldName.add(FieldNamesConstants.COMPOSER_READING);
+            fieldName.add(FieldNamesConstants.COMPOSER);
         } else if ("upnp:artist".equals(S)) {
-            fieldName.add(FieldNames.ARTIST_READING);
-            fieldName.add(FieldNames.ARTIST_EX);
-            fieldName.add(FieldNames.ARTIST);
+            fieldName.add(FieldNamesConstants.ARTIST_READING);
+            fieldName.add(FieldNamesConstants.ARTIST_EX);
+            fieldName.add(FieldNamesConstants.ARTIST);
         }
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + S);
 

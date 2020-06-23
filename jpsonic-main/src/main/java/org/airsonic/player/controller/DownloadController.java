@@ -24,7 +24,7 @@ import org.airsonic.player.io.RangeOutputStream;
 import org.airsonic.player.service.*;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.HttpRange;
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -176,7 +176,7 @@ public class DownloadController implements LastModified {
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(file.getName()));
         if (range == null) {
-            Util.setContentLength(response, file.length());
+            PlayerUtils.setContentLength(response, file.length());
         }
 
         copyFileToStream(file, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);

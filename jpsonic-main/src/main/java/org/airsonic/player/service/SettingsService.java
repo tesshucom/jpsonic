@@ -32,8 +32,8 @@ import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +185,7 @@ public class SettingsService {
     private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) \u3084(\u30E4\u30E6\u30E8) \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) \u308F(\u30EF\u30F2\u30F3)";
     private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
-    private static final String DEFAULT_PLAYLIST_FOLDER = Util.getDefaultPlaylistFolder();
+    private static final String DEFAULT_PLAYLIST_FOLDER = PlayerUtils.getDefaultPlaylistFolder();
     private static final String DEFAULT_MUSIC_FILE_TYPES = "mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus";
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
@@ -203,7 +203,7 @@ public class SettingsService {
     private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
     private static final boolean DEFAULT_IGNORE_FILE_TIMESTAMPS = false;
     private static final int DEFAULT_PODCAST_UPDATE_INTERVAL = 24;
-    private static final String DEFAULT_PODCAST_FOLDER = Util.getDefaultPodcastFolder();
+    private static final String DEFAULT_PODCAST_FOLDER = PlayerUtils.getDefaultPodcastFolder();
     private static final int DEFAULT_PODCAST_EPISODE_RETENTION_COUNT = 10;
     private static final int DEFAULT_PODCAST_EPISODE_DOWNLOAD_COUNT = 1;
     private static final long DEFAULT_DOWNLOAD_BITRATE_LIMIT = 0;

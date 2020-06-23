@@ -131,7 +131,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
             containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
         }
 
-        return org.airsonic.player.util.Util.subList(containers, offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
     }
 
     public Container getItemById(String id) {
@@ -149,7 +149,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     @Override
     public List<Container> getChildren(Container item, long offset, long maxResults) {
-        return org.airsonic.player.util.Util.subList(getChildren(item), offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(getChildren(item), offset, maxResults);
     }
 
     public void addChild(DIDLContent didl, Container child) {

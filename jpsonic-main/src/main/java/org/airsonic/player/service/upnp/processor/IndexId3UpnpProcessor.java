@@ -58,7 +58,7 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toList;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
-import static org.airsonic.player.util.Util.subList;
+import static org.airsonic.player.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service

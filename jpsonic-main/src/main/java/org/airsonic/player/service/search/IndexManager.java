@@ -32,7 +32,7 @@ import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.FileUtil;
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -299,7 +299,7 @@ public class IndexManager {
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
-            Map<String,String> userData = Util.objectToStringMap(statistics);
+            Map<String,String> userData = PlayerUtils.objectToStringMap(statistics);
             writer.setLiveCommitData(userData.entrySet());
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
@@ -352,7 +352,7 @@ public class IndexManager {
             }
             try {
                 Map<String, String> userData = ((DirectoryReader) indexReader).getIndexCommit().getUserData();
-                MediaLibraryStatistics currentStats = Util.stringMapToValidObject(MediaLibraryStatistics.class,
+                MediaLibraryStatistics currentStats = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
                         userData);
                 if (stats == null) {
                     stats = currentStats;
@@ -545,7 +545,7 @@ public class IndexManager {
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             for (int i = 0; i < totalHits; i++) {
-                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc).getFields(FieldNames.GENRE_KEY);
+                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc).getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
                     List<String> fieldValues = Arrays.stream(fields).map(f -> f.stringValue()).collect(Collectors.toList());
                     fieldValues.forEach(v -> {
@@ -623,7 +623,7 @@ public class IndexManager {
                     Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
                     TermStats[] stats = null;
                     try {
-                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNames.GENRE, c);
+                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {
                         LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e);
                         break mayBeInit;

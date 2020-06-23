@@ -291,15 +291,15 @@ public final class AnalyzerFactory {
                 Analyzer artistEx = createExAnalyzer(true);
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.GENRE_KEY, createKeywordAnalyzerBuilder().build());
-                analyzerMap.put(FieldNames.ARTIST, artist);
-                analyzerMap.put(FieldNames.COMPOSER, artist);
-                analyzerMap.put(FieldNames.ARTIST_READING, reading);
-                analyzerMap.put(FieldNames.COMPOSER_READING, reading);
-                analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
-                analyzerMap.put(FieldNames.TITLE_EX, exceptional);
-                analyzerMap.put(FieldNames.ARTIST_EX, artistEx);
-                analyzerMap.put(FieldNames.GENRE, createGenreAnalyzer());
+                analyzerMap.put(FieldNamesConstants.GENRE_KEY, createKeywordAnalyzerBuilder().build());
+                analyzerMap.put(FieldNamesConstants.ARTIST, artist);
+                analyzerMap.put(FieldNamesConstants.COMPOSER, artist);
+                analyzerMap.put(FieldNamesConstants.ARTIST_READING, reading);
+                analyzerMap.put(FieldNamesConstants.COMPOSER_READING, reading);
+                analyzerMap.put(FieldNamesConstants.ALBUM_EX, exceptional);
+                analyzerMap.put(FieldNamesConstants.TITLE_EX, exceptional);
+                analyzerMap.put(FieldNamesConstants.ARTIST_EX, artistEx);
+                analyzerMap.put(FieldNamesConstants.GENRE, createGenreAnalyzer());
 
                 this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(), analyzerMap);
 

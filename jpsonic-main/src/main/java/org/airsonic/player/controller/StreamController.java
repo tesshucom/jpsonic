@@ -27,8 +27,8 @@ import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.HttpRange;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,7 +105,7 @@ public class StreamController {
                 PlayQueue playQueue = new PlayQueue();
                 playQueue.addFiles(false, playlistService.getFilesInPlaylist(playlistId));
                 player.setPlayQueue(playQueue);
-                Util.setContentLength(response, playQueue.length());
+                PlayerUtils.setContentLength(response, playQueue.length());
                 if (LOG.isInfoEnabled()) {
                     LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
                 }
@@ -189,7 +189,7 @@ public class StreamController {
                     }
 
                     response.setIntHeader("ETag", file.getId());
-                    Util.setContentLength(response, contentLength);
+                    PlayerUtils.setContentLength(response, contentLength);
                 }
 
                 // Set content type of response
@@ -278,12 +278,12 @@ public class StreamController {
             // This happens often and outside of the control of the server, so
             // we catch Tomcat/Jetty "connection aborted by client" exceptions
             // and display a short error message.
-            boolean shouldCatch = Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
+            boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
             if (shouldCatch) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
                             request.getRemoteAddr(),
-                            Util.getAnonymizedURLForRequest(request),
+                            PlayerUtils.getAnonymizedURLForRequest(request),
                             e.getCause().toString());
                 }
                 return;
