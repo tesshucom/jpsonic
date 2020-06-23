@@ -219,8 +219,8 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final String[] filterComposer(String[] Fields, boolean includeComposer) {
-        return Arrays.asList(Fields).stream()
+    public final String[] filterComposer(String[] fields, boolean includeComposer) {
+        return Arrays.asList(fields).stream()
                 .filter(f -> includeComposer ? true : !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
                 .collect(Collectors.toList()).toArray(new String[0]);
     }

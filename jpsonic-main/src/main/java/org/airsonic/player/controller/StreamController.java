@@ -62,6 +62,8 @@ public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
 
+    private static final int BUFFER_SIZE = 2048;
+
     @Autowired
     private StatusService statusService;
     @Autowired
@@ -234,7 +236,6 @@ public class StreamController {
                         transcodingService, audioScrobblerService, mediaFileService, searchService);
                 OutputStream out = makeOutputStream(request, response, range, isSingleFile, player, settingsService)
             ) {
-                final int BUFFER_SIZE = 2048;
                 byte[] buf = new byte[BUFFER_SIZE];
                 long bytesWritten = 0;
 

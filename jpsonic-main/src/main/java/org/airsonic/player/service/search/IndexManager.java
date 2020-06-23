@@ -204,8 +204,8 @@ public class IndexManager {
 
     public final void startIndexing() {
         try {
-            for (IndexType IndexType : IndexType.values()) {
-                writers.put(IndexType, createIndexWriter(IndexType));
+            for (IndexType indexType : IndexType.values()) {
+                writers.put(indexType, createIndexWriter(indexType));
             }
             clearGenreMaster();
         } catch (IOException e) {
