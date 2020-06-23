@@ -123,7 +123,7 @@
 
 <c:if test="${not empty model.radios}">
     <h2 class="bgcolor1" style="padding-left: 2px"><fmt:message key="left.radio"/></h2>
-    <iframe id="radio-playlist-data" style="display:none;"></iframe>
+    <iframe src="left.jsp" id="radio-playlist-data" style="display:none;"></iframe>
     <c:forEach items="${model.radios}" var="radio" varStatus="loop">
         <p class="dense<c:if test='${loop.last}'> last</c:if>" style="padding-left: 2px">
         <a target="hidden" href="${radio.streamUrl}" class="radio-play" data-id="${radio.id}">
