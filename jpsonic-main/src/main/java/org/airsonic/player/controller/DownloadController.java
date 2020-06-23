@@ -215,7 +215,7 @@ public class DownloadController implements LastModified {
      * @param zipFileName  The name of the resulting zip file.   @throws IOException If an I/O error occurs.
      */
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files, int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
-        boolean cover_embedded = false;
+        boolean coverEmbedded = false;
 
         if (indexes != null && indexes.length == 1) {
             downloadFile(response, status, files.get(indexes[0]).getFile(), range);
@@ -246,11 +246,11 @@ public class DownloadController implements LastModified {
             zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
             if (coverArtFile != null && coverArtFile.exists()) {
                 if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
-                    cover_embedded = true;
+                    coverEmbedded = true;
                 }
             }
         }
-        if (coverArtFile != null && coverArtFile.exists() && !cover_embedded) {
+        if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
             zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
         }
 

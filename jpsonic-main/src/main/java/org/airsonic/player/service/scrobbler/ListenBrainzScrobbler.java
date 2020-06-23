@@ -131,22 +131,22 @@ public class ListenBrainzScrobbler {
      * Returns if submission succeeds.
      */
     private boolean submit(RegistrationData registrationData) throws ClientProtocolException, IOException {
-        Map<String, Object> additional_info = new HashMap<String, Object>();
-        additional_info.computeIfAbsent("release_mbid", k -> registrationData.musicBrainzReleaseId);
-        additional_info.computeIfAbsent("recording_mbid", k -> registrationData.musicBrainzRecordingId);
-        additional_info.computeIfAbsent("tracknumber", k -> registrationData.trackNumber);
+        Map<String, Object> additionalInfo = new HashMap<String, Object>();
+        additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.musicBrainzReleaseId);
+        additionalInfo.computeIfAbsent("recording_mbid", k -> registrationData.musicBrainzRecordingId);
+        additionalInfo.computeIfAbsent("tracknumber", k -> registrationData.trackNumber);
 
-        Map<String, Object> track_metadata = new HashMap<String, Object>();
-        if (additional_info.size() > 0) {
-            track_metadata.put("additional_info", additional_info);
+        Map<String, Object> trackMetadata = new HashMap<String, Object>();
+        if (additionalInfo.size() > 0) {
+            trackMetadata.put("additional_info", additionalInfo);
         }
-        track_metadata.computeIfAbsent("artist_name", k -> registrationData.artist);
-        track_metadata.computeIfAbsent("track_name", k -> registrationData.title);
-        track_metadata.computeIfAbsent("release_name", k -> registrationData.album);
+        trackMetadata.computeIfAbsent("artist_name", k -> registrationData.artist);
+        trackMetadata.computeIfAbsent("track_name", k -> registrationData.title);
+        trackMetadata.computeIfAbsent("release_name", k -> registrationData.album);
 
         Map<String, Object> payload = new HashMap<String, Object>();
-        if (track_metadata.size() > 0) {
-            payload.put("track_metadata", track_metadata);
+        if (trackMetadata.size() > 0) {
+            payload.put("track_metadata", trackMetadata);
         }
 
         Map<String, Object> content = new HashMap<String, Object>();
