@@ -679,18 +679,29 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <configuration>
-                    <language>jsp</language>
-                    <rulesets>
-                        <ruleset>/category/jsp/codestyle.xml</ruleset>
-                        <ruleset>/category/jsp/errorprone.xml</ruleset>
-                    </rulesets>
+                    <analysisCache>true</analysisCache>
+                    <targetJdk>${compile.version}</targetJdk>
+                    <skipEmptyReport>false</skipEmptyReport>
+                    <failOnViolation>true</failOnViolation>
+                    <minimumPriority>2</minimumPriority>
+                    <printFailingErrors>true</printFailingErrors>
+                    <includeTests>true</includeTests>
+                    <verbose>false</verbose>
+                    <compileSourceRoots>
+                        <compileSourceRoot>${basedir}/src/main/java</compileSourceRoot>
+                        <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
+                    </compileSourceRoots>
+                    <excludeRoots>
+                        <excludeRoot>${basedir}/target</excludeRoot>
+                    </excludeRoots>
                     <includes>
+                        <include>**/*.java</include>
                         <include>**/*.jsp</include>
                         <include>**/*.jspf</include>
                     </includes>
-                    <compileSourceRoots>
-                        <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
-                    </compileSourceRoots>
+                    <rulesets>
+                        <ruleset>pmd-rulesets.xml</ruleset>
+                    </rulesets>
                 </configuration>
             </plugin>
             <plugin>
