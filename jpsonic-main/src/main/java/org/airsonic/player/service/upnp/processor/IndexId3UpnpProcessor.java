@@ -64,7 +64,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3Wrapper> {
 
-    private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
+    private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;

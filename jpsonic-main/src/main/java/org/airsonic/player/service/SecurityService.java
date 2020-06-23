@@ -56,7 +56,7 @@ public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
 
-    private static final Pattern noTraversal = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
+    private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
     @Autowired
     private UserDao userDao;
@@ -261,7 +261,7 @@ public class SecurityService implements UserDetailsService {
     }
 
     public boolean isNoTraversal(String path) {
-        return noTraversal.matcher(path).matches();
+        return NO_TRAVERSAL.matcher(path).matches();
     }
 
     /**

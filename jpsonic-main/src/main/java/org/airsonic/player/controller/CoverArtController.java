@@ -92,7 +92,7 @@ public class CoverArtController implements LastModified {
     @Autowired
     private CoverArtLogic logic;
 
-    private final static Map<String, Object> locks = new ConcurrentHashMap<>();
+    private final static Map<String, Object> LOCKS = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -250,9 +250,9 @@ public class CoverArtController implements LastModified {
         Object lock = new Object();
         synchronized (lock) {
 
-            locks.putIfAbsent(hash, lock);
+            LOCKS.putIfAbsent(hash, lock);
 
-            if (lock.equals(locks.get(hash))
+            if (lock.equals(LOCKS.get(hash))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 OutputStream out = null;
                 try {
@@ -274,7 +274,7 @@ public class CoverArtController implements LastModified {
                 } finally {
                     semaphore.release();
                     FileUtil.closeQuietly(out);
-                    locks.remove(hash, lock);
+                    LOCKS.remove(hash, lock);
                 }
             }
             return cachedImage;

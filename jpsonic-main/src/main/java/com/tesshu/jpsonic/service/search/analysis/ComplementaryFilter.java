@@ -22,7 +22,7 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 public final class ComplementaryFilter extends TokenFilter {
 
-    private static Pattern ONLY_STOP_WORDS;
+    private static Pattern onlyStopWords;
 
     private Reader getReafer(Class<?> clazz) {
         return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
@@ -69,7 +69,7 @@ public final class ComplementaryFilter extends TokenFilter {
 
     @Override
     public final boolean incrementToken() throws IOException {
-        if (Mode.HIRA_KATA_ONLY != mode && null == ONLY_STOP_WORDS) {
+        if (Mode.HIRA_KATA_ONLY != mode && null == onlyStopWords) {
             try (Reader reader = getReafer(getClass())) {
                 CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
                 StringBuffer buffer = new StringBuffer();
@@ -77,7 +77,7 @@ public final class ComplementaryFilter extends TokenFilter {
                     buffer.append((char[]) s);
                     buffer.append("|");
                 });
-                ONLY_STOP_WORDS = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
+                onlyStopWords = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
             } catch (IOException e) {
                 LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
             }
@@ -86,7 +86,7 @@ public final class ComplementaryFilter extends TokenFilter {
         if (input.incrementToken()) {
             String term = termAtt.toString();
 
-            if ((Mode.HIRA_KATA_ONLY != mode && ONLY_STOP_WORDS.matcher(term).matches())) {
+            if ((Mode.HIRA_KATA_ONLY != mode && onlyStopWords.matcher(term).matches())) {
                 return true;
             }
             if (Mode.STOP_WORDS_ONLY != mode && isHiraKataOnly(term)) {
