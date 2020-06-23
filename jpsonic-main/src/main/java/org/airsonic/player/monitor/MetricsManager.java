@@ -19,10 +19,10 @@ public class MetricsManager {
     private ApacheCommonsConfigurationService configurationService;
 
     // Main metrics registry
-    private static final MetricRegistry metrics = new MetricRegistry();
+    private static final MetricRegistry METRICS = new MetricRegistry();
 
     private static AtomicBoolean metricsActivatedByConfiguration = new AtomicBoolean(false);
-    private static Object _lock = new Object();
+    private static Object lock = new Object();
 
     // Potential metrics reporters
     private static JmxReporter reporter;
@@ -32,7 +32,7 @@ public class MetricsManager {
             metricsActivatedByConfiguration.set(true);
 
             // Start a Metrics JMX reporter
-            reporter = JmxReporter.forRegistry(metrics)
+            reporter = JmxReporter.forRegistry(METRICS)
                     .convertRatesTo(TimeUnit.SECONDS)
                     .convertDurationsTo(TimeUnit.MILLISECONDS)
                     .build();
@@ -44,7 +44,7 @@ public class MetricsManager {
 
     private boolean metricsActivatedByConfiguration() {
         if (!metricsActivatedByConfiguration.get()) {
-            synchronized (_lock) {
+            synchronized (lock) {
                 if (!metricsActivatedByConfiguration.get()) {
                     configureMetricsActivation();
                 }
@@ -61,7 +61,7 @@ public class MetricsManager {
         if (metricsActivatedByConfiguration()) {
             return new TimerBuilder().timer(clazz, name);
         } else {
-            return nullTimerSingleton;
+            return NULL_TIMER_SINGLETON;
         }
     }
 
@@ -81,11 +81,11 @@ public class MetricsManager {
     public TimerBuilder condition(boolean ifTrue) {
         if (metricsActivatedByConfiguration()) {
             if (!ifTrue) {
-                return conditionFalseTimerBuilderSingleton;
+                return CONDITION_FALSE_TIMER_BUILDER_SINGLETON;
             }
             return new TimerBuilder();
         } else {
-            return nullTimerBuilderSingleton;
+            return NULL_TIMER_BUILDER_SINGLETON;
         }
     }
 
@@ -99,7 +99,7 @@ public class MetricsManager {
     public static class TimerBuilder {
 
         public Timer timer(Class clazz, String name) {
-            com.codahale.metrics.Timer t = metrics.timer(MetricRegistry.name(clazz,name));
+            com.codahale.metrics.Timer t = METRICS.timer(MetricRegistry.name(clazz,name));
             com.codahale.metrics.Timer.Context tContext = t.time();
             return new Timer(tContext);
         }
@@ -133,9 +133,9 @@ public class MetricsManager {
     // -----------------------------------------------------------------
     // Convenient singletons to avoid creating useless objects instances
     // -----------------------------------------------------------------
-    private static final NullTimer nullTimerSingleton = new NullTimer(null);
-    private static final NullTimerBuilder conditionFalseTimerBuilderSingleton = new NullTimerBuilder();
-    private static final NullTimerBuilder nullTimerBuilderSingleton = new NullTimerBuilder();
+    private static final NullTimer NULL_TIMER_SINGLETON = new NullTimer(null);
+    private static final NullTimerBuilder CONDITION_FALSE_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
+    private static final NullTimerBuilder NULL_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
 
     private static class NullTimer extends Timer {
 
@@ -152,7 +152,7 @@ public class MetricsManager {
     private static class NullTimerBuilder extends TimerBuilder {
         @Override
         public Timer timer(Class clazz, String name) {
-            return nullTimerSingleton;
+            return NULL_TIMER_SINGLETON;
         }
     }
 

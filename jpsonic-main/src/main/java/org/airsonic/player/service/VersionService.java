@@ -226,8 +226,7 @@ public class VersionService {
         }
     }
 
-    private final static String JSON_PATH = "$..tag_name";
-    private final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
+    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
     /**

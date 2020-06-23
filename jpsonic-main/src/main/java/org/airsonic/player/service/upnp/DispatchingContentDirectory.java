@@ -62,7 +62,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
 
-    private final int COUNT_MAX = 50;
+    private static final int COUNT_MAX = 50;
 
     private final RootUpnpProcessor rootProcessor;
     private final MediaFileUpnpProcessor mediaFileProcessor;

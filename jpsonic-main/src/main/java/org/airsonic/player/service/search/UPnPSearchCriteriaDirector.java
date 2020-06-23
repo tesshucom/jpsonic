@@ -127,7 +127,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
     };
 
-    private final List<String> UNSUPPORTED_CLASS = Arrays.asList(
+    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList(
             "object.container.album.photoAlbum",
             "object.container.playlistContainer",
             "object.container.genre",
