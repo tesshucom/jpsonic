@@ -27,7 +27,7 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.validator.UserSettingsValidator;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +84,7 @@ public class UserSettingsController {
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
                 command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
-                command.setAllowedMusicFolderIds(Util.toIntArray(getAllowedMusicFolderIds(user)));
+                command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
             } else {
                 command.setNewUser(true);
@@ -197,7 +197,7 @@ public class UserSettingsController {
         userSettings.setChanged(new Date());
         settingsService.updateUserSettings(userSettings);
 
-        List<Integer> allowedMusicFolderIds = Util.toIntegerList(command.getAllowedMusicFolderIds());
+        List<Integer> allowedMusicFolderIds = PlayerUtils.toIntegerList(command.getAllowedMusicFolderIds());
         settingsService.setMusicFoldersForUser(command.getUsername(), allowedMusicFolderIds);
     }
 

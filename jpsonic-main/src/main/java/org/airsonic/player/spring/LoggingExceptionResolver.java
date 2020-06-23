@@ -1,6 +1,6 @@
 package org.airsonic.player.spring;
 
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -23,17 +23,17 @@ public class LoggingExceptionResolver implements HandlerExceptionResolver, Order
         // This happens often and outside of the control of the server, so
         // we catch Tomcat/Jetty "connection aborted by client" exceptions
         // and display a short error message.
-        boolean shouldCatch = Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
+        boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
         if (shouldCatch) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(), Util.getAnonymizedURLForRequest(request), e.getCause().toString());
+                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(), PlayerUtils.getAnonymizedURLForRequest(request), e.getCause().toString());
             }
             return null;
         }
 
         // Display a full stack trace in all other cases
         if (LOG.isErrorEnabled()) {
-            LOG.error("{}: An exception occurred while loading {}", request.getRemoteAddr(), Util.getAnonymizedURLForRequest(request), e);
+            LOG.error("{}: An exception occurred while loading {}", request.getRemoteAddr(), PlayerUtils.getAnonymizedURLForRequest(request), e);
         }
         return null;
     }

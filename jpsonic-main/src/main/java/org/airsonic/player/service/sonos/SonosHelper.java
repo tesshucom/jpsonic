@@ -29,8 +29,8 @@ import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -629,7 +629,7 @@ public class SonosHelper {
 
     public static MediaList createSubList(int index, int count, List<? extends AbstractMedia> mediaCollections) {
         MediaList result = new MediaList();
-        List<? extends AbstractMedia> selectedMediaCollections = Util.subList(mediaCollections, index, count);
+        List<? extends AbstractMedia> selectedMediaCollections = PlayerUtils.subList(mediaCollections, index, count);
 
         result.setIndex(index);
         result.setCount(selectedMediaCollections.size());

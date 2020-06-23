@@ -4,7 +4,7 @@ import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.GenericDaoHelper;
 import org.airsonic.player.dao.LegacyHsqlDaoHelper;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -97,7 +97,7 @@ public class DatabaseConfiguration {
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
         springLiquibase.setRollbackFile(rollbackFile());
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("defaultMusicFolder", Util.getDefaultMusicFolder());
+        parameters.put("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder());
         parameters.put("mysqlVarcharLimit", mysqlVarcharLimit);
         parameters.put("userTableQuote", userTableQuote);
         springLiquibase.setChangeLogParameters(parameters);

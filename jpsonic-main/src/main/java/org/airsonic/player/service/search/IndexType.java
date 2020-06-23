@@ -36,67 +36,67 @@ public enum IndexType {
 
     SONG(
         fieldNames(
-            FieldNames.TITLE_EX,
-            FieldNames.TITLE,
-            FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_EX,
-            FieldNames.ARTIST,
-            FieldNames.COMPOSER_READING,
-            FieldNames.COMPOSER),
+            FieldNamesConstants.TITLE_EX,
+            FieldNamesConstants.TITLE,
+            FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX,
+            FieldNamesConstants.ARTIST,
+            FieldNamesConstants.COMPOSER_READING,
+            FieldNamesConstants.COMPOSER),
         boosts(
-            entry(FieldNames.TITLE_EX, 2.3F),
-            entry(FieldNames.TITLE, 2.2F),
-            entry(FieldNames.ARTIST_READING, 1.4F),
-            entry(FieldNames.ARTIST_EX, 1.3F),
-            entry(FieldNames.ARTIST, 1.2F),
-            entry(FieldNames.COMPOSER_READING, 1.1F))),
+            entry(FieldNamesConstants.TITLE_EX, 2.3F),
+            entry(FieldNamesConstants.TITLE, 2.2F),
+            entry(FieldNamesConstants.ARTIST_READING, 1.4F),
+            entry(FieldNamesConstants.ARTIST_EX, 1.3F),
+            entry(FieldNamesConstants.ARTIST, 1.2F),
+            entry(FieldNamesConstants.COMPOSER_READING, 1.1F))),
 
     ALBUM(
         fieldNames(
-            FieldNames.ALBUM_EX,
-            FieldNames.ALBUM,
-            FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_EX,
-            FieldNames.ARTIST),
+            FieldNamesConstants.ALBUM_EX,
+            FieldNamesConstants.ALBUM,
+            FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX,
+            FieldNamesConstants.ARTIST),
         boosts(
-            entry(FieldNames.ALBUM_EX, 2.3F),
-            entry(FieldNames.ALBUM, 2.3F),
-            entry(FieldNames.ARTIST_READING, 1.1F))),
+            entry(FieldNamesConstants.ALBUM_EX, 2.3F),
+            entry(FieldNamesConstants.ALBUM, 2.3F),
+            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
         fieldNames(
-            FieldNames.ALBUM_EX,
-            FieldNames.ALBUM,
-            FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_EX,
-            FieldNames.ARTIST),
+            FieldNamesConstants.ALBUM_EX,
+            FieldNamesConstants.ALBUM,
+            FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX,
+            FieldNamesConstants.ARTIST),
         boosts(
-            entry(FieldNames.ALBUM_EX, 2.3F),
-            entry(FieldNames.ALBUM, 2.3F),
-            entry(FieldNames.ARTIST_READING, 1.1F))),
+            entry(FieldNamesConstants.ALBUM_EX, 2.3F),
+            entry(FieldNamesConstants.ALBUM, 2.3F),
+            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     ARTIST(
         fieldNames(
-            FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_EX,
-            FieldNames.ARTIST),
+            FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX,
+            FieldNamesConstants.ARTIST),
         boosts(
-            entry(FieldNames.ARTIST_READING, 1.1F))),
+            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     ARTIST_ID3(
         fieldNames(
-            FieldNames.ARTIST_READING,
-            FieldNames.ARTIST_EX,
-            FieldNames.ARTIST),
+            FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX,
+            FieldNamesConstants.ARTIST),
         boosts(
-            entry(FieldNames.ARTIST_READING, 1.1F))),
+            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     GENRE(
         fieldNames(
-            FieldNames.GENRE_KEY,
-            FieldNames.GENRE),
+            FieldNamesConstants.GENRE_KEY,
+            FieldNamesConstants.GENRE),
         boosts(
-            entry(FieldNames.GENRE_KEY, 1.1F))),
+            entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
     
     ;
 

@@ -36,8 +36,8 @@ import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
@@ -1814,7 +1814,7 @@ public class SubsonicRESTController {
     public void savePlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
-        List<Integer> mediaFileIds = Util.toIntegerList(getIntParameters(request, "id"));
+        List<Integer> mediaFileIds = PlayerUtils.toIntegerList(getIntParameters(request, "id"));
         Integer current = getIntParameter(request, "current");
         Long position = getLongParameter(request, "position");
         Date changed = new Date();
@@ -2093,7 +2093,7 @@ public class SubsonicRESTController {
 
         int[] folderIds = ServletRequestUtils.getIntParameters(request, "musicFolderId");
         if (folderIds.length == 0) {
-            folderIds = Util.toIntArray(org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getAllMusicFolders()));
+            folderIds = PlayerUtils.toIntArray(org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getAllMusicFolders()));
         }
         command.setAllowedMusicFolderIds(folderIds);
 
@@ -2153,7 +2153,7 @@ public class SubsonicRESTController {
 
         int[] folderIds = ServletRequestUtils.getIntParameters(request, "musicFolderId");
         if (folderIds.length == 0) {
-            folderIds = Util.toIntArray(org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getMusicFoldersForUser(username)));
+            folderIds = PlayerUtils.toIntArray(org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getMusicFoldersForUser(username)));
         }
         command.setAllowedMusicFolderIds(folderIds);
 
