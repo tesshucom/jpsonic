@@ -292,7 +292,7 @@
 </c:choose>
 
 <table id="artistInfoTable" style="padding:2em;clear:both;display:none" class="bgcolor2 dropshadow artistInfoTable">
-    <!--
+    <%--
 	    <tr>
 	        <td rowspan="5" style="vertical-align: top">
 	            <a id="artistImageZoom" rel="zoom" href="void">
@@ -301,7 +301,7 @@
 	        </td>
 	        <td style="text-align:center"><h2>${fn:escapeXml(model.dir.name)}</h2></td>
 	    </tr>
-     -->
+     --%>
     <tr>
         <td id="artistBio" style="padding-bottom: 0.5em"></td>
     </tr>
