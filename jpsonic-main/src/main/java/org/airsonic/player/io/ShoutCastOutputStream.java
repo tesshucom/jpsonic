@@ -80,6 +80,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
+    @SuppressWarnings("lgtm")
     public void write(byte[] b, int off, int len) throws IOException {
 
         int bytesWritten = 0;
@@ -88,6 +89,16 @@ public class ShoutCastOutputStream extends OutputStream {
             // 'n' is the number of bytes to write before the next potential meta-data block.
             int n = Math.min(len - bytesWritten, ShoutCastOutputStream.META_DATA_INTERVAL - byteCount);
 
+            /*
+             * False positive for cross-site scripting at LGTM.com.
+             * (Directly writing user input to a web page, without properly sanitizing the input first.)
+             * In general, some podcast functions inherently require such processing.
+             * In this case 'client' is the Jpsonic server, not the user.
+             *
+             *  - Users can configure trusted podcast resources.
+             *  - Users can choose not to use podcast.
+             *  - Users can also use virus check tool to monitor the directory where audio files are stored.
+             */
             out.write(b, off + bytesWritten, n);
             bytesWritten += n;
             byteCount += n;
