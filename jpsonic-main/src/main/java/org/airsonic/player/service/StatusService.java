@@ -44,13 +44,13 @@ public class StatusService {
     @Autowired
     private MediaFileService mediaFileService;
 
-    private final List<TransferStatus> streamStatuses = new ArrayList<TransferStatus>();
-    private final List<TransferStatus> downloadStatuses = new ArrayList<TransferStatus>();
-    private final List<TransferStatus> uploadStatuses = new ArrayList<TransferStatus>();
-    private final List<PlayStatus> remotePlays = new ArrayList<PlayStatus>();
+    private final List<TransferStatus> streamStatuses = new ArrayList<>();
+    private final List<TransferStatus> downloadStatuses = new ArrayList<>();
+    private final List<TransferStatus> uploadStatuses = new ArrayList<>();
+    private final List<PlayStatus> remotePlays = new ArrayList<>();
 
     // Maps from player ID to latest inactive stream status.
-    private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<Integer, TransferStatus>();
+    private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<>();
 
     public synchronized TransferStatus createStreamStatus(Player player) {
         // Reuse existing status, if possible.
@@ -72,10 +72,10 @@ public class StatusService {
 
     public synchronized List<TransferStatus> getAllStreamStatuses() {
 
-        List<TransferStatus> result = new ArrayList<TransferStatus>(streamStatuses);
+        List<TransferStatus> result = new ArrayList<>(streamStatuses);
 
         // Add inactive status for those players that have no active status.
-        Set<Integer> activePlayers = new HashSet<Integer>();
+        Set<Integer> activePlayers = new HashSet<>();
         for (TransferStatus status : streamStatuses) {
             activePlayers.add(status.getPlayer().getId());
         }
@@ -89,7 +89,7 @@ public class StatusService {
     }
 
     public synchronized List<TransferStatus> getStreamStatusesForPlayer(Player player) {
-        List<TransferStatus> result = new ArrayList<TransferStatus>();
+        List<TransferStatus> result = new ArrayList<>();
         for (TransferStatus status : streamStatuses) {
             if (status.getPlayer().getId().equals(player.getId())) {
                 result.add(status);
@@ -138,14 +138,14 @@ public class StatusService {
 
     public synchronized List<PlayStatus> getPlayStatuses() {
         
-        Map<Integer, PlayStatus> result = new LinkedHashMap<Integer, PlayStatus>();
+        Map<Integer, PlayStatus> result = new LinkedHashMap<>();
         for (PlayStatus remotePlay : remotePlays) {
             if (!remotePlay.isExpired()) {
                 result.put(remotePlay.getPlayer().getId(), remotePlay);
             }
         }
 
-        List<TransferStatus> statuses = new ArrayList<TransferStatus>();
+        List<TransferStatus> statuses = new ArrayList<>();
         statuses.addAll(inactiveStreamStatuses.values());
         statuses.addAll(streamStatuses);
 

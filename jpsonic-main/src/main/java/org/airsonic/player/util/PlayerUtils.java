@@ -99,7 +99,7 @@ public final class PlayerUtils {
         if (values == null) {
             return Collections.emptyList();
         }
-        List<Integer> result = new ArrayList<Integer>(values.length);
+        List<Integer> result = new ArrayList<>(values.length);
         for (int value : values) {
             result.add(value);
         }

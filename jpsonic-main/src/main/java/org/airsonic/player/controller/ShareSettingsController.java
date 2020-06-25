@@ -111,7 +111,7 @@ public class ShareSettingsController {
     }
 
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
-        List<ShareInfo> result = new ArrayList<ShareInfo>();
+        List<ShareInfo> result = new ArrayList<>();
         User user = securityService.getCurrentUser(request);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
 

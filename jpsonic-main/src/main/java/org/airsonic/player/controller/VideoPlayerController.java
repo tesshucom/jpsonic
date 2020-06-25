@@ -86,7 +86,7 @@ public class VideoPlayerController {
 
     @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
     public static Map<String, Integer> createSkipOffsets(int durationSeconds) {
-        LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+        LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {
             result.put(StringUtil.formatDurationMSS(i), i);
         }

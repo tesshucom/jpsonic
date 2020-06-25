@@ -25,7 +25,7 @@ public class MissingTranslations {
     private static void diff(String locale1, String locale2) throws IOException {
         Properties en = new Properties();
         en.load(MissingTranslations.class.getResourceAsStream("/org/airsonic/player/i18n/ResourceBundle_" + locale1 + ".properties"));
-        SortedMap<Object,Object> enSorted = new TreeMap<Object, Object>(en);
+        SortedMap<Object,Object> enSorted = new TreeMap<>(en);
 
         Properties mk = new Properties();
         mk.load(MissingTranslations.class.getResourceAsStream("/org/airsonic/player/i18n/ResourceBundle_" + locale2 + ".properties"));

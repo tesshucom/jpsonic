@@ -64,7 +64,7 @@ public class ShareService {
     }
 
     public List<Share> getSharesForUser(User user) {
-        List<Share> result = new ArrayList<Share>();
+        List<Share> result = new ArrayList<>();
         for (Share share : getAllShares()) {
             if (user.isAdminRole() || ObjectUtils.equals(user.getUsername(), share.getUsername())) {
                 result.add(share);
@@ -82,7 +82,7 @@ public class ShareService {
     }
 
     public List<MediaFile> getSharedFiles(int id, List<MusicFolder> musicFolders) {
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
         for (String path : shareDao.getSharedFiles(id, musicFolders)) {
             try {
                 MediaFile mediaFile = mediaFileService.getMediaFile(path);

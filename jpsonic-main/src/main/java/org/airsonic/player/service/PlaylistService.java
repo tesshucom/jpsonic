@@ -152,7 +152,7 @@ public class PlaylistService {
         if (includeNotPresent) {
             return files;
         }
-        List<MediaFile> presentFiles = new ArrayList<MediaFile>(files.size());
+        List<MediaFile> presentFiles = new ArrayList<>(files.size());
         for (MediaFile file : files) {
             if (file.isPresent()) {
                 presentFiles.add(file);

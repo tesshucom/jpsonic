@@ -95,7 +95,7 @@ public class LocaleResolver implements org.springframework.web.servlet.LocaleRes
     private synchronized boolean localeExists(Locale locale) {
         // Lazily create set of locales.
         if (locales == null) {
-            locales = new HashSet<Locale>(Arrays.asList(settingsService.getAvailableLocales()));
+            locales = new HashSet<>(Arrays.asList(settingsService.getAvailableLocales()));
         }
 
         return locales.contains(locale);

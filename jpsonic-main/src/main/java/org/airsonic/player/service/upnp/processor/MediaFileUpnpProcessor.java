@@ -137,7 +137,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
         List<MusicFolder> allFolders = util.getAllMusicFolders();
-        List<MediaFile> returnValue = new ArrayList<MediaFile>();
+        List<MediaFile> returnValue = new ArrayList<>();
         if (1 == allFolders.size()) {
             returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
         } else {

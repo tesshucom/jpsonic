@@ -79,7 +79,7 @@ public class MusicIndexService {
     }
 
     private List<MediaFile> getSingleSongs(List<MusicFolder> folders, boolean refresh) {
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
         for (MusicFolder folder : folders) {
             MediaFile parent = mediaFileService.getMediaFile(folder.getPath(), !refresh);
             result.addAll(mediaFileService.getChildrenOf(parent, true, false, true, !refresh));
@@ -88,7 +88,7 @@ public class MusicIndexService {
     }
 
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFoldersToUse) {
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
         for (String shortcut : settingsService.getShortcutsAsArray()) {
             for (MusicFolder musicFolder : musicFoldersToUse) {
                 File file = new File(musicFolder.getPath(), shortcut);
@@ -156,7 +156,7 @@ public class MusicIndexService {
      * @return A list of music indexes.
      */
     protected List<MusicIndex> createIndexesFromExpression(String expr) {
-        List<MusicIndex> result = new ArrayList<MusicIndex>();
+        List<MusicIndex> result = new ArrayList<>();
 
         StringTokenizer tokenizer = new StringTokenizer(expr, " ");
         while (tokenizer.hasMoreTokens()) {

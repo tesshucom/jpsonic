@@ -140,7 +140,7 @@ public class PlayerSettingsController {
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
         List<Player> players = playerService.getAllPlayers();
-        List<Player> authorizedPlayers = new ArrayList<Player>();
+        List<Player> authorizedPlayers = new ArrayList<>();
 
         for (Player player : players) {
             // Only display authorized players.
