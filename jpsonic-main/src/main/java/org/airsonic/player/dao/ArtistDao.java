@@ -21,6 +21,7 @@ package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,9 +67,9 @@ public class ArtistDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return null;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("name", artistName);
-        args.put("folders", MusicFolder.toIdList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "name", artistName,
+                "folders", MusicFolder.toIdList(musicFolders));
 
         return namedQueryOne("select " + QUERY_COLUMNS + " from artist where name = :name and folder_id in (:folders)",
                              rowMapper, args);
@@ -137,10 +138,10 @@ public class ArtistDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "folders", MusicFolder.toIdList(musicFolders),
+                "count", count,
+                "offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS + " from artist where present and folder_id in (:folders) " +
                 "order by artist_order, reading, name limit :count offset :offset", rowMapper, args);
@@ -160,11 +161,11 @@ public class ArtistDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        args.put("username", username);
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "folders", MusicFolder.toIdList(musicFolders),
+                "username", username,
+                "count", count,
+                "offset", offset);
 
         return namedQuery("select " + prefix(QUERY_COLUMNS, "artist") + " from starred_artist, artist " +
                           "where artist.id = starred_artist.artist_id and " +

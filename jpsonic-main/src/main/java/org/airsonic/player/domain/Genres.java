@@ -20,9 +20,9 @@
 package org.airsonic.player.domain;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a list of genres.
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class Genres {
 
-    private final Map<String, Genre> genres = new HashMap<String, Genre>();
+    private final Map<String, Genre> genres = new ConcurrentHashMap<>();
 
     public void incrementAlbumCount(String genreName) {
         Genre genre = getOrCreateGenre(genreName);

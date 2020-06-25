@@ -41,9 +41,9 @@ import javax.annotation.PostConstruct;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -201,7 +201,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
             content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
             indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
             List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
-            indexesMap = new HashMap<>();
+            indexesMap = new ConcurrentHashMap<>();
             indexes.forEach(i -> indexesMap.put(i.getId(), i));
             topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
         }

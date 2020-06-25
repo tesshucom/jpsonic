@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class InternetRadioService {
@@ -76,7 +77,7 @@ public class InternetRadioService {
     }
 
     public InternetRadioService() {
-        this.cachedSources = new HashMap<>();
+        this.cachedSources = new ConcurrentHashMap<>();
     }
 
     /**

@@ -20,6 +20,7 @@
 package org.airsonic.player.service.scrobbler;
 
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
@@ -219,7 +220,7 @@ public class LastFMScrobbler {
     }
 
     private String[] registerSubmission(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a[0]", registrationData.artist);
         params.put("t[0]", registrationData.title);
@@ -234,7 +235,7 @@ public class LastFMScrobbler {
     }
 
     private String[] registerNowPlaying(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a", registrationData.artist);
         params.put("t", registrationData.title);

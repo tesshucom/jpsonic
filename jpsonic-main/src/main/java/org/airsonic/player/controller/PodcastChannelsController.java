@@ -22,7 +22,7 @@ import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
-import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,27 +49,26 @@ public class PodcastChannelsController {
     private PodcastService podcastService;
     @Autowired
     private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
 
     @GetMapping
+    @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> map = new HashMap<>();
-        ModelAndView result = new ModelAndView();
-        result.addObject("model", map);
-
         Map<PodcastChannel, List<PodcastEpisode>> channels = new LinkedHashMap<>();
-        Map<Integer, PodcastChannel> channelMap = new HashMap<>();
+        Map<Integer, PodcastChannel> channelMap = LegacyMap.of();
         for (PodcastChannel channel : podcastService.getAllChannels()) {
             channels.put(channel, podcastService.getEpisodes(channel.getId()));
             channelMap.put(channel.getId(), channel);
         }
 
-        map.put("user", securityService.getCurrentUser(request));
-        map.put("channels", channels);
-        map.put("channelMap", channelMap);
-        map.put("newestEpisodes", podcastService.getNewestEpisodes(10));
+        Map<String, Object> map = LegacyMap.of(
+                "user", securityService.getCurrentUser(request),
+                "channels", channels,
+                "channelMap", channelMap,
+                "newestEpisodes", podcastService.getNewestEpisodes(10));
+
+        ModelAndView result = new ModelAndView();
+        result.addObject("model", map);
         return result;
     }
 

@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.filter;
 
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
@@ -81,7 +81,7 @@ public class ParameterDecodingFilter implements Filter {
         @Override
         public Map<String, String[]> getParameterMap() {
             Map<String, String[]> map = super.getParameterMap();
-            Map<String, String[]> result = new HashMap<String, String[]>();
+            Map<String, String[]> result = LegacyMap.of();
 
             for (Map.Entry<String, String[]> entry : map.entrySet()) {
                 String name = entry.getKey();

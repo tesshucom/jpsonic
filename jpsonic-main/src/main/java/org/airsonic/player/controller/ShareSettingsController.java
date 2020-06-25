@@ -27,6 +27,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.ShareService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -62,12 +63,9 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("shareInfos", getShareInfos(request));
-        map.put("user", securityService.getCurrentUser(request));
-
-        model.addAttribute("model", map);
+        model.addAttribute("model", LegacyMap.of(
+                "shareInfos", getShareInfos(request),
+                "user", securityService.getCurrentUser(request)));
         return "shareSettings";
     }
 

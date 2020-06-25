@@ -45,8 +45,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -197,7 +197,7 @@ public class MediaScannerService {
         try {
 
             // Maps from artist name to album count.
-            Map<String, Integer> albumCount = new HashMap<String, Integer>();
+            Map<String, Integer> albumCount = new ConcurrentHashMap<>();
             Genres genres = new Genres();
 
             scanCount = 0;

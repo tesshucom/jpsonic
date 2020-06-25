@@ -23,6 +23,7 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -113,11 +114,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.VIDEO.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.VIDEO.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + QUERY_COLUMNS
                           + " from media_file where type = :type and present and folder in (:folders) " +
                           "order by title limit :count offset :offset", rowMapper, args);
@@ -127,10 +128,10 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return null;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.DIRECTORY.name());
-        args.put("name", name);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.DIRECTORY.name(),
+                "name", name,
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQueryOne("select " + QUERY_COLUMNS + " from media_file where type = :type and artist = :name " +
                              "and present and folder in (:folders)", rowMapper, args);
     }
@@ -290,11 +291,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS
                           + " from media_file where type = :type and play_count > 0 and present and folder in (:folders) " +
@@ -313,11 +314,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + QUERY_COLUMNS
                           + " from media_file where type = :type and last_played is not null and present " +
                           "and folder in (:folders) order by last_played desc limit :count offset :offset", rowMapper, args);
@@ -335,11 +336,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
 
         return namedQuery("select " + QUERY_COLUMNS
                           + " from media_file where type = :type and folder in (:folders) and present " +
@@ -359,11 +360,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
         String namedQuery =
                 "select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) and present " +
                 "order by media_file_order, album_reading limit :count offset :offset";
@@ -393,13 +394,13 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("fromYear", fromYear);
-        args.put("toYear", toYear);
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "fromYear", fromYear,
+                "toYear", toYear,
+                "count", count,
+                "offset", offset);
 
         if (fromYear <= toYear) {
             return namedQuery("select " + QUERY_COLUMNS
@@ -428,12 +429,12 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("genre", genre);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "genre", genre,
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + QUERY_COLUMNS + " from media_file where type = :type and folder in (:folders) " +
                           "and present and genre = :genre limit :count offset :offset", rowMapper, args);
     }
@@ -442,12 +443,12 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name()));
-        args.put("genre", genre);
-        args.put("count", count);
-        args.put("offset", offset);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name()),
+                "genre", genre,
+                "count", count,
+                "offset", offset,
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQuery("select " + QUERY_COLUMNS + " from media_file where type in (:types) and genre = :genre " +
                           "and present and folder in (:folders) limit :count offset :offset",
                           rowMapper, args);
@@ -463,11 +464,11 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty() || StringUtils.isBlank(title) || StringUtils.isBlank(artist)) {
             return null;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("artist", artist);
-        args.put("title", title);
-        args.put("type", MediaFile.MediaType.MUSIC.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "artist", artist,
+                "title", title,
+                "type", MediaFile.MediaType.MUSIC.name(),
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQueryOne("select " + QUERY_COLUMNS + " from media_file where artist = :artist " +
                              "and title = :title and type = :type and present and folder in (:folders)",
                              rowMapper, args);
@@ -487,12 +488,12 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("username", username);
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "username", username,
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + prefix(QUERY_COLUMNS, "media_file") + " from starred_media_file, media_file where media_file.id = starred_media_file.media_file_id and " +
                           "media_file.present and media_file.type = :type and media_file.folder in (:folders) and starred_media_file.username = :username " +
                           "order by starred_media_file.created desc limit :count offset :offset",
@@ -513,12 +514,12 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.DIRECTORY.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("username", username);
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.DIRECTORY.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "username", username,
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + prefix(QUERY_COLUMNS, "media_file") + " from starred_media_file, media_file " +
                           "where media_file.id = starred_media_file.media_file_id and " +
                           "media_file.present and media_file.type = :type and starred_media_file.username = :username and " +
@@ -541,12 +542,12 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()));
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("username", username);
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.VIDEO.name()),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "username", username,
+                "count", count,
+                "offset", offset);
         return namedQuery("select " + prefix(QUERY_COLUMNS, "media_file") + " from starred_media_file, media_file where media_file.id = starred_media_file.media_file_id and " +
                           "media_file.present and media_file.type in (:types) and starred_media_file.username = :username and " +
                           "media_file.folder in (:folders) " +
@@ -559,21 +560,21 @@ public class MediaFileDao extends AbstractDao {
             return Collections.emptyList();
         }
 
-        Map<String, Object> args = new HashMap<>();
-        args.put("folders", MusicFolder.toPathList(criteria.getMusicFolders()));
-        args.put("username", username);
-        args.put("fromYear", criteria.getFromYear());
-        args.put("toYear", criteria.getToYear());
-        args.put("genres", criteria.getGenres()); //TODO to be revert
-        args.put("minLastPlayed", criteria.getMinLastPlayedDate());
-        args.put("maxLastPlayed", criteria.getMaxLastPlayedDate());
-        args.put("minAlbumRating", criteria.getMinAlbumRating());
-        args.put("maxAlbumRating", criteria.getMaxAlbumRating());
-        args.put("minPlayCount", criteria.getMinPlayCount());
-        args.put("maxPlayCount", criteria.getMaxPlayCount());
-        args.put("starred", criteria.isShowStarredSongs());
-        args.put("unstarred", criteria.isShowUnstarredSongs());
-        args.put("format", criteria.getFormat());
+        Map<String, Object> args = LegacyMap.of(
+                "folders", MusicFolder.toPathList(criteria.getMusicFolders()),
+                "username", username,
+                "fromYear", criteria.getFromYear(),
+                "toYear", criteria.getToYear(),
+                "genres", criteria.getGenres(), //TODO to be revert
+                "minLastPlayed", criteria.getMinLastPlayedDate(),
+                "maxLastPlayed", criteria.getMaxLastPlayedDate(),
+                "minAlbumRating", criteria.getMinAlbumRating(),
+                "maxAlbumRating", criteria.getMaxAlbumRating(),
+                "minPlayCount", criteria.getMinPlayCount(),
+                "maxPlayCount", criteria.getMaxPlayCount(),
+                "starred", criteria.isShowStarredSongs(),
+                "unstarred", criteria.isShowUnstarredSongs(),
+                "format", criteria.getFormat());
 
         boolean joinAlbumRating = (criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null);
         boolean joinStarred = (criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs());
@@ -669,9 +670,9 @@ public class MediaFileDao extends AbstractDao {
      * @return a list of media files, sorted by id
      */
     public List<MediaFile> getFilesInNonPresentMusicFolders(final int count, List<String> excludeFolders) {
-        Map<String, Object> args = new HashMap<>();
-        args.put("excludeFolders", excludeFolders);
-        args.put("count", count);
+        Map<String, Object> args = LegacyMap.of(
+                "excludeFolders", excludeFolders,
+                "count", count);
         return namedQuery(
                 "SELECT " + prefix(QUERY_COLUMNS, "media_file") + " FROM media_file " +
                 "LEFT OUTER JOIN music_folder ON music_folder.path = media_file.folder " +
@@ -687,8 +688,8 @@ public class MediaFileDao extends AbstractDao {
      * @return a number of media file rows in the database
      */
     public int getFilesInNonPresentMusicFoldersCount(List<String> excludeFolders) {
-        Map<String, Object> args = new HashMap<>();
-        args.put("excludeFolders", excludeFolders);
+        Map<String, Object> args = LegacyMap.of(
+                "excludeFolders", excludeFolders);
         return namedQueryForInt(
                 "SELECT count(media_file.id) FROM media_file " +
                 "LEFT OUTER JOIN music_folder ON music_folder.path = media_file.folder " +
@@ -727,9 +728,9 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQueryForInt("select count(*) from media_file where type = :type and folder in (:folders) and present", 0, args);
     }
 
@@ -737,9 +738,9 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQueryForInt("select count(*) from media_file where type = :type " +
                                 "and play_count > 0 and present and folder in (:folders)", 0, args);
     }
@@ -748,10 +749,10 @@ public class MediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("username", username);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "folders", MusicFolder.toPathList(musicFolders),
+                "username", username);
         return namedQueryForInt("select count(*) from starred_media_file, media_file " +
                                 "where media_file.id = starred_media_file.media_file_id " +
                                 "and media_file.type = :type " +

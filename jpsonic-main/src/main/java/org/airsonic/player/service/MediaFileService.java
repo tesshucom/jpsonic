@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides services for instantiating and caching media files and cover art.
@@ -394,7 +395,7 @@ public class MediaFileService {
         }
 
         List<MediaFile> storedChildren = mediaFileDao.getChildrenOf(parent.getPath());
-        Map<String, MediaFile> storedChildrenMap = new HashMap<String, MediaFile>();
+        Map<String, MediaFile> storedChildrenMap = new ConcurrentHashMap<>();
         for (MediaFile child : storedChildren) {
             storedChildrenMap.put(child.getPath(), child);
         }

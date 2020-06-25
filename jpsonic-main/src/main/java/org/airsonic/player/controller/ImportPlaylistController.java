@@ -22,6 +22,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
@@ -38,7 +39,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -61,7 +61,7 @@ public class ImportPlaylistController {
     protected String handlePost(RedirectAttributes redirectAttributes,
                                 HttpServletRequest request
     ) {
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = LegacyMap.of();
 
         try {
             if (ServletFileUpload.isMultipartContent(request)) {

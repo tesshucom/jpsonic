@@ -21,11 +21,11 @@ package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,11 +50,11 @@ public class RatingDao extends AbstractDao {
             return Collections.emptyList();
         }
 
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+            "type", MediaFile.MediaType.ALBUM.name(),
+            "folders", MusicFolder.toPathList(musicFolders),
+            "count", count,
+            "offset", offset);
 
         String sql = "select user_rating.path from user_rating, media_file " +
                      "where user_rating.path=media_file.path and media_file.present and media_file.type = :type and media_file.folder in (:folders) " +
@@ -114,11 +114,10 @@ public class RatingDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("username", username);
-
+        Map<String, Object> args = LegacyMap.of(
+            "type", MediaFile.MediaType.ALBUM.name(),
+            "folders", MusicFolder.toPathList(musicFolders),
+            "username", username);
         return namedQueryForInt("select count(*) from user_rating, media_file " +
                                 "where media_file.path = user_rating.path " +
                                 "and media_file.type = :type " +

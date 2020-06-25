@@ -23,6 +23,7 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.*;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,8 +67,6 @@ public class ExternalPlayerController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        Map<String, Object> map = new HashMap<>();
-
         String shareName = ControllerUtils.extractMatched(request);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Share name is {}", shareName);
@@ -98,10 +97,9 @@ public class ExternalPlayerController {
 
         Player player = playerService.getGuestPlayer(request);
 
-        map.put("share", share);
-        map.put("songs", getSongs(request, share, player));
-
-        return new ModelAndView("externalPlayer", "model", map);
+        return new ModelAndView("externalPlayer", "model", LegacyMap.of(
+                "share", share,
+                "songs", getSongs(request, share, player)));
     }
 
     private List<MediaFileWithUrlInfo> getSongs(HttpServletRequest request, Share share, Player player) {

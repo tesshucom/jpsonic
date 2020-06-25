@@ -38,6 +38,7 @@ import java.util.*;
  * @see TransferStatus
  */
 @Service
+@SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
 public class StatusService {
 
     @Autowired
@@ -136,6 +137,7 @@ public class StatusService {
     }
 
     public synchronized List<PlayStatus> getPlayStatuses() {
+        
         Map<Integer, PlayStatus> result = new LinkedHashMap<Integer, PlayStatus>();
         for (PlayStatus remotePlay : remotePlays) {
             if (!remotePlay.isExpired()) {

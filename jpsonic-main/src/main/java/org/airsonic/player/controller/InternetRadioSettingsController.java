@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -33,7 +34,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,11 +51,8 @@ public class InternetRadioSettingsController {
 
     @GetMapping
     public String doGet(Model model) {
-
-        Map<String, Object> map = new HashMap<>();
-
+        Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", settingsService.getAllInternetRadios(true));
-
         model.addAttribute("model", map);
         return "internetRadioSettings";
     }

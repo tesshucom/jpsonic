@@ -23,11 +23,11 @@ import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,8 +70,7 @@ public class JArtistDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("folders", MusicFolder.toIdList(musicFolders));
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
         return namedQueryForInt(// @formatter:off
                 "select count(id) from artist " +
                 "where present and folder_id in (:folders)", 0, args);
@@ -81,9 +80,9 @@ public class JArtistDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
-        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of(
+                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(// @formatter:off
                 "select id from artist " +
                 "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",

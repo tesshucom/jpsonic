@@ -23,6 +23,7 @@ import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.FileUtil;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,7 +51,6 @@ public class StatusController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
 
         List<TransferStatus> streamStatuses = statusService.getAllStreamStatuses();
         List<TransferStatus> downloadStatuses = statusService.getAllDownloadStatuses();
@@ -72,11 +72,10 @@ public class StatusController {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
 
-        map.put("transferStatuses", transferStatuses);
-        map.put("chartWidth", StatusChartController.IMAGE_WIDTH);
-        map.put("chartHeight", StatusChartController.IMAGE_HEIGHT);
-
-        return new ModelAndView("status","model",map);
+        return new ModelAndView("status", "model", LegacyMap.of(
+                "transferStatuses", transferStatuses,
+                "chartWidth", StatusChartController.IMAGE_WIDTH,
+                "chartHeight", StatusChartController.IMAGE_HEIGHT));
     }
 
 

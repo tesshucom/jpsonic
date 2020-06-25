@@ -25,6 +25,7 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,8 +271,7 @@ public class RandomPlayQueueController {
         List<ReloadFrame> reloadFrames = new ArrayList<>();
         reloadFrames.add(new ReloadFrame("playQueue", "playQueue.view?"));
         reloadFrames.add(new ReloadFrame("main", "more.view"));
-        Map<String, Object> map = new HashMap<>();
-        map.put("reloadFrames", reloadFrames);
+        Map<String, Object> map = LegacyMap.of("reloadFrames", reloadFrames);
         model.addAttribute("model", map);
         return "reload";
     }

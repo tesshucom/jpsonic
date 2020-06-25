@@ -24,6 +24,7 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -84,12 +85,7 @@ public class PodcastController {
             podcasts.add(new Podcast(playlist.getName(), publishDate, enclosureUrl, length, type));
         }
 
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("url", url);
-        map.put("podcasts", podcasts);
-
-        return new ModelAndView("podcast","model",map);
+        return new ModelAndView("podcast", "model", LegacyMap.of("url", url, "podcasts", podcasts));
     }
 
 
