@@ -564,7 +564,7 @@ public class CoverArtController implements LastModified {
         }
 
         private List<MediaFile> getRepresentativeAlbums() {
-            Set<MediaFile> albums = new LinkedHashSet<MediaFile>();
+            Set<MediaFile> albums = new LinkedHashSet<>();
             for (MediaFile song : playlistService.getFilesInPlaylist(playlist.getId())) {
                 MediaFile album = mediaFileService.getParentOf(song);
                 if (album != null && !mediaFileService.isRoot(album)) {

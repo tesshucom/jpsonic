@@ -99,7 +99,7 @@ public class ParameterDecodingFilter implements Filter {
         @Override
         public Enumeration<String> getParameterNames() {
             Enumeration<String> e = super.getParameterNames();
-            Vector<String> v = new Vector<String>();
+            Vector<String> v = new Vector<>();
             while (e.hasMoreElements()) {
                 String name = e.nextElement();
                 if (name.endsWith(PARAM_SUFFIX)) {

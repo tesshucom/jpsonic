@@ -76,7 +76,7 @@ public class MultiService {
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
-        List<TopSong> result = new ArrayList<TopSong>();
+        List<TopSong> result = new ArrayList<>();
         List<MediaFile> files = lastFmService.getTopSongs(mediaFile, limit, musicFolders);
         mediaFileService.populateStarredDate(files, username);
         for (MediaFile file : files) {

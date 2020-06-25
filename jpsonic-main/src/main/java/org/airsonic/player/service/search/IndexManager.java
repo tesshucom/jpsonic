@@ -576,7 +576,7 @@ public class IndexManager {
                 return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
             }
             synchronized (multiGenreMaster) {
-                List<Genre> albumGenres = new ArrayList<Genre>();
+                List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
@@ -589,7 +589,7 @@ public class IndexManager {
                 return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
             }
             synchronized (multiGenreMaster) {
-                List<Genre> albumGenres = new ArrayList<Genre>();
+                List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
@@ -630,7 +630,7 @@ public class IndexManager {
                     }
                     List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
 
-                    List<Genre> genres = new ArrayList<Genre>();
+                    List<Genre> genres = new ArrayList<>();
                     for (String genreName : genreNames) {
                         Query query = queryFactory.getGenre(genreName);
                         TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
@@ -643,7 +643,7 @@ public class IndexManager {
                     genres.sort(comparators.genreOrder(false));
                     multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
 
-                    List<Genre> genresByAlbum = new ArrayList<Genre>();
+                    List<Genre> genresByAlbum = new ArrayList<>();
                     genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(g -> genresByAlbum.add(g));
                     genresByAlbum.sort(comparators.genreOrder(true));
                     multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);

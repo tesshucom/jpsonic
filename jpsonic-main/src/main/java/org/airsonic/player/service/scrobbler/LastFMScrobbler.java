@@ -56,7 +56,7 @@ public class LastFMScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
 
     private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<RegistrationData>();
+    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
     private final RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(15000)
             .setSocketTimeout(15000)
@@ -257,7 +257,7 @@ public class LastFMScrobbler {
     }
 
     private String[] executePostRequest(String url, Map<String, String> parameters) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }

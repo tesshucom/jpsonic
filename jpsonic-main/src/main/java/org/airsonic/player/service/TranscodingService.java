@@ -356,7 +356,7 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = new LinkedList<String>(Arrays.asList(StringUtil.split(command)));
+        List<String> result = new LinkedList<>(Arrays.asList(StringUtil.split(command)));
         result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
 
         File tmpFile = null;
@@ -424,7 +424,7 @@ public class TranscodingService {
             return null;
         }
 
-        List<Transcoding> applicableTranscodings = new LinkedList<Transcoding>();
+        List<Transcoding> applicableTranscodings = new LinkedList<>();
         String suffix = mediaFile.getFormat();
 
         // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is

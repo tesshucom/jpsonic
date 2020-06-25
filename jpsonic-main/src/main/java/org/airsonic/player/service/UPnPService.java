@@ -222,7 +222,7 @@ public class UPnPService {
 
     public List<String> getSonosControllerHosts() {
         ensureServiceStarted();
-        List<String> result = new ArrayList<String>();
+        List<String> result = new ArrayList<>();
         for (Device device : upnpService.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
             if (device instanceof RemoteDevice) {
                 URL descriptorURL = ((RemoteDevice) device).getIdentity().getDescriptorURL();

@@ -47,7 +47,7 @@ public class ListenBrainzScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
 
     private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<RegistrationData>();
+    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
     private final RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(15000)
             .setSocketTimeout(15000)

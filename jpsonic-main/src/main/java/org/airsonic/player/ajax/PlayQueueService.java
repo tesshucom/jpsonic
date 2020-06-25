@@ -333,7 +333,7 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
         List<PodcastEpisode> episodes = podcastService.getEpisodes(id);
-        List<MediaFile> files = new ArrayList<MediaFile>();
+        List<MediaFile> files = new ArrayList<>();
         for (PodcastEpisode episode : episodes) {
             if (episode.getStatus() == PodcastStatus.COMPLETED) {
                 MediaFile mediaFile = mediaFileService.getMediaFile(episode.getMediaFileId());
@@ -352,7 +352,7 @@ public class PlayQueueService {
 
         PodcastEpisode episode = podcastService.getEpisode(id, false);
         List<PodcastEpisode> allEpisodes = podcastService.getEpisodes(episode.getChannelId());
-        List<MediaFile> files = new ArrayList<MediaFile>();
+        List<MediaFile> files = new ArrayList<>();
 
         String username = securityService.getCurrentUsername(request);
         boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();
@@ -436,7 +436,7 @@ public class PlayQueueService {
             albums = Collections.emptyList();
         }
 
-        List<MediaFile> songs = new ArrayList<MediaFile>();
+        List<MediaFile> songs = new ArrayList<>();
         for (MediaFile album : albums) {
             songs.addAll(mediaFileService.getChildrenOf(album, true, false, false));
         }
@@ -516,7 +516,7 @@ public class PlayQueueService {
      *                   otherwise, append the media files at the end of the play queue
      */
     public PlayQueue addMediaFilesToPlayQueue(PlayQueue playQueue,int[] ids, Integer addAtIndex, boolean removeVideoFiles) {
-        List<MediaFile> files = new ArrayList<MediaFile>(ids.length);
+        List<MediaFile> files = new ArrayList<>(ids.length);
         for (int id : ids) {
             MediaFile ancestor = mediaFileService.getMediaFile(id);
             files.addAll(mediaFileService.getDescendantsOf(ancestor, true));

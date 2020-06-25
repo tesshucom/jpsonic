@@ -178,7 +178,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
         if (offset < getItemCount()) {
             int count = min((int) (offset + maxResults), getItemCount());
             for (int i = (int) offset; i < count; i++) {

@@ -52,7 +52,7 @@ public class MusicIndexServiceUtils {
     }
 
     public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
-        List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
+        List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (Artist artist : artists) {
@@ -65,8 +65,8 @@ public class MusicIndexServiceUtils {
     public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
-        SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
-        Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
+        SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();
+        Set<String> shortcutSet = new HashSet<>(Arrays.asList(shortcuts));
 
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {

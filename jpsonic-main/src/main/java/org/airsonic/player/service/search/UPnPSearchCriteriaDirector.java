@@ -365,7 +365,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
         final String subject = children.get(0).getText();
         final String complement = children.get(2).getText();
-        List<String> fieldName = new ArrayList<String>();
+        List<String> fieldName = new ArrayList<>();
 
         if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {

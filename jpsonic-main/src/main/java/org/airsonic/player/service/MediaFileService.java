@@ -204,7 +204,7 @@ public class MediaFileService {
             updateChildren(parent);
         }
 
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
         for (MediaFile child : mediaFileDao.getChildrenOf(parent.getPath())) {
             child = checkLastModified(child, useFastCache);
             if (child.isDirectory() && includeDirectories && includeMediaFile(child)) {
@@ -432,7 +432,7 @@ public class MediaFileService {
     }
 
     public List<File> filterMediaFiles(File[] candidates) {
-        List<File> result = new ArrayList<File>();
+        List<File> result = new ArrayList<>();
         for (File candidate : candidates) {
             if (includeMediaFile(candidate)) {
                 result.add(candidate);
@@ -692,7 +692,7 @@ public class MediaFileService {
             return Arrays.asList(ancestor);
         }
 
-        List<MediaFile> result = new ArrayList<MediaFile>();
+        List<MediaFile> result = new ArrayList<>();
 
         for (MediaFile child : getChildrenOf(ancestor, true, true, sort)) {
             if (child.isDirectory()) {

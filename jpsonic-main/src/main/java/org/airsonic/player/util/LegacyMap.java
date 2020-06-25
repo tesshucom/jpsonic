@@ -66,7 +66,7 @@ public class LegacyMap {
     }
 
     public static <K, V> java.util.Map<K, V> of(K key, V value) {
-        java.util.Map<K, V> result = new HashMap<K, V>(1);
+        java.util.Map<K, V> result = new HashMap<>(1);
         @SuppressWarnings("unchecked")
         K k = (K) key;
         @SuppressWarnings("unchecked")
@@ -79,7 +79,7 @@ public class LegacyMap {
         if ((input.length & 1) != 0) {
             throw new InternalError("length is odd");
         }
-        java.util.Map<K, V> result = new HashMap<K, V>(input.length);
+        java.util.Map<K, V> result = new HashMap<>(input.length);
         for (int i = 0; i < input.length; i += 2) {
             @SuppressWarnings("unchecked")
             K k = (K) input[i];

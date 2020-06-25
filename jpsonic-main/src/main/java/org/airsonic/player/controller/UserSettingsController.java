@@ -117,7 +117,7 @@ public class UserSettingsController {
     }
 
     private List<Integer> getAllowedMusicFolderIds(User user) {
-        List<Integer> result = new ArrayList<Integer>();
+        List<Integer> result = new ArrayList<>();
         List<MusicFolder> allowedMusicFolders = user == null
                                                 ? settingsService.getAllMusicFolders()
                                                 : settingsService.getMusicFoldersForUser(user.getUsername());

@@ -978,7 +978,7 @@ public class SubsonicRESTController {
             playlistService.createPlaylist(playlist);
         }
 
-        List<MediaFile> songs = new ArrayList<MediaFile>();
+        List<MediaFile> songs = new ArrayList<>();
         for (int id : getIntParameters(request, "songId")) {
             MediaFile song = mediaFileService.getMediaFile(id);
             if (song != null) {
@@ -1034,11 +1034,11 @@ public class SubsonicRESTController {
         List<MediaFile> songs = playlistService.getFilesInPlaylist(id);
         boolean songsChanged = false;
 
-        SortedSet<Integer> tmp = new TreeSet<Integer>();
+        SortedSet<Integer> tmp = new TreeSet<>();
         for (int songIndexToRemove : getIntParameters(request, "songIndexToRemove")) {
             tmp.add(songIndexToRemove);
         }
-        List<Integer> songIndexesToRemove = new ArrayList<Integer>(tmp);
+        List<Integer> songIndexesToRemove = new ArrayList<>(tmp);
         Collections.reverse(songIndexesToRemove);
         for (Integer songIndexToRemove : songIndexesToRemove) {
             songs.remove(songIndexToRemove.intValue());
@@ -1864,7 +1864,7 @@ public class SubsonicRESTController {
             return;
         }
 
-        List<MediaFile> files = new ArrayList<MediaFile>();
+        List<MediaFile> files = new ArrayList<>();
         for (int id : getRequiredIntParameters(request, "id")) {
             files.add(mediaFileService.getMediaFile(id));
         }

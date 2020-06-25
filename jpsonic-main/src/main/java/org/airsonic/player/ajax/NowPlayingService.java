@@ -100,7 +100,7 @@ public class NowPlayingService {
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String url = NetworkService.getBaseUrl(request);
-        List<NowPlayingInfo> result = new ArrayList<NowPlayingInfo>();
+        List<NowPlayingInfo> result = new ArrayList<>();
         for (PlayStatus status : playStatuses) {
 
             Player player = status.getPlayer();
