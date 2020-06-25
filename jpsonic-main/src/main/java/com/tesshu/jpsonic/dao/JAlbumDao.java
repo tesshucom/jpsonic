@@ -23,11 +23,11 @@ import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,9 +66,7 @@ public class JAlbumDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("artist", artist);
-        args.put("folders", MusicFolder.toIdList(musicFolders));
+        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
         return namedQueryForInt(// @formatter:off
                 "select count(id) from album " +
                 "where artist = :artist and present and folder_id in (:folders)", 0, args);
@@ -79,11 +77,11 @@ public class JAlbumDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("artist", artist);
-        args.put("folders", MusicFolder.toIdList(musicFolders));
-        args.put("offset", offset);
-        args.put("count", count);
+        Map<String, Object> args = LegacyMap.of(
+                "artist", artist,
+                "folders", MusicFolder.toIdList(musicFolders),
+                "offset", offset,
+                "count", count);
         return namedQuery(// @formatter:off
                 "select " + deligate.getQueryColoms() + " from album " +
                 "where artist = :artist and present and folder_id in (:folders) " +
@@ -104,9 +102,9 @@ public class JAlbumDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
-        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of(
+                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(// @formatter:off
                 "select id from album " +
                 "where present and name in (:names) " +
@@ -120,9 +118,9 @@ public class JAlbumDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
-        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of(
+                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(// @formatter:off
                 "select id from album " +
                 "where present and artist in (:names) " +

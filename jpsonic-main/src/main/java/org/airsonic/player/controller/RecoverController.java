@@ -4,6 +4,7 @@ import de.triology.recaptchav2java.ReCaptcha;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,7 +49,7 @@ public class RecoverController {
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils.trimToNull(request.getParameter("usernameOrEmail"));
 
         if (usernameOrEmail != null) {

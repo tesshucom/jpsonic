@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -30,9 +31,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the "Podcast channel" page.
@@ -51,16 +49,12 @@ public class PodcastChannelController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        Map<String, Object> map = new HashMap<>();
-        ModelAndView result = new ModelAndView();
-        result.addObject("model", map);
-
         int channelId = ServletRequestUtils.getRequiredIntParameter(request, "id");
 
-        map.put("user", securityService.getCurrentUser(request));
-        map.put("channel", podcastService.getChannel(channelId));
-        map.put("episodes", podcastService.getEpisodes(channelId));
-        return result;
+        return new ModelAndView("model", LegacyMap.of(
+                "user", securityService.getCurrentUser(request),
+                "channel", podcastService.getChannel(channelId),
+                "episodes", podcastService.getEpisodes(channelId)));
     }
 
 }

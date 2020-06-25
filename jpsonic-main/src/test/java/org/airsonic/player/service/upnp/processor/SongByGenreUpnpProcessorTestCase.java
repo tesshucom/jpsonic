@@ -22,6 +22,7 @@ import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.airsonic.player.util.LegacyMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -72,7 +72,7 @@ public class SongByGenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
     @Test
     public void testGetItems() {
 
-        Map<String, Genre> c = new HashMap<>();
+        Map<String, Genre> c = LegacyMap.of();
 
         List<Genre> items = SongByGenreUpnpProcessor.getItems(0, 10);
         items.stream().filter(g -> !c.containsKey(g.getName())).forEach(g -> c.put(g.getName(), g));
@@ -104,7 +104,7 @@ public class SongByGenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         assertEquals(1, artists.size());
         // assertEquals("A;B;C", artists.get(0).getName());
 
-        Map<String, MediaFile> c = new HashMap<>();
+        Map<String, MediaFile> c = LegacyMap.of();
 
         List<MediaFile> children = SongByGenreUpnpProcessor.getChildren(artists.get(0), 0, 10);
         children.stream().filter(m -> !c.containsKey(m.getGenre())).forEach(m -> c.put(m.getGenre(), m));

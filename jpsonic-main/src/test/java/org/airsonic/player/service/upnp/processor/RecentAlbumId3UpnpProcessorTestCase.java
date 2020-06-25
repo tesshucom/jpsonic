@@ -21,6 +21,7 @@ package org.airsonic.player.service.upnp.processor;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.airsonic.player.util.LegacyMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -75,7 +75,7 @@ public class RecentAlbumId3UpnpProcessorTestCase extends AbstractAirsonicHomeTes
         // processor.getItems(0, 30).forEach(a -> System.out.println(a.getName()));
         // processor.getItems(30, 30).forEach(a -> System.out.println(a.getName()));
 
-        Map<Integer, Album> c = new HashMap<>();
+        Map<Integer, Album> c = LegacyMap.of();
 
         List<Album> items = processor.getItems(0, 10);
         items.stream().filter(m -> !c.containsKey(m.getId())).forEach(m -> c.put(m.getId(), m));

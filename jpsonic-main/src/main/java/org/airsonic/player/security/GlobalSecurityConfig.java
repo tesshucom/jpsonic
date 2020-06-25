@@ -3,6 +3,7 @@ package org.airsonic.player.security;
 import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import java.security.SecureRandom;
-import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -99,8 +99,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         PasswordEncoder defaultEncoder = NoOpPasswordEncoder.getInstance();
         String defaultIdForEncode = "noop";
 
-        Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put(defaultIdForEncode, defaultEncoder);
+        Map<String, PasswordEncoder> encoders = LegacyMap.of(defaultIdForEncode, defaultEncoder);
         DelegatingPasswordEncoder passworEncoder = new DelegatingPasswordEncoder(defaultIdForEncode, encoders);
         passworEncoder.setDefaultPasswordEncoderForMatches(defaultEncoder);
 

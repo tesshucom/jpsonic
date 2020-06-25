@@ -35,9 +35,9 @@ import org.springframework.util.ObjectUtils;
 import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
@@ -86,8 +86,8 @@ public class JapaneseReadingUtils {
     private final SettingsService settingsService;
 
     private final Tokenizer tokenizer = new Tokenizer();
-    private Map<String, String> readingMap = new HashMap<>();
-    private Map<String, String> truncatedReadingMap = new HashMap<>();
+    private Map<String, String> readingMap = new ConcurrentHashMap<>();
+    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
     private List<String> ignoredArticles;
 
     public JapaneseReadingUtils(SettingsService settingsService) {

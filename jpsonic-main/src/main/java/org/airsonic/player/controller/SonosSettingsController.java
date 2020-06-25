@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.SonosService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,9 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the page used to administrate the Sonos music service settings.
@@ -52,13 +50,9 @@ public class SonosSettingsController {
 
     @GetMapping
     public String doGet(Model model) {
-
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        map.put("sonosEnabled", settingsService.isSonosEnabled());
-        map.put("sonosServiceName", settingsService.getSonosServiceName());
-
-        model.addAttribute("model", map);
+        model.addAttribute("model", LegacyMap.of(
+                "sonosEnabled", settingsService.isSonosEnabled(),
+                "sonosServiceName", settingsService.getSonosServiceName()));
         return "sonosSettings";
     }
 

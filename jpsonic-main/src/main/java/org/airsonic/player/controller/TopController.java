@@ -24,6 +24,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the top frame.
@@ -51,14 +49,13 @@ public class TopController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
-        Map<String, Object> map = new HashMap<>();
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
-        map.put("user", user);
-        map.put("showSideBar", userSettings.isShowSideBar());
-        map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
-        return new ModelAndView("top","model", map);
+        return new ModelAndView("top","model", LegacyMap.of(
+                "user", user,
+                "showSideBar", userSettings.isShowSideBar(),
+                "showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE));
     }
 }

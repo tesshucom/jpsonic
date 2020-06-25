@@ -22,6 +22,7 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -30,9 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for the playlists page.
@@ -51,13 +50,9 @@ public class PlaylistsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        Map<String, Object> map = new HashMap<>();
-
         User user = securityService.getCurrentUser(request);
         List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
-
-        map.put("playlists", playlists);
-        model.addAttribute("model", map);
+        model.addAttribute("model", LegacyMap.of("playlists", playlists));
         return "playlists";
     }
 

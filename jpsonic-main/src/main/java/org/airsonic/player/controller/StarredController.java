@@ -25,6 +25,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,9 +36,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for showing a user's starred items.
@@ -61,7 +60,6 @@ public class StarredController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, Object> map = new HashMap<>();
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
@@ -81,16 +79,16 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        map.put("user", user);
-        map.put("partyModeEnabled", userSettings.isPartyModeEnabled());
-        map.put("visibility", userSettings.getMainVisibility());
-        map.put("player", playerService.getPlayer(request, response));
-        map.put("coverArtSize", CoverArtScheme.MEDIUM.getSize());
-        map.put("artists", artists);
-        map.put("albums", albums);
-        map.put("songs", songs);
-        map.put("videos", videos);
-        return new ModelAndView("starred","model",map);
+        return new ModelAndView("starred", "model", LegacyMap.of(
+                "user", user,
+                "partyModeEnabled", userSettings.isPartyModeEnabled(),
+                "visibility", userSettings.getMainVisibility(),
+                "player", playerService.getPlayer(request, response),
+                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
+                "artists", artists,
+                "albums", albums,
+                "songs", songs,
+                "videos", videos));
     }
 
 }

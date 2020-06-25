@@ -48,10 +48,10 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -251,7 +251,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             }
             indexCache.put(new Element(IndexCacheKey.ID3, content));
             topNodes = content.getIndex().stream().map(i -> new Id3(i)).collect(toList());
-            indexesMap = new HashMap<>();
+            indexesMap = new ConcurrentHashMap<>();
             topNodes.forEach(i -> indexesMap.put(i.getId(), i));
         }
     }

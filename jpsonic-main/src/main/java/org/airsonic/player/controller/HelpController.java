@@ -22,6 +22,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +64,7 @@ public class HelpController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
 
         if (versionService.isNewFinalVersionAvailable()) {
             map.put("newVersionAvailable", true);

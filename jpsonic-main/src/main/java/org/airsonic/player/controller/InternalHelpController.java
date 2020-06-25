@@ -31,6 +31,7 @@ import org.airsonic.player.service.VersionService;
 import org.airsonic.player.service.search.AnalyzerFactory;
 import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.lucene.analysis.Analyzer;
@@ -204,7 +205,7 @@ public class InternalHelpController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
 
         if (versionService.isNewFinalVersionAvailable()) {
             map.put("newVersionAvailable", true);

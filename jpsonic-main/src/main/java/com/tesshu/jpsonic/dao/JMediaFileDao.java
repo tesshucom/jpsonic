@@ -24,6 +24,7 @@ import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -72,12 +73,12 @@ public class JMediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.ALBUM.name());
-        args.put("genres", genres);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
-        args.put("count", count);
-        args.put("offset", offset);
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.ALBUM.name(),
+                "genres", genres,
+                "folders", MusicFolder.toPathList(musicFolders),
+                "count", count,
+                "offset", offset);
         return namedQuery(// @formatter:off
                 "select " + getQueryColoms() + " from media_file " +
                 "where type = :type and folder in (:folders) and present and genre in (:genres) " +
@@ -92,9 +93,9 @@ public class JMediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", MediaFile.MediaType.DIRECTORY.name());
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "type", MediaFile.MediaType.DIRECTORY.name(),
+                "folders", MusicFolder.toPathList(musicFolders));
         return namedQuery(// @formatter:off
                 "select " + getQueryColoms() + " from media_file " +
                 "where type = :type and folder in (:folders) and present and artist is not null",
@@ -153,9 +154,9 @@ public class JMediaFileDao extends AbstractDao {
      * Takes a single argument because UNNEST is not available.
      */
     public List<MediaFile> getDirtySorts(SortCandidate candidates) {
-        Map<String, Object> args = new HashMap<>();
-        args.put("name", candidates.getName());
-        args.put("sort", candidates.getSort());
+        Map<String, Object> args = LegacyMap.of(
+                "name", candidates.getName(),
+                "sort", candidates.getSort());
         // @formatter:off
         return namedQuery(
                 "select " + getQueryColoms() + " from media_file " +
@@ -219,11 +220,11 @@ public class JMediaFileDao extends AbstractDao {
 
         List<Integer> randomRownum = randomCallback.apply(countAll, limit);
 
-        Map<String, Object> args = new HashMap<>();
-        args.put("type", type);
-        args.put("artist", albumArtist);
-        args.put("randomRownum", randomRownum);
-        args.put("limit", limit);
+        Map<String, Object> args = LegacyMap.of(
+                "type", type,
+                "artist", albumArtist,
+                "randomRownum", randomRownum,
+                "limit", limit);
 
         /*
          * Perform a conditional search and add a row number.
@@ -254,7 +255,7 @@ public class JMediaFileDao extends AbstractDao {
                 "where foo.irownum in ( :randomRownum ) limit :limit ", iRowMapper, args);
 
         /* Restore the order lost in IN. */
-        Map<Integer, MediaFile> map = new HashMap<>();
+        Map<Integer, MediaFile> map = LegacyMap.of();
         tmpResult.forEach(m -> map.put(m.getRownum(), m));
         List<MediaFile> result = new ArrayList<>();
         randomRownum.forEach(i -> {
@@ -271,12 +272,12 @@ public class JMediaFileDao extends AbstractDao {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name()));
-        args.put("genres", genres);
-        args.put("count", count);
-        args.put("offset", offset);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of(
+                "types", Arrays.asList(MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.PODCAST.name(), MediaFile.MediaType.AUDIOBOOK.name()),
+                "genres", genres,
+                "count", count,
+                "offset", offset,
+                "folders", MusicFolder.toPathList(musicFolders));
         // @formatter:off
         return namedQuery("select " + prefix(getQueryColoms(), "s") + " from media_file s " +
                           "join media_file al on s.parent_path = al.path " + 
@@ -321,9 +322,9 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
-        Map<String, Object> args = new HashMap<>();
-        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
-        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of(
+                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(// @formatter:off
                 "select distinct id from media_file " +
                 "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  " +
@@ -336,9 +337,9 @@ public class JMediaFileDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("names", candidates.stream().map(c -> c.getName()).collect(toList()));
-        args.put("sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of(
+                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(// @formatter:off
                 "select distinct id " +
                 "from (select id " +
