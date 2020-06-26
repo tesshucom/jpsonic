@@ -96,13 +96,13 @@ public class HLSController {
         response.setContentType("application/vnd.apple.mpegurl");
         response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
         List<Pair<Integer, Dimension>> bitRates = parseBitRates(request);
-        PrintWriter writer = response.getWriter();
-        if (bitRates.size() > 1) {
-            generateVariantPlaylist(request, id, player, bitRates, writer);
-        } else {
-            generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+        try (PrintWriter writer = response.getWriter()) {
+            if (bitRates.size() > 1) {
+                generateVariantPlaylist(request, id, player, bitRates, writer);
+            } else {
+                generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+            }
         }
-
         return;
     }
 

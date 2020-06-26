@@ -78,10 +78,11 @@ public class PlaylistServiceTestExport {
         when(mediaFileDao.getFilesInPlaylist(eq(23))).thenReturn(getPlaylistFiles());
         when(settingsService.getPlaylistExportFormat()).thenReturn("m3u");
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        playlistService.exportPlaylist(23, outputStream);
-        String actual = outputStream.toString();
-        Assert.assertEquals(IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u")), actual);
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            playlistService.exportPlaylist(23, outputStream);
+            String actual = outputStream.toString();
+            Assert.assertEquals(IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u")), actual);
+        }
     }
 
     private List<MediaFile> getPlaylistFiles() {

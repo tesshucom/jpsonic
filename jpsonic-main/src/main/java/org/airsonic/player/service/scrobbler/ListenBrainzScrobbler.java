@@ -171,7 +171,8 @@ public class ListenBrainzScrobbler {
         return true;
     }
 
-    private boolean executeJsonPostRequest(String url, String token, String json) throws ClientProtocolException, IOException {
+    private boolean executeJsonPostRequest(String url, String token, String json)
+            throws ClientProtocolException, IOException {
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(json, "UTF-8"));
         request.setHeader("Authorization", "token " + token);
@@ -182,8 +183,9 @@ public class ListenBrainzScrobbler {
     }
 
     private void executeRequest(HttpUriRequest request) throws ClientProtocolException, IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        client.execute(request);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            client.execute(request);
+        }
     }
 
     private class RegistrationThread extends Thread {

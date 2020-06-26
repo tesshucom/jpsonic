@@ -279,6 +279,7 @@ public class CoverArtController implements LastModified {
      * Returns an input stream to the image in the given file.  If the file is an audio file,
      * the embedded album art is returned. In addition returns the mime type
      */
+    @SuppressWarnings("PMD.CloseResource") // tryWithResource is used in all of the paths
     private Pair<InputStream, String> getImageInputStreamWithType(File file) throws IOException {
         InputStream is;
         String mimeType;

@@ -17,6 +17,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.nio.charset.Charset;
@@ -57,21 +58,18 @@ public class RegisterPrecompiledJSPInitializer implements ServletContextInitiali
     }
 
     private static WebApp parseXmlFragment() {
-        InputStream precompiledJspWebXml = RegisterPrecompiledJSPInitializer.class.getResourceAsStream("/precompiled-jsp-web.xml");
-        InputStream webXmlIS = new SequenceInputStream(
-                new SequenceInputStream(
-                        IOUtils.toInputStream("<web-app>", Charset.defaultCharset()),
-                        precompiledJspWebXml),
-                IOUtils.toInputStream("</web-app>", Charset.defaultCharset()));
-
-        try {
+        try (InputStream precompiledJspWebXml = RegisterPrecompiledJSPInitializer.class
+                .getResourceAsStream("/precompiled-jsp-web.xml")) {
             JAXBContext jaxbContext = new JAXBDataBinding(WebApp.class).getContext();
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-            WebApp webapp = (WebApp) unmarshaller.unmarshal(webXmlIS);
-            try {
-                webXmlIS.close();
-            } catch (java.io.IOException ignored) {}
-            return webapp;
+            try (InputStream webXmlIS = new SequenceInputStream(
+                    new SequenceInputStream(IOUtils.toInputStream("<web-app>", Charset.defaultCharset()),
+                            precompiledJspWebXml),
+                    IOUtils.toInputStream("</web-app>", Charset.defaultCharset()))) {
+                return (WebApp) unmarshaller.unmarshal(webXmlIS);
+            }
+        } catch (IOException e) {
+            throw new CompletionException("Could not close stream.", e);
         } catch (JAXBException e) {
             throw new CompletionException("Could not parse precompiled-jsp-web.xml", e);
         }

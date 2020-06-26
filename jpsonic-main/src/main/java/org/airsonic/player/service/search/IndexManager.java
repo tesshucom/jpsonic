@@ -333,6 +333,7 @@ public class IndexManager {
      * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data.
      * On invalid indices, returns null.
      */
+    @SuppressWarnings("PMD.CloseResource") // Should not be closed
     public @Nullable MediaLibraryStatistics getStatistics() {
         MediaLibraryStatistics stats = null;
         for (IndexType indexType : IndexType.values()) {
@@ -369,6 +370,8 @@ public class IndexManager {
                     LOG.debug("Exception encountered while fetching index commit data", e);
                 }
                 return null;
+            } finally {
+                release(indexType, searcher);
             }
         }
         return stats;
@@ -379,6 +382,7 @@ public class IndexManager {
      * At initial startup, it may return null
      * if the user performs any search before performing a scan.
      */
+    @SuppressWarnings("PMD.CloseResource") // Should not be closed
     public @Nullable IndexSearcher getSearcher(IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
             File indexDirectory = getIndexDirectory.apply(indexType);
