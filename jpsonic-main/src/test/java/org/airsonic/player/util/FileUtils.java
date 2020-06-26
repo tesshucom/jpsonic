@@ -1,6 +1,8 @@
 package org.airsonic.player.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.JarURLConnection;
@@ -13,12 +15,15 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
+    
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
             InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
             return FileUtils.copyStream(is, os);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying file.", e);
         }
         return false;
     }
@@ -81,7 +86,7 @@ public class FileUtils {
                 return FileUtils.copyFilesRecusively(new File(originUrl.getPath()), destination);
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying file.", e);
         }
         return false;
     }
@@ -90,9 +95,9 @@ public class FileUtils {
         try (OutputStream os = Files.newOutputStream(Paths.get(f.toURI()))) {
             return FileUtils.copyStream(is, os);
         } catch (final FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying stream.", e);
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying stream.", e);
         }
         return false;
     }
@@ -109,7 +114,7 @@ public class FileUtils {
             os.close();
             return true;
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying stream.", e);
         }
         return false;
     }
