@@ -48,7 +48,7 @@ import java.util.List;
 public class FFmpegParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String[] FFPROBE_OPTIONS = {
         "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"
     };
@@ -86,7 +86,7 @@ public class FFmpegParser extends MetaDataParser {
             command.add(file.getAbsolutePath());
 
             Process process = Runtime.getRuntime().exec(command.toArray(new String[0]));
-            final JsonNode result = objectMapper.readTree(process.getInputStream());
+            final JsonNode result = OBJECT_MAPPER.readTree(process.getInputStream());
 
             metaData.setDurationSeconds(result.at("/format/duration").asInt());
             // Bitrate is in Kb/s
@@ -102,7 +102,9 @@ public class FFmpegParser extends MetaDataParser {
                 }
             }
         } catch (Throwable x) {
-            LOG.warn("Error when parsing metadata in " + file, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Error when parsing metadata in " + file, x);
+            }
         }
 
         return metaData;
@@ -113,7 +115,7 @@ public class FFmpegParser extends MetaDataParser {
      */
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
-        throw new RuntimeException("setMetaData() not supported in " + getClass().getSimpleName());
+        throw new IllegalArgumentException("setMetaData() not supported in " + getClass().getSimpleName());
     }
 
     /**

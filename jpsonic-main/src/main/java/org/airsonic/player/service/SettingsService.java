@@ -32,8 +32,8 @@ import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,7 +185,7 @@ public class SettingsService {
     private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) \u3084(\u30E4\u30E6\u30E8) \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) \u308F(\u30EF\u30F2\u30F3)";
     private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
-    private static final String DEFAULT_PLAYLIST_FOLDER = Util.getDefaultPlaylistFolder();
+    private static final String DEFAULT_PLAYLIST_FOLDER = PlayerUtils.getDefaultPlaylistFolder();
     private static final String DEFAULT_MUSIC_FILE_TYPES = "mp3 ogg oga aac m4a m4b flac wav wma aif aiff ape mpc shn mka opus";
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
@@ -203,7 +203,7 @@ public class SettingsService {
     private static final boolean DEFAULT_FAST_CACHE_ENABLED = false;
     private static final boolean DEFAULT_IGNORE_FILE_TIMESTAMPS = false;
     private static final int DEFAULT_PODCAST_UPDATE_INTERVAL = 24;
-    private static final String DEFAULT_PODCAST_FOLDER = Util.getDefaultPodcastFolder();
+    private static final String DEFAULT_PODCAST_FOLDER = PlayerUtils.getDefaultPodcastFolder();
     private static final int DEFAULT_PODCAST_EPISODE_RETENTION_COUNT = 10;
     private static final int DEFAULT_PODCAST_EPISODE_DOWNLOAD_COUNT = 1;
     private static final long DEFAULT_DOWNLOAD_BITRATE_LIMIT = 0;
@@ -330,7 +330,9 @@ public class SettingsService {
 
         OBSOLETE_KEYS.forEach(oKey -> {
             if (configurationService.containsKey(oKey)) {
-                LOG.info("Removing obsolete property [" + oKey + ']');
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Removing obsolete property [" + oKey + ']');
+                }
                 configurationService.clearProperty(oKey);
             }
         });
@@ -409,8 +411,10 @@ public class SettingsService {
     }
 
     private void logServerInfo() {
-        LOG.info("Java: " + System.getProperty("java.version") +
-                 ", OS: " + System.getProperty("os.name"));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Java: " + System.getProperty("java.version") +
+                     ", OS: " + System.getProperty("os.name"));
+        }
     }
 
     public void save() {
@@ -433,7 +437,7 @@ public class SettingsService {
                 String message = "The directory " + home + " does not exist. Please create it and make it writable. " +
                         "(You can override the directory location by specifying -Djpsonic.home=... when " +
                         "starting the servlet container.)";
-                throw new RuntimeException(message);
+                throw new IllegalStateException(message);
             }
         }
     }
@@ -787,18 +791,23 @@ public class SettingsService {
         try {
             return StringUtil.utf8HexDecode(s);
         } catch (Exception x) {
-            LOG.warn("Failed to decode LDAP manager password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to decode LDAP manager password.", x);
+            }
             return s;
         }
     }
 
-    public void setLdapManagerPassword(String ldapManagerPassword) {
+    public void setLdapManagerPassword(final String ldapManagerPassword) {
+        String pass = "";
         try {
-            ldapManagerPassword = StringUtil.utf8HexEncode(ldapManagerPassword);
+            pass = StringUtil.utf8HexEncode(ldapManagerPassword);
         } catch (Exception x) {
-            LOG.warn("Failed to encode LDAP manager password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to encode LDAP manager password.", x);
+            }
         }
-        setProperty(KEY_LDAP_MANAGER_PASSWORD, ldapManagerPassword);
+        setProperty(KEY_LDAP_MANAGER_PASSWORD, pass);
     }
 
     public boolean isLdapAutoShadowing() {
@@ -1025,11 +1034,15 @@ public class SettingsService {
                     } else if (elements.length == 3) {
                         themes.add(new Theme(elements[0], elements[1], elements[2]));
                     } else {
-                        LOG.warn("Failed to parse theme from line: [" + line + "].");
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to parse theme from line: [" + line + "].");
+                        }
                     }
                 }
             } catch (IOException x) {
-                LOG.error("Failed to resolve list of themes.", x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve list of themes.", x);
+                }
                 themes.add(new Theme("default", "Jpsonic default"));
             }
         }
@@ -1053,7 +1066,9 @@ public class SettingsService {
                 }
 
             } catch (IOException x) {
-                LOG.error("Failed to resolve list of locales.", x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to resolve list of locales.", x);
+                }
                 locales.add(Locale.ENGLISH);
             }
         }
@@ -1623,18 +1638,23 @@ public class SettingsService {
         try {
             return StringUtil.utf8HexDecode(s);
         } catch (Exception x) {
-            LOG.warn("Failed to decode Smtp password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to decode Smtp password.", x);
+            }
             return s;
         }
     }
 
     public void setSmtpPassword(String smtpPassword) {
+        String pass = "";
         try {
-            smtpPassword = StringUtil.utf8HexEncode(smtpPassword);
+            pass = StringUtil.utf8HexEncode(smtpPassword);
         } catch (Exception x) {
-            LOG.warn("Failed to encode Smtp password.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to encode Smtp password.", x);
+            }
         }
-        setProperty(KEY_SMTP_PASSWORD, smtpPassword);
+        setProperty(KEY_SMTP_PASSWORD, pass);
     }
 
     public String getSmtpFrom() {

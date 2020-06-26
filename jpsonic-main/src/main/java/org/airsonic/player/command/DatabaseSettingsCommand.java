@@ -12,7 +12,7 @@ public class DatabaseSettingsCommand {
     private String embedPassword;
     private String embedUrl;
     private String embedUsername;
-    private String JNDIName;
+    private String jndiName;
     private int mysqlVarcharMaxlength;
     private String usertableQuote;
 
@@ -57,11 +57,11 @@ public class DatabaseSettingsCommand {
     }
 
     public String getJNDIName() {
-        return JNDIName;
+        return jndiName;
     }
 
-    public void setJNDIName(String JNDIName) {
-        this.JNDIName = JNDIName;
+    public void setJNDIName(String jndiName) {
+        this.jndiName = jndiName;
     }
 
     public int getMysqlVarcharMaxlength() {

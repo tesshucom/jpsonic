@@ -107,7 +107,7 @@ public interface SearchService {
      * @param musicFolders Only return albums from these folders.
      * @return List of random albums.
      */
-    List<MediaFile> getRandomSongsByArtist(Artist Artist, int count, int offset, int casheMax, List<MusicFolder> musicFolders);
+    List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax, List<MusicFolder> musicFolders);
 
     /**
      * Returns a number of random albums.

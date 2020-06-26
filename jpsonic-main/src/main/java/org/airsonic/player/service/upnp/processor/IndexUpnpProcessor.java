@@ -48,13 +48,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.airsonic.player.util.Util.subList;
+import static org.airsonic.player.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
-    private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
+    private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
     private final UpnpProcessorUtil util;
 

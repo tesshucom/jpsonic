@@ -18,6 +18,8 @@ import org.airsonic.player.service.SettingsService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
@@ -30,6 +32,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class SearchServiceLegacyTest extends AbstractAirsonicHomeTest {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SearchServiceLegacyTest.class);
 
     @Autowired
     private AlbumDao albumDao;
@@ -269,7 +273,9 @@ public class SearchServiceLegacyTest extends AbstractAirsonicHomeTest {
                 .timer(MetricRegistry.name(SearchServiceLegacyTest.class, "Timer.global"));
         final Timer.Context globalTimerContext = globalTimer.time();
 
-        System.out.println("--- Random search (" + countForEachMethod * 4 + " times) ---");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- Random search (" + countForEachMethod * 4 + " times) ---");
+        }
 
         // testSearch()
         for (String word : randomWords4Search) {
@@ -317,13 +323,17 @@ public class SearchServiceLegacyTest extends AbstractAirsonicHomeTest {
                 "_ID3_ALBUMARTIST_ Sarah Walker/Nash Ensemble",
                 result.getMediaFiles().get(0).getArtist());
 
-        System.out.println("--- SUCCESS ---");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- SUCCESS ---");            
+        }
 
         ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.SECONDS).convertDurationsTo(TimeUnit.MILLISECONDS).build();
         reporter.report();
 
-        System.out.println("End. ");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("End. ");            
+        }
     }
 
     private static String[] createRandomWords(int count) {

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.concurrent.CompletionException;
 
 @Service
 public class ApacheCommonsConfigurationService {
@@ -32,7 +33,7 @@ public class ApacheCommonsConfigurationService {
             try {
                 FileUtils.touch(propertyFile);
             } catch (IOException e) {
-                throw new RuntimeException("Could not create new property file", e);
+                throw new CompletionException("Could not create new property file", e);
             }
         }
         Parameters params = new Parameters();
@@ -47,7 +48,7 @@ public class ApacheCommonsConfigurationService {
         try {
             config = builder.getConfiguration();
         } catch (ConfigurationException e) {
-            throw new RuntimeException("Could not load property file at " + propertyFile, e);
+            throw new CompletionException("Could not load property file at " + propertyFile, e);
         }
     }
 

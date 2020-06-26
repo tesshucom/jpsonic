@@ -27,8 +27,8 @@ import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.HttpRange;
+import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.airsonic.player.util.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,6 +61,8 @@ import java.util.regex.Pattern;
 public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
+
+    private static final int BUFFER_SIZE = 2048;
 
     @Autowired
     private StatusService statusService;
@@ -105,8 +107,10 @@ public class StreamController {
                 PlayQueue playQueue = new PlayQueue();
                 playQueue.addFiles(false, playlistService.getFilesInPlaylist(playlistId));
                 player.setPlayQueue(playQueue);
-                Util.setContentLength(response, playQueue.length());
-                LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
+                PlayerUtils.setContentLength(response, playQueue.length());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("{}: Incoming Podcast request for playlist {}", request.getRemoteAddr(), playlistId);
+                }
             }
 
             response.setHeader("Access-Control-Allow-Origin", "*");
@@ -187,7 +191,7 @@ public class StreamController {
                     }
 
                     response.setIntHeader("ETag", file.getId());
-                    Util.setContentLength(response, contentLength);
+                    PlayerUtils.setContentLength(response, contentLength);
                 }
 
                 // Set content type of response
@@ -211,7 +215,9 @@ public class StreamController {
             }
 
             if (fileLengthExpected != null) {
-                LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+                }
             }
 
             // Terminate any other streams to this player.
@@ -230,7 +236,6 @@ public class StreamController {
                         transcodingService, audioScrobblerService, mediaFileService, searchService);
                 OutputStream out = makeOutputStream(request, response, range, isSingleFile, player, settingsService)
             ) {
-                final int BUFFER_SIZE = 2048;
                 byte[] buf = new byte[BUFFER_SIZE];
                 long bytesWritten = 0;
 
@@ -257,9 +262,11 @@ public class StreamController {
                         } else {
                             if (fileLengthExpected != null && bytesWritten <= fileLengthExpected
                                 && bytesWritten + n > fileLengthExpected) {
-                                LOG.warn("Stream output exceeded expected length of {}. It is likely that "
-                                    + "the transcoder is not adhering to the bitrate limit or the media "
-                                    + "source is corrupted or has grown larger", fileLengthExpected);
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Stream output exceeded expected length of {}. It is likely that "
+                                        + "the transcoder is not adhering to the bitrate limit or the media "
+                                        + "source is corrupted or has grown larger", fileLengthExpected);
+                                }
                             }
                             out.write(buf, 0, n);
                             bytesWritten += n;
@@ -272,12 +279,14 @@ public class StreamController {
             // This happens often and outside of the control of the server, so
             // we catch Tomcat/Jetty "connection aborted by client" exceptions
             // and display a short error message.
-            boolean shouldCatch = Util.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
+            boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
             if (shouldCatch) {
-                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
-                        request.getRemoteAddr(),
-                        Util.getAnonymizedURLForRequest(request),
-                        e.getCause().toString());
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
+                            request.getRemoteAddr(),
+                            PlayerUtils.getAnonymizedURLForRequest(request),
+                            e.getCause().toString());
+                }
                 return;
             }
 
@@ -368,7 +377,9 @@ public class StreamController {
             return new HttpRange(byteOffset, null);
 
         } catch (Exception x) {
-            LOG.error("Failed to parse and convert time offset: " + offsetSeconds, x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to parse and convert time offset: " + offsetSeconds, x);
+            }
             return null;
         }
     }

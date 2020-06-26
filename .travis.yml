@@ -3,8 +3,11 @@ cache:
   directories:
     - $HOME/.m2
 
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Prelease11
+
 script:
-  - mvn verify -B -P unit-test
+  - mvn verify -B -Prelease11 -Punit-test
 
 matrix:
   include:

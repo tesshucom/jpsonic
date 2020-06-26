@@ -69,8 +69,8 @@ public class RandomPlayQueueController {
             ModelMap model,
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestParam("size") Integer size,
-            @RequestParam(value = "genre", required = false) String genre,
+            @RequestParam("size") final Integer sizeParam,
+            @RequestParam(value = "genre", required = false) final String genreParam,
             @RequestParam(value = "year", required = false) String year,
             @RequestParam(value = "songRating", required = false) String songRating,
             @RequestParam(value = "lastPlayedValue", required = false) String lastPlayedValue,
@@ -79,7 +79,7 @@ public class RandomPlayQueueController {
             @RequestParam(value = "albumRatingComp", required = false) String albumRatingComp,
             @RequestParam(value = "playCountValue", required = false) Integer playCountValue,
             @RequestParam(value = "playCountComp", required = false) String playCountComp,
-            @RequestParam(value = "format", required = false) String format,
+            @RequestParam(value = "format", required = false) final String formatParam,
             @RequestParam(value = "autoRandom", required = false) String autoRandom
     ) throws Exception {
 
@@ -94,6 +94,10 @@ public class RandomPlayQueueController {
         boolean doesShowStarredSongs = false;
         boolean doesShowUnstarredSongs = false;
 
+        Integer size = sizeParam;
+        String genre = genreParam;
+        String format = formatParam;
+        
         if (size == null) {
             size = 24;
         }
@@ -229,7 +233,9 @@ public class RandomPlayQueueController {
                 genres = preAnalyzeds;
             } else {
                 // #267 Invalid search for genre containing specific string
-                LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                }
             }
         }
 

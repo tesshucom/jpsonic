@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#ffffff">
 <meta name="description" content="Airsonic: A free, web-based media streamer, providing ubiquitous access to your music.">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- Included before airsonic stylesheet to allow overriding -->
+<%-- Included before airsonic stylesheet to allow overriding --%>
 <link type="text/css" rel="stylesheet" href="<c:url value='/script/mediaelement/mediaelementplayer.min.css'/>">
 <link rel="stylesheet" href="<c:url value='/${styleSheet}'/>" type="text/css">
 <title>Jpsonic</title>

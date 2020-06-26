@@ -10,16 +10,20 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.concurrent.CompletionException;
 
 public class LegacyHsqlUtil {
 
@@ -31,14 +35,18 @@ public class LegacyHsqlUtil {
     public static String getHsqldbDatabaseVersion() {
         File configFile = new File(SettingsService.getDefaultJDBCPath() + ".properties");
         if (!configFile.exists()) {
-            LOG.debug("HSQLDB database doesn't exist, cannot determine version");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("HSQLDB database doesn't exist, cannot determine version");
+            }
             return null;
         }
         try {
             Properties properties = PropertiesLoaderUtils.loadProperties(new FileSystemResource(configFile));
             return properties.getProperty("version");
         } catch (IOException e) {
-            LOG.error("Failed to determine HSQLDB database version", e);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to determine HSQLDB database version", e);
+            }
             return null;
         }
     }
@@ -69,7 +77,9 @@ public class LegacyHsqlUtil {
         // Check the current database version
         String currentVersion = getHsqldbDatabaseVersion();
         if (currentVersion == null) {
-            LOG.debug("HSQLDB database not found, skipping upgrade checks");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("HSQLDB database not found, skipping upgrade checks");
+            }
             return false;
         }
 
@@ -96,15 +106,21 @@ public class LegacyHsqlUtil {
         // Log what we're about to do and determine if we should perform a controlled upgrade with backups.
         if (currentVersion.startsWith(driverVersion)) {
             // If we're already on the same version as the driver, nothing should happen.
-            LOG.debug("HSQLDB database upgrade unneeded, already on version {}", driverVersion);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("HSQLDB database upgrade unneeded, already on version {}", driverVersion);
+            }
             return false;
         } else if (currentVersion.startsWith("2.")) {
             // If the database version is 2.x but older than the driver, the upgrade should be relatively painless.
-            LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion, driverVersion);
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion, driverVersion);
+            }
             return false;
         } else if ("1.8.0".equals(currentVersion) || "1.8.1".equals(currentVersion)) {
             // If we're on a 1.8.0 or 1.8.1 database and upgrading to 2.x, we're going to handle this manually and check what we're doing.
-            LOG.info("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);
+            if (LOG.isInfoEnabled()) {
+                LOG.info("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);
+            }
             return true;
         } else {
             // If this happens we're on a completely untested version and we don't know what will happen.
@@ -123,16 +139,22 @@ public class LegacyHsqlUtil {
         Path source = Paths.get(SettingsService.getDefaultJDBCPath()).getParent();
         Path destination = source.resolveSibling(String.format("%s.backup.%s", source.getFileName().toString(), timestamp));
 
-        LOG.debug("Performing HSQLDB database backup...");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Performing HSQLDB database backup...");
+        }
         FileUtils.copyDirectory(source.toFile(), destination.toFile());
-        LOG.info("HSQLDB database backed up to {}", destination.toString());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("HSQLDB database backed up to {}", destination.toString());
+        }
 
         return destination;
     }
 
     public static void performAdditionOfScript(Path backupDir) throws IOException {
 
-        LOG.debug("Performing adding the script to the HSQLDB database script....");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Performing adding the script to the HSQLDB database script....");
+        }
 
         final String setRegularNamesFalse = "SET DATABASE SQL REGULAR NAMES FALSE";
         File script = new File(SettingsService.getDBScript());
@@ -146,15 +168,17 @@ public class LegacyHsqlUtil {
             return;
         }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(scriptBak))) {
+        try (BufferedReader reader = Files.newBufferedReader(Paths.get(scriptBak.toURI()))) {
             String line = reader.readLine();
             if (null != line) {
                 line = line.trim();
             }
             boolean isRestrict = !setRegularNamesFalse.equals(line);
             if (isRestrict) {
-                LOG.debug("Set the Restrict property to false.");
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(script, false))) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Set the Restrict property to false.");
+                }
+                try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(script.toURI()))) {
                     writer.write(setRegularNamesFalse + System.getProperty("line.separator"));
                     writer.write(line + System.getProperty("line.separator"));
                     int i = 1;
@@ -177,26 +201,34 @@ public class LegacyHsqlUtil {
      */
     public static void performHsqldbDatabaseUpgrade() throws SQLException {
 
-        LOG.debug("Performing HSQLDB database upgrade...");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Performing HSQLDB database upgrade...");
+        }
 
         // This will upgrade HSQLDB on the first connection. This does not
         // use Spring's DataSource, as running SHUTDOWN against it will
         // prevent further connections to the database.
         try (Connection conn = getHsqldbDatabaseConnection()) {
-            LOG.debug("Database connection established. Current version is: {}", conn.getMetaData().getDatabaseProductVersion());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Database connection established. Current version is: {}", conn.getMetaData().getDatabaseProductVersion());
+            }
             // On upgrade, the official documentation recommends that we
             // run 'SHUTDOWN SCRIPT' to compact all the database into a
             // single SQL file.
             //
             // In practice, if we don't do that, we did not observe issues
             // immediately but after the upgrade.
-            LOG.debug("Shutting down database (SHUTDOWN SCRIPT)...");
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Shutting down database (SHUTDOWN SCRIPT)...");
+            }
             try (Statement st = conn.createStatement()) {
                 st.execute("SHUTDOWN SCRIPT");
             }
         }
 
-        LOG.info("HSQLDB database has been upgraded to version {}", getHsqldbDatabaseVersion());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("HSQLDB database has been upgraded to version {}", getHsqldbDatabaseVersion());
+        }
     }
 
     /**
@@ -209,19 +241,19 @@ public class LegacyHsqlUtil {
             try {
                 backupDir = performHsqldbDatabaseBackup();
             } catch (Exception e) {
-                throw new RuntimeException("Failed to backup HSQLDB database before upgrade", e);
+                throw new CompletionException("Failed to backup HSQLDB database before upgrade", e);
             }
             if (null != backupDir) {
                 try {
                     performAdditionOfScript(backupDir);
                 } catch (Exception e) {
-                    throw new RuntimeException("Script verification/addition of HSQLDB database failed before upgrade", e);
+                    throw new CompletionException("Script verification/addition of HSQLDB database failed before upgrade", e);
                 }
             }
             try {
                 performHsqldbDatabaseUpgrade();
             } catch (Exception e) {
-                throw new RuntimeException("Failed to upgrade HSQLDB database", e);
+                throw new CompletionException("Failed to upgrade HSQLDB database", e);
             }
         }
     }

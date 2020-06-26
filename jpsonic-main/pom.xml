@@ -15,8 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.1.0-RELEASE</jpsonic.version>
-        <apache-jsp.version>9.4.30.v20200611</apache-jsp.version>
+        <jpsonic.version>109.1.1-SNAPSHOT</jpsonic.version>
         <lucene.version>8.5.1</lucene.version>
     </properties>
 
@@ -583,7 +582,6 @@
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>apache-jsp</artifactId>
-            <version>${apache-jsp.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -640,7 +638,7 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>2.6.0</version>
+            <version>2.6.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -681,18 +679,29 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
                 <configuration>
-                    <language>jsp</language>
-                    <rulesets>
-                        <ruleset>/category/jsp/codestyle.xml</ruleset>
-                        <ruleset>/category/jsp/errorprone.xml</ruleset>
-                    </rulesets>
+                    <analysisCache>true</analysisCache>
+                    <targetJdk>${compile.version}</targetJdk>
+                    <skipEmptyReport>false</skipEmptyReport>
+                    <failOnViolation>true</failOnViolation>
+                    <minimumPriority>2</minimumPriority>
+                    <printFailingErrors>true</printFailingErrors>
+                    <includeTests>true</includeTests>
+                    <verbose>false</verbose>
+                    <compileSourceRoots>
+                        <compileSourceRoot>${basedir}/src/main/java</compileSourceRoot>
+                        <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
+                    </compileSourceRoots>
+                    <excludeRoots>
+                        <excludeRoot>${basedir}/target</excludeRoot>
+                    </excludeRoots>
                     <includes>
+                        <include>**/*.java</include>
                         <include>**/*.jsp</include>
                         <include>**/*.jspf</include>
                     </includes>
-                    <compileSourceRoots>
-                        <compileSourceRoot>${basedir}/src/main/webapp/WEB-INF/jsp</compileSourceRoot>
-                    </compileSourceRoots>
+                    <rulesets>
+                        <ruleset>pmd-rulesets.xml</ruleset>
+                    </rulesets>
                 </configuration>
             </plugin>
             <plugin>
@@ -773,7 +782,7 @@
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-jspc-maven-plugin</artifactId>
-                <version>${apache-jsp.version}</version>
+                <version>${jetty-jsp.version}</version>
                 <executions>
                     <execution>
                         <id>jspc</id>
@@ -810,7 +819,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <boot.group.excludes>org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
+                <boot.group.excludes>org.eclipse.jetty.toolchain,org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
                 <boot.artifact.excludes>spring-boot-starter-jetty,apache-jsp,jakarta.websocket-all</boot.artifact.excludes>
             </properties>
         </profile>

@@ -117,7 +117,9 @@ public class LastFmService {
             }
 
         } catch (Throwable x) {
-            LOG.warn("Failed to find similar artists for " + artistName, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find similar artists for " + artistName, x);
+            }
         }
         return result;
     }
@@ -166,7 +168,9 @@ public class LastFmService {
             }
 
         } catch (Throwable x) {
-            LOG.warn("Failed to find similar artists for " + artist.getName(), x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find similar artists for " + artist.getName(), x);
+            }
         }
         return result;
     }
@@ -251,7 +255,9 @@ public class LastFmService {
                                  info.getImageURL(ImageSize.LARGE),
                                  info.getImageURL(ImageSize.MEGA));
         } catch (Throwable x) {
-            LOG.warn("Failed to find artist bio for " + artistName, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find artist bio for " + artistName, x);
+            }
             return null;
         }
     }
@@ -294,7 +300,9 @@ public class LastFmService {
             }
             return result;
         } catch (Throwable x) {
-            LOG.warn("Failed to find top songs for " + artistName, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find top songs for " + artistName, x);
+            }
             return Collections.emptyList();
         }
     }
@@ -342,7 +350,9 @@ public class LastFmService {
                                  info.getImageURL(ImageSize.LARGE),
                                  info.getImageURL(ImageSize.MEGA));
         } catch (Throwable x) {
-            LOG.warn("Failed to find album notes for " + artist + " - " + album, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find album notes for " + artist + " - " + album, x);
+            }
             return null;
         }
     }
@@ -366,7 +376,9 @@ public class LastFmService {
                                  .filter(Predicates.notNull())
                                  .toList();
         } catch (Throwable x) {
-            LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);
+            }
             return Collections.emptyList();
         }
     }
@@ -398,7 +410,9 @@ public class LastFmService {
             String redirectedArtistName = getRedirectedArtist(biography);
             return redirectedArtistName != null ? redirectedArtistName : artistName;
         } catch (Throwable x) {
-            LOG.warn("Failed to find artist bio for " + artistName, x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to find artist bio for " + artistName, x);
+            }
             return null;
         }
     }
@@ -426,7 +440,7 @@ public class LastFmService {
         return null;
     }
 
-    private String processWikiText(String text) {
+    private String processWikiText(final String text) {
         /*
          System of a Down is an Armenian American <a href="http://www.last.fm/tag/alternative%20metal" class="bbcode_tag" rel="tag">alternative metal</a> band,
          formed in 1994 in Los Angeles, California, USA. All four members are of Armenian descent, and are widely known for their outspoken views expressed in
@@ -436,17 +450,17 @@ public class LastFmService {
          <a href="http://www.last.fm/music/System+of+a+Down">Read more about System of a Down on Last.fm</a>.
          User-contributed text is available under the Creative Commons By-SA License and may also be available under the GNU FDL.
          */
+        String result = text;
+        result = result.replaceAll("User-contributed text.*", "");
+        result = result.replaceAll("<a ", "<a target='_blank' ");
+        result = result.replace("\n", " ");
+        result = StringUtils.trimToNull(result);
 
-        text = text.replaceAll("User-contributed text.*", "");
-        text = text.replaceAll("<a ", "<a target='_blank' ");
-        text = text.replace("\n", " ");
-        text = StringUtils.trimToNull(text);
-
-        if (text != null && text.startsWith("This is an incorrect tag")) {
+        if (result != null && result.startsWith("This is an incorrect tag")) {
             return null;
         }
 
-        return text;
+        return result;
     }
 
     private String getArtistName(MediaFile mediaFile) {

@@ -58,13 +58,13 @@ import java.util.function.Function;
 import static java.util.stream.Collectors.toList;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
-import static org.airsonic.player.util.Util.subList;
+import static org.airsonic.player.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3Wrapper> {
 
-    private final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
+    private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;

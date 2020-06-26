@@ -45,6 +45,7 @@ import java.io.StringWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.CompletionException;
 
 import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
@@ -67,7 +68,7 @@ public class JAXBWriter {
             datatypeFactory = DatatypeFactory.newInstance();
             restProtocolVersion = getRESTProtocolVersion();
         } catch (Exception x) {
-            throw new RuntimeException(x);
+            throw new CompletionException(x);
         }
     }
 
@@ -79,7 +80,7 @@ public class JAXBWriter {
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             return marshaller;
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 
@@ -93,7 +94,7 @@ public class JAXBWriter {
             marshaller.setProperty(MarshallerProperties.JSON_INCLUDE_ROOT, true);
             return marshaller;
         } catch (JAXBException e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 
@@ -144,7 +145,7 @@ public class JAXBWriter {
         try {
             StringWriter writer = new StringWriter();
             if (jsonp) {
-                writer.append(jsonpCallback).append('(');
+                writer.append(escape(jsonpCallback)).append('(');
             }
             marshaller.marshal(new ObjectFactory().createSubsonicResponse(jaxbResponse), writer);
             if (jsonp) {
@@ -152,9 +153,23 @@ public class JAXBWriter {
             }
             httpResponse.getWriter().append(writer.getBuffer());
         } catch (JAXBException | IOException x) {
-            LOG.error("Failed to marshal JAXB", x);
-            throw new RuntimeException(x);
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Failed to marshal JAXB", x);
+            }
+            throw new CompletionException(x);
         }
+    }
+
+    private String escape(String raw) {
+        String escaped = raw;
+        escaped = escaped.replace("\\", "\\\\");
+        escaped = escaped.replace("\"", "\\\"");
+        escaped = escaped.replace("\b", "\\b");
+        escaped = escaped.replace("\f", "\\f");
+        escaped = escaped.replace("\n", "\\n");
+        escaped = escaped.replace("\r", "\\r");
+        escaped = escaped.replace("\t", "\\t");
+        return escaped;
     }
 
     public void writeErrorResponse(HttpServletRequest request, HttpServletResponse response,

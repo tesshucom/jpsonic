@@ -42,10 +42,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -87,7 +91,7 @@ public class UploadController {
 
             // Check that we have a file upload request
             if (!ServletFileUpload.isMultipartContent(request)) {
-                throw new Exception("Illegal request.");
+                throw new ExecutionException(new IOException("Illegal request."));
             }
 
             File dir = null;
@@ -112,7 +116,7 @@ public class UploadController {
             }
 
             if (dir == null) {
-                throw new Exception("Missing 'dir' parameter.");
+                throw new ExecutionException(new IOException("Missing 'dir' parameter."));
             }
 
             // Look for file items.
@@ -126,7 +130,7 @@ public class UploadController {
                         File targetFile = new File(dir, new File(fileName).getName());
 
                         if (!securityService.isUploadAllowed(targetFile)) {
-                            throw new Exception("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath()));
+                            throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
                         }
 
                         if (!dir.exists()) {
@@ -135,7 +139,9 @@ public class UploadController {
 
                         item.write(targetFile);
                         uploadedFiles.add(targetFile);
-                        LOG.info("Uploaded " + targetFile);
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Uploaded " + targetFile);
+                        }
 
                         if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
                             unzip(targetFile, unzippedFiles);
@@ -145,7 +151,9 @@ public class UploadController {
             }
 
         } catch (Exception x) {
-            LOG.warn("Uploading failed.", x);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Uploading failed.", x);
+            }
             map.put("exception", x);
         } finally {
             if (status != null) {
@@ -163,7 +171,9 @@ public class UploadController {
     }
 
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
-        LOG.info("Unzipping " + file);
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Unzipping " + file);
+        }
 
         try (ZipFile zipFile = new ZipFile(file)) {
 
@@ -173,18 +183,18 @@ public class UploadController {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 File entryFile = new File(file.getParentFile(), entry.getName());
                 if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
-                    throw new Exception("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath()));
+                    throw new ExecutionException(new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                 }
 
                 if (!entry.isDirectory()) {
 
                     if (!securityService.isUploadAllowed(entryFile)) {
-                        throw new Exception("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath()));
+                        throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                     }
 
                     entryFile.getParentFile().mkdirs();
                     try (
-                            OutputStream outputStream = new FileOutputStream(entryFile);
+                            OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
                             InputStream inputStream = zipFile.getInputStream(entry)
                     ) {
                         byte[] buf = new byte[8192];
@@ -195,7 +205,9 @@ public class UploadController {
                             }
                             outputStream.write(buf, 0, n);
                         }
-                        LOG.info("Unzipped " + entryFile);
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Unzipped " + entryFile);
+                        }
                         unzippedFiles.add(entryFile);
                     }
                 }
@@ -247,7 +259,9 @@ public class UploadController {
                     try {
                         Thread.sleep((long) sleepMillis);
                     } catch (InterruptedException x) {
-                        LOG.warn("Failed to sleep.", x);
+                        if (LOG.isWarnEnabled()) {
+                            LOG.warn("Failed to sleep.", x);
+                        }
                     }
                 }
             }

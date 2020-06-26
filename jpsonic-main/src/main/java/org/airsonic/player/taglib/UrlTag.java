@@ -55,7 +55,7 @@ import java.util.List;
  */
 public class UrlTag extends BodyTagSupport {
 
-    private String DEFAULT_ENCODING = "Utf8Hex";
+    private static final String DEFAULT_ENCODING = "Utf8Hex";
     private static final Logger LOG = LoggerFactory.getLogger(UrlTag.class);
 
     private String var;
@@ -127,7 +127,9 @@ public class UrlTag extends BodyTagSupport {
             try {
                 return StringUtil.utf8HexEncode(s);
             } catch (Exception x) {
-                LOG.error("Failed to utf8hex-encode the string '" + s + "'.", x);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to utf8hex-encode the string '" + s + "'.", x);
+                }
                 return s;
             }
         }

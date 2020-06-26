@@ -69,10 +69,14 @@ public class ExternalPlayerController {
         Map<String, Object> map = new HashMap<>();
 
         String shareName = ControllerUtils.extractMatched(request);
-        LOG.debug("Share name is {}", shareName);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Share name is {}", shareName);
+        }
 
         if (StringUtils.isBlank(shareName)) {
-            LOG.warn("Could not find share with shareName " + shareName);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Could not find share with shareName " + shareName);
+            }
             response.sendError(HttpServletResponse.SC_NOT_FOUND);
             return null;
         }
@@ -80,7 +84,9 @@ public class ExternalPlayerController {
         Share share = shareService.getShareByName(shareName);
 
         if (share != null && share.getExpires() != null && share.getExpires().before(new Date())) {
-            LOG.warn("Share " + shareName + " is expired");
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Share " + shareName + " is expired");
+            }
             share = null;
         }
 

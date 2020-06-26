@@ -119,9 +119,6 @@ public class PlayerService {
         if (player == null) {
             player = new Player();
             createPlayer(player);
-//            LOG.debug("Created player " + player.getId() + " (remoteControlEnabled: " + remoteControlEnabled +
-//                      ", isStreamRequest: " + isStreamRequest + ", username: " + username +
-//                      ", ip: " + request.getRemoteAddr() + ").");
         }
 
         // Update player data.
@@ -157,6 +154,7 @@ public class PlayerService {
                 path = "/";
             }
             cookie.setPath(path);
+            cookie.setSecure(true);
             response.addCookie(cookie);
         }
 

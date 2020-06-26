@@ -80,6 +80,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
+    @SuppressWarnings("lgtm")
     public void write(byte[] b, int off, int len) throws IOException {
 
         int bytesWritten = 0;
@@ -88,6 +89,16 @@ public class ShoutCastOutputStream extends OutputStream {
             // 'n' is the number of bytes to write before the next potential meta-data block.
             int n = Math.min(len - bytesWritten, ShoutCastOutputStream.META_DATA_INTERVAL - byteCount);
 
+            /*
+             * False positive for cross-site scripting at LGTM.com.
+             * (Directly writing user input to a web page, without properly sanitizing the input first.)
+             * In general, some podcast functions inherently require such processing.
+             * In this case 'client' is the Jpsonic server, not the user.
+             *
+             *  - Users can configure trusted podcast resources.
+             *  - Users can choose not to use podcast.
+             *  - Users can also use virus check tool to monitor the directory where audio files are stored.
+             */
             out.write(b, off + bytesWritten, n);
             bytesWritten += n;
             byteCount += n;
@@ -169,17 +180,17 @@ public class ShoutCastOutputStream extends OutputStream {
         }
     }
 
-    private byte[] createStreamTitle(String title) {
+    private byte[] createStreamTitle(final String title) {
         // Remove any quotes from the title.
-        title = title.replaceAll("'", "");
+        String result = title.replaceAll("'", "");
 
         // Convert non-ascii characters to similar ascii characters.
         for (char[] chars : ShoutCastOutputStream.CHAR_MAP) {
-            title = title.replace(chars[0], chars[1]);
+            result = result.replace(chars[0], chars[1]);
         }
 
-        title = "StreamTitle='" + title + "';";
-        return title.getBytes(StandardCharsets.US_ASCII);
+        result = "StreamTitle='" + result + "';";
+        return result.getBytes(StandardCharsets.US_ASCII);
     }
 
     /**

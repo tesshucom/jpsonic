@@ -14,7 +14,7 @@ public class UtilTest {
     @Test
     public void objectToStringMapNull() {
         MediaLibraryStatistics statistics = null;
-        Map<String, String> stringStringMap = Util.objectToStringMap(statistics);
+        Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
         assertNull(stringStringMap);
     }
 
@@ -27,7 +27,7 @@ public class UtilTest {
         statistics.incrementArtists(910823);
         statistics.incrementTotalDurationInSeconds(30);
         statistics.incrementTotalLengthInBytes(2930491082L);
-        Map<String, String> stringStringMap = Util.objectToStringMap(statistics);
+        Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
         assertEquals("5", stringStringMap.get("albumCount"));
         assertEquals("4", stringStringMap.get("songCount"));
         assertEquals("910823", stringStringMap.get("artistCount"));
@@ -45,12 +45,12 @@ public class UtilTest {
         stringStringMap.put("totalDurationInSeconds", "30");
         stringStringMap.put("totalLengthInBytes", "2930491082");
         stringStringMap.put("scanDate", "1568350960725");
-        MediaLibraryStatistics statistics = Util.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
-        assertEquals(new Integer(5), statistics.getAlbumCount());
-        assertEquals(new Integer(4), statistics.getSongCount());
-        assertEquals(new Integer(910823), statistics.getArtistCount());
-        assertEquals(new Long(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(new Long(2930491082L), statistics.getTotalLengthInBytes());
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
+        assertEquals(Integer.valueOf(4), statistics.getSongCount());
+        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
+        assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
+        assertEquals(Long.valueOf(2930491082L), statistics.getTotalLengthInBytes());
         assertEquals(new Date(1568350960725L), statistics.getScanDate());
     }
 
@@ -64,25 +64,25 @@ public class UtilTest {
         stringStringMap.put("totalLengthInBytes", "2930491082");
         stringStringMap.put("scanDate", "1568350960725");
         stringStringMap.put("extraneousData", "nothingHereToLookAt");
-        MediaLibraryStatistics statistics = Util.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
-        assertEquals(new Integer(5), statistics.getAlbumCount());
-        assertEquals(new Integer(4), statistics.getSongCount());
-        assertEquals(new Integer(910823), statistics.getArtistCount());
-        assertEquals(new Long(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(new Long(2930491082L), statistics.getTotalLengthInBytes());
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
+        assertEquals(Integer.valueOf(4), statistics.getSongCount());
+        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
+        assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
+        assertEquals(Long.valueOf(2930491082L), statistics.getTotalLengthInBytes());
         assertEquals(new Date(1568350960725L), statistics.getScanDate());
     }
 
     public void stringMapToObjectWithNoData() {
         Map<String, String> stringStringMap = new HashMap<>();
-        MediaLibraryStatistics statistics = Util.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
         assertNotNull(statistics);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void stringMapToValidObjectWithNoData() {
         Map<String, String> stringStringMap = new HashMap<>();
-        MediaLibraryStatistics statistics = Util.stringMapToValidObject(MediaLibraryStatistics.class, stringStringMap);
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, stringStringMap);
     }
 
 }

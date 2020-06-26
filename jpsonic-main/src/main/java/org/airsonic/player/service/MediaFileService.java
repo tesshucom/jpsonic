@@ -128,6 +128,9 @@ public class MediaFileService {
      * @throws SecurityException If access is denied to the given file.
      */
     public MediaFile getMediaFile(String pathName) {
+        if (!securityService.isNoTraversal(pathName)) {
+            throw new SecurityException("Access denied to file : " + pathName);
+        }
         return getMediaFile(new File(pathName));
     }
 
@@ -152,17 +155,21 @@ public class MediaFileService {
         return getMediaFile(mediaFile.getParentPath());
     }
 
-    private MediaFile checkLastModified(MediaFile mediaFile, boolean useFastCache) {
+    private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
         if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION
                 && !settingsService.isIgnoreFileTimestamps()
                 && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
-            LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
+            }
             return mediaFile;
         }
-        LOG.debug("Updating database file from disk (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
-        mediaFile = createMediaFile(mediaFile.getFile());
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-        return mediaFile;
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Updating database file from disk (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
+        }
+        MediaFile mf = createMediaFile(mediaFile.getFile());
+        mediaFileDao.createOrUpdateMediaFile(mf);
+        return mf;
     }
 
     /**
@@ -459,12 +466,16 @@ public class MediaFileService {
      */
     private boolean isExcluded(File file) {
         if (settingsService.getIgnoreSymLinks() && Files.isSymbolicLink(file.toPath())) {
-            LOG.info("excluding symbolic link " + file.toPath());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("excluding symbolic link " + file.toPath());
+            }
             return true;
         }
         String name = file.getName();
         if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
-            LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString() + ": " + file.toPath());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString() + ": " + file.toPath());
+            }
             return true;
         }
 
@@ -589,10 +600,10 @@ public class MediaFileService {
         return MediaFile.MediaType.MUSIC;
     }
 
-    public void refreshMediaFile(MediaFile mediaFile) {
-        mediaFile = createMediaFile(mediaFile.getFile());
-        mediaFileDao.createOrUpdateMediaFile(mediaFile);
-        mediaFileMemoryCache.remove(mediaFile.getFile());
+    public void refreshMediaFile(final MediaFile mediaFile) {
+        MediaFile mf = createMediaFile(mediaFile.getFile());
+        mediaFileDao.createOrUpdateMediaFile(mf);
+        mediaFileMemoryCache.remove(mf.getFile());
     }
 
     private void putInMemoryCache(File file, MediaFile mediaFile) {

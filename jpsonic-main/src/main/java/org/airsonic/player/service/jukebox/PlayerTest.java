@@ -1,15 +1,23 @@
 package org.airsonic.player.service.jukebox;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 
 import java.awt.*;
-import java.io.FileInputStream;
+import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.concurrent.CompletionException;
 
 /**
  * @author Sindre Mehus
  * @version $Id$
  */
 public class PlayerTest implements AudioPlayer.Listener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerTest.class);
 
     private AudioPlayer player;
 
@@ -51,9 +59,10 @@ public class PlayerTest implements AudioPlayer.Listener {
 
     private void createPlayer() {
         try {
-            player = new AudioPlayer(new FileInputStream("/Users/sindre/Downloads/sample.au"), this);
+            File f = new File("/Users/sindre/Downloads/sample.au");
+            player = new AudioPlayer(Files.newInputStream(Paths.get(f.toURI())), this);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new CompletionException(e);
         }
     }
 
@@ -62,7 +71,9 @@ public class PlayerTest implements AudioPlayer.Listener {
     }
 
     public void stateChanged(AudioPlayer player, AudioPlayer.State state) {
-        System.out.println(state);
+        if (LOG.isInfoEnabled()) {
+            LOG.info(state.name());
+        }
     }
 }
 

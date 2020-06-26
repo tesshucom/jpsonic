@@ -112,7 +112,7 @@ public class ParameterDecodingFilter implements Filter {
         }
 
         @Override
-        public String[] getParameterValues(String name) {
+        public String[] getParameterValues(String name) { // NOPMD - ReturnEmptyArrayRatherThanNull : Due to third party specifications
             String[] values = super.getParameterValues(name);
             if (values != null) {
                 return values;
@@ -136,7 +136,9 @@ public class ParameterDecodingFilter implements Filter {
                 try {
                     result[i] = StringUtil.utf8HexDecode(values[i]);
                 } catch (Exception x) {
-                    LOG.error("Failed to decode parameter value '" + values[i] + "'");
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to decode parameter value '" + values[i] + "'");
+                    }
                     result[i] = values[i];
                 }
             }

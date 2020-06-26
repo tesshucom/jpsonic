@@ -44,15 +44,15 @@ import java.util.*;
  *
  * @author Sindre Mehus
  */
-public final class Util {
+public final class PlayerUtils {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
 
     /**
      * Disallow external instantiation.
      */
-    private Util() {
+    private PlayerUtils() {
     }
 
     public static String getDefaultMusicFolder() {

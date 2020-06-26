@@ -108,16 +108,24 @@ public class InternetRadioService {
     public List<InternetRadioSource> getInternetRadioSources(InternetRadio radio) {
         List<InternetRadioSource> sources;
         if (cachedSources.containsKey(radio.getId())) {
-            LOG.debug("Got cached sources for internet radio {}!", radio.getStreamUrl());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Got cached sources for internet radio {}!", radio.getStreamUrl());
+            }
             sources = cachedSources.get(radio.getId());
         } else {
-            LOG.debug("Retrieving sources for internet radio {}...", radio.getStreamUrl());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Retrieving sources for internet radio {}...", radio.getStreamUrl());
+            }
             try {
                 sources = retrieveInternetRadioSources(radio);
                 if (sources.isEmpty()) {
-                    LOG.warn("No entries found for internet radio {}.", radio.getStreamUrl());
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("No entries found for internet radio {}.", radio.getStreamUrl());
+                    }
                 } else {
-                    LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(), sources.size());
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(), sources.size());
+                    }
                 }
             } catch (Exception e) {
                 LOG.error("Failed to retrieve sources for internet radio {}.", radio.getStreamUrl(), e);
@@ -157,7 +165,9 @@ public class InternetRadioService {
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
-        LOG.debug("Parsing internet radio playlist at {}...", playlistUrl);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Parsing internet radio playlist at {}...", playlistUrl);
+        }
         SpecificPlaylist inputPlaylist = retrievePlaylist(new URL(playlistUrl), maxByteSize, maxRedirects);
 
         // Retrieve stream URLs
@@ -203,7 +213,9 @@ public class InternetRadioService {
                         throw new PlaylistTooLarge("Remote playlist has too many sources (maximum " + maxCount + ")");
                     }
                     String streamUrl = media.getSource().getURI().toString();
-                    LOG.debug("Got source media at {}", streamUrl);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Got source media at {}", streamUrl);
+                    }
                     entries.add(new InternetRadioSource(streamUrl));
                 }
 
@@ -235,7 +247,9 @@ public class InternetRadioService {
         try (InputStream in = urlConnection.getInputStream()) {
             String contentEncoding = urlConnection.getContentEncoding();
             if (maxByteSize > 0) {
-                playlist = SpecificPlaylistFactory.getInstance().readFrom(new BoundedInputStream(in, maxByteSize), contentEncoding);
+                try (BoundedInputStream bis = new BoundedInputStream(in, maxByteSize)) {
+                    playlist = SpecificPlaylistFactory.getInstance().readFrom(bis, contentEncoding);
+                }
             } else {
                 playlist = SpecificPlaylistFactory.getInstance().readFrom(in, contentEncoding);
             }

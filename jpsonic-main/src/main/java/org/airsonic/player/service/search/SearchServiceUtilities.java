@@ -123,7 +123,7 @@ public class SearchServiceUtilities {
     };
 
     public final Function<Document, Integer> getId = d -> {
-        return Integer.valueOf(d.get(FieldNames.ID));
+        return Integer.valueOf(d.get(FieldNamesConstants.ID));
     };
 
     public final BiConsumer<List<MediaFile>, Integer> addMediaFileIfAnyMatch = (dist, id) -> {
@@ -159,11 +159,11 @@ public class SearchServiceUtilities {
     public final Function<Class<?>, @Nullable String> getFieldName = (assignableClass) -> {
         String fieldName = null;
         if (assignableClass.isAssignableFrom(Album.class)) {
-            fieldName = FieldNames.ALBUM;
+            fieldName = FieldNamesConstants.ALBUM;
         } else if (assignableClass.isAssignableFrom(Artist.class)) {
-            fieldName = FieldNames.ARTIST;
+            fieldName = FieldNamesConstants.ARTIST;
         } else if (assignableClass.isAssignableFrom(MediaFile.class)) {
-            fieldName = FieldNames.TITLE;
+            fieldName = FieldNamesConstants.TITLE;
         }
         return fieldName;
     };
@@ -219,9 +219,9 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final String[] filterComposer(String[] Fields, boolean includeComposer) {
-        return Arrays.asList(Fields).stream()
-                .filter(f -> includeComposer ? true : !(FieldNames.COMPOSER.equals(f) || FieldNames.COMPOSER_READING.equals(f)))
+    public final String[] filterComposer(String[] fields, boolean includeComposer) {
+        return Arrays.asList(fields).stream()
+                .filter(f -> includeComposer ? true : !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
                 .collect(Collectors.toList()).toArray(new String[0]);
     }
 

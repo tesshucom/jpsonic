@@ -61,7 +61,6 @@ class AlphanumWrapper extends Collator {
                     }
                 }
             } else {
-                deligate.compare(thisChunk, thatChunk);
                 result = null == deligate
                         ? thisChunk.compareToIgnoreCase(thatChunk)
                         : deligate.compare(thisChunk, thatChunk);
@@ -73,25 +72,26 @@ class AlphanumWrapper extends Collator {
     }
 
     private final String getChunk(String s, int slength, int marker) {
+        int cursol = marker;
         StringBuilder chunk = new StringBuilder();
-        char c = s.charAt(marker);
+        char c = s.charAt(cursol);
         chunk.append(c);
-        marker++;
+        cursol++;
         if (isDigit(c)) {
-            while (marker < slength) {
-                c = s.charAt(marker);
+            while (cursol < slength) {
+                c = s.charAt(cursol);
                 if (!isDigit(c))
                     break;
                 chunk.append(c);
-                marker++;
+                cursol++;
             }
         } else {
-            while (marker < slength) {
-                c = s.charAt(marker);
+            while (cursol < slength) {
+                c = s.charAt(cursol);
                 if (isDigit(c))
                     break;
                 chunk.append(c);
-                marker++;
+                cursol++;
             }
         }
         return chunk.toString();

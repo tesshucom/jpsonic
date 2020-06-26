@@ -24,7 +24,7 @@ import org.airsonic.player.io.RangeOutputStream;
 import org.airsonic.player.service.*;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.HttpRange;
-import org.airsonic.player.util.Util;
+import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +41,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -110,7 +112,9 @@ public class DownloadController implements LastModified {
             HttpRange range = HttpRange.valueOf(request.getHeader("Range"));
             if (range != null) {
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                LOG.info("Got HTTP range: " + range);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Got HTTP range: " + range);
+                }
             }
 
             if (mediaFile != null) {
@@ -164,17 +168,21 @@ public class DownloadController implements LastModified {
      * @throws IOException If an I/O error occurs.
      */
     private void downloadFile(HttpServletResponse response, TransferStatus status, File file, HttpRange range) throws IOException {
-        LOG.info("Starting to download '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Starting to download '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        }
         status.setFile(file);
 
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(file.getName()));
         if (range == null) {
-            Util.setContentLength(response, file.length());
+            PlayerUtils.setContentLength(response, file.length());
         }
 
         copyFileToStream(file, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);
-        LOG.info("Downloaded '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Downloaded '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        }
     }
 
     private String encodeAsRFC5987(String string) {
@@ -207,14 +215,16 @@ public class DownloadController implements LastModified {
      * @param zipFileName  The name of the resulting zip file.   @throws IOException If an I/O error occurs.
      */
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files, int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
-        boolean cover_embedded = false;
+        boolean coverEmbedded = false;
 
         if (indexes != null && indexes.length == 1) {
             downloadFile(response, status, files.get(indexes[0]).getFile(), range);
             return;
         }
 
-        LOG.info("Starting to download '" + zipFileName + "' to " + status.getPlayer());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Starting to download '" + zipFileName + "' to " + status.getPlayer());
+        }
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
 
@@ -236,17 +246,19 @@ public class DownloadController implements LastModified {
             zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
             if (coverArtFile != null && coverArtFile.exists()) {
                 if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
-                    cover_embedded = true;
+                    coverEmbedded = true;
                 }
             }
         }
-        if (coverArtFile != null && coverArtFile.exists() && !cover_embedded) {
+        if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
             zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
         }
 
 
         out.close();
-        LOG.info("Downloaded '" + zipFileName + "' to " + status.getPlayer());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Downloaded '" + zipFileName + "' to " + status.getPlayer());
+        }
     }
 
     /**
@@ -259,10 +271,12 @@ public class DownloadController implements LastModified {
      * @throws IOException If an I/O error occurs.
      */
     private void copyFileToStream(File file, OutputStream out, TransferStatus status, HttpRange range) throws IOException {
-        LOG.info("Downloading '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Downloading '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
+        }
 
         final int bufferSize = 16 * 1024; // 16 Kbit
-        InputStream in = new BufferedInputStream(new FileInputStream(file), bufferSize);
+        InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize);
 
         try {
             byte[] buf = new byte[bufferSize];
@@ -368,8 +382,7 @@ public class DownloadController implements LastModified {
      */
     private long computeCrc(File file) throws IOException {
         CRC32 crc = new CRC32();
-
-        try (InputStream in = new FileInputStream(file)) {
+        try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
 
             byte[] buf = new byte[8192];
             int n = in.read(buf);

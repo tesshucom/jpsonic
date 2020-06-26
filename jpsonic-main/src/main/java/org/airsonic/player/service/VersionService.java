@@ -81,9 +81,13 @@ public class VersionService {
         if (localVersion == null) {
             try {
                 localVersion = new Version(readLineFromResource("/version.txt"));
-                LOG.info("Resolved local Jpsonic version to: " + localVersion);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Resolved local Jpsonic version to: " + localVersion);
+                }
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Jpsonic version.", x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to resolve local Jpsonic version.", x);
+                }
             }
         }
         return localVersion;
@@ -123,7 +127,9 @@ public class VersionService {
                 String date = readLineFromResource("/build_date.txt");
                 localBuildDate = DATE_FORMAT.parse(date);
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Jpsonic build date.", x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to resolve local Jpsonic build date.", x);
+                }
             }
         }
         return localBuildDate;
@@ -140,7 +146,9 @@ public class VersionService {
             try {
                 localBuildNumber = readLineFromResource("/build_number.txt");
             } catch (Exception x) {
-                LOG.warn("Failed to resolve local Jpsonic build number.", x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to resolve local Jpsonic build number.", x);
+                }
             }
         }
         return localBuildNumber;
@@ -211,13 +219,14 @@ public class VersionService {
                 lastVersionFetched = now;
                 readLatestVersion();
             } catch (Exception x) {
-                LOG.warn("Failed to resolve latest Jpsonic version.", x);
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to resolve latest Jpsonic version.", x);
+                }
             }
         }
     }
 
-    private final static String JSON_PATH = "$..tag_name";
-    private final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
+    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
     /**
@@ -225,7 +234,9 @@ public class VersionService {
      */
     private void readLatestVersion() throws IOException {
 
-        LOG.debug("Starting to read latest version");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Starting to read latest version");
+        }
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(10000)
                 .setSocketTimeout(10000)
@@ -237,7 +248,9 @@ public class VersionService {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             content = client.execute(method, responseHandler);
         } catch (ConnectTimeoutException e) {
-            LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+            }
             return;
         }
 
@@ -249,7 +262,7 @@ public class VersionService {
         Function<String, Version> convertToVersion = s -> {
             Matcher match = VERSION_REGEX.matcher(s);
             if (!match.matches()) {
-                throw new RuntimeException("Unexpected tag format " + s);
+                throw new IllegalArgumentException("Unexpected tag format " + s);
             }
             return new Version(match.group(1));
         };
@@ -258,9 +271,10 @@ public class VersionService {
 
         Optional<Version> betaV = unsortedTags.stream().map(convertToVersion).max(Comparator.naturalOrder());
         Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder()).filter(finalVersionPredicate).findFirst();
-
-        LOG.debug("Got {} for beta version", betaV);
-        LOG.debug("Got {} for final version", finalV);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Got {} for beta version", betaV);
+            LOG.debug("Got {} for final version", finalV);
+        }
 
         latestBetaVersion = betaV.get();
         latestFinalVersion = finalV.get();

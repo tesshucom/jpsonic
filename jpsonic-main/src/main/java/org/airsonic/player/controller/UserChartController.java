@@ -87,7 +87,7 @@ public class UserChartController extends AbstractChartController {
             } else if ("total".equals(type)) {
                 value = user.getBytesStreamed() + user.getBytesDownloaded() + user.getBytesUploaded();
             } else {
-                throw new RuntimeException("Illegal chart type: " + type);
+                throw new IllegalArgumentException("Illegal chart type: " + type);
             }
 
             value /= BYTES_PER_MB;

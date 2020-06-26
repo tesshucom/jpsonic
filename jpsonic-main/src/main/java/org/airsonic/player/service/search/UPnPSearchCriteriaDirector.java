@@ -127,7 +127,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
     };
 
-    private final List<String> UNSUPPORTED_CLASS = Arrays.asList(
+    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList(
             "object.container.album.photoAlbum",
             "object.container.playlistContainer",
             "object.container.genre",
@@ -183,24 +183,22 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     public void enterClassRelExp(ClassRelExpContext ctx) {
         List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
-        final String S = children.get(0).getText();
-        final String V = children.get(1).getText();
-        final String C = children.get(2).getText();
+        final String subject = children.get(0).getText();
+        final String verb = children.get(1).getText();
+        final String complement = children.get(2).getText();
 
-        if (UNSUPPORTED_CLASS.contains(C)) {
+        if (UNSUPPORTED_CLASS.contains(complement)) {
             mediaTypeQueryBuilder = null;
-            throw createIllegal("The current version does not support searching for this class.", S, V, C);
+            throw createIllegal("The current version does not support searching for this class.", subject, verb, complement);
         }
 
-        if (C.startsWith("object.item.audioItem") || C.startsWith("object.item.videoItem")) {
+        if (complement.startsWith("object.item.audioItem") || complement.startsWith("object.item.videoItem")) {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
-        } else {
-            mediaTypeQueryBuilder = null;
         }
 
-        switch (V) {
+        switch (verb) {
             case "derivedfrom":
-                switch (C) {
+                switch (complement) {
 
                     // artist
                     case "object.container.person":
@@ -217,25 +215,29 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     // audio
                     case "object.item.audioItem":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        }
                         break;
 
                     // video
                     case "object.item.videoItem":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        }
                         break;
 
                     default:
                         mediaTypeQueryBuilder = null;
-                        throw createIllegal("An unknown class was specified.", S, V, C);
+                        throw createIllegal("An unknown class was specified.", subject, verb, complement);
 
                 }
                 break;
             case "=":
-                switch (C) {
+                switch (complement) {
     
                     // artist
                     case "object.container.person.musicArtist":
@@ -250,15 +252,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     // audio
                     case "object.item.audioItem.musicTrack":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
+                        }
                         break;
                     case "object.item.audioItem.audioBroadcast":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
+                        }
                         break;
                     case "object.item.audioItem.audioBook":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
+                        }
                         break;
 
                     // video
@@ -266,12 +274,14 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                     case "object.item.videoItem.videoBroadcast":
                     case "object.item.videoItem.musicVideoClip":
                         assignableClass = MediaFile.class;
-                        mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNames.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        if (!isEmpty(mediaTypeQueryBuilder)) {
+                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
+                        }
                         break;
 
                     default:
                         mediaTypeQueryBuilder = null;
-                        throw createIllegal("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.", S, V, C);
+                        throw createIllegal("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.", subject, verb, complement);
 
                 }
                 break;
@@ -353,35 +363,34 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
         List<ParseTree> children = ctx.children.stream().filter(p -> !isBlank(p.getText())).collect(toList());
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
-        final String S = children.get(0).getText();
-        final String C = children.get(2).getText();
-
+        final String subject = children.get(0).getText();
+        final String complement = children.get(2).getText();
         List<String> fieldName = new ArrayList<String>();
 
-        if ("dc:title".equals(S)) {
+        if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {
-                fieldName.add(FieldNames.ALBUM_EX);
-                fieldName.add(FieldNames.ALBUM);
+                fieldName.add(FieldNamesConstants.ALBUM_EX);
+                fieldName.add(FieldNamesConstants.ALBUM);
             } else if (Artist.class == assignableClass) {
-                fieldName.add(FieldNames.ARTIST_READING);
-                fieldName.add(FieldNames.ARTIST_EX);
-                fieldName.add(FieldNames.ARTIST);
+                fieldName.add(FieldNamesConstants.ARTIST_READING);
+                fieldName.add(FieldNamesConstants.ARTIST_EX);
+                fieldName.add(FieldNamesConstants.ARTIST);
             } else {
-                fieldName.add(FieldNames.TITLE_EX);
-                fieldName.add(FieldNames.TITLE);
+                fieldName.add(FieldNamesConstants.TITLE_EX);
+                fieldName.add(FieldNamesConstants.TITLE);
             }
-        } else if ("dc:creator".equals(S)) {
-            fieldName.add(FieldNames.COMPOSER_READING);
-            fieldName.add(FieldNames.COMPOSER);
-        } else if ("upnp:artist".equals(S)) {
-            fieldName.add(FieldNames.ARTIST_READING);
-            fieldName.add(FieldNames.ARTIST_EX);
-            fieldName.add(FieldNames.ARTIST);
+        } else if ("dc:creator".equals(subject)) {
+            fieldName.add(FieldNamesConstants.COMPOSER_READING);
+            fieldName.add(FieldNamesConstants.COMPOSER);
+        } else if ("upnp:artist".equals(subject)) {
+            fieldName.add(FieldNamesConstants.ARTIST_READING);
+            fieldName.add(FieldNamesConstants.ARTIST_EX);
+            fieldName.add(FieldNamesConstants.ARTIST);
         }
-        notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + S);
+        notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
 
         try {
-            Query query = createMultiFieldQuery(fieldName.toArray(new String[fieldName.size()]), C);
+            Query query = createMultiFieldQuery(fieldName.toArray(new String[fieldName.size()]), complement);
             if (!isEmpty(query)) {
                 propExpQueryBuilder.add(query, isEmpty(lastLogOp) ? Occur.SHOULD : lastLogOp);
             }
@@ -576,8 +585,8 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     public void visitTerminal(TerminalNode node) {
     }
 
-    private IllegalArgumentException createIllegal(String message, String S, String V, String C) {
-        return new IllegalArgumentException(message.concat(" : ").concat(S).concat(SPACE).concat(V).concat(SPACE).concat(C));
+    private IllegalArgumentException createIllegal(String message, String subject, String verb, String complement) {
+        return new IllegalArgumentException(message.concat(" : ").concat(subject).concat(SPACE).concat(verb).concat(SPACE).concat(complement));
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {

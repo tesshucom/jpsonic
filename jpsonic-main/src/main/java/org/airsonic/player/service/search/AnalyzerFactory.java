@@ -84,11 +84,11 @@ public final class AnalyzerFactory {
 
     private Analyzer queryAnalyzer;
 
-    private String STOP_TAGS;
+    private String stopTags;
 
     private static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
 
-    private String STOP_WARDS;
+    private String stopWords;
 
     boolean isSearchMethodLegacy;
 
@@ -96,11 +96,11 @@ public final class AnalyzerFactory {
     void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
         this.isSearchMethodLegacy = isSearchMethodLegacy;
         if (!isSearchMethodLegacy) {
-            STOP_WARDS = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
-            STOP_TAGS = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
+            stopWords = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
+            stopTags = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
         } else {
-            STOP_WARDS = "com/tesshu/jpsonic/service/stopwords.txt";
-            STOP_TAGS = "org/apache/lucene/analysis/ja/stoptags.txt";
+            stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
+            stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
         }
         analyzer = null;
         queryAnalyzer = null;
@@ -158,8 +158,8 @@ public final class AnalyzerFactory {
         builder.addTokenFilter(CJKWidthFilterFactory.class)
                 .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
                 .addTokenFilter(LowerCaseFilterFactory.class)
-                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : STOP_WARDS, "ignoreCase", "true")
-                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS);
+                .addTokenFilter(StopFilterFactory.class, "words", isArtist ? STOP_WARDS_FOR_ARTIST : stopWords, "ignoreCase", "true")
+                .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags);
                 // .addTokenFilter(EnglishPossessiveFilterFactory.class); XXX airsonic -> jpsonic : possession(issues#290)
         addTokenFilterForUnderscoreRemovalAroundToken(builder);
         return builder;
@@ -188,7 +188,7 @@ public final class AnalyzerFactory {
     private Builder createExceptionalAnalyzerBuilder() throws IOException {
         return createKeywordAnalyzerBuilder()
             .addTokenFilter(CJKWidthFilterFactory.class)
-            .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", STOP_TAGS)
+            .addTokenFilter(JapanesePartOfSpeechStopFilterFactory.class, "tags", stopTags)
             .addTokenFilter(ASCIIFoldingFilterFactory.class, "preserveOriginal", "false")
             .addTokenFilter(LowerCaseFilterFactory.class)
             .addTokenFilter(PunctuationStemFilterFactory.class);
@@ -204,7 +204,7 @@ public final class AnalyzerFactory {
         } 
 
         CharArraySet stopWords4Artist = getWords(STOP_WARDS_FOR_ARTIST);
-        Set<String> stopTags = loadStopTags();
+        Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
 
             @Override
@@ -214,7 +214,7 @@ public final class AnalyzerFactory {
                 result = new ASCIIFoldingFilter(result, false);
                 result = new LowerCaseFilter(result);
                 result = new StopFilter(result, stopWords4Artist);
-                result = new JapanesePartOfSpeechStopFilter(result, stopTags);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
                 result = new PunctuationStemFilter(result);
                 result = new CJKBigramFilter(result);
                 result = new ToHiraganaFilter(result);
@@ -235,11 +235,11 @@ public final class AnalyzerFactory {
         if (isSearchMethodLegacy) {
             ComplementaryFilter.Mode mode = isArtist ? Mode.STOP_WORDS_ONLY : Mode.STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY;
             return createExceptionalAnalyzerBuilder()
-                    .addTokenFilter(ComplementaryFilterFactory.class, "mode", mode.value(), "stopwards", STOP_WARDS)
+                    .addTokenFilter(ComplementaryFilterFactory.class, "mode", mode.value(), "stopwards", stopWords)
                     .build();
         }
 
-        Set<String> stopTags = loadStopTags();
+        Set<String> stopTagset = loadStopTags();
 
         return new StopwordAnalyzerBase() {
 
@@ -250,7 +250,7 @@ public final class AnalyzerFactory {
                 result = new ASCIIFoldingFilter(result, false);
                 result = new LowerCaseFilter(result);
                 result = new PunctuationStemFilter(result);
-                result = new JapanesePartOfSpeechStopFilter(result, stopTags);
+                result = new JapanesePartOfSpeechStopFilter(result, stopTagset);
                 result = new ComplementaryFilter(result, Mode.HIRA_KATA_ONLY, null);
                 result = new ToHiraganaFilter(result);
                 result = new CJKBigramFilter(result);
@@ -270,15 +270,15 @@ public final class AnalyzerFactory {
     }
 
     private Set<String> loadStopTags() throws IOException {
-        Set<String> stopTags = new HashSet<>();
-        CharArraySet cas = getWords(STOP_TAGS);
+        Set<String> stopTagset = new HashSet<>();
+        CharArraySet cas = getWords(stopTags);
         if (cas != null) {
             for (Object element : cas) {
                 char chars[] = (char[]) element;
-                stopTags.add(new String(chars));
+                stopTagset.add(new String(chars));
             }
         }
-        return stopTags;
+        return stopTagset;
     }
 
     public Analyzer getAnalyzer() throws IOException {
@@ -291,15 +291,15 @@ public final class AnalyzerFactory {
                 Analyzer artistEx = createExAnalyzer(true);
 
                 Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNames.GENRE_KEY, createKeywordAnalyzerBuilder().build());
-                analyzerMap.put(FieldNames.ARTIST, artist);
-                analyzerMap.put(FieldNames.COMPOSER, artist);
-                analyzerMap.put(FieldNames.ARTIST_READING, reading);
-                analyzerMap.put(FieldNames.COMPOSER_READING, reading);
-                analyzerMap.put(FieldNames.ALBUM_EX, exceptional);
-                analyzerMap.put(FieldNames.TITLE_EX, exceptional);
-                analyzerMap.put(FieldNames.ARTIST_EX, artistEx);
-                analyzerMap.put(FieldNames.GENRE, createGenreAnalyzer());
+                analyzerMap.put(FieldNamesConstants.GENRE_KEY, createKeywordAnalyzerBuilder().build());
+                analyzerMap.put(FieldNamesConstants.ARTIST, artist);
+                analyzerMap.put(FieldNamesConstants.COMPOSER, artist);
+                analyzerMap.put(FieldNamesConstants.ARTIST_READING, reading);
+                analyzerMap.put(FieldNamesConstants.COMPOSER_READING, reading);
+                analyzerMap.put(FieldNamesConstants.ALBUM_EX, exceptional);
+                analyzerMap.put(FieldNamesConstants.TITLE_EX, exceptional);
+                analyzerMap.put(FieldNamesConstants.ARTIST_EX, artistEx);
+                analyzerMap.put(FieldNamesConstants.GENRE, createGenreAnalyzer());
 
                 this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(), analyzerMap);
 
