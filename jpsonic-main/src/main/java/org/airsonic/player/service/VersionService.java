@@ -22,7 +22,6 @@ package org.airsonic.player.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.airsonic.player.domain.Version;
-import org.airsonic.player.util.FileUtil;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -193,17 +192,17 @@ public class VersionService {
      * @return The first line of the resource.
      */
     private String readLineFromResource(@NonNull String resourceName) {
-        InputStream in = VersionService.class.getResourceAsStream(resourceName);
-        if (in == null) {
+        try (InputStream in = VersionService.class.getResourceAsStream(resourceName)) {
+            if (in == null) {
+                return null;
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                return reader.readLine();
+            } catch (IOException x) {
+                return null;
+            }
+        } catch (IOException e) {
             return null;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            return reader.readLine();
-        } catch (IOException x) {
-            return null;
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 

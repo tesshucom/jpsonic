@@ -276,9 +276,8 @@ public class DownloadController implements LastModified {
         }
 
         final int bufferSize = 16 * 1024; // 16 Kbit
-        InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize);
 
-        try {
+        try (InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize)) {
             byte[] buf = new byte[bufferSize];
             long bitrateLimit = 0;
             long lastLimitCheck = 0;
@@ -321,7 +320,6 @@ public class DownloadController implements LastModified {
             }
         } finally {
             out.flush();
-            FileUtil.closeQuietly(in);
         }
     }
 

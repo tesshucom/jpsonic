@@ -233,6 +233,7 @@ public final class StringUtil {
      * @return Array of lines.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
     public static String[] readLines(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             List<String> result = new ArrayList<>();

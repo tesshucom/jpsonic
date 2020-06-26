@@ -21,7 +21,6 @@ package org.airsonic.player.service;
 
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
-import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
@@ -72,11 +71,9 @@ public class LastFmCache extends Cache {
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();
 
-        OutputStream xmlOut = null;
-        OutputStream metaOut = null;
-        try {
-            File xmlFile = getXmlFile(cacheEntryName);
-            xmlOut = Files.newOutputStream(Paths.get(xmlFile.toURI()));
+        File xmlFile = getXmlFile(cacheEntryName);
+        try (OutputStream xmlOut = Files.newOutputStream(Paths.get(xmlFile.toURI()))) {
+
             IOUtils.copy(inputStream, xmlOut);
 
             File metaFile = getMetaFile(cacheEntryName);
@@ -84,13 +81,13 @@ public class LastFmCache extends Cache {
 
             // Note: Ignore the given expirationDate, since Last.fm sets it to just one day ahead.
             properties.setProperty("expiration-date", Long.toString(getExpirationDate()));
-            metaOut = Files.newOutputStream(Paths.get(metaFile.toURI()));
-            properties.store(metaOut, null);
+
+            try (OutputStream metaOut = Files.newOutputStream(Paths.get(metaFile.toURI()))) {
+                properties.store(metaOut, null);
+            }
+
         } catch (Exception e) {
             // we ignore the exception. if something went wrong we just don't cache it.
-        } finally {
-            FileUtil.closeQuietly(xmlOut);
-            FileUtil.closeQuietly(metaOut);
         }
     }
 
@@ -110,17 +107,13 @@ public class LastFmCache extends Cache {
         if (!f.exists()) {
             return false;
         }
-        InputStream in = null;
-        try {
+        try (InputStream in = Files.newInputStream(Paths.get(f.toURI()))) {
             Properties p = new Properties();
-            in = Files.newInputStream(Paths.get(f.toURI()));
             p.load(in);
             long expirationDate = Long.valueOf(p.getProperty("expiration-date"));
             return expirationDate < System.currentTimeMillis();
         } catch (Exception e) {
             return false;
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 

@@ -25,7 +25,6 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
-import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
@@ -216,29 +215,21 @@ public class CoverArtController implements LastModified {
         if (response.getContentType() == null) {
             response.setContentType(StringUtil.getMimeType("jpeg"));
         }
-        InputStream in = null;
-        try {
-            in = getClass().getResourceAsStream("default_cover.jpg");
+        try (InputStream in = getClass().getResourceAsStream("default_cover.jpg")) {
             BufferedImage image = ImageIO.read(in);
             if (size != null) {
                 image = scale(image, size, size);
             }
             ImageIO.write(image, "jpeg", response.getOutputStream());
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 
     private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws IOException {
         File file = coverArtRequest.getCoverArt();
-        InputStream in = null;
-        try {
-            Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
-            in = imageInputStreamWithType.getLeft();
-            response.setContentType(imageInputStreamWithType.getRight());
+        Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
+        response.setContentType(imageInputStreamWithType.getRight());
+        try (InputStream in = imageInputStreamWithType.getLeft()) {
             IOUtils.copy(in, response.getOutputStream());
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 
@@ -254,26 +245,21 @@ public class CoverArtController implements LastModified {
 
             if (lock.equals(LOCKS.get(hash))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
-                OutputStream out = null;
-                try {
+                try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
                     semaphore.acquire();
                     BufferedImage image = request.createImage(size);
                     if (image == null) {
                         throw new ExecutionException(new IOException("Unable to decode image."));
                     }
-                    out = Files.newOutputStream(Paths.get(cachedImage.toURI()));
                     ImageIO.write(image, encoding, out);
-
                 } catch (Throwable t) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to create thumbnail for " + request, t);
                     }
-                    FileUtil.closeQuietly(out);
                     cachedImage.delete();
                     throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
-                    FileUtil.closeQuietly(out);
                     LOCKS.remove(hash, lock);
                 }
             }
@@ -395,10 +381,8 @@ public class CoverArtController implements LastModified {
 
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
-                InputStream in = null;
                 String reason = null;
-                try {
-                    in = getImageInputStream(coverArt);
+                try (InputStream in = getImageInputStream(coverArt)) {
                     if (in == null) {
                         reason = "getImageInputStream";
                     } else {
@@ -416,8 +400,6 @@ public class CoverArtController implements LastModified {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);
                     }
-                } finally {
-                    FileUtil.closeQuietly(in);
                 }
             }
             return createAutoCover(size, size);
@@ -656,9 +638,7 @@ public class CoverArtController implements LastModified {
             int height;
             height = size;
             int width = height * 16 / 9;
-            InputStream in = null;
-            try {
-                in = getImageInputStreamForVideo(mediaFile, width, height, offset);
+            try (InputStream in = getImageInputStreamForVideo(mediaFile, width, height, offset)) {
                 BufferedImage result = ImageIO.read(in);
                 if (result != null) {
                     return result;
@@ -670,8 +650,6 @@ public class CoverArtController implements LastModified {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to process cover art for " + mediaFile + ": " + x, x);
                 }
-            } finally {
-                FileUtil.closeQuietly(in);
             }
             return createAutoCover(width, height);
         }

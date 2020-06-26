@@ -1024,8 +1024,7 @@ public class SettingsService {
     public synchronized Theme[] getAvailableThemes() {
         if (themes == null) {
             themes = new ArrayList<>();
-            try {
-                InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE);
+            try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
                 String[] lines = StringUtil.readLines(in);
                 for (String line : lines) {
                     String[] elements = StringUtil.split(line);
@@ -1057,14 +1056,11 @@ public class SettingsService {
     public synchronized Locale[] getAvailableLocales() {
         if (locales == null) {
             locales = new ArrayList<>();
-            try {
-                InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE);
+            try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
                 String[] lines = StringUtil.readLines(in);
-
                 for (String line : lines) {
                     locales.add(StringUtil.parseLocale(line));
                 }
-
             } catch (IOException x) {
                 if (LOG.isErrorEnabled()) {
                     LOG.error("Failed to resolve list of locales.", x);
