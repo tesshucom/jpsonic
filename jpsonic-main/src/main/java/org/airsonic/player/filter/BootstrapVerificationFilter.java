@@ -99,6 +99,7 @@ public class BootstrapVerificationFilter implements Filter {
         }
     }
 
+    @SuppressWarnings("PMD.CloseResource") // Should be closed in container
     private void error(ServletResponse res, String error) throws IOException {
         ServletOutputStream out = res.getOutputStream();
         out.println("<html>" +

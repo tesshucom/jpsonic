@@ -206,6 +206,7 @@ public final class AnalyzerFactory {
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
 
+            @SuppressWarnings("PMD.CloseResource")
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -242,6 +243,7 @@ public final class AnalyzerFactory {
 
         return new StopwordAnalyzerBase() {
 
+            @SuppressWarnings("PMD.CloseResource")
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -280,6 +282,7 @@ public final class AnalyzerFactory {
         return stopTagset;
     }
 
+    @SuppressWarnings("PMD.CloseResource")
     public Analyzer getAnalyzer() throws IOException {
         if (isEmpty(analyzer)) {
             try {

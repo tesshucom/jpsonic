@@ -22,7 +22,6 @@ package org.airsonic.player.service;
 import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
 import org.airsonic.player.service.upnp.MSMediaReceiverRegistrarService;
-import org.airsonic.player.util.FileUtil;
 import org.fourthline.cling.DefaultUpnpServiceConfiguration;
 import org.fourthline.cling.UpnpService;
 import org.fourthline.cling.UpnpServiceConfiguration;
@@ -180,10 +179,6 @@ public class UPnPService {
                 new ModelDetails(serverName),
                 new DLNADoc[]{new DLNADoc("DMS", DLNADoc.Version.V1_5)}, null);
 
-        InputStream in = getClass().getResourceAsStream("logo-512.png");
-        Icon icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
-        FileUtil.closeQuietly(in);
-
         LocalService<CustomContentDirectory> contentDirectoryservice = new AnnotationLocalServiceBinder().read(CustomContentDirectory.class);
         contentDirectoryservice.setManager(new DefaultServiceManager<CustomContentDirectory>(contentDirectoryservice) {
 
@@ -217,6 +212,10 @@ public class UPnPService {
         LocalService<MSMediaReceiverRegistrarService> receiverService = new AnnotationLocalServiceBinder().read(MSMediaReceiverRegistrarService.class);
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
+        Icon icon = null;
+        try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
+            icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
+        }
         return new LocalDevice(identity, type, details, new Icon[]{icon}, new LocalService[]{contentDirectoryservice, connetionManagerService, receiverService});
     }
 

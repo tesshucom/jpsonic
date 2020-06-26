@@ -228,34 +228,37 @@ public class DownloadController implements LastModified {
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
 
-        ZipOutputStream out = new ZipOutputStream(RangeOutputStream.wrap(response.getOutputStream(), range));
-        out.setMethod(ZipOutputStream.STORED);  // No compression.
+        try (ZipOutputStream out = new ZipOutputStream(RangeOutputStream.wrap(response.getOutputStream(), range))) {
 
-        Set<MediaFile> filesToDownload = new HashSet<>();
-        if (indexes == null) {
-            filesToDownload.addAll(files);
-        } else {
-            for (int index : indexes) {
-                try {
-                    filesToDownload.add(files.get(index));
-                } catch (IndexOutOfBoundsException x) { /* Ignored */}
-            }
-        }
+            out.setMethod(ZipOutputStream.STORED); // No compression.
 
-        for (MediaFile mediaFile : filesToDownload) {
-            zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
-            if (coverArtFile != null && coverArtFile.exists()) {
-                if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
-                    coverEmbedded = true;
+            Set<MediaFile> filesToDownload = new HashSet<>();
+            if (indexes == null) {
+                filesToDownload.addAll(files);
+            } else {
+                for (int index : indexes) {
+                    try {
+                        filesToDownload.add(files.get(index));
+                    } catch (IndexOutOfBoundsException x) {
+                        /* Ignored */
+                    }
                 }
             }
-        }
-        if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
-            zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
+
+            for (MediaFile mediaFile : filesToDownload) {
+                zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
+                if (coverArtFile != null && coverArtFile.exists()) {
+                    if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
+                        coverEmbedded = true;
+                    }
+                }
+            }
+            if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
+                zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
+            }
+
         }
 
-
-        out.close();
         if (LOG.isInfoEnabled()) {
             LOG.info("Downloaded '" + zipFileName + "' to " + status.getPlayer());
         }
