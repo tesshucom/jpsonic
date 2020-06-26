@@ -65,7 +65,6 @@ public class TestCaseUtils {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Error while deleting jpsonic home.");
                 }
-                e.printStackTrace();
                 throw e;
             }
         }
@@ -106,7 +105,9 @@ public class TestCaseUtils {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Scan waiting was interrupted.", e);
+                }
             }
         }
     }
