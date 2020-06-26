@@ -234,16 +234,16 @@ public class CoverArtController implements LastModified {
     }
 
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
-        String hash = DigestUtils.md5Hex(request.getKey());
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
-        File cachedImage = new File(getImageCacheDirectory(size), hash + "." + encoding);
+        File cachedImage = new File(getImageCacheDirectory(size), DigestUtils.md5Hex(request.getKey()) + "." + encoding);
+        String lockKey = cachedImage.getPath();
 
         Object lock = new Object();
         synchronized (lock) {
 
-            LOCKS.putIfAbsent(hash, lock);
+            LOCKS.putIfAbsent(lockKey, lock);
 
-            if (lock.equals(LOCKS.get(hash))
+            if (lock.equals(LOCKS.get(lockKey))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
                     semaphore.acquire();
@@ -260,7 +260,7 @@ public class CoverArtController implements LastModified {
                     throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
-                    LOCKS.remove(hash, lock);
+                    LOCKS.remove(lockKey, lock);
                 }
             }
             return cachedImage;
