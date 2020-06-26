@@ -130,7 +130,9 @@ public final class FileUtil {
      * Closes the "closable", ignoring any excepetions.
      *
      * @param closeable The Closable to close, may be {@code null}.
+     * @deprecated Deprecated in current Java
      */
+    @Deprecated
     public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
             try {

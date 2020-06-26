@@ -49,6 +49,7 @@ public class InputStreamReaderThread extends Thread {
         this.log = log;
     }
 
+    @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
