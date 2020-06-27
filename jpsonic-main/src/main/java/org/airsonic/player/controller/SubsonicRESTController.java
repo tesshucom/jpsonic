@@ -207,18 +207,17 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getIndexes")
     public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
-        String username = securityService.getCurrentUser(request).getUsername();
-
         long ifModifiedSince = getLongParameter(request, "ifModifiedSince", 0L);
         long lastModified = leftController.getLastModified(request);
-
         if (lastModified <= ifModifiedSince) {
             jaxbWriter.writeResponse(request, response, res);
             return;
         }
 
+        String username = securityService.getCurrentUser(request).getUsername();
         Indexes indexes = new Indexes();
         indexes.setLastModified(lastModified);
         indexes.setIgnoredArticles(settingsService.getIgnoredArticles());
@@ -342,19 +341,19 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getSimilarSongs")
     public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
-        int count = getIntParameter(request, "count", 50);
-
-        SimilarSongs result = new SimilarSongs();
-
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
+        int count = getIntParameter(request, "count", 50);
+        SimilarSongs result = new SimilarSongs();
+
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(mediaFile, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
@@ -369,20 +368,18 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getSimilarSongs2")
     public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
-        int count = getIntParameter(request, "count", 50);
-
-        SimilarSongs2 result = new SimilarSongs2();
-
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
+        String username = securityService.getCurrentUsername(request);
+        int count = getIntParameter(request, "count", 50);
+        SimilarSongs2 result = new SimilarSongs2();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
         Player player = playerService.getPlayer(request, response);
@@ -420,19 +417,19 @@ public class SubsonicRESTController {
     @RequestMapping("/getArtistInfo")
     public void getArtistInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
-        int count = getIntParameter(request, "count", 20);
-        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
-
-        ArtistInfo result = new ArtistInfo();
-
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
+        int count = getIntParameter(request, "count", 20);
+        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
+
+        ArtistInfo result = new ArtistInfo();
+
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaFile> similarArtists = lastFmService.getSimilarArtists(mediaFile, count, includeNotPresent, musicFolders);
         for (MediaFile similarArtist : similarArtists) {
@@ -455,21 +452,19 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getArtistInfo2")
     public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
-        int count = getIntParameter(request, "count", 20);
-        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
-
-        ArtistInfo2 result = new ArtistInfo2();
-
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
+        String username = securityService.getCurrentUsername(request);
+        int count = getIntParameter(request, "count", 20);
+        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
+        ArtistInfo2 result = new ArtistInfo2();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<org.airsonic.player.domain.Artist> similarArtists = lastFmService.getSimilarArtists(artist, count, includeNotPresent, musicFolders);
         for (org.airsonic.player.domain.Artist similarArtist : similarArtists) {
@@ -512,9 +507,8 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getArtist")
     public void getArtist(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        HttpServletRequest request = wrapRequest(req);
 
-        String username = securityService.getCurrentUsername(request);
+        HttpServletRequest request = wrapRequest(req);
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
@@ -522,6 +516,7 @@ public class SubsonicRESTController {
             return;
         }
 
+        String username = securityService.getCurrentUsername(request);
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         ArtistWithAlbumsID3 result = createJaxbArtist(new ArtistWithAlbumsID3(), artist, username);
         for (Album album : albumDao.getAlbumsForArtist(artist.getName(), musicFolders)) {
@@ -576,9 +571,6 @@ public class SubsonicRESTController {
     @RequestMapping("/getAlbum")
     public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
         Album album = albumDao.getAlbum(id);
         if (album == null) {
@@ -586,6 +578,8 @@ public class SubsonicRESTController {
             return;
         }
 
+        Player player = playerService.getPlayer(request, response);
+        String username = securityService.getCurrentUsername(request);
         AlbumWithSongsID3 result = createJaxbAlbum(new AlbumWithSongsID3(), album, username);
         for (MediaFile mediaFile : mediaFileDao.getSongsForAlbum(album.getArtist(), album.getName())) {
             result.getSong().add(createJaxbChild(player, mediaFile, username));
@@ -598,21 +592,22 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getSong")
     public void getSong(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
 
+        HttpServletRequest request = wrapRequest(req);
         int id = getRequiredIntParameter(request, "id");
         MediaFile song = mediaFileDao.getMediaFile(id);
         if (song == null || song.isDirectory()) {
             error(request, response, ErrorCode.NOT_FOUND, "Song not found.");
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(song, username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
-
+        
+        Player player = playerService.getPlayer(request, response);
         Response res = createResponse();
         res.setSong(createJaxbChild(player, song, username));
         jaxbWriter.writeResponse(request, response, res);
@@ -621,20 +616,20 @@ public class SubsonicRESTController {
     @RequestMapping("/getMusicDirectory")
     public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
         MediaFile dir = mediaFileService.getMediaFile(id);
         if (dir == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Directory not found");
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
 
+        Player player = playerService.getPlayer(request, response);
         MediaFile parent = mediaFileService.getParentOf(dir);
         Directory directory = new Directory();
         directory.setId(String.valueOf(id));
@@ -820,20 +815,20 @@ public class SubsonicRESTController {
     @RequestMapping("/getPlaylist")
     public void getPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
-
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Playlist not found: " + id);
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
         if (!playlistService.isReadAllowed(playlist, username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Permission denied for playlist " + id);
             return;
         }
+
+        Player player = playerService.getPlayer(request, response);
         PlaylistWithSongs result = createJaxbPlaylist(new PlaylistWithSongs(), playlist);
         for (MediaFile mediaFile : playlistService.getFilesInPlaylist(id)) {
             if (securityService.isFolderAccessAllowed(mediaFile, username)) {
@@ -947,8 +942,6 @@ public class SubsonicRESTController {
     @RequestMapping("/createPlaylist")
     public void createPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req, true);
-        String username = securityService.getCurrentUsername(request);
-
         Integer playlistId = getIntParameter(request, "playlistId");
         String name = request.getParameter("name");
         if (playlistId == null && name == null) {
@@ -957,6 +950,7 @@ public class SubsonicRESTController {
         }
 
         org.airsonic.player.domain.Playlist playlist;
+        String username = securityService.getCurrentUsername(request);
         if (playlistId != null) {
             playlist = playlistService.getPlaylist(playlistId);
             if (playlist == null) {
@@ -991,15 +985,16 @@ public class SubsonicRESTController {
 
     @RequestMapping("/updatePlaylist")
     public void updatePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+ 
         HttpServletRequest request = wrapRequest(req, true);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "playlistId");
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Playlist not found: " + id);
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Permission denied for playlist " + id);
             return;
@@ -1060,14 +1055,14 @@ public class SubsonicRESTController {
     @RequestMapping("/deletePlaylist")
     public void deletePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req, true);
-        String username = securityService.getCurrentUsername(request);
-
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Playlist not found: " + id);
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Permission denied for playlist " + id);
             return;
@@ -1080,7 +1075,6 @@ public class SubsonicRESTController {
     @RequestMapping("/getAlbumList")
     public void getAlbumList(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
         int size = getIntParameter(request, "size", 10);
@@ -1118,6 +1112,7 @@ public class SubsonicRESTController {
             throw new ExecutionException(new IOException("Invalid list type: " + type));
         }
 
+        Player player = playerService.getPlayer(request, response);
         AlbumList result = new AlbumList();
         for (MediaFile album : albums) {
             result.getAlbum().add(createJaxbChild(player, album, username));
@@ -1430,10 +1425,6 @@ public class SubsonicRESTController {
     @RequestMapping("/scrobble")
     public void scrobble(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-
-        Player player = playerService.getPlayer(request, response);
-
-        boolean submission = getBooleanParameter(request, "submission", true);
         int[] ids = getRequiredIntParameters(request, "id");
         long[] times = getLongParameters(request, "time");
         if (times.length > 0 && times.length != ids.length) {
@@ -1441,6 +1432,8 @@ public class SubsonicRESTController {
             return;
         }
 
+        Player player = playerService.getPlayer(request, response);
+        boolean submission = getBooleanParameter(request, "submission", true);
         for (int i = 0; i < ids.length; i++) {
             int id = ids[i];
             MediaFile file = mediaFileService.getMediaFile(id);
@@ -1783,8 +1776,6 @@ public class SubsonicRESTController {
     public void getPlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
-        Player player = playerService.getPlayer(request, response);
-
         SavedPlayQueue playQueue = playQueueDao.getPlayQueue(username);
         if (playQueue == null) {
             writeEmptyResponse(request, response);
@@ -1798,6 +1789,7 @@ public class SubsonicRESTController {
         restPlayQueue.setChanged(jaxbWriter.convertDate(playQueue.getChanged()));
         restPlayQueue.setChangedBy(playQueue.getChangedBy());
 
+        Player player = playerService.getPlayer(request, response);
         for (Integer mediaFileId : playQueue.getMediaFileIds()) {
             MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
             if (mediaFile != null) {
@@ -1813,17 +1805,17 @@ public class SubsonicRESTController {
     @RequestMapping("/savePlayQueue")
     public void savePlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        String username = securityService.getCurrentUsername(request);
         List<Integer> mediaFileIds = PlayerUtils.toIntegerList(getIntParameters(request, "id"));
         Integer current = getIntParameter(request, "current");
-        Long position = getLongParameter(request, "position");
-        Date changed = new Date();
-        String changedBy = getRequiredStringParameter(request, "c");
-
         if (!mediaFileIds.contains(current)) {
             error(request, response, ErrorCode.GENERIC, "Current track is not included in play queue");
             return;
         }
+
+        String username = securityService.getCurrentUsername(request);
+        Long position = getLongParameter(request, "position");
+        Date changed = new Date();
+        String changedBy = getRequiredStringParameter(request, "c");
 
         SavedPlayQueue playQueue = new SavedPlayQueue(null, username, mediaFileIds, current, position, changed, changedBy);
         playQueueDao.savePlayQueue(playQueue);
@@ -1855,9 +1847,6 @@ public class SubsonicRESTController {
     @RequestMapping("/createShare")
     public void createShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
-
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isShareRole()) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to share media.");
@@ -1881,8 +1870,9 @@ public class SubsonicRESTController {
         org.subsonic.restapi.Share s = createJaxbShare(request, share);
         result.getShare().add(s);
 
+        Player player = playerService.getPlayer(request, response);
+        String username = securityService.getCurrentUsername(request);
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
-
         for (MediaFile mediaFile : shareService.getSharedFiles(share.getId(), musicFolders)) {
             s.getEntry().add(createJaxbChild(player, mediaFile, username));
         }
@@ -1894,15 +1884,16 @@ public class SubsonicRESTController {
 
     @RequestMapping("/deleteShare")
     public void deleteShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        HttpServletRequest request = wrapRequest(req);
-        org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
-        int id = getRequiredIntParameter(request, "id");
 
+        HttpServletRequest request = wrapRequest(req);
+        int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
             return;
         }
+
+        org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to delete shared media.");
             return;
@@ -1914,15 +1905,16 @@ public class SubsonicRESTController {
 
     @RequestMapping("/updateShare")
     public void updateShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
-        HttpServletRequest request = wrapRequest(req);
-        org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
-        int id = getRequiredIntParameter(request, "id");
 
+        HttpServletRequest request = wrapRequest(req);
+        int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             error(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
             return;
         }
+
+        org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to modify shared media.");
             return;
@@ -1965,21 +1957,18 @@ public class SubsonicRESTController {
 
     @RequestMapping("/changePassword")
     public void changePassword(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
-
-        String username = getRequiredStringParameter(request, "username");
-        String password = decrypt(getRequiredStringParameter(request, "password"));
-
         org.airsonic.player.domain.User authUser = securityService.getCurrentUser(request);
-
+        String username = getRequiredStringParameter(request, "username");
         boolean allowed = authUser.isAdminRole()
                 || username.equals(authUser.getUsername()) && authUser.isSettingsRole();
-
         if (!allowed) {
             error(request, response, ErrorCode.NOT_AUTHORIZED, authUser.getUsername() + " is not authorized to change password for " + username);
             return;
         }
 
+        String password = decrypt(getRequiredStringParameter(request, "password"));
         org.airsonic.player.domain.User user = securityService.getUserByName(username);
         user.setPassword(password);
         securityService.updateUser(user);
@@ -2103,6 +2092,7 @@ public class SubsonicRESTController {
 
     @RequestMapping("/updateUser")
     public void updateUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+
         HttpServletRequest request = wrapRequest(req);
         org.airsonic.player.domain.User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
@@ -2112,8 +2102,6 @@ public class SubsonicRESTController {
 
         String username = getRequiredStringParameter(request, "username");
         org.airsonic.player.domain.User u = securityService.getUserByName(username);
-        UserSettings s = settingsService.getUserSettings(username);
-
         if (u == null) {
             error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
@@ -2140,6 +2128,7 @@ public class SubsonicRESTController {
         command.setSettingsRole(getBooleanParameter(request, "settingsRole", u.isSettingsRole()));
         command.setShareRole(getBooleanParameter(request, "shareRole", u.isShareRole()));
 
+        UserSettings s = settingsService.getUserSettings(username);
         int maxBitRate = getIntParameter(request, "maxBitRate", s.getTranscodeScheme().getMaxBitRate());
         TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
         if (transcodeScheme != null) {

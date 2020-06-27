@@ -209,6 +209,7 @@ public class JukeboxJavaService {
     /**
      * Plays the playqueue of a jukebox player starting at the beginning.
      */
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void play(Player airsonicPlayer) {
         LOG.debug("begin play jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 
@@ -272,6 +273,7 @@ public class JukeboxJavaService {
         play(airsonicPlayer);
     }
 
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void stop(Player airsonicPlayer) {
         LOG.debug("begin stop jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 
@@ -288,6 +290,7 @@ public class JukeboxJavaService {
         audioPlayer.pause();
     }
 
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void skip(Player airsonicPlayer, int index, int offset) {
         LOG.debug("begin skip jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 

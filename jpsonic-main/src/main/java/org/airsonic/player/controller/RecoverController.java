@@ -114,13 +114,13 @@ public class RecoverController {
     */
     private boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
-        String prot = "smtp";
 
         if (settingsService.getSmtpServer() == null || settingsService.getSmtpServer().isEmpty()) {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }
 
+        String prot = "smtp";
         Properties props = new Properties();
         if (settingsService.getSmtpEncryption().equals("SSL/TLS")) {
             prot = "smtps";

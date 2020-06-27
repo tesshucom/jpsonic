@@ -67,11 +67,8 @@ public class MainController {
     protected ModelAndView handleRequestInternal(@RequestParam(name = "showAll", required = false) Boolean showAll,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) throws Exception {
-        Map<String, Object> map = LegacyMap.of();
 
-        Player player = playerService.getPlayer(request, response);
         List<MediaFile> mediaFiles = getMediaFiles(request);
-
         if (mediaFiles.isEmpty()) {
             return new ModelAndView(new RedirectView("notFound.view"));
         }
@@ -116,6 +113,8 @@ public class MainController {
         mediaFileService.populateStarredDate(dir, username);
         mediaFileService.populateStarredDate(children, username);
 
+        Player player = playerService.getPlayer(request, response);
+        Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
         map.put("files", files);
         map.put("subDirs", subDirs);

@@ -70,12 +70,12 @@ public class AvatarUploadController {
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
 
-        String username = securityService.getCurrentUsername(request);
-
         // Check that we have a file upload request.
         if (!ServletFileUpload.isMultipartContent(request)) {
             throw new IllegalArgumentException("Illegal request.");
         }
+
+        String username = securityService.getCurrentUsername(request);
 
         Map<String, Object> map = LegacyMap.of();
         FileItemFactory factory = new DiskFileItemFactory();

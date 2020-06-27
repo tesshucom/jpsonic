@@ -73,8 +73,6 @@ public class AvatarController implements LastModified {
 
     private Avatar getAvatar(HttpServletRequest request) {
         String id = request.getParameter("id");
-        boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, "forceCustom", false);
-
         if (id != null) {
             return settingsService.getSystemAvatar(Integer.parseInt(id));
         }
@@ -84,6 +82,7 @@ public class AvatarController implements LastModified {
             return null;
         }
 
+        boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, "forceCustom", false);
         UserSettings userSettings = settingsService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
             return settingsService.getCustomAvatar(username);

@@ -250,22 +250,19 @@ public class PlayQueueService {
      * @param startIndex Start playing at this index in the list of radio streams, or play whole radio playlist if {@code null}.
      */
     public PlayQueueInfo playInternetRadio(int id, Integer startIndex) throws Exception {
-        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
         if (!radio.isEnabled()) {
             throw new ExecutionException(new IOException(("Radio is not enabled")));
         }
 
-        Player player = resolvePlayer();
-        return doPlayInternetRadio(request, player, radio).setStartPlayerAt(0);
+        HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
+        return doPlayInternetRadio(request, resolvePlayer(), radio).setStartPlayerAt(0);
     }
 
     public PlayQueueInfo addPlaylist(int id) throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
-
-        String username = securityService.getCurrentUsername(request);
 
         List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
 
