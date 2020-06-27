@@ -423,6 +423,7 @@ public class MediaFileService {
         return includeMediaFile(candidate.getFile());
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public boolean includeMediaFile(File candidate) {
         String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
         if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
@@ -441,6 +442,7 @@ public class MediaFileService {
         return result;
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isAudioFile(String suffix) {
         for (String s : settingsService.getMusicFileTypesAsArray()) {
             if (suffix.equals(s.toLowerCase())) {
@@ -450,6 +452,7 @@ public class MediaFileService {
         return false;
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isVideoFile(String suffix) {
         for (String s : settingsService.getVideoFileTypesAsArray()) {
             if (suffix.equals(s.toLowerCase())) {
@@ -586,6 +589,7 @@ public class MediaFileService {
         return mediaFile;
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private MediaFile.MediaType getMediaType(MediaFile mediaFile) {
         if (isVideoFile(mediaFile.getFormat())) {
             return MediaFile.MediaType.VIDEO;
@@ -645,6 +649,7 @@ public class MediaFileService {
     /**
      * Finds a cover art image for the given directory, by looking for it on the disk.
      */
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private File findCoverArt(File[] candidates) {
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {

@@ -276,6 +276,7 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @param file The music file in question.
      * @return Whether this parser is applicable to the given file.
      */
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     @Override
     public boolean isApplicable(File file) {
         if (!file.isFile()) {
