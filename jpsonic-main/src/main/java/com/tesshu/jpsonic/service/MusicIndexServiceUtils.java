@@ -94,9 +94,9 @@ public class MusicIndexServiceUtils {
     }
 
     private String createSortableName(String name, String[] ignoredArticles) {
-        String uppercaseName = name.toUpperCase();
+        String uppercaseName = name.toUpperCase(settingsService.getLocale());
         for (String article : ignoredArticles) {
-            if (uppercaseName.startsWith(article.toUpperCase() + " ")) {
+            if (uppercaseName.startsWith(article.toUpperCase(settingsService.getLocale()) + " ")) {
                 return name.substring(article.length() + 1) + ", " + article;
             }
         }

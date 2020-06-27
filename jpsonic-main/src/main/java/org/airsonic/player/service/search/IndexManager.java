@@ -111,6 +111,7 @@ public class IndexManager {
     /**
      * Returns the directory of the specified index
      */
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private Function<IndexType, File> getIndexDirectory = (indexType) ->
         new File(rootIndexDirectory.get(), indexType.toString().toLowerCase());
 

@@ -1342,6 +1342,7 @@ public class SubsonicRESTController {
         return null;
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public static String getRelativePath(MediaFile musicFile, SettingsService settingsService) {
 
         String filePath = musicFile.getPath();

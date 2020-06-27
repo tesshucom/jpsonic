@@ -301,6 +301,7 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     private boolean doesLocaleSupportUtf8(String locale) {
         if (locale == null) {
             return false;

@@ -339,6 +339,7 @@ public class SettingsService {
 
     }
 
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     public static synchronized File getJpsonicHome() {
 
         File home;

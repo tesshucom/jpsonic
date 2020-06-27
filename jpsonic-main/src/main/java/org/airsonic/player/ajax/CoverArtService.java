@@ -87,7 +87,7 @@ public class CoverArtService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     private void saveCoverArt(String path, String url) throws Exception {
 
         // Attempt to resolve proper suffix.

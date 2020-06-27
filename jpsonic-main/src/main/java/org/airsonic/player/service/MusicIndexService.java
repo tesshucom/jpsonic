@@ -187,10 +187,10 @@ public class MusicIndexService {
      * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
      */
     private MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
-        String sortableName = artist.getSortableName().toUpperCase();
+        String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {
             for (String prefix : index.getPrefixes()) {
-                if (sortableName.startsWith(prefix.toUpperCase())) {
+                if (sortableName.startsWith(prefix.toUpperCase(settingsService.getLocale()))) {
                     return index;
                 }
             }
