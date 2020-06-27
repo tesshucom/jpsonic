@@ -510,14 +510,13 @@ public class TranscodingService {
      * Returns the length (or predicted/expected length) of a (possibly padded) media stream
      */
     private Long getExpectedLength(Parameters parameters) {
-        MediaFile file = parameters.getMediaFile();
 
+        MediaFile file = parameters.getMediaFile();
         if (!parameters.isTranscode()) {
             return file.getFileSize();
         }
-        Integer duration = file.getDurationSeconds();
-        Integer maxBitRate = parameters.getMaxBitRate();
 
+        Integer duration = file.getDurationSeconds();
         if (duration == null) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
@@ -525,6 +524,7 @@ public class TranscodingService {
             return null;
         }
 
+        Integer maxBitRate = parameters.getMaxBitRate();
         if (maxBitRate == null) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");

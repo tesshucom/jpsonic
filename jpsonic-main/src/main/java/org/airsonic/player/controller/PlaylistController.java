@@ -61,14 +61,15 @@ public class PlaylistController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
-        User user = securityService.getCurrentUser(request);
-        String username = user.getUsername();
-        UserSettings userSettings = settingsService.getUserSettings(username);
-        Player player = playerService.getPlayer(request, response);
         Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             return new ModelAndView(new RedirectView("notFound"));
         }
+
+        User user = securityService.getCurrentUser(request);
+        String username = user.getUsername();
+        UserSettings userSettings = settingsService.getUserSettings(username);
+        Player player = playerService.getPlayer(request, response);
 
         return new ModelAndView("playlist", "model", LegacyMap.of(
                 "playlist", playlist,

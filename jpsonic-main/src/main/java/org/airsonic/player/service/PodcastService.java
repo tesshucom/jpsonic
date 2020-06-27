@@ -128,6 +128,19 @@ public class PodcastService {
     }
 
     public synchronized void schedule() {
+
+        if (scheduledRefresh != null) {
+            scheduledRefresh.cancel(true);
+        }
+
+        int hoursBetween = settingsService.getPodcastUpdateInterval();
+        if (hoursBetween == -1) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Automatic Podcast update disabled.");
+            }
+            return;
+        }
+
         Runnable task = () -> {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Starting scheduled Podcast refresh.");
@@ -137,23 +150,8 @@ public class PodcastService {
                 LOG.info("Completed scheduled Podcast refresh.");
             }
         };
-
-        if (scheduledRefresh != null) {
-            scheduledRefresh.cancel(true);
-        }
-
-        int hoursBetween = settingsService.getPodcastUpdateInterval();
-
-        if (hoursBetween == -1) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update disabled.");
-            }
-            return;
-        }
-
         long periodMillis = hoursBetween * 60L * 60L * 1000L;
         long initialDelayMillis = 5L * 60L * 1000L;
-
         scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
         Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
         if (LOG.isInfoEnabled()) {
@@ -716,12 +714,11 @@ public class PodcastService {
 
     private File getChannelDirectory(PodcastChannel channel) {
         File podcastDir = new File(settingsService.getPodcastFolder());
-        File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
-
         if (!podcastDir.canWrite()) {
             throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
+        File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
         if (!channelDir.exists()) {
             boolean ok = channelDir.mkdirs();
             if (!ok) {

@@ -73,14 +73,13 @@ public class HLSController {
 
         int id = ServletRequestUtils.getIntParameter(request, "id", 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
-        Player player = playerService.getPlayer(request, response);
-        String username = player.getUsername();
-
         if (mediaFile == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
             return;
         }
 
+        Player player = playerService.getPlayer(request, response);
+        String username = player.getUsername();
         if (username != null && !securityService.isFolderAccessAllowed(mediaFile, username)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN,
                     "Access to file " + mediaFile.getId() + " is forbidden for user " + username);
