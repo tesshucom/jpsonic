@@ -118,6 +118,7 @@ public class SonosService implements SonosSoap {
     @Resource
     private WebServiceContext context;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
@@ -517,6 +518,7 @@ public class SonosService implements SonosSoap {
         return messageContext == null ? null : (HttpServletRequest) messageContext.get("HTTP.REQUEST");
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (messageContext == null || !(messageContext instanceof WrappedMessageContext)) {

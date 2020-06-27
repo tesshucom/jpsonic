@@ -136,6 +136,7 @@ public class StatusService {
         remotePlays.add(playStatus);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public synchronized List<PlayStatus> getPlayStatuses() {
         
         Map<Integer, PlayStatus> result = new LinkedHashMap<>();

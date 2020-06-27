@@ -49,6 +49,7 @@ public class FileUtils {
         return true;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static boolean copyJarResourcesRecursively(
             final File destDir, final JarURLConnection jarConnection
     ) throws IOException {

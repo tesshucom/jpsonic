@@ -110,6 +110,7 @@ public class ShareSettingsController {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
         User user = securityService.getCurrentUser(request);

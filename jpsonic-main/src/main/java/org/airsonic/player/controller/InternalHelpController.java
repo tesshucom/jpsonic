@@ -63,6 +63,7 @@ import java.util.*;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 @Controller
 @RequestMapping("/internalhelp")
 public class InternalHelpController {
@@ -259,7 +260,7 @@ public class InternalHelpController {
         }
     }
 
-    @SuppressWarnings("PMD.CloseResource") // Do not close because it is managed by the manager
+    @SuppressWarnings("PMD.CloseResource") // Do not close searcher resources
     private void gatherIndexInfo(Map<String, Object> map) {
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
         for (IndexType indexType : IndexType.values()) {

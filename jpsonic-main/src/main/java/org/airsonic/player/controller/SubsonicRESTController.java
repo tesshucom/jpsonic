@@ -74,7 +74,7 @@ import static org.springframework.web.bind.ServletRequestUtils.*;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.GuardLogStatement") // Suppressed due to false detection of error method
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.GuardLogStatement" }) // Suppressed due to false detection of error method
 @Controller
 @RequestMapping(value = "/rest", method = {RequestMethod.GET, RequestMethod.POST})
 public class SubsonicRESTController {
@@ -187,7 +187,6 @@ public class SubsonicRESTController {
         res.setLicense(license);
         jaxbWriter.writeResponse(request, response, res);
     }
-
 
     @RequestMapping("/getMusicFolders")
     public void getMusicFolders(HttpServletRequest req, HttpServletResponse response) {

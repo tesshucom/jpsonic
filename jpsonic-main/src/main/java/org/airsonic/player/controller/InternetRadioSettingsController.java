@@ -69,6 +69,7 @@ public class InternetRadioSettingsController {
         return "redirect:internetRadioSettings.view";
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private String handleParameters(HttpServletRequest request) {
         List<InternetRadio> radios = settingsService.getAllInternetRadios(true);
         for (InternetRadio radio : radios) {

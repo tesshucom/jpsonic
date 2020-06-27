@@ -610,6 +610,7 @@ public class IndexManager {
 
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);

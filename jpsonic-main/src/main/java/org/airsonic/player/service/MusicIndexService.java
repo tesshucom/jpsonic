@@ -87,6 +87,7 @@ public class MusicIndexService {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFoldersToUse) {
         List<MediaFile> result = new ArrayList<>();
         for (String shortcut : settingsService.getShortcutsAsArray()) {
@@ -100,6 +101,7 @@ public class MusicIndexService {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private <T extends SortableArtist> SortedMap<MusicIndex, List<T>> sortArtists(List<T> artists) {
         List<MusicIndex> indexes = createIndexesFromExpression(settingsService.getIndexString());
         Comparator<MusicIndex> indexComparator = new MusicIndexComparator(indexes);

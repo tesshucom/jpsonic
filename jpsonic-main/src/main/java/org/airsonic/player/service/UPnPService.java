@@ -167,6 +167,7 @@ public class UPnPService {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private LocalDevice createMediaServerDevice() throws Exception {
 
         String serverName = settingsService.getDlnaServerName();

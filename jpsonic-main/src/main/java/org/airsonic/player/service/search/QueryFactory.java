@@ -58,7 +58,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * On the other hand, the generated queries are relatively small by version.
  * Therefore, test cases of this class are useful for large version upgrades.
  **/
-@SuppressWarnings("PMD.CloseResource") // Analyzer should not be closed
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CloseResource" }) // Analyzer should not be closed
 @Component
 public class QueryFactory {
 

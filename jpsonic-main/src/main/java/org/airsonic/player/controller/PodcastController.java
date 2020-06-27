@@ -56,6 +56,7 @@ public class PodcastController {
     @Autowired
     private SecurityService securityService;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 

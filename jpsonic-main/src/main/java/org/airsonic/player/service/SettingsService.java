@@ -1021,6 +1021,7 @@ public class SettingsService {
      *
      * @return A list of available themes.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public synchronized Theme[] getAvailableThemes() {
         if (themes == null) {
             themes = new ArrayList<>();
