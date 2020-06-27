@@ -87,6 +87,7 @@ public class CoverArtService {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void saveCoverArt(String path, String url) throws Exception {
 
         // Attempt to resolve proper suffix.

@@ -238,6 +238,7 @@ public class PodcastService {
         }));
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<PodcastEpisode> filterAllowed(List<PodcastEpisode> episodes) {
         List<PodcastEpisode> result = new ArrayList<>(episodes.size());
         for (PodcastEpisode episode : episodes) {
@@ -420,6 +421,7 @@ public class PodcastService {
         downloadExecutor.submit(task);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void refreshEpisodes(PodcastChannel channel, List<Element> episodeElements) {
 
         List<PodcastEpisode> episodes = new ArrayList<>();
@@ -685,6 +687,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private synchronized File getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         File channelDir = getChannelDirectory(channel);

@@ -48,6 +48,7 @@ import static org.airsonic.player.service.NetworkService.getBaseUrl;
  * @author Sindre Mehus
  * @version $Id$
  */
+@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 @Service
 public class SonosHelper {
 

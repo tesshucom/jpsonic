@@ -51,6 +51,7 @@ public class MusicIndexServiceUtils {
         this.comparators = comp;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
@@ -62,6 +63,7 @@ public class MusicIndexServiceUtils {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();

@@ -96,6 +96,7 @@ public class SecurityService implements UserDetailsService {
                 authorities);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();

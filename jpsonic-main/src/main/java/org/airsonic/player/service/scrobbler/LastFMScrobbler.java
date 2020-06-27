@@ -256,6 +256,7 @@ public class LastFMScrobbler {
         return executeRequest(method);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private String[] executePostRequest(String url, Map<String, String> parameters) throws UnsupportedEncodingException, ClientProtocolException, IOException {
         List<NameValuePair> params = new ArrayList<>();
         for (Map.Entry<String, String> entry : parameters.entrySet()) {

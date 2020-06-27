@@ -49,6 +49,7 @@ public class StatusController {
     @Autowired
     private StatusService statusService;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 

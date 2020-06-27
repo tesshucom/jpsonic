@@ -721,6 +721,7 @@ public class PlayQueueService {
         );
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<PlayQueueInfo.Entry> convertMediaFileList(HttpServletRequest request, Player player) {
 
         String url = NetworkService.getBaseUrl(request);
@@ -750,6 +751,7 @@ public class PlayQueueService {
         return entries;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<PlayQueueInfo.Entry> convertInternetRadio(HttpServletRequest request, Player player) {
 
         PlayQueue playQueue = player.getPlayQueue();

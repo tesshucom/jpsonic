@@ -79,6 +79,7 @@ public class LastFmService {
      * @param musicFolders      Only return artists present in these folders.
      * @return Similar artists, ordered by presence then similarity.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MediaFile> getSimilarArtists(MediaFile mediaFile, int count, boolean includeNotPresent, List<MusicFolder> musicFolders) {
         List<MediaFile> result = new ArrayList<>();
         if (mediaFile == null) {
@@ -133,6 +134,7 @@ public class LastFmService {
      * @param musicFolders      Only return songs from artists in these folders.
      * @return Similar artists, ordered by presence then similarity.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<org.airsonic.player.domain.Artist> getSimilarArtists(org.airsonic.player.domain.Artist artist,
                                                                      int count, boolean includeNotPresent, List<MusicFolder> musicFolders) {
         List<org.airsonic.player.domain.Artist> result = new ArrayList<>();

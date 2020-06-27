@@ -66,6 +66,7 @@ public class AvatarUploadController {
     @Autowired
     private SecurityService securityService;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
 

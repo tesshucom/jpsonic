@@ -275,8 +275,7 @@ public final class AnalyzerFactory {
         CharArraySet cas = getWords(stopTags);
         if (cas != null) {
             for (Object element : cas) {
-                char chars[] = (char[]) element;
-                stopTagset.add(new String(chars));
+                stopTagset.add(String.valueOf((char[]) element));
             }
         }
         return stopTagset;

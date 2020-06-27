@@ -75,6 +75,7 @@ public class UploadController {
     private SettingsService settingsService;
     public static final String UPLOAD_STATUS = "uploadStatus";
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -171,6 +172,7 @@ public class UploadController {
         return new ModelAndView("upload","model",map);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);

@@ -97,6 +97,7 @@ public class NowPlayingService {
         return new ScanInfo(mediaScannerService.isScanning(), mediaScannerService.getScanCount());
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String url = NetworkService.getBaseUrl(request);

@@ -331,6 +331,7 @@ public class CoverArtController implements LastModified {
         return dir;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     public static BufferedImage scale(BufferedImage image, int width, int height) {
         int w = image.getWidth();
         int h = image.getHeight();

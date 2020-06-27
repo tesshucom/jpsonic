@@ -270,6 +270,7 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return an open connection
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects) throws IOException, PlaylistException {
 
         int redirectCount = 0;
