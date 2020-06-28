@@ -42,13 +42,13 @@ public class PlayQueue {
      * The index of the current song, or -1 is the end of the playlist is reached.
      * Note that both the index and the playlist size can be zero.
      */
-    private int index = 0;
+    private int index;
 
     /**
      * Used for undo functionality.
      */
     private List<MediaFile> filesBackup = new ArrayList<>();
-    private int indexBackup = 0;
+    private int indexBackup;
 
     /**
      * Returns the user-defined name of the playlist.

@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
-    private boolean jpsonicHomeVerified = false;
+    private boolean jpsonicHomeVerified;
     private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
