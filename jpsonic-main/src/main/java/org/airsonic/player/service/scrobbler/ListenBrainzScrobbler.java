@@ -200,12 +200,15 @@ public class ListenBrainzScrobbler {
                 try {
                     registrationData = queue.take();
                     scrobble(registrationData);
-                } catch (ClientProtocolException x) {
-                } catch (IOException x) {
-                    handleNetworkError(registrationData, x.toString());
-                } catch (Exception x) {
+                } catch (ClientProtocolException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Error in ListenBrainz registration.", e);
+                    }
+                } catch (IOException e) {
+                    handleNetworkError(registrationData, e.toString());
+                } catch (Exception e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Error in ListenBrainz registration: " + x.toString());
+                        LOG.warn("Error in ListenBrainz registration.", e);
                     }
                 }
             }

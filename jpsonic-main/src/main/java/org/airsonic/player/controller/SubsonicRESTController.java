@@ -637,8 +637,10 @@ public class SubsonicRESTController {
             if (!mediaFileService.isRoot(parent)) {
                 directory.setParent(String.valueOf(parent.getId()));
             }
-        } catch (SecurityException x) {
-            // Ignored.
+        } catch (SecurityException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Error in getMusicDirectory.", new AssertionError("Errors with unclear cases.", e));
+            }
         }
         directory.setName(dir.getName());
         directory.setStarred(jaxbWriter.convertDate(mediaFileDao.getMediaFileStarredDate(id, username)));
@@ -1261,8 +1263,10 @@ public class SubsonicRESTController {
             if (!mediaFileService.isRoot(parent)) {
                 child.setParent(String.valueOf(parent.getId()));
             }
-        } catch (SecurityException x) {
-            // Ignored.
+        } catch (SecurityException e) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Error in getMusicDirectory", new AssertionError("Errors with unclear cases.", e));
+            }
         }
         child.setTitle(mediaFile.getName());
         child.setAlbum(mediaFile.getAlbumName());

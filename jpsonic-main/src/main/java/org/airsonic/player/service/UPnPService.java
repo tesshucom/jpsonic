@@ -197,7 +197,10 @@ public class UPnPService {
             try {
                 protocols.add(new DLNAProtocolInfo(dlnaProfile));
             } catch (Exception e) {
-                // Silently ignored.
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in adding dlna protocols.",
+                            new AssertionError("Errors with unclear cases.", e));
+                }
             }
         }
 

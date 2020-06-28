@@ -89,8 +89,10 @@ public class ShareService {
                 if (mediaFile != null) {
                     result.add(mediaFile);
                 }
-            } catch (Exception x) {
-                // Ignored
+            } catch (Exception e) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in getSharedFiles(int, List<MusicFolder>).", e);
+                }
             }
         }
         return result;

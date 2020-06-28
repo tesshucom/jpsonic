@@ -239,8 +239,10 @@ public class DownloadController implements LastModified {
                 for (int index : indexes) {
                     try {
                         filesToDownload.add(files.get(index));
-                    } catch (IndexOutOfBoundsException x) {
-                        /* Ignored */
+                    } catch (IndexOutOfBoundsException e) {
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Error in parse of filesToDownload#add", e);
+                        }
                     }
                 }
             }
