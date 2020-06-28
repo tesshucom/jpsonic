@@ -113,8 +113,9 @@ public interface UpnpProcessDispatcher {
                 return getRandomSongByArtistProcessor();
             case CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST:
                 return getRandomSongByFolderArtistProcessor();
+            default:
+                throw new AssertionError(String.format("Unreachable code(%s=%s).", "type", type));
         }
-        return null;
     }
 
 }
