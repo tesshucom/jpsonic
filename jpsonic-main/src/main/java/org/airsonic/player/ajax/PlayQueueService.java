@@ -51,15 +51,12 @@ import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
  * @author Sindre Mehus
  */
 @Service("ajaxPlayQueueService")
-@SuppressWarnings("UnusedDeclaration")
 public class PlayQueueService {
 
     @Autowired
     private PlayerService playerService;
     @Autowired
     private JukeboxService jukeboxService;
-    @Autowired
-    private TranscodingService transcodingService;
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -862,10 +859,6 @@ public class PlayQueueService {
 
     public void setJukeboxService(JukeboxService jukeboxService) {
         this.jukeboxService = jukeboxService;
-    }
-
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
     }
 
     public void setSettingsService(SettingsService settingsService) {
