@@ -34,7 +34,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(Authentication auth) throws AuthenticationException {
         JWTAuthenticationToken authentication = (JWTAuthenticationToken) auth;
-        if (authentication.getCredentials() == null || !(authentication.getCredentials() instanceof String)) {
+        if (!(authentication.getCredentials() instanceof String)) {
             LOG.error("Credentials not present");
             return null;
         }

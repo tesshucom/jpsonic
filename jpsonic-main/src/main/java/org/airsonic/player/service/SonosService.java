@@ -521,7 +521,7 @@ public class SonosService implements SonosSoap {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
-        if (messageContext == null || !(messageContext instanceof WrappedMessageContext)) {
+        if (!(messageContext instanceof WrappedMessageContext)) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Message context is null or not an instance of WrappedMessageContext.");
             }
