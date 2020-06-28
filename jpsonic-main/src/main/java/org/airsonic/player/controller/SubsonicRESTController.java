@@ -1337,7 +1337,7 @@ public class SubsonicRESTController {
         return null;
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions", "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     public static String getRelativePath(MediaFile musicFile, SettingsService settingsService) {
 
         String filePath = musicFile.getPath();
@@ -2362,6 +2362,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeErrorResponse(request, response, code, message);
     }
 
+    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     private String createPlayerIfNecessary(HttpServletRequest request, boolean jukebox) {
         String username = request.getRemoteUser();
         String clientId = request.getParameter("c");
