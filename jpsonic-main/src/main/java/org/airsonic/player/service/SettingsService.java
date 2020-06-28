@@ -1047,7 +1047,7 @@ public class SettingsService {
                 themes.add(new Theme("default", "Jpsonic default"));
             }
         }
-        return themes.toArray(new Theme[themes.size()]);
+        return themes.toArray(new Theme[0]);
     }
 
     /**
@@ -1070,7 +1070,7 @@ public class SettingsService {
                 locales.add(Locale.ENGLISH);
             }
         }
-        return locales.toArray(new Locale[locales.size()]);
+        return locales.toArray(new Locale[0]);
     }
 
     /**
@@ -1580,7 +1580,7 @@ public class SettingsService {
             result.add(tokenizer.nextToken());
         }
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
 
     public void setInternetRadioDao(InternetRadioDao internetRadioDao) {
