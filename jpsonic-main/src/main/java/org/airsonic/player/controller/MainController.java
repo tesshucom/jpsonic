@@ -255,10 +255,11 @@ public class MainController {
     public List<MediaFile> getMultiFolderChildren(List<MediaFile> mediaFiles) throws IOException {
         SortedSet<MediaFile> result = new TreeSet<>(jpsonicComparator.mediaFileOrder(null));
         for (MediaFile mediaFile : mediaFiles) {
-            if (mediaFile.isFile()) {
-                mediaFile = mediaFileService.getParentOf(mediaFile);
+            MediaFile m = mediaFile;
+            if (m.isFile()) {
+                m = mediaFileService.getParentOf(m);
             }
-            result.addAll(mediaFileService.getChildrenOf(mediaFile, true, true, true));
+            result.addAll(mediaFileService.getChildrenOf(m, true, true, true));
         }
         return new ArrayList<>(result);
     }
