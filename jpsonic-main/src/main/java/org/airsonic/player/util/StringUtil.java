@@ -222,7 +222,7 @@ public final class StringUtil {
             }
         }
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
 
     /**
@@ -243,7 +243,7 @@ public final class StringUtil {
                     result.add(trimed);
                 }
             }
-            return result.toArray(new String[result.size()]);
+            return result.toArray(new String[0]);
 
         } finally {
             FileUtil.closeQuietly(in);

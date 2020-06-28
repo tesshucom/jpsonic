@@ -390,7 +390,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
 
         try {
-            Query query = createMultiFieldQuery(fieldName.toArray(new String[fieldName.size()]), complement);
+            Query query = createMultiFieldQuery(fieldName.toArray(new String[0]), complement);
             if (!isEmpty(query)) {
                 propExpQueryBuilder.add(query, isEmpty(lastLogOp) ? Occur.SHOULD : lastLogOp);
             }
