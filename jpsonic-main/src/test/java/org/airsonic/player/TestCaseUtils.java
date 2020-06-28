@@ -18,7 +18,7 @@ public class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
 
-    private static File jpsonicHomeDirForTest = null;
+    private static File jpsonicHomeDirForTest;
 
     /**
      * Returns the path of the JPSONIC_HOME directory to use for tests. This will
