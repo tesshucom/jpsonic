@@ -716,7 +716,7 @@ public class SettingsService {
      * @return The download bitrate limit in Kbit/s. Zero if unlimited.
      */
     public long getDownloadBitrateLimit() {
-        return Long.parseLong(getProperty(KEY_DOWNLOAD_BITRATE_LIMIT, "" + DEFAULT_DOWNLOAD_BITRATE_LIMIT));
+        return Long.parseLong(getProperty(KEY_DOWNLOAD_BITRATE_LIMIT, Long.toString(DEFAULT_DOWNLOAD_BITRATE_LIMIT)));
     }
 
     /**
