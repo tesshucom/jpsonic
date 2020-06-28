@@ -315,7 +315,7 @@ public class StreamController {
         // Enabled SHOUTcast, if requested.
         boolean isShoutCastRequested = "1".equals(request.getHeader("icy-metadata"));
         if (isShoutCastRequested && !isSingleFile) {
-            response.setHeader("icy-metaint", "" + ShoutCastOutputStream.META_DATA_INTERVAL);
+            response.setHeader("icy-metaint", Integer.toString(ShoutCastOutputStream.META_DATA_INTERVAL));
             response.setHeader("icy-notice1", "This stream is served using Airsonic");
             response.setHeader("icy-notice2", "Airsonic - Free media streamer");
             response.setHeader("icy-name", "Airsonic");

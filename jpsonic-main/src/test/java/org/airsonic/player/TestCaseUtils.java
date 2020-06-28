@@ -77,7 +77,7 @@ public class TestCaseUtils {
      * @return Map table name -> records count
      */
     public static Map<String, Integer> recordsInAllTables(DaoHelper daoHelper) {
-        List<String> tableNames = daoHelper.getJdbcTemplate().queryForList("" +
+        List<String> tableNames = daoHelper.getJdbcTemplate().queryForList(
                       "select table_name " +
                       "from information_schema.system_tables " +
                       "where table_type <> 'SYSTEM TABLE'"
