@@ -102,7 +102,6 @@ public class HLSController {
                 generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
             }
         }
-        return;
     }
 
     private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) throws IllegalArgumentException {
