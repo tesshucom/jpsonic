@@ -499,8 +499,10 @@ public class PodcastService {
         for (DateFormat dateFormat : RSS_DATE_FORMATS) {
             try {
                 return dateFormat.parse(s);
-            } catch (Exception x) {
-                // Ignored.
+            } catch (Exception e) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in parse of RSS date.", e);
+                }
             }
         }
         if (LOG.isWarnEnabled()) {

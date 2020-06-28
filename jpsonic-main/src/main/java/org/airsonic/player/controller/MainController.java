@@ -63,6 +63,7 @@ public class MainController {
     @Autowired
     private MediaFileService mediaFileService;
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     @GetMapping
     protected ModelAndView handleRequestInternal(@RequestParam(name = "showAll", required = false) Boolean showAll,
                                                  HttpServletRequest request,
@@ -264,6 +265,7 @@ public class MainController {
         return new ArrayList<>(result);
     }
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 

@@ -22,6 +22,8 @@ package org.airsonic.player.controller;
 import org.airsonic.player.command.AdvancedSettingsCommand;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +41,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/advancedSettings")
 public class AdvancedSettingsController {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);
 
     @Autowired
     private SettingsService settingsService;
@@ -74,13 +78,23 @@ public class AdvancedSettingsController {
         redirectAttributes.addFlashAttribute("settings_reload", false);
         redirectAttributes.addFlashAttribute("settings_toast", true);
 
-        try {
+        try { // Should be rewritten if necessary
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
-        } catch (NumberFormatException x) { /* Intentionally ignored. */ }
-        try {
+        } catch (NumberFormatException e) {
+            if (LOG.isErrorEnabled()) {
+                //
+                LOG.error("Error in parse of downloadBitrateLimit.",
+                        new AssertionError("Error expected to be unreachable.", e));
+            }
+        }
+        try { // Should be rewritten if necessary
             settingsService.setUploadBitrateLimit(Long.parseLong(command.getUploadLimit()));
-        } catch (NumberFormatException x) { /* Intentionally ignored. */ }
-
+        } catch (NumberFormatException e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Error in parse of uploadBitrateLimit.",
+                        new AssertionError("Error expected to be unreachable.", e));
+            }
+        }
         settingsService.setLdapEnabled(command.isLdapEnabled());
         settingsService.setLdapUrl(command.getLdapUrl());
         settingsService.setLdapSearchFilter(command.getLdapSearchFilter());

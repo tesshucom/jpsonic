@@ -67,6 +67,7 @@ public class LastFmCache extends Cache {
         getMetaFile(cacheEntryName).delete();
     }
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();
