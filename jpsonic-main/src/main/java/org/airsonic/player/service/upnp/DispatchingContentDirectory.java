@@ -161,13 +161,14 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
                 returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, max, orderBy);
             }
             return returnValue;
-        } catch (Throwable x) {
+        } catch (Throwable t) {
             if (LOG.isErrorEnabled()) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("UPnP error: " + x, x);
+                    LOG.error("UPnP error: ", t);
                 }
             }
-            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, x.toString());
+            throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS.getCode(),
+                    ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), t);
         }
     }
 
