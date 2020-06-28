@@ -75,7 +75,10 @@ public class PodcastController {
             for (MediaFile song : songs) {
                 length += song.getFileSize();
             }
-            String publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
+            String publishDate = null;
+            synchronized (RSS_DATE_FORMAT) {
+                publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
+            }
 
             // Resolve content type.
             String suffix = songs.get(0).getFormat();
