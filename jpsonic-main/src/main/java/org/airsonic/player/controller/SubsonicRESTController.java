@@ -671,13 +671,13 @@ public class SubsonicRESTController {
 
         StringBuilder query = new StringBuilder();
         if (any != null) {
-            query.append(any).append(" ");
+            query.append(any).append(' ');
         }
         if (artist != null) {
-            query.append(artist).append(" ");
+            query.append(artist).append(' ');
         }
         if (album != null) {
-            query.append(album).append(" ");
+            query.append(album).append(' ');
         }
         if (title != null) {
             query.append(title);

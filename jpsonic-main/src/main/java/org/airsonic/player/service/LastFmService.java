@@ -366,7 +366,7 @@ public class LastFmService {
         try {
             StringBuilder query = new StringBuilder();
             if (artist != null) {
-                query.append(artist).append(" ");
+                query.append(artist).append(' ');
             }
             if (album != null) {
                 query.append(album);
