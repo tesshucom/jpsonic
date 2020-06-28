@@ -115,7 +115,9 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
             Calendar.getInstance();
             Calendar c = Calendar.getInstance();
             c.setTime(publishDate);
-            item.setDate(DATE_FORMAT.format(c.getTime()));
+            synchronized (DATE_FORMAT) {
+                item.setDate(DATE_FORMAT.format(c.getTime()));
+            }
         }
 
         if (episode.getStatus() == PodcastStatus.COMPLETED) {

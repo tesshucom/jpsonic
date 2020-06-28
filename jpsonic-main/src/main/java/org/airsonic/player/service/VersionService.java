@@ -124,7 +124,9 @@ public class VersionService {
         if (localBuildDate == null) {
             try {
                 String date = readLineFromResource("/build_date.txt");
-                localBuildDate = DATE_FORMAT.parse(date);
+                synchronized (DATE_FORMAT) {
+                    localBuildDate = DATE_FORMAT.parse(date);
+                }
             } catch (Exception x) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to resolve local Jpsonic build date.", x);
