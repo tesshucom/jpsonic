@@ -34,7 +34,7 @@ import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -937,7 +937,7 @@ public class SettingsService {
     }
 
     private void compileExcludePattern() {
-        if (getExcludePatternString() != null && !getExcludePatternString().trim().isEmpty()) {
+        if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());
         } else {
             excludePattern = null;

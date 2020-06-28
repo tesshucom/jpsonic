@@ -32,6 +32,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,10 +127,9 @@ public class UploadController {
                 FileItem item = (FileItem) o;
 
                 if (!item.isFormField()) {
-                    String fileName = item.getName();
-                    if (!fileName.trim().isEmpty()) {
+                    if (!StringUtils.isAllBlank(item.getName())) {
 
-                        File targetFile = new File(dir, new File(fileName).getName());
+                        File targetFile = new File(dir, new File(item.getName()).getName());
 
                         if (!securityService.isUploadAllowed(targetFile)) {
                             throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
