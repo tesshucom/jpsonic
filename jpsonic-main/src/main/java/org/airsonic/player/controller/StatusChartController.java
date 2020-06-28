@@ -61,6 +61,7 @@ public class StatusChartController extends AbstractChartController {
     public static final int IMAGE_HEIGHT = 150;
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @Override
     @GetMapping
     public synchronized ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String type = request.getParameter("type");
