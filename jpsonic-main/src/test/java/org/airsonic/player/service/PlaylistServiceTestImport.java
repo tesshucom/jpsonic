@@ -117,7 +117,7 @@ public class PlaylistServiceTestImport {
     public void testImportFromPLS() throws Exception {
         String username = "testUser";
         String playlistName = "test-playlist";
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(40);
         builder.append("[playlist]\n");
         File mf1 = folder.newFile();
         FileUtils.touch(mf1);
@@ -151,7 +151,7 @@ public class PlaylistServiceTestImport {
     public void testImportFromXSPF() throws Exception {
         String username = "testUser";
         String playlistName = "test-playlist";
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(300);
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                        + "<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n"
                        + "    <trackList>\n");
