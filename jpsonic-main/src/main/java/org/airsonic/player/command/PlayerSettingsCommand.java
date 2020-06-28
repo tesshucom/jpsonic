@@ -155,6 +155,7 @@ public class PlayerSettingsCommand {
         return activeTranscodingIds;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setActiveTranscodingIds(int[] activeTranscodingIds) {
         this.activeTranscodingIds = activeTranscodingIds;
     }
@@ -197,6 +198,7 @@ public class PlayerSettingsCommand {
         return players;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setPlayers(Player[] players) {
         this.players = players;
     }
@@ -225,6 +227,7 @@ public class PlayerSettingsCommand {
         return javaJukeboxMixers;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setJavaJukeboxMixers(String[] javaJukeboxMixers) {
         this.javaJukeboxMixers = javaJukeboxMixers;
     }

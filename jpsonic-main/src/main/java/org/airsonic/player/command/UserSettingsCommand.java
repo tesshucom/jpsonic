@@ -251,6 +251,7 @@ public class UserSettingsCommand {
         return allowedMusicFolderIds;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setAllowedMusicFolderIds(int[] allowedMusicFolderIds) {
         this.allowedMusicFolderIds = allowedMusicFolderIds;
     }
