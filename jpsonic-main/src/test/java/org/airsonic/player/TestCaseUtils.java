@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
 public class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
