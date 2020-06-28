@@ -20,9 +20,11 @@
 package org.airsonic.player.controller;
 
 import org.springframework.ui.context.Theme;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.awt.*;
 import java.util.Locale;
@@ -33,6 +35,9 @@ import java.util.Locale;
  * @author Sindre Mehus
  */
 public abstract class AbstractChartController {
+    
+    public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception;
 
     /**
      * Returns the chart background color for the current theme.
