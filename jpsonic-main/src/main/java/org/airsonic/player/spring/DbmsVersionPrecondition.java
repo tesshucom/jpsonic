@@ -22,7 +22,7 @@ public class DbmsVersionPrecondition implements CustomPrecondition {
                 throw new CustomPreconditionFailedException("DBMS Minor Version Precondition failed: expected " + minor + ", got " + dbMinor);
             }
         } catch (DatabaseException e) {
-            throw new CustomPreconditionErrorException(e.getMessage());
+            throw new CustomPreconditionErrorException("Database version check failed.", e);
         }
     }
 
