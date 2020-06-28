@@ -95,9 +95,7 @@ public class FileUtils {
     private static boolean copyStream(final InputStream is, final File f) {
         try (OutputStream os = Files.newOutputStream(Paths.get(f.toURI()))) {
             return FileUtils.copyStream(is, os);
-        } catch (final FileNotFoundException e) {
-            LOG.error("Exception occurred while copying stream.", e);
-        } catch (final IOException e) {
+        } catch (IOException e) {
             LOG.error("Exception occurred while copying stream.", e);
         }
         return false;
