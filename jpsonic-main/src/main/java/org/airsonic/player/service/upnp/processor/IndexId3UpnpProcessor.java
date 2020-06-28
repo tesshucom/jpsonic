@@ -146,7 +146,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             return container;
         } else {
             GenreContainer container = new GenreContainer();
-            applyParentId(item, container);
+            container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
             applyId(item, container);
             return container;
         }
@@ -205,10 +205,6 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @PostConstruct
     public void initTitle() {
         setRootTitleWithResource("dlna.title.index");
-    }
-
-    private final void applyParentId(Id3Wrapper index, GenreContainer container) {
-        container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
     private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
