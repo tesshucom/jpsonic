@@ -229,8 +229,7 @@ public class SearchServiceUtilities {
         StringBuilder b = new StringBuilder();
         b.append(genres).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
-        b.append(']');
-        b.append(indexType.name());
+        b.append(']').append(indexType.name());
         return b.toString();
     }
 
