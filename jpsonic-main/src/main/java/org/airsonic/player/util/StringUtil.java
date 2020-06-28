@@ -238,9 +238,9 @@ public final class StringUtil {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                line = line.trim();
-                if (!line.startsWith("#") && !line.isEmpty()) {
-                    result.add(line);
+                String trimed = line.trim();
+                if (!trimed.startsWith("#") && !trimed.isEmpty()) {
+                    result.add(trimed);
                 }
             }
             return result.toArray(new String[result.size()]);
