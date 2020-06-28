@@ -266,7 +266,8 @@ public final class AnalyzerFactory {
         try (Reader reader = IOUtils.getDecodingReader(getClass().getResourceAsStream("/".concat(wordsFile)), UTF_8)) {
             return WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
         } catch (IOException e) {
-            throw e;
+            // Usually unreachable due to classpath resources
+            throw new IOException("Failed to get the stopword file.", e);
         }
     }
 
