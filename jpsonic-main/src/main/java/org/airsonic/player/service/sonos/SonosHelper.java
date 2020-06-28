@@ -403,6 +403,9 @@ public class SonosHelper {
                 albums = mediaFileService.getAlphabeticalAlbums(offset, count, true, musicFolders);
                 total = mediaFileService.getAlbumCount(musicFolders);
                 break;
+            default:
+                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "AlbumListType", albumListType)));
+                break;
         }
         return new AlbumList(albums, total);
     }

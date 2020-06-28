@@ -130,7 +130,7 @@ public class RandomPlayQueueController {
         // Handle the last played date filter
         Calendar lastPlayed = Calendar.getInstance();
         lastPlayed.setTime(new Date());
-        switch (lastPlayedValue) {
+        switch (lastPlayedValue) { // nullable
             case "any":
                 lastPlayed = null;
                 break;
@@ -152,9 +152,12 @@ public class RandomPlayQueueController {
             case "1year":
                 lastPlayed.add(Calendar.YEAR, -1);
                 break;
+            default:
+                // none
+                break;
         }
         if (lastPlayed != null) {
-            switch (lastPlayedComp) {
+            switch (lastPlayedComp) { // nullable
                 case "lt":
                     minLastPlayedDate = null;
                     maxLastPlayedDate = lastPlayed.getTime();
@@ -163,12 +166,15 @@ public class RandomPlayQueueController {
                     minLastPlayedDate = lastPlayed.getTime();
                     maxLastPlayedDate = null;
                     break;
+                default:
+                    // none
+                    break;
             }
         }
 
         // Handle the album rating filter
         if (albumRatingValue != null) {
-            switch (albumRatingComp) {
+            switch (albumRatingComp) { // nullable
                 case "lt":
                     minAlbumRating = null;
                     maxAlbumRating = albumRatingValue - 1;
@@ -189,12 +195,15 @@ public class RandomPlayQueueController {
                     minAlbumRating = albumRatingValue;
                     maxAlbumRating = albumRatingValue;
                     break;
+                default:
+                    // none
+                    break;
             }
         }
 
         // Handle the play count filter
         if (playCountValue != null) {
-            switch (playCountComp) {
+            switch (playCountComp) { // nullable
                 case "lt":
                     minPlayCount = null;
                     maxPlayCount = playCountValue - 1;
@@ -214,6 +223,9 @@ public class RandomPlayQueueController {
                 case "eq":
                     minPlayCount = playCountValue;
                     maxPlayCount = playCountValue;
+                    break;
+                default:
+                    // none
                     break;
             }
         }
