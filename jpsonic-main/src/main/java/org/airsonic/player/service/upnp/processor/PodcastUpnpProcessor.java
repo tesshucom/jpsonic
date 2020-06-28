@@ -47,6 +47,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -61,7 +62,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     private final CoverArtLogic coverArtLogic;
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
     public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PodcastService p, CoverArtLogic c) {
         super(d, u);

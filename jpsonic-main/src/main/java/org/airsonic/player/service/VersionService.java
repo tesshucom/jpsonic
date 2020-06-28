@@ -52,7 +52,7 @@ import java.util.regex.Pattern;
 @Service
 public class VersionService {
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
 
     private Version localVersion;
