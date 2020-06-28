@@ -147,7 +147,7 @@ public class PlayQueueService {
         if (serverSidePlaylist && player.isJukebox()) {
             jukeboxService.skip(player,index,offset);
         }
-        return convert(resolveHttpServletRequest(), player, serverSidePlaylist, offset);
+        return convert(resolveHttpServletRequest(), player, serverSidePlaylist);
     }
 
     public PlayQueueInfo reloadSearchCriteria() throws Exception {
@@ -685,17 +685,13 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    private PlayQueueInfo convert(HttpServletRequest request, Player player, boolean serverSidePlaylist) {
-        return convert(request, player, serverSidePlaylist, 0);
-    }
-
-    private PlayQueueInfo convert(HttpServletRequest request, Player player, final boolean serverSidePlaylist, int offset) {
+    private PlayQueueInfo convert(HttpServletRequest request, Player player, final boolean serverSidePlaylist) {
 
         PlayQueue playQueue = player.getPlayQueue();
 
         List<PlayQueueInfo.Entry> entries;
         if (playQueue.isInternetRadioEnabled()) {
-            entries = convertInternetRadio(request, player);
+            entries = convertInternetRadio(player);
         } else {
             entries = convertMediaFileList(request, player);
         }
@@ -735,7 +731,7 @@ public class PlayQueueService {
             String remoteStreamUrl = jwtSecurityService.addJWTToken(url + "ext/stream?player=" + player.getId() + "&id=" + file.getId());
             String remoteCoverArtUrl = jwtSecurityService.addJWTToken(url + "ext/coverArt.view?id=" + file.getId());
 
-            String format = formatFormat(player, file);
+            String format = file.getFormat();
             String username = securityService.getCurrentUsername(request);
             boolean starred = mediaFileService.getMediaFileStarredDate(file.getId(), username) != null;
             entries.add(new PlayQueueInfo.Entry(file.getId(), file.getTrackNumber(), file.getTitle(), file.getArtist(), file.getComposer(),
@@ -749,7 +745,7 @@ public class PlayQueueService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    private List<PlayQueueInfo.Entry> convertInternetRadio(HttpServletRequest request, Player player) {
+    private List<PlayQueueInfo.Entry> convertInternetRadio(Player player) {
 
         PlayQueue playQueue = player.getPlayQueue();
         InternetRadio radio = playQueue.getInternetRadio();
@@ -795,10 +791,6 @@ public class PlayQueueService {
             return null;
         }
         return StringUtil.formatBytes(fileSize, locale);
-    }
-
-    private String formatFormat(Player player, MediaFile file) {
-        return file.getFormat();
     }
 
     private String formatContentType(String format) {

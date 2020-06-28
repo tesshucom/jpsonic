@@ -111,11 +111,6 @@ public class InternalHelpController {
         private boolean writable;
         private boolean executable;
 
-        public FileStatistics() {}
-
-        public FileStatistics(File path) {
-        }
-
         public String getName() {
             return name;
         }
