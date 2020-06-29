@@ -152,16 +152,14 @@ public class RecoverController {
                     "tesshu.com/");
             message.setSentDate(new Date());
 
-            Transport trans = session.getTransport(prot);
-            try {
+            try (Transport trans = session.getTransport(prot)) {
                 if (props.get("mail." + prot + ".auth") != null && props.get("mail." + prot + ".auth").equals("true")) {
-                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(), settingsService.getSmtpPassword());
+                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
+                            settingsService.getSmtpPassword());
                 } else {
                     trans.connect();
                 }
                 trans.sendMessage(message, message.getAllRecipients());
-            } finally {
-                trans.close();
             }
             return true;
 
