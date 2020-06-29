@@ -121,9 +121,6 @@ public class AdvancedSettingsCommand {
         return brand;
     }
 
-    public void setReloadNeeded(boolean reloadNeeded) {
-    }
-
     public String getSmtpServer() {
         return smtpServer;
     }

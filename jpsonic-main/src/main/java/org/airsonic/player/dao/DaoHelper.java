@@ -53,5 +53,7 @@ public interface DaoHelper {
      * Database checkpoints will make sure that the database is written on the disk
      * and optimize on-disk storage.
      */
-    public default void checkpoint() { }
+    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
+    public default void checkpoint() {
+    }
 }

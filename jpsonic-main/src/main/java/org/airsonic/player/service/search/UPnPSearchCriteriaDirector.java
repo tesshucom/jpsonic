@@ -93,6 +93,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Service Template Version 1.01 (For UPnP Version 1.0). Therefore, at this
  * stage, this class has many redundant skeleton methods.
  */
+@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Component
 @Scope("prototype")
 public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
