@@ -81,10 +81,4 @@ public class RESTFilter implements Filter {
         }
         return x.getClass().getSimpleName();
     }
-
-    public void init(FilterConfig filterConfig) {
-    }
-
-    public void destroy() {
-    }
 }

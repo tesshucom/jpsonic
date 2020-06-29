@@ -48,11 +48,6 @@ public class JWTRequestParameterProcessingFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) {
-
-    }
-
-    @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException,
             ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
@@ -109,10 +104,4 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
         failureHandler.onAuthenticationFailure(request, response, failed);
     }
-
-    @Override
-    public void destroy() {
-
-    }
-
 }

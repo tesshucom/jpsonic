@@ -203,13 +203,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
     }
 
-    public void init(FilterConfig filterConfig) {
-    }
-
-    public void destroy() {
-    }
-
-
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }

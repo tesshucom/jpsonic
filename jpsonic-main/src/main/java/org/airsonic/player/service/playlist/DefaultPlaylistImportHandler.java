@@ -24,6 +24,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
         return true;
     }
 
+    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     @Override
     public Pair<List<MediaFile>, List<String>> handle(
             SpecificPlaylist inputSpecificPlaylist

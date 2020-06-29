@@ -64,6 +64,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author Sindre Mehus
  * @version $Id$
  */
+@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Service
 public class SonosService implements SonosSoap {
 
@@ -605,7 +606,6 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportAccountAction(String type) throws CustomFault {
-
     }
 
     @Override

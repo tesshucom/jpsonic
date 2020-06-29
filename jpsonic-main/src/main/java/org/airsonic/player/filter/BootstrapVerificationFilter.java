@@ -111,9 +111,4 @@ public class BootstrapVerificationFilter implements Filter {
                     "</html>");
     }
 
-    public void init(FilterConfig filterConfig) {
-    }
-
-    public void destroy() {
-    }
 }

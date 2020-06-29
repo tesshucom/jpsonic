@@ -59,12 +59,6 @@ public class ParameterDecodingFilter implements Filter {
         chain.doFilter(decodedRequest, response);
     }
 
-    public void init(FilterConfig filterConfig) {
-    }
-
-    public void destroy() {
-    }
-
     private static class DecodingServletRequestWrapper extends HttpServletRequestWrapper {
 
         public DecodingServletRequestWrapper(HttpServletRequest servletRequest) {
