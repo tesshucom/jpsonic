@@ -194,6 +194,8 @@ public class AudioPlayer {
                             }
                             line.write(buffer, 0, n);
                             break;
+                        default:
+                            throw new AssertionError("Unreachable code.");
                     }
                 }
             } catch (Throwable x) {
