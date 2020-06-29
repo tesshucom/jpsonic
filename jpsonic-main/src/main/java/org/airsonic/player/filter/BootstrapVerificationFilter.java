@@ -112,8 +112,10 @@ public class BootstrapVerificationFilter implements Filter {
     }
 
     public void init(FilterConfig filterConfig) {
+        // Don't remove this method.
     }
 
     public void destroy() {
+        // Don't remove this method.
     }
 }

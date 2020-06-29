@@ -18,6 +18,7 @@ public class MetricsFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
+        // Don't remove this method.
     }
 
     @Override
@@ -33,5 +34,6 @@ public class MetricsFilter implements Filter {
 
     @Override
     public void destroy() {
+        // Don't remove this method.
     }
 }

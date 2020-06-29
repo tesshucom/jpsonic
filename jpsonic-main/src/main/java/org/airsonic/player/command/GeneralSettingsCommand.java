@@ -178,9 +178,6 @@ public class GeneralSettingsCommand {
         }
     }
 
-    public void setReloadNeeded(boolean reloadNeeded) {
-    }
-
     public boolean isSortAlbumsByYear() {
         return sortAlbumsByYear;
     }

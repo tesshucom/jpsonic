@@ -211,10 +211,6 @@ public class PlayerSettingsCommand {
         isAdmin = admin;
     }
 
-
-    public void setReloadNeeded(boolean reloadNeeded) {
-    }
-
     public String getJavaJukeboxMixer() {
         return javaJukeboxMixer;
     }
