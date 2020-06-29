@@ -186,6 +186,7 @@ public class MusicIndexService {
      * @param indexes List of available indexes.
      * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
      */
+    @SuppressWarnings("PMD.UnusedPrivateMethod")
     private MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
         String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {
