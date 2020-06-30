@@ -106,7 +106,7 @@ public class MusicIndexService {
         List<MusicIndex> indexes = createIndexesFromExpression(settingsService.getIndexString());
         Comparator<MusicIndex> indexComparator = new MusicIndexComparator(indexes);
 
-        SortedMap<MusicIndex, List<T>> result = new TreeMap<MusicIndex, List<T>>(indexComparator);
+        SortedMap<MusicIndex, List<T>> result = new TreeMap<>(indexComparator);
 
         for (T artist : artists) {
             MusicIndex index = getIndex(artist, indexes);
