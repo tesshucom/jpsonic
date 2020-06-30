@@ -61,10 +61,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -111,6 +111,7 @@ public class IndexManager {
     /**
      * Returns the directory of the specified index
      */
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private Function<IndexType, File> getIndexDirectory = (indexType) ->
         new File(rootIndexDirectory.get(), indexType.toString().toLowerCase());
 
@@ -141,9 +142,9 @@ public class IndexManager {
     @Autowired
     private SettingsService settingsService;
 
-    private Map<IndexType, SearcherManager> searchers = new EnumMap<>(IndexType.class);
+    private Map<IndexType, SearcherManager> searchers = new ConcurrentHashMap<>();
 
-    private Map<IndexType, IndexWriter> writers = new EnumMap<>(IndexType.class);
+    private Map<IndexType, IndexWriter> writers = new ConcurrentHashMap<>();
 
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
@@ -151,7 +152,7 @@ public class IndexManager {
 
     ;
 
-    private Map<GenreSort, List<Genre>> multiGenreMaster = new EnumMap<>(GenreSort.class);
+    private Map<GenreSort, List<Genre>> multiGenreMaster = new ConcurrentHashMap<>();
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
@@ -333,6 +334,7 @@ public class IndexManager {
      * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data.
      * On invalid indices, returns null.
      */
+    @SuppressWarnings("PMD.CloseResource") // Should not be closed
     public @Nullable MediaLibraryStatistics getStatistics() {
         MediaLibraryStatistics stats = null;
         for (IndexType indexType : IndexType.values()) {
@@ -369,6 +371,8 @@ public class IndexManager {
                     LOG.debug("Exception encountered while fetching index commit data", e);
                 }
                 return null;
+            } finally {
+                release(indexType, searcher);
             }
         }
         return stats;
@@ -379,6 +383,7 @@ public class IndexManager {
      * At initial startup, it may return null
      * if the user performs any search before performing a scan.
      */
+    @SuppressWarnings("PMD.CloseResource") // Should not be closed
     public @Nullable IndexSearcher getSearcher(IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
             File indexDirectory = getIndexDirectory.apply(indexType);
@@ -576,7 +581,7 @@ public class IndexManager {
                 return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
             }
             synchronized (multiGenreMaster) {
-                List<Genre> albumGenres = new ArrayList<Genre>();
+                List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
@@ -589,7 +594,7 @@ public class IndexManager {
                 return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
             }
             synchronized (multiGenreMaster) {
-                List<Genre> albumGenres = new ArrayList<Genre>();
+                List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
                     albumGenres.sort(comparators.genreOrderByAlpha());
@@ -606,6 +611,7 @@ public class IndexManager {
 
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -630,7 +636,7 @@ public class IndexManager {
                     }
                     List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
 
-                    List<Genre> genres = new ArrayList<Genre>();
+                    List<Genre> genres = new ArrayList<>();
                     for (String genreName : genreNames) {
                         Query query = queryFactory.getGenre(genreName);
                         TopDocs topDocs = songSearcher.search(query, Integer.MAX_VALUE);
@@ -643,7 +649,7 @@ public class IndexManager {
                     genres.sort(comparators.genreOrder(false));
                     multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
 
-                    List<Genre> genresByAlbum = new ArrayList<Genre>();
+                    List<Genre> genresByAlbum = new ArrayList<>();
                     genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(g -> genresByAlbum.add(g));
                     genresByAlbum.sort(comparators.genreOrder(true));
                     multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);

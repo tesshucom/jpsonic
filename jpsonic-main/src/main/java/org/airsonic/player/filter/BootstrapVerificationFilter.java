@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
-    private boolean jpsonicHomeVerified = false;
+    private boolean jpsonicHomeVerified;
     private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
 
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
@@ -99,6 +99,7 @@ public class BootstrapVerificationFilter implements Filter {
         }
     }
 
+    @SuppressWarnings("PMD.CloseResource") // Should be closed in container
     private void error(ServletResponse res, String error) throws IOException {
         ServletOutputStream out = res.getOutputStream();
         out.println("<html>" +
@@ -111,8 +112,10 @@ public class BootstrapVerificationFilter implements Filter {
     }
 
     public void init(FilterConfig filterConfig) {
+        // Don't remove this method.
     }
 
     public void destroy() {
+        // Don't remove this method.
     }
 }

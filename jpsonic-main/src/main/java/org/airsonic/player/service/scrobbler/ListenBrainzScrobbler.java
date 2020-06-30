@@ -21,6 +21,7 @@ package org.airsonic.player.service.scrobbler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
@@ -46,7 +47,7 @@ public class ListenBrainzScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
 
     private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<RegistrationData>();
+    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
     private final RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(15000)
             .setSocketTimeout(15000)
@@ -131,12 +132,12 @@ public class ListenBrainzScrobbler {
      * Returns if submission succeeds.
      */
     private boolean submit(RegistrationData registrationData) throws ClientProtocolException, IOException {
-        Map<String, Object> additionalInfo = new HashMap<String, Object>();
+        Map<String, Object> additionalInfo = LegacyMap.of();
         additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.musicBrainzReleaseId);
         additionalInfo.computeIfAbsent("recording_mbid", k -> registrationData.musicBrainzRecordingId);
         additionalInfo.computeIfAbsent("tracknumber", k -> registrationData.trackNumber);
 
-        Map<String, Object> trackMetadata = new HashMap<String, Object>();
+        Map<String, Object> trackMetadata = LegacyMap.of();
         if (additionalInfo.size() > 0) {
             trackMetadata.put("additional_info", additionalInfo);
         }
@@ -144,12 +145,12 @@ public class ListenBrainzScrobbler {
         trackMetadata.computeIfAbsent("track_name", k -> registrationData.title);
         trackMetadata.computeIfAbsent("release_name", k -> registrationData.album);
 
-        Map<String, Object> payload = new HashMap<String, Object>();
+        Map<String, Object> payload = LegacyMap.of();
         if (trackMetadata.size() > 0) {
             payload.put("track_metadata", trackMetadata);
         }
 
-        Map<String, Object> content = new HashMap<String, Object>();
+        Map<String, Object> content = LegacyMap.of();
 
         if (registrationData.submission) {
             payload.put("listened_at", Long.valueOf(registrationData.time.getTime() / 1000L));
@@ -170,7 +171,8 @@ public class ListenBrainzScrobbler {
         return true;
     }
 
-    private boolean executeJsonPostRequest(String url, String token, String json) throws ClientProtocolException, IOException {
+    private boolean executeJsonPostRequest(String url, String token, String json)
+            throws ClientProtocolException, IOException {
         HttpPost request = new HttpPost(url);
         request.setEntity(new StringEntity(json, "UTF-8"));
         request.setHeader("Authorization", "token " + token);
@@ -181,8 +183,9 @@ public class ListenBrainzScrobbler {
     }
 
     private void executeRequest(HttpUriRequest request) throws ClientProtocolException, IOException {
-        CloseableHttpClient client = HttpClients.createDefault();
-        client.execute(request);
+        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            client.execute(request);
+        }
     }
 
     private class RegistrationThread extends Thread {
@@ -197,12 +200,15 @@ public class ListenBrainzScrobbler {
                 try {
                     registrationData = queue.take();
                     scrobble(registrationData);
-                } catch (ClientProtocolException x) {
-                } catch (IOException x) {
-                    handleNetworkError(registrationData, x.toString());
-                } catch (Exception x) {
+                } catch (ClientProtocolException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Error in ListenBrainz registration.", e);
+                    }
+                } catch (IOException e) {
+                    handleNetworkError(registrationData, e.toString());
+                } catch (Exception e) {
                     if (LOG.isWarnEnabled()) {
-                        LOG.warn("Error in ListenBrainz registration: " + x.toString());
+                        LOG.warn("Error in ListenBrainz registration.", e);
                     }
                 }
             }

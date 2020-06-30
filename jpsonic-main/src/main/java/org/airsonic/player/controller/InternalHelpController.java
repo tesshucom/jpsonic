@@ -31,6 +31,7 @@ import org.airsonic.player.service.VersionService;
 import org.airsonic.player.service.search.AnalyzerFactory;
 import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.lucene.analysis.Analyzer;
@@ -62,6 +63,7 @@ import java.util.*;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 @Controller
 @RequestMapping("/internalhelp")
 public class InternalHelpController {
@@ -108,11 +110,6 @@ public class InternalHelpController {
         private boolean readable;
         private boolean writable;
         private boolean executable;
-
-        public FileStatistics() {}
-
-        public FileStatistics(File path) {
-        }
 
         public String getName() {
             return name;
@@ -204,7 +201,7 @@ public class InternalHelpController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
 
         if (versionService.isNewFinalVersionAvailable()) {
             map.put("newVersionAvailable", true);
@@ -258,6 +255,7 @@ public class InternalHelpController {
         }
     }
 
+    @SuppressWarnings("PMD.CloseResource") // Do not close searcher resources
     private void gatherIndexInfo(Map<String, Object> map) {
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
         for (IndexType indexType : IndexType.values()) {
@@ -269,6 +267,10 @@ public class InternalHelpController {
                 IndexReader reader = searcher.getIndexReader();
                 stat.setCount(reader.numDocs());
                 stat.setDeletedCount(reader.numDeletedDocs());
+                /*
+                 *  The following code is appropriate for Airsonic.
+                 * In case of Jpsonic, exception may occur (Before first scan)
+                 */
                 indexManager.release(indexType, searcher);
             } else {
                 stat.setCount(0);
@@ -294,6 +296,7 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     private boolean doesLocaleSupportUtf8(String locale) {
         if (locale == null) {
             return false;
@@ -329,29 +332,33 @@ public class InternalHelpController {
             map.put("dbServerVersion", conn.getMetaData().getDatabaseProductVersion());
 
             // Gather information for existing database tables
-            ResultSet resultSet = conn.getMetaData().getTables(null, null, "%", null);
-            SortedMap<String, Long> dbTableCount = new TreeMap<>();
-            while (resultSet.next()) {
-                String tableSchema = resultSet.getString("TABLE_SCHEM");
-                String tableName = resultSet.getString("TABLE_NAME");
-                String tableType = resultSet.getString("TABLE_TYPE");
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
-                }
-                if (!"table".equalsIgnoreCase(tableType)) continue;   // Table type
-                // MariaDB has "null" schemas, while other databases use "public".
-                if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) continue;  // Table schema
-                try {
-                    Long tableCount = daoHelper.getJdbcTemplate().queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
-                    dbTableCount.put(tableName, tableCount);
-                } catch (Exception e) {
+            try (ResultSet resultSet = conn.getMetaData().getTables(null, null, "%", null)) {
+
+                SortedMap<String, Long> dbTableCount = new TreeMap<>();
+                while (resultSet.next()) {
+                    String tableSchema = resultSet.getString("TABLE_SCHEM");
+                    String tableName = resultSet.getString("TABLE_NAME");
+                    String tableType = resultSet.getString("TABLE_TYPE");
                     if (LOG.isDebugEnabled()) {
-                        LOG.debug("Unable to gather information", e);
+                        LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
+                    }
+                    if (!"table".equalsIgnoreCase(tableType))
+                        continue; // Table type
+                    // MariaDB has "null" schemas, while other databases use "public".
+                    if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema))
+                        continue; // Table schema
+                    try {
+                        Long tableCount = daoHelper.getJdbcTemplate()
+                                .queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);
+                        dbTableCount.put(tableName, tableCount);
+                    } catch (Exception e) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Unable to gather information", e);
+                        }
                     }
                 }
+                map.put("dbTableCount", dbTableCount);
             }
-            map.put("dbTableCount", dbTableCount);
-
         } catch (SQLException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Unable to gather information", e);

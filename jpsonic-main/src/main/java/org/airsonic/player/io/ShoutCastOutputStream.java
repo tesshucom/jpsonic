@@ -180,6 +180,7 @@ public class ShoutCastOutputStream extends OutputStream {
         }
     }
 
+    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" })
     private byte[] createStreamTitle(final String title) {
         // Remove any quotes from the title.
         String result = title.replaceAll("'", "");

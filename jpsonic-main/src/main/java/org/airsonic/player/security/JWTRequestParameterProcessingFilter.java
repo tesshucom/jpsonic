@@ -49,15 +49,13 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-
+        // Don't remove this method.
     }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException,
             ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
-        HttpServletResponse response = (HttpServletResponse) resp;
-
         if (!findToken(request).isPresent()) {
             chain.doFilter(req, resp);
             return;
@@ -67,8 +65,8 @@ public class JWTRequestParameterProcessingFilter implements Filter {
             LOG.debug("Request is to process authentication");
         }
 
+        HttpServletResponse response = (HttpServletResponse) resp;
         Authentication authResult;
-
         try {
             authResult = attemptAuthentication(request, response);
             if (authResult == null) {
@@ -114,7 +112,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
     @Override
     public void destroy() {
-
+        // Don't remove this method.
     }
 
 }

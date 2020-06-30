@@ -22,6 +22,7 @@ package org.airsonic.player.controller;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -62,15 +63,13 @@ public class MainController {
     @Autowired
     private MediaFileService mediaFileService;
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     @GetMapping
     protected ModelAndView handleRequestInternal(@RequestParam(name = "showAll", required = false) Boolean showAll,
                                                  HttpServletRequest request,
                                                  HttpServletResponse response) throws Exception {
-        Map<String, Object> map = new HashMap<>();
 
-        Player player = playerService.getPlayer(request, response);
         List<MediaFile> mediaFiles = getMediaFiles(request);
-
         if (mediaFiles.isEmpty()) {
             return new ModelAndView(new RedirectView("notFound.view"));
         }
@@ -115,6 +114,8 @@ public class MainController {
         mediaFileService.populateStarredDate(dir, username);
         mediaFileService.populateStarredDate(children, username);
 
+        Player player = playerService.getPlayer(request, response);
+        Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
         map.put("files", files);
         map.put("subDirs", subDirs);
@@ -255,14 +256,16 @@ public class MainController {
     public List<MediaFile> getMultiFolderChildren(List<MediaFile> mediaFiles) throws IOException {
         SortedSet<MediaFile> result = new TreeSet<>(jpsonicComparator.mediaFileOrder(null));
         for (MediaFile mediaFile : mediaFiles) {
-            if (mediaFile.isFile()) {
-                mediaFile = mediaFileService.getParentOf(mediaFile);
+            MediaFile m = mediaFile;
+            if (m.isFile()) {
+                m = mediaFileService.getParentOf(m);
             }
-            result.addAll(mediaFileService.getChildrenOf(mediaFile, true, true, true));
+            result.addAll(mediaFileService.getChildrenOf(m, true, true, true));
         }
         return new ArrayList<>(result);
     }
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 

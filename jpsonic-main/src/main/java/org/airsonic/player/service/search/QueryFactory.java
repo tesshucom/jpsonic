@@ -58,6 +58,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * On the other hand, the generated queries are relatively small by version.
  * Therefore, test cases of this class are useful for large version upgrades.
  **/
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CloseResource" }) // Analyzer should not be closed
 @Component
 public class QueryFactory {
 
@@ -374,12 +375,12 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres);
-            stream.reset();
-            while (stream.incrementToken()) {
-                genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
+                stream.reset();
+                while (stream.incrementToken()) {
+                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                }
             }
-            stream.close();
             query.add(genreQuery.build(), Occur.MUST);
         }
 
@@ -406,12 +407,12 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres);
-            stream.reset();
-            while (stream.incrementToken()) {
-                genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
+                stream.reset();
+                while (stream.incrementToken()) {
+                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                }
             }
-            stream.close();
             query.add(genreQuery.build(), Occur.MUST);
         }
 
@@ -434,12 +435,12 @@ public class QueryFactory {
 
         for (String genre : genres) {
             if (!isEmpty(genre)) {
-                TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre);
-                stream.reset();
-                while (stream.incrementToken()) {
-                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre)) {
+                    stream.reset();
+                    while (stream.incrementToken()) {
+                        genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                    }
                 }
-                stream.close();
             }
         }
         query.add(genreQuery.build(), Occur.MUST);

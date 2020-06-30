@@ -4,10 +4,15 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 
-<html><head>
-     <%@ include file="head.jsp" %>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html>
+<head>
+<%!
+long totalMemory = Runtime.getRuntime().totalMemory();
+long freeMemory = Runtime.getRuntime().freeMemory();
+long usedMemory = totalMemory - freeMemory;
+%>
+<%@ include file="head.jsp" %>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 
 <body class="mainframe bgcolor1">
@@ -22,13 +27,6 @@
     Japanese related errors are supported by <a href="https://tesshu.com/" target="_blank" rel="noopener nofererrer">tesshu.com</a>.<br>
     Please include the information below.
 </p>
-
-<%
-
-    long totalMemory = Runtime.getRuntime().totalMemory();
-    long freeMemory = Runtime.getRuntime().freeMemory();
-    long usedMemory = totalMemory - freeMemory;
-%>
 
 <table class="ruleTable indent">
     <tr><td class="ruleTableHeader">Status</td>

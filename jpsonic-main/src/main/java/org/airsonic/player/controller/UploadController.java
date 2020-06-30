@@ -27,10 +27,12 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.StatusService;
 import org.airsonic.player.upload.MonitoredDiskFileItemFactory;
 import org.airsonic.player.upload.UploadListener;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,10 +76,11 @@ public class UploadController {
     private SettingsService settingsService;
     public static final String UPLOAD_STATUS = "uploadStatus";
 
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
         List<File> uploadedFiles = new ArrayList<>();
         List<File> unzippedFiles = new ArrayList<>();
         TransferStatus status = null;
@@ -124,10 +127,9 @@ public class UploadController {
                 FileItem item = (FileItem) o;
 
                 if (!item.isFormField()) {
-                    String fileName = item.getName();
-                    if (!fileName.trim().isEmpty()) {
+                    if (!StringUtils.isAllBlank(item.getName())) {
 
-                        File targetFile = new File(dir, new File(fileName).getName());
+                        File targetFile = new File(dir, new File(item.getName()).getName());
 
                         if (!securityService.isUploadAllowed(targetFile)) {
                             throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
@@ -170,6 +172,7 @@ public class UploadController {
         return new ModelAndView("upload","model",map);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);

@@ -20,6 +20,7 @@
 package org.airsonic.player.service.scrobbler;
 
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.NameValuePair;
@@ -55,7 +56,7 @@ public class LastFMScrobbler {
     private static final int MAX_PENDING_REGISTRATION = 2000;
 
     private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<RegistrationData>();
+    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
     private final RequestConfig requestConfig = RequestConfig.custom()
             .setConnectTimeout(15000)
             .setSocketTimeout(15000)
@@ -219,7 +220,7 @@ public class LastFMScrobbler {
     }
 
     private String[] registerSubmission(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a[0]", registrationData.artist);
         params.put("t[0]", registrationData.title);
@@ -234,7 +235,7 @@ public class LastFMScrobbler {
     }
 
     private String[] registerNowPlaying(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a", registrationData.artist);
         params.put("t", registrationData.title);
@@ -255,8 +256,9 @@ public class LastFMScrobbler {
         return executeRequest(method);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private String[] executePostRequest(String url, Map<String, String> parameters) throws UnsupportedEncodingException, ClientProtocolException, IOException {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
         }

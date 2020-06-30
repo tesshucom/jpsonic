@@ -683,7 +683,6 @@
                     <targetJdk>${compile.version}</targetJdk>
                     <skipEmptyReport>false</skipEmptyReport>
                     <failOnViolation>true</failOnViolation>
-                    <minimumPriority>2</minimumPriority>
                     <printFailingErrors>true</printFailingErrors>
                     <includeTests>true</includeTests>
                     <verbose>false</verbose>
@@ -699,8 +698,9 @@
                         <include>**/*.jsp</include>
                         <include>**/*.jspf</include>
                     </includes>
+                    <minimumPriority>3</minimumPriority>
                     <rulesets>
-                        <ruleset>pmd-rulesets.xml</ruleset>
+                        <ruleset>pmd-rulesets-priority3.xml</ruleset>
                     </rulesets>
                 </configuration>
             </plugin>

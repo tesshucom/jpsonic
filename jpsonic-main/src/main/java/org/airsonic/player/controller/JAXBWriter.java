@@ -19,7 +19,6 @@
  */
 package org.airsonic.player.controller;
 
-import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -99,14 +98,10 @@ public class JAXBWriter {
     }
 
     private String getRESTProtocolVersion() throws Exception {
-        InputStream in = null;
-        try {
-            in = StringUtil.class.getResourceAsStream("/subsonic-rest-api.xsd");
+        try (InputStream in = StringUtil.class.getResourceAsStream("/subsonic-rest-api.xsd")) {
             Document document = createSAXBuilder().build(in);
             Attribute version = document.getRootElement().getAttribute("version");
             return version.getValue();
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 

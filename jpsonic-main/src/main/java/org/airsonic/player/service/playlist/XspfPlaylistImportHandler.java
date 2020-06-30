@@ -27,6 +27,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
         return Playlist.class.equals(playlistClass);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @Override
     public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();
@@ -53,11 +54,11 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
             if (mediaFile != null) {
                 mediaFiles.add(mediaFile);
             } else {
-                String errorMsg = "Could not find media file matching ";
+                StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
                 try {
-                    errorMsg += track.getStringContainers().stream().map(StringContainer::getText).collect(Collectors.joining(","));
+                    errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText).collect(Collectors.joining(",")));
                 } catch (Exception ignored) {}
-                errors.add(errorMsg);
+                errors.add(errorMsg.toString());
             }
         });
         return Pair.of(mediaFiles, errors);

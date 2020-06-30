@@ -6,7 +6,7 @@ import org.apache.lucene.search.Query;
  * Abstract class that holds Lucene queries.
  * Objects representing subclass search criteria must properly return parsed Lucene queries.
  */
-public abstract class LuceneSearchCriteria {
+public class LuceneSearchCriteria {
 
     private Query parsedQuery;
 
@@ -18,7 +18,7 @@ public abstract class LuceneSearchCriteria {
 
     private final boolean includeComposer;
 
-    LuceneSearchCriteria(String query, int offset, int count, boolean includeComposer) {
+    protected LuceneSearchCriteria(String query, int offset, int count, boolean includeComposer) {
         this.query = query;
         this.offset = offset;
         this.count = count;

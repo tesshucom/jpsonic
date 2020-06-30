@@ -1,5 +1,6 @@
 package org.airsonic.player.service;
 
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.configuration2.*;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
 import org.apache.commons.configuration2.builder.fluent.Parameters;
@@ -12,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.concurrent.CompletionException;
 
 @Service
@@ -93,7 +93,7 @@ public class ApacheCommonsConfigurationService {
     }
 
     public ImmutableConfiguration getImmutableSnapshot() {
-        MapConfiguration mapConfiguration = new MapConfiguration(new HashMap<>());
+        MapConfiguration mapConfiguration = new MapConfiguration(LegacyMap.of());
         mapConfiguration.copy(config);
         return mapConfiguration;
     }

@@ -22,6 +22,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,9 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the page used to administrate the set of transcoding configurations.
@@ -52,15 +50,11 @@ public class TranscodingSettingsController {
 
     @GetMapping
     public String doGet(Model model) {
-
-        Map<String, Object> map = new HashMap<String, Object>();
-
-        map.put("transcodings", transcodingService.getAllTranscodings());
-        map.put("transcodeDirectory", transcodingService.getTranscodeDirectory());
-        map.put("hlsCommand", settingsService.getHlsCommand());
-        map.put("brand", settingsService.getBrand());
-
-        model.addAttribute("model", map);
+        model.addAttribute("model", LegacyMap.of(
+                "transcodings", transcodingService.getAllTranscodings(),
+                "transcodeDirectory", transcodingService.getTranscodeDirectory(),
+                "hlsCommand", settingsService.getHlsCommand(),
+                "brand", settingsService.getBrand()));
         return "transcodingSettings";
     }
 

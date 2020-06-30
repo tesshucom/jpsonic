@@ -270,9 +270,9 @@ public class MediaScannerServiceUtils {
     }
 
     private final class FixedIds {
-        private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<Integer>();
-        private LinkedHashSet<Integer> artistIds = new LinkedHashSet<Integer>();
-        private LinkedHashSet<Integer> albumIds = new LinkedHashSet<Integer>();
+        private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<>();
+        private LinkedHashSet<Integer> artistIds = new LinkedHashSet<>();
+        private LinkedHashSet<Integer> albumIds = new LinkedHashSet<>();
     }
 
 }

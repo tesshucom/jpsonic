@@ -339,6 +339,7 @@ public class TranscodingService {
      * @param mediaFile                The media file.
      * @param in                       Data to feed to the process.  May be {@code null}.  @return The newly created input stream.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private TranscodeInputStream createTranscodeInputStream(String command, Integer maxBitRate,
                                                             VideoTranscodingSettings videoTranscodingSettings, MediaFile mediaFile, InputStream in) throws IOException {
 
@@ -356,7 +357,7 @@ public class TranscodingService {
             artist = "Unknown Artist";
         }
 
-        List<String> result = new LinkedList<String>(Arrays.asList(StringUtil.split(command)));
+        List<String> result = new LinkedList<>(Arrays.asList(StringUtil.split(command)));
         result.set(0, getTranscodeDirectory().getPath() + File.separatorChar + result.get(0));
 
         File tmpFile = null;
@@ -424,7 +425,7 @@ public class TranscodingService {
             return null;
         }
 
-        List<Transcoding> applicableTranscodings = new LinkedList<Transcoding>();
+        List<Transcoding> applicableTranscodings = new LinkedList<>();
         String suffix = mediaFile.getFormat();
 
         // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is
@@ -509,14 +510,13 @@ public class TranscodingService {
      * Returns the length (or predicted/expected length) of a (possibly padded) media stream
      */
     private Long getExpectedLength(Parameters parameters) {
-        MediaFile file = parameters.getMediaFile();
 
+        MediaFile file = parameters.getMediaFile();
         if (!parameters.isTranscode()) {
             return file.getFileSize();
         }
-        Integer duration = file.getDurationSeconds();
-        Integer maxBitRate = parameters.getMaxBitRate();
 
+        Integer duration = file.getDurationSeconds();
         if (duration == null) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Unknown duration for " + file + ". Unable to estimate transcoded size.");
@@ -524,6 +524,7 @@ public class TranscodingService {
             return null;
         }
 
+        Integer maxBitRate = parameters.getMaxBitRate();
         if (maxBitRate == null) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Unknown bit rate for " + file + ". Unable to estimate transcoded size.");

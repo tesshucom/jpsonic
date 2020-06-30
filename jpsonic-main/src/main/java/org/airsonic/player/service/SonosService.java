@@ -64,6 +64,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author Sindre Mehus
  * @version $Id$
  */
+@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Service
 public class SonosService implements SonosSoap {
 
@@ -118,6 +119,7 @@ public class SonosService implements SonosSoap {
     @Resource
     private WebServiceContext context;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
@@ -409,7 +411,7 @@ public class SonosService implements SonosSoap {
         parameters.setIndex(0);
         parameters.setCount(Integer.MAX_VALUE);
         GetMetadataResponse metadata = getMetadata(parameters);
-        List<MediaFile> newSongs = new ArrayList<MediaFile>();
+        List<MediaFile> newSongs = new ArrayList<>();
 
         for (AbstractMedia media : metadata.getGetMetadataResult().getMediaCollectionOrMediaMetadata()) {
             if (StringUtils.isNumeric(media.getId())) {
@@ -436,18 +438,18 @@ public class SonosService implements SonosSoap {
             Playlist playlist = playlistService.getPlaylist(playlistId);
             if (playlist != null && playlist.getUsername().equals(getUsername())) {
 
-                SortedMap<Integer, MediaFile> indexToSong = new ConcurrentSkipListMap<Integer, MediaFile>();
+                SortedMap<Integer, MediaFile> indexToSong = new ConcurrentSkipListMap<>();
                 List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
                 for (int i = 0; i < songs.size(); i++) {
                     indexToSong.put(i, songs.get(i));
                 }
 
-                List<MediaFile> movedSongs = new ArrayList<MediaFile>();
+                List<MediaFile> movedSongs = new ArrayList<>();
                 for (Integer i : parsePlaylistIndices(from)) {
                     movedSongs.add(indexToSong.remove(i));
                 }
 
-                List<MediaFile> updatedSongs = new ArrayList<MediaFile>();
+                List<MediaFile> updatedSongs = new ArrayList<>();
                 updatedSongs.addAll(indexToSong.headMap(to).values());
                 updatedSongs.addAll(movedSongs);
                 updatedSongs.addAll(indexToSong.tailMap(to).values());
@@ -466,7 +468,7 @@ public class SonosService implements SonosSoap {
             if (playlist != null && playlist.getUsername().equals(getUsername())) {
                 SortedSet<Integer> indicesToRemove = parsePlaylistIndices(indices);
                 List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
-                List<MediaFile> updatedSongs = new ArrayList<MediaFile>();
+                List<MediaFile> updatedSongs = new ArrayList<>();
                 for (int i = 0; i < songs.size(); i++) {
                     if (!indicesToRemove.contains(i)) {
                         updatedSongs.add(songs.get(i));
@@ -480,7 +482,7 @@ public class SonosService implements SonosSoap {
 
     protected SortedSet<Integer> parsePlaylistIndices(String indices) {
         // Comma-separated, may include ranges:  1,2,4-7
-        SortedSet<Integer> result = new TreeSet<Integer>();
+        SortedSet<Integer> result = new TreeSet<>();
 
         for (String part : StringUtils.split(indices, ',')) {
             if (StringUtils.isNumeric(part)) {
@@ -517,9 +519,10 @@ public class SonosService implements SonosSoap {
         return messageContext == null ? null : (HttpServletRequest) messageContext.get("HTTP.REQUEST");
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
-        if (messageContext == null || !(messageContext instanceof WrappedMessageContext)) {
+        if (!(messageContext instanceof WrappedMessageContext)) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Message context is null or not an instance of WrappedMessageContext.");
             }
@@ -603,7 +606,6 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportAccountAction(String type) throws CustomFault {
-
     }
 
     @Override

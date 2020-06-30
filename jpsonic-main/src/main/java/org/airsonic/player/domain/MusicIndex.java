@@ -43,7 +43,7 @@ public class MusicIndex implements Serializable {
     public static final MusicIndex OTHER = new MusicIndex("#");
 
     private final String index;
-    private final List<String> prefixes = new ArrayList<String>();
+    private final List<String> prefixes = new ArrayList<>();
 
     /**
      * Creates a new index with the given index string.
@@ -142,7 +142,7 @@ public class MusicIndex implements Serializable {
 
     public static class SortableArtistWithMediaFiles extends SortableArtist {
 
-        private final List<MediaFile> mediaFiles = new ArrayList<MediaFile>();
+        private final List<MediaFile> mediaFiles = new ArrayList<>();
 
         public SortableArtistWithMediaFiles(String name, String sortableName, Comparator<SortableArtist> c) {
             super(name, sortableName, c);

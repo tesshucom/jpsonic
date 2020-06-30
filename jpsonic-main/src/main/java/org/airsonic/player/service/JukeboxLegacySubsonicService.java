@@ -91,6 +91,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         }
     }
 
+    @SuppressWarnings("PMD.CloseResource") // see AudioPlayer#close
     private synchronized void play(MediaFile file, int offset) {
         InputStream in = null;
         try {

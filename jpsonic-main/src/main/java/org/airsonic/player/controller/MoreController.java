@@ -26,6 +26,7 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,9 +38,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Controller for the "more" page.
@@ -61,7 +60,6 @@ public class MoreController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, Object> map = new HashMap<>();
 
         User user = securityService.getCurrentUser(request);
 
@@ -71,18 +69,16 @@ public class MoreController {
             uploadDirectory = new File(musicFolders.get(0).getPath(), "Incoming").getPath();
         }
 
-
-
         Player player = playerService.getPlayer(request, response);
         ModelAndView result = new ModelAndView();
-        result.addObject("model", map);
-        map.put("user", user);
-        map.put("uploadDirectory", uploadDirectory);
-        map.put("genres", searchService.getGenres(false));
-        map.put("currentYear", Calendar.getInstance().get(Calendar.YEAR));
-        map.put("musicFolders", musicFolders);
-        map.put("clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb());
-        map.put("brand", settingsService.getBrand());
+        result.addObject("model", LegacyMap.of(
+                "user", user,
+                "uploadDirectory", uploadDirectory,
+                "genres", searchService.getGenres(false),
+                "currentYear", Calendar.getInstance().get(Calendar.YEAR),
+                "musicFolders", musicFolders,
+                "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(),
+                "brand", settingsService.getBrand()));
         return result;
     }
 }

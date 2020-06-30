@@ -20,6 +20,7 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.UPnPService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,7 +32,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
@@ -55,7 +55,7 @@ public class DLNASettingsController {
     @GetMapping
     public String handleGet(Model model) {
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = LegacyMap.of();
 
         map.put("dlnaEnabled", settingsService.isDlnaEnabled());
         map.put("dlnaServerName", settingsService.getDlnaServerName());

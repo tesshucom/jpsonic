@@ -130,13 +130,19 @@ public final class FileUtil {
      * Closes the "closable", ignoring any excepetions.
      *
      * @param closeable The Closable to close, may be {@code null}.
+     * @deprecated Deprecated in current Java
      */
+    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @Deprecated
     public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
             try {
                 closeable.close();
             } catch (IOException e) {
-                // Ignored
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in FileUtil#closeQuietly(Closeable).",
+                            new AssertionError("Error expected to be unreachable.", e));
+                }
             }
         }
     }

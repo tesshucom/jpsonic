@@ -20,11 +20,12 @@
 
 package org.airsonic.player.service.search;
 
+import org.airsonic.player.util.LegacyMap;
+
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -109,7 +110,7 @@ public enum IndexType {
      */
     @SafeVarargs
     private static final Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
-        Map<String, Float> m = new HashMap<>();
+        Map<String, Float> m = LegacyMap.of();
         Arrays.stream(entry).forEach(kv -> m.put(kv.getKey(), kv.getValue()));
         return Collections.unmodifiableMap(m);
     }
@@ -141,6 +142,7 @@ public enum IndexType {
 
     private final String[] fields;
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     private IndexType(String[] fieldNames, Map<String, Float> boosts) {
         this.fields = fieldNames;
         this.boosts = boosts;

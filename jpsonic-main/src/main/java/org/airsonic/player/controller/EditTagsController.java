@@ -24,6 +24,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
 import org.airsonic.player.service.metadata.MetaDataParser;
 import org.airsonic.player.service.metadata.MetaDataParserFactory;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +61,7 @@ public class EditTagsController {
         MediaFile dir = mediaFileService.getMediaFile(id);
         List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false, true, false);
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = LegacyMap.of();
         if (!files.isEmpty()) {
             map.put("defaultArtist", files.get(0).getArtist());
             map.put("defaultAlbum", files.get(0).getAlbumName());
@@ -70,7 +70,7 @@ public class EditTagsController {
         }
         map.put("allGenres", JaudiotaggerParser.getID3V1Genres());
 
-        List<Song> songs = new ArrayList<Song>();
+        List<Song> songs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
             songs.add(createSong(files.get(i), i));
         }

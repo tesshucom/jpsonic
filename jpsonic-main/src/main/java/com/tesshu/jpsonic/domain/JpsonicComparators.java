@@ -139,7 +139,7 @@ public class JpsonicComparators {
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
         return settingsService.isSortAlbumsByYear()
                 && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                        && isVarious.matcher(artist.toLowerCase()).matches()));
+                        && isVarious.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
     }
 
     /**

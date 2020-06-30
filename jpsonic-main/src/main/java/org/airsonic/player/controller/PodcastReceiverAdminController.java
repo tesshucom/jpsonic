@@ -49,13 +49,14 @@ public class PodcastReceiverAdminController {
 
     @RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Integer channelId = ServletRequestUtils.getIntParameter(request, "channelId");
 
         if (request.getParameter("add") != null) {
             String url = StringUtils.trim(request.getParameter("add"));
             podcastService.createChannel(url);
             return new ModelAndView(new RedirectView("podcastChannels.view"));
         }
+
+        Integer channelId = ServletRequestUtils.getIntParameter(request, "channelId");
         if (request.getParameter("downloadEpisode") != null && channelId != null) {
             download(StringUtil.parseInts(request.getParameter("downloadEpisode")));
             return new ModelAndView(new RedirectView("podcastChannel.view?id=" + channelId));

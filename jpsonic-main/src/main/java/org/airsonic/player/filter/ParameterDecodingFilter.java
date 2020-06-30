@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.filter;
 
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,10 +29,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 /**
  * Servlet filter which decodes HTTP request parameters.  If a parameter name ends with
@@ -58,9 +60,11 @@ public class ParameterDecodingFilter implements Filter {
     }
 
     public void init(FilterConfig filterConfig) {
+        // Don't remove this method.
     }
 
     public void destroy() {
+        // Don't remove this method.
     }
 
     private static class DecodingServletRequestWrapper extends HttpServletRequestWrapper {
@@ -81,7 +85,7 @@ public class ParameterDecodingFilter implements Filter {
         @Override
         public Map<String, String[]> getParameterMap() {
             Map<String, String[]> map = super.getParameterMap();
-            Map<String, String[]> result = new HashMap<String, String[]>();
+            Map<String, String[]> result = LegacyMap.of();
 
             for (Map.Entry<String, String[]> entry : map.entrySet()) {
                 String name = entry.getKey();
@@ -99,7 +103,7 @@ public class ParameterDecodingFilter implements Filter {
         @Override
         public Enumeration<String> getParameterNames() {
             Enumeration<String> e = super.getParameterNames();
-            Vector<String> v = new Vector<String>();
+            List<String> v = new ArrayList<>();
             while (e.hasMoreElements()) {
                 String name = e.nextElement();
                 if (name.endsWith(PARAM_SUFFIX)) {
@@ -107,8 +111,7 @@ public class ParameterDecodingFilter implements Filter {
                 }
                 v.add(name);
             }
-
-            return v.elements();
+            return Collections.enumeration(v);
         }
 
         @Override

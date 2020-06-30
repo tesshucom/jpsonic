@@ -29,7 +29,6 @@ import org.airsonic.player.domain.PodcastStatus;
 import org.airsonic.player.service.metadata.MetaData;
 import org.airsonic.player.service.metadata.MetaDataParser;
 import org.airsonic.player.service.metadata.MetaDataParserFactory;
-import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -129,6 +128,19 @@ public class PodcastService {
     }
 
     public synchronized void schedule() {
+
+        if (scheduledRefresh != null) {
+            scheduledRefresh.cancel(true);
+        }
+
+        int hoursBetween = settingsService.getPodcastUpdateInterval();
+        if (hoursBetween == -1) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Automatic Podcast update disabled.");
+            }
+            return;
+        }
+
         Runnable task = () -> {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Starting scheduled Podcast refresh.");
@@ -138,23 +150,8 @@ public class PodcastService {
                 LOG.info("Completed scheduled Podcast refresh.");
             }
         };
-
-        if (scheduledRefresh != null) {
-            scheduledRefresh.cancel(true);
-        }
-
-        int hoursBetween = settingsService.getPodcastUpdateInterval();
-
-        if (hoursBetween == -1) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update disabled.");
-            }
-            return;
-        }
-
         long periodMillis = hoursBetween * 60L * 60L * 1000L;
         long initialDelayMillis = 5L * 60L * 1000L;
-
         scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
         Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
         if (LOG.isInfoEnabled()) {
@@ -239,6 +236,7 @@ public class PodcastService {
         }));
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<PodcastEpisode> filterAllowed(List<PodcastEpisode> episodes) {
         List<PodcastEpisode> result = new ArrayList<>(episodes.size());
         for (PodcastEpisode episode : episodes) {
@@ -312,7 +310,6 @@ public class PodcastService {
     }
 
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
-        InputStream in = null;
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             channel.setStatus(PodcastStatus.DOWNLOADING);
@@ -325,8 +322,8 @@ public class PodcastService {
             HttpGet method = new HttpGet(channel.getUrl());
             method.setConfig(requestConfig);
 
-            try (CloseableHttpResponse response = client.execute(method)) {
-                in = response.getEntity().getContent();
+            try (CloseableHttpResponse response = client.execute(method);
+                    InputStream in = response.getEntity().getContent()) {
 
                 Document document = createSAXBuilder().build(in);
                 Element channelElement = document.getRootElement().getChild("channel");
@@ -348,8 +345,6 @@ public class PodcastService {
             channel.setStatus(PodcastStatus.ERROR);
             channel.setErrorMessage(getErrorMessage(x));
             podcastDao.updateChannel(channel);
-        } finally {
-            FileUtil.closeQuietly(in);
         }
 
         if (downloadEpisodes) {
@@ -362,8 +357,7 @@ public class PodcastService {
     }
 
     private void downloadImage(PodcastChannel channel) {
-        InputStream in = null;
-        OutputStream out = null;
+
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             String imageUrl = channel.getImageUrl();
             if (imageUrl == null) {
@@ -380,19 +374,17 @@ public class PodcastService {
 
             HttpGet method = new HttpGet(imageUrl);
             try (CloseableHttpResponse response = client.execute(method)) {
-                in = response.getEntity().getContent();
                 File f = new File(dir, "cover." + getCoverArtSuffix(response));
-                out = Files.newOutputStream(Paths.get(f.toURI()));
-                IOUtils.copy(in, out);
+                try (InputStream in = response.getEntity().getContent();
+                        OutputStream out = Files.newOutputStream(Paths.get(f.toURI()))) {
+                    IOUtils.copy(in, out);
+                }
                 mediaFileService.refreshMediaFile(channelMediaFile);
             }
         } catch (Exception x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "': " + x, x);
             }
-        } finally {
-            FileUtil.closeQuietly(in);
-            FileUtil.closeQuietly(out);
         }
     }
 
@@ -427,6 +419,7 @@ public class PodcastService {
         downloadExecutor.submit(task);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void refreshEpisodes(PodcastChannel channel, List<Element> episodeElements) {
 
         List<PodcastEpisode> episodes = new ArrayList<>();
@@ -506,8 +499,10 @@ public class PodcastService {
         for (DateFormat dateFormat : RSS_DATE_FORMATS) {
             try {
                 return dateFormat.parse(s);
-            } catch (Exception x) {
-                // Ignored.
+            } catch (Exception e) {
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Error in parse of RSS date.", e);
+                }
             }
         }
         if (LOG.isWarnEnabled()) {
@@ -550,8 +545,6 @@ public class PodcastService {
     }
 
     private void doDownloadEpisode(PodcastEpisode episode) {
-        InputStream in = null;
-        OutputStream out = null;
 
         if (isEpisodeDeleted(episode)) {
             if (LOG.isInfoEnabled()) {
@@ -578,12 +571,9 @@ public class PodcastService {
             HttpGet method = new HttpGet(episode.getUrl());
             method.setConfig(requestConfig);
 
-            try (CloseableHttpResponse response = client.execute(method)) {
-                in = response.getEntity().getContent();
+            try (CloseableHttpResponse response = client.execute(method);InputStream in = response.getEntity().getContent()) {
 
                 File file = getFile(channel, episode);
-                out = Files.newOutputStream(Paths.get(file.toURI()));
-
                 episode.setStatus(PodcastStatus.DOWNLOADING);
                 episode.setBytesDownloaded(0L);
                 episode.setErrorMessage(null);
@@ -595,19 +585,21 @@ public class PodcastService {
                 int n;
                 long nextLogCount = 30000L;
 
-                while ((n = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, n);
-                    bytesDownloaded += n;
+                try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
+                    while ((n = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, n);
+                        bytesDownloaded += n;
 
-                    if (bytesDownloaded > nextLogCount) {
-                        episode.setBytesDownloaded(bytesDownloaded);
-                        nextLogCount += 30000L;
+                        if (bytesDownloaded > nextLogCount) {
+                            episode.setBytesDownloaded(bytesDownloaded);
+                            nextLogCount += 30000L;
 
-                        // Abort download if episode was deleted by user.
-                        if (isEpisodeDeleted(episode)) {
-                            break;
+                            // Abort download if episode was deleted by user.
+                            if (isEpisodeDeleted(episode)) {
+                                break;
+                            }
+                            podcastDao.updateEpisode(episode);
                         }
-                        podcastDao.updateEpisode(episode);
                     }
                 }
 
@@ -615,7 +607,6 @@ public class PodcastService {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
                     }
-                    FileUtil.closeQuietly(out);
                     if (!file.delete()) {
                         if (LOG.isWarnEnabled()) {
                             LOG.warn("Unable to delete " + file);
@@ -628,7 +619,6 @@ public class PodcastService {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
                     }
-                    FileUtil.closeQuietly(out);
                     updateTags(file, episode);
                     episode.setStatus(PodcastStatus.COMPLETED);
                     podcastDao.updateEpisode(episode);
@@ -642,9 +632,6 @@ public class PodcastService {
             episode.setStatus(PodcastStatus.ERROR);
             episode.setErrorMessage(getErrorMessage(x));
             podcastDao.updateEpisode(episode);
-        } finally {
-            FileUtil.closeQuietly(in);
-            FileUtil.closeQuietly(out);
         }
     }
 
@@ -700,6 +687,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private synchronized File getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         File channelDir = getChannelDirectory(channel);
@@ -728,12 +716,11 @@ public class PodcastService {
 
     private File getChannelDirectory(PodcastChannel channel) {
         File podcastDir = new File(settingsService.getPodcastFolder());
-        File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
-
         if (!podcastDir.canWrite()) {
             throw new IllegalStateException("The podcasts directory " + podcastDir + " isn't writeable.");
         }
 
+        File channelDir = new File(podcastDir, StringUtil.fileSystemSafe(channel.getTitle()));
         if (!channelDir.exists()) {
             boolean ok = channelDir.mkdirs();
             if (!ok) {

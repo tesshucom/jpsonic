@@ -51,7 +51,7 @@ public class PlaylistDao extends AbstractDao {
                                        "playlist_user.username = ?", rowMapper, username, username);
 
         // Put in sorted map to avoid duplicates.
-        SortedMap<Integer, Playlist> map = new TreeMap<Integer, Playlist>();
+        SortedMap<Integer, Playlist> map = new TreeMap<>();
         for (Playlist playlist : result1) {
             map.put(playlist.getId(), playlist);
         }

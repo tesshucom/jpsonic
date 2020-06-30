@@ -27,6 +27,7 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -37,9 +38,6 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the playlist page.
@@ -61,29 +59,25 @@ public class PlaylistController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        Map<String, Object> map = new HashMap<>();
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
-        User user = securityService.getCurrentUser(request);
-        String username = user.getUsername();
-        UserSettings userSettings = settingsService.getUserSettings(username);
-        Player player = playerService.getPlayer(request, response);
         Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             return new ModelAndView(new RedirectView("notFound"));
         }
 
-        map.put("playlist", playlist);
-        map.put("user", user);
-        map.put("visibility", userSettings.getMainVisibility());
-        map.put("player", player);
-        map.put("editAllowed", username.equals(playlist.getUsername()) || securityService.isAdmin(username));
-        map.put("partyMode", userSettings.isPartyModeEnabled());
+        User user = securityService.getCurrentUser(request);
+        String username = user.getUsername();
+        UserSettings userSettings = settingsService.getUserSettings(username);
+        Player player = playerService.getPlayer(request, response);
 
-        return new ModelAndView("playlist","model",map);
+        return new ModelAndView("playlist", "model", LegacyMap.of(
+                "playlist", playlist,
+                "user", user,
+                "visibility", userSettings.getMainVisibility(),
+                "player", player,
+                "editAllowed", username.equals(playlist.getUsername()) || securityService.isAdmin(username),
+                "partyMode", userSettings.isPartyModeEnabled()));
     }
-
-
-
 
 }
