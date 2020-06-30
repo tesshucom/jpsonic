@@ -105,7 +105,7 @@ public class HLSController {
     }
 
     private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) throws IllegalArgumentException {
-        List<Pair<Integer, Dimension>> result = new ArrayList<Pair<Integer, Dimension>>();
+        List<Pair<Integer, Dimension>> result = new ArrayList<>();
         String[] bitRates = request.getParameterValues("bitRate");
         if (bitRates != null) {
             for (String bitRate : bitRates) {
