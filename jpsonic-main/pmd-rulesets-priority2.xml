@@ -5,7 +5,7 @@
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
-        PMD 6.24.0 rulesets for Jpsonic.
+        PMD 6.25.0 rulesets for Jpsonic.
         blocker  (priority1) : Almost follow default rules
         critical (priority2) : Almost follow default rules
 
