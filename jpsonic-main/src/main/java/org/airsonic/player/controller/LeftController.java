@@ -79,7 +79,7 @@ public class LeftController {
             return -1L;
         }
 
-        long lastModified = LAST_COMPATIBILITY_TIME.getTimeInMillis();
+        long lastModified = System.currentTimeMillis();
         String username = securityService.getCurrentUsername(request);
 
         // When was settings last changed?
