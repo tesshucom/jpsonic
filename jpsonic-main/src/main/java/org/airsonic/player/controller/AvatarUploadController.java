@@ -29,6 +29,7 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,11 +86,8 @@ public class AvatarUploadController {
         // Look for file items.
         for (FileItem item : items) {
             if (!item.isFormField()) {
-                String fileName = item.getName();
-                byte[] data = item.get();
-
-                if (StringUtils.isNotBlank(fileName) && data.length > 0) {
-                    createAvatar(fileName, data, username, map);
+                if (StringUtils.isNotBlank(item.getName()) && item.getSize() > 0) {
+                    createAvatar(item, username, map);
                 } else {
                     map.put("error", new Exception("Missing file."));
                     if (LOG.isWarnEnabled()) {
@@ -105,13 +103,13 @@ public class AvatarUploadController {
         return new ModelAndView("avatarUploadResult","model",map);
     }
 
-    private void createAvatar(String fileName, final byte[] data, String username, Map<String, Object> map) {
-
+    private void createAvatar(FileItem fileItem, String username, Map<String, Object> map) {
+        String fileName = fileItem.getFieldName();
         BufferedImage image;
         try {
-            image = ImageIO.read(new ByteArrayInputStream(data));
+            image = ImageIO.read(new ByteArrayInputStream(IOUtils.toByteArray(fileItem.getInputStream())));
             if (image == null) {
-                throw new IOException("Failed to decode incoming image: " + fileName + " (" + data.length + " bytes).");
+                throw new IOException("Failed to decode incoming image: " + fileName + " (" + fileItem.getSize() + " bytes).");
             }
             int width = image.getWidth();
             int height = image.getHeight();

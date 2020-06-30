@@ -142,6 +142,7 @@
         <exclude name="TooFewBranchesForASwitchStatement" />
         <exclude name="SimplifyStartsWith" /><!-- It is a bug rule. -->
         <exclude name="ConsecutiveLiteralAppends" /><!-- Is old. Obsolete due to conflict with ConsecutiveAppendsShouldReuse. -->
+        <exclude name="UseIOStreamsWithApacheCommonsFileItem" /><!-- It is a bug rule. -->
         <!-- [low priority] << -->
 
     </rule>
