@@ -1,7 +1,7 @@
 
 // ## FONT ########################################################################
 
-$jp-font-family: -apple-system, blinkMacSystemFont, 'Helvetica Neue', 'Segoe UI', "Noto Sans JP", YuGothicM, YuGothic, Meiryo, sans-serif;
+$jp-font-family: 'Kazesawa-Regular', YuGothicM, YuGothic, Meiryo, sans-serif;
 
 // ## COLOR #######################################################################
 
@@ -38,3 +38,10 @@ $jp-border-input-radius:        10px;
 // ## SHADOW ######################################################################
 
 $jp-shadow-offset:              2px;
+
+// ## FONTS #######################################################################
+
+@font-face {
+  font-family: "Kazesawa-Regular";
+  src: /* url("../fonts/Kazesawa-Regular.woff"), */ url("../fonts/Kazesawa-Regular.ttf");
+}

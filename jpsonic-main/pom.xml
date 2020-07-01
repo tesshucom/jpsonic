@@ -762,6 +762,9 @@
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
                                 <echo file="${project.build.directory}/classes/version.txt">${jpsonic.version}</echo>
+                                <copy todir="${project.build.directory}/classes/fonts">
+                                    <fileset dir="src/main/webapp/fonts" includes = "**/" />
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
