@@ -254,6 +254,8 @@ released under [MIT License](http://www.opensource.org/licenses/mit-license.php)
 The icons are from the amazing [feather](https://feathericons.com/) project,
 and are licensed under [MIT license](https://github.com/feathericons/feather/blob/master/LICENSE).
 
+[Kazesawa font](https://kazesawa.github.io/) is used for Japanese fonts. Copyright (C) 2002-2015 M+ FONTS PROJECT.
+
 Usage
 -----
 
