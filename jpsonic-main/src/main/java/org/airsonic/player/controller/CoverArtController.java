@@ -48,6 +48,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -91,9 +92,11 @@ public class CoverArtController implements LastModified {
     @Autowired
     private CoverArtLogic logic;
 
-    private static Font font;
+    private static WeakReference<Font> font;
 
-    private final static Map<String, Object> LOCKS = new ConcurrentHashMap<>();
+    private final static Object FONT_LOCK = new Object();
+
+    private final static Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -243,9 +246,9 @@ public class CoverArtController implements LastModified {
         Object lock = new Object();
         synchronized (lock) {
 
-            LOCKS.putIfAbsent(lockKey, lock);
+            IMG_LOCKS.putIfAbsent(lockKey, lock);
 
-            if (lock.equals(LOCKS.get(lockKey))
+            if (lock.equals(IMG_LOCKS.get(lockKey))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {
                     semaphore.acquire();
@@ -262,7 +265,7 @@ public class CoverArtController implements LastModified {
                     throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
-                    LOCKS.remove(lockKey, lock);
+                    IMG_LOCKS.remove(lockKey, lock);
                 }
             }
             return cachedImage;
@@ -291,7 +294,7 @@ public class CoverArtController implements LastModified {
             Artwork artwork;
             try {
                 LOG.trace("Reading artwork from file {}", mediaFile);
-                artwork = jaudiotaggerParser.getArtwork(mediaFile);
+                artwork = JaudiotaggerParser.getArtwork(mediaFile);
                 is = new ByteArrayInputStream(artwork.getBinaryData());
                 mimeType = artwork.getMimeType();
             } catch (Exception e) {
@@ -363,7 +366,6 @@ public class CoverArtController implements LastModified {
         return thumb;
     }
 
-
     private abstract class CoverArtRequest {
 
         protected File coverArt;
@@ -409,10 +411,33 @@ public class CoverArtController implements LastModified {
             return createAutoCover(size, size);
         }
 
+        private Font getFont(int imgHeight) {
+            float fontSize = (imgHeight - imgHeight * 0.02f) * 0.1f;
+            synchronized (FONT_LOCK) {
+                if (font == null || font.get() == null) {
+                    try (InputStream fontStream = CoverArtController.class
+                            .getResourceAsStream("/fonts/Kazesawa-Regular.ttf")) {
+                        font = new WeakReference<>(
+                                Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize));
+                    } catch (IOException | FontFormatException e) {
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Failed to load font. ", e);
+                        }
+                        LOG.error("Failed to load font. ", e);
+                    } finally {
+                        if (font == null) {
+                            font = new WeakReference<>(new Font(Font.SANS_SERIF, Font.BOLD, (int) fontSize));
+                        }
+                    }
+                }
+            }
+            return font.get();
+        }
+
         protected BufferedImage createAutoCover(int width, int height) {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height);
+            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, getFont(height));
             autoCover.paintCover();
             graphics.dispose();
             return image;
@@ -693,13 +718,15 @@ public class CoverArtController implements LastModified {
         private final int width;
         private final int height;
         private final Color color;
+        private final Font font;
 
-        AutoCover(Graphics2D graphics, String key, String artist, String album, int width, int height) {
+        AutoCover(Graphics2D graphics, String key, String artist, String album, int width, int height, Font font) {
             this.graphics = graphics;
             this.artist = artist;
             this.album = album;
             this.width = width;
             this.height = height;
+            this.font = font;
 
             int hash = key.hashCode();
             int rgb = COLORS[Math.abs(hash) % COLORS.length];
@@ -718,27 +745,7 @@ public class CoverArtController implements LastModified {
             graphics.fillRect(0, y, width, height / 3);
 
             graphics.setPaint(Color.WHITE);
-            float fontSize = 3.0f + height * 0.07f;
-
-            if (font == null) {
-                try (InputStream fontStream = CoverArtController.class
-                        .getResourceAsStream("/fonts/Kazesawa-Regular.ttf")) {
-                    font = Font.createFont(Font.TRUETYPE_FONT, fontStream);
-                    font = font.deriveFont(Font.BOLD, fontSize);
-                } catch (IOException | FontFormatException e) {
-                    if (LOG.isTraceEnabled()) {
-                        LOG.trace("Failed to load font. ", e);
-                    }
-                    LOG.error("Failed to load font. ", e);
-                } finally {
-                    if (font == null) {
-                        font = new Font(Font.SANS_SERIF, Font.BOLD, (int) fontSize);
-                    }
-                }
-            }
-
             graphics.setFont(font);
-
             if (album != null) {
                 graphics.drawString(album, width * 0.05f, height * 0.6f);
             }
