@@ -1,8 +1,4 @@
 
-// ## FONT ########################################################################
-
-$jp-font-family: 'Kazesawa-Regular', YuGothicM, YuGothic, Meiryo, sans-serif;
-
 // ## COLOR #######################################################################
 
 $jp-color-white:                #ffffff;
@@ -38,10 +34,3 @@ $jp-border-input-radius:        10px;
 // ## SHADOW ######################################################################
 
 $jp-shadow-offset:              2px;
-
-// ## FONTS #######################################################################
-
-@font-face {
-  font-family: "Kazesawa-Regular";
-  src: /* url("../fonts/Kazesawa-Regular.woff"), */ url("../fonts/Kazesawa-Regular.ttf");
-}

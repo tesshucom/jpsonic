@@ -2,10 +2,6 @@
 // Definition that Airsonic tries to treat as "default".
 // (@see default-without-mediaelement.css)
 //
-html {
-  font-family: $jp-font-family;
-  font-size: 13.8px;
-}
 
 * {
   outline-color:  $jp-color-complementary3;
@@ -101,7 +97,7 @@ body {
 // Login page */
 
 #loginframe {
-  display: list-itrem;
+  display: list-item;
   list-style: none;
   margin: 100px 50px;
   padding: 20px 50px;
@@ -148,8 +144,6 @@ body {
   margin:0.75rem;
   padding:0;
   @include border(zero);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 p {
@@ -201,7 +195,7 @@ input, textarea, select {
   @include border(input);
   @include borderRadius(input);
   background: $jp-color-white;
-
+  font-size: 90%;
   font-size: 0.85rem;
   vertical-align: middle;
   &:focus {
@@ -284,7 +278,7 @@ img {
 }
 
 .monospace {
-  font-family: $jp-font-family;
+  font-family: monospace;
 }
 
 .dropshadow {
@@ -308,6 +302,7 @@ img {
 .coverart .caption1 {
   overflow:hidden;
   padding:6px 8px 4px 8px;
+  font-weight: 300;
   text-overflow:ellipsis;
   white-space:nowrap;
   line-height: 100%;
@@ -321,6 +316,7 @@ img {
   overflow:hidden;
   padding:0 8px 5px 8px;
   color: $jp-color-dark-gray;
+  font-weight: 300;
   font-size: 0.85rem;
   text-overflow:ellipsis;
   white-space:nowrap;
@@ -331,6 +327,7 @@ img {
   overflow:hidden;
   padding:0 8px 5px 8px;
   color: $jp-color-dark-gray;
+  font-weight: 300;
   font-size: 0.85rem;
   text-overflow:ellipsis;
   white-space:nowrap;
@@ -375,7 +372,7 @@ img {
   margin: 0;
   padding: 0.15em 0 0 0;
   @include border(zero);
-  font-size: 0.85rem;
+  font-size: 102%;
   white-space: nowrap;
 }
 
