@@ -16,11 +16,11 @@ html {
 
 .mainframe {
   h1 {
-    margin-bottom: 0.8em;
+    margin-bottom: 0.8rem;
   }
   h2 {
-    margin-top: 1.2em;
-    margin-bottom: 0.8em;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
     text-align: middle;
     >img {
       height: 25px;
@@ -31,7 +31,7 @@ html {
 // div.bgcolor1
 .mainframe.bgcolor1 {
   margin: 0 4px 0 4px;
-  padding: 1em;
+  padding: 1rem;
   @include border;
   @include borderRadius(left);
   background-color: $jp-color-white;
@@ -44,19 +44,19 @@ div.bgcolor1 {
   @include border;
   @include borderRadius;
   background-color: $jp-color-white;
-  line-height: 1.8em;
+  line-height: 1.8rem;
   a {
     display: inline-block;
-    margin: 0.1em 0.1em 0.1em 0.5em;
+    margin: 0.1em 0.1em 0.1em 0.5rem;
     padding: 1px;
     @include blockLink($jp-color-base1, $jp-color-base4);
-    min-width: 1.7em;
-    height: 1.7em;
+    min-width: 1.7rem;
+    height: 1.7rem;
     border-radius: 50%; // one-off-border-radius
     font-weight: 500;
     text-align: center;
     // letter-spacing: 3px;
-    line-height: 1.7em;
+    line-height: 1.7rem;
     &:focus, &:active {
       padding: 0;
     }
@@ -75,10 +75,10 @@ table.bgcolor1 {
   table {
     td {
       img {
-        padding: 0 0.9em 0 0.9em;
+        padding: 0 0.9em 0 0.9rem;
       }
       a {
-        font-size: 0.9em;
+        font-size: 0.85rem;
       }
     } 
   }
@@ -87,7 +87,7 @@ table.bgcolor1 {
 // h2 in left.jsp It is difficult to understand, so please rewrite if possible. >> 
 h2.bgcolor1 {
   margin: 10px 0 0 0;
-  padding: 0.5em 0 0.5em;
+  padding: 0.5em 0 0.5rem;
   background-color: $jp-color-base3;
   @include borderRadius(upper);
   @include border(other-than-top);
@@ -97,15 +97,15 @@ h2.bgcolor1 {
 table.bgcolor1 h2 {
   display: inline-block;
   margin-top: 10px;
-  min-width: 1.4em;
-  height: 1.4em;
+  min-width: 1.4rem;
+  height: 1.4rem;
   border-radius: 50%; // one-off-border-radius
   background: $jp-color-base1;
   color: $jp-color-base4;
-  font-weight: 500;
+  font-weight: 300;
   text-align: center;
   letter-spacing: 0;
-  line-height: 1.3em;
+  line-height: 1.3rem;
 }
 // h2 in left.jsp <<
 
@@ -127,7 +127,7 @@ table.bgcolor1 h2 {
 
 body.bgcolor1.rightframe {
   margin: 0 4px 0 4px;
-  padding: 0.5em;
+  padding: 0.5rem;
   background-color: $jp-color-white;
   .detail {
     white-space: normal;
@@ -139,13 +139,13 @@ body.bgcolor1.rightframe {
 p.dense {
   overflow: hidden;
   min-width: 200px;
-  height: 1.7em;
+  height: 1.7rem;
   margin: 0;
   padding: 0.1em 0 0.1em 0;
   @include border(other-than-top);
   background: $jp-color-white;
-  font-size: 0.9em;
-  line-height: 1.7em;
+  font-size: 0.85rem;
+  line-height: 1.5rem;
   &:hover {
     background-color: $jp-color-mask-light-gray;
   }
@@ -170,18 +170,19 @@ p.dense.last {
 
 // ******************** log/help.jsp **************************************
 
+
 table.log.indent {
   table-layout: fixed;
   width: 100%;
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   @include border;
   @include borderRadius;
   border-collapse: separate;
   border-spacing: 0;
   word-wrap: break-word;
   td {
-    font-size: 0.4em;
+    font-size: 0.4rem;
     white-space: normal;
     word-wrap: break-word;
   }
@@ -194,8 +195,8 @@ table.log.indent {
 
 table.music.indent {
   width: 99%;
-  margin-top: 1em;
-  margin-bottom: 1em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
   @include border;
   @include borderRadius;
   border-collapse: separate;
@@ -226,7 +227,7 @@ table.music {
       }
     }
     th {
-      padding-left: 0.3em;
+      padding-left: 0.3rem;
       @include border(bottom);
       background-color: $jp-color-base1;
       color: $jp-color-base4;
@@ -241,7 +242,7 @@ table.music {
   }
   tbody {
     td {
-      padding: 0.3em;
+      padding: 0.3rem;
       @include border(bottom);
     }
     tr {
@@ -278,7 +279,7 @@ table.music {
         @include border(bottom-zero);
         background-color: $jp-color-white;
         td {
-          padding: 0.3em;
+          padding: 0.3rem;
           @include border(bottom);
         }
         &:last-child {
@@ -324,16 +325,16 @@ table.music, .bgcolor2.playlistframe table.music.indent {
   table.music {
     tbody {
       td {
-        padding-right: 0.3em;
+        padding-right: 0.3rem;
       }
     }
   }
   table.music.playlist thead th, table.music tbody tr td {
     &:first-child {
-      padding-left: 1em;
+      padding-left: 1rem;
     }
     &:last-child {
-      padding-right: 1em;
+      padding-right: 1rem;
     }
   }
 }
@@ -359,7 +360,7 @@ table.ruleTable.indent {
     tr {
       @include border(bottom-zero);
       td {
-        padding: 0.3em;
+        padding: 0.3rem;
         @include border(bottom);
       }
       &:first-child{
@@ -397,16 +398,16 @@ table.ruleTable.indent {
 // dedicated script processing is required for full-scale implementation.
 // Jpsonic does not do such complicated processing and avoids it with simple CSS.
 
-.truncate.mainTitle{min-width:20em;width:30%;}
+.truncate.mainTitle{min-width:20rem;width:30%;}
 //.truncate.mainAlbum{}
 //.truncate.mainArtist{}
 //.truncate.mainComposer{}
-.truncate.mainGenre{min-width:6em;}
-.truncate.playlistTitle    {min-width:20em;width:30%;}
+.truncate.mainGenre{min-width:6rem;}
+.truncate.playlistTitle    {min-width:20rem;width:30%;}
 //.truncate.playlistAlbum    {}
 //.truncate.playlistArtist  {}
 //.truncate.playlistComposer  {}
-.truncate.playlistGenre    {min-width:6em;}
+.truncate.playlistGenre    {min-width:6rem;}
 .truncate.searchAlbumAlbum{max-width:45%;width:45%;}
 .truncate.searchAlbumAlbumartist1{max-width:36%;width:36%;}
 .truncate.searchAlbumAlbumartist2{max-width:18%;width:18%;}
@@ -425,7 +426,7 @@ table.artistInfoTable {
   @include borderRadius;
   border-collapse: separate;
   border-spacing: 0;
-  line-height: 2em;
+  line-height: 2rem;
 }
 
 // ******************** domestic ******************************************
