@@ -55,7 +55,7 @@ public class SonosServiceRegistration {
                      ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
         }
 
-        List<Pair<String, String>> params = new ArrayList<Pair<String, String>>();
+        List<Pair<String, String>> params = new ArrayList<>();
         params.add(Pair.of("sid", String.valueOf(sonosServiceId)));
         if (enabled) {
             params.add(Pair.of("name", sonosServiceName));

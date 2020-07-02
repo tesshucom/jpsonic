@@ -16,13 +16,13 @@
     <properties>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.3.6</cxf.version>
-        <jackson.version>2.11.0</jackson.version>
+        <cxf.version>3.3.7</cxf.version>
+        <jackson.version>2.11.1</jackson.version>
         <tomcat.version>9.0.36</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.30.v20200611</jetty.version>
         <jetty-jsp.version>9.4.30.v20200611</jetty-jsp.version>
-        <pmd.version>6.24.0</pmd.version>
+        <pmd.version>6.25.0</pmd.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>

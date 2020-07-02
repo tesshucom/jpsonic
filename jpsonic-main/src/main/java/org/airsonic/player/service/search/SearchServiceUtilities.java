@@ -238,7 +238,7 @@ public class SearchServiceUtilities {
         b.append(key).append(',').append(casheMax).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
         if (!isEmpty(additional)) {
-            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(","));
+            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(','));
         }
         b.append(']');
         return b.toString();

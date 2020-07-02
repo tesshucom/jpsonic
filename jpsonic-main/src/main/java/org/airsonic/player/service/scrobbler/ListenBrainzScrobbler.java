@@ -159,7 +159,7 @@ public class ListenBrainzScrobbler {
             content.put("listen_type", "playing_now");
         }
 
-        List<Map<String, Object>> payloads = new ArrayList<Map<String, Object>>();
+        List<Map<String, Object>> payloads = new ArrayList<>();
         payloads.add(payload);
         content.put("payload", payloads);
 

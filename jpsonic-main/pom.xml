@@ -15,7 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.1.1-SNAPSHOT</jpsonic.version>
+        <jpsonic.version>109.2.0-SNAPSHOT</jpsonic.version>
         <lucene.version>8.5.1</lucene.version>
     </properties>
 
@@ -762,6 +762,9 @@
                                 <!--suppress MavenModelInspection -->
                                 <echo file="${project.build.directory}/classes/build_date.txt">${DSTAMP}</echo>
                                 <echo file="${project.build.directory}/classes/version.txt">${jpsonic.version}</echo>
+                                <copy todir="${project.build.directory}/classes/fonts">
+                                    <fileset dir="src/main/webapp/fonts" includes = "**/" />
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
