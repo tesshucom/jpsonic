@@ -90,12 +90,11 @@ public class UserSettingsValidator implements Validator {
         }
 
         if (securityService.getCurrentUser(request).getUsername().equals(username)) {
-            // These errors don't need translation since the option isn't exposed to the user
             if (command.isDeleteUser()) {
-                errors.rejectValue("deleteUser", null, "Cannot delete the current user");
+                errors.rejectValue("deleteUser", "usersettings.cantdeleteuser");
             }
-            if (! command.isAdminRole()) {
-                errors.rejectValue("adminRole", null, "Cannot remove admin from the current user");
+            if (!command.isAdminRole()) {
+                errors.rejectValue("adminRole", "usersettings.cantremoverole");
             }
         }
 
