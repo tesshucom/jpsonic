@@ -5,6 +5,12 @@
 #
 # Author: Sindre Mehus
 
+# The Jpsonic theme.
+jpsonic "Jpsonic Default" default_light
+
+# The Jpsonic with JP font theme.
+jpsonic_embed_font "Jpsonic(embedded JP font)" default_light
+
 # The original Airsonic theme.
 default "Airsonic" default_light
 
@@ -60,5 +66,3 @@ hitech "High-Tech" default_dark
 # BUUF Theme by Fractal Systems - Based on icons by Paul Davey aka Mattahan. All rights reserved.
 buuftheme "BUUF Theme" default_dark
 
-# The Jpsonic theme.
-jpsonic "Jpsonic Default" default_light

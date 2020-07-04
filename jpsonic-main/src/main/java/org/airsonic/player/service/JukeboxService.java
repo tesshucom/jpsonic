@@ -21,8 +21,6 @@ package org.airsonic.player.service;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 /**
@@ -30,8 +28,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JukeboxService {
-
-    private static final Logger LOG = LoggerFactory.getLogger(JukeboxService.class);
 
     private JukeboxLegacySubsonicService jukeboxLegacySubsonicService;
     private JukeboxJavaService jukeboxJavaService;
@@ -51,7 +47,7 @@ public class JukeboxService {
                 jukeboxJavaService.setGain(airsonicPlayer,gain);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -64,7 +60,7 @@ public class JukeboxService {
                 jukeboxJavaService.setPosition(airsonicPlayer,positionInSeconds);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -76,7 +72,7 @@ public class JukeboxService {
             case JAVA_JUKEBOX:
                 return jukeboxJavaService.getGain(airsonicPlayer);
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
         return 0;
@@ -99,7 +95,7 @@ public class JukeboxService {
             case JAVA_JUKEBOX:
                 return jukeboxJavaService.getPosition(airsonicPlayer);
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
         return 0;
@@ -117,7 +113,7 @@ public class JukeboxService {
                 jukeboxJavaService.play(airsonicPlayer);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -131,7 +127,7 @@ public class JukeboxService {
                 jukeboxJavaService.start(airsonicPlayer);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -145,7 +141,7 @@ public class JukeboxService {
                 jukeboxJavaService.stop(airsonicPlayer);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -159,7 +155,7 @@ public class JukeboxService {
                 jukeboxJavaService.skip(airsonicPlayer,index,offset);
                 break;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
     }
@@ -180,7 +176,7 @@ public class JukeboxService {
             case JAVA_JUKEBOX:
                 return true;
             default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "PlayerTechnology", airsonicPlayer.getTechnology())));
+                // do nothing
                 break;
         }
         return false;

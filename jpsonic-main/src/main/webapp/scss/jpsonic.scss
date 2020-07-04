@@ -26,7 +26,7 @@
 // it is divided into several scss files based on the original CSS.
 // 
 // jpsonic.scss (this file)
-//     ├ _jpsonic_definitions.scss   : Common definitions such as colors and fonts.
+//     ├ _jpsonic_definitions.scss   : Common definitions such as colors.
 //     └ jpsonic
 //           ├ _jp-functions.scss    : Common functions such as borders and effects.
 //           ├ _jp-default.scss      : CSS to overwrite legacy styles.
@@ -40,6 +40,17 @@
 
 // Load compass. Valid, but not yet released.
 //@import 'compass/reset';
+
+// ## FONT-FAMILY #################################################################
+
+$jp-font-family: -apple-system, blinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Noto Sans JP", YuGothicM, YuGothic, Meiryo, sans-serif;
+
+html {
+  font-family: $jp-font-family;
+  font-size: 14px;
+}
+
+// ################################################################################
 
 // Read common definitions.
 @import './jpsonic_definitions';
