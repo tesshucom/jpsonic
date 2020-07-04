@@ -729,7 +729,8 @@ public class CoverArtController implements LastModified {
             this.font = font;
 
             int hash = key.hashCode();
-            int rgb = COLORS[Math.abs(hash) % COLORS.length];
+            hash = hash < 0 ? Math.abs(hash) : hash;
+            int rgb = COLORS[hash % COLORS.length];
             this.color = new Color(rgb);
         }
 
