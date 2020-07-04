@@ -15,8 +15,9 @@ import org.slf4j.LoggerFactory;
 import java.sql.Connection;
 import java.util.List;
 
-public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibase {
-    private static final Logger LOG = LoggerFactory.getLogger(SpringLiquibase.class);
+public class AirsonicSpringLiquibase extends liquibase.integration.spring.SpringLiquibase {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AirsonicSpringLiquibase.class);
 
     @Override
     public void afterPropertiesSet() throws LiquibaseException {
@@ -62,7 +63,7 @@ public class SpringLiquibase extends liquibase.integration.spring.SpringLiquibas
         factory.clearRegistry();
         removeCurrentHsqlDb(implementedDatabases);
         implementedDatabases.forEach(factory::register);
-        factory.register(new HsqlDatabase());
+        factory.register(new AirsonicHsqlDatabase());
     }
 
     private void removeCurrentHsqlDb(List<Database> implementedDatabases) {

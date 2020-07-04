@@ -26,6 +26,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Map;
 
@@ -109,7 +110,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     private static String generateRememberMeKey() {
         byte[] array = new byte[32];
         new SecureRandom().nextBytes(array);
-        return new String(array);
+        return new String(array, StandardCharsets.UTF_8);
     }
 
     @Configuration

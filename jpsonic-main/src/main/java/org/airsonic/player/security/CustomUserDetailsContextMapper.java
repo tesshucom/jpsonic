@@ -33,6 +33,7 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 
 @Component
@@ -130,7 +131,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         Object result = passwordValue;
         if (!(result instanceof String)) {
             // Assume it's binary
-            result = new String((byte[]) result);
+            result = new String((byte[]) result, StandardCharsets.UTF_8);
         }
 
         return (String) result;

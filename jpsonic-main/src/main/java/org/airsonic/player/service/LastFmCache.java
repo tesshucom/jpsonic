@@ -111,7 +111,7 @@ public class LastFmCache extends Cache {
         try (InputStream in = Files.newInputStream(Paths.get(f.toURI()))) {
             Properties p = new Properties();
             p.load(in);
-            long expirationDate = Long.valueOf(p.getProperty("expiration-date"));
+            long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
             return expirationDate < System.currentTimeMillis();
         } catch (Exception e) {
             return false;

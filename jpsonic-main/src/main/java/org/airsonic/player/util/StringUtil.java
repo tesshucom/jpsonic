@@ -235,7 +235,7 @@ public final class StringUtil {
      */
     @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
     public static String[] readLines(InputStream in) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 String trimed = line.trim();

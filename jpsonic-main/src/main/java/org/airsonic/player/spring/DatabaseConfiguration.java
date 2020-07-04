@@ -1,5 +1,6 @@
 package org.airsonic.player.spring;
 
+import liquibase.integration.spring.SpringLiquibase;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.GenericDaoHelper;
 import org.airsonic.player.dao.LegacyHsqlDaoHelper;
@@ -92,7 +93,7 @@ public class DatabaseConfiguration {
                                      @Value("${DatabaseMysqlMaxlength:512}")
                                      String mysqlVarcharLimit,
                                      String userTableQuote) {
-        SpringLiquibase springLiquibase = new SpringLiquibase();
+        SpringLiquibase springLiquibase = new AirsonicSpringLiquibase();
         springLiquibase.setDataSource(dataSource);
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
         springLiquibase.setRollbackFile(rollbackFile());
