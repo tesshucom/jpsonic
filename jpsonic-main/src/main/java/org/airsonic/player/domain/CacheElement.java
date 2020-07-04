@@ -41,7 +41,7 @@ public class CacheElement {
     }
 
     public static long createId(int type, String key) {
-        return ((long) type << 32) | Math.abs(key.hashCode());
+        return ((long) type << 32) | Math.abs((long) key.hashCode());
     }
 
     public long getId() {

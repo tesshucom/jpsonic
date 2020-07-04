@@ -55,6 +55,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -437,7 +438,7 @@ public class CoverArtController implements LastModified {
         protected BufferedImage createAutoCover(int width, int height) {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, getFont(height));
+            AutoCover autoCover = new AutoCover(graphics, getArtist(), getAlbum(), width, height, getFont(height));
             autoCover.paintCover();
             graphics.dispose();
             return image;
@@ -720,16 +721,14 @@ public class CoverArtController implements LastModified {
         private final Color color;
         private final Font font;
 
-        AutoCover(Graphics2D graphics, String key, String artist, String album, int width, int height, Font font) {
+        AutoCover(Graphics2D graphics, String artist, String album, int width, int height, Font font) {
             this.graphics = graphics;
             this.artist = artist;
             this.album = album;
             this.width = width;
             this.height = height;
             this.font = font;
-
-            int hash = key.hashCode();
-            int rgb = COLORS[Math.abs(hash) % COLORS.length];
+            int rgb = COLORS[new Random().nextInt(Integer.MAX_VALUE) % COLORS.length];
             this.color = new Color(rgb);
         }
 
