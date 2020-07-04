@@ -24,7 +24,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Playlist;
-import org.airsonic.player.i18n.LocaleResolver;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
@@ -61,7 +61,7 @@ public class PlaylistService {
     @Autowired
     private PlayerService playerService;
     @Autowired
-    private LocaleResolver localeResolver;
+    private AirsonicLocaleResolver airsonicLocaleResolver;
 
     public List<Playlist> getReadablePlaylists() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -97,7 +97,7 @@ public class PlaylistService {
 
     public List<Playlist> createEmptyPlaylist() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        Locale locale = localeResolver.resolveLocale(request);
+        Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
         Date now = new Date();
@@ -116,7 +116,7 @@ public class PlaylistService {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = playerService.getPlayer(request, response);
-        Locale locale = localeResolver.resolveLocale(request);
+        Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
         Date now = new Date();
@@ -135,7 +135,7 @@ public class PlaylistService {
 
     public int createPlaylistForStarredSongs() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        Locale locale = localeResolver.resolveLocale(request);
+        Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
         Date now = new Date();
@@ -268,7 +268,7 @@ public class PlaylistService {
         this.playerService = playerService;
     }
 
-    public void setLocaleResolver(LocaleResolver localeResolver) {
-        this.localeResolver = localeResolver;
+    public void setAirsonicLocaleResolver(AirsonicLocaleResolver localeResolver) {
+        this.airsonicLocaleResolver = localeResolver;
     }
 }

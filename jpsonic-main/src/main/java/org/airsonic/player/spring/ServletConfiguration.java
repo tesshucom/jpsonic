@@ -1,8 +1,10 @@
 package org.airsonic.player.spring;
 
 import org.airsonic.player.controller.PodcastController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.ContentNegotiationConfigurer;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
@@ -15,6 +17,9 @@ import java.util.Properties;
 
 @Configuration
 public class ServletConfiguration implements WebMvcConfigurer {
+
+    @Autowired
+    private org.airsonic.player.i18n.AirsonicLocaleResolver airsonicLocaleResolver;
 
     @Bean
     public SimpleUrlHandlerMapping podcastUrlMapping(PodcastController podcastController) {
@@ -33,6 +38,11 @@ public class ServletConfiguration implements WebMvcConfigurer {
         resolver.setPrefix("/WEB-INF/jsp/");
         resolver.setSuffix(".jsp");
         return resolver;
+    }
+
+    @Bean
+    public LocaleResolver localeResolver() {
+        return airsonicLocaleResolver;
     }
 
     // Both setUseSuffixPatternMatch and favorPathExtension calls allow URLs

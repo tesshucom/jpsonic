@@ -39,7 +39,7 @@ import java.util.Set;
  * @author Sindre Mehus
  */
 @Service
-public class LocaleResolver implements org.springframework.web.servlet.LocaleResolver {
+public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
     @Autowired
     private SecurityService securityService;
