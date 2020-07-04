@@ -257,7 +257,7 @@ public class UploadController {
             status.setBytesTransfered(byteCount);
 
             if (maxBitsPerSecond > 0) {
-                float sleepMillis = 1000.0F * (bitCount / maxBitsPerSecond - elapsedSeconds);
+                float sleepMillis = (bitCount * 1000.0F / (maxBitsPerSecond - elapsedSeconds) * 1000.0F);
                 if (sleepMillis > 0) {
                     try {
                         Thread.sleep((long) sleepMillis);
