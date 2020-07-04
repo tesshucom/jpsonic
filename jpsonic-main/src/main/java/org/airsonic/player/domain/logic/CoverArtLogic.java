@@ -54,19 +54,19 @@ public class CoverArtLogic {
     }
 
     public int getAlbumId(String id) {
-        return Integer.valueOf(id.replace(ALBUM_COVERART_PREFIX, ""));
+        return Integer.parseInt(id.replace(ALBUM_COVERART_PREFIX, ""));
     }
 
     public int getArtistId(String id) {
-        return Integer.valueOf(id.replace(ARTIST_COVERART_PREFIX, ""));
+        return Integer.parseInt(id.replace(ARTIST_COVERART_PREFIX, ""));
     }
 
     public int getPlaylistId(String id) {
-        return Integer.valueOf(id.replace(PLAYLIST_COVERART_PREFIX, ""));
+        return Integer.parseInt(id.replace(PLAYLIST_COVERART_PREFIX, ""));
     }
 
     public int getPodcastId(String id) {
-        return Integer.valueOf(id.replace(PODCAST_COVERART_PREFIX, ""));
+        return Integer.parseInt(id.replace(PODCAST_COVERART_PREFIX, ""));
     }
 
     public String createKey(Artist artist) {

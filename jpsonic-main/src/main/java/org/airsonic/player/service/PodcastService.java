@@ -514,7 +514,7 @@ public class PodcastService {
     private String formatDuration(String duration) {
         if (duration == null) return null;
         if (duration.matches("^\\d+$")) {
-            long seconds = Long.valueOf(duration);
+            long seconds = Long.parseLong(duration);
             if (seconds >= 3600)
                 return String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60, seconds % 60);
             else

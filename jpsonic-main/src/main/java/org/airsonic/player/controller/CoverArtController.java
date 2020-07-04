@@ -168,7 +168,7 @@ public class CoverArtController implements LastModified {
         if (logic.isPodcast(id)) {
             return createPodcastCoverArtRequest(logic.getPodcastId(id), request);
         }
-        return createMediaFileCoverArtRequest(Integer.valueOf(id), request);
+        return createMediaFileCoverArtRequest(Integer.parseInt(id), request);
     }
 
     private CoverArtRequest createAlbumCoverArtRequest(int id) {
