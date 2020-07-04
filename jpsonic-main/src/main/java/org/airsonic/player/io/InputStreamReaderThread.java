@@ -27,6 +27,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Utility class which reads everything from an input stream and optionally logs it.
@@ -51,7 +52,7 @@ public class InputStreamReaderThread extends Thread {
 
     @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
     public void run() {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
                 if (log) {
                     if (LOG.isInfoEnabled()) {
