@@ -2,7 +2,7 @@ package org.airsonic.player.spring;
 
 import liquibase.exception.DatabaseException;
 
-public class HsqlDatabase extends liquibase.database.core.HsqlDatabase {
+public class AirsonicHsqlDatabase extends liquibase.database.core.HsqlDatabase {
 
     @Override
     public boolean supportsSchemas() {
