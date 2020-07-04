@@ -208,13 +208,11 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
-        for (String id : indexesMap.keySet()) {
-            IndexID3 index = indexesMap.get(id).getIndexId3();
-            index.getArtist().stream()
-                .filter(a -> a.getId().equals(artist.getId()))
-                .findFirst()
-                .ifPresent(a -> container.setParentID(id));
-        }
+        indexesMap.entrySet()
+                .forEach(e -> indexesMap.get(e.getKey()).getIndexId3().getArtist().stream()
+                        .filter(a -> a.getId().equals(artist.getId()))
+                        .findFirst()
+                        .ifPresent(a -> container.setParentID(e.getKey())));
     }
 
     private final void applyParentId(Id3Wrapper album, MusicAlbum container) {
