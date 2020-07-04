@@ -32,7 +32,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -77,7 +76,6 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     public List<Album> getItems(long first, long max) {
         long offset = first;
         long limit = getItemCount();
-        List<Album> albums = new ArrayList<>();
         long count = max;
         if (offset == 0 && 0 != limit && 0 < max && (limit - offset) / max > 0) {
             count = max - 1;
@@ -85,7 +83,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
         if (offset != 0 && 0 != limit && 0 < max) {
             offset = offset - 1;
         }
-        albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getAllMusicFolders());
+        List<Album> albums = albumDao.getNewestAlbums((int) offset, (int) count, util.getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album viewAll = new Album();
             viewAll.setName(util.getResource("dlna.element.allalbums"));
