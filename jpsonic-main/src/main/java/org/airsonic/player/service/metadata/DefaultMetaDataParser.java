@@ -66,6 +66,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
      * @param file     The file to update.
      * @param metaData The new meta data.
      */
+    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     public void setMetaData(MediaFile file, MetaData metaData) {
     }
 

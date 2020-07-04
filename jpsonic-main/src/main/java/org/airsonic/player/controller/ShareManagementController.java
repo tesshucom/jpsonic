@@ -24,6 +24,7 @@ import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Share;
 import org.airsonic.player.service.*;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -71,9 +72,6 @@ public class ShareManagementController {
             }
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("dir", dir);
-        map.put("user", securityService.getCurrentUser(request));
 
         Share share = shareService.createShare(request, files);
         String description = getDescription(request);
@@ -82,9 +80,10 @@ public class ShareManagementController {
             shareService.updateShare(share);
         }
 
-        map.put("playUrl", shareService.getShareUrl(request, share));
-
-        return new ModelAndView("createShare", "model", map);
+        return new ModelAndView("createShare", "model", LegacyMap.of(
+                "dir", dir,
+                "user", securityService.getCurrentUser(request),
+                "playUrl", shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {

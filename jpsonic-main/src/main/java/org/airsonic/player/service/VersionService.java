@@ -22,7 +22,6 @@ package org.airsonic.player.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.airsonic.player.domain.Version;
-import org.airsonic.player.util.FileUtil;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
@@ -53,7 +52,7 @@ import java.util.regex.Pattern;
 @Service
 public class VersionService {
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd");
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
 
     private Version localVersion;
@@ -125,7 +124,9 @@ public class VersionService {
         if (localBuildDate == null) {
             try {
                 String date = readLineFromResource("/build_date.txt");
-                localBuildDate = DATE_FORMAT.parse(date);
+                synchronized (DATE_FORMAT) {
+                    localBuildDate = DATE_FORMAT.parse(date);
+                }
             } catch (Exception x) {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to resolve local Jpsonic build date.", x);
@@ -193,17 +194,17 @@ public class VersionService {
      * @return The first line of the resource.
      */
     private String readLineFromResource(@NonNull String resourceName) {
-        InputStream in = VersionService.class.getResourceAsStream(resourceName);
-        if (in == null) {
+        try (InputStream in = VersionService.class.getResourceAsStream(resourceName)) {
+            if (in == null) {
+                return null;
+            }
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+                return reader.readLine();
+            } catch (IOException x) {
+                return null;
+            }
+        } catch (IOException e) {
             return null;
-        }
-
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            return reader.readLine();
-        } catch (IOException x) {
-            return null;
-        } finally {
-            FileUtil.closeQuietly(in);
         }
     }
 

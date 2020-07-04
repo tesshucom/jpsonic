@@ -73,14 +73,13 @@ public class HLSController {
 
         int id = ServletRequestUtils.getIntParameter(request, "id", 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
-        Player player = playerService.getPlayer(request, response);
-        String username = player.getUsername();
-
         if (mediaFile == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
             return;
         }
 
+        Player player = playerService.getPlayer(request, response);
+        String username = player.getUsername();
         if (username != null && !securityService.isFolderAccessAllowed(mediaFile, username)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN,
                     "Access to file " + mediaFile.getId() + " is forbidden for user " + username);
@@ -96,14 +95,13 @@ public class HLSController {
         response.setContentType("application/vnd.apple.mpegurl");
         response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
         List<Pair<Integer, Dimension>> bitRates = parseBitRates(request);
-        PrintWriter writer = response.getWriter();
-        if (bitRates.size() > 1) {
-            generateVariantPlaylist(request, id, player, bitRates, writer);
-        } else {
-            generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+        try (PrintWriter writer = response.getWriter()) {
+            if (bitRates.size() > 1) {
+                generateVariantPlaylist(request, id, player, bitRates, writer);
+            } else {
+                generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+            }
         }
-
-        return;
     }
 
     private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) throws IllegalArgumentException {
@@ -199,6 +197,7 @@ public class HLSController {
         return builder.toUriString();
     }
 
+    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     private String getContextPath(HttpServletRequest request) {
         String contextPath = request.getContextPath();
         if (StringUtils.isEmpty(contextPath)) {

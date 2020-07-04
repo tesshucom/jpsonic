@@ -30,7 +30,7 @@ import java.util.*;
  */
 public class PlayQueue {
 
-    private List<MediaFile> files = new ArrayList<MediaFile>();
+    private List<MediaFile> files = new ArrayList<>();
     private boolean repeatEnabled;
     private String name = "(unnamed)";
     private Status status = Status.PLAYING;
@@ -42,13 +42,13 @@ public class PlayQueue {
      * The index of the current song, or -1 is the end of the playlist is reached.
      * Note that both the index and the playlist size can be zero.
      */
-    private int index = 0;
+    private int index;
 
     /**
      * Used for undo functionality.
      */
-    private List<MediaFile> filesBackup = new ArrayList<MediaFile>();
-    private int indexBackup = 0;
+    private List<MediaFile> filesBackup = new ArrayList<>();
+    private int indexBackup;
 
     /**
      * Returns the user-defined name of the playlist.
@@ -391,7 +391,7 @@ public class PlayQueue {
      * Revert the last operation.
      */
     public synchronized void undo() {
-        List<MediaFile> filesTmp = new ArrayList<MediaFile>(files);
+        List<MediaFile> filesTmp = new ArrayList<>(files);
         int indexTmp = index;
 
         index = indexBackup;
@@ -472,7 +472,7 @@ public class PlayQueue {
     }
 
     private void makeBackup() {
-        filesBackup = new ArrayList<MediaFile>(files);
+        filesBackup = new ArrayList<>(files);
         indexBackup = index;
     }
 

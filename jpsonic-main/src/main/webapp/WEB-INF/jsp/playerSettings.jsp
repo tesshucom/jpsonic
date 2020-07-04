@@ -132,7 +132,7 @@ $(document).ready(function() {
                 </tr>
 
 
-                <%// Max bitrate %>
+                <%-- Max bitrate --%>
                 <tr class="technologyDepends WEB EXTERNAL EXTERNAL_WITH_PLAYLIST JUKEBOX">
                     <td><fmt:message key="playersettings.maxbitrate"/></td>
                     <td>

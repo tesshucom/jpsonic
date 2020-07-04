@@ -251,6 +251,7 @@ public class UserSettingsCommand {
         return allowedMusicFolderIds;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setAllowedMusicFolderIds(int[] allowedMusicFolderIds) {
         this.allowedMusicFolderIds = allowedMusicFolderIds;
     }
@@ -267,6 +268,7 @@ public class UserSettingsCommand {
         return transcodeSchemeHolders;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public void setTranscodeSchemes(TranscodeScheme[] transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {

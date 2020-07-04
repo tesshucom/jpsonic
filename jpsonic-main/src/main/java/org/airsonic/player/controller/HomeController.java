@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -77,7 +78,7 @@ public class HomeController {
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername(),
                                                                                 selectedMusicFolder == null ? null : selectedMusicFolder.getId());
 
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
         List<Album> albums = Collections.emptyList();
         switch (listType) {
             case HIGHEST:

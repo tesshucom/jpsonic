@@ -45,8 +45,8 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -110,8 +110,6 @@ public class MediaScannerService {
         }
 
         long daysBetween = settingsService.getIndexCreationInterval();
-        int hour = settingsService.getIndexCreationHour();
-
         if (daysBetween == -1) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Automatic media scanning disabled.");
@@ -119,8 +117,7 @@ public class MediaScannerService {
             return;
         }
 
-        scheduler = Executors.newSingleThreadScheduledExecutor();
-
+        int hour = settingsService.getIndexCreationHour();
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
         if (now.compareTo(nextRun) > 0)
@@ -128,6 +125,7 @@ public class MediaScannerService {
 
         long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
 
+        scheduler = Executors.newSingleThreadScheduledExecutor();
         scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween), TimeUnit.MILLISECONDS);
 
         if (LOG.isInfoEnabled()) {
@@ -197,7 +195,7 @@ public class MediaScannerService {
         try {
 
             // Maps from artist name to album count.
-            Map<String, Integer> albumCount = new HashMap<String, Integer>();
+            Map<String, Integer> albumCount = new ConcurrentHashMap<>();
             Genres genres = new Genres();
 
             scanCount = 0;

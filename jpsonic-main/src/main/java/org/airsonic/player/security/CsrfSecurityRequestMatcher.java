@@ -32,8 +32,7 @@ public class CsrfSecurityRequestMatcher implements RequestMatcher {
 
     @Override
     public boolean matches(HttpServletRequest request) {
-        boolean skipCSRF = allowedMethods.contains(request.getMethod()) ||
-            whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request));
-        return !skipCSRF;
+        return !(allowedMethods.contains(request.getMethod()) ||
+                whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
     }
 }

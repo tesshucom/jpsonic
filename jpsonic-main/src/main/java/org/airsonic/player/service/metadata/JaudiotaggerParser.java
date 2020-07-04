@@ -214,6 +214,7 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @param file     The music file to update.
      * @param metaData The new meta data.
      */
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
 
@@ -276,6 +277,7 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @param file The music file in question.
      * @return Whether this parser is applicable to the given file.
      */
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     @Override
     public boolean isApplicable(File file) {
         if (!file.isFile()) {

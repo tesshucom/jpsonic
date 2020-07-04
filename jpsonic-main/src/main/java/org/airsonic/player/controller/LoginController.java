@@ -3,6 +3,7 @@ package org.airsonic.player.controller;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -15,7 +16,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -45,11 +45,11 @@ public class LoginController {
             ));
         }
 
-        Map<String, Object> map = new HashMap<String, Object>();
-        map.put("logout", request.getParameter("logout") != null);
-        map.put("error", request.getParameter("error") != null);
-        map.put("brand", settingsService.getBrand());
-        map.put("loginMessage", settingsService.getLoginMessage());
+        Map<String, Object> map = LegacyMap.of(
+                "logout", request.getParameter("logout") != null,
+                "error", request.getParameter("error") != null,
+                "brand", settingsService.getBrand(),
+                "loginMessage", settingsService.getLoginMessage());
 
         User admin = securityService.getUserByName("admin");
         if (admin != null) {

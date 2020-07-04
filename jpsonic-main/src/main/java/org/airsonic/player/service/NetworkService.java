@@ -87,14 +87,14 @@ public class NetworkService {
             }
         }
 
-        URI proxyHost = new URI("ignored://" + xForardedHost);
-        String host = proxyHost.getHost();
-        int port = proxyHost.getPort();
         String scheme = request.getHeader(X_FORWARDED_PROTO);
         if (StringUtils.isBlank(scheme)) {
             throw new IllegalArgumentException("Scheme not provided");
         }
 
+        URI proxyHost = new URI("ignored://" + xForardedHost);
+        String host = proxyHost.getHost();
+        int port = proxyHost.getPort();
         return new URI(scheme, null, host, port, urlPathHelper.getContextPath(request), null, null);
     }
 

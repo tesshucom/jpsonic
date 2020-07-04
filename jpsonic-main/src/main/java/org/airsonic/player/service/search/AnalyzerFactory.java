@@ -30,6 +30,7 @@ import com.tesshu.jpsonic.service.search.analysis.PunctuationStemFilterFactory;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilter;
 import com.tesshu.jpsonic.service.search.analysis.ToHiraganaFilterFactory;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.LowerCaseFilter;
@@ -60,9 +61,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -207,6 +206,7 @@ public final class AnalyzerFactory {
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
 
+            @SuppressWarnings("PMD.CloseResource")
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -243,6 +243,7 @@ public final class AnalyzerFactory {
 
         return new StopwordAnalyzerBase() {
 
+            @SuppressWarnings("PMD.CloseResource")
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -265,7 +266,8 @@ public final class AnalyzerFactory {
         try (Reader reader = IOUtils.getDecodingReader(getClass().getResourceAsStream("/".concat(wordsFile)), UTF_8)) {
             return WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
         } catch (IOException e) {
-            throw e;
+            // Usually unreachable due to classpath resources
+            throw new IOException("Failed to get the stopword file.", e);
         }
     }
 
@@ -274,34 +276,32 @@ public final class AnalyzerFactory {
         CharArraySet cas = getWords(stopTags);
         if (cas != null) {
             for (Object element : cas) {
-                char chars[] = (char[]) element;
-                stopTagset.add(new String(chars));
+                stopTagset.add(String.valueOf((char[]) element));
             }
         }
         return stopTagset;
     }
 
+    @SuppressWarnings("PMD.CloseResource")
     public Analyzer getAnalyzer() throws IOException {
         if (isEmpty(analyzer)) {
             try {
-                
+
                 Analyzer artist = createDefaultAnalyzerBuilder(true).build();
                 Analyzer reading = createReadingAnalyzer();
                 Analyzer exceptional = createExAnalyzer(false);
                 Analyzer artistEx = createExAnalyzer(true);
 
-                Map<String, Analyzer> analyzerMap = new HashMap<String, Analyzer>();
-                analyzerMap.put(FieldNamesConstants.GENRE_KEY, createKeywordAnalyzerBuilder().build());
-                analyzerMap.put(FieldNamesConstants.ARTIST, artist);
-                analyzerMap.put(FieldNamesConstants.COMPOSER, artist);
-                analyzerMap.put(FieldNamesConstants.ARTIST_READING, reading);
-                analyzerMap.put(FieldNamesConstants.COMPOSER_READING, reading);
-                analyzerMap.put(FieldNamesConstants.ALBUM_EX, exceptional);
-                analyzerMap.put(FieldNamesConstants.TITLE_EX, exceptional);
-                analyzerMap.put(FieldNamesConstants.ARTIST_EX, artistEx);
-                analyzerMap.put(FieldNamesConstants.GENRE, createGenreAnalyzer());
-
-                this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(), analyzerMap);
+                this.analyzer = new PerFieldAnalyzerWrapper(createDefaultAnalyzerBuilder(false).build(), LegacyMap.of(
+                        FieldNamesConstants.GENRE_KEY, createKeywordAnalyzerBuilder().build(),
+                        FieldNamesConstants.ARTIST, artist,
+                        FieldNamesConstants.COMPOSER, artist,
+                        FieldNamesConstants.ARTIST_READING, reading,
+                        FieldNamesConstants.COMPOSER_READING, reading,
+                        FieldNamesConstants.ALBUM_EX, exceptional,
+                        FieldNamesConstants.TITLE_EX, exceptional,
+                        FieldNamesConstants.ARTIST_EX, artistEx,
+                        FieldNamesConstants.GENRE, createGenreAnalyzer()));
 
             } catch (IOException e) {
                 throw new IOException("Error when initializing Analyzer.", e);

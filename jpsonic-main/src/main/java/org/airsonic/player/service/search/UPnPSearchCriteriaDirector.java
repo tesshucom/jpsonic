@@ -93,6 +93,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Service Template Version 1.01 (For UPnP Version 1.0). Therefore, at this
  * stage, this class has many redundant skeleton methods.
  */
+@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Component
 @Scope("prototype")
 public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
@@ -365,7 +366,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         notice.accept(3 != children.size(), "The number of child elements of ClassRelExp is incorrect.");
         final String subject = children.get(0).getText();
         final String complement = children.get(2).getText();
-        List<String> fieldName = new ArrayList<String>();
+        List<String> fieldName = new ArrayList<>();
 
         if ("dc:title".equals(subject)) {
             if (Album.class == assignableClass) {
@@ -390,7 +391,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         notice.accept(0 == fieldName.size(), "Unexpected PropertyExpContext. -> " + subject);
 
         try {
-            Query query = createMultiFieldQuery(fieldName.toArray(new String[fieldName.size()]), complement);
+            Query query = createMultiFieldQuery(fieldName.toArray(new String[0]), complement);
             if (!isEmpty(query)) {
                 propExpQueryBuilder.add(query, isEmpty(lastLogOp) ? Occur.SHOULD : lastLogOp);
             }

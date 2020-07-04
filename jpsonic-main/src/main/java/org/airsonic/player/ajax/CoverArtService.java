@@ -24,11 +24,9 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.LastFmService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SecurityService;
-import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -89,40 +87,42 @@ public class CoverArtService {
         }
     }
 
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     private void saveCoverArt(String path, String url) throws Exception {
-        InputStream input = null;
-        OutputStream output = null;
+
+        // Attempt to resolve proper suffix.
+        String suffix = "jpg";
+        if (url.toLowerCase().endsWith(".gif")) {
+            suffix = "gif";
+        } else if (url.toLowerCase().endsWith(".png")) {
+            suffix = "png";
+        }
+
+        // Check permissions.
+        File newCoverFile = new File(path, "cover." + suffix);
+        if (!securityService.isWriteAllowed(newCoverFile)) {
+            throw new ExecutionException(new GeneralSecurityException(
+                    "Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
+        }
+
+        // If file exists, create a backup.
+        backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(20 * 1000) // 20 seconds
-                    .setSocketTimeout(20 * 1000) // 20 seconds
+                    .setConnectTimeout(2000)
+                    .setSocketTimeout(2000)
                     .build();
             HttpGet method = new HttpGet(url);
             method.setConfig(requestConfig);
-            try (CloseableHttpResponse response = client.execute(method)) {
-                input = response.getEntity().getContent();
 
-                // Attempt to resolve proper suffix.
-                String suffix = "jpg";
-                if (url.toLowerCase().endsWith(".gif")) {
-                    suffix = "gif";
-                } else if (url.toLowerCase().endsWith(".png")) {
-                    suffix = "png";
-                }
-
-                // Check permissions.
-                File newCoverFile = new File(path, "cover." + suffix);
-                if (!securityService.isWriteAllowed(newCoverFile)) {
-                    throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(newCoverFile.getPath())));
-                }
-
-                // If file exists, create a backup.
-                backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
+            try (InputStream input = client.execute(method).getEntity().getContent()) {
 
                 // Write file.
-                output = Files.newOutputStream(Paths.get(newCoverFile.toURI()));
-                IOUtils.copy(input, output);
+                try (OutputStream output = Files.newOutputStream(Paths.get(newCoverFile.toURI()))) {
+                    IOUtils.copy(input, output);
+                    input.close();
+                }
 
                 MediaFile dir = mediaFileService.getMediaFile(path);
 
@@ -156,9 +156,6 @@ public class CoverArtService {
                     LOG.warn("Failed to rename existing cover file.", x);
                 }
             }
-        } finally {
-            FileUtil.closeQuietly(input);
-            FileUtil.closeQuietly(output);
         }
     }
 

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -31,8 +32,8 @@ public class JukeboxJavaService {
 
 
     private TransferStatus status;
-    private Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new HashMap<>();
-    private Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer = new HashMap<>();
+    private Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new ConcurrentHashMap<>();
+    private Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer = new ConcurrentHashMap<>();
     private final static String DEFAULT_MIXER_ENTRY_KEY = "_default";
 
 
@@ -208,6 +209,7 @@ public class JukeboxJavaService {
     /**
      * Plays the playqueue of a jukebox player starting at the beginning.
      */
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void play(Player airsonicPlayer) {
         LOG.debug("begin play jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 
@@ -271,6 +273,7 @@ public class JukeboxJavaService {
         play(airsonicPlayer);
     }
 
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void stop(Player airsonicPlayer) {
         LOG.debug("begin stop jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 
@@ -287,6 +290,7 @@ public class JukeboxJavaService {
         audioPlayer.pause();
     }
 
+    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void skip(Player airsonicPlayer, int index, int offset) {
         LOG.debug("begin skip jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
 

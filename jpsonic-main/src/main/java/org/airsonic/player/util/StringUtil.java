@@ -222,7 +222,7 @@ public final class StringUtil {
             }
         }
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
 
     /**
@@ -233,16 +233,17 @@ public final class StringUtil {
      * @return Array of lines.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
     public static String[] readLines(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            List<String> result = new ArrayList<String>();
+            List<String> result = new ArrayList<>();
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                line = line.trim();
-                if (!line.startsWith("#") && !line.isEmpty()) {
-                    result.add(line);
+                String trimed = line.trim();
+                if (!trimed.startsWith("#") && !trimed.isEmpty()) {
+                    result.add(trimed);
                 }
             }
-            return result.toArray(new String[result.size()]);
+            return result.toArray(new String[0]);
 
         } finally {
             FileUtil.closeQuietly(in);

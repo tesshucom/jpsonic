@@ -215,12 +215,12 @@ public class DownloadController implements LastModified {
      * @param zipFileName  The name of the resulting zip file.   @throws IOException If an I/O error occurs.
      */
     private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files, int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
-        boolean coverEmbedded = false;
-
         if (indexes != null && indexes.length == 1) {
             downloadFile(response, status, files.get(indexes[0]).getFile(), range);
             return;
         }
+
+        boolean coverEmbedded = false;
 
         if (LOG.isInfoEnabled()) {
             LOG.info("Starting to download '" + zipFileName + "' to " + status.getPlayer());
@@ -228,34 +228,39 @@ public class DownloadController implements LastModified {
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
 
-        ZipOutputStream out = new ZipOutputStream(RangeOutputStream.wrap(response.getOutputStream(), range));
-        out.setMethod(ZipOutputStream.STORED);  // No compression.
+        try (ZipOutputStream out = new ZipOutputStream(RangeOutputStream.wrap(response.getOutputStream(), range))) {
 
-        Set<MediaFile> filesToDownload = new HashSet<>();
-        if (indexes == null) {
-            filesToDownload.addAll(files);
-        } else {
-            for (int index : indexes) {
-                try {
-                    filesToDownload.add(files.get(index));
-                } catch (IndexOutOfBoundsException x) { /* Ignored */}
-            }
-        }
+            out.setMethod(ZipOutputStream.STORED); // No compression.
 
-        for (MediaFile mediaFile : filesToDownload) {
-            zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
-            if (coverArtFile != null && coverArtFile.exists()) {
-                if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
-                    coverEmbedded = true;
+            Set<MediaFile> filesToDownload = new HashSet<>();
+            if (indexes == null) {
+                filesToDownload.addAll(files);
+            } else {
+                for (int index : indexes) {
+                    try {
+                        filesToDownload.add(files.get(index));
+                    } catch (IndexOutOfBoundsException e) {
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Error in parse of filesToDownload#add", e);
+                        }
+                    }
                 }
             }
-        }
-        if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
-            zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
+
+            for (MediaFile mediaFile : filesToDownload) {
+                zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
+                if (coverArtFile != null && coverArtFile.exists()) {
+                    if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
+                        coverEmbedded = true;
+                    }
+                }
+            }
+            if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
+                zip(out, coverArtFile.getParentFile(), coverArtFile, status, range);
+            }
+
         }
 
-
-        out.close();
         if (LOG.isInfoEnabled()) {
             LOG.info("Downloaded '" + zipFileName + "' to " + status.getPlayer());
         }
@@ -276,9 +281,8 @@ public class DownloadController implements LastModified {
         }
 
         final int bufferSize = 16 * 1024; // 16 Kbit
-        InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize);
 
-        try {
+        try (InputStream in = new BufferedInputStream(Files.newInputStream(Paths.get(file.toURI())), bufferSize)) {
             byte[] buf = new byte[bufferSize];
             long bitrateLimit = 0;
             long lastLimitCheck = 0;
@@ -321,7 +325,6 @@ public class DownloadController implements LastModified {
             }
         } finally {
             out.flush();
-            FileUtil.closeQuietly(in);
         }
     }
 

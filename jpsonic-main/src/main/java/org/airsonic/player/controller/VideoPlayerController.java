@@ -25,6 +25,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -36,7 +37,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -63,7 +63,6 @@ public class VideoPlayerController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         User user = securityService.getCurrentUser(request);
-        Map<String, Object> map = new HashMap<String, Object>();
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
         MediaFile file = mediaFileService.getMediaFile(id);
         mediaFileService.populateStarredDate(file, user.getUsername());
@@ -74,20 +73,20 @@ public class VideoPlayerController {
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
         String coverArtUrl = url + "coverArt.view?id=" + file.getId();
 
-        map.put("video", file);
-        map.put("streamUrl", streamUrl);
-        map.put("remoteStreamUrl", streamUrl);
-        map.put("remoteCoverArtUrl", coverArtUrl);
-        map.put("duration", duration);
-        map.put("bitRates", BIT_RATES);
-        map.put("defaultBitRate", DEFAULT_BIT_RATE);
-        map.put("user", user);
-
-        return new ModelAndView("videoPlayer", "model", map);
+        return new ModelAndView("videoPlayer", "model", LegacyMap.of(
+                "video", file,
+                "streamUrl", streamUrl,
+                "remoteStreamUrl", streamUrl,
+                "remoteCoverArtUrl", coverArtUrl,
+                "duration", duration,
+                "bitRates", BIT_RATES,
+                "defaultBitRate", DEFAULT_BIT_RATE,
+                "user", user));
     }
 
+    @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
     public static Map<String, Integer> createSkipOffsets(int durationSeconds) {
-        LinkedHashMap<String, Integer> result = new LinkedHashMap<String, Integer>();
+        LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {
             result.put(StringUtil.formatDurationMSS(i), i);
         }

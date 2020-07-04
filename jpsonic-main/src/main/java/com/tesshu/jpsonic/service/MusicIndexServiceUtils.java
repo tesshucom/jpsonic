@@ -51,8 +51,9 @@ public class MusicIndexServiceUtils {
         this.comparators = comp;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
-        List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<MusicIndex.SortableArtistWithArtist>();
+        List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (Artist artist : artists) {
@@ -62,11 +63,12 @@ public class MusicIndexServiceUtils {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
-        SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<String, MusicIndex.SortableArtistWithMediaFiles>();
-        Set<String> shortcutSet = new HashSet<String>(Arrays.asList(shortcuts));
+        SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();
+        Set<String> shortcutSet = new HashSet<>(Arrays.asList(shortcuts));
 
         Comparator<SortableArtist> c = comparators.sortableArtistOrder();
         for (MusicFolder folder : folders) {
@@ -92,9 +94,9 @@ public class MusicIndexServiceUtils {
     }
 
     private String createSortableName(String name, String[] ignoredArticles) {
-        String uppercaseName = name.toUpperCase();
+        String uppercaseName = name.toUpperCase(settingsService.getLocale());
         for (String article : ignoredArticles) {
-            if (uppercaseName.startsWith(article.toUpperCase() + " ")) {
+            if (uppercaseName.startsWith(article.toUpperCase(settingsService.getLocale()) + " ")) {
                 return name.substring(article.length() + 1) + ", " + article;
             }
         }

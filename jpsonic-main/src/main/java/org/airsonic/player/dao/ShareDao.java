@@ -21,6 +21,7 @@ package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Share;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -115,9 +115,7 @@ public class ShareDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = new HashMap<>();
-        args.put("shareId", shareId);
-        args.put("folders", MusicFolder.toPathList(musicFolders));
+        Map<String, Object> args = LegacyMap.of("shareId", shareId, "folders", MusicFolder.toPathList(musicFolders));
         return namedQuery("select share_file.path from share_file, media_file where share_id = :shareId and " +
                           "share_file.path = media_file.path and media_file.present and media_file.folder in (:folders)",
                           shareFileRowMapper, args);

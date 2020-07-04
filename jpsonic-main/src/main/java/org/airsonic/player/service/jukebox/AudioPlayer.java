@@ -50,7 +50,7 @@ public class AudioPlayer {
     private final InputStream in;
     private final Listener listener;
     private final SourceDataLine line;
-    private final AtomicReference<State> state = new AtomicReference<State>(PAUSED);
+    private final AtomicReference<State> state = new AtomicReference<>(PAUSED);
     private FloatControl gainControl;
 
     public AudioPlayer(InputStream in, Listener listener) throws Exception {
@@ -194,6 +194,8 @@ public class AudioPlayer {
                             }
                             line.write(buffer, 0, n);
                             break;
+                        default:
+                            throw new AssertionError("Unreachable code.");
                     }
                 }
             } catch (Throwable x) {

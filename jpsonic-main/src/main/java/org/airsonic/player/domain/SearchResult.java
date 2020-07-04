@@ -32,9 +32,9 @@ import java.util.List;
  */
 public class SearchResult {
 
-    private final List<MediaFile> mediaFiles = new ArrayList<MediaFile>();
-    private final List<Artist> artists = new ArrayList<Artist>();
-    private final List<Album> albums = new ArrayList<Album>();
+    private final List<MediaFile> mediaFiles = new ArrayList<>();
+    private final List<Artist> artists = new ArrayList<>();
+    private final List<Album> albums = new ArrayList<>();
 
     private int offset;
     private int totalHits;

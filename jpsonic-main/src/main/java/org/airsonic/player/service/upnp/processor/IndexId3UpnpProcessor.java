@@ -48,10 +48,10 @@ import javax.annotation.PostConstruct;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -146,7 +146,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             return container;
         } else {
             GenreContainer container = new GenreContainer();
-            applyParentId(item, container);
+            container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
             applyId(item, container);
             return container;
         }
@@ -207,10 +207,6 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void applyParentId(Id3Wrapper index, GenreContainer container) {
-        container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
-    }
-
     private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
         for (String id : indexesMap.keySet()) {
             IndexID3 index = indexesMap.get(id).getIndexId3();
@@ -228,6 +224,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private final synchronized void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
@@ -251,7 +248,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             }
             indexCache.put(new Element(IndexCacheKey.ID3, content));
             topNodes = content.getIndex().stream().map(i -> new Id3(i)).collect(toList());
-            indexesMap = new HashMap<>();
+            indexesMap = new ConcurrentHashMap<>();
             topNodes.forEach(i -> indexesMap.put(i.getId(), i));
         }
     }

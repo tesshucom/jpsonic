@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ParamSearchResult<T> {
 
-    private final List<T> items = new ArrayList<T>();
+    private final List<T> items = new ArrayList<>();
 
     private int offset;
     private int totalHits;

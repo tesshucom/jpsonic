@@ -71,12 +71,13 @@ public class MultiService {
         return new ArtistInfo(similarArtists, artistBio, topSongs);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
-        List<TopSong> result = new ArrayList<TopSong>();
+        List<TopSong> result = new ArrayList<>();
         List<MediaFile> files = lastFmService.getTopSongs(mediaFile, limit, musicFolders);
         mediaFileService.populateStarredDate(files, username);
         for (MediaFile file : files) {
@@ -86,6 +87,7 @@ public class MultiService {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);

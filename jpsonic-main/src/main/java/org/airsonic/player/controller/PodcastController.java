@@ -24,6 +24,7 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -55,6 +56,7 @@ public class PodcastController {
     @Autowired
     private SecurityService securityService;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -73,7 +75,10 @@ public class PodcastController {
             for (MediaFile song : songs) {
                 length += song.getFileSize();
             }
-            String publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
+            String publishDate = null;
+            synchronized (RSS_DATE_FORMAT) {
+                publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
+            }
 
             // Resolve content type.
             String suffix = songs.get(0).getFormat();
@@ -84,12 +89,7 @@ public class PodcastController {
             podcasts.add(new Podcast(playlist.getName(), publishDate, enclosureUrl, length, type));
         }
 
-        Map<String, Object> map = new HashMap<>();
-
-        map.put("url", url);
-        map.put("podcasts", podcasts);
-
-        return new ModelAndView("podcast","model",map);
+        return new ModelAndView("podcast", "model", LegacyMap.of("url", url, "podcasts", podcasts));
     }
 
 

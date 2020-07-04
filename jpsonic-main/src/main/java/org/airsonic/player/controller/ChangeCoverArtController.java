@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,9 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for changing cover art.
@@ -62,13 +60,10 @@ public class ChangeCoverArtController {
             album = dir.getAlbumName();
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", id);
-        map.put("artist", artist);
-        map.put("album", album);
-
-
-        return new ModelAndView("changeCoverArt","model",map);
+        return new ModelAndView("changeCoverArt", "model", LegacyMap.of(
+                "id", id,
+                "artist", artist,
+                "album", album));
     }
 
 }

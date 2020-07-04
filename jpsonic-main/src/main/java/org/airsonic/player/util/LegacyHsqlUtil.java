@@ -86,7 +86,10 @@ public class LegacyHsqlUtil {
         // Check the database driver version
         String driverVersion = null;
         try {
-            Driver driver = (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver", true, LegacyHsqlUtil.class.getClassLoader()).getDeclaredConstructor().newInstance();
+            Driver driver =
+                    (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
+                    .getDeclaredConstructor()
+                    .newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
             if (driver.getMajorVersion() != 2) {
                 LOG.warn("HSQLDB database driver version {} is untested ; trying to connect anyway, this may upgrade the database from version {}", driverVersion, currentVersion);
@@ -156,10 +159,8 @@ public class LegacyHsqlUtil {
             LOG.debug("Performing adding the script to the HSQLDB database script....");
         }
 
-        final String setRegularNamesFalse = "SET DATABASE SQL REGULAR NAMES FALSE";
         File script = new File(SettingsService.getDBScript());
         File scriptBak = new File(SettingsService.getBackupDBScript(backupDir));
-
         if (!scriptBak.exists()) {
             LOG.warn("Script does not exist in HSQLDB database.");
             return;
@@ -168,6 +169,7 @@ public class LegacyHsqlUtil {
             return;
         }
 
+        final String setRegularNamesFalse = "SET DATABASE SQL REGULAR NAMES FALSE";
         try (BufferedReader reader = Files.newBufferedReader(Paths.get(scriptBak.toURI()))) {
             String line = reader.readLine();
             if (null != line) {

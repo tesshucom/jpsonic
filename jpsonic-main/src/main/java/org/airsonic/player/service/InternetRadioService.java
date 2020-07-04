@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class InternetRadioService {
@@ -76,7 +77,7 @@ public class InternetRadioService {
     }
 
     public InternetRadioService() {
-        this.cachedSources = new HashMap<>();
+        this.cachedSources = new ConcurrentHashMap<>();
     }
 
     /**
@@ -162,6 +163,7 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return a list of internet radio sources
      */
+    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
@@ -269,6 +271,7 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return an open connection
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects) throws IOException, PlaylistException {
 
         int redirectCount = 0;

@@ -34,7 +34,7 @@ import org.airsonic.player.spring.DataSourceConfigType;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -339,6 +339,7 @@ public class SettingsService {
 
     }
 
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     public static synchronized File getJpsonicHome() {
 
         File home;
@@ -715,7 +716,7 @@ public class SettingsService {
      * @return The download bitrate limit in Kbit/s. Zero if unlimited.
      */
     public long getDownloadBitrateLimit() {
-        return Long.parseLong(getProperty(KEY_DOWNLOAD_BITRATE_LIMIT, "" + DEFAULT_DOWNLOAD_BITRATE_LIMIT));
+        return Long.parseLong(getProperty(KEY_DOWNLOAD_BITRATE_LIMIT, Long.toString(DEFAULT_DOWNLOAD_BITRATE_LIMIT)));
     }
 
     /**
@@ -936,7 +937,7 @@ public class SettingsService {
     }
 
     private void compileExcludePattern() {
-        if (getExcludePatternString() != null && !getExcludePatternString().trim().isEmpty()) {
+        if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());
         } else {
             excludePattern = null;
@@ -1021,11 +1022,11 @@ public class SettingsService {
      *
      * @return A list of available themes.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public synchronized Theme[] getAvailableThemes() {
         if (themes == null) {
             themes = new ArrayList<>();
-            try {
-                InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE);
+            try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
                 String[] lines = StringUtil.readLines(in);
                 for (String line : lines) {
                     String[] elements = StringUtil.split(line);
@@ -1046,7 +1047,7 @@ public class SettingsService {
                 themes.add(new Theme("default", "Jpsonic default"));
             }
         }
-        return themes.toArray(new Theme[themes.size()]);
+        return themes.toArray(new Theme[0]);
     }
 
     /**
@@ -1057,14 +1058,11 @@ public class SettingsService {
     public synchronized Locale[] getAvailableLocales() {
         if (locales == null) {
             locales = new ArrayList<>();
-            try {
-                InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE);
+            try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
                 String[] lines = StringUtil.readLines(in);
-
                 for (String line : lines) {
                     locales.add(StringUtil.parseLocale(line));
                 }
-
             } catch (IOException x) {
                 if (LOG.isErrorEnabled()) {
                     LOG.error("Failed to resolve list of locales.", x);
@@ -1072,7 +1070,7 @@ public class SettingsService {
                 locales.add(Locale.ENGLISH);
             }
         }
-        return locales.toArray(new Locale[locales.size()]);
+        return locales.toArray(new Locale[0]);
     }
 
     /**
@@ -1582,7 +1580,7 @@ public class SettingsService {
             result.add(tokenizer.nextToken());
         }
 
-        return result.toArray(new String[result.size()]);
+        return result.toArray(new String[0]);
     }
 
     public void setInternetRadioDao(InternetRadioDao internetRadioDao) {

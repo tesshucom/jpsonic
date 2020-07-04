@@ -99,7 +99,7 @@ public final class PlayerUtils {
         if (values == null) {
             return Collections.emptyList();
         }
-        List<Integer> result = new ArrayList<Integer>(values.length);
+        List<Integer> result = new ArrayList<>(values.length);
         for (int value : values) {
             result.add(value);
         }
@@ -138,6 +138,7 @@ public final class PlayerUtils {
      * @param request An HTTP request instance
      * @return The associated URL
      */
+    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     public static String getURLForRequest(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
         String queryString = request.getQueryString();

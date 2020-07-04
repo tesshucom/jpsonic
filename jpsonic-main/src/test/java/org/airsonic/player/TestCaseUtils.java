@@ -14,11 +14,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
 public class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
 
-    private static File jpsonicHomeDirForTest = null;
+    private static File jpsonicHomeDirForTest;
 
     /**
      * Returns the path of the JPSONIC_HOME directory to use for tests. This will
@@ -33,7 +34,7 @@ public class TestCaseUtils {
             try {
                 jpsonicHomeDirForTest = Files.createTempDirectory("jpsonic_test_").toFile();
             } catch (IOException e) {
-                throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests");
+                throw new IllegalStateException("Error while creating temporary JPSONIC_HOME directory for tests", e);
             }
             if (LOG.isInfoEnabled()) {
                 LOG.info("JPSONIC_HOME directory will be {}", jpsonicHomeDirForTest.getAbsolutePath());
@@ -65,7 +66,6 @@ public class TestCaseUtils {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Error while deleting jpsonic home.");
                 }
-                e.printStackTrace();
                 throw e;
             }
         }
@@ -78,7 +78,7 @@ public class TestCaseUtils {
      * @return Map table name -> records count
      */
     public static Map<String, Integer> recordsInAllTables(DaoHelper daoHelper) {
-        List<String> tableNames = daoHelper.getJdbcTemplate().queryForList("" +
+        List<String> tableNames = daoHelper.getJdbcTemplate().queryForList(
                       "select table_name " +
                       "from information_schema.system_tables " +
                       "where table_type <> 'SYSTEM TABLE'"
@@ -106,7 +106,9 @@ public class TestCaseUtils {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Scan waiting was interrupted.", e);
+                }
             }
         }
     }

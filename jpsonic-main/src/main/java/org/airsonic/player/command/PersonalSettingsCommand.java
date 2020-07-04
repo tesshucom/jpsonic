@@ -79,6 +79,7 @@ public class PersonalSettingsCommand {
         return locales;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setLocales(String[] locales) {
         this.locales = locales;
     }
@@ -96,7 +97,9 @@ public class PersonalSettingsCommand {
     }
 
     public void setThemes(Theme[] themes) {
-        this.themes = themes;
+        if (themes != null) {
+            this.themes = themes.clone();
+        }
     }
 
     public String getAlbumListId() {
@@ -111,6 +114,7 @@ public class PersonalSettingsCommand {
         return albumLists;
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // enum#values
     public void setAlbumLists(AlbumListType[] albumLists) {
         this.albumLists = albumLists;
     }

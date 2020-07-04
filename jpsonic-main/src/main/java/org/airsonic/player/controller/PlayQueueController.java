@@ -25,6 +25,7 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,9 +34,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Controller for the playlist frame.
@@ -60,14 +58,13 @@ public class PlayQueueController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("user", user);
-        map.put("player", player);
-        map.put("players", playerService.getPlayersForUserAndClientId(user.getUsername(), null));
-        map.put("visibility", userSettings.getPlaylistVisibility());
-        map.put("partyMode", userSettings.isPartyModeEnabled());
-        map.put("notify", userSettings.isSongNotificationEnabled());
-        map.put("autoHide", userSettings.isAutoHidePlayQueue());
-        return new ModelAndView("playQueue","model",map);
+        return new ModelAndView("playQueue", "model", LegacyMap.of(
+                "user", user,
+                "player", player,
+                "players", playerService.getPlayersForUserAndClientId(user.getUsername(), null),
+                "visibility", userSettings.getPlaylistVisibility(),
+                "partyMode", userSettings.isPartyModeEnabled(),
+                "notify", userSettings.isSongNotificationEnabled(),
+                "autoHide", userSettings.isAutoHidePlayQueue()));
     }
 }

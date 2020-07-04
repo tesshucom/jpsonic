@@ -96,6 +96,7 @@ public class SecurityService implements UserDetailsService {
                 authorities);
     }
 
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -371,6 +372,7 @@ public class SecurityService implements UserDetailsService {
      * @param folder The folder in question.
      * @return Whether the given file is located in the given folder.
      */
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;

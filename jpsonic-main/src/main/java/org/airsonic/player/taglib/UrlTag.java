@@ -107,7 +107,7 @@ public class UrlTag extends BodyTagSupport {
                         result.append(encode(parameter.getRight()));
                     }
                     if (i < parameters.size() - 1) {
-                        result.append("&");
+                        result.append('&');
                     }
 
                 } catch (UnsupportedEncodingException x) {

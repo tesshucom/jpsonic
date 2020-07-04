@@ -227,21 +227,20 @@ public class SearchServiceUtilities {
 
     private final String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         StringBuilder b = new StringBuilder();
-        b.append(genres).append("[");
-        musicFolders.forEach(m -> b.append(m.getId()).append(","));
-        b.append("]");
-        b.append(indexType.name());
+        b.append(genres).append('[');
+        musicFolders.forEach(m -> b.append(m.getId()).append(','));
+        b.append(']').append(indexType.name());
         return b.toString();
     }
 
     private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
         StringBuilder b = new StringBuilder();
-        b.append(key).append(",").append(casheMax).append("[");
-        musicFolders.forEach(m -> b.append(m.getId()).append(","));
+        b.append(key).append(',').append(casheMax).append('[');
+        musicFolders.forEach(m -> b.append(m.getId()).append(','));
         if (!isEmpty(additional)) {
             Arrays.asList(additional).stream().forEach(s -> b.append(s).append(","));
         }
-        b.append("]");
+        b.append(']');
         return b.toString();
     }
 

@@ -4,6 +4,7 @@ import de.triology.recaptchav2java.ReCaptcha;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import java.security.SecureRandom;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -49,7 +49,7 @@ public class RecoverController {
     @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils.trimToNull(request.getParameter("usernameOrEmail"));
 
         if (usernameOrEmail != null) {
@@ -114,13 +114,13 @@ public class RecoverController {
     */
     private boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
-        String prot = "smtp";
 
         if (settingsService.getSmtpServer() == null || settingsService.getSmtpServer().isEmpty()) {
             LOG.warn("Can not send email; no Smtp server configured.");
             return false;
         }
 
+        String prot = "smtp";
         Properties props = new Properties();
         if (settingsService.getSmtpEncryption().equals("SSL/TLS")) {
             prot = "smtps";
@@ -152,16 +152,14 @@ public class RecoverController {
                     "tesshu.com/");
             message.setSentDate(new Date());
 
-            Transport trans = session.getTransport(prot);
-            try {
+            try (Transport trans = session.getTransport(prot)) {
                 if (props.get("mail." + prot + ".auth") != null && props.get("mail." + prot + ".auth").equals("true")) {
-                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(), settingsService.getSmtpPassword());
+                    trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
+                            settingsService.getSmtpPassword());
                 } else {
                     trans.connect();
                 }
                 trans.sendMessage(message, message.getAllRecipients());
-            } finally {
-                trans.close();
             }
             return true;
 

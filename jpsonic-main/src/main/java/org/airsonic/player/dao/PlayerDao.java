@@ -20,6 +20,7 @@
 package org.airsonic.player.dao;
 
 import org.airsonic.player.domain.*;
+import org.airsonic.player.util.LegacyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class PlayerDao extends AbstractDao {
     private PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
 
     private PlayerRowMapper rowMapper = new PlayerRowMapper();
-    private Map<Integer, PlayQueue> playlists = Collections.synchronizedMap(new HashMap<Integer, PlayQueue>());
+    private Map<Integer, PlayQueue> playlists = Collections.synchronizedMap(LegacyMap.of());
 
     /**
      * Returns all players.

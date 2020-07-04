@@ -75,7 +75,7 @@ public final class ComplementaryFilter extends TokenFilter {
                 StringBuffer buffer = new StringBuffer();
                 stops.forEach(s -> {
                     buffer.append((char[]) s);
-                    buffer.append("|");
+                    buffer.append('|');
                 });
                 onlyStopWords = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
             } catch (IOException e) {

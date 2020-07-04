@@ -168,8 +168,9 @@ public class PlaylistService {
         playlistService.setFilesInPlaylist(playlistId, files);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
-        List<PlaylistInfo.Entry> result = new ArrayList<PlaylistInfo.Entry>();
+        List<PlaylistInfo.Entry> result = new ArrayList<>();
         for (MediaFile file : files) {
             result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(), file.getAlbumName(),
                     file.getGenre(), file.getDurationString(), file.getStarredDate() != null, file.isPresent()));

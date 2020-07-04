@@ -23,6 +23,7 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.util.FileUtil;
+import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -117,7 +118,7 @@ public class LeftController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
-        Map<String, Object> map = new HashMap<>();
+        Map<String, Object> map = LegacyMap.of();
 
         MediaLibraryStatistics statistics = indexManager.getStatistics();
         Locale locale = RequestContextUtils.getLocale(request);

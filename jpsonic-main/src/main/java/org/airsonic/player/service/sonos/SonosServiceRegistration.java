@@ -81,8 +81,9 @@ public class SonosServiceRegistration {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private String execute(String url, List<Pair<String, String>> parameters) throws IOException {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         for (Pair<String, String> parameter : parameters) {
             params.add(new BasicNameValuePair(parameter.getLeft(), parameter.getRight()));
         }

@@ -54,6 +54,7 @@ public class TranscodeInputStream extends InputStream {
      * @param tmpFile Temporary file to delete when this stream is closed.  May be {@code null}.
      * @throws IOException If an I/O error occurs.
      */
+    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" }) // TODO #581
     public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile) throws IOException {
         this.tmpFile = tmpFile;
 

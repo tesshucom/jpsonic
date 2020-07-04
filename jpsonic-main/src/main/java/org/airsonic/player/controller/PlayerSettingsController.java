@@ -103,7 +103,7 @@ public class PlayerSettingsController {
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
         command.setTranscodeSchemes(TranscodeScheme.values());
         command.setTechnologies(PlayerTechnology.values());
-        command.setPlayers(players.toArray(new Player[players.size()]));
+        command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
 
         command.setJavaJukeboxMixers(Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
@@ -140,7 +140,7 @@ public class PlayerSettingsController {
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
         List<Player> players = playerService.getAllPlayers();
-        List<Player> authorizedPlayers = new ArrayList<Player>();
+        List<Player> authorizedPlayers = new ArrayList<>();
 
         for (Player player : players) {
             // Only display authorized players.

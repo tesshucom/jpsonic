@@ -1,6 +1,8 @@
 package org.airsonic.player.util;
 
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.JarURLConnection;
@@ -13,12 +15,15 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
+    
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
+    
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
             InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
             return FileUtils.copyStream(is, os);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying file.", e);
         }
         return false;
     }
@@ -44,29 +49,28 @@ public class FileUtils {
         return true;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public static boolean copyJarResourcesRecursively(
             final File destDir, final JarURLConnection jarConnection
     ) throws IOException {
+        try (JarFile jarFile = jarConnection.getJarFile()) {
+            for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
+                final JarEntry entry = e.nextElement();
+                if (entry.getName().startsWith(jarConnection.getEntryName())) {
+                    final String filename = StringUtils.removeStart(entry.getName(), //
+                            jarConnection.getEntryName());
 
-        final JarFile jarFile = jarConnection.getJarFile();
-
-        for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements(); ) {
-            final JarEntry entry = e.nextElement();
-            if (entry.getName().startsWith(jarConnection.getEntryName())) {
-                final String filename = StringUtils.removeStart(
-                        entry.getName(), //
-                        jarConnection.getEntryName());
-
-                final File f = new File(destDir, filename);
-                if (!entry.isDirectory()) {
-                    final InputStream entryInputStream = jarFile.getInputStream(entry);
-                    if (!FileUtils.copyStream(entryInputStream, f)) {
-                        return false;
-                    }
-                    entryInputStream.close();
-                } else {
-                    if (!FileUtils.ensureDirectoryExists(f)) {
-                        throw new IOException("Could not create directory: " + f.getAbsolutePath());
+                    final File f = new File(destDir, filename);
+                    if (!entry.isDirectory()) {
+                        try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
+                            if (!FileUtils.copyStream(entryInputStream, f)) {
+                                return false;
+                            }
+                        }
+                    } else {
+                        if (!FileUtils.ensureDirectoryExists(f)) {
+                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
+                        }
                     }
                 }
             }
@@ -83,7 +87,7 @@ public class FileUtils {
                 return FileUtils.copyFilesRecusively(new File(originUrl.getPath()), destination);
             }
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying file.", e);
         }
         return false;
     }
@@ -91,10 +95,8 @@ public class FileUtils {
     private static boolean copyStream(final InputStream is, final File f) {
         try (OutputStream os = Files.newOutputStream(Paths.get(f.toURI()))) {
             return FileUtils.copyStream(is, os);
-        } catch (final FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (final IOException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOG.error("Exception occurred while copying stream.", e);
         }
         return false;
     }
@@ -111,7 +113,7 @@ public class FileUtils {
             os.close();
             return true;
         } catch (final IOException e) {
-            e.printStackTrace();
+            LOG.error("Exception occurred while copying stream.", e);
         }
         return false;
     }
