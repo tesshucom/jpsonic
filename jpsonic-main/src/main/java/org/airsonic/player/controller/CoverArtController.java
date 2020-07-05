@@ -669,9 +669,6 @@ public class CoverArtController implements LastModified {
             int width = height * 16 / 9;
             try (InputStream in = getImageInputStreamForVideo(mediaFile, width, height, offset)) {
                 BufferedImage result = ImageIO.read(in);
-                if (result != null) {
-                    return result;
-                }
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
                 }

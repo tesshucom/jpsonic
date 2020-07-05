@@ -196,9 +196,6 @@ public class VersionService {
      */
     private String readLineFromResource(@NonNull String resourceName) {
         try (InputStream in = VersionService.class.getResourceAsStream(resourceName)) {
-            if (in == null) {
-                return null;
-            }
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
                 return reader.readLine();
             } catch (IOException x) {
