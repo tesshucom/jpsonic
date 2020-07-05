@@ -22,7 +22,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.scrobbler.LastFMScrobbler;
 import org.airsonic.player.service.scrobbler.ListenBrainzScrobbler;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -32,12 +32,16 @@ import java.util.Date;
  * registering what songs are played at website.
  */
 @Service
+@DependsOn("settingsService")
 public class AudioScrobblerService {
 
     private LastFMScrobbler lastFMScrobbler;
     private ListenBrainzScrobbler listenBrainzScrobbler;
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public AudioScrobblerService(SettingsService settingsService) {
+        this.settingsService = settingsService;
+    }
 
     /**
      * Registers the given media file at audio scrobble service. This method returns immediately, the actual registration is done
@@ -69,7 +73,4 @@ public class AudioScrobblerService {
         }
     }
 
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
 }

@@ -193,10 +193,12 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @Override
     public List<Id3Wrapper> getItems(long offset, long maxResults) {
         List<Id3Wrapper> result = new ArrayList<>();
-        if (offset < getItemCount()) {
-            int count = min((int) (offset + maxResults), getItemCount());
-            for (int i = (int) offset; i < count; i++) {
-                result.add(topNodes.get(i));
+        synchronized (topNodes) {
+            if (offset < getItemCount()) {
+                int count = min((int) (offset + maxResults), getItemCount());
+                for (int i = (int) offset; i < count; i++) {
+                    result.add(topNodes.get(i));
+                }
             }
         }
         return result;

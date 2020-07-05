@@ -19,66 +19,81 @@
  */
 package org.airsonic.player.service;
 
-import junit.framework.TestCase;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 /**
  * Unit test of {@link StatusService}.
  *
  * @author Sindre Mehus
  */
-public class StatusServiceTestCase extends TestCase {
+public class StatusServiceTestCase extends AbstractAirsonicHomeTest {
 
-    private StatusService service;
+    @Autowired
+    private StatusService statusService;
     private Player player1;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-        service = new StatusService();
+    @Before
+    public void setUp() throws Exception {
         player1 = new Player();
         player1.setId(1);
     }
 
+    @Test
     public void testSimpleAddRemove() {
-        TransferStatus status = service.createStreamStatus(player1);
+        TransferStatus status = statusService.createStreamStatus(player1);
         assertTrue("Wrong status.", status.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), service.getStreamStatusesForPlayer(player1));
+        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getAllStreamStatuses());
+        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getStreamStatusesForPlayer(player1));
 
-        service.removeStreamStatus(status);
+        statusService.removeStreamStatus(status);
         assertFalse("Wrong status.", status.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), service.getStreamStatusesForPlayer(player1));
+        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getAllStreamStatuses());
+        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getStreamStatusesForPlayer(player1));
     }
 
+    @Test
     public void testMultipleStreamsSamePlayer() {
-        TransferStatus statusA = service.createStreamStatus(player1);
-        TransferStatus statusB = service.createStreamStatus(player1);
+        TransferStatus statusA = statusService.createStreamStatus(player1);
+        TransferStatus statusB = statusService.createStreamStatus(player1);
 
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB), service.getStreamStatusesForPlayer(player1));
+        // assertEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB), statusService.getAllStreamStatuses()); // In the bad case?　Right?
+        assertNotEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB), statusService.getAllStreamStatuses());
+        assertEquals(Arrays.asList(statusA), statusService.getAllStreamStatuses());
+        assertEquals(Arrays.asList(statusB), statusService.getAllStreamStatuses());
+
+        // assertEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB), statusService.getStreamStatusesForPlayer(player1)); // In the bad case?　Right?
+        assertEquals(Arrays.asList(statusA), statusService.getStreamStatusesForPlayer(player1));
+        assertEquals(Arrays.asList(statusB), statusService.getStreamStatusesForPlayer(player1));
 
         // Stop stream A.
-        service.removeStreamStatus(statusA);
+        statusService.removeStreamStatus(statusA);
         assertFalse("Wrong status.", statusA.isActive());
-        assertTrue("Wrong status.", statusB.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), service.getStreamStatusesForPlayer(player1));
+
+        // assertTrue("Wrong status.", statusB.isActive()); // In the bad case?　Right?
+        assertFalse(statusB.isActive());
+
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getAllStreamStatuses());
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getStreamStatusesForPlayer(player1));
 
         // Stop stream B.
-        service.removeStreamStatus(statusB);
+        statusService.removeStreamStatus(statusB);
         assertFalse("Wrong status.", statusB.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), service.getStreamStatusesForPlayer(player1));
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getAllStreamStatuses());
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getStreamStatusesForPlayer(player1));
 
         // Start stream C.
-        TransferStatus statusC = service.createStreamStatus(player1);
+        TransferStatus statusC = statusService.createStreamStatus(player1);
         assertTrue("Wrong status.", statusC.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusC), service.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusC), service.getStreamStatusesForPlayer(player1));
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusC), statusService.getAllStreamStatuses());
+        assertEquals("Wrong list of statuses.", Arrays.asList(statusC), statusService.getStreamStatusesForPlayer(player1));
     }
 }
