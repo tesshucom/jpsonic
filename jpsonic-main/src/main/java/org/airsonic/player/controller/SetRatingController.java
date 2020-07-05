@@ -54,7 +54,7 @@ public class SetRatingController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
         Integer rating = ServletRequestUtils.getIntParameter(request, "rating");
-        if (rating == 0) {
+        if (rating != null && rating == 0) {
             rating = null;
         }
         MediaFile mediaFile = mediaFileService.getMediaFile(id);

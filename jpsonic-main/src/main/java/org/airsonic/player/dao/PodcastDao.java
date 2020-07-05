@@ -59,8 +59,11 @@ public class PodcastDao extends AbstractDao {
                 CHANNEL_INSERT_COLUMNS) + ")";
         update(sql, channel.getUrl(), channel.getTitle(), channel.getDescription(), channel.getImageUrl(),
                 channel.getStatus().name(), channel.getErrorMessage());
-
-        return getJdbcTemplate().queryForObject("select max(id) from podcast_channel", Integer.class);
+        Integer result = getJdbcTemplate().queryForObject("select max(id) from podcast_channel", Integer.class);
+        if (result != null) {
+            return result;
+        }
+        return -1;
     }
 
     /**

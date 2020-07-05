@@ -138,9 +138,19 @@ public class LegacyHsqlUtil {
      */
     public static Path performHsqldbDatabaseBackup() throws IOException {
 
-        String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
         Path source = Paths.get(SettingsService.getDefaultJDBCPath()).getParent();
-        Path destination = source.resolveSibling(String.format("%s.backup.%s", source.getFileName().toString(), timestamp));
+        if (source == null) {
+            throw new IOException("Unable to create database backup file.");
+        }
+
+        Path fileName = source.getFileName();
+        if (fileName == null) {
+            throw new IOException("Unable to create database backup file.");
+        }
+
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
+        Path destination = source
+                .resolveSibling(String.format("%s.backup.%s", fileName, timestamp));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Performing HSQLDB database backup...");

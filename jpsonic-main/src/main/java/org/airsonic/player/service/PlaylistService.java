@@ -302,12 +302,15 @@ public class PlaylistService {
         }
 
         List<Playlist> allPlaylists = playlistDao.getAllPlaylists();
-        for (File file : playlistFolder.listFiles()) {
-            try {
-                importPlaylistIfUpdated(file, allPlaylists);
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+        File[] listFiles = playlistFolder.listFiles();
+        if (listFiles != null) {
+            for (File file : listFiles) {
+                try {
+                    importPlaylistIfUpdated(file, allPlaylists);
+                } catch (Exception x) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to auto-import playlist " + file + ". " + x.getMessage());
+                    }
                 }
             }
         }
