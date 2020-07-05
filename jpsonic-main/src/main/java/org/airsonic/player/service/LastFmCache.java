@@ -22,6 +22,8 @@ package org.airsonic.player.service;
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -36,6 +38,8 @@ import java.util.Properties;
  * @version $Id$
  */
 public class LastFmCache extends Cache {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
 
     private final File cacheDir;
     private final long ttl;
@@ -63,8 +67,14 @@ public class LastFmCache extends Cache {
 
     @Override
     public void remove(String cacheEntryName) {
-        getXmlFile(cacheEntryName).delete();
-        getMetaFile(cacheEntryName).delete();
+        File xml = getXmlFile(cacheEntryName);
+        if (!xml.delete() && LOG.isWarnEnabled()) {
+            LOG.warn("The file '{}' could not be deleted.", xml.getAbsolutePath());
+        }
+        File meta = getMetaFile(cacheEntryName);
+        if (!meta.delete() && LOG.isWarnEnabled()) {
+            LOG.warn("The file '{}' could not be deleted.", meta.getAbsolutePath());
+        }
     }
 
     @SuppressWarnings("PMD.EmptyCatchBlock")
@@ -97,8 +107,8 @@ public class LastFmCache extends Cache {
     }
 
     private void createCache() {
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
+        if (!cacheDir.exists() && !cacheDir.mkdirs() && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", cacheDir.getAbsolutePath());
         }
     }
 
@@ -122,7 +132,9 @@ public class LastFmCache extends Cache {
     public void clear() {
         for (File file : cacheDir.listFiles()) {
             if (file.isFile()) {
-                file.delete();
+                if (!file.delete() && LOG.isWarnEnabled()) {
+                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+                }
             }
         }
     }

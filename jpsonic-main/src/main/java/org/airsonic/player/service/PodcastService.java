@@ -774,8 +774,9 @@ public class PodcastService {
         if (episode.getPath() != null) {
             File file = new File(episode.getPath());
             if (file.exists()) {
-                file.delete();
-                // TODO: Delete directory if empty?
+                if (!file.delete() && LOG.isWarnEnabled()) {
+                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+                }
             }
         }
 

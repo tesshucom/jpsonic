@@ -136,7 +136,9 @@ public class UploadController {
                         }
 
                         if (!dir.exists()) {
-                            dir.mkdirs();
+                            if (!dir.mkdirs() && LOG.isWarnEnabled()) {
+                                LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
+                            }
                         }
 
                         item.write(targetFile);
@@ -195,7 +197,11 @@ public class UploadController {
                         throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                     }
 
-                    entryFile.getParentFile().mkdirs();
+                    if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
+                        LOG.warn("The directory '{}' could not be created.",
+                                entryFile.getParentFile().getAbsolutePath());
+                    }
+
                     try (
                             OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
                             InputStream inputStream = zipFile.getInputStream(entry)
@@ -217,7 +223,9 @@ public class UploadController {
             }
 
             zipFile.close();
-            file.delete();
+            if (!file.delete() && LOG.isWarnEnabled()) {
+                LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+            }
         }
     }
 

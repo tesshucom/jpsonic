@@ -258,7 +258,9 @@ public class CoverArtController implements LastModified {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to create thumbnail for " + request, t);
                     }
-                    cachedImage.delete();
+                    if (!cachedImage.delete() && LOG.isWarnEnabled()) {
+                        LOG.warn("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
+                    }
                     throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
