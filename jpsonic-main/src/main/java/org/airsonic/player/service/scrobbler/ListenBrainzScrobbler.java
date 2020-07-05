@@ -24,7 +24,6 @@ import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.StringEntity;
@@ -49,10 +48,10 @@ public class ListenBrainzScrobbler {
 
     private RegistrationThread thread;
     private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
-    private final RequestConfig requestConfig = RequestConfig.custom()
-            .setConnectTimeout(15000)
-            .setSocketTimeout(15000)
-            .build();
+    //    private final RequestConfig requestConfig = RequestConfig.custom()
+    //            .setConnectTimeout(15000)
+    //            .setSocketTimeout(15000)
+    //            .build();
 
     /**
      * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is done
@@ -95,7 +94,7 @@ public class ListenBrainzScrobbler {
         reg.musicBrainzReleaseId = mediaFile.getMusicBrainzReleaseId();
         reg.musicBrainzRecordingId = mediaFile.getMusicBrainzRecordingId();
         reg.trackNumber = mediaFile.getTrackNumber();
-        reg.duration = mediaFile.getDurationSeconds() == null ? 0 : mediaFile.getDurationSeconds();
+        // reg.duration = mediaFile.getDurationSeconds() == null ? 0 : mediaFile.getDurationSeconds();
         reg.time = time == null ? new Date() : time;
         reg.submission = submission;
 
@@ -242,7 +241,7 @@ public class ListenBrainzScrobbler {
         private String musicBrainzReleaseId;
         private String musicBrainzRecordingId;
         private Integer trackNumber;
-        private int duration;
+        // private int duration;
         private Date time;
         public boolean submission;
     }
