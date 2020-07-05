@@ -1024,6 +1024,7 @@ public class SettingsService {
      *
      * @return A list of available themes.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public synchronized Theme[] getAvailableThemes() {
         if (themes == null) {
@@ -1057,6 +1058,7 @@ public class SettingsService {
      *
      * @return A list of available locales.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public synchronized Locale[] getAvailableLocales() {
         if (locales == null) {
             locales = new ArrayList<>();

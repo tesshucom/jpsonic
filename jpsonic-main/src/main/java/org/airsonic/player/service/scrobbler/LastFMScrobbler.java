@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service.scrobbler;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
@@ -265,6 +266,7 @@ public class LastFMScrobbler {
         return executeRequest(request);
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String[] executeRequest(HttpUriRequest request) throws ClientProtocolException, IOException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();

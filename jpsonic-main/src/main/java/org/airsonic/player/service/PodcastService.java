@@ -21,6 +21,7 @@ package org.airsonic.player.service;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.PodcastDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PodcastChannel;
@@ -311,6 +312,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -365,6 +367,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void downloadImage(PodcastChannel channel) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -546,6 +549,7 @@ public class PodcastService {
         return null;
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doDownloadEpisode(PodcastEpisode episode) {
 
         if (isEpisodeDeleted(episode)) {

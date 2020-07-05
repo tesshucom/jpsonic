@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlayerService;
@@ -174,6 +175,7 @@ public class UploadController {
         return new ModelAndView("upload","model",map);
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {

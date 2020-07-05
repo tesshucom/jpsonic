@@ -20,6 +20,7 @@
 package org.airsonic.player.service.scrobbler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.http.client.ClientProtocolException;
@@ -178,6 +179,7 @@ public class ListenBrainzScrobbler {
         return true;
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void executeRequest(HttpUriRequest request) throws ClientProtocolException, IOException {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             client.execute(request);

@@ -19,6 +19,7 @@
 
 package org.airsonic.player.service.sonos;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.NameValuePair;
@@ -98,9 +99,8 @@ public class SonosServiceRegistration {
         return executeRequest(request);
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeRequest(HttpUriRequest request) throws IOException {
-
-
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
             return client.execute(request, responseHandler);

@@ -20,6 +20,7 @@
 
 package org.airsonic.player.service.search;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -295,6 +296,7 @@ public class IndexManager {
     /**
      * Close Writer of specified index and refresh SearcherManager.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void stopIndexing(IndexType type, MediaLibraryStatistics statistics) {
 
         boolean isUpdate = false;

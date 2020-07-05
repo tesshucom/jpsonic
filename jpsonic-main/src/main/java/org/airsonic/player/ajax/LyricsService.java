@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.ajax;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpResponseException;
@@ -107,6 +108,7 @@ public class LyricsService {
         return new LyricsInfo(lyric, artist, song);
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeGetRequest(String url) throws IOException {
         RequestConfig requestConfig = RequestConfig.custom()
                 .setConnectTimeout(15000)

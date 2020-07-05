@@ -20,6 +20,7 @@
 
 package org.airsonic.player.service.search;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.RandomSearchCriteria;
@@ -106,6 +107,7 @@ public class QueryFactory {
      *  - Self made parser process reduces one library dependency.
      *  - It is easy to make corrections later when changing the query to improve search accuracy.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
@@ -155,6 +157,7 @@ public class QueryFactory {
 
     };
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
@@ -244,6 +247,7 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getRandomSongs(RandomSearchCriteria)}.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getRandomSongs(RandomSearchCriteria criteria) throws IOException {
 
         BooleanQuery.Builder query = new BooleanQuery.Builder();
@@ -301,6 +305,7 @@ public class QueryFactory {
      * @return Query
      * @throws IOException When parsing of QueryParser fails
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query searchByName(String fieldName, String name) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -367,6 +372,7 @@ public class QueryFactory {
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
      * @param musicFolders
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
         // main
@@ -399,6 +405,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
         // main
@@ -425,6 +432,7 @@ public class QueryFactory {
 
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
 
         // main
