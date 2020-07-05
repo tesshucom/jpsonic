@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -23,6 +24,10 @@ import static org.apache.commons.lang3.StringUtils.isEmpty;
 public final class ComplementaryFilter extends TokenFilter {
 
     private static Pattern onlyStopWords;
+
+    private static AtomicBoolean stopWordLoaded = new AtomicBoolean();
+
+    private static Object lock = new Object();
 
     private Reader getReafer(Class<?> clazz) {
         return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
@@ -69,17 +74,20 @@ public final class ComplementaryFilter extends TokenFilter {
 
     @Override
     public final boolean incrementToken() throws IOException {
-        if (Mode.HIRA_KATA_ONLY != mode && null == onlyStopWords) {
-            try (Reader reader = getReafer(getClass())) {
-                CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
-                StringBuffer buffer = new StringBuffer();
-                stops.forEach(s -> {
-                    buffer.append((char[]) s);
-                    buffer.append('|');
-                });
-                onlyStopWords = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
-            } catch (IOException e) {
-                LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
+        if (!stopWordLoaded.get() && Mode.HIRA_KATA_ONLY != mode) {
+            synchronized (lock) {
+                try (Reader reader = getReafer(getClass())) {
+                    CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
+                    StringBuffer buffer = new StringBuffer();
+                    stops.forEach(s -> {
+                        buffer.append((char[]) s);
+                        buffer.append('|');
+                    });
+                    onlyStopWords = Pattern.compile("^(" + buffer.toString().replaceAll("^\\||\\|$", "") + ")*$");
+                } catch (IOException e) {
+                    LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
+                }
+                stopWordLoaded.set(true);
             }
         }
 
