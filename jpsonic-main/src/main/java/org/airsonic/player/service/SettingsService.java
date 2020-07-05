@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
@@ -67,6 +68,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * @author Sindre Mehus
  */
 @Service
+@SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Literal value for which OS is assumed.")
 public class SettingsService {
 
     // Jpsonic home directory.

@@ -1,5 +1,6 @@
 package org.airsonic.player.service.jukebox;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class PlayerTest implements AudioPlayer.Listener {
         frame.setVisible(true);
     }
 
+    @SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Path literal value assuming a specific case.")
     private void createPlayer() {
         try {
             File f = new File("/Users/sindre/Downloads/sample.au");
