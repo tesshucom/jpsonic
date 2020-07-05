@@ -7,5 +7,11 @@
     <Match>
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /><!-- It is a bug rule. -->
     </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP" />            <!-- *** Should be triaged! *** -->
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2" />           <!-- *** Should be triaged! *** -->
+    </Match>
 
 </FindBugsFilter>
