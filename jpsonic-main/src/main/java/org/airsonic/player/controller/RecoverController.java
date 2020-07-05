@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -163,8 +164,8 @@ public class RecoverController {
             }
             return true;
 
-        } catch (Exception x) {
-            LOG.warn("Failed to send email.", x);
+        } catch (MessagingException e) {
+            LOG.warn("Failed to send email.", e);
             return false;
         }
     }

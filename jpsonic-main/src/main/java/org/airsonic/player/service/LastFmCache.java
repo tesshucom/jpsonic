@@ -56,7 +56,7 @@ public class LastFmCache extends Cache {
     public InputStream load(String cacheEntryName) {
         try (InputStream in = Files.newInputStream(Paths.get(getXmlFile(cacheEntryName).toURI()))) {
             return new ByteArrayInputStream(IOUtils.toByteArray(in));
-        } catch (Exception e) {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -87,7 +87,7 @@ public class LastFmCache extends Cache {
                 properties.store(metaOut, null);
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             // we ignore the exception. if something went wrong we just don't cache it.
         }
     }
@@ -113,7 +113,7 @@ public class LastFmCache extends Cache {
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
             return expirationDate < System.currentTimeMillis();
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
     }

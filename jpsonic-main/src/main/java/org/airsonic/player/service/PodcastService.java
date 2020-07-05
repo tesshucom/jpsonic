@@ -44,6 +44,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -337,13 +339,20 @@ public class PodcastService {
 
                 downloadImage(channel);
                 refreshEpisodes(channel, channelElement.getChildren("item"));
+            } catch (IOException | JDOMException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), e);
+                }
+                channel.setStatus(PodcastStatus.ERROR);
+                channel.setErrorMessage(getErrorMessage(e));
+                podcastDao.updateChannel(channel);
             }
-        } catch (Exception x) {
+        } catch (IOException ioe) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), x);
+                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), ioe);
             }
             channel.setStatus(PodcastStatus.ERROR);
-            channel.setErrorMessage(getErrorMessage(x));
+            channel.setErrorMessage(getErrorMessage(ioe));
             podcastDao.updateChannel(channel);
         }
 
@@ -381,9 +390,9 @@ public class PodcastService {
                 }
                 mediaFileService.refreshMediaFile(channelMediaFile);
             }
-        } catch (Exception x) {
+        } catch (UnsupportedOperationException | IOException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "': " + x, x);
+                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "'", e);
             }
         }
     }
@@ -617,13 +626,20 @@ public class PodcastService {
                     podcastDao.updateEpisode(episode);
                     deleteObsoleteEpisodes(channel);
                 }
+            } catch (UnsupportedOperationException | IOException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
+                }
+                episode.setStatus(PodcastStatus.ERROR);
+                episode.setErrorMessage(getErrorMessage(e));
+                podcastDao.updateEpisode(episode);
             }
-        } catch (Exception x) {
+        } catch (IOException ioe) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download Podcast from " + episode.getUrl(), x);
+                LOG.warn("Failed to download Podcast from " + episode.getUrl(), ioe);
             }
             episode.setStatus(PodcastStatus.ERROR);
-            episode.setErrorMessage(getErrorMessage(x));
+            episode.setErrorMessage(getErrorMessage(ioe));
             podcastDao.updateEpisode(episode);
         }
     }
