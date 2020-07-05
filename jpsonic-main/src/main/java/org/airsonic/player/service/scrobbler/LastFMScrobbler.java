@@ -87,10 +87,6 @@ public class LastFMScrobbler {
         }
 
         RegistrationData registrationData = createRegistrationData(mediaFile, username, password, submission, time);
-        if (registrationData == null) {
-            return;
-        }
-
         try {
             queue.put(registrationData);
         } catch (InterruptedException x) {

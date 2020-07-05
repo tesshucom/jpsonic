@@ -135,11 +135,7 @@ public class JukeboxJavaService {
             throw new IllegalArgumentException("The player " + airsonicPlayer.getName() + " is not a java jukebox player");
         }
         com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
-        if (audioPlayer == null) {
-            return 0;
-        } else {
-            return audioPlayer.getPlayingInfos().currentAudioPositionInSeconds();
-        }
+        return audioPlayer.getPlayingInfos().currentAudioPositionInSeconds();
     }
 
     public void setPosition(final Player airsonicPlayer, int positionInSeconds) {
@@ -147,11 +143,7 @@ public class JukeboxJavaService {
             throw new IllegalArgumentException("The player " + airsonicPlayer.getName() + " is not a java jukebox player");
         }
         com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
-        if (audioPlayer != null) {
-            audioPlayer.setPos(positionInSeconds);
-        } else {
-            throw new IllegalArgumentException("The player " + airsonicPlayer.getName() + " has no real audio player");
-        }
+        audioPlayer.setPos(positionInSeconds);
     }
 
     public float getGain(final Player airsonicPlayer) {
@@ -168,11 +160,7 @@ public class JukeboxJavaService {
         }
         com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
         LOG.debug("setGain : gain={}", gain);
-        if (audioPlayer != null) {
-            audioPlayer.setGain(gain);
-        } else {
-            throw new IllegalArgumentException("The player " + airsonicPlayer.getName() + " has no real audio player");
-        }
+        audioPlayer.setGain(gain);
     }
 
 

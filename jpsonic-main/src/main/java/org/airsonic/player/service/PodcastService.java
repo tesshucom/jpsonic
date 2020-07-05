@@ -445,13 +445,6 @@ public class PodcastService {
 
             String url = enclosure.getAttributeValue("url");
             url = sanitizeUrl(url);
-            if (url == null) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("No enclosure URL found for episode " + title);
-                }
-                continue;
-            }
-
             if (getEpisodeByUrl(url) == null) {
                 Long length = null;
                 try {

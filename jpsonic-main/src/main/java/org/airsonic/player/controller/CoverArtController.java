@@ -188,9 +188,6 @@ public class CoverArtController implements LastModified {
 
     private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
         PodcastChannel channel = podcastService.getChannel(id);
-        if (channel == null) {
-            return null;
-        }
         if (channel.getMediaFileId() == null) {
             return new PodcastCoverArtRequest(channel);
         }
@@ -387,21 +384,8 @@ public class CoverArtController implements LastModified {
 
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
-                String reason = null;
                 try (InputStream in = getImageInputStream(coverArt)) {
-                    if (in == null) {
-                        reason = "getImageInputStream";
-                    } else {
-                        BufferedImage bimg = ImageIO.read(in);
-                        if (bimg == null) {
-                            reason = "ImageIO.read";
-                        } else {
-                            return scale(bimg, size, size);
-                        }
-                    }
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to process cover art " + coverArt + ": " + reason + " failed");
-                    }
+                    return scale(ImageIO.read(in), size, size);
                 } catch (Throwable x) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);

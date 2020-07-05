@@ -76,10 +76,6 @@ public class ListenBrainzScrobbler {
         }
 
         RegistrationData registrationData = createRegistrationData(mediaFile, token, submission, time);
-        if (registrationData == null) {
-            return;
-        }
-
         try {
             queue.put(registrationData);
         } catch (InterruptedException x) {
