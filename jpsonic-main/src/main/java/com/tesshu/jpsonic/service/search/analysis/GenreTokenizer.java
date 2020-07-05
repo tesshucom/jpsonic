@@ -21,7 +21,7 @@ public class GenreTokenizer extends CharTokenizer {
      * 
      * \0 v2.4 (Required for security)
      */
-    private final int delim = ';' | '\0';
+    private static final int DELIM = ';' | '\0';
 
     /**
      * Construct a new Id3ArtistTokenizer.
@@ -58,7 +58,7 @@ public class GenreTokenizer extends CharTokenizer {
      */
     @Override
     protected boolean isTokenChar(int c) {
-        return delim != c;
+        return DELIM != c;
     }
 
 }
