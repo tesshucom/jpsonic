@@ -223,7 +223,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return min;
     }
 
-    private class MediaIndex extends MediaFile {
+    static class MediaIndex extends MediaFile {
 
         private final MusicIndex deligate;
         private final int id;

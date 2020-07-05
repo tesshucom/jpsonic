@@ -72,7 +72,7 @@ public class InternalHelpController {
 
     private static final int LOG_LINES_TO_SHOW = 50;
 
-    public class IndexStatistics {
+    public static class IndexStatistics {
         private String name;
         private int count;
         private int deletedCount;
@@ -102,7 +102,7 @@ public class InternalHelpController {
         }
     }
 
-    public class FileStatistics {
+    public static class FileStatistics {
         private String name;
         private String path;
         private String freeFilesystemSizeBytes;
