@@ -80,7 +80,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
-    @SuppressWarnings("lgtm")
+    @SuppressWarnings("lgtm[java/java/xss]") // Specifications for podcasts in this project.
     public void write(byte[] b, int off, int len) throws IOException {
 
         int bytesWritten = 0;
