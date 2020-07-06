@@ -313,9 +313,7 @@ public class PlayerService {
                 defaultActiveTranscodings.add(transcoding);
             }
         }
-        if (player != null) {
-            transcodingService.setTranscodingsForPlayer(player, defaultActiveTranscodings);
-        }
+        transcodingService.setTranscodingsForPlayer(player, defaultActiveTranscodings);
     }
 
     /**

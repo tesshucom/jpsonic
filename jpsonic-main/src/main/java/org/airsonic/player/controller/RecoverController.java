@@ -1,5 +1,6 @@
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import de.triology.recaptchav2java.ReCaptcha;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
@@ -112,6 +114,7 @@ public class RecoverController {
     /*
     * e-mail user new password via configured Smtp server
     */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
 
@@ -163,8 +166,8 @@ public class RecoverController {
             }
             return true;
 
-        } catch (Exception x) {
-            LOG.warn("Failed to send email.", x);
+        } catch (MessagingException e) {
+            LOG.warn("Failed to send email.", e);
             return false;
         }
     }

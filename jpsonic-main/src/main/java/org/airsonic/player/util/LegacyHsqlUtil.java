@@ -1,5 +1,6 @@
 package org.airsonic.player.util;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -138,9 +139,19 @@ public class LegacyHsqlUtil {
      */
     public static Path performHsqldbDatabaseBackup() throws IOException {
 
-        String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
         Path source = Paths.get(SettingsService.getDefaultJDBCPath()).getParent();
-        Path destination = source.resolveSibling(String.format("%s.backup.%s", source.getFileName().toString(), timestamp));
+        if (source == null) {
+            throw new IOException("Unable to create database backup file.");
+        }
+
+        Path fileName = source.getFileName();
+        if (fileName == null) {
+            throw new IOException("Unable to create database backup file.");
+        }
+
+        String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
+        Path destination = source
+                .resolveSibling(String.format("%s.backup.%s", fileName, timestamp));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Performing HSQLDB database backup...");
@@ -153,6 +164,7 @@ public class LegacyHsqlUtil {
         return destination;
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public static void performAdditionOfScript(Path backupDir) throws IOException {
 
         if (LOG.isDebugEnabled()) {
@@ -201,6 +213,7 @@ public class LegacyHsqlUtil {
     /**
      * Perform an in-place database upgrade from HSQLDB 1.x to 2.x.
      */
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public static void performHsqldbDatabaseUpgrade() throws SQLException {
 
         if (LOG.isDebugEnabled()) {

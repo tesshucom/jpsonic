@@ -26,6 +26,7 @@ import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -36,20 +37,16 @@ import java.io.InputStream;
  * @author Sindre Mehus
  */
 @Service
+
+@DependsOn({ "settingsService", "securityService", "transcodingService" })
 public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxLegacySubsonicService.class);
 
     @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
     private AudioScrobblerService audioScrobblerService;
     @Autowired
     private StatusService statusService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
@@ -61,6 +58,17 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     private MediaFile currentPlayingFile;
     private float gain = AudioPlayer.DEFAULT_GAIN;
     private int offset;
+
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final TranscodingService transcodingService;
+
+    public JukeboxLegacySubsonicService(SettingsService settings, SecurityService security,
+            TranscodingService transcoding) {
+        this.settingsService = settings;
+        this.securityService = security;
+        this.transcodingService = transcoding;
+    }
 
     /**
      * Updates the jukebox by starting or pausing playback on the local audio device.
@@ -195,24 +203,12 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         }
     }
 
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
-    }
-
     public void setAudioScrobblerService(AudioScrobblerService audioScrobblerService) {
         this.audioScrobblerService = audioScrobblerService;
     }
 
     public void setStatusService(StatusService statusService) {
         this.statusService = statusService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
     }
 
     public void setMediaFileService(MediaFileService mediaFileService) {

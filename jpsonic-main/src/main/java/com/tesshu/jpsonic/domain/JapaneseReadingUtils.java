@@ -210,7 +210,7 @@ public class JapaneseReadingUtils {
     private String createIndexableName(String sort) {
         String indexableName = sort;
         char c = sort.charAt(0);
-        if (!(c <= '\u007e') || (c == '\u00a5') || (c == '\u203e')) {
+        if (!(c <= '\u007e')) {
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
             indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         }

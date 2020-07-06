@@ -36,7 +36,7 @@ import java.io.OutputStream;
  *
  * @author Sindre Mehus
  */
-public class TranscodeInputStream extends InputStream {
+public final class TranscodeInputStream extends InputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodeInputStream.class);
 

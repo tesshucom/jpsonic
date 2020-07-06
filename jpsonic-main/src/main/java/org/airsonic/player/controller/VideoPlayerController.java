@@ -50,7 +50,7 @@ import java.util.Map;
 public class VideoPlayerController {
 
     public static final int DEFAULT_BIT_RATE = 2000;
-    public static final int[] BIT_RATES = {200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000};
+    private static final int[] BIT_RATES = {200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000};
 
     @Autowired
     private MediaFileService mediaFileService;

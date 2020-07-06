@@ -31,7 +31,7 @@ import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.logic.CoverArtLogic;
-import org.airsonic.player.i18n.LocaleResolver;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.*;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
@@ -142,7 +142,7 @@ public class SubsonicRESTController {
     @Autowired
     private MediaScannerService mediaScannerService;
     @Autowired
-    private LocaleResolver localeResolver;
+    private AirsonicLocaleResolver airsonicLocaleResolver;
     @Autowired
     private CoverArtLogic logic;
     @Autowired
@@ -435,7 +435,7 @@ public class SubsonicRESTController {
         for (MediaFile similarArtist : similarArtists) {
             result.getSimilarArtist().add(createJaxbArtist(similarArtist, username));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, localeResolver.resolveLocale(request));
+        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, airsonicLocaleResolver.resolveLocale(request));
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());
@@ -470,7 +470,7 @@ public class SubsonicRESTController {
         for (org.airsonic.player.domain.Artist similarArtist : similarArtists) {
             result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, username));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(artist, localeResolver.resolveLocale(request));
+        ArtistBio artistBio = lastFmService.getArtistBio(artist, airsonicLocaleResolver.resolveLocale(request));
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());

@@ -23,7 +23,7 @@ import org.airsonic.player.domain.ArtistBio;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.UserSettings;
-import org.airsonic.player.i18n.LocaleResolver;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.LastFmService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SecurityService;
@@ -58,14 +58,14 @@ public class MultiService {
     @Autowired
     private SettingsService settingsService;
     @Autowired
-    private LocaleResolver localeResolver;
+    private AirsonicLocaleResolver airsonicLocaleResolver;
 
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
 
         MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
         List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
-        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, localeResolver.resolveLocale(request));
+        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, airsonicLocaleResolver.resolveLocale(request));
         List<TopSong> topSongs = getTopSongs(mediaFile, maxTopSongs);
 
         return new ArtistInfo(similarArtists, artistBio, topSongs);

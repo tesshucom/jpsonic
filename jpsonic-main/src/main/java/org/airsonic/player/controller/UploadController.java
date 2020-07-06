@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlayerService;
@@ -136,7 +137,9 @@ public class UploadController {
                         }
 
                         if (!dir.exists()) {
-                            dir.mkdirs();
+                            if (!dir.mkdirs() && LOG.isWarnEnabled()) {
+                                LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
+                            }
                         }
 
                         item.write(targetFile);
@@ -172,6 +175,7 @@ public class UploadController {
         return new ModelAndView("upload","model",map);
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
@@ -195,7 +199,11 @@ public class UploadController {
                         throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                     }
 
-                    entryFile.getParentFile().mkdirs();
+                    if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
+                        LOG.warn("The directory '{}' could not be created.",
+                                entryFile.getParentFile().getAbsolutePath());
+                    }
+
                     try (
                             OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
                             InputStream inputStream = zipFile.getInputStream(entry)
@@ -217,7 +225,9 @@ public class UploadController {
             }
 
             zipFile.close();
-            file.delete();
+            if (!file.delete() && LOG.isWarnEnabled()) {
+                LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+            }
         }
     }
 
@@ -257,7 +267,7 @@ public class UploadController {
             status.setBytesTransfered(byteCount);
 
             if (maxBitsPerSecond > 0) {
-                float sleepMillis = 1000.0F * (bitCount / maxBitsPerSecond - elapsedSeconds);
+                float sleepMillis = (bitCount * 1000.0F / (maxBitsPerSecond - elapsedSeconds) * 1000.0F);
                 if (sleepMillis > 0) {
                     try {
                         Thread.sleep((long) sleepMillis);

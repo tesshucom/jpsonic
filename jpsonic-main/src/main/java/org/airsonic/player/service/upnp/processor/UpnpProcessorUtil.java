@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class UpnpProcessorUtil {
@@ -34,6 +35,10 @@ public class UpnpProcessorUtil {
     private final MusicFolderDao musicFolderDao;
 
     private static ResourceBundle resourceBundle;
+
+    private static AtomicBoolean resourceLoaded = new AtomicBoolean();
+
+    private static Object lock = new Object();
 
     public UpnpProcessorUtil(JpsonicComparators c, JWTSecurityService jwt, SettingsService ss, TranscodingService ts, MusicFolderDao md) {
         settingsService = ss;
@@ -77,8 +82,12 @@ public class UpnpProcessorUtil {
     }
 
     public String getResource(String key) {
-        if (null == resourceBundle) {
-            resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle", settingsService.getLocale());
+        if (!resourceLoaded.get()) {
+            synchronized (lock) {
+                resourceBundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle",
+                        settingsService.getLocale());
+                resourceLoaded.set(true);
+            }
         }
         return resourceBundle.getString(key);
     }

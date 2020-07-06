@@ -193,10 +193,12 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @Override
     public List<Id3Wrapper> getItems(long offset, long maxResults) {
         List<Id3Wrapper> result = new ArrayList<>();
-        if (offset < getItemCount()) {
-            int count = min((int) (offset + maxResults), getItemCount());
-            for (int i = (int) offset; i < count; i++) {
-                result.add(topNodes.get(i));
+        synchronized (topNodes) {
+            if (offset < getItemCount()) {
+                int count = min((int) (offset + maxResults), getItemCount());
+                for (int i = (int) offset; i < count; i++) {
+                    result.add(topNodes.get(i));
+                }
             }
         }
         return result;
@@ -208,13 +210,11 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
-        for (String id : indexesMap.keySet()) {
-            IndexID3 index = indexesMap.get(id).getIndexId3();
-            index.getArtist().stream()
-                .filter(a -> a.getId().equals(artist.getId()))
-                .findFirst()
-                .ifPresent(a -> container.setParentID(id));
-        }
+        indexesMap.entrySet()
+                .forEach(e -> indexesMap.get(e.getKey()).getIndexId3().getArtist().stream()
+                        .filter(a -> a.getId().equals(artist.getId()))
+                        .findFirst()
+                        .ifPresent(a -> container.setParentID(e.getKey())));
     }
 
     private final void applyParentId(Id3Wrapper album, MusicAlbum container) {

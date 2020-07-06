@@ -153,9 +153,15 @@ public class PlayerSettingsController {
 
     private void handleRequestParameters(HttpServletRequest request) throws Exception {
         if (request.getParameter("delete") != null) {
-            playerService.removePlayerById(ServletRequestUtils.getIntParameter(request, "delete"));
+            Integer delete = ServletRequestUtils.getIntParameter(request, "delete");
+            if (delete != null) {
+                playerService.removePlayerById(delete);
+            }
         } else if (request.getParameter("clone") != null) {
-            playerService.clonePlayer(ServletRequestUtils.getIntParameter(request, "clone"));
+            Integer clone = ServletRequestUtils.getIntParameter(request, "clone");
+            if (clone != null) {
+                playerService.clonePlayer(clone);
+            }
         }
     }
 

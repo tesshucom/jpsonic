@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Provides database services for albums.
@@ -212,9 +213,14 @@ public class AlbumDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return getNamedParameterJdbcTemplate().queryForObject("select count(*) from album where present and folder_id in (:folders)", args, Integer.class);
-
+        List<Integer> ids = musicFolders.stream().map(m -> m.getId()).collect(Collectors.toList());
+        Map<String, Object> args = LegacyMap.of("folders", ids);
+        Integer result = getNamedParameterJdbcTemplate().queryForObject(
+                "select count(*) from album where present and folder_id in (:folders)", args, Integer.class);
+        if (result != null) {
+            return result;
+        }
+        return 0;
     }
 
     /**

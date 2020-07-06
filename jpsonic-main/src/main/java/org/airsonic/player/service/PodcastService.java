@@ -21,6 +21,7 @@ package org.airsonic.player.service;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.PodcastDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PodcastChannel;
@@ -44,6 +45,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -309,6 +312,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doRefreshChannel(PodcastChannel channel, boolean downloadEpisodes) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -337,13 +341,20 @@ public class PodcastService {
 
                 downloadImage(channel);
                 refreshEpisodes(channel, channelElement.getChildren("item"));
+            } catch (IOException | JDOMException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), e);
+                }
+                channel.setStatus(PodcastStatus.ERROR);
+                channel.setErrorMessage(getErrorMessage(e));
+                podcastDao.updateChannel(channel);
             }
-        } catch (Exception x) {
+        } catch (IOException ioe) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), x);
+                LOG.warn("Failed to get/parse RSS file for Podcast channel " + channel.getUrl(), ioe);
             }
             channel.setStatus(PodcastStatus.ERROR);
-            channel.setErrorMessage(getErrorMessage(x));
+            channel.setErrorMessage(getErrorMessage(ioe));
             podcastDao.updateChannel(channel);
         }
 
@@ -356,6 +367,7 @@ public class PodcastService {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void downloadImage(PodcastChannel channel) {
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
@@ -381,9 +393,9 @@ public class PodcastService {
                 }
                 mediaFileService.refreshMediaFile(channelMediaFile);
             }
-        } catch (Exception x) {
+        } catch (UnsupportedOperationException | IOException e) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "': " + x, x);
+                LOG.warn("Failed to download cover art for podcast channel '" + channel.getTitle() + "'", e);
             }
         }
     }
@@ -445,13 +457,6 @@ public class PodcastService {
 
             String url = enclosure.getAttributeValue("url");
             url = sanitizeUrl(url);
-            if (url == null) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("No enclosure URL found for episode " + title);
-                }
-                continue;
-            }
-
             if (getEpisodeByUrl(url) == null) {
                 Long length = null;
                 try {
@@ -544,6 +549,7 @@ public class PodcastService {
         return null;
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doDownloadEpisode(PodcastEpisode episode) {
 
         if (isEpisodeDeleted(episode)) {
@@ -624,13 +630,20 @@ public class PodcastService {
                     podcastDao.updateEpisode(episode);
                     deleteObsoleteEpisodes(channel);
                 }
+            } catch (UnsupportedOperationException | IOException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
+                }
+                episode.setStatus(PodcastStatus.ERROR);
+                episode.setErrorMessage(getErrorMessage(e));
+                podcastDao.updateEpisode(episode);
             }
-        } catch (Exception x) {
+        } catch (IOException ioe) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download Podcast from " + episode.getUrl(), x);
+                LOG.warn("Failed to download Podcast from " + episode.getUrl(), ioe);
             }
             episode.setStatus(PodcastStatus.ERROR);
-            episode.setErrorMessage(getErrorMessage(x));
+            episode.setErrorMessage(getErrorMessage(ioe));
             podcastDao.updateEpisode(episode);
         }
     }
@@ -765,8 +778,9 @@ public class PodcastService {
         if (episode.getPath() != null) {
             File file = new File(episode.getPath());
             if (file.exists()) {
-                file.delete();
-                // TODO: Delete directory if empty?
+                if (!file.delete() && LOG.isWarnEnabled()) {
+                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+                }
             }
         }
 

@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.MusicFolderDao;
@@ -72,7 +73,7 @@ public class InternalHelpController {
 
     private static final int LOG_LINES_TO_SHOW = 50;
 
-    public class IndexStatistics {
+    public static class IndexStatistics {
         private String name;
         private int count;
         private int deletedCount;
@@ -102,7 +103,7 @@ public class InternalHelpController {
         }
     }
 
-    public class FileStatistics {
+    public static class FileStatistics {
         private String name;
         private String path;
         private String freeFilesystemSizeBytes;
@@ -255,6 +256,7 @@ public class InternalHelpController {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.CloseResource") // Do not close searcher resources
     private void gatherIndexInfo(Map<String, Object> map) {
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
@@ -322,6 +324,7 @@ public class InternalHelpController {
         map.put("localeDefaultCharsetSupportsUtf8", doesLocaleSupportUtf8(Charset.defaultCharset().toString()));
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void gatherDatabaseInfo(Map<String, Object> map) {
 
         try (Connection conn = daoHelper.getDataSource().getConnection()) {

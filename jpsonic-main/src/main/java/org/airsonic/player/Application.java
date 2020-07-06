@@ -205,9 +205,15 @@ public class Application extends SpringBootServletInitializer implements WebServ
                 Object tomcatESCFInstance = tomcatESCF.cast(container);
                 Class<?> tomcatApplicationClass = Class.forName("org.airsonic.player.TomcatApplicationHelper");
                 Method configure = ReflectionUtils.findMethod(tomcatApplicationClass, "configure", tomcatESCF);
-                configure.invoke(null, tomcatESCFInstance);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Tomcat optimizations complete");
+                if (configure == null) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Cannot find configure method.");
+                    }
+                } else {
+                    configure.invoke(null, tomcatESCFInstance);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Tomcat optimizations complete");
+                    }
                 }
             } else {
                 if (LOG.isDebugEnabled()) {

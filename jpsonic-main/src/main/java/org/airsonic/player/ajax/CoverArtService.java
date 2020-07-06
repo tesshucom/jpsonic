@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.ajax;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.LastFmCoverArt;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.LastFmService;
@@ -87,6 +88,7 @@ public class CoverArtService {
         }
     }
 
+    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     private void saveCoverArt(String path, String url) throws Exception {
 

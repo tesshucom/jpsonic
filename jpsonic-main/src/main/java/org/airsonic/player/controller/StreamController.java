@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.io.PlayQueueInputStream;
 import org.airsonic.player.io.RangeOutputStream;
@@ -332,6 +333,8 @@ public class StreamController {
         }
     }
 
+    @SuppressFBWarnings(value = {
+            "PT_ABSOLUTE_PATH_TRAVERSAL" }, justification = "Has been verified in subsequent processing.")
     private MediaFile getSingleFile(HttpServletRequest request) throws ServletRequestBindingException {
         String path = request.getParameter("path");
         if (path != null) {

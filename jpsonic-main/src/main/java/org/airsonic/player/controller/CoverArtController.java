@@ -188,9 +188,6 @@ public class CoverArtController implements LastModified {
 
     private CoverArtRequest createPodcastCoverArtRequest(int id, HttpServletRequest request) {
         PodcastChannel channel = podcastService.getChannel(id);
-        if (channel == null) {
-            return null;
-        }
         if (channel.getMediaFileId() == null) {
             return new PodcastCoverArtRequest(channel);
         }
@@ -261,7 +258,9 @@ public class CoverArtController implements LastModified {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to create thumbnail for " + request, t);
                     }
-                    cachedImage.delete();
+                    if (!cachedImage.delete() && LOG.isWarnEnabled()) {
+                        LOG.warn("The cached image '{}' could not be deleted.", cachedImage.getAbsolutePath());
+                    }
                     throw new IOException("Failed to create thumbnail for " + request + ". ", t);
                 } finally {
                     semaphore.release();
@@ -387,21 +386,8 @@ public class CoverArtController implements LastModified {
 
         public BufferedImage createImage(int size) {
             if (coverArt != null) {
-                String reason = null;
                 try (InputStream in = getImageInputStream(coverArt)) {
-                    if (in == null) {
-                        reason = "getImageInputStream";
-                    } else {
-                        BufferedImage bimg = ImageIO.read(in);
-                        if (bimg == null) {
-                            reason = "ImageIO.read";
-                        } else {
-                            return scale(bimg, size, size);
-                        }
-                    }
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to process cover art " + coverArt + ": " + reason + " failed");
-                    }
+                    return scale(ImageIO.read(in), size, size);
                 } catch (Throwable x) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Failed to process cover art " + coverArt + ": " + x, x);
@@ -669,9 +655,6 @@ public class CoverArtController implements LastModified {
             int width = height * 16 / 9;
             try (InputStream in = getImageInputStreamForVideo(mediaFile, width, height, offset)) {
                 BufferedImage result = ImageIO.read(in);
-                if (result != null) {
-                    return result;
-                }
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Failed to process cover art for " + mediaFile + ": {}", result);
                 }

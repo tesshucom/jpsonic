@@ -59,8 +59,11 @@ public abstract class AbstractChartController {
 
     private Color getColor(String code, HttpServletRequest request) {
         Theme theme = RequestContextUtils.getTheme(request);
-        Locale locale = RequestContextUtils.getLocale(request);
-        String colorHex = theme.getMessageSource().getMessage(code, new Object[0], locale);
-        return new Color(Integer.parseInt(colorHex, 16));
+        if (theme != null) {
+            Locale locale = RequestContextUtils.getLocale(request);
+            String colorHex = theme.getMessageSource().getMessage(code, new Object[0], locale);
+            return new Color(Integer.parseInt(colorHex, 16));
+        }
+        return Color.RED;
     }
 }

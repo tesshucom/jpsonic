@@ -592,7 +592,6 @@ public class TranscodingService {
     }
 
     public static class Parameters {
-        private boolean downsample;
         private Long expectedLength;
         private boolean rangeAllowed;
         private final MediaFile mediaFile;

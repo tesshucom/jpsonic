@@ -22,6 +22,8 @@ package org.airsonic.player.service;
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -36,6 +38,8 @@ import java.util.Properties;
  * @version $Id$
  */
 public class LastFmCache extends Cache {
+
+    private static final Logger LOG = LoggerFactory.getLogger(LastFmCache.class);
 
     private final File cacheDir;
     private final long ttl;
@@ -56,15 +60,21 @@ public class LastFmCache extends Cache {
     public InputStream load(String cacheEntryName) {
         try (InputStream in = Files.newInputStream(Paths.get(getXmlFile(cacheEntryName).toURI()))) {
             return new ByteArrayInputStream(IOUtils.toByteArray(in));
-        } catch (Exception e) {
+        } catch (IOException e) {
             return null;
         }
     }
 
     @Override
     public void remove(String cacheEntryName) {
-        getXmlFile(cacheEntryName).delete();
-        getMetaFile(cacheEntryName).delete();
+        File xml = getXmlFile(cacheEntryName);
+        if (!xml.delete() && LOG.isWarnEnabled()) {
+            LOG.warn("The file '{}' could not be deleted.", xml.getAbsolutePath());
+        }
+        File meta = getMetaFile(cacheEntryName);
+        if (!meta.delete() && LOG.isWarnEnabled()) {
+            LOG.warn("The file '{}' could not be deleted.", meta.getAbsolutePath());
+        }
     }
 
     @SuppressWarnings("PMD.EmptyCatchBlock")
@@ -87,7 +97,7 @@ public class LastFmCache extends Cache {
                 properties.store(metaOut, null);
             }
 
-        } catch (Exception e) {
+        } catch (IOException e) {
             // we ignore the exception. if something went wrong we just don't cache it.
         }
     }
@@ -97,8 +107,8 @@ public class LastFmCache extends Cache {
     }
 
     private void createCache() {
-        if (!cacheDir.exists()) {
-            cacheDir.mkdirs();
+        if (!cacheDir.exists() && !cacheDir.mkdirs() && LOG.isWarnEnabled()) {
+            LOG.warn("The directory '{}' could not be created.", cacheDir.getAbsolutePath());
         }
     }
 
@@ -113,16 +123,21 @@ public class LastFmCache extends Cache {
             p.load(in);
             long expirationDate = Long.parseLong(p.getProperty("expiration-date"));
             return expirationDate < System.currentTimeMillis();
-        } catch (Exception e) {
+        } catch (IOException e) {
             return false;
         }
     }
 
     @Override
     public void clear() {
-        for (File file : cacheDir.listFiles()) {
-            if (file.isFile()) {
-                file.delete();
+        File[] listFiles = cacheDir.listFiles();
+        if (listFiles != null) {
+            for (File file : listFiles) {
+                if (file.isFile()) {
+                    if (!file.delete() && LOG.isWarnEnabled()) {
+                        LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+                    }
+                }
             }
         }
     }

@@ -64,6 +64,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final Ehcache indexCache;
 
+    private Object lock = new Object();
+
     private MusicFolderContent content;
 
     private Map<Integer, MediaIndex> indexesMap;
@@ -157,7 +159,9 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public int getChildSizeOf(MediaFile item) {
         if (isIndex(item)) {
-            return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            synchronized (lock) {
+                return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
+            }
         }
         return mediaFileService.getChildSizeOf(item);
     }
@@ -193,17 +197,19 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final synchronized void refreshIndex() {
+    private final void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
-            INDEX_IDS.set(Integer.MIN_VALUE);
-            content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
-            indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
-            List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
-            indexesMap = new ConcurrentHashMap<>();
-            indexes.forEach(i -> indexesMap.put(i.getId(), i));
-            topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
+            synchronized (lock) {
+                INDEX_IDS.set(Integer.MIN_VALUE);
+                content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
+                indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
+                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
+                indexesMap = new ConcurrentHashMap<>();
+                indexes.forEach(i -> indexesMap.put(i.getId(), i));
+                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
+            }
         }
     }
 
@@ -223,7 +229,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return min;
     }
 
-    private class MediaIndex extends MediaFile {
+    static class MediaIndex extends MediaFile {
 
         private final MusicIndex deligate;
         private final int id;

@@ -509,7 +509,9 @@ public class JMediaFileDao extends AbstractDao {
         @Override
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
             MediaFile mediaFile = deligate.mapRow(rs, rowNum);
-            mediaFile.setRownum(rs.getInt("irownum"));
+            if (mediaFile != null) {
+                mediaFile.setRownum(rs.getInt("irownum"));
+            }
             return mediaFile;
         }
 

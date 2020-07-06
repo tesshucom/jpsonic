@@ -23,7 +23,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayStatus;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -37,12 +37,16 @@ import java.util.*;
  * @author Sindre Mehus
  * @see TransferStatus
  */
-@Service
 @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
+@Service
+@DependsOn("mediaFileService")
 public class StatusService {
 
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
+
+    public StatusService(MediaFileService mediaFileService) {
+        this.mediaFileService = mediaFileService;
+    }
 
     private final List<TransferStatus> streamStatuses = new ArrayList<>();
     private final List<TransferStatus> downloadStatuses = new ArrayList<>();
@@ -173,7 +177,4 @@ public class StatusService {
         return status;
     }
 
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
 }
