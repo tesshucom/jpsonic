@@ -42,6 +42,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
@@ -67,6 +68,8 @@ public class MusicFolderSettingsController {
     private MediaFileDao mediaFileDao;
     @Autowired
     private IndexManager indexManager;
+
+    private static AtomicBoolean isExpunging = new AtomicBoolean();
 
     @GetMapping
     protected String displayForm() {
@@ -102,7 +105,15 @@ public class MusicFolderSettingsController {
     }
 
 
-    private synchronized void expunge() {
+    private void expunge() {
+
+        if (isExpunging.get()) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Cleanup is already running.");
+            }
+            return;
+        }
+        isExpunging.set(true);
 
         MediaLibraryStatistics statistics = indexManager.getStatistics();
 
@@ -149,6 +160,9 @@ public class MusicFolderSettingsController {
         } else {
             LOG.warn("Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
+
+        isExpunging.set(false);
+
     }
 
     private List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
