@@ -96,6 +96,8 @@ public class CoverArtController implements LastModified {
 
     private final static Object FONT_LOCK = new Object();
 
+    private final static Object DIRS_LOCK = new Object();
+
     private final static Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     @PostConstruct
@@ -317,21 +319,22 @@ public class CoverArtController implements LastModified {
         return transcodingService.getTranscodedInputStream(parameters);
     }
 
-    private synchronized File getImageCacheDirectory(int size) {
+    private File getImageCacheDirectory(int size) {
         File dir = new File(SettingsService.getJpsonicHome(), "thumbs");
         dir = new File(dir, String.valueOf(size));
         if (!dir.exists()) {
-            if (dir.mkdirs()) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Created thumbnail cache " + dir);
-                }
-            } else {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to create thumbnail cache " + dir);
+            synchronized (DIRS_LOCK) {
+                if (dir.mkdirs()) {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Created thumbnail cache " + dir);
+                    }
+                } else {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to create thumbnail cache " + dir);
+                    }
                 }
             }
         }
-
         return dir;
     }
 
