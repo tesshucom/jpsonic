@@ -74,6 +74,9 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private final Ehcache indexCache;
 
+    // Only on write (because it can be explicitly reloaded on the client and is less risky)
+    private static final Object LOCK = new Object();
+
     private ArtistsID3 content;
 
     private Map<String, Id3Wrapper> indexesMap;
@@ -193,12 +196,10 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @Override
     public List<Id3Wrapper> getItems(long offset, long maxResults) {
         List<Id3Wrapper> result = new ArrayList<>();
-        synchronized (topNodes) {
-            if (offset < getItemCount()) {
-                int count = min((int) (offset + maxResults), getItemCount());
-                for (int i = (int) offset; i < count; i++) {
-                    result.add(topNodes.get(i));
-                }
+        if (offset < getItemCount()) {
+            int count = min((int) (offset + maxResults), getItemCount());
+            for (int i = (int) offset; i < count; i++) {
+                result.add(topNodes.get(i));
             }
         }
         return result;
@@ -225,31 +226,33 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    private final synchronized void refreshIndex() {
+    private final void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
-        if (isEmpty(content) || 0 == content.getIndex().stream().flatMap(i -> i.getArtist().stream()).count() || expired) {
-            INDEX_IDS.set(Integer.MIN_VALUE);
-            content = new ArtistsID3();
-            List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, util.getAllMusicFolders());
-            SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService.getIndexedArtists(artists);
-            final Function<Artist, ArtistID3> toId3 = (a) -> {
-                ArtistID3 result = new ArtistID3();
-                result.setId(createArtistId(a.getId()));
-                result.setName(a.getName());
-                result.setAlbumCount(a.getAlbumCount());
-                return result;
-            };
-            for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
-                IndexID3 index = new IndexID3();
-                index.setName(entry.getKey().getIndex());
-                content.getIndex().add(index);
-                entry.getValue().forEach(s -> index.getArtist().add(toId3.apply(s.getArtist())));
+        synchronized (LOCK) {
+            if (isEmpty(content) || 0 == content.getIndex().stream().flatMap(i -> i.getArtist().stream()).count() || expired) {
+                INDEX_IDS.set(Integer.MIN_VALUE);
+                content = new ArtistsID3();
+                List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, util.getAllMusicFolders());
+                SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService.getIndexedArtists(artists);
+                final Function<Artist, ArtistID3> toId3 = (a) -> {
+                    ArtistID3 result = new ArtistID3();
+                    result.setId(createArtistId(a.getId()));
+                    result.setName(a.getName());
+                    result.setAlbumCount(a.getAlbumCount());
+                    return result;
+                };
+                for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
+                    IndexID3 index = new IndexID3();
+                    index.setName(entry.getKey().getIndex());
+                    content.getIndex().add(index);
+                    entry.getValue().forEach(s -> index.getArtist().add(toId3.apply(s.getArtist())));
+                }
+                indexCache.put(new Element(IndexCacheKey.ID3, content));
+                topNodes = content.getIndex().stream().map(i -> new Id3(i)).collect(toList());
+                indexesMap = new ConcurrentHashMap<>();
+                topNodes.forEach(i -> indexesMap.put(i.getId(), i));
             }
-            indexCache.put(new Element(IndexCacheKey.ID3, content));
-            topNodes = content.getIndex().stream().map(i -> new Id3(i)).collect(toList());
-            indexesMap = new ConcurrentHashMap<>();
-            topNodes.forEach(i -> indexesMap.put(i.getId(), i));
         }
     }
 

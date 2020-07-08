@@ -64,7 +64,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private final Ehcache indexCache;
 
-    private Object lock = new Object();
+    // Only on write (because it can be explicitly reloaded on the client and is less risky)
+    private static final Object LOCK = new Object();
 
     private MusicFolderContent content;
 
@@ -159,9 +160,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     @Override
     public int getChildSizeOf(MediaFile item) {
         if (isIndex(item)) {
-            synchronized (lock) {
-                return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
-            }
+            return content.getIndexedArtists().get(indexesMap.get(item.getId()).getDeligate()).size();
         }
         return mediaFileService.getChildSizeOf(item);
     }
@@ -200,8 +199,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     private final void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
-        if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
-            synchronized (lock) {
+        synchronized (LOCK) {
+            if (isEmpty(content) || 0 == content.getIndexedArtists().size() || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
                 indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
