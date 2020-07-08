@@ -155,6 +155,8 @@ public class IndexManager {
 
     private Map<GenreSort, List<Genre>> multiGenreMaster = new ConcurrentHashMap<>();
 
+    private static final Object GENRE_LOCK = new Object();
+
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
         Document document = documentFactory.createAlbumId3Document(album);
@@ -222,7 +224,9 @@ public class IndexManager {
     }
 
     private void clearMultiGenreMaster() {
-        multiGenreMaster.clear();
+        synchronized (GENRE_LOCK) {
+            multiGenreMaster.clear();
+        }
     }
 
     private void clearGenreMaster() {
@@ -572,17 +576,15 @@ public class IndexManager {
 
     List<Genre> getGenres(boolean sortByAlbum) {
 
-        synchronized (multiGenreMaster) {
-            if (multiGenreMaster.isEmpty()) {
-                refreshMultiGenreMaster();
-            }
+        if (multiGenreMaster.isEmpty()) {
+            refreshMultiGenreMaster();
         }
 
         if (settingsService.isSortGenresByAlphabet() && sortByAlbum) {
             if (multiGenreMaster.containsKey(GenreSort.ALBUM_ALPHABETICAL)) {
                 return multiGenreMaster.get(GenreSort.ALBUM_ALPHABETICAL);
             }
-            synchronized (multiGenreMaster) {
+            synchronized (GENRE_LOCK) {
                 List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.ALBUM_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.ALBUM_COUNT));
@@ -595,7 +597,7 @@ public class IndexManager {
             if (multiGenreMaster.containsKey(GenreSort.SONG_ALPHABETICAL)) {
                 return multiGenreMaster.get(GenreSort.SONG_ALPHABETICAL);
             }
-            synchronized (multiGenreMaster) {
+            synchronized (GENRE_LOCK) {
                 List<Genre> albumGenres = new ArrayList<>();
                 if (!isEmpty(multiGenreMaster.get(GenreSort.SONG_COUNT))) {
                     albumGenres.addAll(multiGenreMaster.get(GenreSort.SONG_COUNT));
@@ -623,7 +625,7 @@ public class IndexManager {
         try {
             if (!isEmpty(genreSearcher) && !isEmpty(songSearcher) && !isEmpty(albumSearcher)) {
 
-                mayBeInit: synchronized (multiGenreMaster) {
+                mayBeInit: synchronized (GENRE_LOCK) {
 
                     multiGenreMaster.clear();
 

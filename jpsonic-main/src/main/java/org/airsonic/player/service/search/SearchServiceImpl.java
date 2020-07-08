@@ -408,7 +408,7 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Override
-    public synchronized List<Genre> getGenres(boolean sortByAlbum) {
+    public List<Genre> getGenres(boolean sortByAlbum) {
         return indexManager.getGenres(sortByAlbum);
     }
 
