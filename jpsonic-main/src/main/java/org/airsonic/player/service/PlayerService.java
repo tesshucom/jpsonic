@@ -63,11 +63,13 @@ public class PlayerService {
     @Autowired
     private TranscodingService transcodingService;
 
+    private static final Object LOCK = new Object();
+
     @PostConstruct
     public void init() {
         playerDao.deleteOldPlayers(60);
     }
-
+    
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
      */
@@ -85,85 +87,90 @@ public class PlayerService {
      * @param isStreamRequest      Whether the HTTP request is a request for streaming data.
      * @return The player associated with the given HTTP request.
      */
-    public synchronized Player getPlayer(HttpServletRequest request, HttpServletResponse response,
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response,
                                          boolean remoteControlEnabled, boolean isStreamRequest) throws Exception {
 
-        // Find by 'player' request parameter.
-        Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, "player"));
+        synchronized (LOCK) {
 
-        // Find in session context.
-        if (player == null && remoteControlEnabled) {
-            Integer playerId = (Integer) request.getSession().getAttribute("player");
-            if (playerId != null) {
-                player = getPlayerById(playerId);
+            // Find by 'player' request parameter.
+            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, "player"));
+
+            // Find in session context.
+            if (player == null && remoteControlEnabled) {
+                Integer playerId = (Integer) request.getSession().getAttribute("player");
+                if (playerId != null) {
+                    player = getPlayerById(playerId);
+                }
             }
-        }
 
-        // Find by cookie.
-        String username = securityService.getCurrentUsername(request);
-        if (player == null && remoteControlEnabled) {
-            player = getPlayerById(getPlayerIdFromCookie(request, username));
-        }
-
-        // Make sure we're not hijacking the player of another user.
-        if (player != null && player.getUsername() != null && username != null && !player.getUsername().equals(username)) {
-            player = null;
-        }
-
-        // Look for player with same IP address and user name.
-        if (player == null) {
-            player = getNonRestPlayerByIpAddressAndUsername(request.getRemoteAddr(), username);
-        }
-
-        // If no player was found, create it.
-        if (player == null) {
-            player = new Player();
-            createPlayer(player);
-        }
-
-        // Update player data.
-        boolean isUpdate = false;
-        if (username != null && player.getUsername() == null) {
-            player.setUsername(username);
-            isUpdate = true;
-        }
-        if (player.getIpAddress() == null || isStreamRequest ||
-            (!isPlayerConnected(player) && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress()))) {
-            player.setIpAddress(request.getRemoteAddr());
-            isUpdate = true;
-        }
-        String userAgent = request.getHeader("user-agent");
-        if (isStreamRequest) {
-            player.setType(userAgent);
-            player.setLastSeen(new Date());
-            isUpdate = true;
-        }
-
-        if (isUpdate) {
-            updatePlayer(player);
-        }
-
-        // Set cookie in response.
-        if (response != null) {
-            String cookieName = COOKIE_NAME + "-" + StringUtil.utf8HexEncode(username);
-            Cookie cookie = new Cookie(cookieName, String.valueOf(player.getId()));
-            cookie.setMaxAge(COOKIE_EXPIRY);
-            cookie.setHttpOnly(true);
-            String path = request.getContextPath();
-            if (StringUtils.isEmpty(path)) {
-                path = "/";
+            // Find by cookie.
+            String username = securityService.getCurrentUsername(request);
+            if (player == null && remoteControlEnabled) {
+                player = getPlayerById(getPlayerIdFromCookie(request, username));
             }
-            cookie.setPath(path);
-            cookie.setSecure(true);
-            response.addCookie(cookie);
+
+            // Make sure we're not hijacking the player of another user.
+            if (player != null && player.getUsername() != null && username != null && !player.getUsername().equals(username)) {
+                player = null;
+            }
+
+            // Look for player with same IP address and user name.
+            if (player == null) {
+                player = getNonRestPlayerByIpAddressAndUsername(request.getRemoteAddr(), username);
+            }
+
+            // If no player was found, create it.
+            if (player == null) {
+                player = new Player();
+                createPlayer(player);
+            }
+
+            // Update player data.
+            boolean isUpdate = false;
+            if (username != null && player.getUsername() == null) {
+                player.setUsername(username);
+                isUpdate = true;
+            }
+            if (player.getIpAddress() == null || isStreamRequest ||
+                (!isPlayerConnected(player) && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress()))) {
+                player.setIpAddress(request.getRemoteAddr());
+                isUpdate = true;
+            }
+            String userAgent = request.getHeader("user-agent");
+            if (isStreamRequest) {
+                player.setType(userAgent);
+                player.setLastSeen(new Date());
+                isUpdate = true;
+            }
+
+            if (isUpdate) {
+                updatePlayer(player);
+            }
+
+            // Set cookie in response.
+            if (response != null) {
+                String cookieName = COOKIE_NAME + "-" + StringUtil.utf8HexEncode(username);
+                Cookie cookie = new Cookie(cookieName, String.valueOf(player.getId()));
+                cookie.setMaxAge(COOKIE_EXPIRY);
+                cookie.setHttpOnly(true);
+                String path = request.getContextPath();
+                if (StringUtils.isEmpty(path)) {
+                    path = "/";
+                }
+                cookie.setPath(path);
+                cookie.setSecure(true);
+                response.addCookie(cookie);
+            }
+
+            // Save player in session context.
+            if (remoteControlEnabled) {
+                request.getSession().setAttribute("player", player.getId());
+            }
+
+            return player;
+
         }
 
-        // Save player in session context.
-        if (remoteControlEnabled) {
-            request.getSession().setAttribute("player", player.getId());
-        }
-
-        return player;
     }
 
     /**
@@ -278,8 +285,10 @@ public class PlayerService {
      *
      * @param id The unique player ID.
      */
-    public synchronized void removePlayerById(int id) {
-        playerDao.deletePlayer(id);
+    public void removePlayerById(int id) {
+        synchronized (LOCK) {
+            playerDao.deletePlayer(id);
+        }
     }
 
     /**
