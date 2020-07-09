@@ -57,11 +57,18 @@ public class VersionService {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
 
-    private Version localVersion;
     private Version latestFinalVersion;
     private Version latestBetaVersion;
+    private static final Object LATEST_LOCK = new Object();
+
+    private Version localVersion;
+    private static final Object LOCAL_VERSION_LOCK = new Object();
+
     private Date localBuildDate;
+    private static final Object LOCAL_BUILD_DATE = new Object();
+
     private String localBuildNumber;
+    private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
 
     /**
      * Time when latest version was fetched (in milliseconds).
@@ -78,16 +85,18 @@ public class VersionService {
      *
      * @return The version number for the locally installed Jpsonic version.
      */
-    public synchronized Version getLocalVersion() {
-        if (localVersion == null) {
-            try {
-                localVersion = new Version(readLineFromResource("/version.txt"));
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Resolved local Jpsonic version to: " + localVersion);
-                }
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve local Jpsonic version.", x);
+    public Version getLocalVersion() {
+        synchronized (LOCAL_VERSION_LOCK) {
+            if (localVersion == null) {
+                try {
+                    localVersion = new Version(readLineFromResource("/version.txt"));
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Resolved local Jpsonic version to: " + localVersion);
+                    }
+                } catch (Exception x) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to resolve local Jpsonic version.", x);
+                    }
                 }
             }
         }
@@ -100,7 +109,7 @@ public class VersionService {
      * @return The version number for the latest available Jpsonic final version, or <code>null</code>
      *         if the version number can't be resolved.
      */
-    public synchronized Version getLatestFinalVersion() {
+    public Version getLatestFinalVersion() {
         refreshLatestVersion();
         return latestFinalVersion;
     }
@@ -111,7 +120,7 @@ public class VersionService {
      * @return The version number for the latest available Jpsonic beta version, or <code>null</code>
      *         if the version number can't be resolved.
      */
-    public synchronized Version getLatestBetaVersion() {
+    public Version getLatestBetaVersion() {
         refreshLatestVersion();
         return latestBetaVersion;
     }
@@ -122,16 +131,18 @@ public class VersionService {
      * @return The build date for the locally installed Jpsonic version, or <code>null</code>
      *         if the build date can't be resolved.
      */
-    public synchronized Date getLocalBuildDate() {
-        if (localBuildDate == null) {
-            try {
-                String date = readLineFromResource("/build_date.txt");
-                synchronized (DATE_FORMAT) {
-                    localBuildDate = DATE_FORMAT.parse(date);
-                }
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve local Jpsonic build date.", x);
+    public Date getLocalBuildDate() {
+        synchronized (LOCAL_BUILD_DATE) {
+            if (localBuildDate == null) {
+                try {
+                    String date = readLineFromResource("/build_date.txt");
+                    synchronized (DATE_FORMAT) {
+                        localBuildDate = DATE_FORMAT.parse(date);
+                    }
+                } catch (Exception x) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to resolve local Jpsonic build date.", x);
+                    }
                 }
             }
         }
@@ -144,13 +155,15 @@ public class VersionService {
      * @return The build number for the locally installed Jpsonic version, or <code>null</code>
      *         if the build number can't be resolved.
      */
-    public synchronized String getLocalBuildNumber() {
-        if (localBuildNumber == null) {
-            try {
-                localBuildNumber = readLineFromResource("/build_number.txt");
-            } catch (Exception x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve local Jpsonic build number.", x);
+    public String getLocalBuildNumber() {
+        synchronized (LOCAL_BUILD_NUMBER_LOCK) {
+            if (localBuildNumber == null) {
+                try {
+                    localBuildNumber = readLineFromResource("/build_number.txt");
+                } catch (Exception x) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to resolve local Jpsonic build number.", x);
+                    }
                 }
             }
         }
@@ -237,49 +250,52 @@ public class VersionService {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void readLatestVersion() throws IOException {
 
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Starting to read latest version");
-        }
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(10000)
-                .setSocketTimeout(10000)
-                .build();
-        HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
-        method.setConfig(requestConfig);
-        String content;
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
-            ResponseHandler<String> responseHandler = new BasicResponseHandler();
-            content = client.execute(method, responseHandler);
-        } catch (ConnectTimeoutException e) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+        synchronized (LATEST_LOCK) {
+
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Starting to read latest version");
             }
-            return;
-        }
-
-        List<String>unsortedTags = new LinkedList<>();
-        for (JsonNode item: new ObjectMapper().readTree(content)) {
-            unsortedTags.add(item.path("tag_name").asText());
-        }
-
-        Function<String, Version> convertToVersion = s -> {
-            Matcher match = VERSION_REGEX.matcher(s);
-            if (!match.matches()) {
-                throw new IllegalArgumentException("Unexpected tag format " + s);
+            RequestConfig requestConfig = RequestConfig.custom()
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000)
+                    .build();
+            HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
+            method.setConfig(requestConfig);
+            String content;
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+                ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                content = client.execute(method, responseHandler);
+            } catch (ConnectTimeoutException e) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Got a timeout when trying to reach {}", VERSION_URL);
+                }
+                return;
             }
-            return new Version(match.group(1));
-        };
 
-        Predicate<Version> finalVersionPredicate = version -> !version.isPreview();
+            List<String>unsortedTags = new LinkedList<>();
+            for (JsonNode item: new ObjectMapper().readTree(content)) {
+                unsortedTags.add(item.path("tag_name").asText());
+            }
 
-        Optional<Version> betaV = unsortedTags.stream().map(convertToVersion).max(Comparator.naturalOrder());
-        Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder()).filter(finalVersionPredicate).findFirst();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Got {} for beta version", betaV);
-            LOG.debug("Got {} for final version", finalV);
+            Function<String, Version> convertToVersion = s -> {
+                Matcher match = VERSION_REGEX.matcher(s);
+                if (!match.matches()) {
+                    throw new IllegalArgumentException("Unexpected tag format " + s);
+                }
+                return new Version(match.group(1));
+            };
+
+            Predicate<Version> finalVersionPredicate = version -> !version.isPreview();
+
+            Optional<Version> betaV = unsortedTags.stream().map(convertToVersion).max(Comparator.naturalOrder());
+            Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder()).filter(finalVersionPredicate).findFirst();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Got {} for beta version", betaV);
+                LOG.debug("Got {} for final version", finalV);
+            }
+
+            latestBetaVersion = betaV.get();
+            latestFinalVersion = finalV.get();
         }
-
-        latestBetaVersion = betaV.get();
-        latestFinalVersion = finalV.get();
     }
 }
