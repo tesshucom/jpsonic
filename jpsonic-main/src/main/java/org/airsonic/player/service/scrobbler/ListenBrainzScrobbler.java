@@ -52,6 +52,8 @@ public class ListenBrainzScrobbler {
     //            .setConnectTimeout(15000)
     //            .setSocketTimeout(15000)
     //            .build();
+    
+    private static final Object REGISTRATION_LOCK = new Object();
 
     /**
      * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is done
@@ -62,27 +64,32 @@ public class ListenBrainzScrobbler {
      * @param submission Whether this is a submission or a now playing notification.
      * @param time       Event time, or {@code null} to use current time.
      */
-    public synchronized void register(MediaFile mediaFile, String token, boolean submission, Date time) {
-        if (thread == null) {
-            thread = new RegistrationThread();
-            thread.start();
+    public void register(MediaFile mediaFile, String token, boolean submission, Date time) {
+
+        synchronized (REGISTRATION_LOCK) {
+
+            if (thread == null) {
+                thread = new RegistrationThread();
+                thread.start();
+            }
+
+            if (queue.size() >= MAX_PENDING_REGISTRATION) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
+                }
+                return;
+            }
+
+            RegistrationData registrationData = createRegistrationData(mediaFile, token, submission, time);
+            try {
+                queue.put(registrationData);
+            } catch (InterruptedException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Interrupted while queuing ListenBrainz scrobble: " + x.toString());
+                }
+            }
         }
 
-        if (queue.size() >= MAX_PENDING_REGISTRATION) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("ListenBrainz scrobbler queue is full. Ignoring '" + mediaFile.getTitle() + "'");
-            }
-            return;
-        }
-
-        RegistrationData registrationData = createRegistrationData(mediaFile, token, submission, time);
-        try {
-            queue.put(registrationData);
-        } catch (InterruptedException x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Interrupted while queuing ListenBrainz scrobble: " + x.toString());
-            }
-        }
     }
 
     private RegistrationData createRegistrationData(MediaFile mediaFile, String token, boolean submission, Date time) {
