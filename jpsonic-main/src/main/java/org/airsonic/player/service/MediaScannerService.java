@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
@@ -63,7 +64,11 @@ public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
 
-    private boolean scanning;
+    private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
+
+    private static final Object SCHEDULE_LOCK = new Object();
+
+    private static final Object SCAN_LOCK = new Object();
 
     // for debug
     private boolean isJpsonicCleansingProcess = true;
@@ -104,40 +109,44 @@ public class MediaScannerService {
     /**
      * Schedule background execution of media library scanning.
      */
-    public synchronized void schedule() {
-        if (scheduler != null) {
-            scheduler.shutdown();
-        }
+    public void schedule() {
 
-        long daysBetween = settingsService.getIndexCreationInterval();
-        if (daysBetween == -1) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic media scanning disabled.");
+        synchronized (SCHEDULE_LOCK) {
+
+            if (scheduler != null) {
+                scheduler.shutdown();
             }
-            return;
-        }
 
-        int hour = settingsService.getIndexCreationHour();
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-        if (now.compareTo(nextRun) > 0)
-            nextRun = nextRun.plusDays(1);
-
-        long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
-
-        scheduler = Executors.newSingleThreadScheduledExecutor();
-        scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween), TimeUnit.MILLISECONDS);
-
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
-        }
-
-        // In addition, create index immediately if it doesn't exist on disk.
-        if (SettingsService.isScanOnBoot() && neverScanned()) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Media library never scanned. Doing it now.");
+            long daysBetween = settingsService.getIndexCreationInterval();
+            if (daysBetween == -1) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Automatic media scanning disabled.");
+                }
+                return;
             }
-            scanLibrary();
+
+            int hour = settingsService.getIndexCreationHour();
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
+            if (now.compareTo(nextRun) > 0)
+                nextRun = nextRun.plusDays(1);
+
+            long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
+
+            scheduler = Executors.newSingleThreadScheduledExecutor();
+            scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween), TimeUnit.MILLISECONDS);
+
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
+            }
+
+            // In addition, create index immediately if it doesn't exist on disk.
+            if (SettingsService.isScanOnBoot() && neverScanned()) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Media library never scanned. Doing it now.");
+                }
+                scanLibrary();
+            }
         }
     }
 
@@ -148,8 +157,8 @@ public class MediaScannerService {
     /**
      * Returns whether the media library is currently being scanned.
      */
-    public synchronized boolean isScanning() {
-        return scanning;
+    public boolean isScanning() {
+        return IS_SCANNING.get();
     }
 
     /**
@@ -163,23 +172,28 @@ public class MediaScannerService {
      * Scans the media library.
      * The scanning is done asynchronously, i.e., this method returns immediately.
      */
-    public synchronized void scanLibrary() {
+    public void scanLibrary() {
+
         if (isScanning()) {
             return;
         }
-        scanning = true;
 
-        Thread thread = new Thread("MediaLibraryScanner") {
-            @Override
-            public void run() {
-                doScanLibrary();
-                playlistService.importPlaylists();
-                mediaFileDao.checkpoint();
-            }
-        };
+        synchronized (SCAN_LOCK) {
+        
+            IS_SCANNING.set(true);
 
-        thread.setPriority(Thread.MIN_PRIORITY);
-        thread.start();
+            Thread thread = new Thread("MediaLibraryScanner") {
+                @Override
+                public void run() {
+                    doScanLibrary();
+                    playlistService.importPlaylists();
+                    mediaFileDao.checkpoint();
+                }
+            };
+
+            thread.setPriority(Thread.MIN_PRIORITY);
+            thread.start();
+        }
     }
 
     private void doScanLibrary() {
@@ -280,7 +294,7 @@ public class MediaScannerService {
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);
-            scanning = false;
+            IS_SCANNING .set(false);
             utils.clearMemoryCache();
         }
     }
