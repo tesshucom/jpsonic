@@ -27,7 +27,16 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.unmodifiableList;
 
 /**
  * Provides services for maintaining the list of stream, download and upload statuses.
@@ -53,124 +62,155 @@ public class StatusService {
     private final List<TransferStatus> uploadStatuses = new ArrayList<>();
     private final List<PlayStatus> remotePlays = new ArrayList<>();
 
+    private static final Object STREAM_LOCK = new Object();
+    private static final Object DOWNLOAD_LOCK = new Object();
+    private static final Object UPLOAD_LOCK = new Object();
+    private static final Object REMOTE_LOCK = new Object();
+
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<>();
 
-    public synchronized TransferStatus createStreamStatus(Player player) {
-        // Reuse existing status, if possible.
-        TransferStatus status = inactiveStreamStatuses.get(player.getId());
-        if (status != null) {
-            status.setActive(true);
-        } else {
-            status = createStatus(player, streamStatuses);
-        }
-        return status;
-    }
-
-    public synchronized void removeStreamStatus(TransferStatus status) {
-        // Move it to the map of inactive statuses.
-        status.setActive(false);
-        inactiveStreamStatuses.put(status.getPlayer().getId(), status);
-        streamStatuses.remove(status);
-    }
-
-    public synchronized List<TransferStatus> getAllStreamStatuses() {
-
-        List<TransferStatus> result = new ArrayList<>(streamStatuses);
-
-        // Add inactive status for those players that have no active status.
-        Set<Integer> activePlayers = new HashSet<>();
-        for (TransferStatus status : streamStatuses) {
-            activePlayers.add(status.getPlayer().getId());
-        }
-
-        for (Map.Entry<Integer, TransferStatus> entry : inactiveStreamStatuses.entrySet()) {
-            if (!activePlayers.contains(entry.getKey())) {
-                result.add(entry.getValue());
+    public TransferStatus createStreamStatus(Player player) {
+        synchronized (STREAM_LOCK) {
+            // Reuse existing status, if possible.
+            TransferStatus status = inactiveStreamStatuses.get(player.getId());
+            if (status != null) {
+                status.setActive(true);
+            } else {
+                status = createStatus(player, streamStatuses);
             }
+            return status;
         }
-        return result;
     }
 
-    public synchronized List<TransferStatus> getStreamStatusesForPlayer(Player player) {
-        List<TransferStatus> result = new ArrayList<>();
-        for (TransferStatus status : streamStatuses) {
-            if (status.getPlayer().getId().equals(player.getId())) {
-                result.add(status);
+    public void removeStreamStatus(TransferStatus status) {
+        synchronized (STREAM_LOCK) {
+            // Move it to the map of inactive statuses.
+            status.setActive(false);
+            inactiveStreamStatuses.put(status.getPlayer().getId(), status);
+            streamStatuses.remove(status);
+        }
+    }
+
+    public List<TransferStatus> getAllStreamStatuses() {
+        synchronized (STREAM_LOCK) {
+
+            List<TransferStatus> result = new ArrayList<>(streamStatuses);
+
+            // Add inactive status for those players that have no active status.
+            Set<Integer> activePlayers = new HashSet<>();
+            for (TransferStatus status : streamStatuses) {
+                activePlayers.add(status.getPlayer().getId());
             }
-        }
 
-        // If no active statuses exists, add the inactive one.
-        if (result.isEmpty()) {
-            TransferStatus inactiveStatus = inactiveStreamStatuses.get(player.getId());
-            if (inactiveStatus != null) {
-                result.add(inactiveStatus);
+            for (Map.Entry<Integer, TransferStatus> entry : inactiveStreamStatuses.entrySet()) {
+                if (!activePlayers.contains(entry.getKey())) {
+                    result.add(entry.getValue());
+                }
             }
+            return unmodifiableList(result);
         }
-
-        return result;
     }
 
-    public synchronized TransferStatus createDownloadStatus(Player player) {
-        return createStatus(player, downloadStatuses);
+    public List<TransferStatus> getStreamStatusesForPlayer(Player player) {
+        synchronized (STREAM_LOCK) {
+            List<TransferStatus> result = new ArrayList<>();
+            for (TransferStatus status : streamStatuses) {
+                if (status.getPlayer().getId().equals(player.getId())) {
+                    result.add(status);
+                }
+            }
+
+            // If no active statuses exists, add the inactive one.
+            if (result.isEmpty()) {
+                TransferStatus inactiveStatus = inactiveStreamStatuses.get(player.getId());
+                if (inactiveStatus != null) {
+                    result.add(inactiveStatus);
+                }
+            }
+
+            return unmodifiableList(result);
+        }
     }
 
-    public synchronized void removeDownloadStatus(TransferStatus status) {
-        downloadStatuses.remove(status);
+    public TransferStatus createDownloadStatus(Player player) {
+        synchronized (DOWNLOAD_LOCK) {
+            return createStatus(player, downloadStatuses);
+        }
     }
 
-    public synchronized List<TransferStatus> getAllDownloadStatuses() {
-        return new ArrayList<TransferStatus>(downloadStatuses);
+    public void removeDownloadStatus(TransferStatus status) {
+        synchronized (DOWNLOAD_LOCK) {
+            downloadStatuses.remove(status);
+        }
     }
 
-    public synchronized TransferStatus createUploadStatus(Player player) {
-        return createStatus(player, uploadStatuses);
+    public List<TransferStatus> getAllDownloadStatuses() {
+        synchronized (DOWNLOAD_LOCK) {
+            return unmodifiableList(downloadStatuses);
+        }
     }
 
-    public synchronized void removeUploadStatus(TransferStatus status) {
-        uploadStatuses.remove(status);
+    public TransferStatus createUploadStatus(Player player) {
+        synchronized (UPLOAD_LOCK) {
+            return createStatus(player, uploadStatuses);
+        }
     }
 
-    public synchronized List<TransferStatus> getAllUploadStatuses() {
-        return new ArrayList<TransferStatus>(uploadStatuses);
+    public void removeUploadStatus(TransferStatus status) {
+        synchronized (UPLOAD_LOCK) {
+            uploadStatuses.remove(status);
+        }
     }
 
-    public synchronized void addRemotePlay(PlayStatus playStatus) {
-        remotePlays.removeIf(PlayStatus::isExpired);
-        remotePlays.add(playStatus);
+    public List<TransferStatus> getAllUploadStatuses() {
+        synchronized (UPLOAD_LOCK) {
+            return unmodifiableList(uploadStatuses);
+        }
+    }
+
+    public void addRemotePlay(PlayStatus playStatus) {
+        synchronized (REMOTE_LOCK) {
+            remotePlays.removeIf(PlayStatus::isExpired);
+            remotePlays.add(playStatus);
+        }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public synchronized List<PlayStatus> getPlayStatuses() {
-        
-        Map<Integer, PlayStatus> result = new LinkedHashMap<>();
-        for (PlayStatus remotePlay : remotePlays) {
-            if (!remotePlay.isExpired()) {
-                result.put(remotePlay.getPlayer().getId(), remotePlay);
+    public List<PlayStatus> getPlayStatuses() {
+        synchronized (STREAM_LOCK) {
+            synchronized (REMOTE_LOCK) {
+
+                Map<Integer, PlayStatus> result = new LinkedHashMap<>();
+                for (PlayStatus remotePlay : remotePlays) {
+                    if (!remotePlay.isExpired()) {
+                        result.put(remotePlay.getPlayer().getId(), remotePlay);
+                    }
+                }
+
+                List<TransferStatus> statuses = new ArrayList<>();
+                statuses.addAll(inactiveStreamStatuses.values());
+                statuses.addAll(streamStatuses);
+
+                for (TransferStatus streamStatus : statuses) {
+                    Player player = streamStatus.getPlayer();
+                    File file = streamStatus.getFile();
+                    if (file == null) {
+                        continue;
+                    }
+                    MediaFile mediaFile = mediaFileService.getMediaFile(file);
+                    if (player == null || mediaFile == null) {
+                        continue;
+                    }
+                    Date time = new Date(System.currentTimeMillis() - streamStatus.getMillisSinceLastUpdate());
+                    result.put(player.getId(), new PlayStatus(mediaFile, player, time));
+                }
+                return unmodifiableList(result.values().stream().collect(Collectors.toList()));
             }
         }
-
-        List<TransferStatus> statuses = new ArrayList<>();
-        statuses.addAll(inactiveStreamStatuses.values());
-        statuses.addAll(streamStatuses);
-
-        for (TransferStatus streamStatus : statuses) {
-            Player player = streamStatus.getPlayer();
-            File file = streamStatus.getFile();
-            if (file == null) {
-                continue;
-            }
-            MediaFile mediaFile = mediaFileService.getMediaFile(file);
-            if (player == null || mediaFile == null) {
-                continue;
-            }
-            Date time = new Date(System.currentTimeMillis() - streamStatus.getMillisSinceLastUpdate());
-            result.put(player.getId(), new PlayStatus(mediaFile, player, time));
-        }
-        return new ArrayList<PlayStatus>(result.values());
     }
 
-    private synchronized TransferStatus createStatus(Player player, List<TransferStatus> statusList) {
+    private TransferStatus createStatus(Player player, List<TransferStatus> statusList) {
         TransferStatus status = new TransferStatus();
         status.setPlayer(player);
         statusList.add(status);
