@@ -82,6 +82,10 @@ public class PodcastService {
     private static final Namespace[] ITUNES_NAMESPACES = {Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
         Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd")};
 
+    private static final Object EPISODES_LOCK = new Object();
+    private static final Object FILE_LOCK = new Object();
+    private static final Object SCHEDULE_LOCK = new Object();
+
     private final ExecutorService refreshExecutor;
     private final ExecutorService downloadExecutor;
     private final ScheduledExecutorService scheduledExecutor;
@@ -109,56 +113,60 @@ public class PodcastService {
     }
 
     @PostConstruct
-    public synchronized void init() {
-        try {
-            // Clean up partial downloads.
-            for (PodcastChannel channel : getAllChannels()) {
-                for (PodcastEpisode episode : getEpisodes(channel.getId())) {
-                    if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
-                        deleteEpisode(episode.getId(), false);
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
+    public void init() {
+        synchronized (EPISODES_LOCK) {
+            try {
+                // Clean up partial downloads.
+                for (PodcastChannel channel : getAllChannels()) {
+                    for (PodcastEpisode episode : getEpisodes(channel.getId())) {
+                        if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
+                            deleteEpisode(episode.getId(), false);
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
+                            }
                         }
                     }
                 }
-            }
-            schedule();
-        } catch (Throwable x) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Failed to initialize PodcastService: " + x, x);
+                schedule();
+            } catch (Throwable x) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to initialize PodcastService: " + x, x);
+                }
             }
         }
     }
 
-    public synchronized void schedule() {
+    public void schedule() {
+        synchronized (SCHEDULE_LOCK) {
 
-        if (scheduledRefresh != null) {
-            scheduledRefresh.cancel(true);
-        }
+            if (scheduledRefresh != null) {
+                scheduledRefresh.cancel(true);
+            }
 
-        int hoursBetween = settingsService.getPodcastUpdateInterval();
-        if (hoursBetween == -1) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update disabled.");
+            int hoursBetween = settingsService.getPodcastUpdateInterval();
+            if (hoursBetween == -1) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Automatic Podcast update disabled.");
+                }
+                return;
             }
-            return;
-        }
 
-        Runnable task = () -> {
+            Runnable task = () -> {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Starting scheduled Podcast refresh.");
+                }
+                refreshAllChannels(true);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Completed scheduled Podcast refresh.");
+                }
+            };
+            long periodMillis = hoursBetween * 60L * 60L * 1000L;
+            long initialDelayMillis = 5L * 60L * 1000L;
+            scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
+            Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
             if (LOG.isInfoEnabled()) {
-                LOG.info("Starting scheduled Podcast refresh.");
+                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at " + firstTime);
             }
-            refreshAllChannels(true);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed scheduled Podcast refresh.");
-            }
-        };
-        long periodMillis = hoursBetween * 60L * 60L * 1000L;
-        long initialDelayMillis = 5L * 60L * 1000L;
-        scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
-        Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at " + firstTime);
         }
     }
 
@@ -552,99 +560,107 @@ public class PodcastService {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private void doDownloadEpisode(PodcastEpisode episode) {
 
-        if (isEpisodeDeleted(episode)) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+        synchronized (EPISODES_LOCK) {
+
+            if (isEpisodeDeleted(episode)) {
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+                }
+                return;
             }
-            return;
-        }
 
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Starting to download Podcast from " + episode.getUrl());
-        }
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Starting to download Podcast from " + episode.getUrl());
+            }
 
-        try (CloseableHttpClient client = HttpClients.createDefault()) {
+            try (CloseableHttpClient client = HttpClients.createDefault()) {
+    
+                PodcastChannel channel = getChannel(episode.getChannelId());
+                RequestConfig requestConfig = RequestConfig.custom()
+                        .setConnectTimeout(2 * 60 * 1000) // 2 minutes
+                        .setSocketTimeout(10 * 60 * 1000) // 10 minutes
+                        // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
+                        .setCircularRedirectsAllowed(true)
+                        // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
+                        .setCookieSpec(CookieSpecs.STANDARD)
+                        .build();
+                HttpGet method = new HttpGet(episode.getUrl());
+                method.setConfig(requestConfig);
 
-            PodcastChannel channel = getChannel(episode.getChannelId());
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(2 * 60 * 1000) // 2 minutes
-                    .setSocketTimeout(10 * 60 * 1000) // 10 minutes
-                    // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
-                    .setCircularRedirectsAllowed(true)
-                    // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
-                    .setCookieSpec(CookieSpecs.STANDARD)
-                    .build();
-            HttpGet method = new HttpGet(episode.getUrl());
-            method.setConfig(requestConfig);
+                try (CloseableHttpResponse response = client.execute(method);InputStream in = response.getEntity().getContent()) {
 
-            try (CloseableHttpResponse response = client.execute(method);InputStream in = response.getEntity().getContent()) {
+                    synchronized (FILE_LOCK) {
 
-                File file = getFile(channel, episode);
-                episode.setStatus(PodcastStatus.DOWNLOADING);
-                episode.setBytesDownloaded(0L);
-                episode.setErrorMessage(null);
-                episode.setPath(file.getPath());
-                podcastDao.updateEpisode(episode);
+                        File file = getFile(channel, episode);
+                        episode.setStatus(PodcastStatus.DOWNLOADING);
+                        episode.setBytesDownloaded(0L);
+                        episode.setErrorMessage(null);
+                        episode.setPath(file.getPath());
+                        podcastDao.updateEpisode(episode);
 
-                byte[] buffer = new byte[4096];
-                long bytesDownloaded = 0;
-                int n;
-                long nextLogCount = 30000L;
+                        byte[] buffer = new byte[4096];
+                        long bytesDownloaded = 0;
+                        int n;
+                        long nextLogCount = 30000L;
 
-                try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
-                    while ((n = in.read(buffer)) != -1) {
-                        out.write(buffer, 0, n);
-                        bytesDownloaded += n;
-
-                        if (bytesDownloaded > nextLogCount) {
-                            episode.setBytesDownloaded(bytesDownloaded);
-                            nextLogCount += 30000L;
-
-                            // Abort download if episode was deleted by user.
-                            if (isEpisodeDeleted(episode)) {
-                                break;
+                        try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
+                            while ((n = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, n);
+                                bytesDownloaded += n;
+    
+                                if (bytesDownloaded > nextLogCount) {
+                                    episode.setBytesDownloaded(bytesDownloaded);
+                                    nextLogCount += 30000L;
+    
+                                    // Abort download if episode was deleted by user.
+                                    if (isEpisodeDeleted(episode)) {
+                                        break;
+                                    }
+                                    podcastDao.updateEpisode(episode);
+                                }
                             }
-                            podcastDao.updateEpisode(episode);
                         }
-                    }
-                }
 
-                if (isEpisodeDeleted(episode)) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
-                    }
-                    if (!file.delete()) {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("Unable to delete " + file);
+                        if (isEpisodeDeleted(episode)) {
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
+                            }
+                            if (!file.delete()) {
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Unable to delete " + file);
+                                }
+                            }
+                        } else {
+                            addMediaFileIdToEpisodes(Arrays.asList(episode));
+                            episode.setBytesDownloaded(bytesDownloaded);
+                            podcastDao.updateEpisode(episode);
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
+                            }
+                            updateTags(file, episode);
+                            episode.setStatus(PodcastStatus.COMPLETED);
+                            podcastDao.updateEpisode(episode);
+                            deleteObsoleteEpisodes(channel);
                         }
+
                     }
-                } else {
-                    addMediaFileIdToEpisodes(Arrays.asList(episode));
-                    episode.setBytesDownloaded(bytesDownloaded);
-                    podcastDao.updateEpisode(episode);
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Downloaded " + bytesDownloaded + " bytes from Podcast " + episode.getUrl());
+
+                } catch (UnsupportedOperationException | IOException e) {
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
                     }
-                    updateTags(file, episode);
-                    episode.setStatus(PodcastStatus.COMPLETED);
+                    episode.setStatus(PodcastStatus.ERROR);
+                    episode.setErrorMessage(getErrorMessage(e));
                     podcastDao.updateEpisode(episode);
-                    deleteObsoleteEpisodes(channel);
                 }
-            } catch (UnsupportedOperationException | IOException e) {
+            } catch (IOException ioe) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to download Podcast from " + episode.getUrl(), e);
+                    LOG.warn("Failed to download Podcast from " + episode.getUrl(), ioe);
                 }
                 episode.setStatus(PodcastStatus.ERROR);
-                episode.setErrorMessage(getErrorMessage(e));
+                episode.setErrorMessage(getErrorMessage(ioe));
                 podcastDao.updateEpisode(episode);
             }
-        } catch (IOException ioe) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to download Podcast from " + episode.getUrl(), ioe);
-            }
-            episode.setStatus(PodcastStatus.ERROR);
-            episode.setErrorMessage(getErrorMessage(ioe));
-            podcastDao.updateEpisode(episode);
         }
     }
 
@@ -673,35 +689,37 @@ public class PodcastService {
         }
     }
 
-    private synchronized void deleteObsoleteEpisodes(PodcastChannel channel) {
-        int episodeCount = settingsService.getPodcastEpisodeRetentionCount();
-        if (episodeCount == -1) {
-            return;
-        }
-
-        List<PodcastEpisode> episodes = getEpisodes(channel.getId());
-
-        // Don't do anything if other episodes of the same channel is currently downloading.
-        for (PodcastEpisode episode : episodes) {
-            if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
+    private void deleteObsoleteEpisodes(PodcastChannel channel) {
+        synchronized (EPISODES_LOCK) {
+            int episodeCount = settingsService.getPodcastEpisodeRetentionCount();
+            if (episodeCount == -1) {
                 return;
             }
-        }
 
-        // Reverse array to get chronological order (oldest episodes first).
-        Collections.reverse(episodes);
+            List<PodcastEpisode> episodes = getEpisodes(channel.getId());
 
-        int episodesToDelete = Math.max(0, episodes.size() - episodeCount);
-        for (int i = 0; i < episodesToDelete; i++) {
-            deleteEpisode(episodes.get(i).getId(), true);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Deleted old Podcast episode " + episodes.get(i).getUrl());
+            // Don't do anything if other episodes of the same channel is currently downloading.
+            for (PodcastEpisode episode : episodes) {
+                if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
+                    return;
+                }
+            }
+
+            // Reverse array to get chronological order (oldest episodes first).
+            Collections.reverse(episodes);
+
+            int episodesToDelete = Math.max(0, episodes.size() - episodeCount);
+            for (int i = 0; i < episodesToDelete; i++) {
+                deleteEpisode(episodes.get(i).getId(), true);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Deleted old Podcast episode " + episodes.get(i).getUrl());
+                }
             }
         }
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
-    private synchronized File getFile(PodcastChannel channel, PodcastEpisode episode) {
+    private File getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         File channelDir = getChannelDirectory(channel);
 
@@ -776,10 +794,12 @@ public class PodcastService {
 
         // Delete file.
         if (episode.getPath() != null) {
-            File file = new File(episode.getPath());
-            if (file.exists()) {
-                if (!file.delete() && LOG.isWarnEnabled()) {
-                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+            synchronized (FILE_LOCK) {
+                File file = new File(episode.getPath());
+                if (file.exists()) {
+                    if (!file.delete() && LOG.isWarnEnabled()) {
+                        LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
+                    }
                 }
             }
         }

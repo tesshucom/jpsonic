@@ -132,10 +132,7 @@
         </properties>
     </rule>
     <rule ref="category/java/multithreading.xml">
-
-        <exclude name="AvoidSynchronizedAtMethodLevel" />       <!-- *** Should be triaged! *** -->
         <exclude name="DoNotUseThreads" />                      <!-- *** Should be triaged! *** -->
-
     </rule>
     <rule ref="category/java/performance.xml">
         <!-- [low priority] >> -->

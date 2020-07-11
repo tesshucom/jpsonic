@@ -22,6 +22,7 @@ package org.airsonic.player.domain;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Status for a single transfer (stream, download or upload).
@@ -35,20 +36,28 @@ public class TransferStatus {
 
     private Player player;
     private File file;
-    private long bytesTransfered;
-    private long bytesSkipped;
-    private long bytesTotal;
+    private AtomicLong bytesTransfered = new AtomicLong();
+    private AtomicLong bytesSkipped = new AtomicLong();
+    private AtomicLong bytesTotal = new AtomicLong();
     private final SampleHistory history = new SampleHistory();
     private boolean terminated;
     private boolean active = true;
+
+    /*
+     * History-only locking is sufficient on this class of legacy design.
+     * If have problems with synchronization restrictions,
+     * the constructor design should be reviewed.
+     * Signed-off-by: tesshucom <webmaster@tesshu.com>
+     */
+    private static final Object HISTORY_LOCK = new Object();
 
     /**
      * Return the number of bytes transferred.
      *
      * @return The number of bytes transferred.
      */
-    public synchronized long getBytesTransfered() {
-        return bytesTransfered;
+    public long getBytesTransfered() {
+        return bytesTransfered.get();
     }
 
     /**
@@ -56,8 +65,8 @@ public class TransferStatus {
      *
      * @param byteCount The byte count.
      */
-    public synchronized void addBytesTransfered(long byteCount) {
-        setBytesTransfered(bytesTransfered + byteCount);
+    public void addBytesTransfered(long byteCount) {
+        setBytesTransfered(bytesTransfered.addAndGet(byteCount));
     }
 
     /**
@@ -65,9 +74,11 @@ public class TransferStatus {
      *
      * @param bytesTransfered The number of bytes transferred.
      */
-    public synchronized void setBytesTransfered(long bytesTransfered) {
-        this.bytesTransfered = bytesTransfered;
-        createSample(bytesTransfered, false);
+    public void setBytesTransfered(long bytesTransfered) {
+        synchronized (HISTORY_LOCK) {
+            this.bytesTransfered.set(bytesTransfered);
+            createSample(bytesTransfered, false);
+        }
     }
 
     private void createSample(long bytesTransfered, boolean force) {
@@ -88,11 +99,13 @@ public class TransferStatus {
      *
      * @return Number of milliseconds, or <code>0</code> if never updated.
      */
-    public synchronized long getMillisSinceLastUpdate() {
-        if (history.isEmpty()) {
-            return 0L;
+    public long getMillisSinceLastUpdate() {
+        synchronized (HISTORY_LOCK) {
+            if (history.isEmpty()) {
+                return 0L;
+            }
+            return System.currentTimeMillis() - history.getLast().timestamp;
         }
-        return System.currentTimeMillis() - history.getLast().timestamp;
     }
 
     /**
@@ -101,7 +114,7 @@ public class TransferStatus {
      * @return The total number of bytes, or 0 if unknown.
      */
     public long getBytesTotal() {
-        return bytesTotal;
+        return bytesTotal.get();
     }
 
     /**
@@ -110,7 +123,7 @@ public class TransferStatus {
      * @param bytesTotal The total number of bytes, or 0 if unknown.
      */
     public void setBytesTotal(long bytesTotal) {
-        this.bytesTotal = bytesTotal;
+        this.bytesTotal.set(bytesTotal);
     }
 
     /**
@@ -119,8 +132,8 @@ public class TransferStatus {
      *
      * @return The number of skipped bytes.
      */
-    public synchronized long getBytesSkipped() {
-        return bytesSkipped;
+    public long getBytesSkipped() {
+        return bytesSkipped.get();
     }
 
     /**
@@ -129,18 +142,17 @@ public class TransferStatus {
      *
      * @param bytesSkipped The number of skipped bytes.
      */
-    public synchronized void setBytesSkipped(long bytesSkipped) {
-        this.bytesSkipped = bytesSkipped;
+    public void setBytesSkipped(long bytesSkipped) {
+        this.bytesSkipped.set(bytesSkipped);
     }
-
 
     /**
      * Adds the given byte count to the total number of bytes skipped.
      *
      * @param byteCount The byte count.
      */
-    public synchronized void addBytesSkipped(long byteCount) {
-        bytesSkipped += byteCount;
+    public void addBytesSkipped(long byteCount) {
+        bytesSkipped.addAndGet(byteCount);
     }
 
     /**
@@ -148,7 +160,7 @@ public class TransferStatus {
      *
      * @return The file that is currently being transferred.
      */
-    public synchronized File getFile() {
+    public File getFile() {
         return file;
     }
 
@@ -157,7 +169,7 @@ public class TransferStatus {
      *
      * @param file The file that is currently being transferred.
      */
-    public synchronized void setFile(File file) {
+    public void setFile(File file) {
         this.file = file;
     }
 
@@ -166,7 +178,7 @@ public class TransferStatus {
      *
      * @return The remote player for the stream.
      */
-    public synchronized Player getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 
@@ -175,7 +187,7 @@ public class TransferStatus {
      *
      * @param player The remote player for the stream.
      */
-    public synchronized void setPlayer(Player player) {
+    public void setPlayer(Player player) {
         this.player = player;
     }
 
@@ -184,8 +196,10 @@ public class TransferStatus {
      *
      * @return A (copy of) the history list of samples.
      */
-    public synchronized SampleHistory getHistory() {
-        return new SampleHistory(history);
+    public SampleHistory getHistory() {
+        synchronized (HISTORY_LOCK) {
+            return new SampleHistory(history);
+        }
     }
 
     /**
@@ -230,15 +244,16 @@ public class TransferStatus {
      *
      * @param active Whether this transfer is active.
      */
-    public synchronized void setActive(boolean active) {
-        this.active = active;
-
-        if (active) {
-            bytesSkipped = 0L;
-            bytesTotal = 0L;
-            setBytesTransfered(0L);
-        } else {
-            createSample(getBytesTransfered(), true);
+    public void setActive(boolean active) {
+        synchronized (HISTORY_LOCK) {
+            this.active = active;
+            if (active) {
+                bytesSkipped.set(0);
+                bytesTotal.set(0);
+                setBytesTransfered(0L);
+            } else {
+                createSample(getBytesTransfered(), true);
+            }
         }
     }
 

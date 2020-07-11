@@ -71,6 +71,8 @@ public class UPnPService {
 
     private AtomicReference<Boolean> running = new AtomicReference<>(false);
 
+    private static final Object LOCK = new Object();
+
     @PostConstruct
     public void init() {
         if (settingsService.isDlnaEnabled() || settingsService.isSonosEnabled()) {
@@ -140,13 +142,15 @@ public class UPnPService {
         }
     }
 
-    private synchronized void createService() {
-        UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
-                ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
-                : new ApacheUpnpServiceConfiguration();
-        upnpService = new UpnpServiceImpl(upnpConf);
-        // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
-        upnpService.getControlPoint().search();
+    private void createService() {
+        synchronized (LOCK) {
+            UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
+                    ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
+                    : new ApacheUpnpServiceConfiguration();
+            upnpService = new UpnpServiceImpl(upnpConf);
+            // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
+            upnpService.getControlPoint().search();
+        }
     }
 
     public void setMediaServerEnabled(boolean enabled) {

@@ -19,7 +19,6 @@
  */
 package org.airsonic.player.theme;
 
-import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -30,8 +29,9 @@ import org.springframework.web.servlet.ThemeResolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.HashSet;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Theme resolver implementation which returns the theme selected in the settings.
@@ -44,6 +44,7 @@ public class CustomThemeResolver implements ThemeResolver {
     private SecurityService securityService;
     private SettingsService settingsService;
     private Set<String> themeIds;
+    private static final Object LOCK = new Object();
 
     /**
     * Resolve the current theme name via the given request.
@@ -90,16 +91,14 @@ public class CustomThemeResolver implements ThemeResolver {
      * @param themeId The theme ID.
      * @return Whether the theme with the given ID exists.
      */
-    private synchronized boolean themeExists(String themeId) {
-        // Lazily create set of theme IDs.
-        if (themeIds == null) {
-            Theme[] themes = settingsService.getAvailableThemes();
-            themeIds = new HashSet<>(themes.length);
-            for (Theme theme : themes) {
-                themeIds.add(theme.getId());
+    private boolean themeExists(String themeId) {
+        synchronized (LOCK) {
+            if (themeIds == null) {
+                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream()
+                        .map(t -> t.getId())
+                        .collect(Collectors.toSet());
             }
         }
-
         return themeIds.contains(themeId);
     }
 

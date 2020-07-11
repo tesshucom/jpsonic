@@ -19,19 +19,71 @@
  */
 package org.airsonic.player.domain;
 
-import junit.framework.TestCase;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.AfterClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test of {@link PlayQueue}.
  *
  * @author Sindre Mehus
  */
-public class PlayQueueTestCase extends TestCase {
+public class PlayQueueTestCase extends AbstractAirsonicHomeTest {
 
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
+
+    @Autowired
+    private JpsonicComparators jpsonicComparators;
+
+    public JpsonicComparators getJpsonicComparators() {
+        return jpsonicComparators;
+    }
+
+    public void setJpsonicComparators(JpsonicComparators jpsonicComparators) {
+        this.jpsonicComparators = jpsonicComparators;
+    }
+
+    @Rule
+    public ThreadRule r = new ThreadRule(100);
+
+    @AfterClass
+    public static void tearDown() {
+        executor.shutdownNow();
+    }
+
+    private static final PlayQueue common = new PlayQueue();
+
+    @Test
+    public synchronized void testName() {
+        String name = Thread.currentThread().toString();
+        common.setName(name);
+        assertEquals(name, common.getName());
+    }
+
+    @Test
     public void testEmpty() {
         PlayQueue playQueue = new PlayQueue();
         assertEquals(0, playQueue.size());
@@ -40,6 +92,7 @@ public class PlayQueueTestCase extends TestCase {
         assertNull(playQueue.getCurrentFile());
     }
 
+    @Test
     public void testStatus() {
         PlayQueue playQueue = new PlayQueue();
         assertEquals(PlayQueue.Status.PLAYING, playQueue.getStatus());
@@ -54,6 +107,7 @@ public class PlayQueueTestCase extends TestCase {
         assertEquals(PlayQueue.Status.PLAYING, playQueue.getStatus());
     }
 
+    @Test
     public void testMoveUp() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.moveUp(0);
@@ -72,6 +126,7 @@ public class PlayQueueTestCase extends TestCase {
         assertPlaylistEquals(playQueue, 2, "A", "B", "D", "C");
     }
 
+    @Test
     public void testMoveDown() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.moveDown(0);
@@ -90,6 +145,7 @@ public class PlayQueueTestCase extends TestCase {
         assertPlaylistEquals(playQueue, 3, "A", "B", "C", "D");
     }
 
+    @Test
     public void testRemove() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C", "D");
         playQueue.removeFileAt(0);
@@ -137,6 +193,7 @@ public class PlayQueueTestCase extends TestCase {
         assertPlaylistEquals(playQueue, 0, "A", "B", "C");
     }
 
+    @Test
     public void testPlayAfterEndReached() {
         PlayQueue playQueue = createPlaylist(2, "A", "B", "C");
         playQueue.setStatus(PlayQueue.Status.PLAYING);
@@ -150,6 +207,7 @@ public class PlayQueueTestCase extends TestCase {
         assertEquals("A", playQueue.getCurrentFile().getName());
     }
 
+    @Test
     public void testPlayLast() {
         PlayQueue playQueue = createPlaylist(1, "A", "B", "C");
 
@@ -160,6 +218,7 @@ public class PlayQueueTestCase extends TestCase {
         assertPlaylistEquals(playQueue, 0, "E");
     }
 
+    @Test
     public void testAddFilesAt() {
         PlayQueue playQueue = createPlaylist(0);
 
@@ -174,6 +233,7 @@ public class PlayQueueTestCase extends TestCase {
 
     }
 
+    @Test
     public void testUndo() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C");
         playQueue.setIndex(2);
@@ -201,6 +261,7 @@ public class PlayQueueTestCase extends TestCase {
         assertPlaylistEquals(playQueue, 0, "A", "B", "C");
     }
 
+    @Test
     public void testOrder() {
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, new TestMediaFile(2, "Artist A", "Album B"));
@@ -210,8 +271,12 @@ public class PlayQueueTestCase extends TestCase {
         playQueue.setIndex(2);
         assertEquals("Error in sort.", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
+        if (jpsonicComparators == null) {
+            System.err.println("null!");
+        }
+        
         // Order by track.
-        playQueue.sort(PlayQueue.SortOrder.TRACK);
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(TRACK));
         assertEquals("Error in sort().", null, playQueue.getFile(0).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(1), playQueue.getFile(1).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(2), playQueue.getFile(2).getTrackNumber());
@@ -219,7 +284,7 @@ public class PlayQueueTestCase extends TestCase {
         assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
         // Order by artist.
-        playQueue.sort(PlayQueue.SortOrder.ARTIST);
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(ARTIST));
         assertEquals("Error in sort().", "Artist A", playQueue.getFile(0).getArtist());
         assertEquals("Error in sort().", "Artist B", playQueue.getFile(1).getArtist());
         assertEquals("Error in sort().", "Artist C", playQueue.getFile(2).getArtist());
@@ -227,7 +292,7 @@ public class PlayQueueTestCase extends TestCase {
         assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
         // Order by album.
-        playQueue.sort(PlayQueue.SortOrder.ALBUM);
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(ALBUM));
         assertEquals("Error in sort().", "Album A", playQueue.getFile(0).getAlbumName());
         assertEquals("Error in sort().", "Album B", playQueue.getFile(1).getAlbumName());
         assertEquals("Error in sort().", "Album C", playQueue.getFile(2).getAlbumName());
@@ -298,7 +363,17 @@ public class PlayQueueTestCase extends TestCase {
         }
 
         @Override
+        public String getArtistReading() {
+            return artist;
+        }
+
+        @Override
         public String getAlbumName() {
+            return album;
+        }
+
+        @Override
+        public String getAlbumReading() {
             return album;
         }
 
@@ -327,4 +402,36 @@ public class PlayQueueTestCase extends TestCase {
             return Objects.hash(name, track, album, artist);
         }
     }
+
+    public class ThreadRule implements MethodRule {
+
+        private final int count;
+
+        public ThreadRule(int count) {
+            this.count = count;
+        }
+
+        @Override
+        public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    List<Future<?>> futures = new ArrayList<>(count);
+                    for (int i = 0; i < count; i++) {
+                        futures.add(i, executor.submit(() -> {
+                            try {
+                                base.evaluate();
+                            } catch (Throwable t) {
+                                throw new RuntimeException(t);
+                            }
+                        }));
+                    }
+                    for (Future<?> f : futures) {
+                        f.get();
+                    }
+                }
+            };
+        }
+    }
+
 }

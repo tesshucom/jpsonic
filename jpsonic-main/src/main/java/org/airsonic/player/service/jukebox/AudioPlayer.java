@@ -53,6 +53,8 @@ public class AudioPlayer {
     private final AtomicReference<State> state = new AtomicReference<>(PAUSED);
     private FloatControl gainControl;
 
+    private static final Object LINE_LOCK = new Object();
+
     public AudioPlayer(InputStream in, Listener listener) throws Exception {
         this.in = in;
         this.listener = listener;
@@ -75,9 +77,11 @@ public class AudioPlayer {
      * Starts (or resumes) the player.  This only has effect if the current state is
      * {@link State#PAUSED}.
      */
-    public synchronized void play() {
+    public void play() {
         if (state.get() == PAUSED) {
-            line.start();
+            synchronized (LINE_LOCK) {
+                line.start();
+            }
             setState(PLAYING);
         }
     }
@@ -86,11 +90,13 @@ public class AudioPlayer {
      * Pauses the player.  This only has effect if the current state is
      * {@link State#PLAYING}.
      */
-    public synchronized void pause() {
+    public void pause() {
         if (state.get() == PLAYING) {
             setState(PAUSED);
-            line.stop();
-            line.flush();
+            synchronized (LINE_LOCK) {
+                line.stop();
+                line.flush();
+            }
         }
     }
 
@@ -98,28 +104,30 @@ public class AudioPlayer {
      * Closes the player, releasing all resources. After this the player state is
      * {@link State#CLOSED} (unless the current state is {@link State#EOM}).
      */
-    public synchronized void close() {
+    public void close() {
         if (state.get() != CLOSED && state.get() != EOM) {
             setState(CLOSED);
         }
 
-        try {
-            line.stop();
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to stop player: " + x, x);
-            }
-        }
-        try {
-            if (line.isOpen()) {
-                line.close();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Closed line " + line);
+        synchronized (LINE_LOCK) {
+            try {
+                line.stop();
+            } catch (Throwable x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to stop player: " + x, x);
                 }
             }
-        } catch (Throwable x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to close player: " + x, x);
+            try {
+                if (line.isOpen()) {
+                    line.close();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Closed line " + line);
+                    }
+                }
+            } catch (Throwable x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to close player: " + x, x);
+                }
             }
         }
         FileUtil.closeQuietly(in);

@@ -53,6 +53,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +71,18 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 @Service
 @SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Literal value for which OS is assumed.")
 public class SettingsService {
+
+    private enum LocksKeys {
+        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES;
+    }
+
+    private static final Map<LocksKeys, Object> LOCKS;
+
+    static {
+        Map<LocksKeys, Object> m = new ConcurrentHashMap<>();
+        Arrays.asList(LocksKeys.values()).stream().forEach(k -> m.put(k, new Object()));
+        LOCKS = Collections.unmodifiableMap(m);
+    }
 
     // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
@@ -303,8 +316,12 @@ public class SettingsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
 
-    private List<Theme> themes;
-    private List<Locale> locales;
+    private static Theme[] themes;
+    private static Locale[] locales;
+    private static String[] coverArtFileTypes;
+    private static String[] musicFileTypes;
+    private static String[] videoFileTypes;
+
     @Autowired
     private InternetRadioDao internetRadioDao;
     @Autowired
@@ -318,9 +335,6 @@ public class SettingsService {
     @Autowired
     private Ehcache indexCache;
 
-    private String[] cachedCoverArtFileTypesArray;
-    private String[] cachedMusicFileTypesArray;
-    private String[] cachedVideoFileTypesArray;
     private List<MusicFolder> cachedMusicFolders;
     private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
 
@@ -342,22 +356,21 @@ public class SettingsService {
     }
 
     @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
-    public static synchronized File getJpsonicHome() {
-
+    public static File getJpsonicHome() {
         File home;
-
-        String overrideHome = System.getProperty("jpsonic.home");
-        String oldHome = System.getProperty("libresonic.home");
-        if (overrideHome != null) {
-            home = new File(overrideHome);
-        } else if (oldHome != null) {
-            home = new File(oldHome);
-        } else {
-            boolean isWindows = System.getProperty("os.name", "Windows").toLowerCase().startsWith("windows");
-            home = isWindows ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
+        synchronized (LOCKS.get(LocksKeys.HOME)) {
+            String overrideHome = System.getProperty("jpsonic.home");
+            String oldHome = System.getProperty("libresonic.home");
+            if (overrideHome != null) {
+                home = new File(overrideHome);
+            } else if (oldHome != null) {
+                home = new File(oldHome);
+            } else {
+                boolean isWindows = System.getProperty("os.name", "Windows").toLowerCase().startsWith("windows");
+                home = isWindows ? JPSONIC_HOME_WINDOWS : JPSONIC_HOME_OTHER;
+            }
+            ensureDirectoryPresent(home);
         }
-        ensureDirectoryPresent(home);
-
         return home;
     }
 
@@ -526,52 +539,70 @@ public class SettingsService {
         setProperty(KEY_PLAYLIST_FOLDER, playlistFolder);
     }
 
-    public synchronized String getMusicFileTypes() {
-        return getProperty(KEY_MUSIC_FILE_TYPES, DEFAULT_MUSIC_FILE_TYPES);
-    }
-
-    public synchronized void setMusicFileTypes(String fileTypes) {
-        setProperty(KEY_MUSIC_FILE_TYPES, fileTypes);
-        cachedMusicFileTypesArray = null;
-    }
-
-    synchronized String[] getMusicFileTypesAsArray() {
-        if (cachedMusicFileTypesArray == null) {
-            cachedMusicFileTypesArray = toStringArray(getMusicFileTypes());
+    public String getMusicFileTypes() {
+        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+            return getProperty(KEY_MUSIC_FILE_TYPES, DEFAULT_MUSIC_FILE_TYPES);
         }
-        return cachedMusicFileTypesArray;
     }
 
-    public synchronized String getVideoFileTypes() {
-        return getProperty(KEY_VIDEO_FILE_TYPES, DEFAULT_VIDEO_FILE_TYPES);
-    }
-
-    public synchronized void setVideoFileTypes(String fileTypes) {
-        setProperty(KEY_VIDEO_FILE_TYPES, fileTypes);
-        cachedVideoFileTypesArray = null;
-    }
-
-    public synchronized String[] getVideoFileTypesAsArray() {
-        if (cachedVideoFileTypesArray == null) {
-            cachedVideoFileTypesArray = toStringArray(getVideoFileTypes());
+    public void setMusicFileTypes(String fileTypes) {
+        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+            setProperty(KEY_MUSIC_FILE_TYPES, fileTypes);
+            musicFileTypes = null;
         }
-        return cachedVideoFileTypesArray;
     }
 
-    public synchronized String getCoverArtFileTypes() {
-        return getProperty(KEY_COVER_ART_FILE_TYPES, DEFAULT_COVER_ART_FILE_TYPES);
-    }
-
-    public synchronized void setCoverArtFileTypes(String fileTypes) {
-        setProperty(KEY_COVER_ART_FILE_TYPES, fileTypes);
-        cachedCoverArtFileTypesArray = null;
-    }
-
-    synchronized String[] getCoverArtFileTypesAsArray() {
-        if (cachedCoverArtFileTypesArray == null) {
-            cachedCoverArtFileTypesArray = toStringArray(getCoverArtFileTypes());
+    String[] getMusicFileTypesAsArray() {
+        synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
+            if (musicFileTypes == null) {
+                musicFileTypes = toStringArray(getMusicFileTypes());
+            }
         }
-        return cachedCoverArtFileTypesArray;
+        return musicFileTypes;
+    }
+
+    public String getVideoFileTypes() {
+        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+            return getProperty(KEY_VIDEO_FILE_TYPES, DEFAULT_VIDEO_FILE_TYPES);
+        }
+    }
+
+    public void setVideoFileTypes(String fileTypes) {
+        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+            setProperty(KEY_VIDEO_FILE_TYPES, fileTypes);
+            videoFileTypes = null;
+        }
+    }
+
+    public String[] getVideoFileTypesAsArray() {
+        synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
+            if (videoFileTypes == null) {
+                videoFileTypes = toStringArray(getVideoFileTypes());
+            }
+        }
+        return videoFileTypes;
+    }
+
+    public String getCoverArtFileTypes() {
+        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+            return getProperty(KEY_COVER_ART_FILE_TYPES, DEFAULT_COVER_ART_FILE_TYPES);
+        }
+    }
+
+    public void setCoverArtFileTypes(String fileTypes) {
+        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+            setProperty(KEY_COVER_ART_FILE_TYPES, fileTypes);
+            coverArtFileTypes = null;
+        }
+    }
+
+    String[] getCoverArtFileTypesAsArray() {
+        synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
+            if (coverArtFileTypes == null) {
+                coverArtFileTypes = toStringArray(getCoverArtFileTypes());
+            }
+        }
+        return coverArtFileTypes;
     }
 
     public int getCoverArtConcurrency() {
@@ -1026,31 +1057,34 @@ public class SettingsService {
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public synchronized Theme[] getAvailableThemes() {
-        if (themes == null) {
-            themes = new ArrayList<>();
-            try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
-                String[] lines = StringUtil.readLines(in);
-                for (String line : lines) {
-                    String[] elements = StringUtil.split(line);
-                    if (elements.length == 2) {
-                        themes.add(new Theme(elements[0], elements[1]));
-                    } else if (elements.length == 3) {
-                        themes.add(new Theme(elements[0], elements[1], elements[2]));
-                    } else {
-                        if (LOG.isWarnEnabled()) {
-                            LOG.warn("Failed to parse theme from line: [" + line + "].");
+    public Theme[] getAvailableThemes() {
+        synchronized (LOCKS.get(LocksKeys.THEMES)) {
+            if (themes == null) {
+                List<Theme> l = new ArrayList<>();
+                try (InputStream in = SettingsService.class.getResourceAsStream(THEMES_FILE)) {
+                    String[] lines = StringUtil.readLines(in);
+                    for (String line : lines) {
+                        String[] elements = StringUtil.split(line);
+                        if (elements.length == 2) {
+                            l.add(new Theme(elements[0], elements[1]));
+                        } else if (elements.length == 3) {
+                            l.add(new Theme(elements[0], elements[1], elements[2]));
+                        } else {
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("Failed to parse theme from line: [" + line + "].");
+                            }
                         }
                     }
+                } catch (IOException x) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to resolve list of themes.", x);
+                    }
+                    l.add(new Theme("default", "Jpsonic default"));
                 }
-            } catch (IOException x) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to resolve list of themes.", x);
-                }
-                themes.add(new Theme("default", "Jpsonic default"));
+                themes = l.toArray(new Theme[0]);
             }
         }
-        return themes.toArray(new Theme[0]);
+        return themes;
     }
 
     /**
@@ -1059,22 +1093,25 @@ public class SettingsService {
      * @return A list of available locales.
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    public synchronized Locale[] getAvailableLocales() {
-        if (locales == null) {
-            locales = new ArrayList<>();
-            try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
-                String[] lines = StringUtil.readLines(in);
-                for (String line : lines) {
-                    locales.add(StringUtil.parseLocale(line));
+    public Locale[] getAvailableLocales() {
+        synchronized (LOCKS.get(LocksKeys.LOCALES)) {
+            if (locales == null) {
+                List<Locale> l = new ArrayList<>();
+                try (InputStream in = SettingsService.class.getResourceAsStream(LOCALES_FILE)) {
+                    String[] lines = StringUtil.readLines(in);
+                    for (String line : lines) {
+                        l.add(StringUtil.parseLocale(line));
+                    }
+                } catch (IOException x) {
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error("Failed to resolve list of locales.", x);
+                    }
+                    l.add(Locale.ENGLISH);
                 }
-            } catch (IOException x) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to resolve list of locales.", x);
-                }
-                locales.add(Locale.ENGLISH);
+                locales = l.toArray(new Locale[0]);
             }
         }
-        return locales.toArray(new Locale[0]);
+        return locales;
     }
 
     /**

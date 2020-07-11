@@ -43,6 +43,9 @@ public class AudioScrobblerService {
         this.settingsService = settingsService;
     }
 
+    private static final Object FM_LOCK = new Object();
+    private static final Object BRAINZ_LOCK = new Object();
+
     /**
      * Registers the given media file at audio scrobble service. This method returns immediately, the actual registration is done
      * by separate threads.
@@ -52,22 +55,26 @@ public class AudioScrobblerService {
      * @param submission Whether this is a submission or a now playing notification.
      * @param time       Event time, or {@code null} to use current time.
      */
-    public synchronized void register(MediaFile mediaFile, String username, boolean submission, Date time) {
+    public void register(MediaFile mediaFile, String username, boolean submission, Date time) {
         if (mediaFile == null || mediaFile.isVideo()) {
             return;
         }
 
         UserSettings userSettings = settingsService.getUserSettings(username);
         if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null && userSettings.getLastFmPassword() != null) {
-            if (lastFMScrobbler == null) {
-                lastFMScrobbler = new LastFMScrobbler();
+            synchronized (FM_LOCK) {
+                if (lastFMScrobbler == null) {
+                    lastFMScrobbler = new LastFMScrobbler();
+                }
             }
             lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(), submission, time);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {
-            if (listenBrainzScrobbler == null) {
-                listenBrainzScrobbler = new ListenBrainzScrobbler();
+            synchronized (BRAINZ_LOCK) {
+                if (listenBrainzScrobbler == null) {
+                    listenBrainzScrobbler = new ListenBrainzScrobbler();
+                }
             }
             listenBrainzScrobbler.register(mediaFile, userSettings.getListenBrainzToken(), submission, time);
         }

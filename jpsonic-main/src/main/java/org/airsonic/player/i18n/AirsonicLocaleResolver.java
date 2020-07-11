@@ -29,9 +29,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Locale resolver implementation which returns the locale selected in the settings.
@@ -46,6 +46,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     @Autowired
     private SettingsService settingsService;
     private Set<Locale> locales;
+    private static final Object LOCK = new Object();
 
     /**
     * Resolve the current locale via the given request.
@@ -92,12 +93,13 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
      * @param locale The locale.
      * @return Whether the locale exists.
      */
-    private synchronized boolean localeExists(Locale locale) {
-        // Lazily create set of locales.
-        if (locales == null) {
-            locales = new HashSet<>(Arrays.asList(settingsService.getAvailableLocales()));
+    private boolean localeExists(Locale locale) {
+        synchronized (LOCK) {
+            if (locales == null) {
+                locales = Arrays.asList(settingsService.getAvailableLocales()).stream()
+                        .collect(Collectors.toSet());
+            }
         }
-
         return locales.contains(locale);
     }
 

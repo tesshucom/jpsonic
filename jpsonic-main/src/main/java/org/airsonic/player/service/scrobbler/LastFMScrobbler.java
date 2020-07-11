@@ -63,6 +63,7 @@ public class LastFMScrobbler {
             .setSocketTimeout(15000)
             .build();
 
+    private static final Object REGISTRATION_LOCK = new Object();
 
     /**
      * Registers the given media file at www.last.fm. This method returns immediately, the actual registration is done
@@ -74,25 +75,29 @@ public class LastFMScrobbler {
      * @param submission Whether this is a submission or a now playing notification.
      * @param time       Event time, or {@code null} to use current time.
      */
-    public synchronized void register(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
-        if (thread == null) {
-            thread = new RegistrationThread();
-            thread.start();
-        }
+    public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
 
-        if (queue.size() >= MAX_PENDING_REGISTRATION) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
+        synchronized (REGISTRATION_LOCK) {
+
+            if (thread == null) {
+                thread = new RegistrationThread();
+                thread.start();
             }
-            return;
-        }
 
-        RegistrationData registrationData = createRegistrationData(mediaFile, username, password, submission, time);
-        try {
-            queue.put(registrationData);
-        } catch (InterruptedException x) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
+            if (queue.size() >= MAX_PENDING_REGISTRATION) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
+                }
+                return;
+            }
+
+            RegistrationData registrationData = createRegistrationData(mediaFile, username, password, submission, time);
+            try {
+                queue.put(registrationData);
+            } catch (InterruptedException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
+                }
             }
         }
     }
