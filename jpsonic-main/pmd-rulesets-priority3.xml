@@ -26,7 +26,7 @@
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
-    <!-- for Java 6.24.0 -->
+    <!-- for Java 6.25.0 -->
     <rule ref="category/java/bestpractices.xml">
         <!-- [low priority] >> -->
         <exclude name="MissingOverride" />
@@ -145,7 +145,7 @@
     </rule>
     <rule ref="category/java/security.xml" />
 
-    <!-- for JSP 6.24.0 -->
+    <!-- for JSP 6.25.0 -->
     <rule ref="category/jsp/bestpractices.xml">
         <!-- [low priority] >> -->
         <exclude name="NoClassAttribute" /><!-- Style is destroyed when applied. -->
@@ -166,9 +166,8 @@
     <rule ref="category/jsp/multithreading.xml" />
     <rule ref="category/jsp/performance.xml" />
     <rule ref="category/jsp/security.xml">
-
-        <exclude name="NoUnsanitizedJSPExpression" />           <!-- *** Should be triaged! *** -->
-
+        <!-- *** Escape is applied to required items. #614 *** -->
+        <exclude name="NoUnsanitizedJSPExpression" />
     </rule>
 
 </ruleset>

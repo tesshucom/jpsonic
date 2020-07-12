@@ -27,7 +27,7 @@
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
-    <!-- for Java 6.24.0 -->
+    <!-- for Java 6.25.0 -->
     <rule ref="category/java/bestpractices.xml" />
     <rule ref="category/java/codestyle.xml" />
     <rule ref="category/java/design.xml" />
@@ -37,7 +37,7 @@
     <rule ref="category/java/performance.xml" />
     <rule ref="category/java/security.xml" />
 
-    <!-- for JSP 6.24.0 -->
+    <!-- for JSP 6.25.0 -->
     <rule ref="category/jsp/bestpractices.xml">
         <!-- If apply this, the style will collapse. -->
         <exclude name="NoClassAttribute" />
