@@ -57,6 +57,14 @@ public abstract class AbstractChartController {
         return getColor("textColor", request);
     }
 
+    /**
+     * Returns the chart stroke color for the current theme.
+     * @param request The servlet request.
+     * @return The chart stroke color.
+     */
+    protected Color getStroke(HttpServletRequest request) {
+        return getColor("strokeColor", request);
+    }
     private Color getColor(String code, HttpServletRequest request) {
         Theme theme = RequestContextUtils.getTheme(request);
         if (theme != null) {

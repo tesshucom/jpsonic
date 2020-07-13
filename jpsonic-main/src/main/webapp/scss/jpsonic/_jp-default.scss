@@ -429,6 +429,59 @@ table.artistInfoTable {
   line-height: 2rem;
 }
 
+// ******************** status/status.jsp ********************
+/* Go to global definition in later version. */
+
+dl,dt,dd {
+  margin: 0;
+  padding: 0;
+  @include border(zero);
+}
+
+dl {
+  background-color: #FFF;
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: 1rem;
+  margin-right: 1rem;
+  dt {
+    font-weight: bold;
+    width: 20%;
+    background-color: $jp-color-base1;
+    color: $jp-color-black;
+    @include border(other-than-top);
+    &:first-child {
+      @include border(top);
+      @include borderRadius(upper-left);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-left);
+    }
+  }
+  dd {
+    @include border(right);
+    @include border(bottom);
+    &:first-of-type {
+      @include border(top);
+      @include borderRadius(upper-right);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-right);
+    }
+    width: 80%;
+  }
+  dt,
+  dd {
+    padding: 0.2em;
+    padding-left: 1rem;
+    box-sizing: border-box;
+    font-size: 0.85rem;
+  }
+}
+
+
+
+
 // ******************** domestic ******************************************
 
 // Icon indicating addition of Jpsonic function

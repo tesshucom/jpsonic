@@ -19,18 +19,21 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.CategoryLabelPositions;
 import org.jfree.chart.axis.LogarithmicAxis;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.renderer.category.BarPainter;
 import org.jfree.chart.renderer.category.BarRenderer;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +46,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.awt.*;
+import java.awt.geom.RectangularShape;
+import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 
 /**
@@ -56,6 +61,9 @@ public class UserChartController extends AbstractChartController {
 
     @Autowired
     private SecurityService securityService;
+
+    @Autowired
+    private FontLoader fontLoader;
 
     public static final int IMAGE_WIDTH = 400;
     public static final int IMAGE_MIN_HEIGHT = 200;
@@ -99,51 +107,63 @@ public class UserChartController extends AbstractChartController {
     }
 
     private JFreeChart createChart(CategoryDataset dataset, HttpServletRequest request) {
-        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false, false, false);
 
-        CategoryPlot plot = chart.getCategoryPlot();
-        Paint background = new GradientPaint(0, 0, Color.lightGray, 0, IMAGE_MIN_HEIGHT, Color.white);
-        plot.setBackgroundPaint(background);
-        plot.setDomainGridlinePaint(Color.white);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.white);
-        plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
-
-        LogarithmicAxis rangeAxis = new LogarithmicAxis(null);
-        rangeAxis.setStrictValuesFlag(false);
-        rangeAxis.setAllowNegativesFlag(true);
-        plot.setRangeAxis(rangeAxis);
-
-        // Disable bar outlines.
-        BarRenderer renderer = (BarRenderer) plot.getRenderer();
-        renderer.setDrawBarOutline(false);
-
-        // Set up gradient paint for series.
-        GradientPaint gp0 = new GradientPaint(
-                0.0f, 0.0f, Color.blue,
-                0.0f, 0.0f, new Color(0, 0, 64)
-        );
-        renderer.setSeriesPaint(0, gp0);
-
-        // Rotate labels.
-        CategoryAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setCategoryLabelPositions(CategoryLabelPositions.createUpRotationLabelPositions(Math.PI / 6.0));
-
-        // Set theme-specific colors.
         Color bgColor = getBackground(request);
         Color fgColor = getForeground(request);
+        Color stColor = getStroke(request);
 
+        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false, false, false);
+        StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
+        Font font = fontLoader.getFont(12F);
+        theme.setExtraLargeFont(font);
+        theme.setLargeFont(font);
+        theme.setRegularFont(font);
+        theme.setSmallFont(font);
+        theme.apply(chart);
+        
         chart.setBackgroundPaint(bgColor);
 
+        CategoryPlot plot = chart.getCategoryPlot();
+        plot.setBackgroundPaint(bgColor);
+        plot.setOutlinePaint(fgColor);
+        plot.setRangeGridlinePaint(fgColor);
+        plot.setRangeGridlineStroke(new BasicStroke(0.2f));
+        plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
+
+        BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        renderer.setBarPainter(new BarPainter() {
+            @Override
+            public void paintBarShadow(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,
+                    RectangleEdge base, boolean pegShadow) {
+                // to be none
+            }
+            @Override
+            public void paintBar(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,
+                    RectangleEdge base) {
+                int barMaxHeight = 15;
+                double radius = 10.0;
+                double barX = shape.getX() - radius;
+                double barY = barMaxHeight < shape.getHeight() ? shape.getY() + (shape.getHeight() - barMaxHeight) / 2 : shape.getY();
+                double barHeight = barMaxHeight < shape.getHeight() ? barMaxHeight : shape.getHeight();
+                double barWidth = shape.getWidth() + radius;
+                RoundRectangle2D rec = new RoundRectangle2D.Double(barX, barY, barWidth, barHeight, radius, radius);
+                g2.setPaint(new GradientPaint(0, 0, stColor, 0, 150, stColor));
+                g2.fill(rec);
+            }
+        });
+
+        CategoryAxis domainAxis = plot.getDomainAxis();
         domainAxis.setTickLabelPaint(fgColor);
         domainAxis.setTickMarkPaint(fgColor);
         domainAxis.setAxisLinePaint(fgColor);
 
+        LogarithmicAxis rangeAxis = new LogarithmicAxis(null);
+        rangeAxis.setStrictValuesFlag(false);
+        rangeAxis.setAllowNegativesFlag(true);
         rangeAxis.setTickLabelPaint(fgColor);
         rangeAxis.setTickMarkPaint(fgColor);
         rangeAxis.setAxisLinePaint(fgColor);
 
         return chart;
     }
-
 }

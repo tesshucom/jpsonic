@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.domain.*;
@@ -48,7 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -91,10 +91,8 @@ public class CoverArtController implements LastModified {
     private Semaphore semaphore;
     @Autowired
     private CoverArtLogic logic;
-
-    private static WeakReference<Font> font;
-
-    private final static Object FONT_LOCK = new Object();
+    @Autowired
+    private FontLoader fontLoader;
 
     private final static Object DIRS_LOCK = new Object();
 
@@ -400,33 +398,11 @@ public class CoverArtController implements LastModified {
             return createAutoCover(size, size);
         }
 
-        private Font getFont(int imgHeight) {
-            float fontSize = (imgHeight - imgHeight * 0.02f) * 0.1f;
-            synchronized (FONT_LOCK) {
-                if (font == null || font.get() == null) {
-                    try (InputStream fontStream = CoverArtController.class
-                            .getResourceAsStream("/fonts/Kazesawa-Regular.ttf")) {
-                        font = new WeakReference<>(
-                                Font.createFont(Font.TRUETYPE_FONT, fontStream).deriveFont(fontSize));
-                    } catch (IOException | FontFormatException e) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("Failed to load font. ", e);
-                        }
-                        LOG.error("Failed to load font. ", e);
-                    } finally {
-                        if (font == null) {
-                            font = new WeakReference<>(new Font(Font.SANS_SERIF, Font.BOLD, (int) fontSize));
-                        }
-                    }
-                }
-            }
-            return font.get();
-        }
-
         protected BufferedImage createAutoCover(int width, int height) {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, getFont(height));
+            float fontSize = (height - height * 0.02f) * 0.1f;
+            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, fontLoader.getFont(fontSize));
             autoCover.paintCover();
             graphics.dispose();
             return image;

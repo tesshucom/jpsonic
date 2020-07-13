@@ -54,6 +54,11 @@ public class EhcacheConfiguration {
     }
 
     @Bean
+    public Ehcache fontCache(CacheFactory cacheFactory) {
+        return cacheFactory.getCache("fontCache");
+    }
+
+    @Bean
     public CacheFactory cacheFactory() {
         return new CacheFactory();
     }
