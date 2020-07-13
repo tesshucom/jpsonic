@@ -16,6 +16,10 @@
 	border-right: $jp-border-width solid $jp-color-light-gray;
 	border-bottom: $jp-border-width solid $jp-color-light-gray;
 	border-left: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == 'other-than-right' {
+	border-top: $jp-border-width solid $jp-color-light-gray;
+	border-bottom: $jp-border-width solid $jp-color-light-gray;
+	border-left: $jp-border-width solid $jp-color-light-gray;
   } @else if $type == 'zero' {
 	border: 0;
   } @else if $type == 'bottom-zero' {
@@ -33,21 +37,23 @@
 // For other definitions, 'one-off-border-radius' and comment are added.
 @mixin borderRadius($type: '') {
   @if $type == 'upper-left' {
-	border-radius: $jp-border-radius 0 0 0;
+	    border-radius: $jp-border-radius 0 0 0;
   } @else if $type == 'upper-right' {
-	border-radius: 0 $jp-border-radius 0 0;
+	    border-radius: 0 $jp-border-radius 0 0;
   } @else if $type == 'lower-right' {
-	border-radius: 0 0 $jp-border-radius 0;
+	    border-radius: 0 0 $jp-border-radius 0;
   } @else if $type == 'lower-left' {
-	border-radius: 0 0 0 $jp-border-radius;
+	    border-radius: 0 0 0 $jp-border-radius;
   } @else if $type == 'upper' {
-	border-radius: $jp-border-radius $jp-border-radius 0 0;
+	    border-radius: $jp-border-radius $jp-border-radius 0 0;
   } @else if $type == 'lower' {
-	border-radius: 0 0 $jp-border-radius $jp-border-radius;
+	    border-radius: 0 0 $jp-border-radius $jp-border-radius;
   } @else if $type == 'left' {
-	border-radius: $jp-border-radius 0 0 $jp-border-radius;
+	    border-radius: $jp-border-radius 0 0 $jp-border-radius;
   } @else if $type == 'input' {
-	border-radius: $jp-border-input-radius;
+	    border-radius: $jp-border-input-radius;
+  } @else if $type == 'none' {
+	    border-radius: 0 0 0 0;
   } @else {
 	border-radius: $jp-border-radius;
   }
@@ -97,6 +103,22 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
   }
   background: $background;
   color: $color;
+}
+
+@mixin dropShadow($state: '') {
+  @if $state == 'none' {
+    -webkit-box-shadow: 0 0 0 rgba(255,255,255,0);
+    -moz-box-shadow: 0 0 0 rgba(255,255,255,0);
+    box-shadow: 0 0 0 rgba(255,255,255,0);
+	    filter :none;
+  } @else {
+    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+    &:active {
+      top: $jp-shadow-pressed-offset;
+      left: $jp-shadow-pressed-offset;
+      filter:drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+    }
+  }
 }
 
 // Set to the background color masked by primaryColor .(used for mediaelement).

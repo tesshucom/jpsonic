@@ -13,38 +13,30 @@
     <c:param name="restricted" value="true"/>
 </c:import>
 
-<c:choose>
-
-    <c:when test="${command.ldapAuthenticated}">
-        <p><fmt:message key="usersettings.passwordnotsupportedforldap"/></p>
-    </c:when>
-
-    <c:otherwise>
-        <fmt:message key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
-        <h2>${fn:escapeXml(title)}</h2>
-        <form:form method="post" action="passwordSettings.view" modelAttribute="command">
-            <form:hidden path="username"/>
-            <table class="indent">
-                <tr>
-                    <td><fmt:message key="usersettings.newpassword"/></td>
-                    <td><form:password path="password"/></td>
-                    <td class="warning"><form:errors path="password"/></td>
-                </tr>
-                <tr>
-                    <td><fmt:message key="usersettings.confirmpassword"/></td>
-                    <td><form:password path="confirmPassword"/></td>
-                    <td/>
-                </tr>
-                <tr>
-                    <td colspan="3" style="padding-top:1.5em">
-                        <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
-                        <a href='nowPlaying.view'><input type="button" value="<fmt:message key='common.cancel'/>"></a>
-                    </td>
-                </tr>
-
-            </table>
-        </form:form>
-    </c:otherwise>
-</c:choose>
+<form:form method="post" action="passwordSettings.view" modelAttribute="command">
+    <details open>
+        <fmt:meqssage key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
+        <summary class="legacy">${fn:escapeXml(title)}</summary>
+	    <c:choose>
+	        <c:when test="${command.ldapAuthenticated}">
+	        		<p><fmt:message key="usersettings.passwordnotsupportedforldap"/></p>
+	            </details>
+	        </c:when>
+	        <c:otherwise>
+                    <form:hidden path="username"/>
+                    <dl>
+                        <dt><fmt:message key="usersettings.newpassword"/><span class="warning"><form:errors path="password"/></span></dt>
+                        <dd><form:password path="password"/></dd>
+                        <dt><fmt:message key="usersettings.confirmpassword"/></dt>
+                        <dd><form:password path="confirmPassword"/></dd>
+                    </dl>
+                </details>
+                <div class="submits">
+                    <input type="submit" value="<fmt:message key='common.save'/>"/>
+                    <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
+                </div>
+        </c:otherwise>
+    </c:choose>
+</form:form>
 
 </body></html>

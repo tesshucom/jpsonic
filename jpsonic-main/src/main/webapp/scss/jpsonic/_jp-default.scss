@@ -109,6 +109,76 @@ table.bgcolor1 h2 {
 }
 // h2 in left.jsp <<
 
+// ******************** subMenu/settingHeader.jsp, home.jsp ***************
+
+$jp-subMenu-width: 80%; // Temporary. Will be organized in later versions
+
+ul.subMenu, .submits {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  width: $jp-subMenu-width;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  padding: 0.3rem 0 0.3rem 0.5rem;
+}
+
+.home>ul.subMenu {
+  justify-content: start;
+  list-style: none;
+  margin-bottom: 1rem;
+  @include border;
+  @include borderRadius;
+}
+
+ul.subMenu {
+  justify-content: start;
+  list-style: none;
+  margin-bottom: 3rem;
+  @include border;
+  @include borderRadius;
+}
+
+.submits {
+  justify-content: flex-end;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  padding-right: 1rem;
+}
+
+ul.subMenu .menuItem,
+ul.subMenu .menuItemSelected {
+  display: flex;
+  align-items: center;
+  height: 1.4rem;
+  margin: 0.5rem;
+  padding: 0.1rem 0.5rem 0.1rem 0.5rem;
+  @include border;
+  @include borderRadius;
+  background: $jp-color-base1;
+  a {
+    color: $jp-color-base4;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+}
+
+ul.subMenu .menuItem {
+  color: $jp-color-base4;
+  @include dropShadow;
+  &:hover {
+    background-color: $jp-color-complementary3;
+  }
+}
+
+ul.subMenu .menuItemSelected {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: $jp-color-black;
+  background-color: $jp-color-white;
+  @include dropShadow(none);
+}
+
 // ******************** playlistframe/playQueue.jsp ***********************
 
 .bgcolor2.playlistframe {
@@ -429,27 +499,27 @@ table.artistInfoTable {
   line-height: 2rem;
 }
 
-// ******************** status/status.jsp ********************
+// ******************** dl/status.jsp *************************************
 /* Go to global definition in later version. */
 
-dl,dt,dd {
+dl, dt, dd {
   margin: 0;
   padding: 0;
   @include border(zero);
 }
 
+$jp-dl-width : 20%;
 dl {
-  background-color: #FFF;
   display: flex;
   flex-wrap: wrap;
   margin-left: 1rem;
-  margin-right: 1rem;
+  background-color: $jp-color-white;
   dt {
-    font-weight: bold;
-    width: 20%;
+    width: $jp-dl-width;
+    @include border(other-than-top);
     background-color: $jp-color-base1;
     color: $jp-color-black;
-    @include border(other-than-top);
+    font-weight: bold;
     &:first-child {
       @include border(top);
       @include borderRadius(upper-left);
@@ -468,19 +538,117 @@ dl {
     &:last-of-type {
       @include borderRadius(lower-right);
     }
-    width: 80%;
+    width: calc( 100% - #{$jp-dl-width});
+    >input[type=checkbox] {
+      padding: 0.1rem;
+      vertical-align : middle;
+    }
+    >label {
+      padding: 0.1rem;
+      vertical-align : middle;
+    }
+    >img {
+      padding: 0.1rem;
+      vertical-align : middle;
+    }
+    >div {
+      vertical-align : middle;
+      text-align: right;
+    }
   }
-  dt,
-  dd {
-    padding: 0.2em;
-    padding-left: 1rem;
+  dt, dd {
     box-sizing: border-box;
+    padding: 0.2em 0.2em 0.2em 1rem;
     font-size: 0.85rem;
   }
 }
 
+/* Fine dl/dt/dd adjustment for each page */
+dl.playerSettings{ width:60rem; padding: 0.1em; margin: 0.1em; dt {width:35%;} dd {width:65%;}}
 
+// ******************** details/internalhelp.jsp **************************
+/* Go to global definition in later version. */
 
+details {
+  width: $jp-subMenu-width;
+  margin: 0.5rem 0 0.5rem 0.5rem;
+  vertical-align:middle;
+  padding: 0.1rem 0 0.1rem 0.1rem;
+  background-color: $jp-color-white;
+  line-height:1.6rem;
+  p {
+    margin: 0.5rem 0 0.5rem 0;
+    padding: 1rem 0 1rem 1rem;
+  }
+  summary {
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+    padding: 0.1rem 0 0.1rem 25px;
+    border-right: solid 2.4em $jp-color-base3; // one-off-border
+    @include border(other-than-right);
+    border-radius: 2.4em; // one-off-border-radius
+    background: $jp-color-white;
+    @include dropShadow;
+    cursor: pointer;
+    transition-duration: 0.5s;
+    &::-webkit-details-marker {
+      display: none;
+    }
+    &:after {
+      position: absolute;
+      left: 100%;
+      left : -webkit-calc(100%/*+10px*/) ;
+      left : calc(100%/*+10px*/) ;
+      width: 6px;
+      height: 6px;
+      margin-top: 6px;
+      margin-left: 12px;
+      border: 0px;
+      border-top: solid 3px $jp-color-white; // one-off-border
+      border-right: solid 3px $jp-color-white; // one-off-border
+      -ms-transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+      transform: rotate(135deg);
+      content: '';
+    }
+  }
+  summary[class~="statusOK"] {
+    &:before{
+      position : absolute;
+      left: 0px;
+      content: url(../icons/jpsonic/check.svg);
+    }
+  }
+  summary[class~="statusNG"] {
+    &:before{
+      position : absolute;
+      top: -1px;
+      left: 0px;
+      content: url(../icons/jpsonic/alert.svg);
+    }
+  }
+  summary[class~="jpsonic"] {
+    &:before{
+      position : absolute;
+      top: 4px;
+      left: 5px;
+      content: url(../icons/jpsonic/domestic.svg);
+    }
+  }
+}
+
+details[open] {
+  summary {
+    background: $jp-color-base1;
+    @include border;
+    @include dropShadow(none);
+  }
+  dl{
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+  }
+}
 
 // ******************** domestic ******************************************
 
@@ -586,15 +754,28 @@ input[type=radio] {
 
 // ******************** submit ********************************************
 
-input[type=submit], input[type=button] {
+input[type=submit], input[type=button], dd.input[type=text], input[type=select] {
   outline: none;
+  padding-top: 2px;
+  padding-bottom: 2px;
   padding-left: 20px;
   padding-right: 20px;
   &:focus, &:active {
-  padding-left: 19px;
-  padding-right: 19px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 19px;
+    padding-right: 19px;
     @include border(input-focus);
   }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
+}
+
+input[type=submit], input[type=button] {
+  margin-left: 10px;
+  margin-right: 10px;
+  min-width : 10rem;
 }
 
 // ******************** others ********************************************

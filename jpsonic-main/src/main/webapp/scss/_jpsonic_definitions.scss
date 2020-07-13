@@ -2,7 +2,7 @@
 // ## COLOR #######################################################################
 
 $jp-color-white:                #ffffff;
-$jp-color-light-gray:           #E6E6E8;
+$jp-color-light-gray:           #dddddd;
 $jp-color-medium-gray:          #a9a9af;
 $jp-color-dark-gray:            #706E75;
 $jp-color-black:                #4F4F55;
@@ -19,7 +19,7 @@ $jp-color-complementary3:       #ffa103;
 $jp-color-alert:                #ff4500;
 
 $jp-color-mask-light-gray:      rgba($jp-color-medium-gray, 0.1);
-$jp-color-mask-gray:            rgba($jp-color-dark-gray, 0.5);
+$jp-color-mask-gray:            rgba($jp-color-dark-gray, 0.4);
 
 // ## BORDER ######################################################################
 

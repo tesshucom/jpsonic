@@ -7,10 +7,6 @@
   outline-color:  $jp-color-complementary3;
 }
 
-.headerSelected {
-  border-bottom: 3px solid $jp-color-complementary3; // one-off-border
-}
-
 // Put stuff here if you need to customize any of the frames.
 .mainframe {
   padding-left: 1rem;
@@ -342,15 +338,6 @@ img {
 ::-webkit-scrollbar-thumb {
   @include borderRadius;
   background: $jp-color-mask-gray;
-}
-
-.header, .headerSelected {
-  width: 23px;
-  height: 23px;
-  padding-top: 3px;
-  padding-left: 0.25rem;
-  padding-right: 0.25rem;
-  vertical-align: middle;
 }
 
 .similar-artist-divider {
