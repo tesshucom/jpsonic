@@ -19,11 +19,13 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.service.StatusService;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.StandardChartTheme;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
@@ -57,6 +59,9 @@ public class StatusChartController extends AbstractChartController {
     @Autowired
     private StatusService statusService;
 
+    @Autowired
+    private FontLoader fontLoader;
+
     public static final int IMAGE_WIDTH = 350;
     public static final int IMAGE_HEIGHT = 150;
 
@@ -87,7 +92,6 @@ public class StatusChartController extends AbstractChartController {
         TransferStatus.SampleHistory history = status.getHistory();
         long to = System.currentTimeMillis();
         long from = to - status.getHistoryLengthMillis();
-        Range range = new DateRange(from, to);
 
         if (!history.isEmpty()) {
 
@@ -129,25 +133,38 @@ public class StatusChartController extends AbstractChartController {
 
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(series);
-        JFreeChart chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, false, false, false);
-        XYPlot plot = (XYPlot) chart.getPlot();
 
-        plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        Paint background = new GradientPaint(0, 0, Color.lightGray, 0, IMAGE_HEIGHT, Color.white);
-        plot.setBackgroundPaint(background);
-
-        XYItemRenderer renderer = plot.getRendererForDataset(dataset);
-        renderer.setSeriesPaint(0, Color.blue.darker());
-        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-
-        // Set theme-specific colors.
         Color bgColor = getBackground(request);
         Color fgColor = getForeground(request);
+        Color stColor = getStroke(request);
+
+        JFreeChart chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, false, false, false);
+        StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
+        Font font = fontLoader.getFont(12F);
+        theme.setExtraLargeFont(font);
+        theme.setLargeFont(font);
+        theme.setRegularFont(font);
+        theme.setSmallFont(font);
+        theme.apply(chart);
 
         chart.setBackgroundPaint(bgColor);
 
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setBackgroundPaint(bgColor);
+        plot.setOutlinePaint(fgColor);
+        plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+
+        plot.setRangeGridlinePaint(fgColor);
+        plot.setRangeGridlineStroke(new BasicStroke(0.2f));
+        plot.setDomainGridlinePaint(fgColor);
+        plot.setDomainGridlineStroke(new BasicStroke(0.2f));
+
+        XYItemRenderer renderer = plot.getRendererForDataset(dataset);
+        renderer.setSeriesPaint(0, stColor);
+        renderer.setSeriesStroke(0, new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
+
         ValueAxis domainAxis = plot.getDomainAxis();
-        domainAxis.setRange(range);
+        domainAxis.setRange(new DateRange(from, to));
         domainAxis.setTickLabelPaint(fgColor);
         domainAxis.setTickMarkPaint(fgColor);
         domainAxis.setAxisLinePaint(fgColor);

@@ -96,7 +96,7 @@ public class IndexManager {
      *    DocumentFactory or the class that they use.
      *
      */
-    private static final int INDEX_VERSION = 21;
+    private static final int INDEX_VERSION = 22;
 
     /**
      * Literal name of index top directory.

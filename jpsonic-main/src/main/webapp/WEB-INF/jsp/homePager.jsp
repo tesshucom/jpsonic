@@ -66,7 +66,7 @@
                 <td style="padding-right: 2em">
                     <select name="genre" onchange="location='home.view?listType=${model.listType}&amp;genre=' + encodeURIComponent(options[selectedIndex].value)">
                         <c:forEach items="${model.genres}" var="genre">
-                            <option ${genre.name eq model.genre ? "selected" : ""} value="${genre.name}">${genre.name} (${genre.albumCount})</option>
+                            <option ${genre.name eq model.genre ? "selected" : ""} value="${fn:escapeXml(genre.name)}">${fn:escapeXml(genre.name)} (${genre.albumCount})</option>
                         </c:forEach>
                     </select>
                 </td>

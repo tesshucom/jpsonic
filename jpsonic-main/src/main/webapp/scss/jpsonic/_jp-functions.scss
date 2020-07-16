@@ -6,6 +6,8 @@
 @mixin border($type: '') {
   @if $type == 'right' {
 	border-right: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == 'top' {
+	border-top: $jp-border-width solid $jp-color-light-gray;
   } @else if $type == 'bottom' {
 	border-bottom: $jp-border-width solid $jp-color-light-gray;
   } @else if $type == 'left' {
