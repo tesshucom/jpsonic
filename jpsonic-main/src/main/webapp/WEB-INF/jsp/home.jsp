@@ -26,7 +26,7 @@
 
     </script>
 </head>
-<body class="mainframe bgcolor1" onload="init();">
+<body class="mainframe bgcolor1 home" onload="init();">
 <c:if test="${not empty model.welcomeTitle}">
 <h1>
     <img src="<spring:theme code='homeImage'/>" alt="">
@@ -38,24 +38,25 @@
     <h2>${model.welcomeSubtitle}</h2>
 </c:if>
 
-<p>
+<ul class="subMenu">
     <c:forTokens items="random newest starred highest frequent recent decade genre alphabetical" delims=" " var="cat" varStatus="loopStatus">
-        <c:if test="${loopStatus.count > 1}">&nbsp;|&nbsp;</c:if>
+        <c:choose>
+           <c:when test="${loopStatus.count > 1}"></li><li></c:when>
+           <c:otherwise><li></c:otherwise>
+        </c:choose>
         <sub:url var="url" value="home.view">
             <sub:param name="listType" value="${cat}"/>
         </sub:url>
-
         <c:choose>
             <c:when test="${model.listType eq cat}">
-                <span class="headerSelected"><fmt:message key="home.${cat}.title"/></span>
+                <span class="menuItemSelected"><fmt:message key="home.${cat}.title"/></span>
             </c:when>
             <c:otherwise>
-                <span class="header"><a href="${url}"><fmt:message key="home.${cat}.title"/></a></span>
+                <span class="menuItem"><a href="${url}"><fmt:message key="home.${cat}.title"/></a></span>
             </c:otherwise>
         </c:choose>
-
     </c:forTokens>
-</p>
+</ul>
 
 <%@ include file="homePager.jsp" %>
 

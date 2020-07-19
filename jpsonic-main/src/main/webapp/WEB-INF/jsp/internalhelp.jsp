@@ -7,386 +7,374 @@
 </head>
 <body class="mainframe bgcolor1">
 
-<c:choose>
-    <c:when test="${empty model.buildDate}">
-        <fmt:message key="common.unknown" var="buildDateString"/>
-    </c:when>
-    <c:otherwise>
-        <fmt:formatDate value="${model.buildDate}" dateStyle="long" var="buildDateString"/>
-    </c:otherwise>
-</c:choose>
+<c:import url="helpHeader.jsp">
+	<c:param name="cat" value="internalhelp"/>
+</c:import>
 
-<c:choose>
-    <c:when test="${empty model.localVersion}">
-        <fmt:message key="common.unknown" var="versionString"/>
-    </c:when>
-    <c:otherwise>
-        <c:set var="versionString" value="${model.localVersion}"/>
-    </c:otherwise>
-</c:choose>
-
-<h1>
-    <img src="<spring:theme code='helpImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.title"><fmt:param value="${model.brand}"/></fmt:message></span>
-</h1>
-
-<c:if test="${model.newVersionAvailable}">
-    <p class="warning"><fmt:message key="help.upgrade"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message></p>
-</c:if>
-
-<table width="75%" class="ruleTable indent">
-
-    <tr><td class="ruleTableHeader"><fmt:message key="help.version.title"/></td><td class="ruleTableCell">${versionString} &ndash; ${buildDateString}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.server.title"/></td><td class="ruleTableCell">${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.license.title"/></td><td class="ruleTableCell">
-        <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img style="float:right;margin-left: 10px" alt="GPL 3.0" src="<c:url value='/icons/default_light/gpl.png'/>"></a>
-        <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.homepage.title"/></td><td class="ruleTableCell"><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.forum.title"/></td><td class="ruleTableCell"><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener noreferrer">Airsonic on Reddit</a></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.contact.title"/></td><td class="ruleTableCell"><fmt:message key="help.contact.text"><fmt:param value="${model.brand}"/></fmt:message></td></tr>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.statistics"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.albumcount"/></td><td class="ruleTableCell">${model.statAlbumCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.artistcount"/></td><td class="ruleTableCell">${model.statArtistCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.songcount"/></td><td class="ruleTableCell">${model.statSongCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.lastscandate"/></td><td class="ruleTableCell">${model.statLastScanDate}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.totaldurationseconds"/></td><td class="ruleTableCell">${model.statTotalDurationSeconds}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.totalsizebytes"/></td><td class="ruleTableCell">${model.statTotalLengthBytes}</td></tr>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.index"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.luceneversion"/></td><td class="ruleTableCell">${model.indexLuceneVersion}</td></tr>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.database"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-
-    <c:if test="${model.dbIsLegacy}">
-        <tr>
-            <td colspan="2" class="ruleTableCell">
+<details>
+    <summary class="
+        <c:choose>
+            <c:when test="${model.dbIsLegacy}">
                 <c:choose>
                     <c:when test="${model.dbLogSizeBytes < 268435456}">
-                        <img src="<spring:theme code='checkImage'/>" alt="OK">
-                        <fmt:message key="internalhelp.dblogsize.ok"/>
+                        statusOK
                     </c:when>
                     <c:otherwise>
-                        <img src="<spring:theme code='alertImage'/>" alt="Warning">
-                        <fmt:message key="internalhelp.dblogsize.warn"/>
+                        statusNG
                     </c:otherwise>
                 </c:choose>
-            </td>
-        </tr>
-    </c:if>
+            </c:when>
+            <c:otherwise>
+                statusOK
+            </c:otherwise>
+        </c:choose>
+    ">
+        <fmt:message key="internalhelp.productsinfo"/>
+    </summary>
+    <c:choose>
+        <c:when test="${model.dbIsLegacy}">
+            <ul>
+                <li>
+                    <c:choose>
+                        <c:when test="${model.dbLogSizeBytes < 268435456}">
+                            <fmt:message key="internalhelp.dblogsize.ok"/>
+                        </c:when>
+                        <c:otherwise>
+                            <fmt:message key="internalhelp.dblogsize.warn"/>
+                        </c:otherwise>
+                    </c:choose>
+                </li>
+            </ul>
+        </c:when>
+    </c:choose>
+    <dl>
+        <dt><fmt:message key="internalhelp.luceneversion"/></dt>
+        <dd>${model.indexLuceneVersion}</dd>
+        <dt><fmt:message key="internalhelp.dbdrivername"/></dt>
+        <dd><td class="ruleTableCell">${model.dbDriverName}</td></dd>
+        <dt><fmt:message key="internalhelp.dbdriverversion"/></dt>
+        <dd>${model.dbDriverVersion}</dd>
+        <dt><fmt:message key="internalhelp.dbserverversion"/></dt>
+        <dd>${model.dbServerVersion}</dd>
+        <c:if test="${model.dbIsLegacy}">
+            <dt><fmt:message key="internalhelp.dbdirectorysize"/></dt>
+            <dd>${model.dbDirectorySize}</dd>
+            <dt><fmt:message key="internalhelp.dblogsize"/></dt>
+            <dd>${model.dbLogSize}</dd>
+        </c:if>
+    </dl>
+</details>
 
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.dbdrivername"/></td><td class="ruleTableCell">${model.dbDriverName}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.dbdriverversion"/></td><td class="ruleTableCell">${model.dbDriverVersion}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.dbserverversion"/></td><td class="ruleTableCell">${model.dbServerVersion}</td></tr>
-
-    <c:if test="${model.dbIsLegacy}">
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.dbdirectorysize"/></td><td class="ruleTableCell">${model.dbDirectorySize}</td></tr>
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.dblogsize"/></td><td class="ruleTableCell">${model.dbLogSize}</td></tr>
-    </c:if>
-
-    <tr>
-        <td colspan="2" class="ruleTableCell">
+<details>
+    <summary class="
+        <c:choose>
+            <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
+                statusOK
+            </c:when>
+            <c:otherwise>
+                statusNG
+            </c:otherwise>
+        </c:choose>
+    ">
+        <fmt:message key="internalhelp.unnecessarydata"/>
+    </summary>
+    <ul>
+        <li>
             <c:choose>
-                <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
+                    <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
                     <fmt:message key="internalhelp.dbnonpresent.ok"/>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.dbnonpresent.warn"/>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
+        </li>
+    </ul>
+    <dl>
+        <dt><fmt:message key="internalhelp.musicdeletedcount"/></dt>
+        <dd>${model.dbMediaFileMusicNonPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.podcastdeletedcount"/></dt>
+        <dd>${model.dbMediaFilePodcastNonPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.directorydeletedcount"/></dt>
+        <dd>${model.dbMediaFileDirectoryNonPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.albumdeletedcount"/></dt>
+        <dd>${model.dbMediaFileAlbumNonPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.musiccount"/></dt>
+        <dd>${model.dbMediaFileMusicPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.podcastcount"/></dt>
+        <dd>${model.dbMediaFilePodcastPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.directorycount"/></dt>
+        <dd>${model.dbMediaFileDirectoryPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.albumcount"/></dt>
+        <dd>${model.dbMediaFileAlbumPresentCount}</dd>
+        <dt><fmt:message key="internalhelp.distinctalbumcount"/></dt>
+        <dd>${model.dbMediaFileDistinctAlbumCount}</dd>
+        <dt><fmt:message key="internalhelp.distinctartistcount"/></dt>
+        <dd>${model.dbMediaFileDistinctArtistCount}</dd>
+        <dt><fmt:message key="internalhelp.distinctalbumartistcount"/></dt>
+        <dd>${model.dbMediaFileDistinctAlbumArtistCount}</dd>
+    </dl>
+</details>
 
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.musicdeletedcount"/></td><td class="ruleTableCell">${model.dbMediaFileMusicNonPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.podcastdeletedcount"/></td><td class="ruleTableCell">${model.dbMediaFilePodcastNonPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.directorydeletedcount"/></td><td class="ruleTableCell">${model.dbMediaFileDirectoryNonPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.albumdeletedcount"/></td><td class="ruleTableCell">${model.dbMediaFileAlbumNonPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.musiccount"/></td><td class="ruleTableCell">${model.dbMediaFileMusicPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.podcastcount"/></td><td class="ruleTableCell">${model.dbMediaFilePodcastPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.directorycount"/></td><td class="ruleTableCell">${model.dbMediaFileDirectoryPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.albumcount"/></td><td class="ruleTableCell">${model.dbMediaFileAlbumPresentCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.distinctalbumcount"/></td><td class="ruleTableCell">${model.dbMediaFileDistinctAlbumCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.distinctartistcount"/></td><td class="ruleTableCell">${model.dbMediaFileDistinctArtistCount}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.distinctalbumartistcount"/></td><td class="ruleTableCell">${model.dbMediaFileDistinctAlbumArtistCount}</td></tr>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.databaseconsistency"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr>
-        <td colspan="3" class="ruleTableCell">
+<details>
+    <summary class="
+        <c:choose>
+            <c:when test="${model.dbMediaFilesInNonPresentMusicFoldersCount == 0 and model.dbMediaFilesWithMusicFolderMismatchCount == 0}">
+                statusOK
+            </c:when>
+            <c:otherwise>
+                statusNG
+            </c:otherwise>
+        </c:choose>
+    ">
+        <fmt:message key="internalhelp.databaseconsistency"/>
+    </summary>
+    <ul>
+        <li>
             <c:choose>
                 <c:when test="${model.dbMediaFilesInNonPresentMusicFoldersCount == 0}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.ok"/>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount.warn"/>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
-
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount"/></td><td class="ruleTableCell" colspan="2">${model.dbMediaFilesInNonPresentMusicFoldersCount}</td></tr>
-    <c:if test="${model.dbMediaFilesInNonPresentMusicFoldersCount > 0}">
-        <tr><td class="ruleTableHeader">ID</td><td class="ruleTableHeader">PATH</td><td class="ruleTableHeader">FOLDER</td></tr>
-        <c:forEach var="invalidFolderSample" items="${model.dbMediaFilesInNonPresentMusicFoldersSample}">
-            <tr><td class="ruleTableHeader">${invalidFolderSample.id}</td><td class="ruleTableCell">${invalidFolderSample.path}</td><td class="ruleTableCell">${invalidFolderSample.folder}</td></tr>
-        </c:forEach>
-        <c:if test="${model.dbMediaFilesInNonPresentMusicFoldersCount > fn:length(model.dbMediaFilesInNonPresentMusicFoldersSample)}">
-            <tr><td class="ruleTableCell" colspan="3"><fmt:message key="internalhelp.morerows"><fmt:param value="${model.dbMediaFilesInNonPresentMusicFoldersCount - fn:length(model.dbMediaFilesInNonPresentMusicFoldersSample)}"/></fmt:message></td></tr>
-        </c:if>
-    </c:if>
-</table>
-
-<p></p>
-
-<table width="75%" class="ruleTable indent">
-    <tr>
-        <td colspan="3" class="ruleTableCell">
+        </li>
+        <li>
             <c:choose>
                 <c:when test="${model.dbMediaFilesWithMusicFolderMismatchCount == 0}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.ok"/>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount.warn"/>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
+        </li>
+    </ul>
+    <dl>
+        <dt><fmt:message key="internalhelp.mediafilesinnonpresentmusicfoldercount"/></dt>
+        <dd>${model.dbMediaFilesInNonPresentMusicFoldersCount}</dd>
+        <dt><fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount"/></dt>
+        <dd>${model.dbMediaFilesWithMusicFolderMismatchCount}</dd>
+    </dl>
+</details>
 
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.mediafileswithmusicfoldermismatchcount"/></td><td class="ruleTableCell" colspan="2">${model.dbMediaFilesWithMusicFolderMismatchCount}</td></tr>
-    <c:if test="${model.dbMediaFilesWithMusicFolderMismatchCount > 0}">
-        <tr><td class="ruleTableHeader">ID</td><td class="ruleTableHeader">PATH</td><td class="ruleTableHeader">FOLDER</td></tr>
-        <c:forEach var="mismatchSample" items="${model.dbMediaFilesWithMusicFolderMismatchSample}">
-            <tr><td class="ruleTableHeader">${mismatchSample.id}</td><td class="ruleTableCell">${mismatchSample.path}</td><td class="ruleTableCell">${mismatchSample.folder}</td></tr>
-        </c:forEach>
-        <c:if test="${model.dbMediaFilesWithMusicFolderMismatchCount > fn:length(model.dbMediaFilesWithMusicFolderMismatchSample)}">
-            <tr><td class="ruleTableCell" colspan="3"><fmt:message key="internalhelp.morerows"><fmt:param value="${model.dbMediaFilesWithMusicFolderMismatchCount - fn:length(model.dbMediaFilesWithMusicFolderMismatchSample)}"/></fmt:message></td></tr>
-        </c:if>
-    </c:if>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.filesystem"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.fsusage"/></td><td class="ruleTableCell">${model.fsHomeUsableSpace} / ${model.fsHomeTotalSpace}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.fshomesize"/></td><td class="ruleTableCell">${model.fsHomeDirectorySize}</td></tr>
+<details>
+    <c:set var="failCount" value="0" scope="page" />
     <c:forEach var="musicFolderStatistics" items="${model.fsMusicFolderStatistics}">
-        <tr>
-            <td colspan="2" class="ruleTableCell">
+        <c:if test="${!musicFolderStatistics.value.readable}">
+            <c:set var="failCount" value="${count + 1}" scope="page"/>
+        </c:if>
+    </c:forEach>
+    <summary class="
+        <c:choose>
+            <c:when test="${failCount eq 0}">
+                        statusOK
+            </c:when>
+            <c:otherwise>
+                        statusNG
+            </c:otherwise>
+        </c:choose>
+    ">
+        <fmt:message key="internalhelp.filesystem"/>
+    </summary>
+    <ul>
+        <c:forEach var="musicFolderStatistics" items="${model.fsMusicFolderStatistics}">
+            <li>
                 <c:choose>
                     <c:when test="${musicFolderStatistics.value.readable}">
-                        <img src="<spring:theme code='checkImage'/>" alt="OK">
                         <fmt:message key="internalhelp.folderisreadable.ok"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message>
                     </c:when>
                     <c:otherwise>
-                        <img src="<spring:theme code='alertImage'/>" alt="Warning">
                         <fmt:message key="internalhelp.folderisreadable.warn"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message>
                     </c:otherwise>
                 </c:choose>
-            </td>
-        </tr>
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.folderisreadable"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></td><td class="ruleTableCell">${musicFolderStatistics.value.readable}</td></tr>
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.folderiswritable"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></td><td class="ruleTableCell">${musicFolderStatistics.value.writable}</td></tr>
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.folderfsusage"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></td><td class="ruleTableCell">${musicFolderStatistics.value.freeFilesystemSizeBytes} / ${musicFolderStatistics.value.totalFilesystemSizeBytes}</td></tr>
-    </c:forEach>
-</table>
+            </li>
+        </c:forEach>
+    </ul>
+    <dl>
+        <dt><fmt:message key="internalhelp.fsusage"/></dt>
+        <dd>${model.fsHomeUsableSpace} / ${model.fsHomeTotalSpace}</dd>
+        <dt><fmt:message key="internalhelp.fshomesize"/></dt>
+        <dd>${model.fsHomeDirectorySize}</dd>
 
-<p></p>
+        <c:forEach var="musicFolderStatistics" items="${model.fsMusicFolderStatistics}">
+            <dt><fmt:message key="internalhelp.folderisreadable"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></dt>
+            <dd>${musicFolderStatistics.value.readable}</dd>
+            <dt><fmt:message key="internalhelp.folderiswritable"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></dt>
+            <dd>${musicFolderStatistics.value.writable}</dd>
+            <dt><fmt:message key="internalhelp.folderfsusage"><fmt:param value="${musicFolderStatistics.key}"/></fmt:message></dt>
+            <dd>${musicFolderStatistics.value.freeFilesystemSizeBytes} / ${musicFolderStatistics.value.totalFilesystemSizeBytes}</dd>
+        </c:forEach>
+    </dl>
+</details>
 
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.transcoding"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr>
-        <td colspan="2" class="ruleTableCell">
+<details>
+    <summary class="
+        <c:choose>
+            <c:when test="${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable && model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}">
+                statusOK
+            </c:when>
+            <c:otherwise>
+                statusNG
+            </c:otherwise>
+        </c:choose>
+    ">
+        <fmt:message key="internalhelp.transcoding"/>
+    </summary>
+    <ul>
+        <li>
             <c:choose>
                 <c:when test="${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.tool.ok"><fmt:param value="ffprobe"/></fmt:message>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.tool.warn"><fmt:param value="ffprobe"/></fmt:message>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.path"><fmt:param value="ffprobe"/></fmt:message></td><td class="ruleTableCell">${model.fsFfprobeInfo.path}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffprobe"/></fmt:message></td><td class="ruleTableCell">${model.fsFfprobeInfo.readable}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffprobe"/></fmt:message></td><td class="ruleTableCell">${model.fsFfprobeInfo.executable}</td></tr>
-    <tr>
-        <td colspan="2" class="ruleTableCell">
+        </li>
+        <li>
             <c:choose>
                 <c:when test="${model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.tool.ok"><fmt:param value="ffmpeg"/></fmt:message>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.tool.warn"><fmt:param value="ffmpeg"/></fmt:message>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.path"><fmt:param value="ffmpeg"/></fmt:message></td><td class="ruleTableCell">${model.fsFfmpegInfo.path}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffmpeg"/></fmt:message></td><td class="ruleTableCell">${model.fsFfmpegInfo.readable}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffmpeg"/></fmt:message></td><td class="ruleTableCell">${model.fsFfmpegInfo.executable}</td></tr>
-</table>
+        </li>
+    </ul>
+    <dl>
+        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dd>${model.fsFfprobeInfo.path}</dd>
+        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dd>${model.fsFfprobeInfo.readable}</dd>
+        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffprobe"/></fmt:message></dt>
+        <dd>${model.fsFfprobeInfo.executable}</dd>
+        <dt><fmt:message key="internalhelp.tool.path"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dd>${model.fsFfmpegInfo.path}</dd>
+        <dt><fmt:message key="internalhelp.tool.isreadable"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dd>${model.fsFfmpegInfo.readable}</dd>
+        <dt><fmt:message key="internalhelp.tool.isexecutable"><fmt:param value="ffmpeg"/></fmt:message></dt>
+        <dd>${model.fsFfmpegInfo.executable}</dd>
+    </dl>
+</details>
 
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.locale"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <tr>
-        <td colspan="2" class="ruleTableCell">
+<details>
+    <summary class="
+            <c:choose>
+                <c:when test="${model.localeDefaultCharsetSupportsUtf8 && model.localeFileEncodingSupportsUtf8}">
+                    statusOK
+                </c:when>
+                <c:otherwise>
+                    statusNG
+                </c:otherwise>
+            </c:choose>
+    ">
+        <fmt:message key="internalhelp.locale"/>
+    </summary>
+    <ul>
+        <li>
             <c:choose>
                 <c:when test="${model.localeDefaultCharsetSupportsUtf8}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.defaultcharset.ok"/>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.defaultcharset.warn"/>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.defaultcharset"/></td><td class="ruleTableCell">${model.localeDefaultCharset}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.defaultlocale"/></td><td class="ruleTableCell">${model.localeDefault}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.user.language"/></td><td class="ruleTableCell">${model.localeUserLanguage}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.user.country"/></td><td class="ruleTableCell">${model.localeUserCountry}</td></tr>
-    <tr>
-        <td colspan="2" class="ruleTableCell">
+        </li>
+        <li>
             <c:choose>
                 <c:when test="${model.localeFileEncodingSupportsUtf8}">
-                    <img src="<spring:theme code='checkImage'/>" alt="OK">
                     <fmt:message key="internalhelp.file.encoding.ok"/>
                 </c:when>
                 <c:otherwise>
-                    <img src="<spring:theme code='alertImage'/>" alt="Warning">
                     <fmt:message key="internalhelp.file.encoding.warn"/>
                 </c:otherwise>
             </c:choose>
-        </td>
-    </tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.file.encoding"/></td><td class="ruleTableCell">${model.localeFileEncoding}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.sun.jnu.encoding"/></td><td class="ruleTableCell">${model.localeSunJnuEncoding}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.sun.io.unicode.encoding"/></td><td class="ruleTableCell">${model.localeSunIoUnicodeEncoding}</td></tr>
+        </li>
+        <c:if test="${not empty model.localeLang and not model.localeLangSupportsUtf8}">
+            <li>The LANG environment variable is defined but appears to disable UTF-8 support. International characters may be partially supported.</li>
+        </c:if>
+        <c:if test="${not empty model.localeLcAll and not model.localeLcAllSupportsUtf8}">
+            <li>The LC_ALL environment variable is defined but appears to disable UTF-8 support. International characters may be partially supported.</li>
+        </c:if>
+    </ul>
+    <dl>
+        <dt><fmt:message key="internalhelp.defaultcharset"/></dt>
+        <dd>${model.localeDefaultCharset}</dd>
+        <dt><fmt:message key="internalhelp.defaultlocale"/></dt>
+        <dd>${model.localeDefault}</dd>
+        <dt><fmt:message key="internalhelp.user.language"/></dt>
+        <dd>${model.localeUserLanguage}</dd>
+        <dt><fmt:message key="internalhelp.user.country"/></dt>
+        <dd>${model.localeUserCountry}</dd>
+        <dt><fmt:message key="internalhelp.file.encoding"/></dt>
+        <dd>${model.localeFileEncoding}</dd>
+        <dt><fmt:message key="internalhelp.sun.jnu.encoding"/></dt>
+        <dd>${model.localeSunJnuEncoding}</dd>
+        <dt><fmt:message key="internalhelp.sun.io.unicode.encoding"/></dt>
+        <dd>${model.localeSunIoUnicodeEncoding}</dd>
 
-    <c:if test="${not empty model.localeLang and not model.localeLangSupportsUtf8}">
-        <tr>
-            <td colspan="2" class="ruleTableCell">
-                <img src="<spring:theme code='alertImage'/>" alt="Warning">
-                The LANG environment variable is defined but appears to disable UTF-8 support. International characters may be partially supported.
-            </td>
-        </tr>
-    </c:if>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.langvar"/></td><td class="ruleTableCell">${model.localeLang}</td></tr>
+        <dt><fmt:message key="internalhelp.langvar"/></dt>
+        <dd>${model.localeLang}</dd>
+        <dt><fmt:message key="internalhelp.lcallvar"/></dt>
+        <dd>${model.localeLcAll}</dd>
+    </dl>
+</details>
 
-    <c:if test="${not empty model.localeLcAll and not model.localeLcAllSupportsUtf8}">
-        <tr>
-            <td colspan="2" class="ruleTableCell">
-                <img src="<spring:theme code='alertImage'/>" alt="Warning">
-                The LC_ALL environment variable is defined but appears to disable UTF-8 support. International characters may be partially supported.
-            </td>
-        </tr>
-    </c:if>
-    <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.lcallvar"/></td><td class="ruleTableCell">${model.localeLcAll}</td></tr>
-</table>
+<details>
+    <summary class="statusOK">
+        <fmt:message key="internalhelp.statistics"/>
+    </summary>
+    <dl>
+        <dt><fmt:message key="internalhelp.albumcount"/></dt>
+        <dd>${model.statAlbumCount}</dd>
+        <dt><fmt:message key="internalhelp.artistcount"/></dt>
+        <dd>${model.statArtistCount}</dd>
+        <dt><fmt:message key="internalhelp.songcount"/></dt>
+        <dd>${model.statSongCount}</dd>
+        <dt><fmt:message key="internalhelp.lastscandate"/></dt>
+        <dd>${model.statLastScanDate}</dd>
+        <dt><fmt:message key="internalhelp.totaldurationseconds"/></dt>
+        <dd>${model.statTotalDurationSeconds}</dd>
+        <dt><fmt:message key="internalhelp.totalsizebytes"/></dt>
+        <dd>${model.statTotalLengthBytes}</dd>
+    </dl>
+</details>
 
-<p></p>
+<details>
+    <summary class="statusOK">
+        <fmt:message key="internalhelp.indexdetails"/>
+    </summary>
+    <dl>
+        <c:forEach var="stat" items="${model.indexStatistics}">
+                <dt><fmt:message key="internalhelp.indexdeletedcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
+                <dd>${stat.value.deletedCount}</dd>
+        </c:forEach>
+        <c:forEach var="stat" items="${model.indexStatistics}">
+                <dt><fmt:message key="internalhelp.indexcount"><fmt:param value="${stat.value.name}"/></fmt:message></dt>
+                <dd>${stat.value.count}</dd>
+        </c:forEach>
+    </dl>
+</details>
 
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.indexdetails"/></span>
-</h2>
+<details>
+    <summary class="statusOK">
+        <fmt:message key="internalhelp.databasedetails"/>
+    </summary>
+    <dl>
+        <c:forEach var="tableCount" items="${model.dbTableCount}">
+            <dt><fmt:message key="internalhelp.tablecount"><fmt:param value="${tableCount.key}"/></fmt:message></dt>
+            <dd>${tableCount.value}</dd>
+        </c:forEach>
+    </dl>
+</details>
 
-<table width="75%" class="ruleTable indent">
-    <c:forEach var="stat" items="${model.indexStatistics}">
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.indexdeletedcount"><fmt:param value="${stat.value.name}"/></fmt:message></td><td class="ruleTableCell">${stat.value.deletedCount}</td></tr>
-    </c:forEach>
-    <c:forEach var="stat" items="${model.indexStatistics}">
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.indexcount"><fmt:param value="${stat.value.name}"/></fmt:message></td><td class="ruleTableCell">${stat.value.count}</td></tr>
-    </c:forEach>
-</table>
+<div class="submits">
+    <input type="button" onClick="location.href='internalhelp.view?'" value="<fmt:message key='common.refresh'/>" />
+</div>
 
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="internalhelp.databasedetails"/></span>
-</h2>
-
-<table width="75%" class="ruleTable indent">
-    <c:forEach var="tableCount" items="${model.dbTableCount}">
-        <tr><td class="ruleTableHeader"><fmt:message key="internalhelp.tablecount"><fmt:param value="${tableCount.key}"/></fmt:message></td><td class="ruleTableCell">${tableCount.value}</td></tr>
-    </c:forEach>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="help.log"/></span>
-</h2>
-
-<table cellpadding="2" class="log indent">
-    <c:forEach items="${model.logEntries}" var="entry">
-        <tr>
-            <td>${fn:escapeXml(entry)}</td>
-        </tr>
-    </c:forEach>
-</table>
-
-<p><fmt:message key="help.logfile"><fmt:param value="${model.logFile}"/></fmt:message> </p>
-
-<div class="forward"><a href="internalhelp.view?"><fmt:message key="common.refresh"/></a></div>
-
-</body></html>
+</body>
+</html>

@@ -7,6 +7,11 @@
 </head>
 <body class="mainframe bgcolor1">
 
+<c:import url="helpHeader.jsp">
+    <c:param name="cat" value="help"/>
+    <c:param name="restricted" value="${not model.admin}"/>
+</c:import>
+
 <c:choose>
     <c:when test="${empty model.buildDate}">
         <fmt:message key="common.unknown" var="buildDateString"/>
@@ -25,47 +30,48 @@
     </c:otherwise>
 </c:choose>
 
-<h1>
-    <img src="<spring:theme code='helpImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="help.title"><fmt:param value="${model.brand}"/></fmt:message></span>
-</h1>
-
 <c:if test="${model.newVersionAvailable}">
     <p class="warning"><fmt:message key="help.upgrade"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message></p>
 </c:if>
 
-<table width="75%" class="ruleTable indent">
+<details open>
+    <summary class="jpsonic"><fmt:message key="help.appInfo"/></summary>
+    <dl>
+        <dt><fmt:message key="help.version.title"/></dt>
+        <dd>Jpsonic ${versionString} (based on Airsonic 11.0.0-SNAPSHOT) &ndash; ${buildDateString}</dd>
+        <dt><fmt:message key="help.server.title"/></dt>
+        <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
+        <dt><fmt:message key="help.license.title"/></dt>
+        <dd>
+            <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img style="float:right;margin-left: 10px" alt="GPL 3.0" src="<c:url value='/icons/default_light/gpl.png'/>">
+            <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message>
+        </dd>
+        <dt><fmt:message key="help.homepage.title"/></dt>
+        <dd><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a> / <a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
+        <dt><fmt:message key="help.forum.title"/></dd>
+        <dd><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener nofererrer">Airsonic on Reddit</a></dd>
+        <dt><fmt:message key="help.contact.title"/></dt>
+        <dd><fmt:message key="help.contact.text"><fmt:param value="Airsonic"/></fmt:message></dd>
+    </dl>
+</details>        
 
-    <tr><td class="ruleTableHeader"><fmt:message key="help.version.title"/></td><td class="ruleTableCell">Jpsonic ${versionString} (based on Airsonic 11.0.0-SNAPSHOT) &ndash; ${buildDateString}</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.server.title"/></td><td class="ruleTableCell">${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.license.title"/></td><td class="ruleTableCell">
-        <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img style="float:right;margin-left: 10px" alt="GPL 3.0" src="<c:url value='/icons/default_light/gpl.png'/>"></a>
-        <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.homepage.title"/></td><td class="ruleTableCell"><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a> / <a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.forum.title"/></td><td class="ruleTableCell"><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener nofererrer">Airsonic on Reddit</a></td></tr>
-    <tr><td class="ruleTableHeader"><fmt:message key="help.contact.title"/></td><td class="ruleTableCell"><fmt:message key="help.contact.text"><fmt:param value="Airsonic"/></fmt:message></td></tr>
-</table>
-
-<p></p>
-
-<h2>
-    <img src="<spring:theme code='logImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="help.log"/></span>
-</h2>
-
-<table cellpadding="2" class="log indent">
-    <c:forEach items="${model.logEntries}" var="entry">
-        <tr>
-            <td>${fn:escapeXml(entry)}</td>
-        </tr>
-    </c:forEach>
-</table>
-
-<p><fmt:message key="help.logfile"><fmt:param value="${model.logFile}"/></fmt:message> </p>
-
-<div class="forward"><a href="help.view?"><fmt:message key="common.refresh"/></a></div>
 <c:if test="${model.user.adminRole}">
-<div class="forward"><a href="internalhelp.view?"><fmt:message key="common.more"/></a></div>
+    <details>
+        <summary class="legacy"><fmt:message key="help.log"/></summary>
+        <p>
+            <fmt:message key="help.logfile"><fmt:param value="${model.logFile}"/></fmt:message>
+        </p>
+        <table cellpadding="2" class="log indent">
+            <c:forEach items="${model.logEntries}" var="entry">
+                <tr>
+                    <td>${fn:escapeXml(entry)}</td>
+                </tr>
+            </c:forEach>
+        </table>
+    </details>
+    <div class="submits">
+        <input type="button" onClick="location.href='help.view?'" value="<fmt:message key='common.refresh'/>" />
+    </div>
 </c:if>
 
 </body></html>

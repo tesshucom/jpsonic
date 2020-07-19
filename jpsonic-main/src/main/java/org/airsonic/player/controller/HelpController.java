@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
@@ -80,8 +81,9 @@ public class HelpController {
         String serverInfo = request.getSession().getServletContext().getServerInfo() +
                             ", java " + System.getProperty("java.version") +
                             ", " + System.getProperty("os.name");
-
-        map.put("user", securityService.getCurrentUser(request));
+        User user = securityService.getCurrentUser(request);
+        map.put("user", user);
+        map.put("admin", securityService.isAdmin(user.getUsername()));
         map.put("brand", settingsService.getBrand());
         map.put("localVersion", versionService.getLocalVersion());
         map.put("buildDate", versionService.getLocalBuildDate());
