@@ -15,7 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.2.0-SNAPSHOT</jpsonic.version>
+        <jpsonic.version>109.2.0-RELEASE</jpsonic.version>
         <lucene.version>8.6.0</lucene.version>
     </properties>
 

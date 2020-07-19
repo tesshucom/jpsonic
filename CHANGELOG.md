@@ -3,8 +3,28 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.1.0
+## v109.2.0
 #### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+
+#### fix
+
+  * Clean up CVE suppression files and remove unnecessary rules
+  * Various library updates (ecj, mariadb-java-client, jackson, cxf, pmd, liquibase-core, checker-qual, tomcat, mysql-connector-java, lucene, commons-lang3)
+  * Fix a bug that sanitization was insufficient in JSP
+  * Fix a bug that cache image may not be generated correctly
+  * Fix many potential bugs related to memory leaks
+
+#### Other updates
+
+  * Add compilation profile for Java11 and Java14
+  * Built-in Japanese font added
+  * Japanese font can be used for chart images and cover art images.
+  * Change the design of the chart image
+  * Add a theme that can use Japanese fonts to the theme of Web pages
+  * Fix some web page for tags and CSS
+
+<details>
+<summary>v109.1.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
 > Jpsonic will be developed for LTS Java11 from this version.
 > Compatibility with Java 11 or later is given priority, and compatibility with Java 10 or earlier is not necessarily guaranteed.
@@ -26,6 +46,7 @@
   * CSS reorganization using SCSS (Jpsonic theme only).
     Currently the JSP modifications are limited,
     but in the later versions, the keyboard operability and CSS classes etc will be modified.
+</details>
 
 <details>
 <summary>v109.0.0 based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
