@@ -14,32 +14,30 @@
 </c:import>
 
 <form:form method="post" action="passwordSettings.view" modelAttribute="command">
+    <details open>
+        <fmt:meqssage key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
+        <summary class="legacy">${fn:escapeXml(title)}</summary>
         <c:choose>
             <c:when test="${command.ldapAuthenticated}">
-                <details open>
-                    <fmt:meqssage key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
-                    <summary class="legacy">${fn:escapeXml(title)}</summary>
-                    <p><fmt:message key="usersettings.passwordnotsupportedforldap"/></p>
-                </details>
+                <p><fmt:message key="usersettings.passwordnotsupportedforldap"/></p>
             </c:when>
             <c:otherwise>
-                <details open>
-                    <fmt:meqssage key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
-                    <summary class="legacy">${fn:escapeXml(title)}</summary>
-                    <form:hidden path="username"/>
-                    <dl>
-                        <dt><fmt:message key="usersettings.newpassword"/><span class="warning"><form:errors path="password"/></span></dt>
-                        <dd><form:password path="password"/></dd>
-                        <dt><fmt:message key="usersettings.confirmpassword"/></dt>
-                        <dd><form:password path="confirmPassword"/></dd>
-                    </dl>
-                </details>
-                <div class="submits">
-                    <input type="submit" value="<fmt:message key='common.save'/>"/>
-                    <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
-                </div>
+                <form:hidden path="username"/>
+                <dl>
+                    <dt><fmt:message key="usersettings.newpassword"/><span class="warning"><form:errors path="password"/></span></dt>
+                    <dd><form:password path="password"/></dd>
+                    <dt><fmt:message key="usersettings.confirmpassword"/></dt>
+                    <dd><form:password path="confirmPassword"/></dd>
+                </dl>
             </c:otherwise>
         </c:choose>
+    </details>
+    <c:if test="${not command.ldapAuthenticated}">
+        <div class="submits">
+            <input type="submit" value="<fmt:message key='common.save'/>"/>
+            <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
+        </div>
+    </c:if>
 </form:form>
 
 </body></html>
