@@ -124,7 +124,7 @@ $(document).ready(function() {
                     </form:select>
                     <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
                     <c:if test="${not command.transcodingSupported}">
-                        <span class="warning"><fmt:message key='playersettings.notranscoder'/></span>
+                        <span class="warning"><fmt:message key="playersettings.notranscoder"/></span>
                     </c:if>
                 </dd>
                 <c:if test="${not empty command.allTranscodings}">
