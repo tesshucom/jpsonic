@@ -140,16 +140,14 @@
     }
 
     function onHidePlayQueue() {
-      setFrameHeight(50);
+      top.document.getElementById("playQueue").style.height = "40px";
       isVisible = false;
       $(".playqueue-shown").hide();
       $(".playqueue-hidden").show();
     }
 
     function onShowPlayQueue() {
-      var height = $("body").height() + 25;
-      height = Math.min(height, window.top.innerHeight * 0.8);
-      setFrameHeight(height);
+      top.document.getElementById("playQueue").style.height = "50vh";
       isVisible = true;
       $(".playqueue-shown").show();
       $(".playqueue-hidden").hide();
@@ -167,19 +165,6 @@
 
         $(window).mouseenter(function () {
             onShowPlayQueue();
-        });
-    }
-
-    function setFrameHeight(height) {
-        <%-- Disable animation in Chrome. It stopped working in Chrome 44. --%>
-        var duration = navigator.userAgent.indexOf("Chrome") != -1 ? 0 : 400;
-
-        $("#dummy-animation-target").stop();
-        $("#dummy-animation-target").animate({"max-width": height}, {
-            step: function (now, fx) {
-                top.document.getElementById("playQueueFrameset").rows = "*," + now;
-            },
-            duration: duration
         });
     }
 
