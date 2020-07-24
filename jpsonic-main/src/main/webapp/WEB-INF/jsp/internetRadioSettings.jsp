@@ -61,7 +61,7 @@
 </c:if>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">parent.frames.left.location.href="left.view?"</script>
+    <script language="javascript" type="text/javascript">parent.frames.upper.location.href="top.view?"</script>
 </c:if>
 
 </body></html>

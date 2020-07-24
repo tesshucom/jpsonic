@@ -8,47 +8,31 @@
 </head>
 <body>
 
-<div style="
-	display: grid;
-	grid-template-columns: ${model.showSideBar ? "230" : "0"}px 1fr ${model.showRight ? 235 : 0}px;
-	grid-template-rows: 80px 1fr;
-	height: calc(100vh - 80px);">
+<iframe name="upper" src="top.view?" class="bgcolor2" frameborder="0" class="bgcolor2" style="
+	position:absolute;
+	z-index:0;
+	width:calc(100vw - 40px);
+	height: calc(100vh - 40px);" scrolling="no" frameborder="no"></iframe>
 
-    <iframe name="upper" src="top.view?" class="bgcolor2" frameborder="0" class="bgcolor2" style="
-		grid-column-start: 1;
-		grid-column-end: 4;
-		grid-row-start: 1;
-		grid-row-end: 2;
-		width:100%;
-		height: 80px;" scrolling="no" frameborder="no"></iframe>
+<iframe name="main" src="nowPlaying.view?" class="bgcolor1" style="
+	position:absolute;
+	z-index:1;
+	top:100px;
+	left:230px;
+	width:calc(100vw - ${model.showRight ? 235 : 0}px - 230px);
+	height: calc(100vh - 130px);" frameborder="no"></iframe>
 
-	<iframe name="left" src="left.view?" class="bgcolor2" style="
-		grid-column-start: 1;
-		grid-column-end: 2;
-		grid-row-start: 2;
-		grid-row-end: 3;
-		width:${model.showSideBar ? "230" : "0"}px;
-		height: calc(100vh - 100px);" frameborder="no"></iframe>
-
-    <iframe name="main" src="nowPlaying.view?" class="bgcolor1" style="
-		grid-column-start: 2;
-		grid-column-end: 3;
-		grid-row-start: 2;
-		grid-row-end: 3;
-		width:100%;
-		height: calc(100vh - 130px);" frameborder="no"></iframe>
-
-    <iframe name="right" src="right.view?" class="bgcolor1" style="
-		grid-column-start: 3;
-		grid-column-end: 4;
-		grid-row-start: 2;
-		grid-row-end: 3;
-		width:${model.showRight ? 235 : 0}px;
-		height: calc(100vh - 130px);;" frameborder="no"></iframe>
-</div>
+<iframe name="right" src="right.view?" class="bgcolor1" style="
+  	position:relative;
+	z-index:2;
+	top:100px;
+	right:0;
+	width:${model.showRight ? 235 : 0}px;
+	height: calc(100vh - 130px);;" frameborder="no"></iframe>
 
 <iframe id="playQueue" name="playQueue" src="playQueue.view?" class="noscrollbar" style="
  	position:fixed;
+	z-index:3;
  	left:calc(${model.showSideBar ? "230" : "0"}px + 16px);
  	bottom:0;
 	width: calc(100vw - ${model.showSideBar ? "230" : "0"}px - 20px);

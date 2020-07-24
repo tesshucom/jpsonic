@@ -104,7 +104,7 @@ public class SubsonicRESTController {
     @Autowired
     private UserSettingsController userSettingsController;
     @Autowired
-    private LeftController leftController;
+    private TopController topController;
     @Autowired
     private StatusService statusService;
     @Autowired
@@ -211,7 +211,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
         long ifModifiedSince = getLongParameter(request, "ifModifiedSince", 0L);
-        long lastModified = leftController.getLastModified(request);
+        long lastModified = topController.getLastModified(request);
         if (lastModified <= ifModifiedSince) {
             jaxbWriter.writeResponse(request, response, res);
             return;

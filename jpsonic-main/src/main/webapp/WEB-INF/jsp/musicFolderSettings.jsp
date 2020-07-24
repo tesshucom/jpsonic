@@ -12,7 +12,6 @@
 
             <c:if test="${settings_reload}">
             parent.frames.upper.location.href="top.view?";
-            parent.frames.left.location.href="left.view?";
             parent.frames.right.location.href="right.view?";
             </c:if>
         }

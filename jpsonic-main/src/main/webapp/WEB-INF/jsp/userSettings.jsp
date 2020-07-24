@@ -9,7 +9,7 @@
         function init() {
             enablePasswordChangeFields();
             <c:if test="${settings_reload}">
-            parent.frames.left.location.href="left.view?";
+            parent.frames.upper.location.href="top.view?";
             </c:if>
         }
         function enablePasswordChangeFields() {
