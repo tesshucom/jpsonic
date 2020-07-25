@@ -21,6 +21,9 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 import java.util.Locale;
 
@@ -44,6 +49,8 @@ public class GeneralSettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
 
     @GetMapping
     protected String displayForm() {
@@ -51,7 +58,7 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
@@ -73,7 +80,9 @@ public class GeneralSettingsController {
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
         command.setWelcomeMessage(settingsService.getWelcomeMessage());
         command.setLoginMessage(settingsService.getLoginMessage());
-
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+        
         Theme[] themes = settingsService.getAvailableThemes();
         command.setThemes(themes);
         String currentThemeId = settingsService.getThemeId();
@@ -95,6 +104,10 @@ public class GeneralSettingsController {
             }
         }
         command.setLocales(localeStrings);
+
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute("command",command);
     }
@@ -138,8 +151,11 @@ public class GeneralSettingsController {
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
         settingsService.setWelcomeMessage(command.getWelcomeMessage());
         settingsService.setLoginMessage(command.getLoginMessage());
+        settingsService.setUseRadio(command.isUseRadio());
+        settingsService.setUseSonos(command.isUseSonos());
         settingsService.setThemeId(theme.getId());
         settingsService.setLocale(locale);
+        
         settingsService.save();
 
         return "redirect:generalSettings.view";

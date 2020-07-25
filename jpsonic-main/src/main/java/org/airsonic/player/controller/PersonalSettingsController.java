@@ -53,7 +53,7 @@ public class PersonalSettingsController {
     private SecurityService securityService;
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request,Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUser(request);
@@ -69,6 +69,12 @@ public class PersonalSettingsController {
         command.setAvatarId(getAvatarId(userSettings));
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
+        command.setCloseDrawer(userSettings.isCloseDrawer());
+        command.setShowIndex(userSettings.isShowIndex());
+        command.setAssignAccesskeyToNumber(userSettings.isAssignAccesskeyToNumber());
+        command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setOpenDetailStar(userSettings.isOpenDetailStar());
         command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
         command.setShowArtistInfoEnabled(userSettings.isShowArtistInfoEnabled());
         command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
@@ -84,6 +90,7 @@ public class PersonalSettingsController {
         command.setLastFmPassword(userSettings.getLastFmPassword());
         command.setListenBrainzEnabled(userSettings.isListenBrainzEnabled());
         command.setListenBrainzToken(userSettings.getListenBrainzToken());
+        command.setPaginationSize(userSettings.getPaginationSize());
         command.setPaginationSize(userSettings.getPaginationSize());
 
         Locale currentLocale = userSettings.getLocale();
@@ -106,6 +113,9 @@ public class PersonalSettingsController {
                 break;
             }
         }
+
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
 
         model.addAttribute("command",command);
     }
@@ -140,6 +150,12 @@ public class PersonalSettingsController {
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
         settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
+        settings.setCloseDrawer(command.isCloseDrawer());
+        settings.setShowIndex(command.isShowIndex());
+        settings.setAssignAccesskeyToNumber(command.isAssignAccesskeyToNumber());
+        settings.setOpenDetailIndex(command.isOpenDetailIndex());
+        settings.setOpenDetailSetting(command.isOpenDetailSetting());
+        settings.setOpenDetailStar(command.isOpenDetailStar());
         settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setMainVisibility(command.getMainVisibility());
         settings.setPlaylistVisibility(command.getPlaylistVisibility());

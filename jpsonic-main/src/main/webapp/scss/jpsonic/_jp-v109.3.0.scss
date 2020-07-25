@@ -1,0 +1,337 @@
+* {
+  outline-color: $jp-color-complementary3;
+}
+
+body {
+  background: $jp-color-base1;
+  color: $jp-color-black;
+}
+
+a {
+  text-decoration: none;
+  &:link,
+  &:active,
+  &:visited,
+  &:link *,
+  &:active *,
+  &:visited * {
+    color: $jp-color-base4;
+  }
+  &:hover,
+  &:hover * {
+    color: $jp-color-complementary3;
+  }
+  &.disabled,
+  &.disabled span,
+  span.disabled {
+    color: $jp-color-light-gray;
+    cursor: default;
+  }
+}
+
+img {
+  margin: 0;
+  padding: 0;
+  border-style: none;
+  @include border(zero);
+  vertical-align: middle;
+}
+
+$jp-user-inputs-baseline: 20%;
+
+dl {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 0 30px;
+  padding: 0;
+  background-color: $jp-color-white;
+  dt,
+  dd {
+    min-height: 30px;
+  }
+  dt {
+    padding: 5px 3px 1px 3px;
+    width: $jp-user-inputs-baseline;
+    @include border(other-than-top);
+    background-color: $jp-color-base1;
+    color: $jp-color-black;
+    font-size: 0.86rem;
+    font-weight: 500;
+    &:first-child {
+      @include border(top);
+      @include borderRadius(upper-left);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-left);
+    }
+  }
+  dd {
+    padding: 3px;
+    @include border(right);
+    @include border(bottom);
+    &:first-of-type {
+      @include border(top);
+      @include borderRadius(upper-right);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-right);
+    }
+    width: calc(100% - #{$jp-user-inputs-baseline});
+    font-size: 0.86rem;
+    > input[type="checkbox"] {
+      padding: 0;
+      vertical-align: middle;
+    }
+    > label {
+      padding: 0 0 0 4px;
+      vertical-align: middle;
+    }
+    > img {
+      padding: 0;
+      vertical-align: middle;
+    }
+    > div {
+      vertical-align: middle;
+      text-align: right;
+    }
+  }
+}
+
+// ******************** input *********************************************
+
+input,
+textarea,
+select {
+  outline: none;
+  padding: 1px;
+  @include border(input);
+  @include borderRadius(input);
+  background: $jp-color-white;
+  font-size: 0.93rem;
+  vertical-align: middle;
+  &:focus {
+    @include transition;
+    outline: none;
+    padding: 0px;
+    @include border(input-focus);
+    background: $jp-color-complementary1;
+  }
+}
+
+input[type="submit"],
+input[type="button"] {
+  @include blockLink($jp-color-base4, $jp-color-white);
+}
+
+input[type="checkbox"] {
+  @include border(zero);
+}
+
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  height: 22px;
+  font-size: 0.86rem;
+  text-align: justify;
+}
+
+// ******************** checkbox ******************************************
+
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  position: relative;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  @include border(input);
+  background: $jp-color-white;
+  &:checked,
+  &:indeterminate {
+    background: $jp-color-base3;
+  }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
+  &:focus {
+    @include outline;
+  }
+}
+
+input[type="checkbox"] {
+  // 'box' >>
+  border-radius: 4px;
+  &::before {
+    // 'check' >>
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    width: 5px;
+    height: 8px;
+    margin-top: -5px;
+    padding: 0;
+    border-right: 3px solid $jp-color-white;
+    border-bottom: 3px solid $jp-color-white;
+    content: "";
+    transform: rotate(45deg);
+    // <
+  }
+  // <
+}
+
+// ******************** radio *********************************************
+
+input[type="radio"] {
+  // 'circle' >>
+  border-radius: 50%;
+  &:checked:before {
+    transform: scale(1);
+    background: $jp-color-white;
+  }
+  // 'check' >>
+  &:before {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin: 3px;
+    transform: scale(0);
+    // <
+  }
+  // <
+}
+
+// ******************** submit ********************************************
+
+input[type="submit"],
+input[type="button"],
+dd.input[type="text"],
+input[type="select"] {
+  outline: none;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 20px;
+  padding-right: 20px;
+  &:focus,
+  &:active {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 19px;
+    padding-right: 19px;
+    @include border(input-focus);
+  }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
+}
+
+input[type="submit"],
+input[type="button"] {
+  margin-left: 10px;
+  margin-right: 10px;
+  min-width: 10rem;
+}
+
+// ******************** table template ************************************
+
+table.tabular {
+  @include border(top);
+  @include borderRadius(upper);
+  border-collapse: separate;
+  border-spacing: 0;
+  thead {
+    tr {
+      &:first-child {
+        th {
+          height: 30px;
+          font-size: 0.86rem;
+          vertical-align: middle;
+          &:first-child {
+            @include border(left);
+            @include borderRadius(upper-left);
+          }
+          &:last-child {
+            @include border(right);
+            @include borderRadius(upper-right);
+          }
+        }
+      }
+    }
+    th {
+      padding-left: 0.3rem;
+      height: 30px;
+      font-size: 0.86rem;
+      vertical-align: middle;
+      @include border(bottom);
+      background-color: $jp-color-base1;
+      color: $jp-color-black;
+      text-align: left;
+      &:first-child {
+        @include borderRadius(upper-left);
+      }
+      &:last-child {
+        @include borderRadius(upper-right);
+      }
+    }
+  }
+  tbody {
+    tr {
+      @include border(bottom-zero);
+      td {
+        padding-left: 10px;
+        height: 30px;
+        font-size: 0.86rem;
+        vertical-align: middle;
+        @include border(bottom);
+        &:first-child {
+          @include border(left);
+        }
+        &:last-child {
+          @include border(right);
+        }
+      }
+      &:last-child {
+        td {
+          @include border(zero);
+        }
+      }
+      &:last-child {
+        th,
+        td {
+          @include border(bottom);
+
+          &:first-child {
+            @include border(left);
+            @include borderRadius(lower-left);
+            //      background-color:red;
+          }
+          &:last-child {
+            @include border(right);
+            @include borderRadius(lower-right);
+            //   background-color:blue;
+          }
+        }
+      }
+      &:hover {
+        background-color: $jp-color-mask-light-gray;
+      }
+    }
+  }
+}

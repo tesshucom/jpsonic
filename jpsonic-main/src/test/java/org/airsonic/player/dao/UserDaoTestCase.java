@@ -183,7 +183,7 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         assertFalse("Error in getUserSettings().", userSettings.isFinalVersionNotificationEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isBetaVersionNotificationEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isSongNotificationEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isShowSideBar());
+        assertFalse("Error in getUserSettings().", userSettings.isCloseDrawer());
         assertFalse("Error in getUserSettings().", userSettings.isLastFmEnabled());
         assertNull("Error in getUserSettings().", userSettings.getLastFmUsername());
         assertNull("Error in getUserSettings().", userSettings.getLastFmPassword());
@@ -204,7 +204,7 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         settings.setThemeId("midnight");
         settings.setBetaVersionNotificationEnabled(true);
         settings.setSongNotificationEnabled(false);
-        settings.setShowSideBar(true);
+        settings.setCloseDrawer(true);
         settings.getMainVisibility().setBitRateVisible(true);
         settings.getPlaylistVisibility().setYearVisible(true);
 
@@ -236,7 +236,7 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         assertEquals("Error in getUserSettings().", false, userSettings.isFinalVersionNotificationEnabled());
         assertEquals("Error in getUserSettings().", true, userSettings.isBetaVersionNotificationEnabled());
         assertEquals("Error in getUserSettings().", false, userSettings.isSongNotificationEnabled());
-        assertEquals("Error in getUserSettings().", true, userSettings.isShowSideBar());
+        assertEquals("Error in getUserSettings().", true, userSettings.isCloseDrawer());
         assertEquals("Error in getUserSettings().", "midnight", userSettings.getThemeId());
         assertEquals("Error in getUserSettings().", true, userSettings.getMainVisibility().isBitRateVisible());
         assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isYearVisible());

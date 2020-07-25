@@ -5,10 +5,12 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<c:import url="settingsHeader.jsp">
-    <c:param name="cat" value="podcast"/>
+<c:import url="podcastsHeader.jsp">
+    <c:param name="cat" value="settings"/>
+    <%-- Legacy does not have a privilege check. Should be added. --%>
+    <c:param name="restricted" value="false"/>
     <c:param name="toast" value="${settings_toast}"/>
 </c:import>
 

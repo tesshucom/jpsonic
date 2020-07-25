@@ -59,6 +59,8 @@ public class HomeController {
     private MediaFileService mediaFileService;
     @Autowired
     private SearchService searchService;
+    @Autowired
+    private MusicIndexService musicIndexService;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
@@ -117,6 +119,14 @@ public class HomeController {
                     map.put("genre", genre);
                     albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
                 }
+                break;
+            case INDEX:
+                MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
+                map.put("indexedArtists", musicFolderContent.getIndexedArtists());
+                map.put("singleSongs", musicFolderContent.getSingleSongs());
+                map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
+                map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
+                map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
                 break;
             default:
                 break;

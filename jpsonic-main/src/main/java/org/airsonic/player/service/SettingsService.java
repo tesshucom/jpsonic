@@ -193,6 +193,9 @@ public class SettingsService {
     private static final String KEY_DATABASE_MYSQL_VARCHAR_MAXLENGTH = "DatabaseMysqlMaxlength";
     private static final String KEY_DATABASE_USERTABLE_QUOTE = "DatabaseUsertableQuote";
 
+    private static final String KEY_USE_RADIO = "UseRadio";
+    private static final String KEY_USE_SONOS = "UseSonos";
+
     private static final String KEY_UPNP_PORT = "UPNP_PORT";
 
     // Default values.
@@ -296,7 +299,10 @@ public class SettingsService {
     private static final String DEFAULT_DATABASE_CONFIG_JNDI_NAME = null;
     private static final Integer DEFAULT_DATABASE_MYSQL_VARCHAR_MAXLENGTH = 512;
     private static final String DEFAULT_DATABASE_USERTABLE_QUOTE = null;
-    
+
+    private static final boolean DEFAULT_USE_RADIO = false;
+    private static final boolean DEFAULT_USE_SONOS = false;
+
     private static final int DEFAULT_UPNP_PORT = -1;
 
     // Array of obsolete keys.  Used to clean property file.
@@ -1328,7 +1334,6 @@ public class SettingsService {
         settings.setNowPlayingAllowed(true);
         settings.setAutoHidePlayQueue(true);
         settings.setKeyboardShortcutsEnabled(false);
-        settings.setShowSideBar(true);
         settings.setShowArtistInfoEnabled(true);
         settings.setViewAsList(false);
         settings.setQueueFollowingSongs(true);
@@ -1654,6 +1659,22 @@ public class SettingsService {
 
     public void setSmtpPort(String smtpPort) {
         setString(KEY_SMTP_PORT, smtpPort);
+    }
+
+    public boolean isUseRadio() {
+        return getBoolean(KEY_USE_RADIO, DEFAULT_USE_RADIO);
+    }
+
+    public void setUseRadio(boolean b) {
+        setBoolean(KEY_USE_RADIO, b);
+    }
+
+    public boolean isUseSonos() {
+        return getBoolean(KEY_USE_SONOS, DEFAULT_USE_SONOS);
+    }
+
+    public void setUseSonos(boolean b) {
+        setBoolean(KEY_USE_SONOS, b);
     }
 
     public String getSmtpEncryption() {

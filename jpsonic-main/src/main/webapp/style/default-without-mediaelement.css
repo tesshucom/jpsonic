@@ -319,7 +319,7 @@ img {
     overflow:hidden;
     text-overflow:ellipsis;
     white-space:nowrap;
-    padding:0px 8px 5px 8px;
+    padding:0 8px 5px 8px;
     font-size: 90%;
     color: #aaaaaa;
     line-height: 100%;

@@ -5,7 +5,7 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="password"/>
@@ -15,7 +15,7 @@
 
 <form:form method="post" action="passwordSettings.view" modelAttribute="command">
     <details open>
-        <fmt:meqssage key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
+        <fmt:message key="passwordsettings.title" var="title"><fmt:param>${command.username}</fmt:param></fmt:message>
         <summary class="legacy">${fn:escapeXml(title)}</summary>
         <c:choose>
             <c:when test="${command.ldapAuthenticated}">

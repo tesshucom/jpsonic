@@ -1,0 +1,40 @@
+// ******************** Frames / index.jsp ********************************
+
+iframe[name*="upper"] {
+  z-index: $jp-layer-0;
+  position: absolute;
+  width: calc(100vw);
+  height: calc(100vh);
+}
+
+#main {
+  z-index: $jp-layer-1;
+  position: absolute;
+  top: #{$jp-header-height};
+  left: 0;
+  // width[**JSP**];
+  height: calc(100vh - #{$jp-header-height} - #{$jp-player-height});
+  margin: 0;
+  transition: 0.7s;
+}
+
+iframe[name*="right"] {
+  z-index: $jp-layer-1;
+  position: absolute;
+  top: #{$jp-header-height};
+  right: 0;
+  // width[**JSP**];
+  height: calc(100vh - #{$jp-player-height});
+}
+
+#playQueue {
+  z-index: $jp-layer-1;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  // width[**JSP**];
+  height: $jp-player-height;
+  margin: 0;
+  transition: 0.3s;
+}

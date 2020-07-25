@@ -46,7 +46,7 @@
     </script>
 
 </head>
-<body class="mainframe bgcolor1" onload="init();">
+<body class="mainframe" onload="init();">
 
 <form action="#" onsubmit="search();return false;">
     <table>

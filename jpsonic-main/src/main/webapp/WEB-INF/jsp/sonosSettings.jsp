@@ -21,14 +21,15 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/scripts.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="sonos"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${model.useRadio}"/>
+    <c:param name="useSonos" value="${model.useSonos}"/>
 </c:import>
 
 <form method="post" action="sonosSettings.view">

@@ -46,6 +46,9 @@ public class GeneralSettingsCommand {
     private boolean gettingStartedEnabled;
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
+    private boolean openDetailSetting;
+    boolean useRadio;
+    boolean useSonos;
     private String welcomeTitle;
     private String welcomeSubtitle;
     private String welcomeMessage;
@@ -257,5 +260,28 @@ public class GeneralSettingsCommand {
     public void setSearchMethodChanged(boolean searchMethodChanged) {
         this.searchMethodChanged = searchMethodChanged;
     }
-    
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSono) {
+        this.useSonos = useSono;
+    }
 }

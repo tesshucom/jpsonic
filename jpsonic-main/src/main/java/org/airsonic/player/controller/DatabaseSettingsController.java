@@ -56,6 +56,8 @@ public class DatabaseSettingsController {
         command.setJNDIName(settingsService.getDatabaseConfigJNDIName());
         command.setMysqlVarcharMaxlength(settingsService.getDatabaseMysqlVarcharMaxlength());
         command.setUsertableQuote(settingsService.getDatabaseUsertableQuote());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
         model.addAttribute("command", command);
     }
 

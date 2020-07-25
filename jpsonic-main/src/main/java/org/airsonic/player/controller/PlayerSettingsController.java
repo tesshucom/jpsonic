@@ -24,6 +24,7 @@ import org.airsonic.player.command.PlayerSettingsCommand;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +58,8 @@ public class PlayerSettingsController {
     private SecurityService securityService;
     @Autowired
     private TranscodingService transcodingService;
+    @Autowired
+    private SettingsService settingsService;
 
     @GetMapping
     protected String displayForm() {
@@ -97,6 +100,10 @@ public class PlayerSettingsController {
                 activeTranscodingIds[i] = activeTranscodings.get(i).getId();
             }
             command.setActiveTranscodingIds(activeTranscodingIds);
+
+            UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+            command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+            
         }
 
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -110,6 +117,10 @@ public class PlayerSettingsController {
         if (player != null) {
             command.setJavaJukeboxMixer(player.getJavaJukeboxMixer());
         }
+
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+
         model.addAttribute("command",command);
     }
 

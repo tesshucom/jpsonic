@@ -1,0 +1,12 @@
+{
+  "semi": false,
+  "overrides": [
+    {
+      "files": ["*.scss", "pages/*.scss"],
+      "options": {
+        "printWidth": 200,
+        "tabWidth": 2
+      }
+    }
+  ]
+}

@@ -16,6 +16,7 @@
 <style>
     #showGrid4Debug {
       display: block;
+      visibility: hidden;
       position: absolute;
       top: 10px;
       right: 50%;
@@ -26,7 +27,7 @@
       text-decoration: none;
       background: red;
       border-radius: 50%;
-      z-index: 2;
+      z-index: 100;
       transition: all .2s ease-in;
     }
     #grid4Debug {
@@ -38,7 +39,6 @@
       height: 100%;
       background: rgba(0,0,0,0.20);
       overflow: scroll;
-      z-index: 1;
       transition: all .1s ease-in;
       visibility: hidden;
       opacity: 0;

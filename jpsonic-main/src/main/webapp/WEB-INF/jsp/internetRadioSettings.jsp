@@ -4,11 +4,13 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="internetRadio"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${model.useRadio}"/>
+    <c:param name="useSonos" value="${model.useSonos}"/>
 </c:import>
 
 <form method="post" action="internetRadioSettings.view">
@@ -61,7 +63,10 @@
 </c:if>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">parent.frames.upper.location.href="top.view?"</script>
+    <script language="javascript" type="text/javascript">
+      window.top.upper.location.reload();
+      window.top.playQueue.location.reload();
+    </script>
 </c:if>
 
 </body></html>

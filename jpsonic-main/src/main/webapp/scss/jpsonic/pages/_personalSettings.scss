@@ -1,0 +1,25 @@
+table.tabular.personalsettings-display {
+  th {
+    text-align: center;
+  }
+  tr {
+    &:hover {
+      background-color: inherit;
+    }
+    td {
+      &:nth-child(1) {
+        width: 150px;
+        padding-left: 10px;
+        text-align: left;
+      }
+      &:nth-child(2) {
+        width: 120px;
+        text-align: center;
+      }
+      &:nth-child(3) {
+        width: 120px;
+        text-align: center;
+      }
+    }
+  }
+}

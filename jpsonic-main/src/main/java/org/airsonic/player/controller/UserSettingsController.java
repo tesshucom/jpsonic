@@ -101,6 +101,8 @@ public class UserSettingsController {
         command.setTranscodeSchemes(TranscodeScheme.values());
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setAllMusicFolders(settingsService.getAllMusicFolders());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
         model.addAttribute("command", command);
         return "userSettings";
     }

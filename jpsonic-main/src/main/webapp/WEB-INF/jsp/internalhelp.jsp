@@ -5,7 +5,7 @@
     <%@ include file="head.jsp" %>
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <c:import url="helpHeader.jsp">
 	<c:param name="cat" value="internalhelp"/>

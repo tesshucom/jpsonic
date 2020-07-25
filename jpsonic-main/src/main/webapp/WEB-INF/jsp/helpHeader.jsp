@@ -3,10 +3,7 @@
 
 <c:set var="categories" value="${param.restricted ? 'help' : 'help internalhelp'}"/>
 
-<h1>
-    <img src="<spring:theme code='helpImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="help.title"><fmt:param value="${model.brand}"/></fmt:message></span>
-</h1>
+<h1><img src="<spring:theme code='helpImage'/>"><fmt:message key="help.title"><fmt:param value="${model.brand}"/></fmt:message></h1>
 
 <ul class="subMenu">
     <c:forTokens items="${categories}" delims=" " var="cat" varStatus="loopStatus">

@@ -1,0 +1,26 @@
+.mainframe.settings table.tabular.share-settings {
+  width: $jp-main-inner-width;
+  margin: 10px 0 20px calc((100vw - #{$jp-main-inner-width}) / 2);
+  th {
+    text-align: center;
+  }
+  tr {
+    &:hover {
+      background-color: inherit;
+    }
+    td {
+      &:nth-child(1) {
+        width: 150px;
+        text-align: left;
+      }
+      &:nth-child(2) {
+        padding: 0;
+        text-align: left;
+      }
+      &:nth-child(3) {
+        width: 60px;
+        text-align: center;
+      }
+    }
+  }
+}

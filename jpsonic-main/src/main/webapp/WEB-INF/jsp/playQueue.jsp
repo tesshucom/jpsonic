@@ -644,8 +644,6 @@
                 $("#fileSize" + id).text(song.fileSize);
             }
 
-            $("#pattern" + id).addClass((i % 2 == 0) ? "bgcolor1" : "bgcolor2");
-
             // Note: show() method causes page to scroll to top.
             $("#pattern" + id).css("display", "table-row");
         }

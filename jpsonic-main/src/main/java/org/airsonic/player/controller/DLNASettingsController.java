@@ -18,6 +18,9 @@
  */
 package org.airsonic.player.controller;
 
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.UPnPService;
 import org.airsonic.player.util.LegacyMap;
@@ -51,9 +54,11 @@ public class DLNASettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
 
     @GetMapping
-    public String handleGet(Model model) {
+    public String handleGet(HttpServletRequest request, Model model) {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -80,6 +85,14 @@ public class DLNASettingsController {
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
         map.put("dlnaRandomMax", settingsService.getDlnaRandomMax());
         map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
+
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        map.put("isOpenDetailSetting", userSettings.isOpenDetailSetting());
+
+        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useSonos", settingsService.isUseSonos());
+
         model.addAttribute("model", map);
         return "dlnaSettings";
     }

@@ -7,24 +7,27 @@
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe settings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="personal"/>
     <c:param name="restricted" value="${not command.user.adminRole}"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <fmt:message key="common.default" var="defaultTitle"/>
 
 <form:form method="post" action="personalSettings.view" modelAttribute="command">
 
-    <details>
+    <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.themeandlanguage"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
             <dd>
-                <form:select path="localeIndex" cssStyle="width:15em">
+                <form:select path="localeIndex">
                     <form:option value="-1" label="${defaultTitle}"/>
                        <c:forEach items="${command.locales}" var="locale" varStatus="loopStatus">
                            <form:option value="${loopStatus.count - 1}" label="${locale}"/>
@@ -34,7 +37,7 @@
             </dd>
             <dt><fmt:message key="personalsettings.theme"/></dt>
             <dd>
-                <form:select path="themeIndex" cssStyle="width:15em">
+                <form:select path="themeIndex">
                     <form:option value="-1" label="${defaultTitle}"/>
                     <c:forEach items="${command.themes}" var="theme" varStatus="loopStatus">
                         <form:option value="${loopStatus.count - 1}" label="${theme.name}"/>
@@ -43,7 +46,7 @@
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="theme"/></c:import></dd>
             <dt><fmt:message key="personalsettings.albumlist"/></dt>
             <dd>
-                <form:select path="albumListId" cssStyle="width:15em">
+                <form:select path="albumListId">
                     <c:forEach items="${command.albumLists}" var="albumList" varStatus="loopStatus">
                         <c:set var="label">
                             <fmt:message key="home.${albumList.id}.title"/>
@@ -55,139 +58,167 @@
         </dl>
     </details>
 
-    <details open>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="personalsettings.display"/></summary>
     
-        <table class="indent">
-            <tr>
-                <th></th>
-                <th style="padding:0 0.5em 0.5em 0;text-align:left;"><fmt:message key="personalsettings.display"/></th>
-                <th style="padding:0 0.5em 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.browse"/></th>
-                <th style="padding:0 0 0.5em 0.5em;text-align:center;"><fmt:message key="personalsettings.playlist"/></th>
-                <th style="padding:0 0 0.5em 0.5em">
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="visibility"/></c:import>
-                </th>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.tracknumber"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.trackNumberVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.trackNumberVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.artist"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.artistVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.artistVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.album"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.albumVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.albumVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
-                <td><fmt:message key="personalsettings.composer"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.composerVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.composerVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td><img src="<spring:theme code='domestic'/>" class="domestic" alt=""></td>
-                <td><fmt:message key="personalsettings.genre"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.genreVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.genreVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.year"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.yearVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.yearVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.bitrate"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.bitRateVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.bitRateVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.duration"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.durationVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.durationVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.format"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.formatVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.formatVisible" cssClass="checkbox"/></td>
-            </tr>
-            <tr>
-                <td></td>
-                <td><fmt:message key="personalsettings.filesize"/></td>
-                <td style="text-align:center"><form:checkbox path="mainVisibility.fileSizeVisible" cssClass="checkbox"/></td>
-                <td style="text-align:center"><form:checkbox path="playlistVisibility.fileSizeVisible" cssClass="checkbox"/></td>
-            </tr>
+        <table class="tabular personalsettings-display">
+            <thead>
+	            <tr>
+	                <th><fmt:message key="personalsettings.display"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="visibility"/></c:import></th>
+	                <th><fmt:message key="personalsettings.browse"/></th>
+	                <th><fmt:message key="personalsettings.playlist"/></th>
+	            </tr>
+            </thead>
+            <tbody>
+	            <tr>
+	                <td><fmt:message key="personalsettings.tracknumber"/></td>
+	                <td><form:checkbox path="mainVisibility.trackNumberVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.trackNumberVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.artist"/></td>
+	                <td><form:checkbox path="mainVisibility.artistVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.artistVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.album"/></td>
+	                <td><form:checkbox path="mainVisibility.albumVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.albumVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.composer"/></td>
+	                <td><form:checkbox path="mainVisibility.composerVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.composerVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.genre"/></td>
+	                <td><form:checkbox path="mainVisibility.genreVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.genreVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.year"/></td>
+	                <td><form:checkbox path="mainVisibility.yearVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.yearVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.bitrate"/></td>
+	                <td><form:checkbox path="mainVisibility.bitRateVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.bitRateVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.duration"/></td>
+	                <td><form:checkbox path="mainVisibility.durationVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.durationVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.format"/></td>
+	                <td><form:checkbox path="mainVisibility.formatVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.formatVisible" /></td>
+	            </tr>
+	            <tr>
+	                <td><fmt:message key="personalsettings.filesize"/></td>
+	                <td><form:checkbox path="mainVisibility.fileSizeVisible" /></td>
+	                <td><form:checkbox path="playlistVisibility.fileSizeVisible" /></td>
+	            </tr>
+            </tbody>
         </table>
 
     </details>
 
-    <details>
-        <summary class="legacy"><fmt:message key="personalsettings.playinganddisplay"/></summary>
+    <details open>
+        <summary class="jpsonic"><fmt:message key="personalsettings.playinganddisplay"/></summary>
         <dl>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.pageall"/></dt>
             <dd>
-                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" cssClass="checkbox"/>
+                <form:checkbox path="keyboardShortcutsEnabled" id="keyboardShortcutsEnabled" />
+                <label for="keyboardShortcutsEnabled"><fmt:message key="personalsettings.keyboardshortcutsenabled"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.frames"/></dt>
+            <dd>
+                <form:checkbox path="closeDrawer" id="closeDrawer" />
+                <label for="closeDrawer"><fmt:message key="personalsettings.closedrawer"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="closedrawer"/></c:import>
+            </dd>
+            <dt><fmt:message key="personalsettings.frames"/></dt>
+            <dd>
+                <form:checkbox path="showIndex" id="showIndex" />
+                <label for="showIndex"><fmt:message key="personalsettings.showindex"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showindex"/></c:import>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.frames"/></dt>
+            <dd>
+                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
                 <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.frames"/></dt>
             <dd>
-                <form:checkbox path="showArtistInfoEnabled" id="artistInfo" cssClass="checkbox"/>
-                <label for="artistInfo"><fmt:message key="personalsettings.showartistinfo"/>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" cssClass="checkbox"/>
+                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
                 <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
             </dd>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.frames"/></dt>
             <dd>
-                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" cssClass="checkbox"/>
+                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" />
                 <label for="autoHidePlayQueue"><fmt:message key="personalsettings.autohideplayqueue"/></label>
             </dd>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
             <dd>
-                <form:checkbox path="partyModeEnabled" id="partyModeEnabled" cssClass="checkbox"/>
+	            <form:checkbox path="openDetailSetting" id="openDetailSetting" />
+            	<label for="openDetailSetting"><fmt:message key="personalsettings.summary.opensettings"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
+            <dd>
+	            <form:checkbox path="openDetailStar" id="openDetailStar" />
+            	<label for="openDetailStar"><fmt:message key="personalsettings.summary.openstars"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.summary"/></dt>
+            <dd>
+	            <form:checkbox path="openDetailIndex" id="openDetailIndex" />
+            	<label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.pages"/></dt>
+            <dd>
+                <form:checkbox path="assignAccesskeyToNumber" id="assignAccesskeyToNumber" />
+                <label for="assignAccesskeyToNumber"><fmt:message key="personalsettings.numberaccesskey"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="numberaccesskey"/></c:import>
+            </dd>
+            <dt><fmt:message key="personalsettings.pages"/></dt>
+            <dd>
+                <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />
+                <label for="artistInfo"><fmt:message key="personalsettings.showartistinfo"/>
+            </dd>
+            <dt><fmt:message key="personalsettings.pages"/></dt>
+            <dd>
+                <form:checkbox path="partyModeEnabled" id="partyModeEnabled" />
                 <label for="partyModeEnabled"><fmt:message key="personalsettings.partymode"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="partymode"/></c:import>
             </dd>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.pages"/></dt>
             <dd>
-                <form:checkbox path="queueFollowingSongs" id="queueFollowingSongs" cssClass="checkbox"/>
+                <form:checkbox path="queueFollowingSongs" id="queueFollowingSongs" />
                 <label for="queueFollowingSongs"><fmt:message key="personalsettings.queuefollowingsongs"/></label>
             </dd>
-            <dt></dt>
+            <dt><fmt:message key="personalsettings.pages"/></dt>
+            <dd><form:input path="paginationSize" size="4"/>
+                <fmt:message key="personalsettings.paginationsize"/>
+	            <c:import url="helpToolTip.jsp"><c:param name="topic" value="paginationsize"/></c:import>
+            </dd>
+            
+            <dt><fmt:message key="personalsettings.browser"/></dt>
             <dd>
-                <form:checkbox path="songNotificationEnabled" id="song" cssClass="checkbox"/>
+                <form:checkbox path="songNotificationEnabled" id="song" />
                 <label for="song"><fmt:message key="personalsettings.songnotification"/></label>
             </dd>
-            <dt></dt>
-            <dd>
-                <form:checkbox path="keyboardShortcutsEnabled" id="keyboardShortcutsEnabled" cssClass="checkbox"/>
-                <label for="keyboardShortcutsEnabled"><fmt:message key="personalsettings.keyboardshortcutsenabled"/></label>
-            </dd>
-            <dt><fmt:message key="personalsettings.paginationsize"/></dt>
-            <dd><form:input path="paginationSize" size="24"/></label></dd>
         </dl>
     </details>
 
-
-    <details>
+    <details ${isOpen}>
         <summary class="legacy"><fmt:message key="personalsettings.musicsns"/></summary>
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="listenBrainzEnabled" id="listenBrainz" cssClass="checkbox"/>
+                <form:checkbox path="listenBrainzEnabled" id="listenBrainz" />
                 <label for="listenBrainz"><fmt:message key="personalsettings.listenbrainzenabled"/></label>
             </dd>
             <dt><fmt:message key="personalsettings.listenbrainztoken"/></dt>
@@ -196,7 +227,7 @@
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="lastFmEnabled" id="lastFm" cssClass="checkbox"/>
+                <form:checkbox path="lastFmEnabled" id="lastFm" />
                 <label for="lastFm"><fmt:message key="personalsettings.lastfmenabled"/>
             </dd>
             <dt><fmt:message key="personalsettings.lastfmusername"/></dt>
@@ -206,25 +237,23 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary class="legacy"><fmt:message key="personalsettings.updatenotification"/></summary>
         <dl>
             <dt></dt>
             <dd>
-                <form:checkbox path="finalVersionNotificationEnabled" id="final" cssClass="checkbox"/>
+                <form:checkbox path="finalVersionNotificationEnabled" id="final" />
                 <label for="final"><fmt:message key="personalsettings.finalversionnotification"/></label>
             </dd>
             <dt></dt>
             <dd>
-                <form:checkbox path="betaVersionNotificationEnabled" id="beta" cssClass="checkbox"/>
+                <form:checkbox path="betaVersionNotificationEnabled" id="beta" />
                 <label for="beta"><fmt:message key="personalsettings.betaversionnotification"/></label>
             </dd>
         </dl>
     </details>
 
-
-
-    <details>
+    <details ${isOpen}>
         <summary class="legacy"><fmt:message key="personalsettings.avatar.title"/></summary>
          <dl>
             <dt></dt>
@@ -271,7 +300,7 @@
 
 </form:form>
 
-<details>
+<details ${isOpen}>
     <summary class="legacy"><fmt:message key="personalsettings.avatar.changecustom"/></summary>
     <dl>
         <dt></dt>
@@ -286,7 +315,7 @@
 
 <c:if test="${settings_reload}">
     <script language="javascript" type="text/javascript">
-        parent.location.href="index.view?";
+      window.top.location.reload();
     </script>
 </c:if>
 

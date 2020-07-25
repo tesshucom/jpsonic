@@ -10,12 +10,12 @@
     </script>
 
 </head>
-<body style="min-width:550px" class="mainframe bgcolor1">
+<body style="min-width:550px" class="mainframe">
 
     <form action="<c:url value='/login'/>" method="POST">
         <sec:csrfInput />
 
-        <div id="loginframe" class="bgcolor2 shadow">
+        <div id="loginframe" class="bgcolor2">
 
             <img src="<spring:theme code='logoImage'/>" alt="">
 

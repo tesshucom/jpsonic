@@ -51,7 +51,7 @@
                 }
                 html += "</td><td>" +
                         "<a title='" + nowPlaying[i].tooltip + "' target='main' href='" + nowPlaying[i].albumUrl + "'>" +
-                        "<img alt='Cover art' src='" + nowPlaying[i].coverArtUrl + "' class='dropshadow' height='60' width='60'></a>" +
+                        "<img alt='Cover art' src='" + nowPlaying[i].coverArtUrl + "' height='60' width='60'></a>" +
                         "</td></tr>";
 
                 var minutesAgo = nowPlaying[i].minutesAgo;

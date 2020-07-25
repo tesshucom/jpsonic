@@ -1,0 +1,19 @@
+// ******************** playlist / playQueue.jsp **************************
+
+.playlistframe {
+  // pointer-events: none;
+}
+
+// ******************** playlistframe/playQueue.jsp ***********************
+
+.bgcolor2.playlistframe {
+  margin: 0;
+  padding: 0;
+  @include border;
+  @include borderRadius(upper);
+  background-color: $jp-color-base3;
+  h2 {
+    padding: 0;
+    color: $jp-color-white;
+  }
+}

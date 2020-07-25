@@ -39,7 +39,12 @@ public class UserSettings {
     private boolean songNotificationEnabled;
     private boolean keyboardShortcutsEnabled;
     private boolean autoHidePlayQueue;
-    private boolean showSideBar;
+    private boolean closeDrawer;
+    private boolean showIndex;
+    private boolean assignAccesskeyToNumber;
+    private boolean openDetailIndex;
+    private boolean openDetailSetting;
+    private boolean openDetailStar;
     private boolean viewAsList;
     private boolean queueFollowingSongs;
     private AlbumListType defaultAlbumList = AlbumListType.RANDOM;
@@ -231,12 +236,52 @@ public class UserSettings {
         this.keyboardShortcutsEnabled = keyboardShortcutsEnabled;
     }
 
-    public boolean isShowSideBar() {
-        return showSideBar;
+    public boolean isCloseDrawer() {
+        return closeDrawer;
     }
 
-    public void setShowSideBar(boolean showSideBar) {
-        this.showSideBar = showSideBar;
+    public void setCloseDrawer(boolean closeDrawer) {
+        this.closeDrawer = closeDrawer;
+    }
+
+    public boolean isShowIndex() {
+        return showIndex;
+    }
+
+    public void setShowIndex(boolean showIndex) {
+        this.showIndex = showIndex;
+    }
+
+    public boolean isAssignAccesskeyToNumber() {
+        return assignAccesskeyToNumber;
+    }
+
+    public void setAssignAccesskeyToNumber(boolean assignAccesskeyToNumber) {
+        this.assignAccesskeyToNumber = assignAccesskeyToNumber;
+    }
+
+    public boolean isOpenDetailIndex() {
+        return openDetailIndex;
+    }
+
+    public void setOpenDetailIndex(boolean openDetailIndex) {
+        this.openDetailIndex = openDetailIndex;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isOpenDetailStar() {
+        return openDetailStar;
+    }
+
+    public void setOpenDetailStar(boolean openDetailStar) {
+        this.openDetailStar = openDetailStar;
     }
 
     public boolean isViewAsList() {

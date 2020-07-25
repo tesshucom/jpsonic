@@ -4,7 +4,7 @@
     <%@ include file="head.jsp" %>
 </head>
 
-<body onload="document.allmusic.submit();" class="mainframe bgcolor1">
+<body onload="document.allmusic.submit();" class="mainframe">
 <h2><fmt:message key="allmusic.text"><fmt:param value="${fn:escapeXml(album)}"/></fmt:message></h2>
 
 <form name="allmusic" action="https://www.allmusic.com/search" method="POST" accept-charset="iso-8859-1">

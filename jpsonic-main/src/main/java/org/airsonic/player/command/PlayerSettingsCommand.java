@@ -54,6 +54,9 @@ public class PlayerSettingsCommand {
     private boolean isAdmin;
     private String javaJukeboxMixer;
     private String[] javaJukeboxMixers;
+    private boolean openDetailSetting;
+    private boolean useRadio;
+    private boolean useSonos;
 
     public Integer getPlayerId() {
         return playerId;
@@ -226,6 +229,30 @@ public class PlayerSettingsCommand {
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setJavaJukeboxMixers(String[] javaJukeboxMixers) {
         this.javaJukeboxMixers = javaJukeboxMixers;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
     }
 
     /**

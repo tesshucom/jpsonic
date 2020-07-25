@@ -20,7 +20,11 @@
 package org.airsonic.player.controller;
 
 import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
@@ -88,7 +92,8 @@ public class StarredController {
                 "artists", artists,
                 "albums", albums,
                 "songs", songs,
-                "videos", videos));
+                "videos", videos,
+                "isOpenDetailStar", userSettings.isOpenDetailStar()));
     }
 
 }
