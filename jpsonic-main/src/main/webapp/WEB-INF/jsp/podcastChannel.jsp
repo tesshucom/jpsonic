@@ -72,7 +72,7 @@
 
     </script>
 </head>
-<body class="mainframe bgcolor1" onload="init()">
+<body class="mainframe" onload="init()">
 
 <div style="float:left;margin-right:1.5em;margin-bottom:1.5em">
 <c:import url="coverArt.jsp">

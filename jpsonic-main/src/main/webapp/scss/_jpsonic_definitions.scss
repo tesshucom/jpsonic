@@ -1,36 +1,50 @@
-
 // ## COLOR #######################################################################
 
-$jp-color-white:                #ffffff;
-$jp-color-light-gray:           #dddddd;
-$jp-color-medium-gray:          #a9a9af;
-$jp-color-dark-gray:            #706E75;
-$jp-color-black:                #4F4F55;
+$jp-color-white: #ffffff;
+$jp-color-light-gray: #dddddd;
+$jp-color-medium-gray: #a9a9af;
+$jp-color-dark-gray: #706e75;
+$jp-color-black: #4f4f55;
 
-$jp-color-base1:                #eaf4ff;
-$jp-color-base2:                #A1C7FB; // primary color
-$jp-color-base3:                #79a2d4;
-$jp-color-base4:                #006699;
+$jp-color-base1: #eaf4ff;
+$jp-color-base2: #a1c7fb; // primary color
+$jp-color-base3: #79a2d4;
+$jp-color-base4: #006699;
 
-$jp-color-complementary1:       #FFE2D1; // double split complementary
-$jp-color-complementary2:       #FFF7D1; // double split complementary
-$jp-color-complementary3:       #ffa103;
+$jp-color-complementary1: #ffe2d1; // double split complementary
+$jp-color-complementary2: #fff7d1; // double split complementary
+$jp-color-complementary3: #ffa103; // complementary
 
-$jp-color-alert:                #ff4500;
+$jp-color-alert: #ff4500;
 
-$jp-color-mask-light-gray:      rgba($jp-color-medium-gray, 0.1);
-$jp-color-mask-gray:            rgba($jp-color-dark-gray, 0.4);
+$jp-color-mask-light-gray: rgba($jp-color-medium-gray, 0.1);
+$jp-color-mask-gray: rgba($jp-color-dark-gray, 0.45);
 
 // ## BORDER ######################################################################
 
-$jp-border-width:               1px;
-$jp-outline-width:              2px;
+$jp-border-width: 1px;
+$jp-outline-width: 2px;
 
 // ## RADIUS ######################################################################
 
-$jp-border-radius:              8px;
-$jp-border-input-radius:        10px;
+$jp-border-radius: 8px;
+$jp-border-input-radius: 10px;
 
 // ## SHADOW ######################################################################
 
-$jp-shadow-offset:              2px;
+$jp-shadow-offset: 2px;
+
+// ## LAYOUT ######################################################################
+
+$jp-drawer-width: 240px;
+$jp-header-height: 60px;
+$jp-player-height: 60px;
+
+$jp-layer-0: 0;
+$jp-layer-1: 1;
+$jp-layer-2: 2;
+$jp-layer-3: 3;
+$jp-layer-4: 4;
+$jp-layer-5: 5;
+
+$jp-main-inner-width: 80%;

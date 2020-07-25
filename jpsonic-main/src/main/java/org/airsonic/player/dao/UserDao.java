@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.dao;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.AvatarScheme;
+import org.airsonic.player.domain.TranscodeScheme;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +58,8 @@ public class UserDao extends AbstractDao {
             "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, " +
             "keyboard_shortcuts_enabled, pagination_size, " +
             // JP >>>>
-            "main_composer, playlist_composer";
+            "main_composer, playlist_composer, close_drawer, assign_accesskey_to_number, " +
+            "open_detail_index, open_detail_setting, open_detail_star, show_index";
             // <<<< JP
 
     private static final Integer ROLE_ID_ADMIN = 1;
@@ -225,10 +230,11 @@ public class UserDao extends AbstractDao {
                 settings.getAvatarScheme().name(), settings.getSystemAvatarId(), settings.getChanged(),
                 settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
                 settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
-                settings.isShowSideBar(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
+                settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
                 settings.getPaginationSize(),
                 // JP >>>>
-                main.isComposerVisible(), playlist.isComposerVisible());
+                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(), settings.isAssignAccesskeyToNumber(),
+                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(), settings.isShowIndex());
                 // <<<< JP
     }
 
@@ -392,14 +398,20 @@ public class UserDao extends AbstractDao {
             settings.setViewAsList(rs.getBoolean(col++));
             settings.setDefaultAlbumList(AlbumListType.fromId(rs.getString(col++)));
             settings.setQueueFollowingSongs(rs.getBoolean(col++));
-            settings.setShowSideBar(rs.getBoolean(col++));
+            settings.setCloseDrawer(rs.getBoolean(col++));
             col++;  // Skip the now unused listReloadDelay
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
 
             // JP >>>>
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
-            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col));
+            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
+            settings.setCloseDrawer(rs.getBoolean(col++));
+            settings.setAssignAccesskeyToNumber(rs.getBoolean(col++));
+            settings.setOpenDetailIndex(rs.getBoolean(col++));
+            settings.setOpenDetailSetting(rs.getBoolean(col++));
+            settings.setOpenDetailStar(rs.getBoolean(col++));
+            settings.setShowIndex(rs.getBoolean(col));
             // <<<< JP
             return settings;
         }

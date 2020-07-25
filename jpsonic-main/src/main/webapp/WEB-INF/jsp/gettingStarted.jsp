@@ -10,7 +10,7 @@
         }
     </script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <h1 style="padding-bottom:0.5em">
     <img src="<spring:theme code='homeImage'/>" alt="">

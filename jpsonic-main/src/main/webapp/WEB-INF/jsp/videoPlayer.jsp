@@ -34,7 +34,7 @@
     <script type="text/javascript" src="<c:url value='/script/videoPlayerCast.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1" style="padding-bottom:0.5em">
+<body class="mainframe" style="padding-bottom:0.5em">
 
     <div>
         <div id="overlay">

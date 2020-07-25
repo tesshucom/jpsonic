@@ -103,11 +103,11 @@ public class MultiService {
         return Arrays.asList(result);
     }
 
-    public void setShowSideBar(boolean show) {
+    public void setCloseDrawer(boolean b) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         UserSettings userSettings = settingsService.getUserSettings(username);
-        userSettings.setShowSideBar(show);
+        userSettings.setCloseDrawer(b);
         userSettings.setChanged(new Date());
         settingsService.updateUserSettings(userSettings);
     }

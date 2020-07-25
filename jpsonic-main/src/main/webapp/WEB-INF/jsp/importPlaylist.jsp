@@ -4,11 +4,11 @@
 <html><head>
     <%@ include file="head.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1 style="padding-bottom:0.5em">
-    <fmt:message key="importPlaylist.title"/>
-</h1>
+<c:import url="playlistsHeader.jsp">
+    <c:param name="cat" value="import"/>
+</c:import>
 
 <c:if test="${not empty model.playlist}">
     <p>

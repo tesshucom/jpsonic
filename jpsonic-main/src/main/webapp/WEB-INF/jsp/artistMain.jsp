@@ -31,7 +31,7 @@
     <script type="text/javascript" src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 
-</head><body class="mainframe bgcolor1" onload="init();">
+</head><body class="mainframe" onload="init();">
 
 <script type="text/javascript" language="javascript">
 
@@ -291,16 +291,16 @@
     </c:otherwise>
 </c:choose>
 
-<table id="artistInfoTable" style="padding:2em;clear:both;display:none" class="bgcolor2 dropshadow artistInfoTable">
+<table id="artistInfoTable" style="padding:2em;clear:both;display:none" class="bgcolor2 artistInfoTable">
     <%--
-	    <tr>
-	        <td rowspan="5" style="vertical-align: top">
-	            <a id="artistImageZoom" rel="zoom" href="void">
-	                <img id="artistImage" class="dropshadow" alt="" style="margin-right:2em; display:none; max-width:300px; max-height:300px">
-	            </a>
-	        </td>
-	        <td style="text-align:center"><h2>${fn:escapeXml(model.dir.name)}</h2></td>
-	    </tr>
+        <tr>
+            <td rowspan="5" style="vertical-align: top">
+                <a id="artistImageZoom" rel="zoom" href="void">
+                    <img id="artistImage" alt="" style="margin-right:2em; display:none; max-width:300px; max-height:300px">
+                </a>
+            </td>
+            <td style="text-align:center"><h2>${fn:escapeXml(model.dir.name)}</h2></td>
+        </tr>
      --%>
     <tr>
         <td id="artistBio" style="padding-bottom: 0.5em"></td>
@@ -310,7 +310,9 @@
         <span id="similarArtists"></span>
     </td></tr>
     <tr><td style="text-align:center">
-        <input id="similarArtistsRadio" style="display:none;margin-top:1em;margin-right:0.3em;cursor:pointer" type="button" value="<fmt:message key='main.startradio'/>" onclick="playSimilar()">
+        <c:if test="${model.useRadio eq true}">
+            <input id="similarArtistsRadio" style="display:none;margin-top:1em;margin-right:0.3em;cursor:pointer" type="button" value="<fmt:message key='main.startradio'/>" onclick="playSimilar()">
+        </c:if>
         <input id="playTopSongs" style="display:none;margin-top:1em;margin-left:0.3em;cursor:pointer" type="button" value="<fmt:message key='main.playtopsongs'/>" onclick="playAllTopSongs()">
     </td></tr>
     <tr><td style="height: 100%"></td></tr>

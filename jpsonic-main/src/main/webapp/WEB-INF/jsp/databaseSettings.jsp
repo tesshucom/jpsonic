@@ -26,11 +26,13 @@
         });
     </script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="database"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <form:form modelAttribute="command" action="databaseSettings.view" method="post">

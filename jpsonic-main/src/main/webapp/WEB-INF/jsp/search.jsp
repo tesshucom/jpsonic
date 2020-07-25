@@ -21,12 +21,9 @@
 
     </script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='searchImage'/>" alt=""/>
-    <span style="vertical-align: middle"><fmt:message key="search.title"/></span>
-</h1>
+<h1><img src="<spring:theme code='searchImage'/>" alt=""/><fmt:message key="search.title"/></h1>
 
 <c:if test="${command.indexBeingCreated}">
     <p class="warning"><fmt:message key="search.index"/></p>

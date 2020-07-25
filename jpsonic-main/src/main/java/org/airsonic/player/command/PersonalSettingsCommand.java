@@ -44,6 +44,12 @@ public class PersonalSettingsCommand {
     private UserSettings.Visibility playlistVisibility;
     private boolean partyModeEnabled;
     private boolean showNowPlayingEnabled;
+    private boolean closeDrawer;
+    private boolean showIndex;
+    private boolean assignAccesskeyToNumber;
+    private boolean openDetailIndex;
+    private boolean openDetailSetting;
+    private boolean openDetailStar;
     private boolean showArtistInfoEnabled;
     private boolean nowPlayingAllowed;
     private boolean autoHidePlayQueue;
@@ -58,6 +64,8 @@ public class PersonalSettingsCommand {
     private String lastFmUsername;
     private String lastFmPassword;
     private String listenBrainzToken;
+    private boolean useRadio;
+    private boolean useSonos;
 
     public User getUser() {
         return user;
@@ -175,6 +183,54 @@ public class PersonalSettingsCommand {
         this.showNowPlayingEnabled = showNowPlayingEnabled;
     }
 
+    public boolean isCloseDrawer() {
+        return closeDrawer;
+    }
+
+    public void setCloseDrawer(boolean closeDrawer) {
+        this.closeDrawer = closeDrawer;
+    }
+
+    public boolean isShowIndex() {
+        return showIndex;
+    }
+
+    public void setShowIndex(boolean showIndex) {
+        this.showIndex = showIndex;
+    }
+
+    public boolean isAssignAccesskeyToNumber() {
+        return assignAccesskeyToNumber;
+    }
+
+    public void setAssignAccesskeyToNumber(boolean assignAccesskeyToNumber) {
+        this.assignAccesskeyToNumber = assignAccesskeyToNumber;
+    }
+
+    public boolean isOpenDetailIndex() {
+        return openDetailIndex;
+    }
+
+    public void setOpenDetailIndex(boolean openDetailIndex) {
+        this.openDetailIndex = openDetailIndex;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isOpenDetailStar() {
+        return openDetailStar;
+    }
+
+    public void setOpenDetailStar(boolean openDetailStar) {
+        this.openDetailStar = openDetailStar;
+    }
+
     public boolean isShowArtistInfoEnabled() {
         return showArtistInfoEnabled;
     }
@@ -285,5 +341,21 @@ public class PersonalSettingsCommand {
 
     public void setPaginationSize(int paginationSize) {
         this.paginationSize = paginationSize;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
     }
 }

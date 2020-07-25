@@ -1,0 +1,278 @@
+// ******************** trifle ********************************************
+
+.warning {
+  color: $jp-color-alert;
+}
+
+// ******************** mainframe/many! ***********************************
+
+.mainframe {
+  padding: 10px;
+  @include border;
+  @include borderRadius(left);
+  background-color: $jp-color-white;
+  > section {
+    > h1 {
+      display: flex;
+      align-items: center;
+      margin: 4px 0 13px 8px;
+      padding: 0;
+      font-size: 1.43rem;
+      color: $jp-color-dark-gray;
+      white-space: nowrap;
+    }
+  }
+  h2 {
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    background-color: red; // DEPRECATED
+    text-align: middle;
+    > img {
+      height: 25px;
+    }
+  }
+}
+
+// ******************** subMenu/settingHeader.jsp, home.jsp ***************
+
+.mainframe {
+  > section {
+    ul {
+      position: relative;
+      top: -43px;
+      left: 23px;
+      border-bottom: 1.4px solid $jp-color-base3;
+    }
+    > ul.subMenu {
+      display: flex;
+      flex-wrap: wrap;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      width: calc(100vw - 80px);
+      min-height: 30px;
+      margin: 0 2vw 0 0;
+      padding: 2px 0px 2px 80px;
+      .menuItem {
+        position: relative;
+        top: -2px;
+        background: $jp-color-base1;
+      }
+      .menuItemSelected {
+        position: relative;
+        top: -1px;
+        background: $jp-color-complementary3;
+      }
+      .menuItem,
+      .menuItemSelected {
+        height: 20px;
+        margin: 1px 4px 1px 4px;
+        padding: 1px 4px 1px 4px;
+        vertical-align: middle;
+        @include border;
+        border-radius: 10px;
+        &:hover {
+          background: $jp-color-complementary3;
+        }
+        a {
+          color: $jp-color-base4;
+          font-size: 0.93rem;
+          font-weight: 600;
+          text-decoration: none;
+          &:active {
+            background: $jp-color-complementary3;
+          }
+        }
+      }
+    }
+  }
+}
+
+// ******************** submits/many! *************************************
+
+.submits {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  width: $jp-main-inner-width;
+  margin: 10px 0 10px 10px;
+  padding: 0.3rem 0 0.3rem 10px;
+}
+
+.submits {
+  justify-content: flex-end;
+  margin-top: 2rem;
+  margin-bottom: 3rem;
+  padding-right: 1rem;
+}
+
+ul.subMenu .menuItem {
+  color: $jp-color-base4;
+  @include dropShadow;
+  &:hover {
+    background-color: $jp-color-complementary3;
+  }
+}
+
+ul.subMenu .menuItemSelected {
+  background-color: $jp-color-white;
+  color: $jp-color-black;
+  font-weight: 600;
+  @include dropShadow(none);
+}
+
+// ******************** details/internalhelp.jsp, home.jsp ****************
+
+details {
+  width: $jp-main-inner-width;
+  margin: 10px 0 20px calc((100vw - #{$jp-main-inner-width}) / 2);
+  padding: 0.1rem 0 0.1rem 0.1rem;
+  background-color: $jp-color-white;
+  vertical-align: middle;
+  p {
+    margin: 10px 0 10px 0;
+    padding: 1rem 0 1rem 1rem;
+  }
+  summary {
+    display: block;
+    box-sizing: border-box;
+    position: relative;
+    padding: 0.1rem 0 0.1rem 25px;
+    @include border(other-than-right);
+    border-right: solid 2.4em $jp-color-base3; // one-off-border
+    border-radius: 2.4em; // one-off-border-radius
+    background: $jp-color-white;
+    font-size: 1.07rem;
+    @include dropShadow;
+    cursor: pointer;
+    transition-duration: 0.5s;
+    &::-webkit-details-marker {
+      display: none;
+    }
+    &:after {
+      position: absolute;
+      left: 100%;
+      left: calc(100%);
+      width: 6px;
+      height: 6px;
+      margin-top: 6px;
+      margin-left: 12px;
+      border: 0px;
+      border-top: solid 3px $jp-color-white; // one-off-border
+      border-right: solid 3px $jp-color-white; // one-off-border
+      -ms-transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+      transform: rotate(135deg);
+      content: "";
+    }
+  }
+  summary[class~="statusOK"] {
+    &:before {
+      position: absolute;
+      left: 0px;
+      content: url(../icons/jpsonic/check.svg);
+    }
+  }
+  summary[class~="statusNG"] {
+    &:before {
+      position: absolute;
+      top: -1px;
+      left: 0px;
+      content: url(../icons/jpsonic/alert.svg);
+    }
+  }
+  summary[class~="jpsonic"] {
+    &:before {
+      position: absolute;
+      top: 4px;
+      left: 5px;
+      content: url(../icons/jpsonic/domestic.svg);
+    }
+  }
+  > dl {
+    margin-top: 23px;
+  }
+}
+
+details[open] {
+  margin-bottom: 37px;
+  summary {
+    background: $jp-color-base1;
+    @include border;
+    @include dropShadow(none);
+  }
+}
+
+// ******************** albumThumb/coverArt.jsp ->
+//                                 albumMain.jsp, artistMain.jsp, home.jsp,
+//                                 playlists.jsp, podcastChannel.jsp,
+//                                 starred.jsp, videoMain.jsp
+// ************************************************************************
+
+.albumThumb {
+  display: inline-block;
+  padding: 0 10px 10px 10px;
+  vertical-align: top;
+}
+
+div.albumThumb > div.coverart > div > a > img {
+  @include borderRadius(upper);
+}
+
+// ******************** coverart/changeCoverArt.jsp,
+//                                 coverArt.jsp, videoMain.jsp
+// ************************************************************************
+
+div.coverart {
+  @include border;
+  @include dropShadow;
+  img {
+    @include borderRadius;
+  }
+  .caption1 {
+    overflow: hidden;
+    padding: 6px 4px 2px 8px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .caption2 {
+    overflow: hidden;
+    padding: 0 4px 2px 8px;
+    color: $jp-color-dark-gray;
+    font-weight: 400;
+    font-size: 0.86rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .caption3 {
+    overflow: hidden;
+    padding: 0 4px 2px 8px;
+    color: $jp-color-dark-gray;
+    font-weight: 400;
+    font-size: 0.86rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.coverart,
+#nowPlaying img {
+  @include borderRadius;
+  background-color: $jp-color-white;
+  color: $jp-color-dark-gray;
+}
+
+.coverart .caption1 a:link,
+.coverart .caption1 a:visited {
+  color: $jp-color-black;
+}
+
+// ******************** table/*Settings.jsp *******************************
+
+.mainframe.settings table.tabular {
+  margin-top: 22px;
+  margin-bottom: 0;
+  margin-left: calc(#{$jp-user-inputs-baseline} + 30px);
+}

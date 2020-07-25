@@ -6,7 +6,7 @@
     <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
     <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <script type="text/javascript" language="javascript">
     var index = 0;

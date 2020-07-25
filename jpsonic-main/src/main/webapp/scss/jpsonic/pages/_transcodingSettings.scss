@@ -1,0 +1,29 @@
+.mainframe.settings table.tabular.transcoding {
+  margin-left: 0;
+}
+
+table.tabular.transcoding {
+  width: 100%;
+  th {
+    text-align: center;
+  }
+  tr {
+    &:hover {
+      background-color: inherit;
+    }
+    td {
+      &:nth-child(1) {
+        width: 150px;
+        text-align: left;
+      }
+      &:nth-child(2) {
+        padding: 0;
+        text-align: left;
+      }
+      &:nth-child(3) {
+        width: 60px;
+        text-align: center;
+      }
+    }
+  }
+}

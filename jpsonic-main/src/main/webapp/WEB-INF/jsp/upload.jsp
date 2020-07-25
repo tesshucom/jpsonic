@@ -23,7 +23,5 @@
     </c:when>
 </c:choose>
 
-<div class="back"><a href="more.view?"><fmt:message key="common.back"/></a></div>
+<div class="back"><a href="uploadEntry.view?"><fmt:message key="common.back"/></a></div>
 </body></html>
-
-

@@ -12,7 +12,7 @@
     <script type="text/javascript" src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 
-</head><body class="mainframe bgcolor1" onload="init();">
+</head><body class="mainframe" onload="init();">
 
 <sub:url value="createShare.view" var="shareUrl">
     <sub:param name="id" value="${model.dir.id}"/>
@@ -299,7 +299,6 @@
     }
 </script>
 
-
 <table cellpadding="0" style="width:100%;padding-top: 0.3em;padding-bottom: 1em">
     <tr style="vertical-align:top;">
         <td style="vertical-align:top;padding-bottom: 1em">
@@ -535,11 +534,17 @@
         <span id="similarArtistsTitle" style="padding-right: 0.5em; display: none"><fmt:message key="main.similarartists"/>:</span>
         <span id="similarArtists"></span>
     </td></tr>
-    <tr><td style="padding-bottom: 0.5em">
-        <div id="similarArtistsRadio" class="forward" style="display: none">
-            <a href="javascript:playSimilar()"><fmt:message key="main.startradio"/></a>
-        </div>
-    </td></tr>
+
+    <c:if test="${model.useRadio eq true}">
+        <tr>
+            <td style="padding-bottom: 0.5em">
+                <div id="similarArtistsRadio" class="forward" style="display: none">
+                    <a href="javascript:playSimilar()"><fmt:message key="main.startradio"/></a>
+                </div>
+            </td>
+        </tr>
+    </c:if>
+
     <tr><td style="height: 100%"></td></tr>
 </table>
 

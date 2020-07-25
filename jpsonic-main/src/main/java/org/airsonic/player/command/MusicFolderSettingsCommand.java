@@ -44,6 +44,9 @@ public class MusicFolderSettingsCommand {
     private String excludePatternString;
     private boolean ignoreSymLinks;
     private boolean indexEnglishPrior;
+    private boolean openDetailSetting;
+    private boolean useRadio;
+    private boolean useSonos;
 
     public String getInterval() {
         return interval;
@@ -123,6 +126,30 @@ public class MusicFolderSettingsCommand {
 
     public void setIndexEnglishPrior(boolean indexEnglishPrior) {
         this.indexEnglishPrior = indexEnglishPrior;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
     }
 
     public static class MusicFolderInfo {

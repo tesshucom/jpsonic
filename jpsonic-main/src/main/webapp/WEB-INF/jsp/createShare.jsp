@@ -4,12 +4,9 @@
 <head>
     <%@ include file="head.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='shareImage'/>" alt="" style="height:18px;">
-    <span style="vertical-align: middle"><fmt:message key="share.title"/></span>
-</h1>
+<h1><img src="<spring:theme code='shareImage'/>"><fmt:message key="share.title"/></h1>
 
 <fmt:message key="share.warning"/>
 <p>

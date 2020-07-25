@@ -6,12 +6,9 @@
     <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
     <meta http-equiv="REFRESH" content="20;URL=status.view">
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='statusImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="status.title"/></span>
-</h1>
+<h1><img src="<spring:theme code='statusImage'/>" alt=""><fmt:message key="status.title"/></h1>
 
 <table width="100%" class="ruleTable indent">
         <tr>

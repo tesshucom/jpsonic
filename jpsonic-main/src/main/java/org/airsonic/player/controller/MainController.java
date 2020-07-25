@@ -172,6 +172,8 @@ public class MainController {
             view = "artistMain";
         }
 
+        map.put("useRadio", settingsService.isUseRadio());
+
         return new ModelAndView(view, "model", map);
     }
 

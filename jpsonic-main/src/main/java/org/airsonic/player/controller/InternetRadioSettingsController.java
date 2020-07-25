@@ -53,6 +53,8 @@ public class InternetRadioSettingsController {
     public String doGet(Model model) {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", settingsService.getAllInternetRadios(true));
+        map.put("useRadio", settingsService.isUseRadio());
+        map.put("useSonos", settingsService.isUseSonos());
         model.addAttribute("model", map);
         return "internetRadioSettings";
     }

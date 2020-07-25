@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
+<%@ page trimDirectiveWhitespaces="true" %>
 <%--@elvariable id="command" type="org.airsonic.player.command.GeneralSettingsCommand"--%>
 
 <html><head>
@@ -7,16 +8,19 @@
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe settings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="general"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <form:form method="post" action="generalSettings.view" modelAttribute="command">
 
-    <details>
+    <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.themeandlanguage"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
@@ -40,7 +44,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.indexsettings"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.index"/></dt>
@@ -115,7 +119,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary><fmt:message key="generalsettings.extandshortcuts"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.musicmask"/></dt>
@@ -146,7 +150,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary><fmt:message key="generalsettings.welcommessage"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.gettingstarted"/></dt>
@@ -177,6 +181,25 @@
         </dl>
     </details>
 
+
+    <details ${isOpen}>
+        <summary class="jpsonic"><fmt:message key="generalsettings.infrequent"/></summary>
+        <dl>
+        	<dt></dt>
+        	<dd>
+				<form:checkbox path="useRadio" id="useRadio"/>
+                <label for="useRadio"><fmt:message key="generalsettings.useradio"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="useradio"/></c:import>
+            </dd>
+        	<dt></dt>
+        	<dd>
+				<form:checkbox path="useSonos" id="useSonos"/>
+                <label for="useSonos"><fmt:message key="generalsettings.usesonos"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="usesonos"/></c:import>
+            </dd>
+        </dl>
+    </details>
+
     <div class="submits">
         <input type="submit" value="<fmt:message key='common.save'/>">
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
@@ -186,8 +209,9 @@
 
 <c:if test="${settings_reload}">
     <script language="javascript" type="text/javascript">
-        parent.frames.upper.location.href="top.view?";
-        parent.frames.playQueue.location.href="playQueue.view?";
+      window.top.right.location.reload();
+      window.top.playQueue.location.reload();
+      window.top.upper.location.reload();
     </script>
 </c:if>
 

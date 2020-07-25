@@ -85,8 +85,12 @@ public class TopController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         map.put("user", user);
-        map.put("showSideBar", userSettings.isShowSideBar());
+        map.put("showRight", userSettings.isShowNowPlayingEnabled());
+        map.put("closeDrawer", userSettings.isCloseDrawer());
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
+        map.put("showIndex", userSettings.isShowIndex());
+        map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
+        map.put("useRadio", settingsService.isUseRadio());
 
         MediaLibraryStatistics statistics = indexManager.getStatistics();
         Locale locale = RequestContextUtils.getLocale(request);

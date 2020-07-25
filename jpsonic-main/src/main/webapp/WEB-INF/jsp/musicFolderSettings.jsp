@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%--@elvariable id="command" type="org.airsonic.player.command.MusicFolderSettingsCommand"--%>
+<%@ page trimDirectiveWhitespaces="true" %>
 
 <html><head>
     <%@ include file="head.jsp" %>
@@ -7,63 +8,74 @@
 
     <script type="text/javascript">
         function init() {
-            $("#newMusicFolderName").attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
-            $("#newMusicFolderPath").attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
-
+            $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
+            $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
             <c:if test="${settings_reload}">
-            parent.frames.upper.location.href="top.view?";
-            parent.frames.right.location.href="right.view?";
+              window.top.upper.location.reload();
+              window.top.right.location.reload();
             </c:if>
         }
     </script>
 </head>
-<body class="mainframe bgcolor1" onload="init()">
-
+<body class="mainframe settings" onload="init()">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="musicFolder"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <form:form modelAttribute="command" action="musicFolderSettings.view" method="post">
 
+    <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
-        <summary class="legacy"><fmt:message key="musicfoldersettings.specify"/></summary>
+        <summary><fmt:message key="musicfoldersettings.specify"/></summary>
 
-            <table class="indent">
-                <tr>
-                    <th><fmt:message key="musicfoldersettings.name"/></th>
-                    <th><fmt:message key="musicfoldersettings.path"/></th>
-                    <th style="padding-left:1em"><fmt:message key="musicfoldersettings.enabled"/></th>
-                    <th style="padding-left:1em"><fmt:message key="common.delete"/></th>
-                    <th></th>
-                </tr>
-                <c:forEach items="${command.musicFolders}" var="folder" varStatus="loopStatus">
+            <table class="tabular musicfolder">
+                <caption><fmt:message key="musicfoldersettings.registered"/></caption>
+                <thead>
                     <tr>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].name" size="20"/></td>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].path" size="40"/></td>
-                        <td align="center" style="padding-left:1em"><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled" cssClass="checkbox"/></td>
-                        <td align="center" style="padding-left:1em"><form:checkbox path="musicFolders[${loopStatus.count-1}].delete" cssClass="checkbox"/></td>
-                        <td><c:if test="${not folder.existing}"><span class="warning"><fmt:message key="musicfoldersettings.notfound"/></span></c:if></td>
+                        <th><fmt:message key="musicfoldersettings.name"/></th>
+                        <th><fmt:message key="musicfoldersettings.path"/></th>
+                        <th><fmt:message key="musicfoldersettings.enabled"/></th>
+                        <th><fmt:message key="common.delete"/></th>
+                        <th></th>
                     </tr>
-                </c:forEach>
-                <c:if test="${not empty command.musicFolders}">
-                    <tr>
-                        <th colspan="4" align="left" style="padding-top:1em"><fmt:message key="musicfoldersettings.add"/></th>
-                    </tr>
-                </c:if>
-                <tr>
-                    <td><form:input id="newMusicFolderName" path="newMusicFolder.name" size="20"/></td>
-                    <td><form:input id="newMusicFolderPath" path="newMusicFolder.path" size="40"/></td>
-                    <td align="center" style="padding-left:1em"><form:checkbox path="newMusicFolder.enabled" cssClass="checkbox"/></td>
-                    <td></td>
-                </tr>
+                </thead>
+                <tbody>
+                    <c:forEach items="${command.musicFolders}" var="folder" varStatus="loopStatus">
+                        <tr>
+                            <td><form:input path="musicFolders[${loopStatus.count-1}].name" size="20"/></td>
+                            <td><form:input path="musicFolders[${loopStatus.count-1}].path" size="40"/></td>
+                            <td><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled"/></td>
+                            <td><form:checkbox path="musicFolders[${loopStatus.count-1}].delete"/></td>
+                            <td><c:if test="${not folder.existing}"><span class="warning"><fmt:message key="musicfoldersettings.notfound"/></span></c:if></td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
             </table>
 
+            <table class="tabular musicfolder">
+                <caption><fmt:message key="musicfoldersettings.add"/></caption>
+                <thead>
+                    <tr>
+                        <th><fmt:message key="musicfoldersettings.name"/></th>
+                        <th><fmt:message key="musicfoldersettings.path"/></th>
+                        <th><fmt:message key="musicfoldersettings.enabled"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><form:input id="newMusicFolderName" path="newMusicFolder.name" size="20"/></td>
+                        <td><form:input id="newMusicFolderPath" path="newMusicFolder.path" size="40"/></td>
+                        <td><form:checkbox path="newMusicFolder.enabled" cssClass="checkbox"/></td>
+                    </tr>
+                </tbody>
+            </table>
     </details>
 
-
-    <details class="legacy" open>
+    <details open>
         <summary><fmt:message key="musicfoldersettings.execscan"/></summary>
         <c:if test="${command.scanning}">
             <p class="warning"><fmt:message key="musicfoldersettings.nowscanning"/></p>
@@ -107,10 +119,10 @@
                 <div>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
                         </c:when>
                         <c:otherwise>
-		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -118,8 +130,8 @@
         </dl>
     </details>
 
-    <details>
-        <summary class="legacy"><fmt:message key="musicfoldersettings.exclusion"/></summary>
+    <details ${isOpen}>
+        <summary><fmt:message key="musicfoldersettings.exclusion"/></summary>
         <dl>
             <dt><fmt:message key="musicfoldersettings.excludepattern"/></dt>
             <dd>
@@ -133,7 +145,7 @@
             </dd>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl>
             <dt><fmt:message key="musicfoldersettings.excludepattern"/></dt>
@@ -153,10 +165,10 @@
     <div class="submits">
         <c:choose>
             <c:when test='${command.scanning}'>
-            	<input type="submit" value="<fmt:message key='common.save'/>" disabled/>
+                <input type="submit" value="<fmt:message key='common.save'/>" disabled/>
             </c:when>
             <c:otherwise>
-            	<input type="submit" value="<fmt:message key='common.save'/>"/>
+                <input type="submit" value="<fmt:message key='common.save'/>"/>
             </c:otherwise>
         </c:choose>
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>

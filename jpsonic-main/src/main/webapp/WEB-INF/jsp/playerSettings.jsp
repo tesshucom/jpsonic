@@ -6,7 +6,7 @@
     <%@ include file="jquery.jsp" %>
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe settings">
 
 <script lang="javascript">
 
@@ -57,6 +57,8 @@ $(document).ready(function() {
     <c:param name="cat" value="player"/>
     <c:param name="toast" value="${settings_toast}"/>
     <c:param name="restricted" value="${not command.admin}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <fmt:message key="common.unknown" var="unknown"/>
@@ -172,13 +174,15 @@ $(document).ready(function() {
             <c:url value="playerSettings.view" var="cloneUrl">
                 <c:param name="clone" value="${command.playerId}"/>
             </c:url>
-            <details>
-                <summary class="legacy"><fmt:message key="playersettings.deleteandclone"/></summary>
+
+			<c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
+            <details ${isOpen}>
+                <summary><fmt:message key="playersettings.deleteandclone"/></summary>
                 <dl>
                     <dt><fmt:message key="playersettings.forget"/></dt>
-                    <dd><div><input type="button" onClick="location.href='${deleteUrl}'" value="<fmt:message key='playersettings.forgetplayer'/>"/></div></dd>       
+                    <dd><div><input type="button" onClick="location.href='${deleteUrl}';window.top.playQueue.location.reload()" value="<fmt:message key='playersettings.forgetplayer'/>"/></div></dd>       
                     <dt><fmt:message key="playersettings.clone"/></dt>
-                    <dd><div><input type="button" onClick="location.href='${cloneUrl}'" value="<fmt:message key='playersettings.cloneplayer'/>"/></div></dd>
+                    <dd><div><input type="button" onClick="location.href='${cloneUrl}';window.top.playQueue.location.reload()" value="<fmt:message key='playersettings.cloneplayer'/>"/></div></dd>
                 </dl>
             </details>
 
@@ -192,7 +196,9 @@ $(document).ready(function() {
 </c:choose>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">parent.frames.playQueue.location.href="playQueue.view?"</script>
+    <script language="javascript" type="text/javascript">
+      window.top.playQueue.location.reload();
+    </script>
 </c:if>
 
 </body></html>

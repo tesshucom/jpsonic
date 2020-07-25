@@ -215,14 +215,14 @@ public class PlaylistService {
         Pair<List<MediaFile>, List<String>> result = importHandler.handle(inputSpecificPlaylist);
 
         if (result.getLeft().isEmpty() && !result.getRight().isEmpty()) {
+            for (String error : result.getRight()) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("File in playlist '" + fileName + "' not found: " + error);
+                }
+            }
             throw new ExecutionException(new IOException("No songs in the playlist were found."));
         }
 
-        for (String error : result.getRight()) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("File in playlist '" + fileName + "' not found: " + error);
-            }
-        }
         Date now = new Date();
         Playlist playlist;
         if (existingPlaylist == null) {

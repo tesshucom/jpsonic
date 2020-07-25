@@ -15,11 +15,9 @@ long usedMemory = totalMemory - freeMemory;
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 
-<body class="mainframe bgcolor1">
-<h1>
-    <img src="<spring:theme code='errorImage'/>" alt=""/>
-    <span style="vertical-align: middle">Error</span>
-</h1>
+<body class="mainframe">
+
+<h1><img src="<spring:theme code='errorImage'/>" alt=""/>Error</h1>
 
 <p>
     Airsonic encountered an internal error. You can report this error in the

@@ -5,12 +5,9 @@
     <%@ include file="head.jsp" %>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='errorImage'/>" alt=""/>
-    <span style="vertical-align: middle"><fmt:message key="accessDenied.title"/></span>
-</h1>
+<h1><img src="<spring:theme code='errorImage'/>" alt=""/><fmt:message key="accessDenied.title"/></h1>
 
 <p>
     <fmt:message key="accessDenied.text"/>

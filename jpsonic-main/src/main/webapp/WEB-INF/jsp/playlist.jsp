@@ -11,7 +11,6 @@
 
         var playlist;
         var songs;
-
         function init() {
             dwr.engine.setErrorHandler(null);
             $("#dialog-edit").dialog({resizable: true, width:400, autoOpen: false,
@@ -34,7 +33,9 @@
                 buttons: {
                     "<fmt:message key="common.delete"/>": function() {
                         $(this).dialog("close");
-                        playlistService.deletePlaylist(playlist.id, function (){top.left.updatePlaylists(); location = "playlists.view";});
+                        playlistService.deletePlaylist(playlist.id, function (){
+                        	window.parent.main.location = "playlists.view";
+                        });
                     },
                     "<fmt:message key="common.cancel"/>": function() {
                         $(this).dialog("close");
@@ -180,7 +181,7 @@
     </style>
 
 </head>
-<body class="mainframe bgcolor1" onload="init()">
+<body class="mainframe" onload="init()">
 
 <div style="float:left;margin-right:1.5em;margin-bottom:1.5em">
 <c:import url="coverArt.jsp">

@@ -9,7 +9,7 @@
         function init() {
             enablePasswordChangeFields();
             <c:if test="${settings_reload}">
-            parent.frames.upper.location.href="top.view?";
+              window.top.upper.location.reload();
             </c:if>
         }
         function enablePasswordChangeFields() {
@@ -35,11 +35,13 @@
     </script>
 </head>
 
-<body class="mainframe bgcolor1" onload="init()">
+<body class="mainframe settings" onload="init()">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="user"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
     
 <table class="indent">

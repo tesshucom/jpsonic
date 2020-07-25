@@ -4,12 +4,9 @@
 <head>
     <%@ include file="head.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='settingsImage'/>" alt=""/>
-    <span style="vertical-align: middle"><fmt:message key="avataruploadresult.title"/></span>
-</h1>
+<h1><img src="<spring:theme code='settingsImage'/>" alt=""/><fmt:message key="avataruploadresult.title"/></h1>
 
 <c:choose>
     <c:when test="${empty model.error}">

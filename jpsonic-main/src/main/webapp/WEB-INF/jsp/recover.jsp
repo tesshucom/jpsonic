@@ -5,11 +5,11 @@
 <head>
     <%@ include file="head.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
 <form action="recover.view" method="POST">
     <sec:csrfInput />
-    <div class="bgcolor2 shadow" style="padding:20px 50px 20px 50px; margin-top:100px;margin-left:50px;margin-right:50px">
+    <div class="bgcolor2" style="padding:20px 50px 20px 50px; margin-top:100px;margin-left:50px;margin-right:50px">
 
         <div style="margin-left: auto; margin-right: auto; width: 45em">
 

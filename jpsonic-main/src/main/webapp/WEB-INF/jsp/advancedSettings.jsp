@@ -7,16 +7,19 @@
     <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe settings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="advanced"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <form:form method="post" action="advancedSettings.view" modelAttribute="command">
 
-    <details>
+    <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
+    <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.bandwidth"/></summary>
         <dl>
             <dt><fmt:message key="advancedsettings.downloadlimit"/></dt>
@@ -32,7 +35,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.email"/></summary>
         <dl>
             <dt><fmt:message key="advancedsettings.smtpFrom"/></dt>
@@ -74,7 +77,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.ldap"/></summary>
         <p class="warning"><fmt:message key="advancedsettings.ldapRequiresRestart"/></p>
         <dl>
@@ -112,7 +115,7 @@
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.accountrecovery"/></summary>
         <dl>
             <dt></dt>
@@ -143,8 +146,8 @@
 
 <c:if test="${settings_reload}">
     <script language="javascript" type="text/javascript">
-        parent.frames.upper.location.href="top.view?";
-        parent.frames.playQueue.location.href="playQueue.view?";
+      window.top.playQueue.location.reload();
+      window.top.upper.location.reload();
     </script>
 </c:if>
 

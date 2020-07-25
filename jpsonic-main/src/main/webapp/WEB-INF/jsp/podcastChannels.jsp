@@ -1,4 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
+<%@ page trimDirectiveWhitespaces="true" %>
 <%--
   ~ This file is part of Airsonic.
   ~
@@ -23,12 +24,12 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-</head><body class="mainframe bgcolor1">
+</head><body class="mainframe">
 
-<h1 style="padding-bottom: 1em">
-    <img src="<spring:theme code='podcastLargeImage'/>" alt="">
-    <span style="vertical-align: middle"><fmt:message key="podcastreceiver.title"/></span>
-</h1>
+<c:import url="podcastsHeader.jsp">
+    <c:param name="cat" value="podcasts"/>
+    <c:param name="restricted" value="${not model.user.adminRole}"/>
+</c:import>
 
 <c:if test="${empty model.channels}">
     <p><em><fmt:message key="podcastreceiver.empty"/></em></p>
@@ -92,9 +93,6 @@
 <table style="padding-top:1em"><tr>
     <c:if test="${model.user.podcastRole}">
         <td style="padding-right:2em"><div class="forward"><a href="podcastReceiverAdmin.view?refresh"><fmt:message key="podcastreceiver.check"/></a></div></td>
-    </c:if>
-    <c:if test="${model.user.adminRole}">
-        <td style="padding-right:2em"><div class="forward"><a href="podcastSettings.view?"><fmt:message key="podcastreceiver.settings"/></a></div></td>
     </c:if>
 </tr></table>
 
