@@ -73,11 +73,14 @@
             <dt><fmt:message key='musicfoldersettings.scannow'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="scanMediaFolders"/></c:import></dt>
             <dd>
                 <div>
-                    <input type="button" onClick="location.href='musicFolderSettings.view?scanNow'" value="<fmt:message key='musicfoldersettings.doscan'/>" 
-                        <c:if test="${command.scanning}">
-                            disabled
-                        </c:if>
-                    />
+                    <c:choose>
+                        <c:when test='${command.scanning}'>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
+                        </c:when>
+                        <c:otherwise>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow'" value="<fmt:message key='musicfoldersettings.doscan'/>"/>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </dd>
             <dt><fmt:message key="musicfoldersettings.scan"/></dt>
@@ -103,11 +106,14 @@
             <dt><fmt:message key='musicfoldersettings.expunge'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="expunge"/></c:import></dt>
             <dd>
                 <div>
-                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" 
-                        <c:if test="${command.scanning}">
-                            disabled
-                        </c:if>
-                    />
+                    <c:choose>
+                        <c:when test='${command.scanning}'>
+		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
+                        </c:when>
+                        <c:otherwise>
+		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
+                        </c:otherwise>
+                    </c:choose>
                 </div>
             </dd>
         </dl>
@@ -146,11 +152,14 @@
     </details>
 
     <div class="submits">
-        <input type="submit" value="<fmt:message key='common.save'/>" 
-            <c:if test="${command.scanning}">
-                disabled
-            </c:if>
-        >
+        <c:choose>
+            <c:when test='${command.scanning}'>
+            	<input type="submit" value="<fmt:message key='common.save'/>" disabled/>
+            </c:when>
+            <c:otherwise>
+            	<input type="submit" value="<fmt:message key='common.save'/>"/>
+            </c:otherwise>
+        </c:choose>
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
 

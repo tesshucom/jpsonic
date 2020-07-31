@@ -14,9 +14,9 @@
 <details>
     <summary class="
         <c:choose>
-            <c:when test="${model.dbIsLegacy}">
+            <c:when test='${model.dbIsLegacy}'>
                 <c:choose>
-                    <c:when test="${model.dbLogSizeBytes < 268435456}">
+                    <c:when test='${model.dbLogSizeBytes < 268435456}'>
                         statusOK
                     </c:when>
                     <c:otherwise>
@@ -32,7 +32,7 @@
         <fmt:message key="internalhelp.productsinfo"/>
     </summary>
     <c:choose>
-        <c:when test="${model.dbIsLegacy}">
+        <c:when test='${model.dbIsLegacy}'>
             <ul>
                 <li>
                     <c:choose>
@@ -68,7 +68,7 @@
 <details>
     <summary class="
         <c:choose>
-            <c:when test="${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}">
+            <c:when test='${model.dbMediaFileAlbumNonPresentCount + model.dbMediaFileDirectoryNonPresentCount + model.dbMediaFileMusicNonPresentCount + model.dbMediaFilePodcastNonPresentCount == 0}'>
                 statusOK
             </c:when>
             <c:otherwise>
@@ -119,7 +119,7 @@
 <details>
     <summary class="
         <c:choose>
-            <c:when test="${model.dbMediaFilesInNonPresentMusicFoldersCount == 0 and model.dbMediaFilesWithMusicFolderMismatchCount == 0}">
+            <c:when test='${model.dbMediaFilesInNonPresentMusicFoldersCount == 0 and model.dbMediaFilesWithMusicFolderMismatchCount == 0}'>
                 statusOK
             </c:when>
             <c:otherwise>
@@ -168,7 +168,7 @@
     </c:forEach>
     <summary class="
         <c:choose>
-            <c:when test="${failCount eq 0}">
+            <c:when test='${failCount eq 0}'>
                         statusOK
             </c:when>
             <c:otherwise>
@@ -212,7 +212,7 @@
 <details>
     <summary class="
         <c:choose>
-            <c:when test="${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable && model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}">
+            <c:when test='${model.fsFfprobeInfo.readable and model.fsFfprobeInfo.executable && model.fsFfmpegInfo.readable and model.fsFfmpegInfo.executable}'>
                 statusOK
             </c:when>
             <c:otherwise>
@@ -263,7 +263,7 @@
 <details>
     <summary class="
             <c:choose>
-                <c:when test="${model.localeDefaultCharsetSupportsUtf8 && model.localeFileEncodingSupportsUtf8}">
+                <c:when test='${model.localeDefaultCharsetSupportsUtf8 && model.localeFileEncodingSupportsUtf8}'>
                     statusOK
                 </c:when>
                 <c:otherwise>
