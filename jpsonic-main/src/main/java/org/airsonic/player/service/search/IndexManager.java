@@ -631,7 +631,7 @@ public class IndexManager {
 
                     int numTerms = HighFreqTerms.DEFAULT_NUMTERMS;
                     Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
-                    TermStats[] stats = null;
+                    TermStats[] stats;
                     try {
                         stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {

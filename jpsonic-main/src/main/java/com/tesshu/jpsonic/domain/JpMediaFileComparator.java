@@ -69,7 +69,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         }
 
         if (a.isDirectory() && b.isDirectory()) {
-            int n = 0;
+            int n;
             if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
                 n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
             } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading()) && !isEmpty(b.getArtistReading())) {

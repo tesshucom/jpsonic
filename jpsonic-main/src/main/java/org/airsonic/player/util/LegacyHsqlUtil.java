@@ -85,7 +85,7 @@ public class LegacyHsqlUtil {
         }
 
         // Check the database driver version
-        String driverVersion = null;
+        String driverVersion;
         try {
             Driver driver =
                     (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
@@ -252,7 +252,7 @@ public class LegacyHsqlUtil {
     public static void upgradeHsqldbDatabaseSafely() {
         if (LegacyHsqlUtil.isHsqldbDatabaseUpgradeNeeded()) {
             
-            Path backupDir = null;
+            Path backupDir;
             try {
                 backupDir = performHsqldbDatabaseBackup();
             } catch (Exception e) {

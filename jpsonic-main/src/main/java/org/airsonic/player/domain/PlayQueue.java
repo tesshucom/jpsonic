@@ -477,7 +477,7 @@ public class PlayQueue {
      * @return The total length in bytes.
      */
     public long length() {
-        long length = 0;
+        long length;
         synchronized (SEQUENCE_LOCK) {
             length = files.stream().mapToLong(m -> m.getFileSize()).sum();
         }

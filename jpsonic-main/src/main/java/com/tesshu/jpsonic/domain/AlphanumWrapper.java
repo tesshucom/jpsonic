@@ -48,7 +48,7 @@ class AlphanumWrapper extends Collator {
             thisMarker += thisChunk.length();
             String thatChunk = getChunk(s2, s2Length, thatMarker);
             thatMarker += thatChunk.length();
-            int result = 0;
+            int result;
             if (isDigit(thisChunk.charAt(0)) && isDigit(thatChunk.charAt(0))) {
                 int thisChunkLength = thisChunk.length();
                 result = thisChunkLength - thatChunk.length();

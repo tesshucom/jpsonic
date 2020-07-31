@@ -72,7 +72,7 @@ public class JAXBWriter {
     }
 
     private Marshaller createXmlMarshaller() {
-        Marshaller marshaller = null;
+        Marshaller marshaller;
         try {
             marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_ENCODING, StringUtil.ENCODING_UTF8);

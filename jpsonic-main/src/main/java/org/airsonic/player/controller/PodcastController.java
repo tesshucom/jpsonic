@@ -75,7 +75,7 @@ public class PodcastController {
             for (MediaFile song : songs) {
                 length += song.getFileSize();
             }
-            String publishDate = null;
+            String publishDate;
             synchronized (RSS_DATE_FORMAT) {
                 publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
             }

@@ -124,7 +124,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     @Override
     public int getItemCount() {
-        int count = 0;
+        int count;
         List<MusicFolder> allFolders = util.getAllMusicFolders();
         if (allFolders.size() == 1) {
             count = mediaFileService.getChildSizeOf(allFolders.get(0));

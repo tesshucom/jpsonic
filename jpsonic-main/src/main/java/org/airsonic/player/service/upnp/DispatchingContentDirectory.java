@@ -140,7 +140,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         // maxResult == 0 means all.
         long max = maxResults == 0 ? Long.MAX_VALUE : maxResults;
 
-        BrowseResult returnValue = null;
+        BrowseResult returnValue;
         try {
             String[] splitId = objectId.split(OBJECT_ID_SEPARATOR);
             String browseRoot = splitId[0];
