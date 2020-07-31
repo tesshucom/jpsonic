@@ -57,6 +57,7 @@ public class ImportPlaylistController {
     @Autowired
     private PlaylistService playlistService;
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // Referenced only when an exception occurs
     @PostMapping
     protected String handlePost(RedirectAttributes redirectAttributes,
                                 HttpServletRequest request
