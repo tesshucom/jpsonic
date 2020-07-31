@@ -211,7 +211,7 @@ public class StreamController {
             }
 
             // All headers are set, stop if that's all the client requested.
-            if (request.getMethod().equals("HEAD")) {
+            if ("HEAD".equals(request.getMethod())) {
                 return;
             }
 

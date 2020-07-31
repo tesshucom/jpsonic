@@ -125,10 +125,10 @@ public class RecoverController {
 
         String prot = "smtp";
         Properties props = new Properties();
-        if (settingsService.getSmtpEncryption().equals("SSL/TLS")) {
+        if ("SSL/TLS".equals(settingsService.getSmtpEncryption())) {
             prot = "smtps";
             props.put("mail." + prot + ".ssl.enable", "true");
-        } else if (settingsService.getSmtpEncryption().equals("STARTTLS")) {
+        } else if ("STARTTLS".equals(settingsService.getSmtpEncryption())) {
             prot = "smtp";
             props.put("mail." + prot + ".starttls.enable", "true");
         }
