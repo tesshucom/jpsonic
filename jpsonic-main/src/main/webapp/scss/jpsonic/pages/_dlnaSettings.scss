@@ -1,21 +1,35 @@
-table.tabular.dlna-display {
-  th {
-    text-align: center;
+.mainframe.settings.dlnaSettings {
+  input#dlnaServerName {
+    @include dlInputWidth(10);
   }
-  tr {
-    &:hover {
-      background-color: inherit;
+  input#dlnaBaseLANURL {
+    @include dlInputWidth(13);
+  }
+  input#dlnaRandomMax {
+    @include dlInputWidth(2);
+  }
+
+  table.tabular.dlna-display {
+    width: 640px;
+    margin: 30px 0 0 calc((100% - 640px) / 2);
+    th {
+      text-align: center;
     }
-    td {
-      &:nth-child(1) {
-        width: 420px;
-        padding-left: 10px;
-        text-align: left;
+    tr {
+      &:hover {
+        background-color: inherit;
       }
-      &:nth-child(2) {
-        width: 220px;
-        padding-left: 10px;
-        text-align: left;
+      td {
+        &:nth-child(1) {
+          width: 420px;
+          padding-left: 10px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          width: 220px;
+          padding-left: 10px;
+          text-align: left;
+        }
       }
     }
   }

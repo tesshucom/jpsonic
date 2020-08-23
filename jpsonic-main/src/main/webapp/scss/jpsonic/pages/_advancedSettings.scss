@@ -1,0 +1,43 @@
+.mainframe.settings.advancedSettings {
+  input#downloadLimit {
+    @include dlInputWidth(2);
+  }
+  input#uploadLimit {
+    @include dlInputWidth(2);
+  }
+  input#smtpFrom {
+    @include dlInputWidth(12);
+  }
+  input#smtpServer {
+    @include dlInputWidth(12);
+  }
+  input#smtpPort {
+    @include dlInputWidth(2);
+  }
+  input#smtpUser {
+    @include dlInputWidth(5);
+  }
+  input#smtpPassword {
+    @include dlInputWidth(5);
+  }
+
+  input#ldapUrl {
+    @include dlInputWidth(15);
+  }
+  input#ldapSearchFilter {
+    @include dlInputWidth(15);
+  }
+  input#ldapManagerDn {
+    @include dlInputWidth(5);
+  }
+  input#ldapManagerPassword {
+    @include dlInputWidth(5);
+  }
+
+  input#recaptchaSiteKey {
+    @include dlInputWidth(13);
+  }
+  input#recaptchaSecretKey {
+    @include dlInputWidth(13);
+  }
+}

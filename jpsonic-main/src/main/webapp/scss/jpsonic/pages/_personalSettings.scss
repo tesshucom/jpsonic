@@ -1,24 +1,67 @@
-table.tabular.personalsettings-display {
-  th {
-    text-align: center;
+.mainframe.settings.personalSettings {
+  input#paginationSize {
+    @include dlInputWidth(1);
   }
-  tr {
-    &:hover {
-      background-color: inherit;
+  input#listenBrainzToken {
+    @include dlInputWidth(9);
+  }
+  input#lastFmUsername {
+    @include dlInputWidth(6);
+  }
+  input#lastFmPassword {
+    @include dlInputWidth(6);
+  }
+  input#file {
+    cursor: pointer;
+    @include dlInputWidth(10);
+    padding: 0 0 0 10px;
+    border: none;
+  }
+
+  table.tabular.personalsettings-display {
+    width: 400px;
+    margin: 30px 0 0 calc((100% - 400px) / 2);
+    th {
+      text-align: center;
     }
-    td {
-      &:nth-child(1) {
-        width: 150px;
-        padding-left: 10px;
-        text-align: left;
+    tr {
+      &:hover {
+        background-color: inherit;
       }
-      &:nth-child(2) {
-        width: 120px;
-        text-align: center;
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          padding-left: 10px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          width: 120px;
+          text-align: center;
+        }
+        &:nth-child(3) {
+          width: 120px;
+          text-align: center;
+        }
       }
-      &:nth-child(3) {
-        width: 120px;
-        text-align: center;
+    }
+  }
+
+  table.tabular.personalsettings-display + dl {
+    margin-top: 30px;
+  }
+
+  summary + dl.single {
+    margin-top: 30px;
+  }
+
+  dl {
+    dd.avatarContainer {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: start;
+      .avatar {
+        white-space: nowrap;
       }
     }
   }

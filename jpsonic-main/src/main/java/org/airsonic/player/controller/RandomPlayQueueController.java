@@ -282,7 +282,7 @@ public class RandomPlayQueueController {
         // Render the 'reload' view to reload the play queue and the main page
         List<ReloadFrame> reloadFrames = new ArrayList<>();
         reloadFrames.add(new ReloadFrame("playQueue", "playQueue.view?"));
-        reloadFrames.add(new ReloadFrame("upper", "top.view?")); // TODO #646
+        reloadFrames.add(new ReloadFrame("upper", "top.view?"));
         Map<String, Object> map = LegacyMap.of("reloadFrames", reloadFrames);
         model.addAttribute("model", map);
         return "reload";

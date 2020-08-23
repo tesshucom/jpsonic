@@ -1,0 +1,98 @@
+.mainframe.artistMain {
+  .tabular.albums {
+    tr {
+      td {
+        height: 30px;
+        &:nth-child(1),
+        &:nth-child(2),
+        &:nth-child(3),
+        &:nth-child(4) {
+          width: 30px;
+        }
+        &.album {
+          &.truncate {
+            max-width: 25vw;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+        &.year {
+          padding: 0 10px 0 0;
+          width: 30px;
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  div {
+    .tabular.top-songs {
+      tbody {
+        tr {
+          td {
+            height: 30px;
+            &:nth-child(1),
+            &:nth-child(2),
+            &:nth-child(4),
+            &:nth-child(3) {
+              width: 30px;
+            }
+            &:nth-child(5) {
+              // track no
+              width: 30px;
+              text-align: right;
+            }
+            &.song,
+            &.album {
+              &.truncate {
+                max-width: 25vw;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+            &.duration {
+              padding: 0 10px 0 0;
+              width: 60px;
+              text-align: right;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  h2 + span {
+    ul.anchorList {
+      margin-top: 32px;
+      width: calc(100% - $jp-subsection-indent);
+      margin-left: $jp-subsection-indent;
+      align-items: center;
+      justify-content: start;
+    }
+  }
+}
+
+#commentForm,
+#topSongsHeader,
+#topSongs,
+#similar {
+  display: none;
+}
+
+#topSongs,
+#similar {
+  margin-top: 30px;
+}
+.coverart-container + #topSongs,
+.coverart-container + #similar {
+  margin-top: 0;
+}
+
+div#commentForm {
+  margin-top: 30px;
+}
+div#commentForm + table.tabular {
+  margin-top: 30px;
+}

@@ -23,7 +23,7 @@
     <%@ include file="jquery.jsp" %>
 </head>
 
-<body class="mainframe">
+<body class="mainframe settings sonosSettings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="sonos"/>
@@ -40,15 +40,14 @@
         <label for="sonosEnabled"><fmt:message key="sonossettings.enabled"/></label>
     </div>
 
-    <p class="detail" style="width:60%;white-space:normal">
+    <p class="detail">
         <fmt:message key="sonossettings.description"/>
     </p>
     <div>
         <fmt:message key="sonossettings.servicename"/>
-        <input name="sonosServiceName" id="sonosServiceName" size="40"
-               value="<c:out value='${model.sonosServiceName}' escapeXml='true'/>"/>
+        <input name="sonosServiceName" id="sonosServiceName" value="<c:out value='${model.sonosServiceName}' escapeXml='true'/>"/>
     </div>
-    <p class="detail" style="width:60%;white-space:normal;padding-top:0">
+    <p class="detail">
         <fmt:message key="sonossettings.servicename.description"/>
     </p>
 

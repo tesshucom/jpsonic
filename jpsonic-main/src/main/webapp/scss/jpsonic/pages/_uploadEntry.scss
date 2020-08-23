@@ -1,28 +1,40 @@
-.mainframe.upload table.tabular.transcoding {
-  margin-left: 0;
-}
-
-table.tabular.transcoding {
-  width: 100%;
-  th {
-    text-align: center;
+.mainframe.upload {
+  input#file {
+    cursor: pointer;
+    @include dlInputWidth(10);
+    padding: 0 0 0 10px;
+    border: none;
   }
-  tr {
-    &:hover {
-      background-color: inherit;
+  input#dir {
+    @include dlInputWidth(9);
+  }
+
+  table.tabular.transcoding {
+    margin-left: 0;
+  }
+
+  table.tabular.transcoding {
+    width: 100%;
+    th {
+      text-align: center;
     }
-    td {
-      &:nth-child(1) {
-        width: 150px;
-        text-align: left;
+    tr {
+      &:hover {
+        background-color: inherit;
       }
-      &:nth-child(2) {
-        padding: 0;
-        text-align: left;
-      }
-      &:nth-child(3) {
-        width: 60px;
-        text-align: center;
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          padding: 0;
+          text-align: left;
+        }
+        &:nth-child(3) {
+          width: 60px;
+          text-align: center;
+        }
       }
     }
   }

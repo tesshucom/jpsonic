@@ -1,0 +1,57 @@
+.mainframe.changeCoverArt {
+  input#artist {
+    @include dlInputWidth(9);
+  }
+  input#album {
+    @include dlInputWidth(9);
+  }
+  input#url {
+    @include dlInputWidth(13);
+  }
+
+  .action + details {
+    margin-top: 30px;
+  }
+  details {
+    form dl {
+      margin-top: 30px;
+    }
+  }
+
+  #wait,
+  #noImagesFound,
+  #success,
+  #error {
+    display: none;
+  }
+  #template.coverart {
+    display: none;
+    width: 250px;
+    height: 290px;
+
+    margin: 0 20px 30px 0;
+    .search-result-link {
+      width: 250px;
+      height: 250px;
+      margin: 0;
+      padding: 0;
+    }
+    .search-result-image {
+      max-width: 250px;
+      width: 250px;
+      height: 250px;
+    }
+    .caption1,
+    .caption2 {
+      max-width: 250px;
+      width: 250px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .coverart-container {
+    justify-content: start;
+  }
+}

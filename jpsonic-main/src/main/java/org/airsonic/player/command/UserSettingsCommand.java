@@ -65,7 +65,8 @@ public class UserSettingsCommand {
 
     private boolean useRadio;
     private boolean useSonos;
-    
+    private boolean showToast;
+
     public String getUsername() {
         return username;
     }
@@ -310,6 +311,14 @@ public class UserSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 
     public void setUser(User user) {

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -42,6 +43,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller for the player settings page.
@@ -67,7 +69,7 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model) throws Exception {
+    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
 
         handleRequestParameters(request);
         List<Player> players = getPlayers(request);
@@ -109,7 +111,13 @@ public class PlayerSettingsController {
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
         command.setTranscodeDirectory(transcodingService.getTranscodeDirectory().getPath());
         command.setTranscodeSchemes(TranscodeScheme.values());
-        command.setTechnologies(PlayerTechnology.values());
+        PlayerTechnology[] technologys = PlayerTechnology.values();
+        if (!settingsService.isShowJavaJukebox()) {
+            technologys = Arrays.stream(technologys)
+                    .filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
+                    .toArray(PlayerTechnology[]::new);
+        }
+        command.setTechnologies(technologys);
         command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
 
@@ -120,6 +128,7 @@ public class PlayerSettingsController {
 
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
+        toast.ifPresent(b -> command.setShowToast(b));
 
         model.addAttribute("command",command);
     }

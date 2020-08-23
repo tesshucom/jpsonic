@@ -21,10 +21,10 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
-<body class="mainframe settings">
+<body class="mainframe settings dlnaSettings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="dlna"/>
@@ -48,12 +48,12 @@
             </dd>
         	<dt><fmt:message key="dlnasettings.servername"/></dt>
             <dd>
-                <input name="dlnaServerName" id="dlnaServerName" size="40" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
+                <input name="dlnaServerName" id="dlnaServerName" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaservername"/></c:import>
             </dd>
         	<dt><label for="dlnaBaseLANURL" ><fmt:message key="dlnasettings.baselanurl"/></label></dt>
             <dd>
-                <input type="text" size="50" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value='${model.dlnaBaseLANURL}' />" />
+                <input type="text" name="dlnaBaseLANURL" id="dlnaBaseLANURL" value="<c:out value='${model.dlnaBaseLANURL}' />" />
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnalanurl"/></c:import>
             </dd>
         </dl>
@@ -223,7 +223,7 @@
             </dd>
         	<dt><label for="dlnaRandomMax"><fmt:message key="dlnasettings.randommax"/></label></dt>
             <dd>
-                <input type="text" size="24" maxlength="4" name="dlnaRandomMax" id="dlnaRandomMax" value="<c:out value='${model.dlnaRandomMax}' />"/>
+                <input type="text" maxlength="4" name="dlnaRandomMax" id="dlnaRandomMax" value="<c:out value='${model.dlnaRandomMax}' />"/>
             </dd>
         	<dt></dt>
             <dd>

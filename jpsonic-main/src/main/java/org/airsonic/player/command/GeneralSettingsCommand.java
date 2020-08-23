@@ -47,8 +47,13 @@ public class GeneralSettingsCommand {
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
     private boolean openDetailSetting;
-    boolean useRadio;
-    boolean useSonos;
+    private boolean useRadio;
+    private boolean useSonos;
+    private boolean publishPodcast;
+    private boolean showJavaJukebox;
+    private boolean showServerLog;
+    private boolean showRememberMe;
+    private boolean showToast;
     private String welcomeTitle;
     private String welcomeSubtitle;
     private String welcomeMessage;
@@ -283,5 +288,45 @@ public class GeneralSettingsCommand {
 
     public void setUseSonos(boolean useSono) {
         this.useSonos = useSono;
+    }
+
+    public boolean isPublishPodcast() {
+        return publishPodcast;
+    }
+
+    public void setPublishPodcast(boolean publishPodcast) {
+        this.publishPodcast = publishPodcast;
+    }
+
+    public boolean isShowJavaJukebox() {
+        return showJavaJukebox;
+    }
+
+    public void setShowJavaJukebox(boolean showJavaJukebox) {
+        this.showJavaJukebox = showJavaJukebox;
+    }
+
+    public boolean isShowServerLog() {
+        return showServerLog;
+    }
+
+    public void setShowServerLog(boolean showServerLog) {
+        this.showServerLog = showServerLog;
+    }
+
+    public boolean isShowRememberMe() {
+        return showRememberMe;
+    }
+
+    public void setShowRememberMe(boolean showRememberMe) {
+        this.showRememberMe = showRememberMe;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 }

@@ -3,9 +3,9 @@
 
 <html><head>
     <%@ include file="head.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
-<body class="mainframe">
+<body class="mainframe settings">
 
 <c:import url="helpHeader.jsp">
 	<c:param name="cat" value="internalhelp"/>
@@ -51,7 +51,7 @@
         <dt><fmt:message key="internalhelp.luceneversion"/></dt>
         <dd>${model.indexLuceneVersion}</dd>
         <dt><fmt:message key="internalhelp.dbdrivername"/></dt>
-        <dd><td class="ruleTableCell">${model.dbDriverName}</td></dd>
+        <dd>${model.dbDriverName}</dd>
         <dt><fmt:message key="internalhelp.dbdriverversion"/></dt>
         <dd>${model.dbDriverVersion}</dd>
         <dt><fmt:message key="internalhelp.dbserverversion"/></dt>

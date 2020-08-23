@@ -1,0 +1,8 @@
+.mainframe.settings.importPlaylist {
+  input#file {
+    cursor: pointer;
+    @include dlInputWidth(10);
+    padding: 0 0 0 10px;
+    border: none;
+  }
+}

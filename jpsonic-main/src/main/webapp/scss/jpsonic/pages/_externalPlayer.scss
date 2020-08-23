@@ -1,0 +1,30 @@
+.mainframe.externalPlayer {
+  height: 100%;
+  .external .mejs-container.mejs-audio,
+  .mejs__container.mejs__audio {
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: auto;
+  }
+  .external.box {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+  }
+  .external > .header {
+    padding-top: 2em;
+    margin: auto;
+    width: 500px;
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: auto;
+  }
+  .external > .detail {
+    flex-grow: 0;
+    flex-shrink: 1;
+    flex-basis: 40px;
+  }
+}

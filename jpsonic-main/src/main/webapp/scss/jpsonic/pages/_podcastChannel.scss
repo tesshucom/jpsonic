@@ -1,0 +1,55 @@
+.mainframe.podcastChannel {
+  .tabular-and-thumb {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    .tabular.episodes {
+      @include tabularWithCoverArt;
+      tr {
+        th,
+        td {
+          &:nth-child(1),
+          &:nth-child(2),
+          &:nth-child(3) {
+            @include buttonCell;
+          }
+          &:nth-child(4) {
+            width: 30px;
+            text-align: center;
+            vertical-align: middle;
+          }
+          &.episode-title,
+          &.description {
+            min-width: 10rem;
+            &.truncate {
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+            }
+          }
+          &.episode-title.truncate,
+          &.description.truncate {
+            max-width: 20vw;
+          }
+          &.status {
+            width: 60px;
+          }
+          &.count {
+            width: 120px;
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
+
+  #dialog-delete {
+    display: none;
+    .ui-icon {
+      .ui-icon-alert {
+        float: left;
+        margin: 0 7px 20px 0;
+      }
+    }
+  }
+}

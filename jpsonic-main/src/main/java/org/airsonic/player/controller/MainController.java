@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewSelector;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
@@ -62,6 +63,9 @@ public class MainController {
     private RatingService ratingService;
     @Autowired
     private MediaFileService mediaFileService;
+
+    @Autowired
+    private ViewSelector viewSelector;
 
     @SuppressWarnings("PMD.EmptyCatchBlock")
     @GetMapping
@@ -127,13 +131,31 @@ public class MainController {
         map.put("visibility", userSettings.getMainVisibility());
         map.put("showAlbumYear", settingsService.isSortAlbumsByYear());
         map.put("showArtistInfo", userSettings.isShowArtistInfoEnabled());
+        map.put("showTopSongs", userSettings.isShowTopSongs());
+        map.put("showSimilar", userSettings.isShowSimilar());
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("brand", settingsService.getBrand());
-        map.put("viewAsList", isViewAsList(request, userSettings));
+        map.put("viewAsList", viewSelector.isViewAsList(request, userSettings.getUsername()));
+        map.put("showDownload", userSettings.isShowDownload());
+        map.put("showTag", userSettings.isShowTag());
+        map.put("showChangeCoverArt", userSettings.isShowChangeCoverArt());
+        map.put("showComment", userSettings.isShowComment());
+        map.put("showShare", userSettings.isShowShare());
+        map.put("showRate", userSettings.isShowRate());
+        map.put("showAlbumSearch", userSettings.isShowAlbumSearch());
+        map.put("showLastPlay", userSettings.isShowLastPlay());
+        map.put("showSibling", userSettings.isShowSibling());
+        map.put("showAlbumActions", userSettings.isShowAlbumActions());
+        map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
+        map.put("simpleDisplay", userSettings.isSimpleDisplay());
+        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
+
         if (dir.isAlbum()) {
-            List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
-            thereIsMoreSAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
-            map.put("siblingAlbums", siblingAlbums);
+            if (userSettings.isShowSibling()) {
+                List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
+                thereIsMoreSAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
+                map.put("siblingAlbums", siblingAlbums);
+            }
             map.put("artist", guessArtist(children));
             map.put("album", guessAlbum(children));
             map.put("musicBrainzReleaseId", guessMusicBrainzReleaseId(children));
@@ -186,16 +208,6 @@ public class MainController {
             }
         }
         return trimmed;
-    }
-
-    private boolean isViewAsList(HttpServletRequest request, UserSettings userSettings) {
-        boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, "viewAsList", userSettings.isViewAsList());
-        if (viewAsList != userSettings.isViewAsList()) {
-            userSettings.setViewAsList(viewAsList);
-            userSettings.setChanged(new Date());
-            settingsService.updateUserSettings(userSettings);
-        }
-        return viewAsList;
     }
 
     private boolean isVideoOnly(List<MediaFile> children) {

@@ -40,7 +40,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     static final String FAILURE_URL = "/login?error=1";
 
-    static final String DEVELOPMENT_REMEMBER_ME_KEY = "airsonic";
+    static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
     @Autowired
     private SecurityService securityService;

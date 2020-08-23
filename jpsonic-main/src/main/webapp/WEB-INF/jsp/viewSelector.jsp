@@ -15,25 +15,29 @@
   ~  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
   ~
   ~  Copyright 2015 (C) Sindre Mehus
+  ~  Copyright 2020 (C) tesshucom
+  
+  <%--
+    PARAMETERS
+    targetView: View name to be switched.
   --%>
 
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ include file="include.jsp" %>
 
-<div style="float:right;padding-right:1em">
-    <c:url value="main.view" var="changeViewUrl">
-        <c:param name="id" value="${model.dir.id}"/>
-        <c:param name="viewAsList" value="${not model.viewAsList}"/>
-    </c:url>
+<c:url value="${param.targetView}" var="changeViewUrl">
+    <c:param name="id" value="${model.dir.id}"/>
+    <c:param name="viewAsList" value="${not model.viewAsList}"/>
+</c:url>
+<ul class="controls">
     <c:choose>
         <c:when test="${model.viewAsList}">
-            <img src="<spring:theme code='viewAsListImage'/>" alt="" class="headerSelected" style="margin-right:8px"/>
-            <a href="${changeViewUrl}"><img src="<spring:theme code='viewAsGridImage'/>" alt=""/></a>
+            <li><span title="<fmt:message key='common.viewaslist'/>" class="control list disabled"><fmt:message key='common.viewaslist'/></span></li>
+            <li><a href="${changeViewUrl}" title="<fmt:message key='common.viewasgrid'/>" class="control tile"><fmt:message key='common.viewasgrid'/></a></li>
         </c:when>
         <c:otherwise>
-            <a href="${changeViewUrl}"><img src="<spring:theme code='viewAsListImage'/>" alt="" style="margin-right:8px"/></a>
-            <img src="<spring:theme code='viewAsGridImage'/>" alt="" class="headerSelected"/>
+            <li><a href="${changeViewUrl}" title="<fmt:message key='common.viewaslist'/>" class="control list"><fmt:message key='common.viewaslist'/></a></li>
+            <li><span title="<fmt:message key='common.viewasgrid'/>" class="control tile disabled"><fmt:message key='common.viewasgrid'/></span></li>
         </c:otherwise>
     </c:choose>
-</div>
-
+</ul>

@@ -26,7 +26,7 @@
         });
     </script>
 </head>
-<body class="mainframe">
+<body class="mainframe settings databaseSettings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="database"/>
@@ -36,93 +36,58 @@
 </c:import>
 
 <form:form modelAttribute="command" action="databaseSettings.view" method="post">
-    <p><fmt:message key="databasesettings.moreinfo"/></p>
 
-    <table style="white-space:nowrap" class="indent">
-        <tr>
-            <td><fmt:message key="databasesettings.configtype"/></td>
-            <td>
-                <form:select path="configType" cssStyle="width:12em" id="configType">
-                    <form:option value="LEGACY" label="Legacy"/>
-                    <form:option value="EMBED" label="Embedded JDBC"/>
-                    <form:option value="JNDI" label="JNDI"/>
-                </form:select>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="databaseConfigType"/></c:import>
-            </td>
-        </tr>
-    </table>
-
-    <div id="EMBEDDatabaseOptions" class="hideawayDatabaseOptions">
-        <table style="white-space:nowrap;" class="indent">
-            <table style="white-space:nowrap;" class="indent">
-                <tr>
-                    <td><fmt:message key="databasesettings.embeddriver"/></td>
-                    <td>
-                        <form:input path="embedDriver" size="30"/>
-                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="embeddriver"/></c:import>
-                    </td>
-                </tr>
-                <tr>
-                    <td><fmt:message key="databasesettings.embedurl"/></td>
-                    <td>
-                        <form:input path="embedUrl" size="58"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td><fmt:message key="databasesettings.embedusername"/></td>
-                    <td>
-                        <form:input path="embedUsername" size="36"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td><fmt:message key="databasesettings.embedpassword"/></td>
-                    <td>
-                        <form:input path="embedPassword" size="36"/>
-                    </td>
-                </tr>
-            </table>
-        </table>
+    <div class="titledSelector methods">
+        <fmt:message key="databasesettings.configtype"/>
+        <form:select path="configType" id="configType">
+            <form:option value="LEGACY" label="Legacy"/>
+            <form:option value="EMBED" label="Embedded JDBC"/>
+            <form:option value="JNDI" label="JNDI"/>
+        </form:select>
+        <c:import url="helpToolTip.jsp"><c:param name="topic" value="databaseConfigType"/></c:import>
     </div>
 
-    <div id="JNDIDatabaseOptions" class="hideawayDatabaseOptions">
-        <table style="white-space:nowrap;" class="indent">
-            <tr>
-                <td><fmt:message key="databasesettings.jndiname"/></td>
-                <td>
-                    <form:input path="JNDIName" size="36"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="jndiname"/></c:import>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div id="nonLEGACYDatabaseOptions" class="hideawayDatabaseOptions">
-        <table style="white-space:nowrap" class="indent">
-            <tr>
-                <td><fmt:message key="databasesettings.mysqlvarcharmaxlength"/></td>
-                <td>
-                    <form:input path="mysqlVarcharMaxlength" size="8"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="mysqlvarcharmaxlength"/></c:import>
-                </td>
-            </tr>
-            <tr>
-                <td><fmt:message key="databasesettings.usertablequote"/></td>
-                <td>
-                    <form:input path="usertableQuote" size="1" htmlEscape="true"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="usertablequote"/></c:import>
-                </td>
-            </tr>
-        </table>
-        <p class="warning"><fmt:message key="databasesettings.jdbclibrary"/></p>
-    </div>
+    <dl id="EMBEDDatabaseOptions" class="hideawayDatabaseOptions">
+        <dt><fmt:message key="databasesettings.embeddriver"/></dt>
+        <dd>
+            <form:input path="embedDriver"/>
+            <c:import url="helpToolTip.jsp"><c:param name="topic" value="embeddriver"/></c:import>
+        </dd>
+        <dt><fmt:message key="databasesettings.embedurl"/></dt>
+        <dd><form:input path="embedUrl"/></dd>
+        <dt><fmt:message key="databasesettings.embedusername"/></dt>
+        <dd><form:input path="embedUsername"/></dd>
+        <dt><fmt:message key="databasesettings.embedpassword"/></dt>
+        <dd><form:input path="embedPassword"/></dd>
+    </dl>
 
-    <p class="warning"><fmt:message key="databasettings.restartRequired"/></p>
+    <dl id="JNDIDatabaseOptions" class="hideawayDatabaseOptions single">
+        <dt><fmt:message key="databasesettings.jndiname"/></dt>
+        <dd><form:input path="JNDIName"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="jndiname"/></c:import></dd>
+    </dl>
 
-    <p>
-        <input type="submit" value="<fmt:message key='common.save'/>" style="margin-right:0.3em">
-        <a href="nowPlaying.view"><input type="button" value="<fmt:message key='common.cancel'/>"></a>
-    </p>
+    <dl id="nonLEGACYDatabaseOptions" class="hideawayDatabaseOptions">
+        <dt><fmt:message key="databasesettings.mysqlvarcharmaxlength"/></dt>
+        <dd>
+            <form:input path="mysqlVarcharMaxlength"/>
+            <c:import url="helpToolTip.jsp"><c:param name="topic" value="mysqlvarcharmaxlength"/></c:import>
+        </dd>
+        <dt><fmt:message key="databasesettings.usertablequote"/></dt>
+        <dd>
+            <form:input path="usertableQuote" htmlEscape="true"/>
+            <c:import url="helpToolTip.jsp"><c:param name="topic" value="usertablequote"/></c:import>
+        </dd>
+    </dl>
+
+    <div class="submits">
+        <input type="submit" value="<fmt:message key='common.save'/>">
+        <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
+    </div>
 
 </form:form>
+
+    <p><strong><fmt:message key="databasettings.restartRequired"/></strong></p>
+    <p><fmt:message key="databasesettings.moreinfo"/></p>
 
 </body>
 </html>

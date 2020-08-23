@@ -43,6 +43,7 @@ public class SearchCommand {
     private Player player;
     private boolean isComposerVisible;
     private boolean isGenreVisible;
+    private boolean isSimpleDisplay;
 
     public String getQuery() {
         return query;
@@ -122,6 +123,14 @@ public class SearchCommand {
 
     public void setGenreVisible(boolean isGenreVisible) {
         this.isGenreVisible = isGenreVisible;
+    }
+
+    public boolean isSimpleDisplay() {
+        return isSimpleDisplay;
+    }
+
+    public void setSimpleDisplay(boolean isSimpleDisplay) {
+        this.isSimpleDisplay = isSimpleDisplay;
     }
 
     public static class Match {

@@ -6,17 +6,17 @@
 </head>
 <body class="mainframe">
 
-<h1><img src="<spring:theme code='shareImage'/>"><fmt:message key="share.title"/></h1>
+<section>
+    <h1 class="share"><fmt:message key="share.title"/></h1>
+</section>
 
 <fmt:message key="share.warning"/>
 <p>
-    <a href="https://www.facebook.com/sharer.php?u=${model.playUrl}" target="_blank" rel="noopener noreferrer"><img src="<spring:theme code='shareFacebookImage'/>" alt=""></a>&nbsp;
-    <a href="https://www.facebook.com/sharer.php?u=${model.playUrl}" target="_blank" rel="noopener noreferrer"><fmt:message key="share.facebook"/></a>
+    <span class="icon facebook"></span>&nbsp;<a href="https://www.facebook.com/sharer.php?u=${model.playUrl}" target="_blank" rel="noopener noreferrer"><fmt:message key="share.facebook"/></a>
 </p>
 
 <p>
-    <a href="https://twitter.com/?status=Listening to ${model.playUrl}" target="_blank" rel="noopener noreferrer"><img src="<spring:theme code='shareTwitterImage'/>" alt=""></a>&nbsp;
-    <a href="https://twitter.com/?status=Listening to ${model.playUrl}" target="_blank" rel="noopener noreferrer"><fmt:message key="share.twitter"/></a>
+    <span class="icon twitter"></span>&nbsp;<a href="https://twitter.com/?status=Listening to ${model.playUrl}" target="_blank" rel="noopener noreferrer"><fmt:message key="share.twitter"/></a>
 </p>
 <p>
     <fmt:message key="share.link">
@@ -24,13 +24,13 @@
     </fmt:message>
 </p>
 
-<div style="padding-top:1em">
+<div>
     <c:if test="${not empty model.dir}">
         <sub:url value="main.view" var="backUrl"><sub:param name="path" value="${model.dir.path}"/></sub:url>
-        <div class="back" style="float:left;padding-right:10pt"><a href="${backUrl}"><fmt:message key="common.back"/></a></div>
+        <div><a href="${backUrl}"><fmt:message key="common.back"/></a></div>
     </c:if>
     <c:if test="${model.user.settingsRole}">
-        <div class="forward" style="float:left"><a href="shareSettings.view"><fmt:message key="share.manage"/></a></div>
+        <div><a href="shareSettings.view"><fmt:message key="share.manage"/></a></div>
     </c:if>
 </div>
 </body>

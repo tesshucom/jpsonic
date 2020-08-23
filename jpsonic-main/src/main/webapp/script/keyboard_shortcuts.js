@@ -9,27 +9,26 @@ function isKeyboardShortcutsEnabled() {
 
 if (isKeyboardShortcutsEnabled()) {
 
-  let ref_main = window.parent.main;
-  Mousetrap.bind('shift+space', function() { window.parent.onToggleStartStop(); return false; });
-  Mousetrap.bind('shift+left',  function() { window.parent.onPrevious(); });
-  Mousetrap.bind('shift+right', function() { window.parent.onNext(); });
-  Mousetrap.bind('*',     function() { window.parent.onStarCurrent(); });
-  Mousetrap.bind('plus',  function() { window.parent.onGainAdd(+5); });
-  Mousetrap.bind('-',     function() { window.parent.onGainAdd(-5); });
-  Mousetrap.bind('q',     function() { window.parent.onTogglePlayQueue(); });
+  Mousetrap.bind('shift+space', function() { top.onToggleStartStop(); return false; });
+  Mousetrap.bind('shift+left',  function() { top.onPrevious(); });
+  Mousetrap.bind('shift+right', function() { top.onNext(); });
+  Mousetrap.bind('*',     function() { top.onStarCurrent(); });
+  Mousetrap.bind('plus',  function() { top.onGainAdd(+5); });
+  Mousetrap.bind('-',     function() { top.onGainAdd(-5); });
+  Mousetrap.bind('q',     function() { top.onTogglePlayQueue(); });
 
-  Mousetrap.bind('/',     function() { window.parent.onQueryFocus(); });
-  Mousetrap.bind('m',     function() { window.parent.onToggleDrawer(); });
+  Mousetrap.bind('/',     function() { top.onQueryFocus(); });
+  Mousetrap.bind('m',     function() { top.onToggleDrawer(); });
 
-  Mousetrap.bind('g h',   function() { ref_main != null ? ref_main.location.href = "home.view?" : window.parent.onChangeMainLocation('home.view?'); });
-  Mousetrap.bind('g p',   function() { ref_main != null ? ref_main.location.href = "playlists.view?" : window.parent.onChangeMainLocation('playlists.view?'); });
-  Mousetrap.bind('g o',   function() { ref_main != null ? ref_main.location.href = "podcastChannels.view?" : window.parent.onChangeMainLocation('podcastChannels.view?'); });
-  Mousetrap.bind('g s',   function() { ref_main != null ? ref_main.location.href = "settings.view?" : window.parent.onChangeMainLocation('settings.view?'); });
-  Mousetrap.bind('g t',   function() { ref_main != null ? ref_main.location.href = "starred.view?" : window.parent.onChangeMainLocation('starred.view?'); });
-  Mousetrap.bind('g r',   function() { ref_main != null ? ref_main.location.href = "more.view?" : window.parent.onChangeMainLocation('more.view?'); });
-  Mousetrap.bind('g a',   function() { ref_main != null ? ref_main.location.href = "help.view?" : window.parent.onChangeMainLocation('help.view?'); });
+  Mousetrap.bind('g h',   function() { top.onChangeMainLocation('home.view?'); });
+  Mousetrap.bind('g p',   function() { top.onChangeMainLocation('playlists.view?'); });
+  Mousetrap.bind('g o',   function() { top.onChangeMainLocation('podcastChannels.view?'); });
+  Mousetrap.bind('g s',   function() { top.onChangeMainLocation('settings.view?'); });
+  Mousetrap.bind('g t',   function() { top.onChangeMainLocation('starred.view?'); });
+  Mousetrap.bind('g r',   function() { top.onChangeMainLocation('more.view?'); });
+  Mousetrap.bind('g a',   function() { top.onChangeMainLocation('help.view?'); });
 
-  Mousetrap.bind('?',     function() { window.parent.onShowKeyboardShortcuts(); });
+  Mousetrap.bind('?',     function() { top.onShowKeyboardShortcuts(); });
 
   Mousetrap.bind('up up down down left right left right b a enter', function() {
     $('#showGrid4Debug').css('visibility', 'visible')

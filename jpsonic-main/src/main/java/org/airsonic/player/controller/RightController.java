@@ -22,7 +22,6 @@ package org.airsonic.player.controller;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.VersionService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,8 +46,6 @@ public class RightController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
-    @Autowired
-    private VersionService versionService;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
@@ -56,16 +53,6 @@ public class RightController {
         ModelAndView result = new ModelAndView("right");
 
         UserSettings userSettings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
-        if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestFinalVersion());
-
-        } else if (userSettings.isBetaVersionNotificationEnabled() && versionService.isNewBetaVersionAvailable()) {
-            map.put("newVersionAvailable", true);
-            map.put("latestVersion", versionService.getLatestBetaVersion());
-        }
-
-        map.put("brand", settingsService.getBrand());
         map.put("showNowPlaying", userSettings.isShowNowPlayingEnabled());
         map.put("user", securityService.getCurrentUser(request));
 

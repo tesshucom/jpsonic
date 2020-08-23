@@ -22,194 +22,210 @@
 <%--@elvariable id="model" type="java.util.Map"--%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/interface/starService.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/interface/multiService.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<script src="<c:url value='/dwr/util.js'/>"></script>
+<script src="<c:url value='/dwr/engine.js'/>"></script>
+<script src="<c:url value='/dwr/interface/starService.js'/>"></script>
+<script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
+<script src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
 
-</head><body class="mainframe" onload="init();">
+<script>
 
-<script type="text/javascript" language="javascript">
+var topSongs;
 
-    var topSongs;
+$(document).ready(function(){
+  $("a.fancy").fancyZoom({
+    minBorder: 30
+  });
+  <c:if test="${model.showArtistInfo or model.showTopSongs or model.showSimilar}">
+    loadArtistInfo();
+  </c:if>
+});
 
-    function init() {
-        $("a.fancy").fancyZoom({
-            minBorder: 30
+function loadArtistInfo() {
+  multiService.getArtistInfo(${model.dir.id}, 8, 50, function (artistInfo) {
+
+    <c:if test="${model.showArtistInfo}">
+      if (artistInfo.artistBio && artistInfo.artistBio.biography) {
+        $(function() {
+          $.when($("#artistBio").append(artistInfo.artistBio.biography))
+            .done(function() {$("#artistDetails").removeClass("loading")});
         });
+      }
+    </c:if>
 
-        <c:if test="${model.showArtistInfo}">
-        loadArtistInfo();
-        </c:if>
-    }
+    <c:if test="${model.showTopSongs}">
+      this.topSongs = artistInfo.topSongs;
+      if (topSongs.length > 0) {
+        $("#topSongs").show();
 
-    function loadArtistInfo() {
-        multiService.getArtistInfo(${model.dir.id}, 8, 50, function (artistInfo) {
-            if (artistInfo.similarArtists.length > 0) {
-
-                var html = "";
-                for (var i = 0; i < artistInfo.similarArtists.length; i++) {
-                    html += "<a href='main.view?id=" + artistInfo.similarArtists[i].mediaFileId + "' target='main'>" +
-                            escapeHtml(artistInfo.similarArtists[i].artistName) + "</a>";
-                    if (i < artistInfo.similarArtists.length - 1) {
-                        html += " <span class='similar-artist-divider'>|</span> ";
-                    }
-                }
-                $("#similarArtists").append(html);
-                $("#similarArtists").show();
-                $("#similarArtistsTitle").show();
-                $("#similarArtistsRadio").show();
-                $("#artistInfoTable").show();
-            }
-
-            if (artistInfo.artistBio && artistInfo.artistBio.biography) {
-                $("#artistBio").append(artistInfo.artistBio.biography);
-                if (artistInfo.artistBio.largeImageUrl) {
-                    $("#artistImage").attr({
-                          "src": artistInfo.artistBio.largeImageUrl,
-                          "class": "fancy"
-                    });
-                    $("#artistImageZoom").attr("href", artistInfo.artistBio.largeImageUrl);
-                    $("#artistImage").show();
-                    $("#artistInfoTable").show();
-                }
-            }
-
-            this.topSongs = artistInfo.topSongs;
-
-            if (topSongs.length > 0) {
-                $("#topSongsHeader").show();
-                $("#playTopSongs").show();
-
-                // Delete all the rows except for the "pattern" row
-                dwr.util.removeAllRows("topSongsBody", { filter:function(tr) {
-                    return (tr.id != "pattern");
-                }});
-
-                // Create a new set cloned from the pattern row
-                for (var i = 0; i < topSongs.length; i++) {
-                    var song  = topSongs[i];
-                    var id = i + 1;
-                    dwr.util.cloneNode("pattern", { idSuffix:id });
-                    if (song.starred) {
-                        $("#starSong" + id).attr("src", "<spring:theme code='ratingOnImage'/>");
-                    } else {
-                        $("#starSong" + id).attr("src", "<spring:theme code='ratingOffImage'/>");
-                    }
-                    $("#rank" + id).text(i + 1);
-                    $("#title" + id).text(song.title);
-                    $("#title" + id).attr("title", song.title);
-                    $("#album" + id).text(song.album);
-                    $("#album" + id).attr("title", song.album);
-                    $("#albumUrl" + id).attr("href", "main.view?id=" + song.id);
-                    $("#artist" + id).text(song.artist);
-                    $("#artist" + id).attr("title", song.artist);
-                    $("#songDuration" + id).text(song.durationAsString);
-
-                    // Note: show() method causes page to scroll to top.
-                    $("#pattern" + id).css("display", "table-row");
-                }
-            }
-        });
-    }
-
-    function toggleStarTopSong(index, imageId) {
-        toggleStar(topSongs[index].id, imageId);
-    }
-
-    function toggleStar(mediaFileId, imageId) {
-        if ($(imageId).attr("src").indexOf("<spring:theme code="ratingOnImage"/>") != -1) {
-            $(imageId).attr("src", "<spring:theme code="ratingOffImage"/>");
-            starService.unstar(mediaFileId);
+        // Delete all the rows except for the "pattern" row
+        dwr.util.removeAllRows("topSongsBody", { filter:function(tr) {
+          return (tr.id != "pattern");
+        }});
+  
+        // Create a new set cloned from the pattern row
+        for (var i = 0; i < topSongs.length; i++) {
+          var song  = topSongs[i];
+          var id = i + 1;
+          dwr.util.cloneNode("pattern", { idSuffix:id });
+          if (song.starred) {
+              $("#starSong" + id).removeClass('star');
+              $("#starSong" + id).addClass('star-fill');
+          } else {
+              $("#starSong" + id).removeClass('star-fill');
+              $("#starSong" + id).addClass('star');
+          }
+          $("#rank" + id).text(i + 1);
+          $("#title" + id).text(song.title);
+          $("#title" + id).attr("title", song.title);
+          $("#album" + id).text(song.album);
+          $("#album" + id).attr("title", song.album);
+          $("#albumUrl" + id).attr("href", "main.view?id=" + song.id);
+          $("#artist" + id).text(song.artist);
+          $("#artist" + id).attr("title", song.artist);
+          $("#songDuration" + id).text(song.durationAsString);
+  
+          // Note: show() method causes page to scroll to top.
+          $("#pattern" + id).css("display", "table-row");
         }
-        else if ($(imageId).attr("src").indexOf("<spring:theme code="ratingOffImage"/>") != -1) {
-            $(imageId).attr("src", "<spring:theme code="ratingOnImage"/>");
-            starService.star(mediaFileId);
-        }
-    }
-    function playAll() {
-        top.playQueue.onPlay(${model.dir.id});
-    }
-    function playRandom() {
-        top.playQueue.onPlayRandom(${model.dir.id}, 40);
-    }
-    function addAll() {
-        top.playQueue.onAdd(${model.dir.id});
-    }
-    function playSimilar() {
-        top.playQueue.onPlaySimilar(${model.dir.id}, 50);
-    }
-    function playAllTopSongs() {
-        top.playQueue.onPlayTopSong(${model.dir.id});
-    }
-    function playTopSong(index) {
-        top.playQueue.onPlayTopSong(${model.dir.id}, index);
-    }
-    function addTopSong(index) {
-        top.playQueue.onAdd(topSongs[index].id);
-        $().toastmessage('showSuccessToast', '<fmt:message key="main.addlast.toast"/>')
-    }
-    function addNextTopSong(index) {
-        top.playQueue.onAddNext(topSongs[index].id);
-        $().toastmessage('showSuccessToast', '<fmt:message key="main.addnext.toast"/>')
-    }
-    function showAllAlbums() {
-        window.location.href = updateQueryStringParameter(window.location.href, "showAll", "1");
-    }
+      }
+    </c:if>
+
+    <c:if test="${model.showSimilar}">
+      if (artistInfo.similarArtists.length > 0) {
+      let html = "<ul class=\"anchorList\">";
+      artistInfo.similarArtists.forEach(function(v, i, a){
+        html += "<li><a href='main.view?id=" + artistInfo.similarArtists[i].mediaFileId + "' target='main'>" + escapeHtml(artistInfo.similarArtists[i].artistName) + "</a></li>";
+      });
+      html += "</ul>";
+      $("#similarArtists").append(html);
+      $("#similar").show();
+      $("#similarArtistsRadio").show();
+      }
+    </c:if>
+  });
+}
+
+function toggleStarTopSong(index, imageId) {
+  toggleStar(topSongs[index].id, imageId);
+}
+
+function toggleStar(mediaFileId, imageId) {
+  if ("control star-fill" == $(imageId).attr('class')) {
+    $(imageId).removeClass('star-fill');
+    $(imageId).addClass('star');
+    starService.unstar(mediaFileId);
+  } else if ("control star" == $(imageId).attr('class')) {
+    $(imageId).removeClass('star');
+    $(imageId).addClass('star-fill');
+    starService.star(mediaFileId);
+  }
+}
+
+function playAll() {
+  top.playQueue.onPlay(${model.dir.id});
+}
+function playRandom() {
+  top.playQueue.onPlayRandom(${model.dir.id}, 40);
+}
+function addAll() {
+  top.playQueue.onAdd(${model.dir.id});
+}
+function playSimilar() {
+  top.playQueue.onPlaySimilar(${model.dir.id}, 50);
+}
+function playAllTopSongs() {
+  top.playQueue.onPlayTopSong(${model.dir.id});
+}
+function playTopSong(index) {
+  top.playQueue.onPlayTopSong(${model.dir.id}, index);
+}
+function addTopSong(index) {
+  top.playQueue.onAdd(topSongs[index].id);
+  $().toastmessage('showSuccessToast', '<fmt:message key="main.addlast.toast"/>')
+}
+function addNextTopSong(index) {
+  top.playQueue.onAddNext(topSongs[index].id);
+  $().toastmessage('showSuccessToast', '<fmt:message key="main.addnext.toast"/>')
+}
+function showAllAlbums() {
+  window.location.href = updateQueryStringParameter(window.location.href, "showAll", "1");
+}
+function toggleComment() {
+  $("#commentForm").toggle();
+  $("#comment").toggle();
+}
 </script>
 
-<div style="float:left">
-    <h1>
-        <img id="starImage" style="height:18px" src="<spring:theme code='${not empty model.dir.starredDate ? \'ratingOnImage\' : \'ratingOffImage\'}'/>"
-             onclick="toggleStar(${model.dir.id}, '#starImage'); return false;" style="cursor:pointer;height:18px;" alt="">
+</head><body class="mainframe artistMain">
 
-        <span style="vertical-align: middle">
-            <c:forEach items="${model.ancestors}" var="ancestor">
-                <sub:url value="main.view" var="ancestorUrl">
-                    <sub:param name="id" value="${ancestor.id}"/>
-                </sub:url>
-                <a href="${ancestorUrl}">${fn:escapeXml(ancestor.name)}</a> &raquo;
-            </c:forEach>
-            ${fn:escapeXml(model.dir.name)}
-        </span>
-    </h1>
+<%@ include file="mediafileBreadcrumb.jsp" %>
+
+<section>
+    <c:choose>
+        <c:when test="${model.showArtistInfo}">
+            <details id="artistDetails" class="loading">
+                <summary><h1 class="artist">${fn:escapeXml(model.dir.name)}</h1></summary>
+                    <%-- <a id="artistImageZoom" rel="zoom" href="void"><img id="artistImage"></a> --%>
+                    <div id="artistBio"></div>
+                    <c:if test="${model.useRadio eq true}">
+                        <input id="similarArtistsRadio" type="button" value="<fmt:message key='main.startradio'/>" onclick="playSimilar()">
+                    </c:if>
+            </details>
+        </c:when>
+        <c:otherwise>
+            <h1 class="artist">${fn:escapeXml(model.dir.name)}</h1>
+        </c:otherwise>
+    </c:choose>
+</section>
+
+<div class="actions">
 
     <c:if test="${not model.partyMode}">
-        <h2>
+        <ul class="controls">
             <c:if test="${model.navigateUpAllowed}">
-                <sub:url value="main.view" var="upUrl">
-                    <sub:param name="id" value="${model.parent.id}"/>
-                </sub:url>
-                <span class="header"><a href="${upUrl}"><fmt:message key="main.up"/></a></span>
-                <c:set var="needSep" value="true"/>
+                <sub:url value="main.view" var="upUrl"><sub:param name="id" value="${model.parent.id}"/></sub:url>
+                <li><a href="${upUrl}" title="<fmt:message key='up'/>" class="control up"><fmt:message key="main.up"/></a></li>
             </c:if>
-
+            <c:choose>
+                <c:when test="${not empty model.dir.starredDate}">
+                    <li><a href="#" id="starImage${model.dir.id}" class="control star-fill" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;">Star ON</a></li>
+                </c:when>
+                <c:otherwise>
+                    <li><a href="#" id="starImage${model.dir.id}" class="control star" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;">Star OFF</a></li>
+                </c:otherwise>
+            </c:choose>
             <c:if test="${model.user.streamRole}">
-                <c:if test="${needSep}">|</c:if>
-                <span class="header"><a href="javascript:playAll()"><fmt:message key="main.playall"/></a></span> |
-                <span class="header"><a href="javascript:playRandom(0)"><fmt:message key="main.playrandom"/></a></span> |
-                <span class="header"><a href="javascript:addAll(0)"><fmt:message key="main.addall"/></a></span>
-                <c:set var="needSep" value="true"/>
+                <li><a href="javascript:playAll()" title="<fmt:message key='main.playall'/>" class="control play"><fmt:message key="main.playall"/></a></li>
+                <li><a href="javascript:playRandom(0)" title="<fmt:message key='main.playrandom'/>" class="control shuffle"><fmt:message key="main.playrandom"/></a></li>
+                <li><a href="javascript:addAll(0)" title="<fmt:message key='main.addall'/>" class="control plus"><fmt:message key="main.addall"/></a></li>
             </c:if>
-
-            <c:if test="${model.user.commentRole}">
-                <c:if test="${needSep}">|</c:if>
-                <span class="header"><a href="javascript:toggleComment()"><fmt:message key="main.comment"/></a></span>
+            <c:if test="${model.user.commentRole and model.showComment}">
+                <li><a href="javascript:toggleComment()" title="<fmt:message key='main.comment'/>" class="control comment"><fmt:message key="main.comment"/></a></li>
             </c:if>
-        </h2>
+        </ul>
     </c:if>
+
+    <c:import url="viewSelector.jsp">
+        <c:param name="targetView" value="main.view"/>
+    </c:import>
+
+    <c:if test="${model.thereIsMore}">
+        <ul class="controls">
+            <li><a href="javascript:showAllAlbums()" title="<fmt:message key='main.showall'/>" class="control all"><fmt:message key='main.showall'/></a></li>
+        </ul>
+    </c:if>
+
 </div>
 
-<%@ include file="viewSelector.jsp" %>
-<div style="clear:both"></div>
+<div id="comment" class="comment-input">${model.dir.comment}</div>
 
-<div id="comment" class="albumComment">${model.dir.comment}</div>
-
-<div id="commentForm" style="display:none">
+<div id="commentForm">
     <form method="post" action="setMusicFileInfo.view">
         <sec:csrfInput />
         <input type="hidden" name="action" value="comment">
@@ -219,130 +235,109 @@
     </form>
 </div>
 
-<script type='text/javascript'>
-    function toggleComment() {
-        $("#commentForm").toggle();
-        $("#comment").toggle();
-    }
-</script>
-
-<c:choose>
-    <c:when test="${model.viewAsList}">
-        <table class="music indent">
-            <c:forEach items="${model.subDirs}" var="subDir">
-                <tr>
-                    <c:import url="playButtons.jsp">
-                        <c:param name="id" value="${subDir.id}"/>
-                        <c:param name="playEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
-                        <c:param name="addEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
-                        <c:param name="asTable" value="true"/>
-                    </c:import>
-                    <td class="truncate"><a href="main.view?id=${subDir.id}" title="${fn:escapeXml(subDir.name)}">${fn:escapeXml(subDir.name)}</a></td>
-                    <td class="fit rightalign detail">${subDir.year}</td>
-                </tr>
-            </c:forEach>
-        </table>
-        <c:if test="${model.thereIsMore}">
-            <input id="showAllButton" class="albumOverflowButton" type="button" value="<fmt:message key='main.showall'/>" onclick="showAllAlbums()">
-        </c:if>
-    </c:when>
-
-    <c:otherwise>
-        <table class="music indent">
-            <c:forEach items="${model.subDirs}" var="subDir">
-                <c:if test="${not subDir.album}">
+<c:if test="${not empty model.subDirs}">
+    <c:choose>
+        <c:when test="${model.viewAsList}">
+            <table class="tabular albums">
+                <thead>
                     <tr>
-                        <c:import url="playButtons.jsp">
-                            <c:param name="id" value="${subDir.id}"/>
-                            <c:param name="playEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
-                            <c:param name="addEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
-                            <c:param name="asTable" value="true"/>
-                        </c:import>
-                        <td class="truncate"><a href="main.view?id=${subDir.id}" title="${fn:escapeXml(subDir.name)}">${fn:escapeXml(subDir.name)}</a></td>
-                        <td class="fit rightalign detail">${subDir.year}</td>
+                        <th></th><%-- star --%>
+                        <th></th><%-- play --%>
+                        <th></th><%-- add --%>
+                        <th></th><%-- next --%>
+                        <th><fmt:message key="common.fields.album" /></th>
+                        <th></th><%-- year --%>
                     </tr>
-                </c:if>
-            </c:forEach>
-        </table>
+                </thead>
+                <tbody>
+                    <c:forEach items="${model.subDirs}" var="subDir">
+                        <tr>
+                            <c:import url="playButtons.jsp">
+                                <c:param name="id" value="${subDir.id}"/>
+                                <c:param name="playEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
+                                <c:param name="addEnabled" value="${model.user.streamRole and not model.partyModeEnabled}"/>
+                                <c:param name="starEnabled" value="true"/>
+                                <c:param name="starred" value="${not empty subDir.starredDate}"/>
+                                <c:param name="asTable" value="true"/>
+                            </c:import>
+                            <td><a href="main.view?id=${subDir.id}" title="${fn:escapeXml(subDir.name)}">${fn:escapeXml(subDir.name)}</a></td>
+                            <td class="year">${subDir.year}</td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </c:when>
+    
+        <c:otherwise>
+            <div class="coverart-container">
+                <c:set var="albumCount" value="0"/>
+                <c:forEach items="${model.subDirs}" var="subDir" varStatus="loopStatus">
+                    <c:if test="${subDir.album}">
+                        <c:set var="albumCount" value="${albumCount + 1}"/>
+                        <div class="albumThumb">
+                            <c:import url="coverArt.jsp">
+                                <c:param name="albumId" value="${subDir.id}"/>
+                                <c:param name="caption1" value="${fn:escapeXml(subDir.name)}"/>
+                                <c:param name="caption2" value="${subDir.year}"/>
+                                <c:param name="captionCount" value="2"/>
+                                <c:param name="coverArtSize" value="${model.coverArtSizeMedium}"/>
+                                <c:param name="showLink" value="true"/>
+                                <c:param name="appearAfter" value="${loopStatus.count * 30}"/>
+                                <c:param name="hideOverflow" value="true"/>
+                            </c:import>
+                        </div>
+                    </c:if>
+                </c:forEach>
+            </div>
+        </c:otherwise>
+    </c:choose>
+</c:if>
 
-        <div style="float: left;padding-top: 1.5em">
-            <c:set var="albumCount" value="0"/>
-            <c:forEach items="${model.subDirs}" var="subDir" varStatus="loopStatus">
-                <c:if test="${subDir.album}">
-                    <c:set var="albumCount" value="${albumCount + 1}"/>
-                    <div class="albumThumb">
-                        <c:import url="coverArt.jsp">
-                            <c:param name="albumId" value="${subDir.id}"/>
-                            <c:param name="caption1" value="${fn:escapeXml(subDir.name)}"/>
-                            <c:param name="caption2" value="${subDir.year}"/>
-                            <c:param name="captionCount" value="2"/>
-                            <c:param name="coverArtSize" value="${model.coverArtSizeMedium}"/>
-                            <c:param name="showLink" value="true"/>
-                            <c:param name="appearAfter" value="${loopStatus.count * 30}"/>
-                            <c:param name="hideOverflow" value="true"/>
-                        </c:import>
-                    </div>
-                </c:if>
-            </c:forEach>
-            <c:if test="${model.thereIsMore}">
-                <input id="showAllButton" class="albumOverflowButton" type="button" value="<fmt:message key='main.showall'/>" onclick="showAllAlbums()">
-            </c:if>
+<c:if test="${model.showTopSongs}">
+    <div id="topSongs">
+        <h2><fmt:message key="main.topsongs"/></h2>
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:playAllTopSongs()" title="<fmt:message key='main.playtopsongs'/>" class="control play"><fmt:message key='main.playtopsongs'/></a></li>
+            </ul>
         </div>
-    </c:otherwise>
-</c:choose>
+        <table class="tabular top-songs">
+            <thead>
+                <tr>
+                    <th></th><%-- star --%>
+                    <th></th><%-- play --%>
+                    <th></th><%-- add --%>
+                    <th></th><%-- next --%>
+                    <th></th><%-- rank --%>
+                    <th><fmt:message key="common.fields.songtitle" /></th>
+                    <th><fmt:message key="common.fields.album" /></th>
+                    <th><fmt:message key="common.fields.artist" /></th>
+                    <th></th><%-- duration --%>
+                </tr>
+            </thead>
+            <tbody id="topSongsBody">
+                <tr id="pattern">
+                    <td><div id="starSong" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" title="Star ON" class="control star">Star ON</div></td>
+                    <td><div id="play" onclick="playTopSong(this.id.substring(4) - 1)" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div></td>
+                    <td><div id="add" onclick="addTopSong(this.id.substring(3) - 1)" title="<fmt:message key='common.add'/>" class="control plus"><fmt:message key='common.add'/></div></td>
+                    <td><div id="addNext" onclick="addNextTopSong(this.id.substring(7) - 1)" title="<fmt:message key='main.addnext'/>" class="control next"><fmt:message key='main.addnext'/></div></td>
+                    <td><span id="rank">Rank</span></td>
+                    <td class="song"><span id="title">Title</span></td>
+                    <td class="album"><a id="albumUrl" target="main"><span id="album">Album</span></a></td>
+                    <td class="artist"><span id="artist">Artist</span></td>
+                    <td class="duration"><span id="songDuration">Duration</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</c:if>
 
-<table id="artistInfoTable" style="padding:2em;clear:both;display:none" class="bgcolor2 artistInfoTable">
-    <%--
-        <tr>
-            <td rowspan="5" style="vertical-align: top">
-                <a id="artistImageZoom" rel="zoom" href="void">
-                    <img id="artistImage" alt="" style="margin-right:2em; display:none; max-width:300px; max-height:300px">
-                </a>
-            </td>
-            <td style="text-align:center"><h2>${fn:escapeXml(model.dir.name)}</h2></td>
-        </tr>
-     --%>
-    <tr>
-        <td id="artistBio" style="padding-bottom: 0.5em"></td>
-    </tr>
-    <tr><td style="padding-bottom: 0.5em">
-        <span id="similarArtistsTitle" style="padding-right: 0.5em; display: none"><fmt:message key="main.similarartists"/>:</span>
+<c:if test="${model.showSimilar}">
+    <div id="similar">
+        <h2><fmt:message key="main.similarartists"/></h2>
         <span id="similarArtists"></span>
-    </td></tr>
-    <tr><td style="text-align:center">
-        <c:if test="${model.useRadio eq true}">
-            <input id="similarArtistsRadio" style="display:none;margin-top:1em;margin-right:0.3em;cursor:pointer" type="button" value="<fmt:message key='main.startradio'/>" onclick="playSimilar()">
-        </c:if>
-        <input id="playTopSongs" style="display:none;margin-top:1em;margin-left:0.3em;cursor:pointer" type="button" value="<fmt:message key='main.playtopsongs'/>" onclick="playAllTopSongs()">
-    </td></tr>
-    <tr><td style="height: 100%"></td></tr>
-</table>
-
-<h2 id="topSongsHeader" style="display:none; padding-top:1em"><fmt:message key="main.topsongs"/></h2>
-
-<table class="music indent">
-    <tbody id="topSongsBody">
-    <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
-        <td class="fit">
-            <img id="starSong" style="height:18px;" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" src="<spring:theme code='ratingOffImage'/>"
-                 style="cursor:pointer" alt="" title=""></td>
-        <td class="fit">
-            <img id="play" src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" title="<fmt:message key='common.play'/>"
-                 style="padding-right:0.1em;cursor:pointer" onclick="playTopSong(this.id.substring(4) - 1)"></td>
-        <td class="fit">
-            <img id="add" src="<spring:theme code='addImage'/>" alt="<fmt:message key='common.add'/>" title="<fmt:message key='common.add'/>"
-                 style="padding-right:0.1em;cursor:pointer" onclick="addTopSong(this.id.substring(3) - 1)"></td>
-        <td class="fit" style="padding-right:30px">
-            <img id="addNext" src="<spring:theme code='addNextImage'/>" alt="<fmt:message key='main.addnext'/>" title="<fmt:message key='main.addnext'/>"
-                 style="padding-right:0.1em;cursor:pointer" onclick="addNextTopSong(this.id.substring(7) - 1)"></td>
-        <td class="fit rightalign"><span id="rank" class="detail">Rank</span></td>
-        <td class="truncate"><span id="title" class="songTitle">Title</span></td>
-        <td class="truncate"><a id="albumUrl" target="main"><span id="album" class="detail">Album</span></a></td>
-        <td class="truncate"><span id="artist" class="detail">Artist</span></td>
-        <td class="fit rightalign"><span id="songDuration" class="detail">Duration</span></td>
-    </tr>
-    </tbody>
-</table>
+    </div>
+</c:if>
 
 </body>
 </html>

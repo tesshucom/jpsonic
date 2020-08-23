@@ -1,0 +1,39 @@
+.mainframe.settings.internetRadioSettings {
+  input[name*="name"] {
+    @include dlInputWidth(5);
+  }
+  input[name*="streamUrl"] {
+    @include dlInputWidth(10);
+  }
+  input[name*="homepageUrl"] {
+    @include dlInputWidth(10);
+  }
+
+  table.tabular.internet-radio {
+    margin-left: 0;
+    width: 100%;
+    th {
+      text-align: center;
+    }
+    tr {
+      &:hover {
+        background-color: inherit;
+      }
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          padding: 0;
+          text-align: left;
+        }
+        &:nth-child(3),
+        &:nth-child(4) {
+          width: 60px;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

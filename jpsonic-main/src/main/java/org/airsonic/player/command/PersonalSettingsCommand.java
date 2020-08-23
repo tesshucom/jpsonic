@@ -45,6 +45,8 @@ public class PersonalSettingsCommand {
     private boolean partyModeEnabled;
     private boolean showNowPlayingEnabled;
     private boolean closeDrawer;
+    private boolean closePlayQueue;
+    private boolean alternativeDrawer;
     private boolean showIndex;
     private boolean assignAccesskeyToNumber;
     private boolean openDetailIndex;
@@ -66,6 +68,22 @@ public class PersonalSettingsCommand {
     private String listenBrainzToken;
     private boolean useRadio;
     private boolean useSonos;
+    private boolean simpleDisplay;
+    private boolean showSibling;
+    private boolean showRate;
+    private boolean showAlbumSearch;
+    private boolean showLastPlay;
+    private boolean showDownload;
+    private boolean showTag;
+    private boolean showComment;
+    private boolean showShare;
+    private boolean showChangeCoverArt;
+    private boolean showTopSongs;
+    private boolean showSimilar;
+    private boolean showToast;
+    private boolean showAlbumActions;
+    private boolean breadcrumbIndex;
+    private boolean putMenuInDrawer;
 
     public User getUser() {
         return user;
@@ -189,6 +207,22 @@ public class PersonalSettingsCommand {
 
     public void setCloseDrawer(boolean closeDrawer) {
         this.closeDrawer = closeDrawer;
+    }
+
+    public boolean isClosePlayQueue() {
+        return closePlayQueue;
+    }
+
+    public void setClosePlayQueue(boolean closePlayqueue) {
+        this.closePlayQueue = closePlayqueue;
+    }
+
+    public boolean isAlternativeDrawer() {
+        return alternativeDrawer;
+    }
+
+    public void setAlternativeDrawer(boolean alternativeDrawer) {
+        this.alternativeDrawer = alternativeDrawer;
     }
 
     public boolean isShowIndex() {
@@ -357,5 +391,133 @@ public class PersonalSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public boolean isSimpleDisplay() {
+        return simpleDisplay;
+    }
+
+    public void setSimpleDisplay(boolean simpleDisplay) {
+        this.simpleDisplay = simpleDisplay;
+    }
+
+    public boolean isShowSibling() {
+        return showSibling;
+    }
+
+    public void setShowSibling(boolean siblingVisible) {
+        this.showSibling = siblingVisible;
+    }
+
+    public boolean isShowRate() {
+        return showRate;
+    }
+
+    public void setShowRate(boolean rateVisible) {
+        this.showRate = rateVisible;
+    }
+
+    public boolean isShowAlbumSearch() {
+        return showAlbumSearch;
+    }
+
+    public void setShowAlbumSearch(boolean albumSearchVisible) {
+        this.showAlbumSearch = albumSearchVisible;
+    }
+
+    public boolean isShowLastPlay() {
+        return showLastPlay;
+    }
+
+    public void setShowLastPlay(boolean lastPlayVisible) {
+        this.showLastPlay = lastPlayVisible;
+    }
+
+    public boolean isShowDownload() {
+        return showDownload;
+    }
+
+    public void setShowDownload(boolean downloadVisible) {
+        this.showDownload = downloadVisible;
+    }
+
+    public boolean isShowTag() {
+        return showTag;
+    }
+
+    public void setShowTag(boolean tagVisible) {
+        this.showTag = tagVisible;
+    }
+
+    public boolean isShowComment() {
+        return showComment;
+    }
+
+    public void setShowComment(boolean commentVisible) {
+        this.showComment = commentVisible;
+    }
+
+    public boolean isShowShare() {
+        return showShare;
+    }
+
+    public void setShowShare(boolean shareVisible) {
+        this.showShare = shareVisible;
+    }
+
+    public boolean isShowChangeCoverArt() {
+        return showChangeCoverArt;
+    }
+
+    public void setShowChangeCoverArt(boolean showChangeCoverArt) {
+        this.showChangeCoverArt = showChangeCoverArt;
+    }
+
+    public boolean isShowTopSongs() {
+        return showTopSongs;
+    }
+
+    public void setShowTopSongs(boolean showtopSongs) {
+        this.showTopSongs = showtopSongs;
+    }
+
+    public boolean isShowSimilar() {
+        return showSimilar;
+    }
+
+    public void setShowSimilar(boolean showSimilar) {
+        this.showSimilar = showSimilar;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
+    }
+
+    public boolean isShowAlbumActions() {
+        return showAlbumActions;
+    }
+
+    public void setShowAlbumActions(boolean showAlbumActions) {
+        this.showAlbumActions = showAlbumActions;
+    }
+
+    public boolean isBreadcrumbIndex() {
+        return breadcrumbIndex;
+    }
+
+    public void setBreadcrumbIndex(boolean breadcrumbIndex) {
+        this.breadcrumbIndex = breadcrumbIndex;
+    }
+
+    public boolean isPutMenuInDrawer() {
+        return putMenuInDrawer;
+    }
+
+    public void setPutMenuInDrawer(boolean putMenuInDrawer) {
+        this.putMenuInDrawer = putMenuInDrawer;
     }
 }

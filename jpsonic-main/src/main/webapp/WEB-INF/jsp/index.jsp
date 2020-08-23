@@ -3,48 +3,68 @@
 
 <html>
 <head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <link rel="alternate" type="application/rss+xml" title="Jpsonic Podcast" href="podcast.view?suffix=.rss">
+<%@ include file="head.jsp"%>
+<%@ include file="jquery.jsp"%>
+<link rel="alternate" type="application/rss+xml" title="Jpsonic Podcast" href="podcast.view?suffix=.rss">
 </head>
 <script>
 
-function onToggleStartStop() {};
-function onPrevious() {};
-function onNext() {};
-function onStarCurrent() {};
-function onGainAdd(val) {};
-function onGainAdd(val) {};
-function onTogglePlayQueue() {};
-function onQueryFocus() {};
-function onToggleDrawer() {};
-function onChangeMainLocation(location) {};
-function onShowKeyboardShortcuts() {};
+// deligate >>
+function onQueryFocus() {document.getElementById("upper").contentWindow.onQueryFocus()};
+function onToggleDrawer() {document.getElementById("upper").contentWindow.onToggleDrawer()};
+function onCloseDrawer() {document.getElementById("upper").contentWindow.onCloseDrawer()};
+function onChangeMainLocation(location) {document.getElementById("upper").contentWindow.onChangeMainLocation(location)};
+function onShowKeyboardShortcuts() {document.getElementById("upper").contentWindow.onShowKeyboardShortcuts()};
+function onToggleStartStop() {document.getElementById("playQueue").contentWindow.onToggleStartStop()};
+function onPrevious() {document.getElementById("playQueue").contentWindow.onPrevious()};
+function onNext() {document.getElementById("playQueue").contentWindow.onNext()};
+function onStarCurrent() {document.getElementById("playQueue").contentWindow.onStarCurrent()};
+function onGainAdd(val) {document.getElementById("playQueue").contentWindow.onGainAdd(val)};
+function onTogglePlayQueue() {document.getElementById("playQueue").contentWindow.onTogglePlayQueue();};
+function onCloseQueue() {document.getElementById("playQueue").contentWindow.onCloseQueue();};
+function onTryCloseDrawerBoth() {document.getElementById("upper").contentWindow.onTryCloseDrawer();document.getElementById("playQueue").contentWindow.onTryCloseQueue();};
+// deligate <<
 
-$(document).ready(function(){
-	$('#main').css('width','calc(100vw - ${model.showLeft ? 240 : 0}px - ${model.showRight ? 240 : 0}px)');
-	$('iframe[name*="right"]').css('width','${model.showRight ? 240 : 0}px');
-	$('#playQueue').css('width','calc(100vw - ${model.showLeft ? "240" : "0"}px - ${model.showRight ? 240 : 0}px)');
+function reloadUpper(...mainViewName) {
+    const upper = document.getElementById("upper");
+    const playQueue = document.getElementById("playQueue");
+    if (mainViewName.length == 1) {
+        document.getElementById('upper').contentWindow.location.href = "top.view?mainView=" + mainViewName[0];
+    } else {
+        document.getElementById('upper').contentWindow.location.reload(true);
+    }
+}
 
-	onToggleStartStop = () => {document.getElementById('playQueue').contentWindow.onToggleStartStop();};
-	onPrevious = () => {document.getElementById('playQueue').contentWindow.onPrevious();};
-	onNext = () => {document.getElementById('playQueue').contentWindow.onNext();};
-	onStarCurrent = () => {document.getElementById('playQueue').contentWindow.onStarCurrent();};
-	onGainAdd = (val) => {document.getElementById('playQueue').contentWindow.onGainAdd(val);};
-	onGainAdd = (val) => {document.getElementById('playQueue').contentWindow.onGainAdd(val);};
-	onTogglePlayQueue = () => {document.getElementById('playQueue').contentWindow.onTogglePlayQueue();};
-	onQueryFocus = () => {document.getElementById('upper').contentWindow.onQueryFocus();};
-	onToggleDrawer = () => {document.getElementById('upper').contentWindow.onToggleDrawer();};
-	onChangeMainLocation = (location) => {document.getElementById('upper').contentWindow.onChangeMainLocation(location);};
-	onShowKeyboardShortcuts = () => {document.getElementById('upper').contentWindow.onShowKeyboardShortcuts();};
+function reloadRight() {
+  document.getElementById('right').contentWindow.location.reload(true);
+}
 
-});
+function reloadPlayQueue() {
+  document.getElementById('playQueue').contentWindow.location.reload(true);
+}
+
+function setDrawerOpened(isDrawerOpened) {
+	document.getElementById('isDrawerOpened').checked = isDrawerOpened;
+}
+
+function setQueueOpened(isQueueOpened) {
+	document.getElementById('isQueueOpened').checked = isQueueOpened;
+}
+
+function setQueueExpand(isQueueExpand) {
+    document.getElementById('isQueueExpand').checked = isQueueExpand;
+}
+
 </script>
-<body style="margin:0;height:100vh;overflow:hidden">
+<body class="index">
+	<input type="checkbox" id="isRight" value="1" autofocus="false" ${model.showRight ? "checked" : ""} />
+	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
 
-	<iframe name="upper" src="top.view?" scrolling="no" frameborder="no" id="upper"></iframe>
-	<iframe name="right" src="right.view?" frameborder="no"></iframe>
-	<iframe name="playQueue" id="playQueue" src="playQueue.view?" frameborder="no"></iframe>
+	<iframe name="upper" id="upper" src="top.view?"></iframe>
+	<iframe name="right" id="right" src="right.view?"></iframe>
 
+	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
+    <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
+	<iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
 </body>
 </html>

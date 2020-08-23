@@ -3,21 +3,20 @@
 
 <html><head>
     <%@ include file="head.jsp" %>
-    <script type="text/javascript">
+    <script>
         if (window != window.top) {
             top.location.href = location.href;
         }
     </script>
 
 </head>
-<body style="min-width:550px" class="mainframe">
+<body class="mainframe login">
 
     <form action="<c:url value='/login'/>" method="POST">
         <sec:csrfInput />
 
-        <div id="loginframe" class="bgcolor2">
-
-            <img src="<spring:theme code='logoImage'/>" alt="">
+        <div id="loginframe">
+            <img src="./icons/logo.png" alt="">
 
             <div class="loginmessagetop">${model.loginMessage}</div>
 
@@ -28,30 +27,27 @@
             <input name="submit" type="submit" value="<fmt:message key='login.login'/>" tabindex="4"></td>
 
             <div class="details">
-                <div id="loginremember">
-                    <label for="remember"><fmt:message key="login.remember"/></label>
-                    <input type="checkbox" name="remember-me" id="remember" tabindex="3">
-                </div>
-
+            	<c:if test="${model.showRememberMe}">
+	                <div id="loginremember">
+	                    <label for="remember"><fmt:message key="login.remember"/></label>
+	                    <input type="checkbox" name="remember-me" id="remember" tabindex="3">
+	                </div>
+                </c:if>
                 <a href="recover.view"><fmt:message key="login.recover"/></a>
             </div>
 
             <c:if test="${model.logout}">
                 <div class="loginmessagebottom">
-                    <b><fmt:message key="login.logout"/></b>
+                    <fmt:message key="login.logout"/>
                 </div>
             </c:if>
 
             <c:if test="${model.error}">
-                <div class="loginmessagebottom">
-                    <span class="warning"><fmt:message key="login.error"/></span>
-                </div>
+                <div class="loginmessagebottom"><strong><fmt:message key="login.error"/></strong></div>
             </c:if>
 
             <c:if test="${model.insecure}">
-                <div class="loginmessagebottom">
-                    <p class="warning"><fmt:message key="login.insecure"><fmt:param value="${model.brand}"/></fmt:message></p>
-                </div>
+                <div class="loginmessagebottom"><strong><fmt:message key="login.insecure"><fmt:param value="${model.brand}"/></fmt:message></strong></div>
             </c:if>
 
         </div>

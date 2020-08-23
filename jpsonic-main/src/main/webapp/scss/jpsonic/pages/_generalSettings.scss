@@ -1,9 +1,31 @@
 // Move to global once patterns are organized.
 
-.mainframe.settings > section + form {
-  margin-top: -32px;
-}
-
-.mainframe.settings > form {
-  margin-top: 0px;
+.mainframe.settings.generalSettings {
+  input#index {
+    @include dlInputWidth(15);
+  }
+  input#ignoredArticles {
+    @include dlInputWidth(15);
+  }
+  input#musicFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#videoFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#coverArtFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#playlistFolder {
+    @include dlInputWidth(15);
+  }
+  input#shortcuts {
+    @include dlInputWidth(15);
+  }
+  input#welcomeTitle {
+    @include dlInputWidth(15);
+  }
+  input#welcomeSubtitle {
+    @include dlInputWidth(15);
+  }
 }

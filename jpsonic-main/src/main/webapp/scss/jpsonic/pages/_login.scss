@@ -1,41 +1,51 @@
-// ******************** loginframe / login.jsp ****************************
-
-#loginframe {
-  display: list-item;
-  list-style: none;
-  margin: 100px 50px;
-  padding: 20px 50px;
-  text-align: center;
-  @include dropShadow;
-}
-
-#loginframe > * {
-  display: block;
-  margin: 0 auto;
-}
-
-#loginframe .loginmessagetop {
-  max-width: 18rem;
-  margin-bottom: 1rem;
-}
-
-#loginframe input[type="text"],
-#loginframe input[type="submit"],
-#loginframe input[type="password"] {
-  width: 18rem;
-  margin-bottom: 0.5rem;
-  &:hover {
-    width: 18rem;
-  }
-}
-
-#loginremember {
-  display: inline-flex;
-  margin-right: 10px;
+.mainframe.login {
+  display: flex;
   align-items: center;
-}
+  justify-content: center;
+  #loginframe {
+    display: list-item;
+    list-style: none;
+    position: absolute;
+    width: calc(100% - 20px);
+    left: 10px;
+    @media screen and (min-width: 1024px) {
+      width: 800px;
+      left: calc(50vw - 400px);
+    }
+    top: 10px;
+    @media screen and (min-height: 764px) {
+      top: 20vh;
+    }
 
-#loginframe .loginmessagebottom {
-  margin-top: 1rem;
-  max-width: 50rem;
+    @include border;
+    @include borderRadius;
+    text-align: center;
+    background-color: $jp-color-base1;
+    > * {
+      display: block;
+      margin: 0 auto;
+    }
+    .loginmessagetop {
+      max-width: 18rem;
+      margin-bottom: 1rem;
+    }
+    input[type="text"],
+    input[type="submit"],
+    input[type="password"] {
+      width: 18rem;
+      margin-bottom: 0.5rem;
+      &:hover {
+        width: 18rem;
+      }
+    }
+    #loginremember {
+      display: inline-flex;
+      margin-right: 10px;
+      align-items: center;
+    }
+    .loginmessagebottom {
+      margin-top: 1rem;
+      max-width: 50rem;
+    }
+  }
 }

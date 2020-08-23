@@ -18,8 +18,11 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewSelector;
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.LegacyMap;
@@ -50,6 +53,9 @@ public class PodcastChannelsController {
     @Autowired
     private SecurityService securityService;
 
+    @Autowired
+    private ViewSelector viewSelector;
+
     @GetMapping
     @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
@@ -61,11 +67,14 @@ public class PodcastChannelsController {
             channelMap.put(channel.getId(), channel);
         }
 
+        User user = securityService.getCurrentUser(request);
         Map<String, Object> map = LegacyMap.of(
                 "user", securityService.getCurrentUser(request),
                 "channels", channels,
                 "channelMap", channelMap,
-                "newestEpisodes", podcastService.getNewestEpisodes(10));
+                "newestEpisodes", podcastService.getNewestEpisodes(10),
+                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                "coverArtSize", CoverArtScheme.MEDIUM.getSize());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);

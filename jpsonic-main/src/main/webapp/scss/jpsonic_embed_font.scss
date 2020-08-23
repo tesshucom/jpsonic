@@ -17,37 +17,11 @@
  Copyright 2020 (C) tesshu.com
  */
 
-//
-// CSS styleshet for the "Jpsonic" theme.
-//
-// [Constitution]
-// Definitions are based on Airsonic default theme.
-// Since there are many modifications,
-// it is divided into several scss files based on the original CSS.
-//
-// jpsonic_embed_font.scss (this file)
-//     ├ _jpsonic_definitions.scss   : Common definitions such as colors.
-//     └ jpsonic
-//           ├ _jp-reset.scss        : Based upon 'A modern CSS reset'.
-//           ├ _jp-functions.scss    : Common functions such as borders and effects.
-//           ├ _jp-default.scss      : CSS to overwrite legacy styles.                 [DEPRECATED] Legacy CSS styles.
-//           ├ _default.scss         : Based on default-without-mediaelement.css.      [DEPRECATED] Legacy CSS styles.
-//           ├ _jp-v109.3.0          : CSS for reorganizing the legacy style. This layer does not contain class definitions.
-//           ├ _jukebox.scss         : Based on default-without-mediaelement.css.      [RESERVED] Reuse legacy CSS with the same format.
-//           ├ _zoom.scss            : Based on default-without-mediaelement.css.      [RESERVED] Reuse legacy CSS with the same format.
-//           ├ _tooltip.scss         : Based on default-without-mediaelement.css.      [RESERVED] Reuse legacy CSS with the same format.
-//           ├ _mediaelement.scss    : Based on mediaelement-light.css.                [RESERVED] Reuse legacy CSS with the same format.
-//           └ pages
-//                 ├ _global.scss    : Class definition commonly used in multiple Web pages (JSP). Template classes.
-//                 └ *.scss          : CSS unique to each page. It corresponds to the web page (JSP).
-//
-// Since there are dependencies, the order of reading is fixed.
-
 // ## FONT-FACE ###################################################################
 
 @font-face {
   font-family: "Kazesawa-Regular";
-  src: url("../fonts/kazesawa/Kazesawa-Regular.woff") format("woff"), url("../fonts/kazesawa/Kazesawa-Regular.ttf") format("truetype");
+  src: url("../jpsonic/fonts/kazesawa/Kazesawa-Regular.woff") format("woff"), url("../jpsonic/fonts/kazesawa/Kazesawa-Regular.ttf") format("truetype");
 }
 
 // ## FONT-FAMILY #################################################################
@@ -61,48 +35,9 @@ html {
   font-size: $jp-font-size;
 }
 
-// ################################################################################
-
-// Read common definitions.
-@import "./jpsonic_definitions";
-@import "./jpsonic/jp-reset.scss";
-@import "./jpsonic/jp-functions";
-
-// #################### Deplecated >>
-
-// Derived from ''default-without-mediaelement' of Legacy theme CSS..
-@import "./jpsonic/default";
-
-// Until v109.2.0
-// Created to significantly change the legacy display.
-@import "./jpsonic/jp-default";
-
-// #################### Deplecated <<
-
-// From v109.3.0
-// Compatibility with legacy will be discarded and CSS will be reorganized.
-// Classes that are strongly related to the page are stored in the definition file for each page.
-// 'global' is a commonly used class.
-@import "./jpsonic/_jp-v109.3.0";
-@import "./jpsonic/pages/_global";
-@import "./jpsonic/pages/_login";
-@import "./jpsonic/pages/_index";
-@import "./jpsonic/pages/_top";
-@import "./jpsonic/pages/_playQueue";
-@import "./jpsonic/pages/_home";
-@import "./jpsonic/pages/_albumMain";
-
-@import "./jpsonic/pages/_musicFolderSettings.scss";
-@import "./jpsonic/pages/_generalSettings";
-@import "./jpsonic/pages/_personalSettings";
-@import "./jpsonic/pages/_shareSettings";
-@import "./jpsonic/pages/_dlnaSettings";
-@import "./jpsonic/pages/_transcodingSettings";
-@import "./jpsonic/pages/_uploadEntry";
-
-// CSS for 3rd party.
-// Each file may contain minor fixes for Jpsonic.
-@import "./jpsonic/jukebox";
-@import "./jpsonic/zoom";
-@import "./jpsonic/tooltip";
-@import "./jpsonic/mediaelement";
+@import "./jpsonic/definitions/jpsonic";
+@import "./jpsonic/definitions/jp-reset";
+@import "./jpsonic/definitions/jp-functions";
+@import "./jpsonic/definitions/jp-icons";
+@import "./jpsonic/definitions/_jp-v109.3.0";
+@import "./jpsonic/pages/_all";

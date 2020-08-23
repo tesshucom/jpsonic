@@ -1,312 +1,321 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/interface/starService.js'/>"></script>
-    <script type="text/javascript" language="javascript">
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<script src="<c:url value='/dwr/util.js'/>"></script>
+<script src="<c:url value='/dwr/engine.js'/>"></script>
+<script src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
+<script src="<c:url value='/dwr/interface/starService.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script>
 
-        var playlist;
-        var songs;
-        function init() {
-            dwr.engine.setErrorHandler(null);
-            $("#dialog-edit").dialog({resizable: true, width:400, autoOpen: false,
-                buttons: {
-                    "<fmt:message key="common.save"/>": function() {
-                        $(this).dialog("close");
-                        var name = $("#newName").val();
-                        var comment = $("#newComment").val();
-                        var shared = $("#newShared").is(":checked");
-                        $("#name").text(name);
-                        $("#comment").text(comment);
-                        playlistService.updatePlaylist(playlist.id, name, comment, shared, function (playlistInfo){playlistCallback(playlistInfo); top.left.updatePlaylists()});
-                    },
-                    "<fmt:message key="common.cancel"/>": function() {
-                        $(this).dialog("close");
-                    }
-                }});
+$(document).ready(function(){
+	init();
+    initTruncate(".tabular-and-thumb", ".tabular.playlist", 5, ["album", "artist", "song"]);
+});
 
-            $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
-                buttons: {
-                    "<fmt:message key="common.delete"/>": function() {
-                        $(this).dialog("close");
-                        playlistService.deletePlaylist(playlist.id, function (){
-                        	window.parent.main.location = "playlists.view";
-                        });
-                    },
-                    "<fmt:message key="common.cancel"/>": function() {
-                        $(this).dialog("close");
-                    } 
-                }});
+var playlist;
+var songs;
+function init() {
+    dwr.engine.setErrorHandler(null);
+    $("#dialog-edit").dialog({resizable: true, width:400, autoOpen: false,
+        buttons: {
+            "<fmt:message key="common.save"/>": function() {
+                $(this).dialog("close");
+                var name = $("#newName").val();
+                var comment = $("#newComment").val();
+                var shared = $("#newShared").is(":checked");
+                $("#name").text(name);
+                $("#comment").text(comment);
+                playlistService.updatePlaylist(playlist.id, name, comment, shared, function (playlistInfo){playlistCallback(playlistInfo); top.left.updatePlaylists()});
+            },
+            "<fmt:message key="common.cancel"/>": function() {
+                $(this).dialog("close");
+            }
+        }
+    });
 
-            $("#playlistBody").sortable({
-                stop: function(event, ui) {
-                    var indexes = [];
-                    $("#playlistBody").children().each(function() {
-                        var id = $(this).attr("id").replace("pattern", "");
-                        if (id.length > 0) {
-                            indexes.push(parseInt(id) - 1);
-                        }
-                    });
-                    onRearrange(indexes);
-                },
-                cursor: "move",
-                axis: "y",
-                containment: "parent",
-                helper: function(e, tr) {
-                    var originals = tr.children();
-                    var trclone = tr.clone();
-                    trclone.children().each(function(index) {
-                        // Set cloned cell sizes to match the original sizes
-                        $(this).width(originals.eq(index).width());
-                        $(this).css("maxWidth", originals.eq(index).width());
-                        $(this).css("border-top", "1px solid black");
-                        $(this).css("border-bottom", "1px solid black");
-                    });
-                    return trclone;
+    $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
+        buttons: {
+            "<fmt:message key="common.delete"/>": function() {
+                $(this).dialog("close");
+                playlistService.deletePlaylist(playlist.id, function (){
+                    window.parent.main.location = "playlists.view";
+                });
+            },
+            "<fmt:message key="common.cancel"/>": function() {
+                $(this).dialog("close");
+            } 
+        }
+    });
+
+    $("#playlistBody").sortable({
+        stop: function(event, ui) {
+            var indexes = [];
+            $("#playlistBody").children().each(function() {
+                var id = $(this).attr("id").replace("pattern", "");
+                if (id.length > 0) {
+                    indexes.push(parseInt(id) - 1);
                 }
             });
+            onRearrange(indexes);
+        },
+        cursor: "move",
+        axis: "y",
+        containment: "parent",
+        helper: function(e, tr) {
+            var originals = tr.children();
+            var trclone = tr.clone();
+            trclone.children().each(function(index) {
+                $(this).width($('.tabular.playlist').width());
+                $(this).addClass('row-drag');
+            });
+            return trclone;
+        }
+    });
 
-            getPlaylist();
-        }
+    getPlaylist();
+}
 
-        function getPlaylist() {
-            playlistService.getPlaylist(${model.playlist.id}, playlistCallback);
-        }
+function getPlaylist() {
+    playlistService.getPlaylist(${model.playlist.id}, playlistCallback);
+}
 
-        function playlistCallback(playlistInfo) {
-            this.playlist = playlistInfo.playlist;
-            this.songs = playlistInfo.entries;
+function playlistCallback(playlistInfo) {
+    this.playlist = playlistInfo.playlist;
+    this.songs = playlistInfo.entries;
 
-            if (songs.length == 0) {
-                $("#empty").show();
-                $("#playlistHeader").hide();
-            } else {
-                $("#empty").hide();
-                $("#playlistHeader").show();
-            }
+    if (songs.length == 0) {
+        $("#empty").show();
+        $("#playlistHeader").hide();
+    } else {
+        $("#empty").hide();
+        $("#playlistHeader").show();
+    }
 
-            $("#songCount").text(playlist.fileCount);
-            $("#duration").text(playlist.durationAsString);
+    $("#songCount").text(playlist.fileCount);
+    $("#duration").text(playlist.durationAsString);
 
-            if (playlist.shared) {
-                $("#shared").html("<fmt:message key="playlist2.shared"/>");
-            } else {
-                $("#shared").html("<fmt:message key="playlist2.notshared"/>");
-            }
+    if (playlist.shared) {
+        $("#shared").html("<fmt:message key="playlist2.shared"/>");
+    } else {
+        $("#shared").html("<fmt:message key="playlist2.notshared"/>");
+    }
 
-            // Delete all the rows except for the "pattern" row
-            dwr.util.removeAllRows("playlistBody", { filter:function(tr) {
-                return (tr.id != "pattern");
-            }});
+    // Delete all the rows except for the "pattern" row
+    dwr.util.removeAllRows("playlistBody", { filter:function(tr) {
+        return (tr.id != "pattern");
+    }});
 
-            // Create a new set cloned from the pattern row
-            for (var i = 0; i < songs.length; i++) {
-                var song  = songs[i];
-                var id = i + 1;
-                dwr.util.cloneNode("pattern", { idSuffix:id });
-                if (song.starred) {
-                    $("#starSong" + id).attr("src", "<spring:theme code='ratingOnImage'/>");
-                } else {
-                    $("#starSong" + id).attr("src", "<spring:theme code='ratingOffImage'/>");
-                }
-                if (!song.present) {
-                    $("#missing" + id).show();
-                }
-                $("#index" + id).text(id);
-                $("#title" + id).text(song.title);
-                $("#title" + id).attr("title", song.title);
-                $("#album" + id).text(song.album);
-                $("#album" + id).attr("title", song.album);
-                $("#albumUrl" + id).attr("href", "main.view?id=" + song.id);
-                $("#artist" + id).text(song.artist);
-                $("#artist" + id).attr("title", song.artist);
-                $("#composer" + id).text(song.composer);
-                $("#genre" + id).text(song.genre);
-                $("#songDuration" + id).text(song.durationAsString);
+    // Create a new set cloned from the pattern row
+    for (var i = 0; i < songs.length; i++) {
+        var song  = songs[i];
+        var id = i + 1;
+        dwr.util.cloneNode("pattern", { idSuffix:id });
+        if (song.starred) {
+            $("#starSong" + id).removeClass('star');
+            $("#starSong" + id).addClass('star-fill');
+        } else {
+            $("#starSong" + id).removeClass('star-fill');
+            $("#starSong" + id).addClass('star');
+        }
+        if (!song.present) {
+            $("#missing" + id).show();
+        }
+        $("#index" + id).text(id);
+        $("#title" + id).text(song.title);
+        $("#title" + id).attr("title", song.title);
+        $("#album" + id).text(song.album);
+        $("#album" + id).attr("title", song.album);
+        $("#albumUrl" + id).attr("href", "main.view?id=" + song.id);
+        $("#artist" + id).text(song.artist);
+        $("#artist" + id).attr("title", song.artist);
+        $("#composer" + id).text(song.composer);
+        $("#genre" + id).text(song.genre);
+        $("#songDuration" + id).text(song.durationAsString);
 
-                // Note: show() method causes page to scroll to top.
-                $("#pattern" + id).css("display", "table-row");
-            }
-        }
+        // Note: show() method causes page to scroll to top.
+        $("#pattern" + id).css("display", "table-row");
+    }
+    checkTruncate(".tabular-and-thumb", ".tabular.playlist", 5, ["album", "artist", "song"]);
+}
 
-        function onPlay(index) {
-            top.playQueue.onPlayPlaylist(playlist.id, index);
-        }
-        function onPlayAll() {
-            top.playQueue.onPlayPlaylist(playlist.id);
-        }
-        function onAddAll() {
-            top.playQueue.onAddPlaylist(playlist.id);
-        }
-        function onAdd(index) {
-            top.playQueue.onAdd(songs[index].id);
-            $().toastmessage('showSuccessToast', '<fmt:message key="main.addlast.toast"/>')
-        }
-        function onAddNext(index) {
-            top.playQueue.onAddNext(songs[index].id);
-            $().toastmessage('showSuccessToast', '<fmt:message key="main.addnext.toast"/>')
-        }
-        function onStar(index) {
-            playlistService.toggleStar(playlist.id, index, playlistCallback);
-        }
-        function onRemove(index) {
-            playlistService.remove(playlist.id, index, function (playlistInfo){playlistCallback(playlistInfo); top.left.updatePlaylists()});
-        }
-        function onRearrange(indexes) {
-            playlistService.rearrange(playlist.id, indexes, playlistCallback);
-        }
-        function onEditPlaylist() {
-            $("#dialog-edit").dialog("open");
-        }
-        function onDeletePlaylist() {
-            $("#dialog-delete").dialog("open");
-        }
+function onPlay(index) {
+    top.playQueue.onPlayPlaylist(playlist.id, index);
+}
+function onPlayAll() {
+    top.playQueue.onPlayPlaylist(playlist.id);
+}
+function onAddAll() {
+    top.playQueue.onAddPlaylist(playlist.id);
+}
+function onAdd(index) {
+    top.playQueue.onAdd(songs[index].id);
+    $().toastmessage('showSuccessToast', '<fmt:message key="main.addlast.toast"/>')
+}
+function onAddNext(index) {
+    top.playQueue.onAddNext(songs[index].id);
+    $().toastmessage('showSuccessToast', '<fmt:message key="main.addnext.toast"/>')
+}
+function onStar(index) {
+    playlistService.toggleStar(playlist.id, index, playlistCallback);
+}
+function onRemove(index) {
+    playlistService.remove(playlist.id, index, function (playlistInfo){playlistCallback(playlistInfo); top.left.updatePlaylists()});
+}
+function onRearrange(indexes) {
+    playlistService.rearrange(playlist.id, indexes, playlistCallback);
+}
+function onEditPlaylist() {
+    $("#dialog-edit").dialog("open");
+}
+function onDeletePlaylist() {
+    $("#dialog-delete").dialog("open");
+}
 
-    </script>
-
-    <style type="text/css">
-        .playlist-missing {
-            color: red;
-            border: 1px solid red;
-            display: none;
-            font-size: 90%;
-            padding-left: 5px;
-            padding-right: 5px;
-            margin-right: 5px;
-        }
-    </style>
-
+</script>
 </head>
-<body class="mainframe" onload="init()">
+<body class="mainframe playlist">
 
-<div style="float:left;margin-right:1.5em;margin-bottom:1.5em">
-<c:import url="coverArt.jsp">
-    <c:param name="playlistId" value="${model.playlist.id}"/>
-    <c:param name="coverArtSize" value="200"/>
-</c:import>
+<nav>
+    <ul class="breadcrumb">
+        <li><a href="playlists.view"><fmt:message key="left.playlists"/></a></li>
+    </ul>
+</nav>
+
+<section>
+    <h1 class="playlists"><span id="name">${fn:escapeXml(model.playlist.name)}</span></h1>
+
+    <dl class="overview">
+        <dt><span class="icon duration"><fmt:message key="playlist2.duration"/></span></dt>
+        <dd><span id="songCount"></span><fmt:message key="playlist2.songs"/> &ndash; <span id="duration"></span></dd>
+        <dt><span class="icon date"><fmt:message key="playlist2.created"/></span></dt>
+        <dd><fmt:formatDate type="date" dateStyle="long" value="${model.playlist.created}"/></dd>
+        <dt><span class="icon person"><fmt:message key="playlist2.author"/></span></dt>
+        <dd>${fn:escapeXml(model.playlist.username)}</dd>
+        <dt><span class="icon visibility"><fmt:message key="playlist2.visibility"/></span></dt>
+        <dd><span id="shared"></span></dd>
+        <dt><span class="icon comment"><fmt:message key="playlist2.comment"/></span></dt>
+        <dd><div id="comment" title="${fn:escapeXml(model.playlist.comment)}">${fn:escapeXml(model.playlist.comment)}</div></dd>
+    </dl>
+
+</section>
+
+<div class="actions">
+    <ul class="controls">
+        <li><a href="javascript:onPlayAll()" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key="common.play"/></a></li>
+        <li><a href="javascript:onAddAll()" title="<fmt:message key='main.addall'/>" class="control plus"><fmt:message key="main.addall"/></a></li>
+        <c:if test="${model.user.downloadRole and model.showDownload}">
+            <c:url value="download.view" var="downloadUrl"><c:param name="playlist" value="${model.playlist.id}"/></c:url>
+            <li><a href="${downloadUrl}" title="<fmt:message key='common.download'/>" class="control plus"><fmt:message key="common.download"/></a></li>
+        </c:if>
+        <c:if test="${model.user.shareRole and model.showShare}">
+            <c:url value="createShare.view" var="shareUrl"><c:param name="playlist" value="${model.playlist.id}"/></c:url>
+            <li><a href="${shareUrl}" title="<fmt:message key='share.title'/>" class="control share"><fmt:message key="share.title"/></a></li>
+        </c:if>
+        <c:if test="${model.editAllowed}">
+            <li><a href="javascript:void(0)" onclick="onEditPlaylist();" title="<fmt:message key='common.edit'/>" class="control edit"><fmt:message key="common.edit"/></a></li>
+            <li><a href="javascript:void(0)" onclick="onDeletePlaylist();" title="<fmt:message key='common.delete'/>" class="control cross"><fmt:message key="common.delete"/></a></li>
+        </c:if>
+        <c:url value="exportPlaylist.view" var="exportUrl"><c:param name="id" value="${model.playlist.id}"/></c:url>
+        <li><a href="${exportUrl}" title="<fmt:message key='playlist2.export'/>" class="control export"><fmt:message key="playlist2.export"/></a></li>
+    </ul>
 </div>
 
-<h1><a href="playlists.view"><fmt:message key="left.playlists"/></a> &raquo; <span id="name">${fn:escapeXml(model.playlist.name)}</span></h1>
-<h2>
-    <span class="header"><a href="javascript:onPlayAll()"><fmt:message key="common.play"/></a></span> |
-    <span class="header"><a href="javascript:onAddAll()"><fmt:message key="main.addall"/></a></span>
+<div class="tabular-and-thumb">
 
-    <c:if test="${model.user.downloadRole}">
-        <c:url value="download.view" var="downloadUrl"><c:param name="playlist" value="${model.playlist.id}"/></c:url>
-        | <span class="header"><a href="${downloadUrl}"><fmt:message key="common.download"/></a></span>
-    </c:if>
-    <c:if test="${model.user.shareRole}">
-        <c:url value="createShare.view" var="shareUrl"><c:param name="playlist" value="${model.playlist.id}"/></c:url>
-        | <span class="header"><a href="${shareUrl}"><fmt:message key="share.title"/></a></span>
-    </c:if>
-    <c:if test="${model.editAllowed}">
-        | <span class="header"><a href="javascript:void(0)" onclick="onEditPlaylist();"><fmt:message key="common.edit"/></a></span>
-        | <span class="header"><a href="javascript:void(0)" onclick="onDeletePlaylist();"><fmt:message key="common.delete"/></a></span>
-    </c:if>
-    <c:url value="exportPlaylist.view" var="exportUrl"><c:param name="id" value="${model.playlist.id}"/></c:url>
-    | <span class="header"><a href="${exportUrl}"><fmt:message key="playlist2.export"/></a></span>
+    <p id="empty"><strong><fmt:message key="playlist2.empty"/></strong></p>
 
-</h2>
+    <c:set var="songClass" value="song" />
+    <c:set var="albumClass" value="album" />
+    <c:set var="artistClass" value="artist" />
+	<c:if test="${model.simpleDisplay}">
+	    <c:if test="${not model.editAllowed}">
+	        <c:choose>
+	            <c:when test="${!model.visibility.albumVisible and !model.visibility.artistVisible}">
+	                <c:set var="songClass" value="song prime-end" />
+	            </c:when>
+	            <c:when test="${!model.visibility.artistVisible}">
+	                <c:set var="albumClass" value="album prime-end" />
+	            </c:when>
+	            <c:otherwise>
+	                <c:set var="artistClass" value="artist prime-end" />
+	            </c:otherwise>
+	        </c:choose>
+	    </c:if>
+	</c:if>
+	<c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
 
-<div id="comment" class="detail" style="padding-top:0.2em">${fn:escapeXml(model.playlist.comment)}</div>
-
-<div class="detail" style="padding-top:0.2em">
-    <span id="songCount"></span> <fmt:message key="playlist2.songs"/> &ndash; <span id="duration"></span>
-</div>
-<div class="detail" style="padding-top:0.2em">
-    <fmt:message key="playlist2.created" var="created">
-        <fmt:param>${model.playlist.username}</fmt:param>
-        <fmt:param><fmt:formatDate type="date" dateStyle="long" value="${model.playlist.created}"/></fmt:param>
-    </fmt:message>
-    ${fn:escapeXml(created)}.
-</div>
-<div class="detail" style="padding-top:0.2em">
-    <span id="shared"></span>.
-</div>
-
-<div style="height:0.7em;clear:both"></div>
-
-<p id="empty" style="display: none;"><em><fmt:message key="playlist2.empty"/></em></p>
-
-<table class="music playlist">
-
-    <c:if test="${0 ne fn:length( playlist.fileCount ) && model.visibility.composerVisible || model.visibility.genreVisible}">
+    <table class="tabular playlist">
         <thead id="playlistHeader">
             <tr>
-                <th class="fit"></th>
-                <th class="fit"></th>
-                <th class="fit"></th>
-                <th class="fit"></th>
-                <th class="fit"></th>
-                <th class="fit"></th>
-                <th class="truncate playlistTitle"><fmt:message key="common.fields.songtitle" /></th>
-                <th class="truncate playlistAlbum"><fmt:message key="common.fields.album" /></th>
-                <th class="truncate playlistArtist"><fmt:message key="common.fields.artist" /></th>
-                <c:if test="${model.visibility.composerVisible}"><th class="truncate playlistComposer"><fmt:message key="common.fields.composer" /></th></c:if>
-                <c:if test="${model.visibility.genreVisible}"><th class="truncate playlistGenre"><fmt:message key="common.fields.genre" /></th></c:if>
-                <th class="fit"></th>
-                <c:if test="${model.editAllowed}"><th class="fit"></th></c:if>
+                <th></th><%-- star --%>
+                <th></th><%-- play --%>
+                <th></th><%-- add --%>
+                <th></th><%-- next --%>
+                <th></th><%-- index --%>
+                <th></th><%-- missing --%>
+                <th class="${songClass}"><fmt:message key="common.fields.songtitle" /></th>
+                <th class="${albumClass}"><fmt:message key="common.fields.album" /></th>
+                <th class="${artistClass}"><fmt:message key="common.fields.artist" /></th>
+                <c:if test="${model.visibility.composerVisible}"><th class="${suppl} composer"><fmt:message key="common.fields.composer" /></th></c:if>
+                <c:if test="${model.visibility.genreVisible}"><th class="${suppl} genre"><fmt:message key="common.fields.genre" /></th></c:if>
+                <th class="${suppl}"></th><%-- duration --%>
+                <c:if test="${model.editAllowed}"><th></th></c:if><%-- delete --%>
             </tr>
         </thead>
-    </c:if>
+        <tbody id="playlistBody">
+            <tr id="pattern">
+                <td><div id="starSong" onclick="onStar(this.id.substring(8) - 1)" title="Star ON" class="control star">Star ON</div></td>
+                <td><div id="play" onclick="onPlay(this.id.substring(4) - 1)" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div></td>
+                <td><div id="add" onclick="onAdd(this.id.substring(3) - 1)" title="<fmt:message key='common.add'/>" class="control plus"><fmt:message key='common.add'/></div></td>
+                <td><div id="addNext" onclick="onAddNext(this.id.substring(7) - 1)" title="<fmt:message key='main.addnext'/>" class="control next"><fmt:message key='main.addnext'/></div></td>
+                <td><span id="index">1</span></td>
+                <td><span id="missing" class="playlist-missing"><fmt:message key="playlist.missing"/></span></td>
+                <td class="${songClass}"><span id="title">Title</span></td>
+                <td class="${albumClass}"><a id="albumUrl" target="main"><span id="album">Album</span></a></td>
+                <td class="${artistClass}"><span id="artist">Artist</span></td>
+                <c:if test="${model.visibility.composerVisible}"><td class="${suppl} composer"><span id="composer">Composer</span></td></c:if>
+                <c:if test="${model.visibility.genreVisible}"><td class="${suppl} genre"><span id="genre">Genre</span></td></c:if>
+                <td class="${suppl} duration"><span id="songDuration">Duration</span></td>
+                <c:if test="${model.editAllowed}">
+                  <td class="remove"><div id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" title="<fmt:message key='playlist.remove'/>" class="control minus"><fmt:message key='playlist.remove'/></div></td>
+                </c:if>
+            </tr>
+        </tbody>
+    </table>
 
-    <tbody id="playlistBody" style="cursor:pointer">
-        <tr id="pattern" style="display:none;margin:0;padding:0;border:0">
-            <td class="fit">
-                <img id="starSong" onclick="onStar(this.id.substring(8) - 1)" src="<spring:theme code='ratingOffImage'/>"
-                     style="cursor:pointer;height:18px;" alt="" title=""></td>
-            <td class="fit">
-                <img id="play" src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" title="<fmt:message key='common.play'/>"
-                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onPlay(this.id.substring(4) - 1)"></td>
-            <td class="fit">
-                <img id="add" src="<spring:theme code='addImage'/>" alt="<fmt:message key='common.add'/>" title="<fmt:message key='common.add'/>"
-                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAdd(this.id.substring(3) - 1)"></td>
-            <td class="fit" style="padding-right:30px">
-                <img id="addNext" src="<spring:theme code='addNextImage'/>" alt="<fmt:message key='main.addnext'/>" title="<fmt:message key='main.addnext'/>"
-                     style="padding-right:0.1em;cursor:pointer;height:18px;" onclick="onAddNext(this.id.substring(7) - 1)"></td>
-    
-            <td class="fit rightalign"><span id="index">1</span></td>
-            <td class="fit"><span id="missing" class="playlist-missing"><fmt:message key="playlist.missing"/></span></td>
-            <td class="truncate"><span id="title" class="songTitle">Title</span></td>
-            <td class="truncate"><a id="albumUrl" target="main"><span id="album" class="detail">Album</span></a></td>
-            <td class="truncate"><span id="artist" class="detail">Artist</span></td>
-            <c:if test="${model.visibility.composerVisible}">
-                <td class="truncate"><span id="composer" class="detail">Composer</span></td>
-            </c:if>
-            <c:if test="${model.visibility.genreVisible}">
-                <td class="truncate"><span id="genre" class="detail">Genre</span></td>
-            </c:if>
-    
-            <td class="fit rightalign"><span id="songDuration" class="detail">Duration</span></td>
-    
-            <c:if test="${model.editAllowed}">
-                <td class="fit">
-                    <img id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" src="<spring:theme code='removeImage'/>"
-                         style="cursor:pointer;height:18px;" alt="<fmt:message key='playlist.remove'/>" title="<fmt:message key='playlist.remove'/>"></td>
-            </c:if>
-        </tr>
-    </tbody>
-</table>
+    <div class="albumThumb">
+        <c:import url="coverArt.jsp">
+            <c:param name="playlistId" value="${model.playlist.id}"/>
+            <c:param name="coverArtSize" value="${model.coverArtSize}"/>
+        </c:import>
+    </div>
 
-<div id="dialog-delete" title="<fmt:message key='common.confirm'/>" style="display: none;">
-    <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-        <fmt:message key="playlist2.confirmdelete"/></p>
 </div>
 
-<div id="dialog-edit" title="<fmt:message key='common.edit'/>" style="display: none;">
+<div id="dialog-delete" title="<fmt:message key='common.confirm'/>">
+    <p><span class="ui-icon ui-icon-alert"></span>
+        <fmt:message key="playlist2.confirmdelete"/>
+    </p>
+</div>
+
+<div id="dialog-edit" title="<fmt:message key='common.edit'/>">
     <form>
-        <label for="newName" style="display:block;"><fmt:message key="playlist2.name"/></label>
-        <input type="text" name="newName" id="newName" value="${fn:escapeXml(model.playlist.name)}" class="ui-widget-content"
-               style="display:block;width:95%;"/>
-        <label for="newComment" style="display:block;margin-top:1em"><fmt:message key="playlist2.comment"/></label>
-        <input type="text" name="newComment" id="newComment" value="${fn:escapeXml(model.playlist.comment)}" class="ui-widget-content"
-               style="display:block;width:95%;"/>
-        <input type="checkbox" name="newShared" id="newShared" ${model.playlist.shared ? "checked='checked'" : ""} style="margin-top:1.5em" class="ui-widget-content"/>
-        <label for="newShared"><fmt:message key="playlist2.public"/></label>
+    
+    	<dl>
+    		<dt><label for="newName"><fmt:message key="playlist2.name"/></label></dt>
+        	<dd><input type="text" name="newName" id="newName" value="${fn:escapeXml(model.playlist.name)}" class="ui-widget-content"/></dd>
+        	<dt><label for="newComment"><fmt:message key="playlist2.comment"/></label></dt>
+        	<dd><input type="text" name="newComment" id="newComment" value="${fn:escapeXml(model.playlist.comment)}" class="ui-widget-content"/></dd>
+        	<dt></dt>
+        	<dd>
+        		<input type="checkbox" name="newShared" id="newShared" ${model.playlist.shared ? "checked='checked'" : ""}/>
+        		<label for="newShared"><fmt:message key="playlist2.public"/></label>
+        	</dd>
+        </dl>
     </form>
 </div>
 

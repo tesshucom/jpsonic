@@ -21,10 +21,12 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +35,14 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,30 +63,57 @@ public class VideoPlayerController {
     private PlayerService playerService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private SettingsService settingsService;
 
+    @SuppressWarnings("PMD.EmptyCatchBlock")
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        User user = securityService.getCurrentUser(request);
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
         MediaFile file = mediaFileService.getMediaFile(id);
-        mediaFileService.populateStarredDate(file, user.getUsername());
+        MediaFile dir = mediaFileService.getParentOf(file);
 
+        // Redirect if root directory.
+        if (mediaFileService.isRoot(dir)) {
+            return new ModelAndView(new RedirectView("home.view?"));
+        }
+
+        String username = securityService.getCurrentUsername(request);
+        if (!securityService.isFolderAccessAllowed(dir, username)) {
+            return new ModelAndView(new RedirectView("accessDenied.view"));
+        }
+
+        User user = securityService.getCurrentUser(request);
+        mediaFileService.populateStarredDate(file, user.getUsername());
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
         String url = NetworkService.getBaseUrl(request);
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
         String coverArtUrl = url + "coverArt.view?id=" + file.getId();
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
-        return new ModelAndView("videoPlayer", "model", LegacyMap.of(
-                "video", file,
-                "streamUrl", streamUrl,
-                "remoteStreamUrl", streamUrl,
-                "remoteCoverArtUrl", coverArtUrl,
-                "duration", duration,
-                "bitRates", BIT_RATES,
-                "defaultBitRate", DEFAULT_BIT_RATE,
-                "user", user));
+        Map<String, Object> map = LegacyMap.of();
+        map.put("dir", dir);
+        map.put("ancestors", getAncestors(file));
+        map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
+        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(user.getUsername()));
+        map.put("video", file);
+        map.put("streamUrl", streamUrl);
+        map.put("remoteStreamUrl", streamUrl);
+        map.put("remoteCoverArtUrl", coverArtUrl);
+        map.put("duration", duration);
+        map.put("bitRates", BIT_RATES);
+        map.put("defaultBitRate", DEFAULT_BIT_RATE);
+        map.put("user", user);
+        try {
+            MediaFile parent = mediaFileService.getParentOf(file);
+            map.put("parent", parent);
+            map.put("navigateUpAllowed", !mediaFileService.isRoot(parent));
+        } catch (SecurityException x) {
+            // Happens if Podcast directory is outside music folder.
+        }
+        return new ModelAndView("videoPlayer", "model", map);
     }
 
     @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
@@ -89,6 +121,22 @@ public class VideoPlayerController {
         LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {
             result.put(StringUtil.formatDurationMSS(i), i);
+        }
+        return result;
+    }
+
+    @SuppressWarnings("PMD.EmptyCatchBlock")
+    private List<MediaFile> getAncestors(MediaFile dir) {
+        LinkedList<MediaFile> result = new LinkedList<>();
+
+        try {
+            MediaFile parent = mediaFileService.getParentOf(dir);
+            while (parent != null && !mediaFileService.isRoot(parent)) {
+                result.addFirst(parent);
+                parent = mediaFileService.getParentOf(parent);
+            }
+        } catch (SecurityException x) {
+            // Happens if Podcast directory is outside music folder.
         }
         return result;
     }

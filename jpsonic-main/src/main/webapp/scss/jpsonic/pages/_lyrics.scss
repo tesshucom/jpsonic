@@ -1,0 +1,12 @@
+.mainframe.lyrics {
+  input#artist {
+    @include dlInputWidth(10);
+  }
+  input#song {
+    @include dlInputWidth(10);
+  }
+  #noLyricsFound,
+  #tryLater {
+    display: none;
+  }
+}

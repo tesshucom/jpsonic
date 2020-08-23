@@ -21,7 +21,6 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.InternetRadio;
-import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.User;
@@ -31,27 +30,27 @@ import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.IndexManager;
+import org.airsonic.player.service.VersionService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
-import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller for the top frame.
@@ -69,14 +68,18 @@ public class TopController {
     @Autowired
     private MediaScannerService mediaScannerService;
     @Autowired
-    private IndexManager indexManager;
-    @Autowired
     private MusicIndexService musicIndexService;
     @Autowired
     private PlayerService playerService;
+    @Autowired
+    private VersionService versionService;
+
+    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList("musicFolderSettings.view",
+            "generalSettings.view", "personalSettings.view", "userSettings.view", "playerSettings.view",
+            "internetRadioSettings.view", "more.view");
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response, @RequestParam("mainView") Optional<String> mainView) throws Exception {
 
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
 
@@ -89,11 +92,9 @@ public class TopController {
         map.put("closeDrawer", userSettings.isCloseDrawer());
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());
+        map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("useRadio", settingsService.isUseRadio());
-
-        MediaLibraryStatistics statistics = indexManager.getStatistics();
-        Locale locale = RequestContextUtils.getLocale(request);
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, "refresh", false);
         if (refresh) {
@@ -113,23 +114,40 @@ public class TopController {
         map.put("radios", settingsService.getAllInternetRadios());
         map.put("shortcuts", musicIndexService.getShortcuts(musicFoldersToUse));
         map.put("partyMode", userSettings.isPartyModeEnabled());
+        map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
         map.put("organizeByFolderStructure", settingsService.isOrganizeByFolderStructure());
         map.put("musicFolderChanged", musicFolderChanged);
 
-        if (statistics != null) {
-            map.put("statistics", statistics);
-            long bytes = statistics.getTotalLengthInBytes();
-            long hours = statistics.getTotalDurationInSeconds() / 3600L;
-            map.put("hours", hours);
-            map.put("bytes", StringUtil.formatBytes(bytes, locale));
+        if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
+            map.put("newVersionAvailable", true);
+            map.put("latestVersion", versionService.getLatestFinalVersion());
+
+        } else if (userSettings.isBetaVersionNotificationEnabled() && versionService.isNewBetaVersionAvailable()) {
+            map.put("newVersionAvailable", true);
+            map.put("latestVersion", versionService.getLatestBetaVersion());
         }
+        map.put("brand", settingsService.getBrand());
+
+//      MediaLibraryStatistics statistics = indexManager.getStatistics();
+//      Locale locale = RequestContextUtils.getLocale(request);
+//      if (statistics != null) {
+//          map.put("statistics", statistics);
+//          long bytes = statistics.getTotalLengthInBytes();
+//          long hours = statistics.getTotalDurationInSeconds() / 3600L;
+//          map.put("hours", hours);
+//          map.put("bytes", StringUtil.formatBytes(bytes, locale));
+//      }
 
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
         map.put("user", securityService.getCurrentUser(request));
-
-        return new ModelAndView("top","model",map);
+        mainView.ifPresent(v -> {
+            if (validateMainViewName(v)) {
+                map.put("mainView", v);
+            }
+        });
+        return new ModelAndView("top", "model", map);
     }
 
     // Update this time if you want to force a refresh in clients.
@@ -137,6 +155,10 @@ public class TopController {
     static {
         LAST_COMPATIBILITY_TIME.set(2012, Calendar.MARCH, 6, 0, 0, 0);
         LAST_COMPATIBILITY_TIME.set(Calendar.MILLISECOND, 0);
+    }
+
+    private boolean validateMainViewName(String mainView) {
+        return RELOADABLE_MAIN_VIEW_NAME.contains(mainView);
     }
 
     /**

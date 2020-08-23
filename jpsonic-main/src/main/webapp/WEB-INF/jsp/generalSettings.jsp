@@ -1,18 +1,17 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
-<%@ page trimDirectiveWhitespaces="true" %>
 <%--@elvariable id="command" type="org.airsonic.player.command.GeneralSettingsCommand"--%>
 
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
-<body class="mainframe settings">
+<body class="mainframe settings generalSettings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="general"/>
-    <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="toast" value="${settings_toast or command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
@@ -25,7 +24,7 @@
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
             <dd>
-                <form:select path="localeIndex" cssStyle="width:15em">
+                <form:select path="localeIndex">
                     <c:forEach items="${command.locales}" var="locale" varStatus="loopStatus">
                         <form:option value="${loopStatus.count - 1}" label="${locale}"/>
                     </c:forEach>
@@ -34,7 +33,7 @@
             </dd>
             <dt><fmt:message key="generalsettings.theme"/></dt>
             <dd>
-                <form:select path="themeIndex" cssStyle="width:15em">
+                <form:select path="themeIndex">
                     <c:forEach items="${command.themes}" var="theme" varStatus="loopStatus">
                         <form:option value="${loopStatus.count - 1}" label="${theme.name}"/>
                     </c:forEach>
@@ -44,17 +43,17 @@
         </dl>
     </details>
 
-    <details ${isOpen}>
+    <details open>
         <summary class="jpsonic"><fmt:message key="generalsettings.indexsettings"/></summary>
         <dl>
             <dt><fmt:message key="generalsettings.index"/></dt>
             <dd>
-                <form:input path="index" size="70"/>
+                <form:input path="index"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="index"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.ignoredarticles"/></dt>
             <dd>
-                <form:input path="ignoredArticles" size="70"/>
+                <form:input path="ignoredArticles"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="ignoredarticles"/></c:import>
             </dd>
         </dl>
@@ -110,12 +109,6 @@
                 <label for="outputSearchQuery"><fmt:message key="generalsettings.outputsearchquery"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="outputsearchquery"/></c:import>
             </dd>
-            <dt></dt>
-            <dd>
-                    <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
-                    <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
-            </dd>
         </dl>
     </details>
 
@@ -124,28 +117,28 @@
         <dl>
             <dt><fmt:message key="generalsettings.musicmask"/></dt>
             <dd>
-                    <form:input path="musicFileTypes" size="70"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="musicmask"/></c:import>
+                <form:input path="musicFileTypes"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="musicmask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.videomask"/></dt>
             <dd>
-                    <form:input path="videoFileTypes" size="70"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="videomask"/></c:import>
+                <form:input path="videoFileTypes"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="videomask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.coverartmask"/></dt>
             <dd>
-                    <form:input path="coverArtFileTypes" size="70"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
+                <form:input path="coverArtFileTypes"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="coverartmask"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.playlistfolder"/></dt>
             <dd>
-                <form:input path="playlistFolder" size="70"/>
+                <form:input path="playlistFolder"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="playlistfolder"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.shortcuts"/></dt>
             <dd>
-                    <form:input path="shortcuts" size="70"/>
-                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="shortcuts"/></c:import>
+                <form:input path="shortcuts"/>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shortcuts"/></c:import>
             </dd>
         </dl>
     </details>
@@ -160,12 +153,12 @@
             </dd>
             <dt><fmt:message key="generalsettings.welcometitle"/></dt>
             <dd>
-                <form:input path="welcomeTitle" size="70"/>
+                <form:input path="welcomeTitle"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="welcomemessage"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.welcomesubtitle"/></dt>
             <dd>
-                <form:input path="welcomeSubtitle" size="70"/>
+                <form:input path="welcomeSubtitle"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="welcomemessage"/></c:import>
             </dd>
             <dt><fmt:message key="generalsettings.welcomemessage"/></dt>
@@ -185,6 +178,30 @@
     <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.infrequent"/></summary>
         <dl>
+            <dt></dt>
+        	<dd>
+				<form:checkbox path="showJavaJukebox" id="showJavaJukebox"/>
+                <label for="showJavaJukebox"><fmt:message key="generalsettings.showjavajukebox"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showjavajukebox"/></c:import>
+            </dd>
+            <dt></dt>
+        	<dd>
+				<form:checkbox path="showServerLog" id="showServerLog"/>
+                <label for="showServerLog"><fmt:message key="generalsettings.showserverlog"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showserverlog"/></c:import>
+            </dd>
+            <dt></dt>
+        	<dd>
+				<form:checkbox path="showRememberMe" id="showRememberMe"/>
+                <label for="showRememberMe"><fmt:message key="generalsettings.showrememberme"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="showrememberme"/></c:import>
+            </dd>
+            <dt></dt>
+        	<dd>
+				<form:checkbox path="publishPodcast" id="publishPodcast"/>
+                <label for="publishPodcast"><fmt:message key="generalsettings.publishpodcast"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="publishpodcast"/></c:import>
+            </dd>
         	<dt></dt>
         	<dd>
 				<form:checkbox path="useRadio" id="useRadio"/>
@@ -197,6 +214,12 @@
                 <label for="useSonos"><fmt:message key="generalsettings.usesonos"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="usesonos"/></c:import>
             </dd>
+            <dt></dt>
+            <dd>
+                <form:checkbox path="searchMethodLegacy" id="searchMethodLegacy"/>
+                <label for="searchMethodLegacy"><fmt:message key="generalsettings.searchmethodlegacy"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="searchmethod"/></c:import>
+            </dd>
         </dl>
     </details>
 
@@ -204,14 +227,13 @@
         <input type="submit" value="<fmt:message key='common.save'/>">
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>
     </div>
-
 </form:form>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">
-      window.top.right.location.reload();
-      window.top.playQueue.location.reload();
-      window.top.upper.location.reload();
+    <script>
+      window.top.reloadUpper("generalSettings.view");
+      window.top.reloadPlayQueue();
+      window.top.reloadRight();
     </script>
 </c:if>
 

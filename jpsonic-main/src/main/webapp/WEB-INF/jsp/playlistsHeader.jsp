@@ -4,9 +4,8 @@
 <c:set var="categories" value="playlists import more"/>
 
 <section>
-	<h1><img src="<spring:theme code='playlistImage'/>"><fmt:message key="left.playlists"/></h1>
-
-	<ul class="subMenu">
+	<h1 class="playlists"><fmt:message key="left.playlists"/></h1>
+	<ul class="sibling-pages">
 	    <c:forTokens items="${categories}" delims=" " var="cat" varStatus="loopStatus">
 	        <c:choose>
 	            <c:when test="${loopStatus.count > 1}"></li><li></c:when>
@@ -20,10 +19,10 @@
 	        </c:choose>
 	        <c:choose>
 	            <c:when test="${param.cat eq cat}">
-	                <span class="menuItemSelected"><fmt:message key="playlistsheader.${cat}"/></span>
+	                <span class="selected"><fmt:message key="playlistsheader.${cat}"/></span>
 	            </c:when>
 	            <c:otherwise>
-	                <span class="menuItem"><a href="${url}"><fmt:message key="playlistsheader.${cat}"/></a></span>
+	                <a href="${url}"><fmt:message key="playlistsheader.${cat}"/></a>
 	            </c:otherwise>
 	        </c:choose>
 	    </c:forTokens>

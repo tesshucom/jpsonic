@@ -1,28 +1,47 @@
-table.tabular.musicfolder {
-  th {
-    text-align: center;
+.mainframe.settings.musicFolderSettings {
+  input[name$="name"] {
+    @include dlInputWidth(5);
   }
-  tr {
-    &:hover {
-      background-color: inherit;
+  input[name$="path"] {
+    @include dlInputWidth(10);
+  }
+  input[name="excludePatternString"] {
+    @include dlInputWidth(15);
+  }
+  dl {
+    dt,
+    dd {
+      height: 30px;
     }
-    td {
-      &:nth-child(1) {
-        width: 150px;
-        padding-left: 10px;
-        text-align: left;
+  }
+
+  table.tabular.musicfolder {
+    margin: 30px 0 0 calc((100% - 600px) / 2);
+    th {
+      text-align: center;
+    }
+    tr {
+      &:hover {
+        background-color: inherit;
       }
-      &:nth-child(2) {
-        width: 24px;
-        text-align: left;
-      }
-      &:nth-child(3) {
-        width: 60px;
-        text-align: center;
-      }
-      &:nth-child(4) {
-        width: 60px;
-        text-align: center;
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          padding-left: 10px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          width: 24px;
+          text-align: left;
+        }
+        &:nth-child(3) {
+          width: 60px;
+          text-align: center;
+        }
+        &:nth-child(4) {
+          width: 60px;
+          text-align: center;
+        }
       }
     }
   }
