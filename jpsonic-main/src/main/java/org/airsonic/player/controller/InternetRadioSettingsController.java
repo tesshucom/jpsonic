@@ -29,6 +29,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,6 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Controller for the page used to administrate the set of internet radio/tv stations.
@@ -50,11 +52,12 @@ public class InternetRadioSettingsController {
     private SettingsService settingsService;
 
     @GetMapping
-    public String doGet(Model model) {
+    public String doGet(Model model, @RequestParam("toast") Optional<Boolean> toast) {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", settingsService.getAllInternetRadios(true));
         map.put("useRadio", settingsService.isUseRadio());
         map.put("useSonos", settingsService.isUseSonos());
+        toast.ifPresent(b -> map.put("showToast", b));
         model.addAttribute("model", map);
         return "internetRadioSettings";
     }
@@ -64,7 +67,6 @@ public class InternetRadioSettingsController {
 
         String error = handleParameters(request);
         if (error == null) {
-            redirectAttributes.addFlashAttribute("settings_toast", true);
             redirectAttributes.addFlashAttribute("settings_reload", true);
         }
         redirectAttributes.addFlashAttribute("error", error);

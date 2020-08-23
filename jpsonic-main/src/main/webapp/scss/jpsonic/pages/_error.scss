@@ -1,0 +1,13 @@
+.mainframe.error {
+  > dl {
+    > dt {
+      width: 120px;
+    }
+    > dd {
+      width: calc(100% - 120px);
+      .error-code {
+        white-space: pre;
+      }
+    }
+  }
+}

@@ -36,27 +36,51 @@ body.mainframe.home > section {
       @include border;
       @include borderRadius;
     }
-    > .refresh {
-      > a {
-        > img {
-          height: 18px;
-        }
-      }
-      @include border;
+  }
+}
+
+details {
+  ul.anchorList {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: start;
+    min-height: 30px;
+    width: calc(100% - 30px);
+    margin: 5px 0 0 0;
+    padding: 0 0 0 30px;
+    li {
+      margin: 5px 8px 5px 0px;
     }
-    > .shuffle {
-      left: 1em;
-      > a {
-        > img {
-          height: 18px;
-        }
-      }
+    a {
+      //      position: relative;
+      height: 20px;
+      margin: 5px 8px 5px 0px;
+      padding: 0 4px 0 4px;
       @include border;
+      border-radius: 10px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      vertical-align: middle;
+      &:active {
+        top: -1px;
+      }
     }
   }
 }
+
 div.albums {
   display: flex;
   flex-flow: row wrap;
   align-items: center;
+}
+
+.albumThumb {
+  > .ratings {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 160px;
+  }
 }

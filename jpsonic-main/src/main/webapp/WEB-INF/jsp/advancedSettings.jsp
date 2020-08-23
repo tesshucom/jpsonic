@@ -4,7 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
 
 <body class="mainframe settings">
@@ -55,7 +55,7 @@
             </dd>
             <dt><fmt:message key="advancedsettings.smtpEncryption"/></dt>
             <dd>
-                <form:select path="smtpEncryption" cssStyle="width:8em">
+                <form:select path="smtpEncryption">
                     <fmt:message key="advancedsettings.smtpEncryption.none" var="none"/>
                     <fmt:message key="advancedsettings.smtpEncryption.starttls" var="starttls"/>
                     <fmt:message key="advancedsettings.smtpEncryption.ssl" var="ssl"/>
@@ -79,7 +79,7 @@
 
     <details ${isOpen}>
         <summary><fmt:message key="advancedsettings.ldap"/></summary>
-        <p class="warning"><fmt:message key="advancedsettings.ldapRequiresRestart"/></p>
+        <p><strong><fmt:message key="advancedsettings.ldapRequiresRestart"/></strong></p>
         <dl>
             <dt></dt>
             <dd>
@@ -145,9 +145,9 @@
 </form:form>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">
-      window.top.playQueue.location.reload();
-      window.top.upper.location.reload();
+    <script>
+    	window.top.reloadPlayQueue();
+    	window.top.reloadUpper("advancedSettings.view");
     </script>
 </c:if>
 

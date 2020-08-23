@@ -1,0 +1,22 @@
+// Styles related to java jukebox controls
+
+#javaJukeboxPlayerControlBar {
+  > #pauseIcon {
+    display: none;
+  }
+  > .javaJukeBoxPlayerControlBarSongTime {
+    width: 50px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 80%;
+    text-align: right;
+  }
+  > #javaJukeboxSongPositionSlider {
+    width: 200px;
+    height: 4px;
+  }
+  > #javaJukeboxVolumeSlider {
+    width: 80px;
+    height: 4px;
+  }
+}

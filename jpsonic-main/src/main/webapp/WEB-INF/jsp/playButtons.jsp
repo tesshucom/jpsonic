@@ -15,66 +15,54 @@ PARAMETERS
 --%>
 
 <c:if test="${param.starEnabled}">
-    <c:if test="${param.asTable}"><td class="fit"></c:if>
+    <c:if test="${param.asTable}"><td></c:if>
     <c:choose>
         <c:when test="${param.starred}">
-            <img id="starImage${param.id}" src="<spring:theme code='ratingOnImage'/>" alt="" style="cursor:pointer;height:18px;"
-                 onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">
+            <div id="starImage${param.id}" class="control star-fill" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">Star ON</div>
         </c:when>
         <c:otherwise>
-            <img id="starImage${param.id}" src="<spring:theme code='ratingOffImage'/>" alt="" style="cursor:pointer;height:18px;"
-                 onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">
+            <div id="starImage${param.id}" class="control star" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">Star OFF</div>
         </c:otherwise>
     </c:choose>
     <c:if test="${param.asTable}"></td></c:if>
 </c:if>
 
-<c:if test="${param.asTable}"><td class="fit"></c:if>
+<c:if test="${param.asTable}"><td></c:if>
 <c:if test="${empty param.playEnabled or param.playEnabled}">
     <c:choose>
         <c:when test="${param.video}">
             <sub:url value="/videoPlayer.view" var="videoUrl">
                 <sub:param name="id" value="${param.id}"/>
             </sub:url>
-            <a href="${videoUrl}" target="main">
-                <img src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" style="cursor:pointer; height:18px;"
-                     title="<fmt:message key='common.play'/>"></a>
+            <a target="main" href="${videoUrl}" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></a>
         </c:when>
         <c:when test="${not empty param.onPlay}">
-            <img src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" style="cursor:pointer; height:18px;"
-                 onclick="${param.onPlay}; return false;" title="<fmt:message key='common.play'/>">
+            <div onclick="${param.onPlay}; return false;" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/><fmt:message key='common.play'/></div>
         </c:when>
         <c:otherwise>
-            <img src="<spring:theme code='playImage'/>" alt="<fmt:message key='common.play'/>" style="cursor:pointer; height:18px;"
-                 onclick="top.playQueue.onPlay(${param.id}); return false;" title="<fmt:message key='common.play'/>">
+            <div onclick="top.playQueue.onPlay(${param.id}); return false;" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div>
         </c:otherwise>
     </c:choose>
 </c:if>
 <c:if test="${param.asTable}"></td></c:if>
 
-<c:if test="${param.asTable}"><td class="fit"></c:if>
+<c:if test="${param.asTable}"><td></c:if>
 <c:if test="${(empty param.addEnabled or param.addEnabled) and not param.video}">
-    <img id="add${param.id}" src="<spring:theme code='addImage'/>" alt="<fmt:message key='main.addlast'/>"
-         onclick="top.playQueue.onAdd(${param.id}); $().toastmessage('showSuccessToast', '<fmt:message key='main.addlast.toast'/>'); return false;"
-         style="cursor:pointer; height:18px;" title="<fmt:message key='main.addlast'/>">
+    <div id="add${param.id}" onclick="top.playQueue.onAdd(${param.id}); $().toastmessage('showSuccessToast', '<fmt:message key='main.addlast.toast'/>'); return false;" title="<fmt:message key='main.addlast'/>" class="control plus"><fmt:message key='main.addlast'/></div>
 </c:if>
 <c:if test="${param.asTable}"></td></c:if>
 
-<c:if test="${param.asTable}"><td class="fit"></c:if>
+<c:if test="${param.asTable}"><td></c:if>
 <c:if test="${(empty param.addEnabled or param.addEnabled) and not param.video}">
-    <img id="add${param.id}" src="<spring:theme code='addNextImage'/>" alt="<fmt:message key='main.addnext'/>"
-         onclick="top.playQueue.onAddNext(${param.id}); $().toastmessage('showSuccessToast', '<fmt:message key='main.addnext.toast'/>'); return false;"
-         style="cursor:pointer; height:18px;" title="<fmt:message key='main.addnext'/>">
+    <div id="add${param.id}" onclick="top.playQueue.onAddNext(${param.id}); $().toastmessage('showSuccessToast', '<fmt:message key='main.addnext.toast'/>'); return false;" title="<fmt:message key='main.addnext'/>" class="control next"><fmt:message key='main.addnext'/></div>
 </c:if>
 <c:if test="${param.asTable}"></td></c:if>
 
-<c:if test="${param.asTable}"><td class="fit"></c:if>
 <c:if test="${param.downloadEnabled}">
+	<c:if test="${param.asTable}"><td></c:if>
     <sub:url value="/download.view" var="downloadUrl">
         <sub:param name="id" value="${param.id}"/>
     </sub:url>
-    <a href="${downloadUrl}">
-        <img src="<spring:theme code='downloadImage'/>" alt="<fmt:message key='common.download'/>"
-             title="<fmt:message key='common.download'/>" ></a>
+    <a href="${downloadUrl}" title="<fmt:message key='common.download'/>" class="control download"><fmt:message key='common.download'/></a>
+	<c:if test="${param.asTable}"></td></c:if>
 </c:if>
-<c:if test="${param.asTable}"></td></c:if>

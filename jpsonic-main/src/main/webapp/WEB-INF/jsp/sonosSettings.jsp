@@ -40,7 +40,7 @@
         <label for="sonosEnabled"><fmt:message key="sonossettings.enabled"/></label>
     </div>
 
-    <p class="detail" style="width:60%;white-space:normal">
+    <p class="detail">
         <fmt:message key="sonossettings.description"/>
     </p>
     <div>
@@ -48,7 +48,7 @@
         <input name="sonosServiceName" id="sonosServiceName" size="40"
                value="<c:out value='${model.sonosServiceName}' escapeXml='true'/>"/>
     </div>
-    <p class="detail" style="width:60%;white-space:normal;padding-top:0">
+    <p class="detail">
         <fmt:message key="sonossettings.servicename.description"/>
     </p>
 

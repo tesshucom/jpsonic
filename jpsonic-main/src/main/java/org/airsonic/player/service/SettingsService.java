@@ -163,6 +163,7 @@ public class SettingsService {
     private static final String KEY_DLNA_RANDOM_MAX = "DlnaRandomMax";
     private static final String KEY_DLNA_GUEST_PUBLISH = "DlnaGuestPublish";
 
+    private static final String KEY_PUBLISH_PODCAST = "PublishPodcast";
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
     private static final String KEY_SONOS_SERVICE_ID = "SonosServiceId";
@@ -272,7 +273,7 @@ public class SettingsService {
     private static final boolean DEFAULT_DLNA_GUEST_PUBLISH = false;
     private static final int DEFAULT_DLNA_RANDOM_MAX = 50;
 
-
+    private static final boolean DEFAULT_PUBLISH_PODCAST = false;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
     private static final int DEFAULT_SONOS_SERVICE_ID = 242;
@@ -1346,6 +1347,24 @@ public class SettingsService {
         settings.setChanged(new Date());
         settings.setPaginationSize(40);
 
+        // JP >>>>
+        settings.setCloseDrawer(false);
+        settings.setShowIndex(true);
+        settings.setAssignAccesskeyToNumber(true);
+        settings.setOpenDetailIndex(false);
+        settings.setOpenDetailSetting(false);
+        settings.setOpenDetailStar(false);
+        settings.setSimpleDisplay(true);
+        settings.setShowSibling(false);
+        settings.setShowRate(false);
+        settings.setShowAlbumSearch(false);
+        settings.setShowLastPlay(false);
+        settings.setShowDownload(false);
+        settings.setShowTag(false);
+        settings.setShowComment(false);
+        settings.setShowShare(false);
+        // <<<< JP
+
         UserSettings.Visibility playlist = settings.getPlaylistVisibility();
         playlist.setArtistVisible(true);
         playlist.setAlbumVisible(true);
@@ -1589,6 +1608,14 @@ public class SettingsService {
         if (0 < i) {
             setInt(KEY_DLNA_RANDOM_MAX, i);
         }
+    }
+
+    public boolean isPublishPodcast() {
+        return getBoolean(KEY_PUBLISH_PODCAST, DEFAULT_PUBLISH_PODCAST);
+    }
+
+    public void setPublishPodcast(boolean b) {
+        setBoolean(KEY_PUBLISH_PODCAST, b);
     }
 
     public boolean isSonosEnabled() {

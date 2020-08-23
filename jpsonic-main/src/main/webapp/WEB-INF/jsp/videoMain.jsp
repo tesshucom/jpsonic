@@ -23,9 +23,9 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 
-    <script type="text/javascript">
+    <script>
         var image;
         var id;
         var duration;
@@ -94,7 +94,9 @@
     </span>
 </h1>
 
-<%@ include file="viewSelector.jsp" %>
+<c:import url="viewSelector.jsp">
+    <c:param name="targetView" value="videoMain.view"/>
+</c:import>
 <div style="clear:both;padding-bottom:2em"></div>
 
 <table class="music">

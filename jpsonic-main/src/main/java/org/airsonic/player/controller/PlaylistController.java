@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
@@ -77,6 +78,7 @@ public class PlaylistController {
                 "visibility", userSettings.getMainVisibility(),
                 "player", player,
                 "editAllowed", username.equals(playlist.getUsername()) || securityService.isAdmin(username),
+                "coverArtSize", CoverArtScheme.LARGE.getSize(),
                 "partyMode", userSettings.isPartyModeEnabled()));
     }
 

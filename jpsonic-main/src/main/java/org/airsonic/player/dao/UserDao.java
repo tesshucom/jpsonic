@@ -58,8 +58,10 @@ public class UserDao extends AbstractDao {
             "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, " +
             "keyboard_shortcuts_enabled, pagination_size, " +
             // JP >>>>
-            "main_composer, playlist_composer, close_drawer, assign_accesskey_to_number, " +
-            "open_detail_index, open_detail_setting, open_detail_star, show_index";
+            "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, " +
+            "open_detail_index, open_detail_setting, open_detail_star, show_index, " +
+            "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, " +
+            "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer"; 
             // <<<< JP
 
     private static final Integer ROLE_ID_ADMIN = 1;
@@ -233,8 +235,14 @@ public class UserDao extends AbstractDao {
                 settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
                 settings.getPaginationSize(),
                 // JP >>>>
-                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(), settings.isAssignAccesskeyToNumber(),
-                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(), settings.isShowIndex());
+                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(),
+                settings.isClosePlayQueue(), settings.isAlternativeDrawer(), settings.isAssignAccesskeyToNumber(),
+                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(),
+                settings.isShowIndex(), settings.isSimpleDisplay(), settings.isShowSibling(), settings.isShowRate(),
+                settings.isShowAlbumSearch(), settings.isShowLastPlay(), settings.isShowDownload(),
+                settings.isShowTag(), settings.isShowComment(), settings.isShowShare(), settings.isShowChangeCoverArt(),
+                settings.isShowTopSongs(), settings.isShowSimilar(), settings.isShowAlbumActions(),
+                settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer());
                 // <<<< JP
     }
 
@@ -407,11 +415,28 @@ public class UserDao extends AbstractDao {
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
             settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
             settings.setCloseDrawer(rs.getBoolean(col++));
+            settings.setClosePlayQueue(rs.getBoolean(col++));
+            settings.setAlternativeDrawer(rs.getBoolean(col++));
             settings.setAssignAccesskeyToNumber(rs.getBoolean(col++));
             settings.setOpenDetailIndex(rs.getBoolean(col++));
             settings.setOpenDetailSetting(rs.getBoolean(col++));
             settings.setOpenDetailStar(rs.getBoolean(col++));
-            settings.setShowIndex(rs.getBoolean(col));
+            settings.setShowIndex(rs.getBoolean(col++));
+            settings.setSimpleDisplay(rs.getBoolean(col++));
+            settings.setShowSibling(rs.getBoolean(col++));
+            settings.setShowRate(rs.getBoolean(col++));
+            settings.setShowAlbumSearch(rs.getBoolean(col++));
+            settings.setShowLastPlay(rs.getBoolean(col++));
+            settings.setShowDownload(rs.getBoolean(col++));
+            settings.setShowTag(rs.getBoolean(col++));
+            settings.setShowComment(rs.getBoolean(col++));
+            settings.setShowShare(rs.getBoolean(col++));
+            settings.setShowChangeCoverArt(rs.getBoolean(col++));
+            settings.setShowTopSongs(rs.getBoolean(col++));
+            settings.setShowSimilar(rs.getBoolean(col++));
+            settings.setShowAlbumActions(rs.getBoolean(col++));
+            settings.setBreadcrumbIndex(rs.getBoolean(col++));
+            settings.setPutMenuInDrawer(rs.getBoolean(col));
             // <<<< JP
             return settings;
         }

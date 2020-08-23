@@ -15,49 +15,48 @@ long usedMemory = totalMemory - freeMemory;
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 
-<body class="mainframe">
+<body class="mainframe error">
 
-<h1><img src="<spring:theme code='errorImage'/>" alt=""/>Error</h1>
+<section>
+    <h1 class="error">Error</h1>
+</section>
 
 <p>
-    Airsonic encountered an internal error. You can report this error in the
-    <a href="https://www.reddit.com/r/airsonic" target="_blank" rel="noopener nofererrer">Airsonic Forum</a>.<br>
+    Airsonic encountered an internal error. You can report this error in the <a href="https://www.reddit.com/r/airsonic" target="_blank" rel="noopener nofererrer">Airsonic Forum</a>.<br>
     Japanese related errors are supported by <a href="https://tesshu.com/" target="_blank" rel="noopener nofererrer">tesshu.com</a>.<br>
     Please include the information below.
 </p>
 
-<table class="ruleTable indent">
-    <tr><td class="ruleTableHeader">Status</td>
-        <td class="ruleTableCell"><c:out value="${status}" /></td></tr>
-    <tr><td class="ruleTableHeader">Error</td>
-        <td class="ruleTableCell"><c:out value="${error}" /></td></tr>
-    <tr><td class="ruleTableHeader">Message</td>
-        <td class="ruleTableCell"><c:out value="${message}" /></td></tr>
-    <tr><td class="ruleTableHeader">Path</td>
-        <td class="ruleTableCell"><c:out value="${path}" /></td></tr>
-    <tr><td class="ruleTableHeader">Time</td>
-        <td class="ruleTableCell"><c:out value="${timestamp}" /></td></tr>
-    <tr><td class="ruleTableHeader">Exception</td>
-        <td class="ruleTableCell"><c:out value="${exception}" /></td></tr>
-    <tr><td class="ruleTableHeader">Java version</td>
-        <td class="ruleTableCell"><%=System.getProperty("java.vendor") + ' ' + System.getProperty("java.version")%></td></tr>
-    <tr><td class="ruleTableHeader">Operating system</td>
-        <td class="ruleTableCell"><%=System.getProperty("os.name") + ' ' + System.getProperty("os.version")%></td></tr>
-    <tr><td class="ruleTableHeader">Server</td>
-        <td class="ruleTableCell"><%=application.getServerInfo()%></td></tr>
-    <tr><td class="ruleTableHeader">Memory</td>
-        <td class="ruleTableCell">Used <%=usedMemory/1024L/1024L%> of <%=totalMemory/1024L/1024L%> MB</td></tr>
+<dl>
+    <dt>Status</dt>
+    <dd><c:out value="${status}" /></dd>
+    <dt>Error</td>
+    <dd><c:out value="${error}" /></dd>
+    <dt>Message</td>
+    <dd><c:out value="${message}" /></dd>
+    <dt>Path</td>
+    <dd><c:out value="${path}" /></dd>
+    <dt>Time</td>
+    <dd><c:out value="${timestamp}" /></dd>
+    <dt>Exception</td>
+    <dd><c:out value="${exception}" /></dd>
+    <dt>Java version</td>
+    <dd><%=System.getProperty("java.vendor") + ' ' + System.getProperty("java.version")%></dd>
+    <dt>Operating system</td>
+    <dd><%=System.getProperty("os.name") + ' ' + System.getProperty("os.version")%></dd>
+    <dt>Server</td>
+    <dd><%=application.getServerInfo()%></dd>
+    <dt>Memory</td>
+    <dd>Used <%=usedMemory/1024L/1024L%> of <%=totalMemory/1024L/1024L%> MB</dd>
     <c:if test="${not empty trace}">
-        <tr>
-            <td class="ruleTableHeader" style="vertical-align:top;">Stack trace</td>
-            <td class="ruleTableCell" style="white-space:pre">
-                <pre>
-                        ${fn:escapeXml(trace)}
-                </pre>
-            </td>
-        </tr>
+        <dt>Stack trace</dt>
+        <dd class="error-code">
+        	<pre>
+            	${fn:escapeXml(trace)}
+			</pre>
+        </dd>
     </c:if>
-</table>
+</dl>
 
 </body>
 </html>

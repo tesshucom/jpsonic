@@ -1,3 +1,28 @@
+.top-frame {
+  .toast-position-top-right {
+    right: calc(#{$jp-right-width} + 20px) !important; //20px;
+  }
+}
+// ******************** input / top.jsp ***********************************
+
+input[type="text"]#query {
+  outline: none;
+  height: 26px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 13px 0 0 13px;
+  &:focus,
+  &:active {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 9px;
+    padding-right: 9px;
+    @include border(input-focus);
+  }
+}
+
 // ******************** toggler / top.jsp *********************************
 
 $jps-toggler-size: 28px;
@@ -86,7 +111,7 @@ input[type="checkbox"].jps-input-toggler {
     opacity: 0.98;
   }
   &:checked ~ .jps-drawer > aside .jps-radio {
-    @media screen and (min-width: 1366px) {
+    @media screen and (min-width: $jp-supplement-width-threshold) {
       visibility: visible;
     }
   }
@@ -100,42 +125,36 @@ input[type="checkbox"].jps-input-toggler {
 
 // ******************** topHeader / top.jsp *******************************
 
+$jps-search-form-width: 240px;
+
 .jps-topHeader {
   display: flex;
   align-items: center;
   width: 100vw;
   height: $jp-header-height;
-  > nav > ul.jps-nav {
+  @include border(bottom);
+  > nav > ul.menu {
     display: flex;
+    flex-flow: row wrap;
     align-items: center;
-    flex-wrap: nowrap;
-    justify-content: start;
-    @media screen and (min-width: 768px) {
+    justify-content: center;
+    margin: 0 0 0 calc(#{$jp-drawer-width} + 5px);
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
       margin: 0 0 0 60px;
     }
-    @media screen and (min-width: 1024px) {
-      margin: 0 0 0 calc(#{$jp-drawer-width} + 5px);
-    }
-    padding: 0;
     li {
-      display: block;
-      width: 60px;
-      font-size: $jp-font-absolute-small;
-      text-align: center;
-      a {
-        padding: 4px 0 0 0;
-        white-space: nowrap;
-        img {
-          display: block;
-          width: 30px;
-          margin: auto;
-          @include imageLink;
-        }
-      }
+      width: 30px;
+      height: 30px;
     }
   }
   form {
-    display: block;
+    width: $jps-search-form-width;
+    position: absolute;
+    left: calc(50vw - #{$jps-search-form-width} / 2);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
   }
 }
@@ -150,12 +169,11 @@ input[type="checkbox"].jps-input-toggler {
   visibility: hidden;
   z-index: $jp-layer-2;
   position: absolute;
-  top: 0;
-  left: 0;
   width: $jp-drawer-width;
   height: 100vh;
   margin: 0;
   padding: $jp-header-height 0 0 0;
+  @include border(right);
   background: $jp-color-base3;
   transition: all 0.3s ease-out;
   transition: all 0.3s ease-in;
@@ -171,7 +189,6 @@ input[type="checkbox"].jps-input-toggler {
     justify-content: flex-end;
     position: absolute;
     top: 0;
-    left: 0;
     width: calc(#{$jp-drawer-width} - 10px);
     height: $jp-header-height;
   }
@@ -257,6 +274,10 @@ input[type="checkbox"].jps-input-toggler {
   > aside {
     .jps-radio {
       visibility: hidden;
+      li a.control.play {
+        position: relative;
+        top: -2px;
+      }
     }
     .jps-shortcuts,
     .jps-radio {
@@ -278,21 +299,16 @@ input[type="checkbox"].jps-input-toggler {
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 24px;
-        margin: 2px 5px 4px 5px;
+        height: 26px;
+        margin: 2px 5px 2px 5px;
         padding: 2px 4px 2px 4px;
         @include border;
         @include blockLink($jp-color-base1, $jp-color-base4);
-        border-radius: 12px;
+        border-radius: 13px;
         a {
           color: $jp-color-base4;
           &:active {
             background: $jp-color-complementary3;
-          }
-          img {
-            height: 18px;
-            margin: -2px 4px 2px 0;
-            @include imageLink;
           }
         }
       }
@@ -304,7 +320,7 @@ input[type="checkbox"].jps-input-toggler {
     bottom: 0;
     width: $jp-drawer-width - 20px;
     margin: 0 10px 10px 10px;
-    > nav > ul {
+    > nav > ul.menu {
       display: flex;
       flex-flow: row wrap;
       margin: 0;
@@ -312,23 +328,13 @@ input[type="checkbox"].jps-input-toggler {
       @include border;
       @include borderRadius;
       background-color: $jp-color-white;
+      //align-items: center;
+      //justify-content: space-around;
       li {
-        display: inline;
-        align-items: center;
-        min-width: 70px;
-        margin: 0 0 10px 0;
-        font-size: 0.79em;
-        text-align: center;
-        a {
-          padding: 0 0 8px 0;
-          white-space: nowrap;
-          img {
-            display: block;
-            width: 30px;
-            margin: auto;
-            @include imageLink;
-          }
-        }
+        width: 30px;
+        height: 30px;
+        margin-left: 20px;
+        margin-right: 20px;
       }
     }
   }
@@ -343,4 +349,10 @@ input[type="checkbox"].jps-input-without-index {
     position: relative;
     top: 0;
   }
+}
+
+#keyboardShortcuts {
+  display: none;
+  overflow: hidden;
+  z-index: $jp-layer-5;
 }

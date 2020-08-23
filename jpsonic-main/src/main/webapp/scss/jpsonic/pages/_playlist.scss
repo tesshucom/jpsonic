@@ -1,0 +1,201 @@
+$playlists-page-cover-art-size: 330px;
+
+.mainframe.playlist {
+  section {
+    > .overview {
+      position: absolute;
+      top: 0px;
+      right: 10px;
+      width: 300px;
+      background-color: transparent;
+      border: none;
+      dt {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border: none;
+        background-color: transparent;
+      }
+      dd {
+        max-width: 300px;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: start;
+        width: 120px;
+        height: 30px;
+        border: none;
+        background-color: transparent;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        &:last-of-type {
+          width: 270px;
+        }
+      }
+    }
+  }
+
+  > .tabular-and-thumb {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    .tabular.playlist {
+      tbody {
+        cursor: pointer;
+        tr {
+          td {
+            &:nth-child(1),
+            &:nth-child(2),
+            &:nth-child(3),
+            &:nth-child(4) {
+              width: 30px;
+              padding: 0 0 3px 10px;
+            }
+            &:nth-child(5) {
+              // index
+              width: 30px;
+              text-align: right;
+            }
+            &.song,
+            &.album,
+            &.artist {
+              min-width: 10rem;
+              &.truncate {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+              }
+            }
+            &.song.truncate {
+              max-width: 20vw;
+            }
+            &.album.truncate {
+              max-width: 10vw;
+            }
+            &.artist.truncate {
+              max-width: 10vw;
+            }
+            &.composer {
+              min-width: 4rem;
+            }
+            &.genre {
+              min-width: 4rem;
+            }
+            &.year,
+            &.format,
+            &.size,
+            &.duration,
+            &.bitrate {
+              padding: 0 10px 0 0;
+              text-align: right;
+            }
+            &.year {
+              width: 30px;
+            }
+            &.format {
+              width: 30px;
+            }
+            &.size {
+              width: 60px;
+            }
+            &.duration {
+              width: 60px;
+            }
+            &.bitrate {
+              width: 90px;
+            }
+            &.remove {
+              padding: 0 10px 0 0;
+              width: 30px;
+            }
+            .playlist-missing {
+              display: none;
+              margin-right: 5px;
+              padding-left: 5px;
+              padding-right: 5px;
+              border: 1px solid red;
+              color: red;
+              font-size: 90%;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .tabular.sibling {
+    width: calc(100vw - #{$playlists-page-cover-art-size} - 60px - #{$jp-subsection-indent});
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+      width: calc(100vw - 60px - #{$jp-subsection-indent});
+    }
+    margin: 0 0 0 28px;
+    tr {
+      td {
+        height: 30px;
+        &:nth-child(1),
+        &:nth-child(2),
+        &:nth-child(3) {
+          width: 30px;
+        }
+        &.artist {
+          &.truncate {
+            max-width: 25vw;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+        &.year {
+          padding: 0 10px 0 0;
+          width: 30px;
+          text-align: right;
+        }
+      }
+    }
+  }
+
+  > div.coverart-container {
+    height: auto;
+    margin: 30px 0 0 0;
+    > .albumThumb {
+      width: 210px;
+      height: 250px;
+    }
+  }
+
+  .row-drag {
+    background-color: $jp-color-complementary1;
+    @include border(top);
+    @include border(bottom);
+    @include dropShadow;
+    &:first-child {
+      @include border(left);
+      @include borderRadius(left);
+    }
+    &:last-child {
+      @include border(right);
+      @include borderRadius(right);
+    }
+  }
+
+  #dialog-edit {
+    display: none;
+    .ui-widget-content {
+      display: block;
+      width: 95%;
+    }
+  }
+  #dialog-delete {
+    display: none;
+    .ui-icon {
+      .ui-icon-alert {
+        float: left;
+        margin: 0 7px 20px 0;
+      }
+    }
+  }
+}

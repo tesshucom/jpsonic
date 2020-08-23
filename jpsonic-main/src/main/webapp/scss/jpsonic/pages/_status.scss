@@ -1,0 +1,30 @@
+// ******************** fancy/albumMain.jsp *******************************
+
+.mainframe.status {
+  > .tabular.current {
+    width: calc(100% - 20px);
+    tr {
+      td {
+        &:nth-child(1) {
+          width: 70%;
+        }
+        &:nth-child(2) {
+          width: 30%;
+        }
+      }
+    }
+  }
+  > .tabular.statics {
+    width: calc(100% - 20px);
+    tr {
+      td {
+        &:nth-child(1) {
+          width: 50%;
+        }
+        &:nth-child(2) {
+          width: 50%;
+        }
+      }
+    }
+  }
+}

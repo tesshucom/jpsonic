@@ -4,12 +4,12 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
-    <script type="text/javascript">
+    <script src="<c:url value='/script/utils.js'/>"></script>
+    <script>
         function init() {
             enablePasswordChangeFields();
             <c:if test="${settings_reload}">
-              window.top.upper.location.reload();
+              window.top.reloadUpper("userSettings.view");
             </c:if>
         }
         function enablePasswordChangeFields() {
@@ -39,25 +39,23 @@
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="user"/>
-    <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="toast" value="${command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
-    
-<table class="indent">
-    <tr>
-        <td><b><fmt:message key="usersettings.title"/></b></td>
-        <td>
-            <select name="username" onchange="location='userSettings.view?userIndex=' + (selectedIndex - 1);">
-                <option value="">-- <fmt:message key="usersettings.newuser"/> --</option>
-                <c:forEach items="${command.users}" var="user">
-                    <option ${user.username eq command.username ? "selected" : ""}
-                            value="${fn:escapeXml(user.username)}">${fn:escapeXml(user.username)}</option>
-                </c:forEach>
-            </select>
-        </td>
-    </tr>
-</table>
+
+<dl class="single">
+	<dt><strong>*</strong> <fmt:message key="usersettings.title"/></dt>
+	<dd>
+	     <select name="username" onchange="location='userSettings.view?userIndex=' + (selectedIndex - 1);">
+	         <option value="">-- <fmt:message key="usersettings.newuser"/> --</option>
+	         <c:forEach items="${command.users}" var="user">
+	             <option ${user.username eq command.username ? "selected" : ""}
+	                     value="${fn:escapeXml(user.username)}">${fn:escapeXml(user.username)}</option>
+	         </c:forEach>
+	     </select>
+	 </dd>
+</dl>
 
 <form:form method="post" action="userSettings.view" modelAttribute="command">
     <c:choose>
@@ -81,14 +79,14 @@
             </c:if>
             <c:choose>
                 <c:when test="${command.newUser}">
-                    <dt><span class="warning">*</span> <fmt:message key="usersettings.username"/></dt>
-                    <dd><form:input path="username" cssStyle="width:15em"/><span class="warning"><form:errors path="username" cssStyle="width:15em"/></span></dd>
-                    <dt><span class="warning">*</span> <fmt:message key="usersettings.password"/></dt>
-                    <dd><form:password path="password" cssStyle="width:15em"/><span class="warning"><form:errors path="password"/></span></dd>
-                    <dt><span class="warning">*</span> <fmt:message key="usersettings.confirmpassword"/></dt>
-                    <dd><form:password path="confirmPassword" cssStyle="width:15em"/></dd>
-                    <dt><span class="warning">*</span> <fmt:message key="usersettings.email"/></dt>
-                    <dd><form:input path="email" cssStyle="width:15em"/><span class="warning"><form:errors path="email"/></span></dd>
+                    <dt><strong>*</strong> <fmt:message key="usersettings.username"/></dt>
+                    <dd><form:input path="username"/><strong><form:errors path="username"/></strong></dd>
+                    <dt><strong>*</strong> <fmt:message key="usersettings.password"/></dt>
+                    <dd><form:password path="password"/><strong><form:errors path="password"/></strong></dd>
+                    <dt><strong>*</strong> <fmt:message key="usersettings.confirmpassword"/></dt>
+                    <dd><form:password path="confirmPassword"/></dd>
+                    <dt><strong>*</strong> <fmt:message key="usersettings.email"/></dt>
+                    <dd><form:input path="email"/><strong><form:errors path="email"/></strong></dd>
                 </c:when>
                 <c:otherwise>
                     <dt class="askPassChange" style="display:flex"></dt>
@@ -97,18 +95,18 @@
                         <label for="passwordChange"><fmt:message key="usersettings.changepassword"/></label>
                     </dd>
                     <dt class="changePass" style="display:none"><fmt:message key="usersettings.newpassword"/></dt>
-                    <dd class="changePass" style="display:none"><form:password path="password" id="path"/><span class="warning"><form:errors path="password"/></span></dd>
+                    <dd class="changePass" style="display:none"><form:password path="password" id="path"/><strong><form:errors path="password"/></strong></dd>
                     <dt class="changePass" style="display:none"><fmt:message key="usersettings.confirmpassword"/></dt>
                     <dd class="changePass" style="display:none"><form:password path="confirmPassword" id="confirmPassword"/></dd>
                     <dt><fmt:message key="usersettings.email"/></dt>
-                    <dd class="notfirstLast"><form:input path="email" cssStyle="width:20em"/><span class="warning"><form:errors path="email"/></span></dd>
+                    <dd class="notfirstLast"><form:input path="email"/><strong><form:errors path="email"/></strong></dd>
                 </c:otherwise>
             </c:choose>
-            <dt style="${command.currentUser ? 'display:none' : ''}"><span class="warning"><fmt:message key="usersettings.authority"/></span></dt>
+            <dt style="${command.currentUser ? 'display:none' : ''}"><strong><fmt:message key="usersettings.authority"/></strong></dt>
             <dd style="${command.currentUser ? 'display:none' : ''}">
                    <form:checkbox path="adminRole" id="admin" cssClass="checkbox"/>
                    <label for="admin"><fmt:message key="usersettings.admin"/></label>
-                   <span class="warning"><form:errors path="adminRole"/></span>
+                   <strong><form:errors path="adminRole"/></strong>
             </dd>
             <c:if test="${not empty command.allMusicFolders}">
                 <dt><fmt:message key="usersettings.folderaccess"/></dt>
@@ -122,14 +120,14 @@
             </c:if>
             <dt><fmt:message key="playersettings.maxbitrate"/></dt>
             <dd>
-                <form:select path="transcodeSchemeName" cssStyle="width:8em">
+                <form:select path="transcodeSchemeName">
                     <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
                         <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
                     </c:forEach>
                 </form:select>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
                 <c:if test="${not command.transcodingSupported}">
-                    <td class="warning"><fmt:message key="playersettings.notranscoder"/></td>
+                    <td><strong><fmt:message key="playersettings.notranscoder"/></strong></td>
                 </c:if>
             </dd>
             <dt></dt>
@@ -160,7 +158,7 @@
 	        <p>
 			<form:checkbox path="deleteUser" id="delete" cssClass="checkbox"/>
             <label for="delete"><fmt:message key="usersettings.delete"/></label>
-            <span class="warning"><form:errors path="deleteUser"/></span>
+            <strong><form:errors path="deleteUser"/></strong>
 	        </p>
 	    </details>
 	</c:if>

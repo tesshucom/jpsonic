@@ -1,0 +1,15 @@
+.mainframe.gettingStarted {
+  dl {
+    width: 80vw;
+    counter-reset: count 0;
+    dt {
+      &:before {
+        counter-increment: count;
+        content: counter(count) ". ";
+      }
+    }
+
+    dd {
+    }
+  }
+}

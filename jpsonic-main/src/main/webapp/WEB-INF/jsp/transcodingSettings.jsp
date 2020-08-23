@@ -17,40 +17,41 @@
     <form method="post" action="transcodingSettings.view">
         <sec:csrfInput />
 
-        <c:set var="isOpen" value='${model.isOpenDetailSetting ? "open" : ""}' />
-        <details open>
-            <summary><fmt:message key="transcodingsettings.registered"/></summary>
+        <c:if test="${not empty model.transcodings}">
+	        <details open>
+	            <summary><fmt:message key="transcodingsettings.registered"/></summary>
+	
+	            <table class="tabular transcoding">
+	                <thead>
+	                    <tr>
+	                        <th><fmt:message key="transcodingsettings.name" /></th>
+	                        <th><fmt:message key="sharesettings.details" /></th>
+	                        <th style="padding-left: 1em"><fmt:message key="common.delete" /></th>
+	                    </tr>
+	                </thead>
+	                <tbody>
+	                    <c:forEach items="${model.transcodings}" var="transcoding">
+	                        <tr>
+	                            <td><input name="name[${transcoding.id}]" size="10" value="${fn:escapeXml(transcoding.name)}" /></td>
+	                            <td>
+	                                <dl>
+	                                    <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
+	                                    <dd><input name="sourceFormats[${transcoding.id}]" size="36" value="${transcoding.sourceFormats}" /> / <input name="targetFormat[${transcoding.id}]" size="10" value="${transcoding.targetFormat}" /></dd>
+	                                    <dt><fmt:message key="transcodingsettings.step1" /></dt>
+	                                    <dd><input name="step1[${transcoding.id}]" size="60" value="${transcoding.step1}" /></dd>
+	                                    <dt><fmt:message key="transcodingsettings.step2" /></dt>
+	                                    <dd><input name="step2[${transcoding.id}]" size="22" value="${transcoding.step2}" /></dd>
+	                                </dl>
+	                            </td>
+	                            <td><input type="checkbox" name="delete[${transcoding.id}]" /></td>
+	                        </tr>
+	                    </c:forEach>
+	                </tbody>
+	            </table>
+	        </details>
+		</c:if>
 
-            <table class="tabular transcoding">
-                <thead>
-                    <tr>
-                        <th><fmt:message key="transcodingsettings.name" /></th>
-                        <th><fmt:message key="sharesettings.details" /></th>
-                        <th style="padding-left: 1em"><fmt:message key="common.delete" /></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <c:forEach items="${model.transcodings}" var="transcoding">
-                        <tr>
-                            <td><input name="name[${transcoding.id}]" size="10" value="${fn:escapeXml(transcoding.name)}" /></td>
-                            <td>
-                                <dl>
-                                    <dt><fmt:message key="transcodingsettings.sourceformat" /> / <fmt:message key="transcodingsettings.targetformat" /></dt>
-                                    <dd><input name="sourceFormats[${transcoding.id}]" size="36" value="${transcoding.sourceFormats}" /> / <input name="targetFormat[${transcoding.id}]" size="10" value="${transcoding.targetFormat}" /></dd>
-                                    <dt><fmt:message key="transcodingsettings.step1" /></dt>
-                                    <dd><input name="step1[${transcoding.id}]" size="60" value="${transcoding.step1}" /></dd>
-                                    <dt><fmt:message key="transcodingsettings.step2" /></dt>
-                                    <dd><input name="step2[${transcoding.id}]" size="22" value="${transcoding.step2}" /></dd>
-                                </dl>
-                            </td>
-                            <td><input type="checkbox" name="delete[${transcoding.id}]" /></td>
-                        </tr>
-                    </c:forEach>
-                </tbody>
-            </table>
-        </details>
-
-        <details ${isOpen}>
+        <details ${model.isOpenDetailSetting or empty model.transcodings ? "open" : ""}>
             <summary><fmt:message key="transcodingsettings.add"/></summary>
 
             <table class="tabular transcoding">
@@ -70,7 +71,7 @@
             </table>
         </details>
 
-        <details ${isOpen}>
+        <details ${model.isOpenDetailSetting}>
             <summary><fmt:message key="advancedsettings.hlscommand" /></summary>
             <input type="text" name="hlsCommand" size="100" value="${model.hlsCommand}" />
             <c:import url="helpToolTip.jsp">
@@ -90,9 +91,7 @@
     </p>
 
     <c:if test="${not empty error}">
-        <p class="warning">
-            <fmt:message key="${error}" />
-        </p>
+        <p><strong><fmt:message key="${error}" /></strong></p>
     </c:if>
 
     <div style="width: 80%">

@@ -18,10 +18,13 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewSelector;
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -46,14 +49,23 @@ public class PlaylistsController {
     private SecurityService securityService;
 
     @Autowired
+    private SettingsService settingsService;
+
+    @Autowired
     private PlaylistService playlistService;
+
+    @Autowired
+    private ViewSelector viewSelector;
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUser(request);
         List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
-        model.addAttribute("model", LegacyMap.of("playlists", playlists));
+        model.addAttribute("model", LegacyMap.of(
+                "playlists", playlists,
+                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
+                "publishPodcast", settingsService.isPublishPodcast()));
         return "playlists";
     }
-
 }

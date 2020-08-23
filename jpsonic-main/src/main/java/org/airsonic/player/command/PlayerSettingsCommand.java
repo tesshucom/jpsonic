@@ -57,6 +57,7 @@ public class PlayerSettingsCommand {
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
+    private boolean showToast;
 
     public Integer getPlayerId() {
         return playerId;
@@ -253,6 +254,14 @@ public class PlayerSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 
     /**

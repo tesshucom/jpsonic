@@ -1,9 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%@ include file="include.jsp" %>
-<%@ page trimDirectiveWhitespaces="true" %>
-
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
 <c:if test="${param.toast}">
-    <script type="text/javascript">
+    <script>
         $(document).ready(function () {
             $().toastmessage("showSuccessToast", "<fmt:message key="common.settingssaved"/>");
         });
@@ -13,9 +12,8 @@
 <c:set var="categories" value="${param.restricted ? 'personal password player share' : 'musicFolder general advanced personal user player share dlna sonos transcoding internetRadio database'}"/>
 
 <section>
-	<h1><img src="<spring:theme code='settingsImage'/>"/><fmt:message key="settingsheader.title"/></h1>
-
-	<ul class="subMenu">
+	<h1 class="settings"><fmt:message key="settingsheader.title"/></h1>
+	<ul class="sibling-pages">
 	    <c:forTokens items="${categories}" delims=" " var="cat" varStatus="loopStatus">
 	        <c:choose>
 	            <c:when test="${loopStatus.count > 1}"></li><li></c:when>
@@ -26,10 +24,10 @@
 	        <c:if test="${('internetRadio' != cat and 'sonos' != cat) or ('internetRadio' == cat and param.useRadio eq true) or ('sonos' == cat and param.useSonos eq true)}">
 		        <c:choose>
 		            <c:when test="${param.cat eq cat}">
-		                <span class="menuItemSelected"><fmt:message key="settingsheader.${cat}"/></span>
+		                <span class="selected"><fmt:message key="settingsheader.${cat}"/></span>
 		            </c:when>
 		            <c:otherwise>
-		                <span class="menuItem"><a href="${url}"><fmt:message key="settingsheader.${cat}"/></a></span>
+		                <a href="${url}"><fmt:message key="settingsheader.${cat}"/></a>
 		            </c:otherwise>
 		        </c:choose>
 			</c:if>

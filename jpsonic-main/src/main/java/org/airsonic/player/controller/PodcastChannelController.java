@@ -19,6 +19,7 @@
 
 package org.airsonic.player.controller;
 
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.LegacyMap;
@@ -55,7 +56,8 @@ public class PodcastChannelController {
         result.addObject("model", LegacyMap.of(
                 "user", securityService.getCurrentUser(request),
                 "channel", podcastService.getChannel(channelId),
-                "episodes", podcastService.getEpisodes(channelId)));
+                "episodes", podcastService.getEpisodes(channelId),
+                "coverArtSize", CoverArtScheme.LARGE.getSize()));
 
         return result;
     }

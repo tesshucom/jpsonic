@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
-<%@ page trimDirectiveWhitespaces="true" %>
 
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<script type="text/javascript" language="javascript">
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
+<script>
+
 function refresh() {
     window.parent.main.location.href = location.href;
 }
@@ -22,49 +24,90 @@ $(document).ready(function(){
     $().toastmessage("showNoticeToast", "<fmt:message key="home.scan"/>");
   </c:if>
 });
+
 </script>
 </head>
 
 <body class="mainframe home">
 
-<section>
-
-    <c:if test="${not empty model.welcomeTitle}">
-        <h1><img src="<spring:theme code='homeImage'/>">${model.welcomeTitle}</h1>
-    </c:if>
-    <c:if test="${not empty model.welcomeSubtitle}">
-        <h2>${model.welcomeSubtitle}</h2>
-    </c:if>
-
-    <ul class="subMenu">
-        <c:forTokens items="random newest starred highest frequent recent decade genre alphabetical index" delims=" " var="cat" varStatus="loopStatus">
-            <c:choose>
-               <c:when test="${loopStatus.count > 1}"></li><li></c:when>
-               <c:otherwise><li></c:otherwise>
-            </c:choose>
-            <sub:url var="url" value="home.view">
-                <sub:param name="listType" value="${cat}"/>
-            </sub:url>
-            <c:choose>
-                <c:when test="${model.listType eq cat}">
-                    <span class="menuItemSelected"><fmt:message key="home.${cat}.title"/></span>
-                </c:when>
-                <c:otherwise>
-                    <span class="menuItem"><a href="${url}"><fmt:message key="home.${cat}.title"/></a></span>
-                </c:otherwise>
-            </c:choose>
-        </c:forTokens>
+<nav>
+    <ul class="breadcrumb">
+        <c:choose>
+            <c:when test="${not empty model.musicFolder}">
+		        <li>${fn:escapeXml(model.musicFolder.name)}</li>
+            </c:when>
+            <c:otherwise>
+		        <li><fmt:message key='left.allfolders'/></li>
+            </c:otherwise>
+        </c:choose>
     </ul>
+</nav>
 
+<section>
+    <c:if test="${not empty model.welcomeTitle}"><h1 class="home">${model.welcomeTitle}</h1></c:if>
+    <c:if test="${not empty model.welcomeSubtitle}"><h2>${model.welcomeSubtitle}</h2></c:if>
+    <ul class="sibling-pages">
+
+        <c:choose>
+            <c:when test="${model.showRate}">
+                <c:forTokens items="random newest starred highest frequent recent decade genre alphabetical index" delims=" " var="cat" varStatus="loopStatus">
+                    <c:choose>
+                       <c:when test="${loopStatus.count > 1}"></li><li></c:when>
+                       <c:otherwise><li></c:otherwise>
+                    </c:choose>
+                    <sub:url var="url" value="home.view">
+                        <sub:param name="listType" value="${cat}"/>
+                    </sub:url>
+                    <c:choose>
+                        <c:when test="${model.listType eq cat}">
+                            <span class="selected"><fmt:message key="home.${cat}.title"/></span>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${url}"><fmt:message key="home.${cat}.title"/></a>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forTokens>
+            </c:when>
+            <c:otherwise>
+                <%-- without highest(rate) --%>
+                <c:forTokens items="random newest starred frequent recent decade genre alphabetical index" delims=" " var="cat" varStatus="loopStatus">
+                    <c:choose>
+                       <c:when test="${loopStatus.count > 1}"></li><li></c:when>
+                       <c:otherwise><li></c:otherwise>
+                    </c:choose>
+                    <sub:url var="url" value="home.view">
+                        <sub:param name="listType" value="${cat}"/>
+                    </sub:url>
+                    <c:choose>
+                        <c:when test="${model.listType eq cat}">
+                            <span class="selected"><fmt:message key="home.${cat}.title"/></span>
+                        </c:when>
+                        <c:otherwise>
+                            <a href="${url}"><fmt:message key="home.${cat}.title"/></a>
+                        </c:otherwise>
+                    </c:choose>
+                </c:forTokens>
+            </c:otherwise>
+        </c:choose>
+    </ul>
+</section>
+
+<div class="actions">
+	<ul class="controls">
+		<li><a href="javascript:refresh()" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key="common.refresh"/></a></li>
+		<li><a href="javascript:playShuffle()" title="<fmt:message key='home.shuffle'/>" class="control shuffle"><fmt:message key="home.shuffle"/></a></li>
+	</ul>
     <%@ include file="homePager.jsp" %>
+</div>
+
+
+
 
     <c:if test="${not empty model.welcomeMessage}">
         <div class="welcome">${model.welcomeMessage}</div>
     </c:if>
 
-</section>
-
-<div class="albums">
+<div class="coverart-container" id ="coverart-container">
     <c:forEach items="${model.albums}" var="album" varStatus="loopStatus">
 
         <c:set var="albumTitle">
@@ -139,7 +182,7 @@ $(document).ready(function(){
                     <summary>${fn:escapeXml(entry.key.index)}</summary>
                 </c:otherwise>
             </c:choose>
-            <ul>
+            <ul class="anchorList">
                 <c:forEach items="${entry.value}" var="artist" varStatus="loop">
                     <sub:url value="main.view" var="mainUrl">
                         <c:forEach items="${artist.mediaFiles}" var="mediaFile">

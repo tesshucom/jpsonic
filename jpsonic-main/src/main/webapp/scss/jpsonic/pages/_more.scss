@@ -1,0 +1,52 @@
+.mainframe.more {
+  $dl-width: 800px;
+  $dt-width: 180px;
+  dl {
+    width: calc(#{$dl-width});
+    margin: 30px 0 0 calc((100vw - #{$dl-width}) / 2 - 20px);
+    dt,
+    dd {
+      min-height: 30px;
+      &:nth-child(3),
+      &:nth-child(7),
+      &:nth-child(11),
+      &:nth-child(15) {
+        border-left: none;
+      }
+    }
+    dt {
+      width: $dt-width;
+      &:nth-child(3) {
+        @include border(top);
+      }
+    }
+    dd {
+      width: calc(#{$dl-width} / 2 - #{$dt-width});
+      select {
+        width: 210px !important;
+        &[name="albumRatingComp"],
+        &[name="lastPlayedComp"],
+        &[name="playCountComp"] {
+          width: 55px !important;
+          margin-right: 5px;
+        }
+        &[name="albumRatingValue"],
+        &[name="lastPlayedValue"],
+        &input[name="playCountValue"] {
+          width: 149px !important;
+        }
+      }
+
+      &:nth-child(2) {
+        @include borderRadius(none);
+      }
+      &:nth-child(4) {
+        @include border(top);
+        @include borderRadius(upper-right);
+      }
+      &:last-of-type {
+        width: calc(#{$dl-width} - #{$dt-width});
+      }
+    }
+  }
+}

@@ -4,7 +4,7 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 </head>
 <body class="mainframe settings">
 
@@ -55,7 +55,7 @@ $(document).ready(function() {
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="player"/>
-    <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="toast" value="${command.showToast}"/>
     <c:param name="restricted" value="${not command.admin}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
@@ -69,19 +69,17 @@ $(document).ready(function() {
     </c:when>
     <c:otherwise>
 
-        <table class="indent">
-            <tr>
-                <td><b><fmt:message key="playersettings.title"/></b></td>
-                <td>
-                    <select name="player" onchange="location='playerSettings.view?id=' + options[selectedIndex].value;">
-                        <c:forEach items="${command.players}" var="player">
-                            <option ${player.id eq command.playerId ? "selected" : ""}
-                                    value="${player.id}">${fn:escapeXml(player.description)}</option>
-                        </c:forEach>
-                    </select>
-                </td>
-            </tr>
-        </table>
+        <dl class="single">
+            <dt><strong>*</strong> <fmt:message key="playersettings.title"/></dt>
+            <dd>
+                <select name="player" onchange="location='playerSettings.view?id=' + options[selectedIndex].value;">
+                    <c:forEach items="${command.players}" var="player">
+                        <option ${player.id eq command.playerId ? "selected" : ""}
+                                value="${player.id}">${fn:escapeXml(player.description)}</option>
+                    </c:forEach>
+                </select>
+            </dd>
+        </dl>
 
         <form:form modelAttribute="command" method="post" action="playerSettings.view">
             <form:hidden path="playerId"/>
@@ -102,31 +100,29 @@ $(document).ready(function() {
                 <dd><form:input path="name" value="${command.name}" size="16"/><c:import url="helpToolTip.jsp"><c:param name="topic" value="playername"/></c:import></dd>
                 <dt><fmt:message key="playersettings.devices"/></dt>
                 <dd>
-                    <dl class="playerSettings">
+                    <ul class="playerSettings">
                         <c:forEach items="${command.technologyHolders}" var="technologyHolder">
                             <c:set var="technologyName">
-                                <fmt:message key="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}.title"/>
+                                <fmt:message key="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/>
                             </c:set>
-        
-                            <dt><form:radiobutton class="technologyRadio" id="radio-${technologyName}" path="technologyName" value="${technologyHolder.name}"/>
-                                <b><label for="radio-${technologyName}">${technologyName}</label></b>
-                            </dt>
-                            <dd>
-                                <fmt:message key="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}.text"/>
-                            </dd>
+                            <li>
+                            	<form:radiobutton class="technologyRadio" id="radio-${technologyName}" path="technologyName" value="${technologyHolder.name}"/>
+                                <label for="radio-${technologyName}">${technologyName}</label>
+                                <c:import url="helpToolTip.jsp"><c:param name="topic" value="playersettings.technology.${fn:toLowerCase(technologyHolder.name)}"/></c:import>
+                            </li>
                         </c:forEach>
-                    </dl>
+                    </ul>
                 </dd>
                 <dt class="noJavaJuke"><fmt:message key="playersettings.maxbitrate"/></dt>
                 <dd class="noJavaJuke">
-                    <form:select path="transcodeSchemeName" cssStyle="width:8em">
+                    <form:select path="transcodeSchemeName">
                         <c:forEach items="${command.transcodeSchemeHolders}" var="transcodeSchemeHolder">
                             <form:option value="${transcodeSchemeHolder.name}" label="${transcodeSchemeHolder.description}"/>
                         </c:forEach>
                     </form:select>
                     <c:import url="helpToolTip.jsp"><c:param name="topic" value="transcode"/></c:import>
                     <c:if test="${not command.transcodingSupported}">
-                        <span class="warning"><fmt:message key="playersettings.notranscoder"/></span>
+                        <strong><fmt:message key="playersettings.notranscoder"/></strong>
                     </c:if>
                 </dd>
                 <c:if test="${not empty command.allTranscodings}">
@@ -175,7 +171,7 @@ $(document).ready(function() {
                 <c:param name="clone" value="${command.playerId}"/>
             </c:url>
 
-			<c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
+            <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
             <details ${isOpen}>
                 <summary><fmt:message key="playersettings.deleteandclone"/></summary>
                 <dl>
@@ -196,8 +192,10 @@ $(document).ready(function() {
 </c:choose>
 
 <c:if test="${settings_reload}">
-    <script language="javascript" type="text/javascript">
-      window.top.playQueue.location.reload();
+    <script>
+      window.top.reloadUpper("playerSettings.view");
+      window.top.reloadPlayQueue();
+      window.top.reloadRight();
     </script>
 </c:if>
 

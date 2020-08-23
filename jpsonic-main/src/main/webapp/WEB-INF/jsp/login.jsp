@@ -3,7 +3,7 @@
 
 <html><head>
     <%@ include file="head.jsp" %>
-    <script type="text/javascript">
+    <script>
         if (window != window.top) {
             top.location.href = location.href;
         }
@@ -15,9 +15,9 @@
     <form action="<c:url value='/login'/>" method="POST">
         <sec:csrfInput />
 
-        <div id="loginframe" class="bgcolor2">
+        <div id="loginframe">
 
-            <img src="<spring:theme code='logoImage'/>" alt="">
+            <img src="./icons/logo.png" alt="">
 
             <div class="loginmessagetop">${model.loginMessage}</div>
 
@@ -38,20 +38,16 @@
 
             <c:if test="${model.logout}">
                 <div class="loginmessagebottom">
-                    <b><fmt:message key="login.logout"/></b>
+                    <fmt:message key="login.logout"/>
                 </div>
             </c:if>
 
             <c:if test="${model.error}">
-                <div class="loginmessagebottom">
-                    <span class="warning"><fmt:message key="login.error"/></span>
-                </div>
+                <div class="loginmessagebottom"><strong><fmt:message key="login.error"/></strong></div>
             </c:if>
 
             <c:if test="${model.insecure}">
-                <div class="loginmessagebottom">
-                    <p class="warning"><fmt:message key="login.insecure"><fmt:param value="${model.brand}"/></fmt:message></p>
-                </div>
+                <div class="loginmessagebottom"><strong><fmt:message key="login.insecure"><fmt:param value="${model.brand}"/></fmt:message></strong></div>
             </c:if>
 
         </div>

@@ -3,8 +3,8 @@
 <script>
     $(function () {
       var $body = $('body');
-        $body.append('<button id="showGrid4Debug"/></button>');
-        $body.append('<nav id="grid4Debug"></nav>');
+        $body.append('<button id="showGrid4Debug" tabindex="-1"/></button>');
+        $body.append('<nav id="grid4Debug" tabindex="-1"></nav>');
       $('#showGrid4Debug').on('click', function () {
         $body.toggleClass('jpsonic');
       });

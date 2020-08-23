@@ -1,0 +1,281 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-assign-accesskey-to_number" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="assign_accesskey_to_number" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="assign_accesskey_to_number" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-open-detail-index" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="open_detail_index" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="open_detail_index" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-open-detail-setting" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="open_detail_setting" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="open_detail_setting" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-open-detail-star" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="open_detail_star" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="open_detail_star" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-close-drawer" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="close_drawer" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="close_drawer" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-close-play-queue" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="close_play_queue" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="close_play_queue" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-alternative-drawer" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="alternative_drawer" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="alternative_drawer" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-index" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_index" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_index" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-simple-display" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="simple_display" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="simple_display" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-sibling" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_sibling" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_sibling" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-rate" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_rate" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_rate" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-album-search" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_album_search" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_album_search" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-last-play" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_last_play" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_last_play" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-download" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_download" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_download" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-tag" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_tag" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_tag" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-comment" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_comment" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_comment" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-share" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_share" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_share" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-change-coverart" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_change_coverart" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_change_coverart" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-top-songs" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_top_songs" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_top_songs" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-similar" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_similar" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_similar" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-album-actions" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_album_actions" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_album_actions" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-breadcrumb-index" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="breadcrumb_index" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="breadcrumb_index" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-put-menu-in-drawer" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="put_menu_in_drawer" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="put_menu_in_drawer" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

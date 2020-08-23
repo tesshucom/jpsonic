@@ -49,6 +49,8 @@ public class GeneralSettingsCommand {
     private boolean openDetailSetting;
     boolean useRadio;
     boolean useSonos;
+    boolean publishPodcast;
+    private boolean showToast;
     private String welcomeTitle;
     private String welcomeSubtitle;
     private String welcomeMessage;
@@ -283,5 +285,21 @@ public class GeneralSettingsCommand {
 
     public void setUseSonos(boolean useSono) {
         this.useSonos = useSono;
+    }
+
+    public boolean isPublishPodcast() {
+        return publishPodcast;
+    }
+
+    public void setPublishPodcast(boolean publishPodcast) {
+        this.publishPodcast = publishPodcast;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 }

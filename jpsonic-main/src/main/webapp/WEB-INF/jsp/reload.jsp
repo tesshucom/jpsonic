@@ -5,17 +5,11 @@
 <%@ include file="head.jsp"%>
 </head>
 <body>
-
+<script>
 	<c:forEach items="${model.reloadFrames}" var="reloadFrame">
-		<script language="javascript" type="text/javascript">
-			if('main' != '${reloadFrame.frame}'){
-			    window.top.${reloadFrame.frame}.location.reload();
-			} else {
-				// "${reloadFrame.view}" Update the child iframe #646
-	    		parent.frames.upper.location.reload();
-			}
-    	</script>
+		<c:if test="${reloadFrame.frame eq 'playQueue'}">window.top.reloadPlayQueue();</c:if>
+		<c:if test="${reloadFrame.frame eq 'upper'}">window.top.reloadUpper("more.view");</c:if>
 	</c:forEach>
-
+</script>
 </body>
 </html>

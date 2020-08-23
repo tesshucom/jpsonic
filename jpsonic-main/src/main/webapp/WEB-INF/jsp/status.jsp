@@ -2,20 +2,31 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
-    <meta http-equiv="REFRESH" content="20;URL=status.view">
+<%@ include file="head.jsp" %>
+<meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+<meta http-equiv="REFRESH" content="20;URL=status.view">
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
 </head>
-<body class="mainframe">
+<body class="mainframe status">
 
-<h1><img src="<spring:theme code='statusImage'/>" alt=""><fmt:message key="status.title"/></h1>
+<section>
+    <h1 class="graph"><fmt:message key="status.title"/></h1>
+</section>
 
-<table width="100%" class="ruleTable indent">
+<div>
+	<ul class="controls">
+		<a href="status.view?" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key="common.refresh"/></a>
+	</ul>
+</div>
+
+<table class="tabular current">
+    <thead>
         <tr>
-            <th class="ruleTableHeader"><fmt:message key="status.details" /></th>
-            <th class="ruleTableHeader"><fmt:message key="status.bitrate" /></th>
+            <th><fmt:message key="status.details" /></th>
+            <th><fmt:message key="status.bitrate" /></th>
         </tr>
-
+    </thead>
+    <tbody>
         <c:forEach items="${model.transferStatuses}" var="status">
 
             <c:choose>
@@ -80,33 +91,35 @@
                         <dt><fmt:message key="status.transmitted" /></dt><dd>${status.bytes}</dd>
                     </dl>
                 </td>
-                <td class="ruleTableCell" width="${model.chartWidth}"><img
-                    width="${model.chartWidth}" height="${model.chartHeight}"
-                    src="${chartUrl}" alt="">
+                <td>
+                    <img width="${model.chartWidth}" height="${model.chartHeight}" src="${chartUrl}" alt="">
                 </td>
             </tr>
         </c:forEach>
+    </tbody>
 </table>
 
-<table style="width:100%;padding-top:3em">
-    <tr>
-        <th><fmt:message key="home.chart.total"/></th>
-        <th><fmt:message key="home.chart.stream"/></th>
-    </tr>
-    <tr>
-        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='total'/></c:url>" alt=""></td>
-        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='stream'/></c:url>" alt=""></td>
-    </tr>
-    <tr>
-        <th><fmt:message key="home.chart.download"/></th>
-        <th><fmt:message key="home.chart.upload"/></th>
-    </tr>
-    <tr>
-        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='download'/></c:url>" alt=""></td>
-        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='upload'/></c:url>" alt=""></td>
-    </tr>
+<table class="tabular statics">
+	<thead>
+	    <tr>
+	        <th><fmt:message key="home.chart.total"/></th>
+	        <th><fmt:message key="home.chart.stream"/></th>
+	    </tr>
+	</thead>
+	<tbody>
+	    <tr>
+	        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='total'/></c:url>" alt=""></td>
+	        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='stream'/></c:url>" alt=""></td>
+	    </tr>
+	    <tr>
+	        <th><fmt:message key="home.chart.download"/></th>
+	        <th><fmt:message key="home.chart.upload"/></th>
+	    </tr>
+	    <tr>
+	        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='download'/></c:url>" alt=""></td>
+	        <td><img src="<c:url value='/userChart.view'><c:param name='type' value='upload'/></c:url>" alt=""></td>
+	    </tr>
+	</tbody>
 </table>
-
-<div class="forward"><a href="status.view?"><fmt:message key="common.refresh"/></a></div>
 
 </body></html>

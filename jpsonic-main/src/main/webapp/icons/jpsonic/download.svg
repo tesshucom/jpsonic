@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="25" height="25">
-	<g transform="translate(-378.182 -980.056)">
-		<circle style="fill:#9cc9fc;fill-rule:evenodd;stroke:#7eabdf;stroke-width:1.65400004;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" cx="390.682" cy="-992.556" r="11.673" transform="scale(1 -1)"/>
-		<g transform="matrix(1 0 0 -1 31.824 1962.385)">
-			<path transform="matrix(.0303 0 0 .0303 351.1 962.87)" class="st0" style="fill:#fff" id="polygon3535-3" d="M256.015 88.146L47.916 340.624h118.326V512h179.532V340.624H464.1z"/>
-			<path class="st0" style="fill:#fff" d="M351.814 962.87h14.089v2.186h-14.089z"/>
-		</g>
-	</g>
-</svg>

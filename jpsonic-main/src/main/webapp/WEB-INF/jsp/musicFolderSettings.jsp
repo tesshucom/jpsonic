@@ -1,18 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%--@elvariable id="command" type="org.airsonic.player.command.MusicFolderSettingsCommand"--%>
-<%@ page trimDirectiveWhitespaces="true" %>
 
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 
-    <script type="text/javascript">
+    <script>
         function init() {
             $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
             $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
             <c:if test="${settings_reload}">
-              window.top.upper.location.reload();
-              window.top.right.location.reload();
+              window.top.reloadUpper("musicFolderSettings.view");
+              window.top.reloadPlayQueue();
+              window.top.reloadRight();
             </c:if>
         }
     </script>
@@ -21,7 +21,7 @@
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="musicFolder"/>
-    <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="toast" value="${command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
@@ -50,7 +50,7 @@
                             <td><form:input path="musicFolders[${loopStatus.count-1}].path" size="40"/></td>
                             <td><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled"/></td>
                             <td><form:checkbox path="musicFolders[${loopStatus.count-1}].delete"/></td>
-                            <td><c:if test="${not folder.existing}"><span class="warning"><fmt:message key="musicfoldersettings.notfound"/></span></c:if></td>
+                            <td><c:if test="${not folder.existing}"><strong><fmt:message key="musicfoldersettings.notfound"/></strong></c:if></td>
                         </tr>
                     </c:forEach>
                 </tbody>
@@ -78,7 +78,7 @@
     <details open>
         <summary><fmt:message key="musicfoldersettings.execscan"/></summary>
         <c:if test="${command.scanning}">
-            <p class="warning"><fmt:message key="musicfoldersettings.nowscanning"/></p>
+            <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
         </c:if>
         <dl>
             <dt><fmt:message key='musicfoldersettings.scannow'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="scanMediaFolders"/></c:import></dt>

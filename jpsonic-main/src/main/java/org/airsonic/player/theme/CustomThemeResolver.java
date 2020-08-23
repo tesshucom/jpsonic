@@ -83,7 +83,7 @@ public class CustomThemeResolver implements ThemeResolver {
 
         // Return system theme.
         themeId = settingsService.getThemeId();
-        return themeExists(themeId) ? themeId : "default";
+        return themeExists(themeId) ? themeId : "jpsonic";
     }
 
     /**

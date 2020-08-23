@@ -47,6 +47,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -84,9 +85,11 @@ public class MusicFolderSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, @RequestParam(value = "scanNow",required = false) String scanNow,
-                                       @RequestParam(value = "expunge",required = false) String expunge,
-                                       Model model) {
+    protected void formBackingObject(HttpServletRequest request,
+            @RequestParam(value = "scanNow",required = false) String scanNow,
+            @RequestParam(value = "expunge",required = false) String expunge,
+            @RequestParam("toast") Optional<Boolean> toast, Model model) {
+
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
         if (scanNow != null) {
@@ -109,6 +112,7 @@ public class MusicFolderSettingsController {
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
+        toast.ifPresent(b -> command.setShowToast(b));
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
@@ -210,8 +214,6 @@ public class MusicFolderSettingsController {
 
         settingsService.save();
 
-
-        redirectAttributes.addFlashAttribute("settings_toast", true);
         redirectAttributes.addFlashAttribute("settings_reload", true);
 
         mediaScannerService.schedule();

@@ -1,0 +1,45 @@
+.tabular.tags {
+  margin-top: 30px;
+  thead {
+    tr {
+      white-space: nowrap;
+      height: 30px;
+      &:nth-child(1) {
+        th {
+          border-bottom-style: none;
+          vertical-align: middle;
+          text-align: left;
+        }
+      }
+      &:nth-child(2) {
+        border-top-style: none;
+        th {
+          padding: 0 0 0 10px;
+          font-size: 0.93rem;
+          vertical-align: middle;
+          text-align: left;
+          &:first-child {
+            @include border(left);
+            @include borderRadius(none);
+          }
+          &:last-child {
+            @include border(right);
+            @include borderRadius(none);
+          }
+          &.prime-end {
+            @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+              @include border(right);
+              @include borderRadius(none);
+            }
+          }
+          > input,
+          > select {
+            position: relative;
+            top: -6px;
+            margin-right: 4px;
+          }
+        }
+      }
+    }
+  }
+}

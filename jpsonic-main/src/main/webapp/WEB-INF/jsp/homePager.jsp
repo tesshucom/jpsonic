@@ -2,20 +2,8 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib uri="http://www.springframework.org/tags" prefix="spring"%>
-<%@ page trimDirectiveWhitespaces="true" %>
 
 <div class="controls">
-
-    <span class="folder">
-        <c:choose>
-            <c:when test="${not empty model.musicFolder}">
-                    ${fn:escapeXml(model.musicFolder.name)}
-            </c:when>
-            <c:otherwise>
-                    <fmt:message key='left.allfolders'/>
-            </c:otherwise>
-        </c:choose>
-    </span>
 
 	<c:choose>
 	    <c:when test="${model.listType ne 'random'}">
@@ -73,21 +61,5 @@
 	    	<span class="genre"></span>
 		</c:otherwise>
 	</c:choose>
-
-    <span class="refresh">
-        <a href="javascript:refresh()">
-            <img src="<spring:theme code='refreshImage'/>" alt="Refresh">
-            <fmt:message key="common.refresh"/>
-        </a>
-    </span>
-
-    <span class="shuffle">
-	    <c:if test="${not empty model.albums}">
-            <a href="javascript:playShuffle()">
-              <img src="<spring:theme code='shuffleImage'/>" alt="Shuffle">
-              <fmt:message key="home.shuffle"/>
-            </a>
-	    </c:if>
-    </span>
 	
 </div>

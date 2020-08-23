@@ -47,6 +47,7 @@ public class MusicFolderSettingsCommand {
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
+    private boolean showToast;
 
     public String getInterval() {
         return interval;
@@ -150,6 +151,14 @@ public class MusicFolderSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 
     public static class MusicFolderInfo {

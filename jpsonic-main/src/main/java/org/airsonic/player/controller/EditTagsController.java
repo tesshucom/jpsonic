@@ -20,7 +20,10 @@
 package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.metadata.JaudiotaggerParser;
 import org.airsonic.player.service.metadata.MetaDataParser;
 import org.airsonic.player.service.metadata.MetaDataParserFactory;
@@ -37,6 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +57,10 @@ public class EditTagsController {
     private MetaDataParserFactory metaDataParserFactory;
     @Autowired
     private MediaFileService mediaFileService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private SettingsService settingsService;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -76,8 +84,32 @@ public class EditTagsController {
         }
         map.put("id", id);
         map.put("songs", songs);
+        map.put("ancestors", getAncestors(dir));
+
+        String username = securityService.getCurrentUsername(request);
+        UserSettings userSettings = settingsService.getUserSettings(username);
+        map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
+        map.put("dir", dir);
+        map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
 
         return new ModelAndView("editTags","model",map);
+    }
+
+    @SuppressWarnings("PMD.EmptyCatchBlock")
+    private List<MediaFile> getAncestors(MediaFile dir) {
+        LinkedList<MediaFile> result = new LinkedList<>();
+
+        try {
+            MediaFile parent = mediaFileService.getParentOf(dir);
+            while (parent != null && !mediaFileService.isRoot(parent)) {
+                result.addFirst(parent);
+                parent = mediaFileService.getParentOf(parent);
+            }
+        } catch (SecurityException x) {
+            // Happens if Podcast directory is outside music folder.
+        }
+        result.add(dir);
+        return result;
     }
 
     private Song createSong(MediaFile file, int index) {

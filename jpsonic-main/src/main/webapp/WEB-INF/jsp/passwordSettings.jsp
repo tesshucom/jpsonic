@@ -24,8 +24,8 @@
             <c:otherwise>
                 <form:hidden path="username"/>
                 <dl>
-                    <dt><fmt:message key="usersettings.newpassword"/><span class="warning"><form:errors path="password"/></span></dt>
-                    <dd><form:password path="password"/></dd>
+                    <dt><fmt:message key="usersettings.newpassword"/></dt>
+                    <dd><form:password path="password"/><strong><form:errors path="password"/></strong></dd>
                     <dt><fmt:message key="usersettings.confirmpassword"/></dt>
                     <dd><form:password path="confirmPassword"/></dd>
                 </dl>

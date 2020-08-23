@@ -13,7 +13,6 @@ PARAMETERS
   captionCount: Number of caption lines to display (default 0)
   showLink: Whether to make the cover art image link to the album page.
   showZoom: Whether to display a link for zooming the cover art.
-  showChange: Whether to display a link for changing the cover art.
   appearAfter: Fade in after this many milliseconds, or nil if no fading in should happen.
   hideOverflow: Hide cover art overflow when height is greater than width
 --%>
@@ -34,7 +33,7 @@ PARAMETERS
 <str:randomString count="5" type="alphabet" var="addId"/>
 
 <div class="coverart">
-    <div style="width:${size};max-width:${size};height:${size};max-height:${size};cursor:pointer;<c:if test='${param.hideOverflow}'>overflow:hidden</c:if>;" title="${param.caption1}" id="${divId}">
+    <div style="width:${size};max-width:${size};min-width:${size};height:${size};max-height:${size};cursor:pointer;<c:if test='${param.hideOverflow}'>overflow:hidden</c:if>;" title="${param.caption1}" id="${divId}">
 
         <c:if test="${not empty param.albumId}">
             <c:url value="main.view" var="targetUrl">
@@ -71,58 +70,32 @@ PARAMETERS
             <c:param name="id" value="${param.albumId}"/>
         </c:url>
 
-        <div style="position: relative; width: 0; height: 0">
-            <img alt="Play overlay" src="<spring:theme code='playOverlayImage'/>" id="${playId}"
-                 style="position: relative; top: 8px; left: 8px; z-index: 2; display:none" >
-        </div>
-
-        <c:if test="${not empty param.albumId or not empty param.playlistId}">
-          <div style="position: relative; width: 0; height: 0">
-              <img alt="Add overlay" src="<spring:theme code='addOverlayImage'/>" id="${addId}"
-                   style="position: relative; top: 8px; left: 48px; z-index: 2; display:none" >
-          </div>
-        </c:if>
-
+        <ul class="controls">
+        	<li><div id="${playId}" title="<fmt:message key='main.playall'/>" class="control play"><fmt:message key="main.playall"/></div></li>
+	        <c:if test="${not empty param.albumId or not empty param.playlistId}">
+				<li><div id="${addId}" title="<fmt:message key='main.addall'/>" class="control plus"><fmt:message key="main.addall"/></div></li>
+	        </c:if>
+	    </ul>
         <c:choose>
-        <c:when test="${param.showLink}"><a href="${targetUrl}" title="${param.caption1}"></c:when>
-        <c:when test="${param.showZoom}"><a href="${zoomCoverArtUrl}" class="fancy" rel="zoom" title="${param.caption1}"></c:when>
-            </c:choose>
-            <img src="${coverArtUrl}" id="${imgId}" alt="${param.caption1}"
-                 style="display:none">
-            <c:if test="${param.showLink or param.showZoom}"></a></c:if>
+        	<c:when test="${param.showLink}"><a tabindex="-1" href="${targetUrl}" title="${param.caption1}"></c:when>
+        	<c:when test="${param.showZoom}"><a tabindex="-1" href="${zoomCoverArtUrl}" class="fancy" rel="zoom" title="${param.caption1}"></c:when>
+        </c:choose>
+        <img src="${coverArtUrl}" id="${imgId}" alt="${param.caption1}" style="display:none">
+        <c:if test="${param.showLink or param.showZoom}"></a></c:if>
     </div>
 
     <c:if test="${captionCount gt 0}">
-        <div class="caption1" style="width:${param.coverArtSize - 16}px"><a href="${targetUrl}" title="${param.caption1}">${param.caption1}</a></div>
+        <div class="caption1" style="width:${param.coverArtSize}px"><a href="${targetUrl}" title="${param.caption1}">${param.caption1}</a></div>
     </c:if>
     <c:if test="${captionCount gt 1}">
-        <div class="caption2" style="width:${param.coverArtSize - 16}px">${param.caption2}&nbsp;</div>
+        <div class="caption2" style="width:${param.coverArtSize}px">${param.caption2}</div>
     </c:if>
     <c:if test="${captionCount gt 2}">
-        <div class="caption3" style="width:${param.coverArtSize - 16}px">${param.caption3}&nbsp;</div>
+        <div class="caption3" style="width:${param.coverArtSize}px">${param.caption3}</div>
     </c:if>
 </div>
 
-<c:if test="${param.showChange or param.showZoom}">
-    <div style="padding-top:6px;text-align:right">
-        <c:if test="${param.showChange}">
-            <c:url value="/changeCoverArt.view" var="changeCoverArtUrl">
-                <c:param name="id" value="${param.albumId}"/>
-            </c:url>
-            <a class="detail" href="${changeCoverArtUrl}"><fmt:message key="coverart.change"/></a>
-        </c:if>
-
-        <c:if test="${param.showZoom and param.showChange}">
-            |
-        </c:if>
-
-        <c:if test="${param.showZoom}">
-            <a class="detail" rel="zoom" title="${param.caption1}" href="${zoomCoverArtUrl}"><fmt:message key="coverart.zoom"/></a>
-        </c:if>
-    </div>
-</c:if>
-
-<script type="text/javascript">
+<script>
     $(document).ready(function () {
         setTimeout("$('#${imgId}').fadeIn(500)", ${empty param.appearAfter ? 0 : param.appearAfter});
     });

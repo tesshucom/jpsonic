@@ -1,6 +1,6 @@
 .mainframe.settings table.tabular.share-settings {
-  width: $jp-main-inner-width;
-  margin: 10px 0 20px calc((100vw - #{$jp-main-inner-width}) / 2);
+  width: $jp-main-settings-width;
+  margin: 8px 0 20px calc((100vw - #{$jp-main-settings-width}) / 2);
   th {
     text-align: center;
   }

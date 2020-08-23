@@ -2,34 +2,35 @@
 
 <html>
 <head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/dwr/engine.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/util.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<script src="<c:url value='/dwr/engine.js'/>"></script>
+<script src="<c:url value='/dwr/util.js'/>"></script>
+<script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
+<script src="<c:url value='/script/utils.js'/>"></script>
 
-    <script type="text/javascript">
+<script>
 
-        function init() {
-            dwr.engine.setErrorHandler(null);
+$(document).ready(function(){
+    dwr.engine.setErrorHandler(null);
 
-            startGetScanningStatusTimer();
+    startGetScanningStatusTimer();
+    <c:if test="${model.showNowPlaying}">
+      startGetNowPlayingTimer();
+    </c:if>
+});
 
-            <c:if test="${model.showNowPlaying}">
-            startGetNowPlayingTimer();
-            </c:if>
-
-        }
-
-        function startGetNowPlayingTimer() {
-            nowPlayingService.getNowPlaying(getNowPlayingCallback);
-            setTimeout("startGetNowPlayingTimer()", 10000);
-        }
+function startGetNowPlayingTimer() {
+    nowPlayingService.getNowPlaying(getNowPlayingCallback);
+    setTimeout("startGetNowPlayingTimer()", 10000);
+}
 
         function getNowPlayingCallback(nowPlaying) {
-            var html = nowPlaying.length == 0 ? "" : "<h2><fmt:message key="main.nowplaying"/></h2><table style='width:100%'>";
-            for (var i = 0; i < nowPlaying.length; i++) {
+            var html = nowPlaying.length == 0
+            	? ""
+            	: "<h2><fmt:message key="main.nowplaying"/></h2><table style='width:100%'>";
+
+            	for (var i = 0; i < nowPlaying.length; i++) {
                 html += "<tr><td colspan='2' class='detail' style='padding-top:1em;white-space:nowrap'>";
 
                 if (nowPlaying[i].avatarUrl != null) {
@@ -46,7 +47,7 @@
 
                 html += "<span class='songTitle'>" + nowPlaying[i].title + "</span></a><br/>";
                 if (nowPlaying[i].lyricsUrl != null) {
-                    html += "<span class='forward'><a href='" + nowPlaying[i].lyricsUrl + "' onclick=\"return popupSize(this, 'lyrics', 500, 550)\">" +
+                    html += "<span><a href='" + nowPlaying[i].lyricsUrl + "' onclick=\"return popupSize(this, 'lyrics', 640, 550)\">" +
                             "<fmt:message key="main.lyrics"/>" + "</a></span>";
                 }
                 html += "</td><td>" +
@@ -68,8 +69,9 @@
         }
 
         function getScanningStatusCallback(scanInfo) {
-            $("#scanCount").text(scanInfo.count);
-            if (scanInfo.scanning) {
+	    $("#isScanning").checked = scanInfo.scanning;
+	    $("#scanningStatus .message").text(scanInfo.count);
+		if (scanInfo.scanning) {
                 $("#scanningStatus").show();
                 setTimeout("startGetScanningStatusTimer()", 1000);
             } else {
@@ -80,16 +82,15 @@
 
     </script>
 </head>
-<body class="bgcolor1 rightframe" style="padding-top:2em" onload="init()">
 
-<c:if test="${model.newVersionAvailable}">
-    <div class="warning" style="padding-bottom: 1em">
-        <fmt:message key="top.upgrade"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message>
-    </div>
-</c:if>
+<body class="rightframe">
 
-<div id="scanningStatus" style="display: none;" class="warning">
-    <img src="<spring:theme code='scanningImage'/>" title="" alt=""> <fmt:message key="main.scanning"/> <span id="scanCount"></span>
+<input type="checkbox" id="isScanning" class="jps-input-scanning" value="1" autofocus="true"/>
+<div id="scanningStatus">
+	<div>
+	    <div class="loader" title="<fmt:message key='main.scanning'/>">Loading...</div>
+	    <div class="message"> <span id="scanCount"></span></div>
+	</div>
 </div>
 
 <div id="nowPlaying"></div>

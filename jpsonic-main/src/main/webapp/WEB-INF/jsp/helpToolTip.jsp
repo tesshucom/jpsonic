@@ -16,25 +16,20 @@ PARAMETERS
     });
 </script>
 
-<spring:theme code="helpPopupImage" var="imageUrl"/>
 <fmt:message key="common.help" var="help"/>
 
-<div id="placeholder-${param.topic}" style="display:none">
-    <div style="font-weight:bold;">
+<div id="placeholder-${param.topic}" class="help-title">
+    <div>
         <fmt:message key="helppopup.${param.topic}.title">
-            <fmt:param value="Airsonic"/>
+            <fmt:param value="Jpsonic"/>
         </fmt:message>
     </div>
 </div>
 
+<fmt:message key="helppopup.${param.topic}.title" var="title"/>
 <fmt:message key="helppopup.${param.topic}.text" var="text">
-    <fmt:param value="Airsonic"/>
+    <fmt:param value="Jpsonic"/>
 </fmt:message>
-
 <c:set var="oldStr" value='\"' />
 <c:set var="newStr" value='&quot;' />
-<img id="looltop-${param.topic}"
-     src='${imageUrl}'
-     alt='${fn:replace(text, oldStr, newStr)}'
-     title='${fn:replace(text, oldStr, newStr)}'
-/>
+<div id="looltop-${param.topic}" title='${fn:replace(text, oldStr, newStr)}' class="popup help">${fn:replace(title, oldStr, newStr)}</div>
