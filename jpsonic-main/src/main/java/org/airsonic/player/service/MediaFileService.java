@@ -445,7 +445,7 @@ public class MediaFileService {
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isAudioFile(String suffix) {
         for (String s : settingsService.getMusicFileTypesAsArray()) {
-            if (suffix.equals(s.toLowerCase())) {
+            if (suffix.equalsIgnoreCase(s)) {
                 return true;
             }
         }
@@ -455,7 +455,7 @@ public class MediaFileService {
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     private boolean isVideoFile(String suffix) {
         for (String s : settingsService.getVideoFileTypesAsArray()) {
-            if (suffix.equals(s.toLowerCase())) {
+            if (suffix.equalsIgnoreCase(s)) {
                 return true;
             }
         }
