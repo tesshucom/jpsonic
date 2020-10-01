@@ -105,7 +105,7 @@ public class FileUtils {
         try {
             final byte[] buf = new byte[1024];
 
-            int len = 0;
+            int len;
             while ((len = is.read(buf)) > 0) {
                 os.write(buf, 0, len);
             }

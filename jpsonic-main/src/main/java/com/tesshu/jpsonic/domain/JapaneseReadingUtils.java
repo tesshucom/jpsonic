@@ -250,7 +250,7 @@ public class JapaneseReadingUtils {
     private @NonNull String createReading(@NonNull String name, @Nullable String sort) {
         String n = createIgnoredArticles(name);
         String s = createIgnoredArticles(sort);
-        String reading = null;
+        String reading;
         if (isStartWithAlpha(n)) {
             if (isStartWithAlpha(s) && isJapaneseReadable(s)) {
                 reading = createReading(s);

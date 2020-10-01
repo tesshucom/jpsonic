@@ -460,7 +460,7 @@ public class InternalHelpController {
     }
 
     private File lookForTranscodingExecutable(String executableName) {
-        File executableLocation = null;
+        File executableLocation;
         for (String name: Arrays.asList(executableName, String.format("%s.exe", executableName))) {
             executableLocation = new File(transcodingService.getTranscodeDirectory(), name);
             if (executableLocation.exists()) return executableLocation;

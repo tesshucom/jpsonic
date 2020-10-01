@@ -15,8 +15,8 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.2.0-RELEASE</jpsonic.version>
-        <lucene.version>8.6.0</lucene.version>
+        <jpsonic.version>109.3.0-SNAPSHOT</jpsonic.version>
+        <lucene.version>8.6.2</lucene.version>
     </properties>
 
     <dependencies>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.3.1.RELEASE</version>
+            <version>2.3.4.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -119,7 +119,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>3.10.3</version>
+            <version>3.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.ldap</groupId>
@@ -190,7 +190,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-dbcp2</artifactId>
-            <version>2.7.0</version>
+            <version>2.8.0</version>
             <!-- this wants to pull in commons-logging v1.2 which conflicts with other dependencies -->
             <exclusions>
                 <exclusion>
@@ -468,7 +468,7 @@
         <dependency>
             <groupId>com.mattbertolini</groupId>
             <artifactId>liquibase-slf4j</artifactId>
-            <version>2.0.0</version>
+            <version>3.0.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -625,7 +625,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.14</version>
+            <version>42.2.16</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -637,7 +637,7 @@
         <dependency>
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
-            <version>2.6.1</version>
+            <version>2.7.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -706,7 +706,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.3.1.RELEASE</version>
+                <version>2.3.4.RELEASE</version>
                 <configuration>
                     <mainClass>org.airsonic.player.Application</mainClass>
                     <layout>WAR</layout>

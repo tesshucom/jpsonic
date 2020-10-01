@@ -198,7 +198,7 @@ public class PlayerDao extends AbstractDao {
             player.setDynamicIp(rs.getBoolean(col++));
             player.setTechnology(PlayerTechnology.valueOf(rs.getString(col++)));
             player.setClientId(rs.getString(col++));
-            player.setJavaJukeboxMixer(rs.getString(col++));
+            player.setJavaJukeboxMixer(rs.getString(col));
 
             addPlaylist(player);
             return player;

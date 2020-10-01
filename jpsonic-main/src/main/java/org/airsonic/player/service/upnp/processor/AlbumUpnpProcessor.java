@@ -116,7 +116,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     public Album getItemById(String id) {
-        Album returnValue = null;
+        Album returnValue;
         if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT_ID3)) {
             returnValue = new Album();
             returnValue.setId(-1);
@@ -136,7 +136,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     public List<MediaFile> getChildren(Album album, long offset, long maxResults) {
         List<MediaFile> children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
         if (album.getId() == -1) {
-            List<Album> albums = null;
+            List<Album> albums;
             if (album.getComment().startsWith(ALL_BY_ARTIST)) {
                 ArtistUpnpProcessor ap = getDispatcher().getArtistProcessor();
                 albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset, maxResults);

@@ -538,7 +538,7 @@ public class TranscodingService {
 
     private boolean isRangeAllowed(Parameters parameters) {
         Transcoding transcoding = parameters.getTranscoding();
-        List<String> steps = Arrays.asList();
+        List<String> steps;
         if (transcoding != null) {
             steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
         } else {

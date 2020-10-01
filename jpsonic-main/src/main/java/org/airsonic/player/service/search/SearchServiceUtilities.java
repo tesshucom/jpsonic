@@ -247,7 +247,7 @@ public class SearchServiceUtilities {
     @SuppressWarnings("unchecked")
     public Optional<List<MediaFile>> getCache(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         List<MediaFile> mediaFiles = null;
-        Element element = null;
+        Element element;
         synchronized (searchCache) {
             element = searchCache.get(createCacheKey(genres, musicFolders, indexType));
         }
@@ -260,7 +260,7 @@ public class SearchServiceUtilities {
     @SuppressWarnings("unchecked")
     public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
         List<MediaFile> mediaFiles = null;
-        Element element = null;
+        Element element;
         synchronized (randomCache) {
             element = randomCache.get(createCacheKey(key, casheMax, musicFolders, additional));
         }
@@ -273,7 +273,7 @@ public class SearchServiceUtilities {
     @SuppressWarnings("unchecked")
     public Optional<List<Integer>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders) {
         List<Integer> ids = null;
-        Element element = null;
+        Element element;
         synchronized (randomCache) {
             element = randomCache.get(createCacheKey(key, casheMax, musicFolders));
         }

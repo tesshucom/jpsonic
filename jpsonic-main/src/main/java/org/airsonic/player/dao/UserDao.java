@@ -399,7 +399,7 @@ public class UserDao extends AbstractDao {
 
             // JP >>>>
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
-            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
+            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col));
             // <<<< JP
             return settings;
         }
