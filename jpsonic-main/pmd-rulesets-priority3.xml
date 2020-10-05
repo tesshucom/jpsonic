@@ -156,9 +156,6 @@
         <exclude name="NoLongScripts" /><!-- Many include JSTL, and excessive partitioning reduces productivity and communication efficiency. -->
         <exclude name="NoInlineScript" /><!-- Most of them have low reusability. -->
         <!-- [low priority] << -->
-
-        <exclude name="NoInlineStyleInformation" />             <!--  *** Should be triaged! Fix #622. *** -->
-
     </rule>
     <rule ref="category/jsp/documentation.xml" />
     <rule ref="category/jsp/errorprone.xml" />
