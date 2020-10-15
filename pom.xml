@@ -17,11 +17,11 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.0</cxf.version>
-        <jackson.version>2.11.2</jackson.version>
-        <tomcat.version>9.0.38</tomcat.version>
+        <jackson.version>2.11.3</jackson.version>
+        <tomcat.version>9.0.39</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.31.v20200723</jetty.version>
-        <jetty-jsp.version>9.4.31.v20200723</jetty-jsp.version>
+        <jetty.version>9.4.32.v20200930</jetty.version>
+        <jetty-jsp.version>9.4.32.v20200930</jetty-jsp.version>
         <pmd.version>6.28.0</pmd.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
@@ -150,7 +150,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.6.1</version>
+                <version>3.7.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -161,7 +161,7 @@
             <dependency>
                 <groupId>org.apache.ant</groupId>
                 <artifactId>ant</artifactId>
-                <version>1.10.8</version>
+                <version>1.10.9</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
