@@ -6,27 +6,29 @@
         &:nth-child(2) {
           @include buttonCell;
         }
+        &.truncate {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+        }
         &.name,
         &.comment {
           min-width: 10rem;
           max-width: calc((100vw - 500px) / 2);
         }
-        &.comment {
-          min-width: 10rem;
+        &.name.truncate {
+          min-width: 4rem;
+          max-width: 4rem;
         }
+        &.comment.truncate {
+          min-width: 4rem;
+          max-width: 4rem;
+        }
+
         &.numberofsongs,
         &.duration {
           padding: 0 10px 0 0;
           text-align: right;
-        }
-        &.comment,
-        &.numberofsongs,
-        &.duration,
-        &.created,
-        &.visibility {
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
         }
         &.numberofsongs {
           width: 60px;
@@ -42,6 +44,10 @@
           width: 120px;
           min-width: 120px;
           max-width: 120px;
+          &.truncate {
+            min-width: 4rem;
+            max-width: 4rem;
+          }
         }
         &.author {
           width: 90px;

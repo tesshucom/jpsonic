@@ -103,7 +103,7 @@
     overflow: visible;
     line-height: #{$icon-size};
     white-space: nowrap;
-    font-size: $jp-font-absolute-small;
+    font-size: 11px;
     filter: drop-shadow(0 0 0 transparent);
     cursor: pointer;
     > a {
@@ -428,6 +428,7 @@ section > details > summary > h1 {
   @include createButton("\f1b2", 20px, -0.08em);
   font-weight: 500;
 }
+.control.reset,
 .control.undo {
   @include createButton("\f49c", 22px, -0.1em);
   &::before {
@@ -461,6 +462,16 @@ section > details > summary > h1 {
   &::before {
     font-weight: 400;
   }
+}
+
+.control.desktop-pc {
+  @include createButton("\f16c", 20px);
+}
+.control.tablet {
+  @include createButton("\f223", 20px);
+}
+.control.smartphone {
+  @include createButton("\f1e2", 20px);
 }
 
 .control.star {
@@ -546,21 +557,20 @@ form .control.search {
   }
 }
 
-.control.tile {
+@mixin createToggle($direction: "left", $content: "", $content-size: "", $content-top: "", $content-left: "") {
   $icon-height: 26px;
-  @include createButton("\f27a", 22px);
-  border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
-  //  border: 1.4px solid $jp-color-base3;
+  @include createButton($content, $content-size, $content-top, $content-left);
+  @if $direction != "left" {
+    border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
+  } @else if $direction != "right" {
+    border-radius: calc(#{$icon-height} / 2) 0 0 calc(#{$icon-height} / 2);
+  }
   width: 30px;
 }
-.control.tile.disabled {
-  @include createButton("\f27a", 22px);
-}
+
+// list or tile >>
 .control.list {
-  $icon-height: 26px;
-  @include createButton("\f454", 22px, -0.05em, 0.1em);
-  border-radius: calc(#{$icon-height} / 2) 0 0 calc(#{$icon-height} / 2);
-  width: 30px;
+  @include createToggle("left", "\f454", 22px, -0.05em, 0.1em);
   &::before {
     font-weight: 600;
   }
@@ -571,6 +581,28 @@ form .control.search {
     font-weight: 600;
   }
 }
+.control.tile {
+  @include createToggle("right", "\f27a", 22px);
+}
+.control.tile.disabled {
+  @include createButton("\f27a", 22px);
+}
+// list or tile <<
+
+// outline or working-outline >>
+.control.outline {
+  @include createToggle("left", "\f2ce", 24px, -0.05em, 0.05em);
+}
+.control.outline.disabled {
+  @include createButton("\f2ce", 24px, -0.05em, 0.05em);
+}
+.control.working-outline {
+  @include createToggle("right", "\f2cd", 24px, -0.05em, 0.005em);
+}
+.control.working-outline.disabled {
+  @include createButton("\f2cd", 24px, -0.05em, 0.005em);
+}
+// outline or working-outline <<
 
 .pager {
   .control.previous {
@@ -756,15 +788,13 @@ h1.playqueue {
   outline: none;
   display: inline;
   user-select: none;
-  width: #{$jp-font-size};
-  height: #{$jp-font-size};
   color: transparent !important;
-  line-height: #{$jp-font-size};
+  width: 30px;
+  height: 30px;
   margin: 0;
   padding: 0;
   &::before {
     position: relative;
-    line-height: #{$jp-font-size};
     color: $jp-color-dark-gray;
     font-family: "ionic";
     font-size: #{$content-size};
@@ -781,35 +811,34 @@ h1.playqueue {
 }
 
 .icon.numberofsongs {
-  @include createIcon("\f46b", 24px);
+  @include createIcon("\f46b", 24px, -0.2em);
 }
 .icon.duration {
-  @include createIcon("\f3c8", 24px);
+  @include createIcon("\f3c8", 24px, -0.2em);
 }
 .icon.date {
-  @include createIcon("\f2ab", 24px);
+  @include createIcon("\f2ab", 24px, -0.2em);
 }
 .icon.person {
-  @include createIcon("\f345", 24px);
+  @include createIcon("\f345", 24px, -0.2em);
 }
 .icon.visibility {
-  @include createIcon("\f2e9", 24px);
+  @include createIcon("\f2e9", 24px, -0.2em);
 }
 .icon.comment {
-  @include createIcon("\f2db", 24px);
+  @include createIcon("\f2db", 24px, -0.2em);
 }
 .icon.facebook {
-  @include createIcon("\f236", 24px);
+  @include createIcon("\f236", 24px, -0.2em);
 }
 .icon.twitter {
-  @include createIcon("\f2b0", 24px);
+  @include createIcon("\f2b0", 24px, -0.2em);
 }
 
 @mixin playQueueCursol {
   position: relative;
   top: 0.2em;
   color: $jp-color-now-playing;
-  line-height: #{$jp-font-size};
   font-family: "ionic";
   font-size: 20px;
   font-weight: 600;

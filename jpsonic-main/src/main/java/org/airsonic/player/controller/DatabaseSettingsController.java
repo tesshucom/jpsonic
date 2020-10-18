@@ -19,7 +19,10 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.command.DatabaseSettingsCommand;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,12 +36,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Controller
 @RequestMapping("/databaseSettings")
 public class DatabaseSettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @GetMapping
     protected String displayForm() {
@@ -46,7 +55,7 @@ public class DatabaseSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model) {
         DatabaseSettingsCommand command = new DatabaseSettingsCommand();
         command.setConfigType(settingsService.getDatabaseConfigType());
         command.setEmbedDriver(settingsService.getDatabaseConfigEmbedDriver());
@@ -58,6 +67,8 @@ public class DatabaseSettingsController {
         command.setUsertableQuote(settingsService.getDatabaseUsertableQuote());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
+        User user = securityService.getCurrentUser(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         model.addAttribute("command", command);
     }
 

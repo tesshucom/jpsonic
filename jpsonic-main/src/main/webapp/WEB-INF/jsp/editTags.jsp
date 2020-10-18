@@ -132,6 +132,7 @@ function setTagsCallback(result) {
 	        <th>
 	        	<input type="text" name="artistAll" onkeypress="dwr.util.onReturn(event, setArtist)" value="${fn:escapeXml(model.defaultArtist)}"/>
 	        	<a href="javascript:setArtist()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
+			</th>
 	        <th>
 	        	<input type="text" name="albumAll" onkeypress="dwr.util.onReturn(event, setAlbum)" value="${fn:escapeXml(model.defaultAlbum)}"/>
 	        	<a href="javascript:setAlbum()" title="<fmt:message key='edittags.set'/>" class="control apply-all"><fmt:message key="edittags.set"/></a>
@@ -179,6 +180,6 @@ function setTagsCallback(result) {
     <div class="submits">
         <input type="submit"  id="save" value="<fmt:message key='common.save'/>" onclick="updateTags()">
     </div>
-    <strong><div id="errors"/><strong>
+    <strong><div id="errors"/></strong>
 
 </body></html>

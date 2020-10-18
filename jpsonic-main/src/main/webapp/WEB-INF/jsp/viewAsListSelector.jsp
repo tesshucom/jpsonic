@@ -1,5 +1,5 @@
 <%--
-  ~ This file is part of Airsonic.
+  ~ This file is part of Jpsonic.
   ~
   ~  Airsonic is free software: you can redistribute it and/or modify
   ~  it under the terms of the GNU General Public License as published by
@@ -14,24 +14,25 @@
   ~  You should have received a copy of the GNU General Public License
   ~  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
   ~
-  ~  Copyright 2015 (C) Sindre Mehus
   ~  Copyright 2020 (C) tesshucom
   
   <%--
     PARAMETERS
     targetView: View name to be switched.
+    viewAsList:
+    directoryId:
   --%>
 
 <%@ page contentType="text/html; charset=utf-8" pageEncoding="utf-8" %>
 <%@ include file="include.jsp" %>
 
 <c:url value="${param.targetView}" var="changeViewUrl">
-    <c:param name="id" value="${model.dir.id}"/>
-    <c:param name="viewAsList" value="${not model.viewAsList}"/>
+    <c:param name="id" value="${param.directoryId}"/>
+    <c:param name="viewAsList" value="${not param.viewAsList}"/>
 </c:url>
 <ul class="controls">
     <c:choose>
-        <c:when test="${model.viewAsList}">
+        <c:when test="${param.viewAsList}">
             <li><span title="<fmt:message key='common.viewaslist'/>" class="control list disabled"><fmt:message key='common.viewaslist'/></span></li>
             <li><a href="${changeViewUrl}" title="<fmt:message key='common.viewasgrid'/>" class="control tile"><fmt:message key='common.viewasgrid'/></a></li>
         </c:when>

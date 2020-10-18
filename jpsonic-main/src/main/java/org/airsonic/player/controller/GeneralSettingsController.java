@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.User;
@@ -53,6 +54,8 @@ public class GeneralSettingsController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @GetMapping
     protected String displayForm() {
@@ -88,6 +91,18 @@ public class GeneralSettingsController {
         command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
         command.setShowServerLog(settingsService.isShowServerLog());
         command.setShowRememberMe(settingsService.isShowRememberMe());
+
+        command.setDefaultIndexString(settingsService.getDefaultIndexString());
+        command.setSimpleIndexString(settingsService.getSimpleIndexString());
+        command.setDefaultSortAlbumsByYear(settingsService.isDefaultSortAlbumsByYear());
+        command.setDefaultSortGenresByAlphabet(settingsService.isDefaultSortGenresByAlphabet());
+        command.setDefaultProhibitSortVarious(settingsService.isDefaultProhibitSortVarious());
+        command.setDefaultSortAlphanum(settingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(settingsService.isDefaultSortStrict());
+
+        User user = securityService.getCurrentUser(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+
         toast.ifPresent(b -> command.setShowToast(b));
 
         Theme[] themes = settingsService.getAvailableThemes();
@@ -112,7 +127,6 @@ public class GeneralSettingsController {
         }
         command.setLocales(localeStrings);
 
-        User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 

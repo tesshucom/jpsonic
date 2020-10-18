@@ -4,6 +4,23 @@ $jp-main-settings-width: calc(100vw - 60px);
   margin-top: 0px;
 }
 
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  padding-left: 5px;
+  padding-right: 5px;
+  &:focus,
+  &:active {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
 // ******************** zoom *********************************
 // Styles related to Javascript-zoom
 
@@ -53,8 +70,10 @@ div.ui-tooltip {
   @include border;
   @include borderRadius;
   background-color: $jp-color-complementary2;
-  font-family: $jp-font-family;
   font-size: 0.85rem;
+  .ui-tooltip-content {
+    color: $jp-color-black;
+  }
 }
 
 // ******************** anchorList ****************************************
@@ -438,6 +457,56 @@ div.albumThumb > div.coverart > div > a {
     margin-top: 10px;
     margin-bottom: 28px;
     margin-left: calc((100vw - #{$jp-main-settings-width}) / 2 + 25px);
+  }
+}
+
+// Used when arranging radio buttons vertically
+.mainframe.settings.playerSettings details ul,
+.mainframe.settings.personalSettings details ul.playerSettings {
+  li {
+    height: 30px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: start;
+    input,
+    label {
+      margin-left: 3px;
+    }
+    div {
+      margin-left: 5px;
+    }
+  }
+}
+
+.outlineHelp {
+  width: calc(100vw - 60px);
+  margin: 30px 20px 0 20px;
+  @media screen and (min-width: $jp-supplement-width-threshold) {
+    width: calc(50vw - 60px);
+    margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+  }
+  padding: 30px;
+  @include border;
+  @include borderRadius;
+  background-color: $jp-color-complementary2;
+  font-size: 0.86em;
+  dl {
+    background-color: $jp-color-complementary2;
+    dt {
+      background-color: $jp-color-white;
+    }
+    dd {
+      background-color: $jp-color-white;
+    }
+  }
+}
+
+details {
+  > .outlineHelp {
+    width: calc(100% - 20px);
+    margin: 30px 20px 0 20px;
+    line-height: 30px;
   }
 }
 

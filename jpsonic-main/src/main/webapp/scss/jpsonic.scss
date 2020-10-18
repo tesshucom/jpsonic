@@ -42,16 +42,7 @@
 //                 └ *.scss          : CSS unique to each page. It corresponds to the web page (JSP).
 //
 
-// ## FONT-FAMILY #################################################################
-
-$jp-font-family: -apple-system, blinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Noto Sans JP", YuGothicM, YuGothic, Meiryo, sans-serif;
-$jp-font-size: 14px;
 $jp-font-absolute-small: 11px;
-
-html {
-  font-family: $jp-font-family;
-  font-size: $jp-font-size;
-}
 
 // Read the 'definitions' directory.
 @import "./jpsonic/definitions/jpsonic";

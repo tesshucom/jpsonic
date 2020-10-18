@@ -141,12 +141,13 @@
                 <form:checkbox path="ignoreSymLinks" id="ignoreSymLinks"/>
                 <form:label path="ignoreSymLinks"><fmt:message key="musicfoldersettings.ignoresymlinks"/></form:label>
             </dd>
+        </dl>
     </details>
 
-    <details ${isOpen}>
+    <details open>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl>
-            <dt><fmt:message key="musicfoldersettings.excludepattern"/></dt>
+            <dt></dt>
             <dd>
                 <form:checkbox path="fastCache" cssClass="checkbox" id="fastCache"/>
                 <form:label path="fastCache"><fmt:message key="musicfoldersettings.fastcache"/></form:label>
@@ -158,6 +159,7 @@
                 <label for="indexEnglishPrior"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
             </dd>
+        </dl>
     </details>
 
     <div class="submits">

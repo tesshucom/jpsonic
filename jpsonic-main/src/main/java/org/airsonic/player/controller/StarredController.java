@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.controller.ViewSelector;
+import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -63,7 +63,7 @@ public class StarredController {
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
-    private ViewSelector viewSelector;
+    private ViewAsListSelector viewSelector;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {

@@ -1,40 +1,20 @@
 .mainframe.upload {
-  input#file {
-    cursor: pointer;
-    @include dlInputWidth(10);
-    padding: 0 0 0 10px;
-    border: none;
-  }
-  input#dir {
-    @include dlInputWidth(9);
-  }
-
-  table.tabular.transcoding {
-    margin-left: 0;
-  }
-
-  table.tabular.transcoding {
-    width: 100%;
-    th {
-      text-align: center;
+  dl {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
     }
-    tr {
-      &:hover {
-        background-color: inherit;
+    dd {
+      input#file {
+        cursor: pointer;
+        @include dlInputWidth(10);
+        padding: 0 0 0 10px;
+        border: none;
       }
-      td {
-        &:nth-child(1) {
-          width: 150px;
-          text-align: left;
-        }
-        &:nth-child(2) {
-          padding: 0;
-          text-align: left;
-        }
-        &:nth-child(3) {
-          width: 60px;
-          text-align: center;
-        }
+      input#dir {
+        @include dlInputWidth(9);
       }
     }
   }

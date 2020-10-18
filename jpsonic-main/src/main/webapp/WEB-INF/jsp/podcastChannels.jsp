@@ -25,8 +25,12 @@
 <%@ include file="jquery.jsp" %>
 <script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 <script>
-
+$(document).ready(function(){
+    initTruncate(".mainframe", ".tabular.channels", 2, ["name", "description"]);
+    initTruncate(".mainframe", ".tabular.episodes", 3, ["episodeTitle", "channelTitle"]);
+});
 </script>
 </head><body class="mainframe podcastChannels">
 
@@ -37,8 +41,10 @@
 
 <div class="actions">
     <ul class="controls">
-        <c:import url="viewSelector.jsp">
+        <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="podcastChannels.view"/>
+            <c:param name="viewAsList" value="${model.viewAsList}"/>
+            <c:param name="directoryId" value="${model.dir.id}"/>
         </c:import>
     </ul>
 </div>
@@ -72,8 +78,8 @@
                             <c:url value="podcastChannel.view" var="targetUrl">
                                 <c:param name="id" value="${channel.key.id}"/>
                             </c:url>
-                            <td class="name"><a href="${targetUrl}" title="${fn:escapeXml(channel.key.title)}">${fn:escapeXml(channel.key.title)}</a></td>
-                            <td class="description"><str:truncateNicely upper="${50}" lower="${70}" >${fn:escapeXml(channel.key.description)}</str:truncateNicely></td>
+                            <td class="name"><span><a href="${targetUrl}" title="${fn:escapeXml(channel.key.title)}">${fn:escapeXml(channel.key.title)}</a></span></td>
+                            <td class="description"><span><str:truncateNicely upper="${50}" lower="${70}" >${fn:escapeXml(channel.key.description)}</str:truncateNicely></span></td>
                             <td class="count">${fn:length(channel.value)}</td>
                             <td class="status"><fmt:message key="podcastreceiver.status.${fn:toLowerCase(channel.key.status)}"/></td>
                             <td class="url"><input type="text" value="${channel.key.url}" readonly class="url"></td>
@@ -138,9 +144,9 @@
 	                    <c:param name="asTable" value="true"/>
 	                    <c:param name="onPlay" value="top.playQueue.onPlayNewestPodcastEpisode(${i.index})"/>
 	                </c:import>
+	                <td class="episodeTitle"><span>${episode.title}</span></td>
 	                <c:set var="channelTitle" value="${model.channelMap[episode.channelId].title}"/>
-	                <td><span title="${episode.title}" class="songTitle">${episode.title}</span></td>
-	                <td><a href="podcastChannel.view?id=${episode.channelId}"><span class="detail" title="${channelTitle}">${channelTitle}</span></a></td>
+	                <td class="channelTitle"><span><a href="podcastChannel.view?id=${episode.channelId}">${channelTitle}</a></span></td>
 	                <td class="duration">${episode.duration}</td>
 	                <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
 	            </tr>

@@ -44,15 +44,15 @@
         <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
         <dt><fmt:message key="help.license.title"/></dt>
         <dd>
-            <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img style="float:right;margin-left: 10px" alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>">
+            <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>"></a>
             <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message>
             <fmt:message key="personalsettings.avatar.courtesy"/>
-            <a href="https://last.fm/" target="_blank" rel="noopener noreferrer"><img alt="Lastfm icon" src="<c:url value='/icons/lastfm.gif'/>"></a>
-            <fmt:message key="changecoverart.courtesy"/></span>
+            <a href="https://last.fm/" target="_blank" rel="noopener noreferrer"><img alt="Lastfm icon" src="<c:url value='/icons/lastfm.gif'/>"></a><br>
+            <fmt:message key="changecoverart.courtesy"/>
         </dd>
         <dt><fmt:message key="help.homepage.title"/></dt>
         <dd><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a> / <a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
-        <dt><fmt:message key="help.forum.title"/></dd>
+        <dt><fmt:message key="help.forum.title"/></dt>
         <dd><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener nofererrer">Airsonic on Reddit</a></dd>
         <dt><fmt:message key="help.contact.title"/></dt>
         <dd><fmt:message key="help.contact.text"><fmt:param value="Airsonic"/></fmt:message></dd>

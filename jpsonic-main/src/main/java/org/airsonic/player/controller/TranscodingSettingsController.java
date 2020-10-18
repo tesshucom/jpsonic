@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -52,6 +53,8 @@ public class TranscodingSettingsController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
@@ -66,7 +69,8 @@ public class TranscodingSettingsController {
                 "brand", settingsService.getBrand(),
                 "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
                 "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos()));
+                "useSonos", settingsService.isUseSonos(),
+                "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername())));
         return "transcodingSettings";
     }
 

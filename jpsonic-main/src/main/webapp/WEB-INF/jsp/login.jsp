@@ -24,7 +24,7 @@
 
             <input required type="password" autocomplete="off"  name="j_password" tabindex="2" placeholder="<fmt:message key='login.password'/>">
 
-            <input name="submit" type="submit" value="<fmt:message key='login.login'/>" tabindex="4"></td>
+            <input name="submit" type="submit" value="<fmt:message key='login.login'/>" tabindex="4">
 
             <div class="details">
             	<c:if test="${model.showRememberMe}">

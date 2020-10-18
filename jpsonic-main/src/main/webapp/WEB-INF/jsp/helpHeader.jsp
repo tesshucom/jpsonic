@@ -8,8 +8,8 @@
     <ul class="sibling-pages">
         <c:forTokens items="${categories}" delims=" " var="cat" varStatus="loopStatus">
             <c:choose>
-                <c:when test="${loopStatus.count > 1}"></li><li></c:when>
-                <c:otherwise><li></c:otherwise>
+                <c:when test="${loopStatus.first}"><li></c:when>
+                <c:otherwise></li><li></c:otherwise>
             </c:choose>
             <c:url var="url" value="${cat}.view?"/>
             <c:choose>
@@ -20,6 +20,7 @@
                     <a href="${url}"><fmt:message key="settingsheader.${cat}"/></a>
                 </c:otherwise>
             </c:choose>
+	        <c:if test="${loopStatus.last}"></li></c:if>
         </c:forTokens>
     </ul>
 </section>

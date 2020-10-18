@@ -35,6 +35,18 @@
     <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
+<c:import url="outlineHelpSelector.jsp">
+    <c:param name="targetView" value="databaseSettings.view"/>
+    <c:param name="showOutlineHelp" value="${command.showOutlineHelp}"/>
+</c:import>
+
+<c:if test="${command.showOutlineHelp}">
+    <div class="outlineHelp">
+	    <strong><fmt:message key="databasettings.restartRequired"/></strong><br>
+	    <fmt:message key="databasesettings.moreinfo"/>
+    </div>
+</c:if>
+
 <form:form modelAttribute="command" action="databaseSettings.view" method="post">
 
     <div class="titledSelector methods">
@@ -85,9 +97,6 @@
     </div>
 
 </form:form>
-
-    <p><strong><fmt:message key="databasettings.restartRequired"/></strong></p>
-    <p><fmt:message key="databasesettings.moreinfo"/></p>
 
 </body>
 </html>

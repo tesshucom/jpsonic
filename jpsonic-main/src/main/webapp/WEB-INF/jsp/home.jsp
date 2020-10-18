@@ -52,8 +52,8 @@ $(document).ready(function(){
             <c:when test="${model.showRate}">
                 <c:forTokens items="random newest starred highest frequent recent decade genre alphabetical index" delims=" " var="cat" varStatus="loopStatus">
                     <c:choose>
-                       <c:when test="${loopStatus.count > 1}"></li><li></c:when>
-                       <c:otherwise><li></c:otherwise>
+                       <c:when test="${loopStatus.first}"><li></c:when>
+                       <c:otherwise></li><li></c:otherwise>
                     </c:choose>
                     <sub:url var="url" value="home.view">
                         <sub:param name="listType" value="${cat}"/>
@@ -66,14 +66,15 @@ $(document).ready(function(){
                             <a href="${url}"><fmt:message key="home.${cat}.title"/></a>
                         </c:otherwise>
                     </c:choose>
+                    <c:if test="${loopStatus.last}"></li></c:if>
                 </c:forTokens>
             </c:when>
             <c:otherwise>
                 <%-- without highest(rate) --%>
                 <c:forTokens items="random newest starred frequent recent decade genre alphabetical index" delims=" " var="cat" varStatus="loopStatus">
                     <c:choose>
-                       <c:when test="${loopStatus.count > 1}"></li><li></c:when>
-                       <c:otherwise><li></c:otherwise>
+                       <c:when test="${loopStatus.first}"><li></c:when>
+                       <c:otherwise></li><li></c:otherwise>
                     </c:choose>
                     <sub:url var="url" value="home.view">
                         <sub:param name="listType" value="${cat}"/>
@@ -86,6 +87,7 @@ $(document).ready(function(){
                             <a href="${url}"><fmt:message key="home.${cat}.title"/></a>
                         </c:otherwise>
                     </c:choose>
+                    <c:if test="${loopStatus.last}"></li></c:if>
                 </c:forTokens>
             </c:otherwise>
         </c:choose>

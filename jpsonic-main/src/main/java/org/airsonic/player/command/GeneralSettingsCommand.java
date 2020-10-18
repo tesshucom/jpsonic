@@ -62,6 +62,15 @@ public class GeneralSettingsCommand {
     private String[] locales;
     private String themeIndex;
     private Theme[] themes;
+    private String simpleIndexString;
+    private boolean showOutlineHelp;
+
+    private String defaultIndexString;
+    private boolean defaultSortAlbumsByYear;
+    private boolean defaultSortGenresByAlphabet;
+    private boolean defaultProhibitSortVarious;
+    private boolean defaultSortAlphanum;
+    private boolean defaultSortStrict;
 
     public String getPlaylistFolder() {
         return playlistFolder;
@@ -328,5 +337,69 @@ public class GeneralSettingsCommand {
 
     public void setShowToast(boolean showToast) {
         this.showToast = showToast;
+    }
+
+    public String getSimpleIndexString() {
+        return simpleIndexString;
+    }
+
+    public void setSimpleIndexString(String simpleIndexString) {
+        this.simpleIndexString = simpleIndexString;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public String getDefaultIndexString() {
+        return defaultIndexString;
+    }
+
+    public void setDefaultIndexString(String defaultIndexString) {
+        this.defaultIndexString = defaultIndexString;
+    }
+
+    public boolean isDefaultSortAlbumsByYear() {
+        return defaultSortAlbumsByYear;
+    }
+
+    public void setDefaultSortAlbumsByYear(boolean defaultSortAlbumsByYear) {
+        this.defaultSortAlbumsByYear = defaultSortAlbumsByYear;
+    }
+
+    public boolean isDefaultSortGenresByAlphabet() {
+        return defaultSortGenresByAlphabet;
+    }
+
+    public void setDefaultSortGenresByAlphabet(boolean defaultSortGenresByAlphabet) {
+        this.defaultSortGenresByAlphabet = defaultSortGenresByAlphabet;
+    }
+
+    public boolean isDefaultProhibitSortVarious() {
+        return defaultProhibitSortVarious;
+    }
+
+    public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
+        this.defaultProhibitSortVarious = defaultProhibitSortVarious;
+    }
+
+    public boolean isDefaultSortAlphanum() {
+        return defaultSortAlphanum;
+    }
+
+    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
+        this.defaultSortAlphanum = defaultSortAlphanum;
+    }
+
+    public boolean isDefaultSortStrict() {
+        return defaultSortStrict;
+    }
+
+    public void setDefaultSortStrict(boolean defaultSortStrict) {
+        this.defaultSortStrict = defaultSortStrict;
     }
 }

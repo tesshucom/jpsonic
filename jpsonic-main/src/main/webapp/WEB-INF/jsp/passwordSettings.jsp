@@ -5,7 +5,7 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 </head>
-<body class="mainframe">
+<body class="mainframe settings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="password"/>

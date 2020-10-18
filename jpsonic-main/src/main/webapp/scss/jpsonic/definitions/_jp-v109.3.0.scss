@@ -7,10 +7,6 @@ body {
   color: $jp-color-black;
 }
 
-em {
-  color: $jp-color-alert;
-}
-
 strong {
   color: $jp-color-alert;
 }
@@ -166,8 +162,13 @@ input[type="password"],
 input[type="number"],
 select {
   height: 22px;
+  color: $jp-color-black;
   font-size: 0.86rem;
   text-align: justify;
+}
+
+textarea {
+  color: $jp-color-black;
 }
 
 // ******************** checkbox ******************************************
@@ -398,6 +399,7 @@ section {
       @include border;
       @include border;
       @include borderRadius;
+      color: $jp-color-black;
       line-height: 30px;
     }
   }

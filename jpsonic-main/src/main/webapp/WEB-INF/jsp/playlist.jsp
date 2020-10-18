@@ -117,9 +117,11 @@ function playlistCallback(playlistInfo) {
         if (song.starred) {
             $("#starSong" + id).removeClass('star');
             $("#starSong" + id).addClass('star-fill');
+            $("#starSong" + id).attr('title', '<fmt:message key="main.starredoff"/>');
         } else {
             $("#starSong" + id).removeClass('star-fill');
             $("#starSong" + id).addClass('star');
+            $("#starSong" + id).attr('title', '<fmt:message key="main.starredon"/>');
         }
         if (!song.present) {
             $("#missing" + id).show();
@@ -268,7 +270,9 @@ function onDeletePlaylist() {
         </thead>
         <tbody id="playlistBody">
             <tr id="pattern">
-                <td><div id="starSong" onclick="onStar(this.id.substring(8) - 1)" title="Star ON" class="control star">Star ON</div></td>
+                <td>
+                	<div id="starSong" onclick="onStar(this.id.substring(8) - 1)" title="<fmt:message key='main.starredon'/>" class="control star"><fmt:message key="main.starredon"/></div>
+                </td>
                 <td><div id="play" onclick="onPlay(this.id.substring(4) - 1)" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div></td>
                 <td><div id="add" onclick="onAdd(this.id.substring(3) - 1)" title="<fmt:message key='common.add'/>" class="control plus"><fmt:message key='common.add'/></div></td>
                 <td><div id="addNext" onclick="onAddNext(this.id.substring(7) - 1)" title="<fmt:message key='main.addnext'/>" class="control next"><fmt:message key='main.addnext'/></div></td>

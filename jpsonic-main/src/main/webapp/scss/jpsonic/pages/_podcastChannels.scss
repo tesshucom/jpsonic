@@ -17,6 +17,12 @@
         &:nth-child(1) {
           @include buttonCell;
         }
+        &.truncate {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          max-width: 8rem;
+        }
         &.name,
         &.description {
           overflow: hidden;
@@ -39,8 +45,8 @@
       }
     }
   }
-
   .tabular.episodes {
+    margin-top: 30px;
     tr {
       th,
       td {
@@ -48,6 +54,12 @@
         &:nth-child(2),
         &:nth-child(3) {
           @include buttonCell;
+        }
+        &.truncate {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          max-width: 8rem;
         }
         &.duration {
           width: 90px;

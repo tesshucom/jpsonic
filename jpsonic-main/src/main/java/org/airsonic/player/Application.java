@@ -1,5 +1,6 @@
 package org.airsonic.player;
 
+import com.tesshu.jpsonic.filter.FontSchemeFilter;
 import org.airsonic.player.filter.*;
 import org.airsonic.player.util.LegacyHsqlUtil;
 import org.directwebremoting.servlet.DwrServlet;
@@ -160,6 +161,14 @@ public class Application extends SpringBootServletInitializer implements WebServ
         return registration;
     }
 
+    @Bean
+    public FilterRegistrationBean<FontSchemeFilter> fontSchemeFilterRegistration() {
+        FilterRegistrationBean<FontSchemeFilter> registration = new FilterRegistrationBean<>();
+        registration.setFilter(new FontSchemeFilter());
+        registration.addUrlPatterns("*.view");
+        registration.setOrder(8);
+        return registration;
+    }
 
     @Bean
     public Filter noCacheFilter() {

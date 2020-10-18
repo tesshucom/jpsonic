@@ -17,7 +17,8 @@ public class DatabaseSettingsCommand {
     private String usertableQuote;
     private boolean useRadio;
     private boolean useSonos;
-    
+    private boolean showOutlineHelp;
+
     public DataSourceConfigType getConfigType() {
         return configType;
     }
@@ -97,4 +98,13 @@ public class DatabaseSettingsCommand {
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
     }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
 }

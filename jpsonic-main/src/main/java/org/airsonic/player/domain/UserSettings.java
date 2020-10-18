@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.domain;
 
+import com.tesshu.jpsonic.domain.FontScheme;
+
 import java.util.Date;
 import java.util.Locale;
 
@@ -82,6 +84,9 @@ public class UserSettings {
     private boolean showAlbumActions;
     private boolean breadcrumbIndex;
     private boolean putMenuInDrawer;
+    private String fontSchemeName = FontScheme.DEFAULT.name();
+    private boolean showOutlineHelp;
+    private boolean forceBio2Eng;
     // <<<< JP
 
     public UserSettings(String username) {
@@ -504,6 +509,30 @@ public class UserSettings {
 
     public void setPutMenuInDrawer(boolean putMenuInDrawer) {
         this.putMenuInDrawer = putMenuInDrawer;
+    }
+
+    public String getFontSchemeName() {
+        return fontSchemeName;
+    }
+
+    public void setFontSchemeName(String fontSchemeName) {
+        this.fontSchemeName = fontSchemeName;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public boolean isForceBio2Eng() {
+        return forceBio2Eng;
+    }
+
+    public void setForceBio2Eng(boolean forceBio2Eng) {
+        this.forceBio2Eng = forceBio2Eng;
     }
 
     /**

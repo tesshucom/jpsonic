@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.controller.ViewSelector;
+import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.*;
@@ -65,7 +65,7 @@ public class MainController {
     private MediaFileService mediaFileService;
 
     @Autowired
-    private ViewSelector viewSelector;
+    private ViewAsListSelector viewSelector;
 
     @SuppressWarnings("PMD.EmptyCatchBlock")
     @GetMapping

@@ -6,7 +6,30 @@
 # Author: Sindre Mehus
 
 # The Jpsonic theme.
-jpsonic "Jpsonic Default"
+jpsonic "Jpsonic"
 
-# The Jpsonic with JP font theme.
-jpsonic_embed_font "Jpsonic(embedded JP font)" jpsonic
+jpsonic_gray "Gray" jpsonic
+jpsonic_dark "Dark" jpsonic
+jpsonic_ponder "Classic Blue" jpsonic
+jpsonic_coral "Living Coral" jpsonic
+jpsonic_violet "Ultra Violet" jpsonic
+jpsonic_greenery "Greenery" jpsonic
+jpsonic_rose "Rose Quartz" jpsonic
+jpsonic_serenity "Serenity" jpsonic
+jpsonic_marsala "Marsala" jpsonic
+jpsonic_orchid "Radiant Orchid" jpsonic
+jpsonic_emerald "Emerald" jpsonic
+jpsonic_tangerine "Tangerine Tango" jpsonic
+jpsonic_honeysuckle "Honeysuckle" jpsonic
+jpsonic_turquoise "Turquoise" jpsonic
+jpsonic_mimosa "Mimosa" jpsonic
+jpsonic_iris "Blue Iris" jpsonic
+jpsonic_pepper "Chili Pepper" jpsonic
+
+#jpsonic "Sand Dollar" jpsonic
+#jpsonic "Blue Turquoise" jpsonic
+#jpsonic "Tigerlily" jpsonic
+#jpsonic "Aqua Sky" jpsonic
+#jpsonic "True Red" jpsonic
+#jpsonic "Fuchsia Rose" jpsonic
+#jpsonic "Cerulean Blue" jpsonic

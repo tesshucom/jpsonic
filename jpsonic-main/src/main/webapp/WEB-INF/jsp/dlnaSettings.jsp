@@ -48,7 +48,7 @@
             </dd>
         	<dt><fmt:message key="dlnasettings.servername"/></dt>
             <dd>
-                <input name="dlnaServerName" id="dlnaServerName" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
+                <input type="text" name="dlnaServerName" id="dlnaServerName" value="<c:out value='${model.dlnaServerName}' escapeXml='true'/>"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="dlnaservername"/></c:import>
             </dd>
         	<dt><label for="dlnaBaseLANURL" ><fmt:message key="dlnasettings.baselanurl"/></label></dt>
@@ -207,7 +207,7 @@
 	                    <fmt:message key="dlna.title.podcast"/>
 	                </td>
 	            </tr>
-			</table>
+	        </tbody>
 	    </table>
 
     </details>

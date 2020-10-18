@@ -30,6 +30,7 @@ import org.airsonic.player.dao.PlayQueueDao;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.*;
@@ -424,18 +425,21 @@ public class SubsonicRESTController {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
         int count = getIntParameter(request, "count", 20);
         boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
 
         ArtistInfo result = new ArtistInfo();
 
-        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        User user = securityService.getCurrentUser(request);
+        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
         List<MediaFile> similarArtists = lastFmService.getSimilarArtists(mediaFile, count, includeNotPresent, musicFolders);
         for (MediaFile similarArtist : similarArtists) {
-            result.getSimilarArtist().add(createJaxbArtist(similarArtist, username));
+            result.getSimilarArtist().add(createJaxbArtist(similarArtist, user.getUsername()));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, airsonicLocaleResolver.resolveLocale(request));
+
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());
@@ -461,16 +465,19 @@ public class SubsonicRESTController {
             return;
         }
 
-        String username = securityService.getCurrentUsername(request);
         int count = getIntParameter(request, "count", 20);
         boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request, "includeNotPresent", false);
         ArtistInfo2 result = new ArtistInfo2();
-        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
+        User user = securityService.getCurrentUser(request);
+        List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername());
         List<org.airsonic.player.domain.Artist> similarArtists = lastFmService.getSimilarArtists(artist, count, includeNotPresent, musicFolders);
         for (org.airsonic.player.domain.Artist similarArtist : similarArtists) {
-            result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, username));
+            result.getSimilarArtist().add(createJaxbArtist(new ArtistID3(), similarArtist, user.getUsername()));
         }
-        ArtistBio artistBio = lastFmService.getArtistBio(artist, airsonicLocaleResolver.resolveLocale(request));
+
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        ArtistBio artistBio = lastFmService.getArtistBio(artist, locale);
         if (artistBio != null) {
             result.setBiography(artistBio.getBiography());
             result.setMusicBrainzId(artistBio.getMusicBrainzId());

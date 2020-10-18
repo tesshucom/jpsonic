@@ -18,7 +18,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.controller.ViewSelector;
+import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.domain.User;
@@ -55,7 +55,7 @@ public class PlaylistsController {
     private PlaylistService playlistService;
 
     @Autowired
-    private ViewSelector viewSelector;
+    private ViewAsListSelector viewSelector;
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {

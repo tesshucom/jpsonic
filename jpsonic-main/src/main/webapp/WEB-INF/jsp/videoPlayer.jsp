@@ -13,10 +13,12 @@ function toggleStar(mediaFileId, imageId) {
     if ("control star-fill" == $(imageId).attr('class')) {
         $(imageId).removeClass('star-fill');
         $(imageId).addClass('star');
+        $(imageId).attr('title', '<fmt:message key="main.starredon"/>');
         starService.unstar(mediaFileId);
     } else if ("control star" == $(imageId).attr('class')) {
         $(imageId).removeClass('star');
         $(imageId).addClass('star-fill');
+        $(imageId).attr('title', '<fmt:message key="main.starredoff"/>');
         starService.star(mediaFileId);
     }
 }
@@ -55,10 +57,10 @@ var model = {
             </c:if>
             <c:choose>
                 <c:when test="${not empty model.video.starredDate}">
-                    <li><a id="starImage" href="javascript:toggleStar(${model.video.id}, '#starImage')" class="control star-fill">Star ON</a></li>
+                    <li><a id="starImage" href="javascript:toggleStar(${model.video.id}, '#starImage')" title="<fmt:message key='main.starredoff'/>" class="control star-fill"><fmt:message key="main.starredoff"/></a></li>
                 </c:when>
                 <c:otherwise>
-                    <li><a id="starImage" href="javascript:toggleStar(${model.video.id}, '#starImage')" class="control star">Star OFF</a></li>
+                    <li><a id="starImage" href="javascript:toggleStar(${model.video.id}, '#starImage')" title="<fmt:message key='main.starredon'/>" class="control star"><fmt:message key="main.starredon"/></a></li>
                 </c:otherwise>
             </c:choose>
         </ul>

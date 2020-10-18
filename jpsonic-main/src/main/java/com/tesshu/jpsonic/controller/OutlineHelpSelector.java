@@ -29,19 +29,20 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
 @Component
-public class ViewSelector {
+public class OutlineHelpSelector {
 
     @Autowired
     private SettingsService settingsService;
 
-    public boolean isViewAsList(HttpServletRequest request, String username) {
+    public boolean isShowOutlineHelp(HttpServletRequest request, String username) {
         UserSettings userSettings = settingsService.getUserSettings(username);
-        boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, "viewAsList", userSettings.isViewAsList());
-        if (viewAsList != userSettings.isViewAsList()) {
-            userSettings.setViewAsList(viewAsList);
+        boolean showOutlineHelp = ServletRequestUtils.getBooleanParameter(request, "showOutlineHelp",
+                userSettings.isShowOutlineHelp());
+        if (showOutlineHelp != userSettings.isShowOutlineHelp()) {
+            userSettings.setShowOutlineHelp(showOutlineHelp);
             userSettings.setChanged(new Date());
             settingsService.updateUserSettings(userSettings);
         }
-        return viewAsList;
+        return showOutlineHelp;
     }
 }

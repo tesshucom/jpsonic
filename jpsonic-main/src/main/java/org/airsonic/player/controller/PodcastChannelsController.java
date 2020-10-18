@@ -18,7 +18,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.controller.ViewSelector;
+import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
@@ -54,7 +54,7 @@ public class PodcastChannelsController {
     private SecurityService securityService;
 
     @Autowired
-    private ViewSelector viewSelector;
+    private ViewAsListSelector viewSelector;
 
     @GetMapping
     @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */

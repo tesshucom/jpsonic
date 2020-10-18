@@ -10,7 +10,7 @@ PARAMETERS
 --%>
 
 <li>
-	<a href="#" class="control ratings" title="Input rating">Input rating</a>
+	<a href="#" class="control ratings" title="<fmt:message key='rating.rating'/>"><fmt:message key="rating.rating"/></a>
 	<input type="checkbox" id="isStreamRole" value="1" autofocus="false" ${param.isStreamRole ? "checked" : ""} />
     <ul>
         <c:forEach var="i" begin="1" end="5">

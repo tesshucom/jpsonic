@@ -19,10 +19,13 @@
  */
 package org.airsonic.player.command;
 
+import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.controller.PersonalSettingsController;
 import org.airsonic.player.domain.*;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Command used in {@link PersonalSettingsController}.
@@ -31,6 +34,10 @@ import java.util.List;
  */
 public class PersonalSettingsCommand {
     private User user;
+    private UserSettings defaultSettings;
+    private UserSettings tabletSettings;
+    private UserSettings smartphoneSettings;
+    
     private String localeIndex;
     private String[] locales;
     private String themeIndex;
@@ -84,6 +91,10 @@ public class PersonalSettingsCommand {
     private boolean showAlbumActions;
     private boolean breadcrumbIndex;
     private boolean putMenuInDrawer;
+    private boolean forceBio2Eng;
+    private EnumHolder[] fontSchemeHolders;
+    private String fontSchemeName;
+    private boolean showOutlineHelp;
 
     public User getUser() {
         return user;
@@ -91,6 +102,30 @@ public class PersonalSettingsCommand {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public UserSettings getDefaultSettings() {
+        return defaultSettings;
+    }
+
+    public void setDefaultSettings(UserSettings defaultSettings) {
+        this.defaultSettings = defaultSettings;
+    }
+
+    public UserSettings getTabletSettings() {
+        return tabletSettings;
+    }
+
+    public void setTabletSettings(UserSettings tabletSettings) {
+        this.tabletSettings = tabletSettings;
+    }
+
+    public UserSettings getSmartphoneSettings() {
+        return smartphoneSettings;
+    }
+
+    public void setSmartphoneSettings(UserSettings smartphoneSettings) {
+        this.smartphoneSettings = smartphoneSettings;
     }
 
     public String getLocaleIndex() {
@@ -519,5 +554,40 @@ public class PersonalSettingsCommand {
 
     public void setPutMenuInDrawer(boolean putMenuInDrawer) {
         this.putMenuInDrawer = putMenuInDrawer;
+    }
+
+    public boolean isForceBio2Eng() {
+        return forceBio2Eng;
+    }
+
+    public void setForceBio2Eng(boolean forceBio2Eng) {
+        this.forceBio2Eng = forceBio2Eng;
+    }
+
+    public EnumHolder[] getFontSchemeHolders() {
+        return fontSchemeHolders;
+    }
+
+    public void setFontSchemes(FontScheme[] fontSchemes) {
+        fontSchemeHolders = Arrays.stream(fontSchemes)
+            .map(s -> new EnumHolder(s.name(), s.toString()))
+            .collect(Collectors.toList())
+            .toArray(new EnumHolder[fontSchemes.length]);
+    }
+
+    public String getFontSchemeName() {
+        return fontSchemeName;
+    }
+
+    public void setFontSchemeName(String fontSchemeName) {
+        this.fontSchemeName = fontSchemeName;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
     }
 }

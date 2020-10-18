@@ -27,10 +27,12 @@ function toggleStar(mediaFileId, imageId) {
     if ("control star-fill" == $(imageId).attr('class')) {
         $(imageId).removeClass('star-fill');
         $(imageId).addClass('star');
+        $(imageId).attr('title', '<fmt:message key="main.starredon"/>');
         starService.unstar(mediaFileId);
     } else if ("control star" == $(imageId).attr('class')) {
         $(imageId).removeClass('star');
         $(imageId).addClass('star-fill');
+        $(imageId).attr('title', '<fmt:message key="main.starredoff"/>');
         starService.star(mediaFileId);
     }
 }
@@ -98,8 +100,10 @@ function onPlayAll() {
 <c:if test="${not empty model.albums}">
     <details ${isOpen} id="albumsContainer">
         <summary><fmt:message key="search.hits.albums"/> (${fn:length(model.albums)})</summary>
-        <c:import url="viewSelector.jsp">
+        <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="starred.view"/>
+            <c:param name="viewAsList" value="${model.viewAsList}"/>
+            <c:param name="directoryId" value="${model.dir.id}"/>
         </c:import>
 
         <c:choose>
@@ -230,7 +234,7 @@ function onPlayAll() {
                         <td class="${artistClass}"><span>${fn:escapeXml(song.artist)}</span></td>
                         <c:if test="${model.visibility.composerVisible}"><td class="${suppl} composer">${fn:escapeXml(song.composer)}</td></c:if>
                         <c:if test="${model.visibility.genreVisible}"><td class="${suppl} genre">${fn:escapeXml(song.genre)}</td></c:if>
-                        <c:if test="${model.visibility.yearVisible}"><td class="${suppl} year"><span>${song.year}</td></c:if>
+                        <c:if test="${model.visibility.yearVisible}"><td class="${suppl} year">${song.year}</td></c:if>
                         <c:if test="${model.visibility.formatVisible}"><td class="${suppl} format">${fn:toLowerCase(song.format)}</td></c:if>
                         <c:if test="${model.visibility.fileSizeVisible}"><td class="${suppl} size"><span><sub:formatBytes bytes="${song.fileSize}"/></span></td></c:if>
                         <c:if test="${model.visibility.durationVisible}"><td class="${suppl} duration">${song.durationString}</td></c:if>

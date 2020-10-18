@@ -31,10 +31,12 @@
           margin-right: 5px;
         }
         &[name="albumRatingValue"],
-        &[name="lastPlayedValue"],
-        &input[name="playCountValue"] {
+        &[name="lastPlayedValue"] {
           width: 149px !important;
         }
+      }
+      input {
+        width: 149px !important;
       }
 
       &:nth-child(2) {

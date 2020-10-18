@@ -18,10 +18,10 @@ PARAMETERS
     <c:if test="${param.asTable}"><td></c:if>
     <c:choose>
         <c:when test="${param.starred}">
-            <div id="starImage${param.id}" class="control star-fill" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">Star ON</div>
+            <div id="starImage${param.id}" title="<fmt:message key='main.starredoff'/>" class="control star-fill" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;"><fmt:message key="main.starredoff"/></div>
         </c:when>
         <c:otherwise>
-            <div id="starImage${param.id}" class="control star" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;">Star OFF</div>
+            <div id="starImage${param.id}" title="<fmt:message key='main.starredon'/>" class="control star" onclick="toggleStar(${param.id}, '#starImage${param.id}'); return false;"><fmt:message key="main.starredon"/></div>
         </c:otherwise>
     </c:choose>
     <c:if test="${param.asTable}"></td></c:if>

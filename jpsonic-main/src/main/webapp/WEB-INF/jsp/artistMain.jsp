@@ -119,10 +119,12 @@ function toggleStar(mediaFileId, imageId) {
   if ("control star-fill" == $(imageId).attr('class')) {
     $(imageId).removeClass('star-fill');
     $(imageId).addClass('star');
+    $(imageId).attr('title', '<fmt:message key="main.starredon"/>');
     starService.unstar(mediaFileId);
   } else if ("control star" == $(imageId).attr('class')) {
     $(imageId).removeClass('star');
     $(imageId).addClass('star-fill');
+    $(imageId).attr('title', '<fmt:message key="main.starredoff"/>');
     starService.star(mediaFileId);
   }
 }
@@ -194,10 +196,10 @@ function toggleComment() {
             </c:if>
             <c:choose>
                 <c:when test="${not empty model.dir.starredDate}">
-                    <li><a href="#" id="starImage${model.dir.id}" class="control star-fill" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;">Star ON</a></li>
+                    <li><a href="#" id="starImage${model.dir.id}" title="<fmt:message key='main.starredoff'/>" class="control star-fill" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;"><fmt:message key="main.starredoff"/></a></li>
                 </c:when>
                 <c:otherwise>
-                    <li><a href="#" id="starImage${model.dir.id}" class="control star" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;">Star OFF</a></li>
+                    <li><a href="#" id="starImage${model.dir.id}" title="<fmt:message key='main.starredon'/>" class="control star" onclick="toggleStar(${model.dir.id}, '#starImage${model.dir.id}'); return false;"><fmt:message key="main.starredon"/></a></li>
                 </c:otherwise>
             </c:choose>
             <c:if test="${model.user.streamRole}">
@@ -211,8 +213,10 @@ function toggleComment() {
         </ul>
     </c:if>
 
-    <c:import url="viewSelector.jsp">
+    <c:import url="viewAsListSelector.jsp">
         <c:param name="targetView" value="main.view"/>
+        <c:param name="viewAsList" value="${model.viewAsList}"/>
+        <c:param name="directoryId" value="${model.dir.id}"/>
     </c:import>
 
     <c:if test="${model.thereIsMore}">
@@ -317,7 +321,7 @@ function toggleComment() {
             </thead>
             <tbody id="topSongsBody">
                 <tr id="pattern">
-                    <td><div id="starSong" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" title="Star ON" class="control star">Star ON</div></td>
+                    <td><div id="starSong" onclick="toggleStarTopSong(this.id.substring(8) - 1, '#starSong' + this.id.substring(8))" title="<fmt:message key='main.starredon'/>" class="control star"><fmt:message key="main.starredon"/></div></td>
                     <td><div id="play" onclick="playTopSong(this.id.substring(4) - 1)" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div></td>
                     <td><div id="add" onclick="addTopSong(this.id.substring(3) - 1)" title="<fmt:message key='common.add'/>" class="control plus"><fmt:message key='common.add'/></div></td>
                     <td><div id="addNext" onclick="addNextTopSong(this.id.substring(7) - 1)" title="<fmt:message key='main.addnext'/>" class="control next"><fmt:message key='main.addnext'/></div></td>

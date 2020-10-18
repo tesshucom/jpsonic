@@ -278,4 +278,40 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-font-scheme-name" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="font_scheme_name" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="font_scheme_name" type="${varchar_type}" defaultValue="DEFAULT">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-outline-help" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_outline_help" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_outline_help" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-force-bio2eng" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="force_bio2eng" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="force_bio2eng" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

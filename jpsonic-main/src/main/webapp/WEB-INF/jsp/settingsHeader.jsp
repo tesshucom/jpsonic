@@ -16,8 +16,8 @@
 	<ul class="sibling-pages">
 	    <c:forTokens items="${categories}" delims=" " var="cat" varStatus="loopStatus">
 	        <c:choose>
-	            <c:when test="${loopStatus.count > 1}"></li><li></c:when>
-	            <c:otherwise><li></c:otherwise>
+	            <c:when test="${loopStatus.first}"><li></c:when>
+	            <c:otherwise></li><li></c:otherwise>
 	        </c:choose>
 	        <c:url var="url" value="${cat}Settings.view?"/>
 
@@ -31,6 +31,7 @@
 		            </c:otherwise>
 		        </c:choose>
 			</c:if>
+			<c:if test="${loopStatus.last}"></li></c:if>
 	    </c:forTokens>
 	</ul>
 </section>

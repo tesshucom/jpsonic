@@ -5,7 +5,7 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 </head>
-<body class="mainframe settings">
+<body class="mainframe settings podcastSettings">
 
 <c:import url="podcastsHeader.jsp">
     <c:param name="cat" value="settings"/>

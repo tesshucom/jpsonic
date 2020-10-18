@@ -94,8 +94,10 @@
     </span>
 </h1>
 
-<c:import url="viewSelector.jsp">
+<c:import url="viewAsListSelector.jsp">
     <c:param name="targetView" value="videoMain.view"/>
+    <c:param name="viewAsList" value="${model.viewAsList}"/>
+    <c:param name="directoryId" value="${model.dir.id}"/>
 </c:import>
 <div style="clear:both;padding-bottom:2em"></div>
 

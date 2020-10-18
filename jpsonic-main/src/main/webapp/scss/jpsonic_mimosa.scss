@@ -17,25 +17,8 @@
  Copyright 2020 (C) tesshu.com
  */
 
-// ## FONT-FACE ###################################################################
-
-@font-face {
-  font-family: "Kazesawa-Regular";
-  src: url("../jpsonic/fonts/kazesawa/Kazesawa-Regular.woff") format("woff"), url("../jpsonic/fonts/kazesawa/Kazesawa-Regular.ttf") format("truetype");
-}
-
-// ## FONT-FAMILY #################################################################
-
-$jp-font-family: "Kazesawa-Regular", -apple-system, blinkMacSystemFont, "Helvetica Neue", "Segoe UI", "Noto Sans JP", YuGothicM, YuGothic, Meiryo, sans-serif;
-$jp-font-size: 16px;
-$jp-font-absolute-small: 11px;
-
-html {
-  font-family: $jp-font-family;
-  font-size: $jp-font-size;
-}
-
 @import "./jpsonic/definitions/jpsonic";
+@import "./jpsonic/definitions/subsets/_mimosa.scss"; // override jpsonic
 @import "./jpsonic/definitions/jp-reset";
 @import "./jpsonic/definitions/jp-functions";
 @import "./jpsonic/definitions/jp-icons";

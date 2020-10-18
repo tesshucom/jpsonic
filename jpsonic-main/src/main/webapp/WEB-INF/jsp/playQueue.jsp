@@ -472,15 +472,15 @@ function playQueueCallback(playQueue) {
 
     if ($("#repeatQueue")) {
         if (shuffleRadioEnabled) {
-            $("#repeatQueue").html("<fmt:message key="playlist.repeat_radio"/>");
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_radio'/>");
         } else if (repeatEnabled) {
             $("#repeatQueue").removeClass('control repeat');
             $("#repeatQueue").addClass('control no-repeat');
-            $("#repeatQueue").attr('title', 'No repeat');
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_on'/>");
         } else {
             $("#repeatQueue").removeClass('control no-repeat');
             $("#repeatQueue").addClass('control repeat');
-            $("#repeatQueue").attr('title', 'Repeat');
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_off'/>");
         }
     }
 
@@ -544,9 +544,11 @@ function playQueueCallback(playQueue) {
             if (song.starred) {
                 $("#starSong" + id).removeClass('star');
                 $("#starSong" + id).addClass('star-fill');
+                $("#starSong" + id).attr('title', '<fmt:message key="main.starredoff"/>');
             } else {
                 $("#starSong" + id).removeClass('star-fill');
                 $("#starSong" + id).addClass('star');
+                $("#starSong" + id).attr('title', '<fmt:message key="main.starredon"/>');
             }
         } else {
             // ...except from when internet radio is playing.
@@ -873,7 +875,7 @@ function downloadSelected() {
     location.href = "download.view?player=${model.player.id}&" + selected;
 }
 
-window.onTogglePlayQueue =  function() {
+window.onTogglePlayQueue = function() {
     let isQueueOpened = document.getElementById("isQueueOpened");
     window.top.setQueueOpened(!isQueueOpened.checked);
     <c:if test="${model.alternativeDrawer}">
@@ -889,8 +891,12 @@ function toggleElasticity() {
     window.top.setQueueExpand(!isQueueExpand.checked);
     if(!isQueueExpand.checked){
         document.getElementById("isElementUnderQueue").checked = false;
+        $("#elasticity").attr("title", "<fmt:message key='playqueue.shrink'/>");
+        $(".control .elasticity").text("<fmt:message key='playqueue.shrink'/>");
     } else {
         document.getElementById("isElementUnderQueue").checked = !${model.showAlbumActions};
+        $("#elasticity").attr("title", "<fmt:message key='playqueue.maximize'/>");
+        $(".control .elasticity").text("<fmt:message key='playqueue.maximize'/>");
     }
     isQueueExpand.checked = !isQueueExpand.checked;
 }
@@ -925,7 +931,7 @@ window.onTryCloseQueue = function() {
     </c:if>
     <c:if test="${model.player.jukebox}">
         <div class="jp-volume">
-            <span title="Volume" id="castMuteOn" class="control volume">Volume</span>
+            <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" class="control volume"><fmt:message key="playqueue.muteon"/></span>
             <div id="jukeboxVolume"></div>
             <script>
                 $("#jukeboxVolume").slider({max: 100, value: 50, animate: "fast", range: "min"});
@@ -941,7 +947,7 @@ window.onTryCloseQueue = function() {
         </c:when>
         <c:otherwise>
             <c:if test="${model.player.web}">
-                <div onclick="onPrevious()" title="Previous" class="control prev">Previous</div>
+                <div title="<fmt:message key='more.keyboard.previous'/>" onclick="onPrevious()" class="control prev"><fmt:message key="more.keyboard.previous"/></div>
             </c:if>
             <c:if test="${model.player.web}">
                 <span id="player">
@@ -949,10 +955,10 @@ window.onTryCloseQueue = function() {
                 </span>
                 <span id="castPlayer">
                     <span>
-                        <span title="Play" id="castPlay" onclick="CastPlayer.playCast()">Cast play</span>
-                        <span title="Pause" id="castPause" onclick="CastPlayer.pauseCast()">Cast pause</span>
-                        <span title="Mute on" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume">Mute on</span>
-                        <span title="Mute off" id="castMuteOff" onclick="CastPlayer.castMuteOff()">Mute off</span>
+                        <span title="<fmt:message key='playqueue.play'/>" id="castPlay" onclick="CastPlayer.playCast()"><fmt:message key="playqueue.play"/></span>
+                        <span title="<fmt:message key='playqueue.pause'/>" id="castPause" onclick="CastPlayer.pauseCast()"><fmt:message key="playqueue.pause"/></span>
+                        <span title="<fmt:message key='playqueue.muteon'/>" id="castMuteOn" onclick="CastPlayer.castMuteOn()" class="control volume"><fmt:message key="playqueue.muteon"/></span>
+                        <span title="<fmt:message key='playqueue.muteoff'/>" id="castMuteOff" onclick="CastPlayer.castMuteOff()"><fmt:message key="playqueue.muteoff"/></span>
                     </span>
                     <span>
                         <div id="castVolume"></div>
@@ -969,17 +975,17 @@ window.onTryCloseQueue = function() {
                  --%>
             </c:if>
             <c:if test="${model.user.streamRole and not model.player.web}">
-                <span title="Start" id="start" onclick="onStart()" class="control play">Start</span>
-                <span title="Stop" id="stop" onclick="onStop()" class="control pause">Stop</span>
+                <span title="<fmt:message key='playqueue.start'/>" id="start" onclick="onStart()" class="control play"><fmt:message key="playqueue.start"/></span>
+                <span title="<fmt:message key='playqueue.stop'/>" id="stop" onclick="onStop()" class="control pause"><fmt:message key="playqueue.stop"/></span>
             </c:if>
             <c:if test="${model.player.web}">
-                <div onclick="onNext(false)" title="Play next" class="control forward">Play next</div>
+                <div title="<fmt:message key='more.keyboard.next'/>" onclick="onNext(false)" class="control forward"><fmt:message key="more.keyboard.next"/></div>
             </c:if>
 
-            <a href="javascript:toggleElasticity()" title="elasticity"><div class="control elasticity">elasticity</div></a>
+            <a title="<fmt:message key='playqueue.maximize'/>" href="javascript:toggleElasticity()" id="elasticity"><div class="control elasticity"><fmt:message key="playqueue.maximize"/></div></a>
             <a href="javascript:onTogglePlayQueue()">
-                <div class="control expand" title="Show play queue"/>Show play queue</div>
-                <div class="control shrink" title="Hide play queue"/>Hide play queue</div>
+                <div title="<fmt:message key='playqueue.show'/>" class="control expand"/><fmt:message key="playqueue.show"/></div>
+                <div title="<fmt:message key='playqueue.hide'/>" class="control shrink"/><fmt:message key="playqueue.hide"/></div>
             </a>
 
         </c:otherwise>
@@ -1001,28 +1007,28 @@ window.onTryCloseQueue = function() {
 
     <div class="actions">
         <ul class="controls">
-            <li><a href="javascript:onSavePlayQueue()" title="<fmt:message key='playlist.saveplayqueue'/>" class="control save-pq"><fmt:message key="playlist.saveplayqueue"/></a></li>
-            <li><a href="javascript:onLoadPlayQueue()" title="<fmt:message key='playlist.loadplayqueue'/>" class="control load-pq"><fmt:message key="playlist.loadplayqueue"/></a></li>
-            <li><a href="javascript:onClear()" title="Clear playlist" class="control cross">Clear playlist</a></li>
-            <li><a href="javascript:onShuffle()" id="shuffleQueue" title="Shuffle" class="control shuffle">Shuffle</a></li>
-            <li><a href="#" title="Sort" class="control sort">Sort</a>
+            <li><a title="<fmt:message key='playlist.saveplayqueue'/>" href="javascript:onSavePlayQueue()" class="control save-pq"><fmt:message key="playlist.saveplayqueue"/></a></li>
+            <li><a title="<fmt:message key='playlist.loadplayqueue'/>" href="javascript:onLoadPlayQueue()" class="control load-pq"><fmt:message key="playlist.loadplayqueue"/></a></li>
+            <li><a title="<fmt:message key='playlist.remove'/>" href="javascript:onClear()" class="control cross"><fmt:message key="playlist.remove"/></a></li>
+            <li><a title="<fmt:message key='home.shuffle'/>" href="javascript:onShuffle()" id="shuffleQueue" class="control shuffle"><fmt:message key="home.shuffle"/></a></li>
+            <li><a title="<fmt:message key='playlist.more.sort'/>" href="#" class="control sort"><fmt:message key="playlist.more.sort"/></a>
                 <ul>
-                    <li><a href="javascript:onSortByArtist()" title="<fmt:message key='playlist.more.sortbyartist'/>" class="control artist"><fmt:message key="playlist.more.sortbyartist"/></a></li>
-                    <li><a href="javascript:onSortByAlbum()" title="<fmt:message key='playlist.more.sortbyalbum'/>" class="control album"><fmt:message key="playlist.more.sortbyalbum"/></a></li>
-                    <li><a href="javascript:onSortByTrack()" title="<fmt:message key='playlist.more.sortbytrack'/>" class="control track"><fmt:message key="playlist.more.sortbytrack"/></a></li>
+                    <li><a title="<fmt:message key='playlist.more.sortbyartist'/>" href="javascript:onSortByArtist()" class="control artist"><fmt:message key="playlist.more.sortbyartist"/></a></li>
+                    <li><a title="<fmt:message key='playlist.more.sortbyalbum'/>" href="javascript:onSortByAlbum()" class="control album"><fmt:message key="playlist.more.sortbyalbum"/></a></li>
+                    <li><a title="<fmt:message key='playlist.more.sortbytrack'/>" href="javascript:onSortByTrack()" class="control track"><fmt:message key="playlist.more.sortbytrack"/></a></li>
                 </ul>
             </li>
-            <li><a href="javascript:onUndo()" id="undoQueue" title="Undo" class="control undo">Undo</a></li>
-            <li><a href="javascript:onSavePlaylist()" title="<fmt:message key='playlist.save'/>" class="control saveas"><fmt:message key="playlist.save"/></a></li>
+            <li><a title="<fmt:message key='playlist.undo'/>" href="javascript:onUndo()" id="undoQueue" class="control undo"><fmt:message key="playlist.undo"/></a></li>
+            <li><a title="<fmt:message key='playlist.save'/>" href="javascript:onSavePlaylist()" class="control saveas"><fmt:message key="playlist.save"/></a></li>
             <c:if test="${model.user.downloadRole and model.showDownload}">
-                <li><a href="javascript:location.href = 'download.view?player=${model.player.id}';" title="<fmt:message key='main.downloadall'/>" class="control download"><fmt:message key="main.downloadall"/></a></li>
+                <li><a title="<fmt:message key='main.downloadall'/>" href="javascript:location.href = 'download.view?player=${model.player.id}';" class="control download"><fmt:message key="main.downloadall"/></a></li>
             </c:if>
             <c:if test="${model.user.shareRole and model.showShare}">
-                <li><a href="javascript:top.upper.document.getElementById('main').src = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" title="<fmt:message key='main.sharealbum'/>" class="control share"><fmt:message key="main.sharealbum"/></a></li>
+                <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:top.upper.document.getElementById('main').src = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
             
             <c:if test="${model.player.web or model.player.jukebox or model.player.external}">
-            	<li><a href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat" title="Repeat">Toggle repeat</a></li>
+            	<li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
             </c:if>
         </ul>
     </div>
@@ -1059,7 +1065,7 @@ window.onTryCloseQueue = function() {
             </thead>
             <tbody id="playQueueBody">
                 <tr id="pattern">
-                    <td><div id="starSong" onclick="onStar(this.id.substring(8) - 1)" title="Star ON" class="control star">Star ON</div></td>
+                    <td><div title="<fmt:message key='main.starredon'/>" id="starSong" onclick="onStar(this.id.substring(8) - 1)" class="control star"><fmt:message key="main.starredon"/></div></td>
                     <c:if test="${model.showAlbumActions}">
                         <td class="action"><input type="checkbox" class="checkbox" id="songIndex"></td>
                     </c:if>
@@ -1079,7 +1085,7 @@ window.onTryCloseQueue = function() {
                     <c:if test="${model.visibility.fileSizeVisible}"><td class="${suppl} size"><span id="fileSize">Format</span></td></c:if>
                     <c:if test="${model.visibility.durationVisible}"><td class="${suppl} duration"><span id="duration">Duration</span></td></c:if>
                     <c:if test="${model.visibility.bitRateVisible}"><td class="${suppl} bitrate"><span id="bitRate">Bit Rate</span></td></c:if>
-                    <td class="remove"><div id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" title="<fmt:message key='playlist.remove'/>" class="control minus"><fmt:message key='playlist.remove'/></div></td>
+                    <td class="remove"><div title="<fmt:message key='playlist.remove'/>" id="removeSong" onclick="onRemove(this.id.substring(10) - 1)" class="control minus"><fmt:message key='playlist.remove'/></div></td>
                 </tr>
             </tbody>
         </table>
@@ -1088,12 +1094,12 @@ window.onTryCloseQueue = function() {
     <c:if test="${model.showAlbumActions}">
         <div class="actions">
             <ul class="controls">
-                <li><a href="javascript:toggleSelect()" title="<fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/>" class="control select-all"><fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/></a></li>
-                <li><a href="javascript:onRemoveSelected()" title="<fmt:message key='playlist.remove'/>" class="control cross"><fmt:message key="playlist.remove"/></a></li>
+                <li><a title="<fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/>" href="javascript:toggleSelect()" class="control select-all"><fmt:message key='playlist.more.selectall'/> / <fmt:message key='playlist.more.selectnone'/></a></li>
+                <li><a title="<fmt:message key='playlist.remove'/>" href="javascript:onRemoveSelected()" class="control cross"><fmt:message key="playlist.remove"/></a></li>
                 <c:if test="${model.user.downloadRole and model.showDownload}">
-                    <li><a href="javascript:downloadSelected()" title="<fmt:message key='common.download'/>" class="control download"><fmt:message key='common.download'/></a></li>
+                    <li><a title="<fmt:message key='common.download'/>" href="javascript:downloadSelected()" class="control download"><fmt:message key='common.download'/></a></li>
                 </c:if>
-                <li><a href="javascript:onAppendPlaylist()" title="<fmt:message key='playlist.append'/>" class="control export"><fmt:message key='playlist.append'/></a></li>
+                <li><a title="<fmt:message key='playlist.append'/>" href="javascript:onAppendPlaylist()" class="control export"><fmt:message key='playlist.append'/></a></li>
             </ul>
         </div>
     </c:if>

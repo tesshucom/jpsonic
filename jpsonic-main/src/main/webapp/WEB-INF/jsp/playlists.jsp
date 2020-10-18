@@ -6,7 +6,13 @@
 <%@ include file="jquery.jsp" %>
 <script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 </head>
+<script>
+$(document).ready(function(){
+    initTruncate(".mainframe", ".tabular.playlists", 2, ["name", "created", "comment"]);
+});
+</script>
 <body class="mainframe playlists">
 
 <c:import url="playlistsHeader.jsp">
@@ -15,8 +21,10 @@
 
 <div class="actions">
     <ul class="controls">
-        <c:import url="viewSelector.jsp">
+        <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="playlists.view"/>
+            <c:param name="viewAsList" value="${model.viewAsList}"/>
+            <c:param name="directoryId" value="${model.dir.id}"/>
         </c:import>
     </ul>
 </div>
@@ -54,10 +62,10 @@
                             <c:url value="playlist.view" var="targetUrl">
                                 <c:param name="id" value="${playlist.id}"/>
                             </c:url>
-                            <td class="name"><a href="${targetUrl}" title="${fn:escapeXml(playlist.name)}">${fn:escapeXml(playlist.name)}</a></td>
+                            <td class="name"><span><a href="${targetUrl}" title="${fn:escapeXml(playlist.name)}">${fn:escapeXml(playlist.name)}</a></span></td>
                             <td class="numberofsongs">${playlist.fileCount} <fmt:message key="playlist2.songs"/></td>
                             <td class="duration">${playlist.durationAsString}</td>
-                            <td class="created"><fmt:formatDate type="date" dateStyle="long" value="${playlist.created}"/></td>
+                            <td class="created"><span><fmt:formatDate type="date" dateStyle="long" value="${playlist.created}"/></span></td>
                             <td class="author">${fn:escapeXml(playlist.username)}</td>
                             <td class="visibility">
                                 <c:choose>
@@ -69,7 +77,7 @@
                                     </c:otherwise>
                                 </c:choose>
                             </td>
-                            <td class="comment">${fn:escapeXml(playlist.comment)}</td>
+                            <td class="comment"><span>${fn:escapeXml(playlist.comment)}</span></td>
                         </tr>
                     </c:forEach>
                 </tbody>

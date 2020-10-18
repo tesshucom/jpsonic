@@ -81,10 +81,12 @@ function toggleStar(mediaFileId, imageId) {
     if ("control star-fill" == $(imageId).attr('class')) {
         $(imageId).removeClass('star-fill');
         $(imageId).addClass('star');
+        $(imageId).attr('title', '<fmt:message key="main.starredon"/>');
         starService.unstar(mediaFileId);
     } else if ("control star" == $(imageId).attr('class')) {
         $(imageId).removeClass('star');
         $(imageId).addClass('star-fill');
+        $(imageId).attr('title', '<fmt:message key="main.starredoff"/>');
         starService.star(mediaFileId);
     }
 }
@@ -158,20 +160,20 @@ function toggleComment() {
                 <sub:url value="main.view" var="upUrl">
                     <sub:param name="id" value="${model.parent.id}"/>
                 </sub:url>
-                <li><a href="${upUrl}" title="<fmt:message key='main.up'/>" class="control up"><fmt:message key="main.up"/></a></li>
+                <li><a title="<fmt:message key='main.up'/>" href="${upUrl}" class="control up"><fmt:message key="main.up"/></a></li>
             </c:if>
             <c:choose>
                 <c:when test="${not empty model.dir.starredDate}">
-                    <li><a id="starImage" href="javascript:toggleStar(${model.dir.id}, '#starImage')" class="control star-fill">Star ON</a></li>
+                    <li><a title="<fmt:message key='main.starredoff'/>" id="starImage" href="javascript:toggleStar(${model.dir.id}, '#starImage')" class="control star-fill"><fmt:message key="main.starredoff"/></a></li>
                 </c:when>
                 <c:otherwise>
-                    <li><a id="starImage" href="javascript:toggleStar(${model.dir.id}, '#starImage')" class="control star">Star OFF</a></li>
+                    <li><a title="<fmt:message key='main.starredon'/>" id="starImage" href="javascript:toggleStar(${model.dir.id}, '#starImage')" class="control star"><fmt:message key="main.starredon"/></a></li>
                 </c:otherwise>
             </c:choose>
             <c:if test="${model.user.streamRole}">
-                <li><a href="javascript:playAll()" title="<fmt:message key='main.playall'/>" class="control play"><fmt:message key="main.playall"/></a></li>
-                <li><a href="javascript:playRandom()" title="<fmt:message key='main.playrandom'/>" class="control shuffle"><fmt:message key="main.playrandom"/></a></li>
-                <li><a href="javascript:addAll()" title="<fmt:message key='main.addall'/>" class="control plus"><fmt:message key="main.addall"/></a></li>
+                <li><a title="<fmt:message key='main.playall'/>" href="javascript:playAll()" class="control play"><fmt:message key="main.playall"/></a></li>
+                <li><a title="<fmt:message key='main.playrandom'/>" href="javascript:playRandom()" class="control shuffle"><fmt:message key="main.playrandom"/></a></li>
+                <li><a title="<fmt:message key='main.addall'/>" href="javascript:addAll()" class="control plus"><fmt:message key="main.addall"/></a></li>
             </c:if>
             <c:if test="${model.user.commentRole and model.showRate}">
                 <c:import url="ratingInput.jsp">
@@ -200,18 +202,18 @@ function toggleComment() {
                         <sub:param name="type" value="release"/>
                     </sub:url>
                     <li>
-                        <a href="#" class="control outernal-link" title="Input rating">Input rating</a>
+                        <a href="#" title="<fmt:message key='main.searchalbum'/>" class="control outernal-link"><fmt:message key="main.searchalbum"/></a>
                         <input type="checkbox" id="isStreamRole2" value="1" autofocus="false" ${model.user.streamRole ? "checked" : ""} />
                         <input type="checkbox" id="isRateVisible" value="1" autofocus="false" ${model.user.commentRole and model.showRate ? "checked" : ""} />
                         <ul>
-                            <li><a target="_blank" href="${googleUrl}" class="control outernal-link">Google</a></li>
-                            <li><a target="_blank" rel="noopener noreferrer" href="${wikipediaUrl}" class="control outernal-link">Wikipedia</a></li>
-                            <li><a target="_blank" rel="noopener noreferrer" href="${allmusicUrl}" class="control outernal-link">allmusic</a></li>
-                            <li><a target="_blank" rel="noopener noreferrer" href="${lastFmUrl}" class="control outernal-link">Last.fm</a></li>
-                            <li><a target="_blank" rel="noopener noreferrer" href="${discogsUrl}" class="control outernal-link">Discogs</a></li>
+                            <li><a title="Google" target="_blank" href="${googleUrl}" class="control outernal-link">Google</a></li>
+                            <li><a title="Wikipedia" target="_blank" rel="noopener noreferrer" href="${wikipediaUrl}" class="control outernal-link">Wikipedia</a></li>
+                            <li><a title="allmusic" target="_blank" rel="noopener noreferrer" href="${allmusicUrl}" class="control outernal-link">allmusic</a></li>
+                            <li><a title="Last.fm" target="_blank" rel="noopener noreferrer" href="${lastFmUrl}" class="control outernal-link">Last.fm</a></li>
+                            <li><a title="Discogs" target="_blank" rel="noopener noreferrer" href="${discogsUrl}" class="control outernal-link">Discogs</a></li>
                             <c:if test="${not empty model.musicBrainzReleaseId}">
                                 <sub:url value="https://musicbrainz.org/release/${model.musicBrainzReleaseId}" var="musicBrainzUrl" encoding="UTF-8"></sub:url>
-                                <li><a target="_blank" rel="noopener noreferrer" href="${musicBrainzUrl}" class="control outernal-link">MusicBrainz</a></li>
+                                <li><a title="MusicBrainz" target="_blank" rel="noopener noreferrer" href="${musicBrainzUrl}" class="control outernal-link">MusicBrainz</a></li>
                             </c:if>
                         </ul>
                     </li>
@@ -225,21 +227,20 @@ function toggleComment() {
                 <sub:url value="editTags.view" var="editTagsUrl">
                     <sub:param name="id" value="${model.dir.id}"/>
                 </sub:url>
-                <li><a href="${editTagsUrl}" title="<fmt:message key='main.tags'/>" class="control tag"><fmt:message key="main.tags"/></a></li>
+                <li><a title="<fmt:message key='main.tags'/>" href="${editTagsUrl}" class="control tag"><fmt:message key="main.tags"/></a></li>
             </c:if>
             <c:if test="${model.user.coverArtRole and model.showChangeCoverArt}">
                 <c:url value="/changeCoverArt.view" var="changeCoverArtUrl">
                     <c:param name="id" value="${model.dir.id}"/>
                 </c:url>
-                <li><a class="control image" href="${changeCoverArtUrl}"><fmt:message key="coverart.change"/></a></li>
+                <li><a title="<fmt:message key='coverart.change'/>" class="control image" href="${changeCoverArtUrl}"><fmt:message key="coverart.change"/></a></li>
             </c:if>
             <c:if test="${model.user.commentRole and model.showComment}">
-                <li><a href="javascript:toggleComment()" title="<fmt:message key='main.comment'/>" class="control comment"><fmt:message key="main.comment"/></a></li>
+                <li><a title="<fmt:message key='main.comment'/>" href="javascript:toggleComment()" class="control comment"><fmt:message key="main.comment"/></a></li>
             </c:if>
             <c:if test="${model.user.shareRole and model.showShare}">
-                <li><a href="${shareUrl}" title="<fmt:message key='main.sharealbum'/>" class="control share"><fmt:message key="main.sharealbum"/></a></li>
+                <li><a title="<fmt:message key='main.sharealbum'/>" href="${shareUrl}" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
-
         </ul>
     </c:if>
 
@@ -386,8 +387,10 @@ function toggleComment() {
 
     <h2><fmt:message key="albummain.siblingartists"/></h2>
     <div class="actions">
-        <c:import url="viewSelector.jsp">
+        <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="main.view"/>
+            <c:param name="viewAsList" value="${model.viewAsList}"/>
+            <c:param name="directoryId" value="${model.dir.id}"/>
         </c:import>
         <c:if test="${model.thereIsMore}">
             <ul class="controls">

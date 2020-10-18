@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SecurityService;
@@ -53,6 +55,8 @@ public class PersonalSettingsController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
@@ -62,6 +66,9 @@ public class PersonalSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
         command.setUser(user);
+        command.setDefaultSettings(settingsService.getUserSettings(""));
+        command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
+        command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
         command.setLocaleIndex("-1");
         command.setThemeIndex("-1");
         command.setAlbumLists(AlbumListType.values());
@@ -110,6 +117,10 @@ public class PersonalSettingsController {
         command.setShowAlbumActions(userSettings.isShowAlbumActions());
         command.setBreadcrumbIndex(userSettings.isBreadcrumbIndex());
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
+        command.setFontSchemes(FontScheme.values());
+        command.setFontSchemeName(userSettings.getFontSchemeName());
+        command.setForceBio2Eng(userSettings.isForceBio2Eng());
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
         toast.ifPresent(b -> command.setShowToast(b));
 
@@ -209,6 +220,8 @@ public class PersonalSettingsController {
         settings.setShowAlbumActions(command.isShowAlbumActions());
         settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
+        settings.setFontSchemeName(command.getFontSchemeName());
+        settings.setForceBio2Eng(command.isForceBio2Eng());
 
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
