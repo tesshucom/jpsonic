@@ -44,6 +44,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
 /**
  * Provides services for transcoding media. Transcoding is the process of
  * converting a media file/stream to a different format and/or bit rate. The latter is
@@ -303,17 +305,19 @@ public class TranscodingService {
         VideoTranscodingSettings videoTranscodingSettings = parameters.getVideoTranscodingSettings();
         MediaFile mediaFile = parameters.getMediaFile();
 
-        TranscodeInputStream in = createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null);
-
-        if (transcoding.getStep2() != null) {
-            in = createTranscodeInputStream(transcoding.getStep2(), maxBitRate, videoTranscodingSettings, mediaFile, in);
+        if (!isEmpty(transcoding.getStep2()) && !isEmpty(transcoding.getStep3())) {
+            return createTranscodeInputStream(transcoding.getStep3(), maxBitRate, videoTranscodingSettings, mediaFile,
+                    createTranscodeInputStream(transcoding.getStep2(), maxBitRate, videoTranscodingSettings, mediaFile,
+                            createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null)));
+        } else if (!isEmpty(transcoding.getStep2())) {
+            return createTranscodeInputStream(transcoding.getStep2(), maxBitRate, videoTranscodingSettings, mediaFile,
+                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null));
+        } else if (!isEmpty(transcoding.getStep3())) {
+            return createTranscodeInputStream(transcoding.getStep3(), maxBitRate, videoTranscodingSettings, mediaFile,
+                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null));
         }
 
-        if (transcoding.getStep3() != null) {
-            in = createTranscodeInputStream(transcoding.getStep3(), maxBitRate, videoTranscodingSettings, mediaFile, in);
-        }
-
-        return in;
+        return createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null);
     }
 
     /**

@@ -223,9 +223,7 @@ public final class AnalyzerFactory {
 
             @Override
             protected TokenStream normalize(String fieldName, TokenStream in) {
-                TokenStream result = new CJKWidthFilter(in);
-                result = new LowerCaseFilter(result);
-                return result;
+                return new LowerCaseFilter(new CJKWidthFilter(in));
             }
 
         };
