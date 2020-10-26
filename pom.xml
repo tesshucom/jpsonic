@@ -20,8 +20,8 @@
         <jackson.version>2.11.3</jackson.version>
         <tomcat.version>9.0.39</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.32.v20200930</jetty.version>
-        <jetty-jsp.version>9.4.32.v20200930</jetty-jsp.version>
+        <jetty.version>9.4.33.v20201020</jetty.version>
+        <jetty-jsp.version>9.4.33.v20201020</jetty-jsp.version>
         <pmd.version>6.28.0</pmd.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
@@ -642,7 +642,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.1.3</version>
+                <version>4.1.4</version>
                 <configuration>
                     <xmlOutput>true</xmlOutput>
                     <xmlOutputDirectory>target/site</xmlOutputDirectory>
