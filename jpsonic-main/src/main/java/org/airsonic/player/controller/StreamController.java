@@ -309,22 +309,20 @@ public class StreamController {
      * into the stream if requested.
      */
     private OutputStream makeOutputStream(HttpServletRequest request, HttpServletResponse response, HttpRange range,
-                                          boolean isSingleFile, Player player, SettingsService settingsService)
-            throws IOException {
-        OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
-
+            boolean isSingleFile, Player player, SettingsService settingsService) throws IOException {
         // Enabled SHOUTcast, if requested.
         boolean isShoutCastRequested = "1".equals(request.getHeader("icy-metadata"));
         if (isShoutCastRequested && !isSingleFile) {
+            OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
             response.setHeader("icy-metaint", Integer.toString(ShoutCastOutputStream.META_DATA_INTERVAL));
             response.setHeader("icy-notice1", "This stream is served using Airsonic");
             response.setHeader("icy-notice2", "Airsonic - Free media streamer");
             response.setHeader("icy-name", "Airsonic");
             response.setHeader("icy-genre", "Mixed");
             response.setHeader("icy-url", "https://airsonic.github.io/");
-            out = new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService);
+            return new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService);
         }
-        return out;
+        return RangeOutputStream.wrap(response.getOutputStream(), range);
     }
 
     private void setContentDuration(HttpServletResponse response, MediaFile file) {
