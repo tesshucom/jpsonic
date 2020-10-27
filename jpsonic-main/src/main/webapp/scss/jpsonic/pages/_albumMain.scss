@@ -1,0 +1,166 @@
+// ******************** fancy/albumMain.jsp *******************************
+
+.fancy {
+  outline: none;
+  img {
+    @include borderRadius;
+  }
+}
+
+.mainframe.albumMain {
+  #isStreamRole,
+  #isStreamRole2,
+  #isRateVisible {
+    display: none;
+  }
+
+  section + div.actions {
+    > .controls {
+      > li {
+        // one off for rating layout
+        #isStreamRole:not(:checked) + ul {
+          top: 130px;
+          left: 85px;
+        }
+        #isStreamRole:checked + ul {
+          top: 130px;
+          left: 175px;
+        }
+        #isStreamRole2:checked + #isRateVisible:checked + ul {
+          top: 130px;
+          left: 205px;
+        }
+        #isStreamRole2:checked + #isRateVisible:not(:checked) + ul {
+          top: 130px;
+          left: 175px;
+        }
+        #isStreamRole2:not(:checked) + #isRateVisible:checked + ul {
+          top: 130px;
+          left: 115px;
+        }
+        #isStreamRole2:not(:checked) + #isRateVisible:not(:checked) + ul {
+          top: 130px;
+          left: 85px;
+        }
+      }
+    }
+  }
+
+  .tabular-and-thumb {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    .tabular.songs {
+      @include tabularWithCoverArt;
+      tr {
+        td {
+          &:nth-child(1),
+          &:nth-child(2),
+          &:nth-child(3),
+          &:nth-child(4) {
+            width: 30px;
+          }
+          &.action {
+            width: 30px;
+            text-align: center;
+            vertical-align: middle;
+            > span {
+              display: none;
+            }
+          }
+          &.track {
+            width: 30px;
+            text-align: right;
+          }
+          &.song,
+          &.album,
+          &.artist {
+            min-width: 10rem;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+          &.song.truncate {
+            max-width: 20vw;
+          }
+          &.album.truncate {
+            max-width: 10vw;
+          }
+          &.artist.truncate {
+            max-width: 10vw;
+          }
+          &.composer {
+            min-width: 4rem;
+          }
+          &.genre {
+            min-width: 4rem;
+          }
+          &.year,
+          &.format,
+          &.size,
+          &.duration,
+          &.bitrate {
+            padding: 0 10px 0 0;
+            text-align: right;
+          }
+          &.year {
+            width: 30px;
+          }
+          &.format {
+            width: 30px;
+          }
+          &.size {
+            width: 60px;
+          }
+          &.duration {
+            width: 60px;
+          }
+          &.bitrate {
+            width: 90px;
+          }
+        }
+      }
+    }
+  }
+  .tabular.sibling {
+    tr {
+      td {
+        height: 30px;
+        &:nth-child(1),
+        &:nth-child(2),
+        &:nth-child(3) {
+          width: 30px;
+          padding: 0 0 0 10px;
+        }
+        &.artist {
+          &.truncate {
+            max-width: 25vw;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+          }
+        }
+        &.year {
+          padding: 0 10px 0 0;
+          width: 30px;
+          text-align: right;
+        }
+      }
+    }
+  }
+  #commentForm {
+    display: none;
+  }
+}
+
+input[type="checkbox"].jps-input-without-track-no {
+  display: none;
+  &:checked ~ .tabular.songs tr th.track,
+  &:checked ~ .tabular.songs tr td.track {
+    display: none;
+  }
+}
+
+input[type="checkbox"].jps-show-album-actions {
+  display: none;
+}

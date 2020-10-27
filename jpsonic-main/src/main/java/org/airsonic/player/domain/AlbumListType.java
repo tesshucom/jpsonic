@@ -33,7 +33,13 @@ public enum AlbumListType {
     RECENT("recent", "Recently Played"),
     DECADE("decade", "By Decade"),
     GENRE("genre", "By Genre"),
-    ALPHABETICAL("alphabetical", "All");
+    ALPHABETICAL("alphabetical", "All"),
+    // >>>> JP
+    /* #630
+     * Not an album, but added to show index in Home.
+     */
+    INDEX("index", "Index all");
+    // <<<< JP
 
     private final String id;
     private final String description;

@@ -5,7 +5,7 @@
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
-        PMD 6.27.0 rulesets for Jpsonic.
+        PMD 6.28.0 rulesets for Jpsonic.
         blocker  (priority1) : Almost follow default rules
         critical (priority2) : Almost follow default rules
 
@@ -27,7 +27,7 @@
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
-    <!-- for Java 6.27.0 -->
+    <!-- for Java 6.28.0 -->
     <rule ref="category/java/bestpractices.xml" />
     <rule ref="category/java/codestyle.xml" />
     <rule ref="category/java/design.xml" />
@@ -37,7 +37,7 @@
     <rule ref="category/java/performance.xml" />
     <rule ref="category/java/security.xml" />
 
-    <!-- for JSP 6.27.0 -->
+    <!-- for JSP 6.28.0 -->
     <rule ref="category/jsp/bestpractices.xml">
         <!-- If apply this, the style will collapse. -->
         <exclude name="NoClassAttribute" />

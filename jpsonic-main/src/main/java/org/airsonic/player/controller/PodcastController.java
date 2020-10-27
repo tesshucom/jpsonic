@@ -35,9 +35,11 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Controller for the page used to generate the Podcast XML file.
@@ -48,7 +50,6 @@ import java.util.*;
 @RequestMapping("/podcast")
 public class PodcastController {
 
-    private static final DateFormat RSS_DATE_FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US);
     @Autowired
     private PlaylistService playlistService;
     @Autowired
@@ -56,9 +57,29 @@ public class PodcastController {
     @Autowired
     private SecurityService securityService;
 
+    // Locale is changed by Setting, but restart is required.
+    private DateFormat rssDateFormat;
+    private String lang;
+    private static final Object DATE_LOCK = new Object();
+
+    public DateFormat getRssDateFormat() {
+        synchronized (DATE_LOCK) {
+            if (rssDateFormat == null) {
+                Locale locale = settingsService.getLocale();
+                rssDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", locale);
+                lang = locale.getLanguage();
+            }
+        }
+        return rssDateFormat;
+    }
+
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ExecutionException {
+
+        if (!settingsService.isPublishPodcast()) {
+            throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));
+        }
 
         String url = request.getRequestURL().toString();
         String username = securityService.getCurrentUsername(request);
@@ -76,8 +97,8 @@ public class PodcastController {
                 length += song.getFileSize();
             }
             String publishDate;
-            synchronized (RSS_DATE_FORMAT) {
-                publishDate = RSS_DATE_FORMAT.format(playlist.getCreated());
+            synchronized (getRssDateFormat()) {
+                publishDate = getRssDateFormat().format(playlist.getCreated());
             }
 
             // Resolve content type.
@@ -89,11 +110,12 @@ public class PodcastController {
             podcasts.add(new Podcast(playlist.getName(), publishDate, enclosureUrl, length, type));
         }
 
-        return new ModelAndView("podcast", "model", LegacyMap.of("url", url, "podcasts", podcasts));
+        return new ModelAndView("podcast", "model", LegacyMap.of(
+                "url", url,
+                "lang", lang,
+                "logo", url.replaceAll("podcast/podcast.view$", "") + "/icons/logo.png",
+                "podcasts", podcasts));
     }
-
-
-
 
     /**
      * Contains information about a single Podcast.

@@ -1,0 +1,526 @@
+$jp-main-settings-width: calc(100vw - 60px);
+
+.mainframe.settings > form {
+  margin-top: 0px;
+}
+
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  padding-left: 5px;
+  padding-right: 5px;
+  &:focus,
+  &:active {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+}
+
+// ******************** zoom *********************************
+// Styles related to Javascript-zoom
+
+#zoom {
+  display: none;
+  position: absolute;
+  z-index: $jp-layer-5;
+  box-shadow: 0 5px 25px $jp-color-black;
+  -webkit-box-shadow: 0 5px 25px $jp-color-black;
+  -moz-box-shadow: 0 5px 25px $jp-color-black;
+}
+
+#zoom_img {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  @include border(zero);
+  cursor: pointer;
+}
+
+#zoom_close {
+  display: none;
+  position: absolute;
+  left: -15px;
+  top: -15px;
+  width: 30px;
+  height: 30px;
+  background: url(../script/closebox.png) no-repeat;
+  cursor: pointer;
+}
+
+#zoom_spin {
+  display: none;
+  position: absolute;
+  z-index: 525;
+  width: 50px;
+  height: 50px;
+  background: url(../script/spin.png) no-repeat;
+}
+
+// ******************** jquery-ui tooltip *********************************
+
+div.ui-tooltip {
+  box-shadow: none;
+  max-width: 400px;
+  @include border;
+  @include borderRadius;
+  background-color: $jp-color-complementary2;
+  font-size: 0.85rem;
+  .ui-tooltip-content {
+    color: $jp-color-black;
+  }
+}
+
+// ******************** anchorList ****************************************
+
+// Used for simple enumeration of links
+ul.anchorList {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  a {
+    outline: none;
+    top: -2px;
+    background: $jp-color-base1;
+    @include dropShadow;
+  }
+  .selected {
+    top: -1px;
+    background: $jp-color-dark-gray;
+    color: $jp-color-white;
+    font-weight: 600;
+    @include dropShadow(none);
+  }
+  a,
+  .selected {
+    position: relative;
+    height: 20px;
+    margin: 5px 8px 5px 0px;
+    padding: 0 4px 0 4px;
+    @include border;
+    border-radius: 10px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    vertical-align: middle;
+    &:active {
+      top: -1px;
+    }
+  }
+  a {
+    &:focus,
+    &:hover {
+      background: $jp-color-complementary3;
+      color: $jp-color-base4;
+    }
+  }
+}
+
+// ******************** mainframe *****************************************
+
+.mainframe {
+  padding: 10px;
+  background-color: $jp-color-white;
+  > section {
+    > ul.sibling-pages {
+      // enumerating links in the same category (tab like)
+      margin: -2px 0 0 0;
+      padding: 0;
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      li {
+        margin: 0 0 1px 0;
+        padding: 0;
+      }
+      a {
+        background: $jp-color-base1;
+      }
+      .selected {
+        background: $jp-color-base4;
+        color: $jp-color-white;
+      }
+      a,
+      .selected {
+        width: 100px;
+        min-width: 100px;
+        outline: none;
+        white-space: nowrap;
+        height: 30px;
+        margin: 0 2px 0 2px;
+        padding: 2px 10px 2px 10px;
+        @include borderRadius(upper);
+        border-top: 1.4px solid $jp-color-base3;
+        border-right: 1.4px solid $jp-color-base3;
+        border-left: 1.4px solid $jp-color-base3;
+        font-size: 0.93rem;
+        font-weight: 600;
+        vertical-align: middle;
+      }
+      a {
+        border-bottom: 1.4px solid $jp-color-base3;
+        &:focus,
+        &:hover {
+          background: $jp-color-complementary3;
+          color: $jp-color-base4;
+        }
+      }
+    }
+  }
+}
+
+// ******************** breadcrumb/home.jsp, albumMain.jsp ****************
+
+ul.breadcrumb {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  color: $jp-color-dark-gray;
+  li {
+    height: 30px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    margin: 0 4px 0 0;
+    a,
+    &:before,
+    &:after {
+      height: 30px;
+      line-height: 30px;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      margin: 0 4px 0 0;
+    }
+    &:before {
+      font-family: "ionic";
+      font-size: 16px;
+      content: "\f2f4";
+    }
+    &:after {
+      content: "\0bb";
+      margin: 0 6px 0 4px;
+    }
+  }
+}
+
+// ******************** genre, decade/home.jsp,
+//                      username/userSettings.jsp
+//                      player/playerSettings.jsp ************************/
+
+.titledSelector {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: space-evenly;
+  height: 26px;
+  background-color: $jp-color-base4;
+  @include border;
+  @include borderRadius;
+  border-color: $jp-color-base2;
+  color: $jp-color-white;
+  font-weight: 600;
+  select {
+    font-weight: 400;
+  }
+}
+
+// ******************** controls/artistMain.jsp, albumMain.jsp, home.jsp **
+
+h2 {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 30px;
+  margin: 0 0 0 #{$jp-subsection-indent};
+  font-size: 1.14rem;
+  color: $jp-color-dark-gray;
+  white-space: nowrap;
+  border-bottom: 1.4px solid $jp-color-base3;
+}
+.controls,
+.stars,
+.ratings {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: start;
+  height: 30px;
+  > li {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    > a,
+    span {
+      margin: 4px 4px 0 0;
+    }
+    > ul {
+      display: none;
+      pointer-events: none;
+      > li {
+        display: list-item;
+        list-style-type: none;
+        > a {
+          width: 250px;
+          display: inline-block;
+          //position: absolute;
+          box-sizing: border-box;
+          //left: -2300px;
+          height: 20px;
+          padding: 0 5px;
+        }
+      }
+    }
+    &:focus-within ul {
+      position: absolute;
+      display: block;
+      top: 0;
+      left: 0;
+      z-index: $jp-layer-4;
+      padding: 5px;
+      @include border;
+      border-radius: $jp-border-radius;
+      background-color: $jp-color-base2;
+      pointer-events: auto;
+      user-select: auto;
+      -moz-user-select: auto;
+      -webkit-user-select: auto;
+      -ms-user-select: auto;
+      > li {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        a {
+          visibility: visible;
+          display: block;
+          position: relative;
+          left: 0px;
+          top: 0px;
+          height: 30px;
+          padding: 0 0 0 26px;
+          @include border;
+          border-radius: $jp-border-radius;
+          @include blockLink($jp-color-white, $jp-color-base4);
+          text-decoration: none;
+          text-align: left;
+          &:link,
+          &:active,
+          &:visited,
+          &:link *,
+          &:active *,
+          &:visited * {
+            color: $jp-color-base4 !important;
+          }
+          &:hover,
+          &:hover * {
+            color: $jp-color-base4 !important;
+            background-color: $jp-color-complementary3;
+          }
+          &:focus {
+            background-color: $jp-color-complementary3;
+          }
+          &::before {
+            top: 2px;
+            color: $jp-color-dark-gray;
+            //content: none;
+          }
+        }
+      }
+    }
+
+    &:last-child {
+      margin-right: 30px;
+    }
+  }
+}
+
+.actions {
+  width: 90%;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  height: 30px;
+  margin: 0 30px 0 0;
+  > ul.anchorList {
+    margin: 5px 0 0 30px;
+    padding: 0;
+  }
+  > div {
+    margin: 3px 0 0 10px;
+    font-size: 0.86rem;
+    color: $jp-color-dark-gray;
+  }
+}
+
+.tabular + .actions {
+  margin: -30px 0 30px $jp-subsection-indent;
+}
+
+h2 + div.actions {
+  margin-left: $jp-subsection-indent;
+}
+
+// ******************** submits *******************************************
+
+.submits {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: calc(100vw - 30px);
+  margin: 30px 30px 0 0;
+  @media screen and (min-width: $jp-supplement-width-threshold) {
+    width: calc(50vw - 30px);
+    margin: 30px 30px 0 calc((100vw - (50vw - 30px)) / 2);
+  }
+  padding: 0.3rem 0 0.3rem 10px;
+}
+
+// ******************** albumThumb/coverArt.jsp ->
+//                                 albumMain.jsp, artistMain.jsp, home.jsp,
+//                                 playlists.jsp, podcastChannel.jsp,
+//                                 starred.jsp, videoMain.jsp
+// ************************************************************************
+
+// The size depends on where it is used.
+.albumThumb {
+  $default-cover-art-width: 180px;
+  $default-cover-art-height: 240px;
+  display: flex;
+  flex-flow: row wrap;
+  align-items: start;
+  justify-content: center;
+  width: #{$default-cover-art-width};
+  height: #{$default-cover-art-height};
+}
+
+div.albumThumb > div.coverart > div > a {
+  outline: none;
+  > img {
+    @include borderRadius(upper);
+  }
+}
+
+// ******************** alignment/*Settings.jsp ***************************
+
+// The component is a very diverse pattern. Narrow the width and arrange vertically for easy viewing for user.
+// The width that can be displayed on the iPad is recommended.
+
+.mainframe.settings {
+  details {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+  }
+
+  table.tabular {
+    width: auto;
+    margin: 30px 0 0 calc(#{$jp-user-inputs-baseline} + 30px);
+  }
+
+  // fine adjustment of the position
+  > form {
+    margin-top: 0px;
+  }
+
+  //podcastSettings.jsp
+  > form > dl {
+    width: $jp-main-settings-width;
+    margin-top: 10px;
+    margin-left: calc((100vw - #{$jp-main-settings-width}) / 2 + 25px);
+  }
+
+  //userSettings.jsp, , playerSettings.jsp
+  > section + dl.single {
+    width: $jp-main-settings-width;
+    margin-top: 10px;
+    margin-bottom: 28px;
+    margin-left: calc((100vw - #{$jp-main-settings-width}) / 2 + 25px);
+  }
+
+  // databaseSettings.jsp
+  > section + form > dl.single {
+    width: $jp-main-settings-width;
+    margin-top: 10px;
+    margin-bottom: 28px;
+    margin-left: calc((100vw - #{$jp-main-settings-width}) / 2 + 25px);
+  }
+}
+
+// Used when arranging radio buttons vertically
+.mainframe.settings.playerSettings details ul,
+.mainframe.settings.personalSettings details ul.playerSettings {
+  li {
+    height: 30px;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: start;
+    input,
+    label {
+      margin-left: 3px;
+    }
+    div {
+      margin-left: 5px;
+    }
+  }
+}
+
+.outlineHelp {
+  width: calc(100vw - 60px);
+  margin: 30px 20px 0 20px;
+  @media screen and (min-width: $jp-supplement-width-threshold) {
+    width: calc(50vw - 60px);
+    margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+  }
+  padding: 30px;
+  @include border;
+  @include borderRadius;
+  background-color: $jp-color-complementary2;
+  font-size: 0.86em;
+  dl {
+    background-color: $jp-color-complementary2;
+    dt {
+      background-color: $jp-color-white;
+    }
+    dd {
+      background-color: $jp-color-white;
+    }
+  }
+}
+
+details {
+  > .outlineHelp {
+    width: calc(100% - 20px);
+    margin: 30px 20px 0 20px;
+    line-height: 30px;
+  }
+}
+
+// ******************** comment-input/artistMain.jsp, albumMain.jsp **********************************
+
+.comment-input {
+  width: 50rem;
+  margin: 6px 0 -9px 0;
+  padding: 3px 0 0 0;
+  font-size: 0.86rem;
+}
+
+// ******************** dialog-select-playlis/albumMain.jsp, playQueue.jsp ***************************
+
+#dialog-select-playlist {
+  display: none;
+}

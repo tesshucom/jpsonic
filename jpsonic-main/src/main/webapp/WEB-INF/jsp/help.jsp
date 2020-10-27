@@ -2,10 +2,11 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe help">
 
 <c:import url="helpHeader.jsp">
     <c:param name="cat" value="help"/>
@@ -31,7 +32,7 @@
 </c:choose>
 
 <c:if test="${model.newVersionAvailable}">
-    <p class="warning"><fmt:message key="help.upgrade"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message></p>
+    <p><strong><fmt:message key="help.upgrade"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message></strong></p>
 </c:if>
 
 <details open>
@@ -43,35 +44,39 @@
         <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
         <dt><fmt:message key="help.license.title"/></dt>
         <dd>
-            <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img style="float:right;margin-left: 10px" alt="GPL 3.0" src="<c:url value='/icons/default_light/gpl.png'/>">
+            <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>"></a>
             <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message>
+            <fmt:message key="personalsettings.avatar.courtesy"/>
+            <a href="https://last.fm/" target="_blank" rel="noopener noreferrer"><img alt="Lastfm icon" src="<c:url value='/icons/lastfm.gif'/>"></a><br>
+            <fmt:message key="changecoverart.courtesy"/>
         </dd>
         <dt><fmt:message key="help.homepage.title"/></dt>
         <dd><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a> / <a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
-        <dt><fmt:message key="help.forum.title"/></dd>
+        <dt><fmt:message key="help.forum.title"/></dt>
         <dd><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener nofererrer">Airsonic on Reddit</a></dd>
         <dt><fmt:message key="help.contact.title"/></dt>
         <dd><fmt:message key="help.contact.text"><fmt:param value="Airsonic"/></fmt:message></dd>
     </dl>
-</details>        
+</details>
 
-<c:if test="${model.user.adminRole}">
+<c:if test="${model.user.adminRole or model.showServerLog}">
     <details>
-        <summary class="legacy"><fmt:message key="help.log"/></summary>
-        <p>
-            <fmt:message key="help.logfile"><fmt:param value="${model.logFile}"/></fmt:message>
-        </p>
-        <table cellpadding="2" class="log indent">
-            <c:forEach items="${model.logEntries}" var="entry">
-                <tr>
-                    <td>${fn:escapeXml(entry)}</td>
-                </tr>
-            </c:forEach>
+        <summary class="legacy"><fmt:message key="help.log"/> (${model.lastModified} ${model.logFile})</summary>
+        <div class="actions">
+	        <ul class="controls">
+	        	<li><a href="help.view?" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key='common.refresh'/></a></li>
+	        </ul>
+	    </div>
+        <table class="tabular log">
+            <tbody>
+                <c:forEach items="${model.logEntries}" var="entry">
+                    <tr>
+                        <td>${fn:escapeXml(entry)}</td>
+                    </tr>
+                </c:forEach>
+            </tbody>
         </table>
     </details>
-    <div class="submits">
-        <input type="button" onClick="location.href='help.view?'" value="<fmt:message key='common.refresh'/>" />
-    </div>
 </c:if>
 
 </body></html>

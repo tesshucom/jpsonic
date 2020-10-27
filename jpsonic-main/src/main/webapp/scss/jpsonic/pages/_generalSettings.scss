@@ -1,0 +1,73 @@
+// Move to global once patterns are organized.
+
+.mainframe.settings.generalSettings {
+  input#index {
+    @include dlInputWidth(15);
+  }
+  input#ignoredArticles {
+    @include dlInputWidth(15);
+  }
+  input#musicFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#videoFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#coverArtFileTypes {
+    @include dlInputWidth(15);
+  }
+  input#playlistFolder {
+    @include dlInputWidth(15);
+  }
+  input#shortcuts {
+    @include dlInputWidth(15);
+  }
+  input#welcomeTitle {
+    @include dlInputWidth(15);
+  }
+  input#welcomeSubtitle {
+    @include dlInputWidth(15);
+  }
+  ul.indexPreset {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: start;
+    height: 30px;
+    a {
+      outline: none;
+      top: -2px;
+      background: $jp-color-base1;
+      @include dropShadow;
+    }
+    .selected {
+      top: -1px;
+      background: $jp-color-dark-gray;
+      color: $jp-color-white;
+      font-weight: 600;
+      @include dropShadow(none);
+    }
+    a,
+    .selected {
+      position: relative;
+      height: 26px;
+      margin: 2px 8px 2px 0px;
+      padding: 0 4px 0 4px;
+      @include border;
+      border-radius: 10px;
+      font-size: 0.93rem;
+      font-weight: 600;
+      vertical-align: middle;
+      &:active {
+        top: -1px;
+      }
+    }
+    a {
+      &:focus,
+      &:hover {
+        background: $jp-color-complementary3;
+        color: $jp-color-base4;
+      }
+    }
+  }
+}

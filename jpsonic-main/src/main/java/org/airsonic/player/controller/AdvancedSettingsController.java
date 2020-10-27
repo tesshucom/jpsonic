@@ -20,6 +20,9 @@
 package org.airsonic.player.controller;
 
 import org.airsonic.player.command.AdvancedSettingsCommand;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -32,6 +35,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Controller for the page used to administrate advanced settings.
@@ -46,9 +51,11 @@ public class AdvancedSettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
 
     @GetMapping
-    protected String formBackingObject(Model model) {
+    protected String formBackingObject(HttpServletRequest request, Model model) {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
@@ -67,7 +74,13 @@ public class AdvancedSettingsController {
 
         command.setCaptchaEnabled(settingsService.isCaptchaEnabled());
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
 
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        
         model.addAttribute("command", command);
         return "advancedSettings";
     }

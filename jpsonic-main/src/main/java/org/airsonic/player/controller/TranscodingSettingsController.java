@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.domain.Transcoding;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.LegacyMap;
@@ -47,14 +51,26 @@ public class TranscodingSettingsController {
     private TranscodingService transcodingService;
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @GetMapping
-    public String doGet(Model model) {
+    public String doGet(HttpServletRequest request, Model model) {
+
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+
         model.addAttribute("model", LegacyMap.of(
                 "transcodings", transcodingService.getAllTranscodings(),
                 "transcodeDirectory", transcodingService.getTranscodeDirectory(),
                 "hlsCommand", settingsService.getHlsCommand(),
-                "brand", settingsService.getBrand()));
+                "brand", settingsService.getBrand(),
+                "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
+                "useRadio", settingsService.isUseRadio(),
+                "useSonos", settingsService.isUseSonos(),
+                "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername())));
         return "transcodingSettings";
     }
 

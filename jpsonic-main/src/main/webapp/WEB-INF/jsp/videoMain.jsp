@@ -23,9 +23,9 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/utils.js'/>"></script>
+    <script src="<c:url value='/script/utils.js'/>"></script>
 
-    <script type="text/javascript">
+    <script>
         var image;
         var id;
         var duration;
@@ -80,7 +80,7 @@
         }
     </style>
 
-</head><body class="mainframe bgcolor1">
+</head><body class="mainframe">
 
 <h1 style="float:left">
     <span style="vertical-align: middle;">
@@ -94,7 +94,11 @@
     </span>
 </h1>
 
-<%@ include file="viewSelector.jsp" %>
+<c:import url="viewAsListSelector.jsp">
+    <c:param name="targetView" value="videoMain.view"/>
+    <c:param name="viewAsList" value="${model.viewAsList}"/>
+    <c:param name="directoryId" value="${model.dir.id}"/>
+</c:import>
 <div style="clear:both;padding-bottom:2em"></div>
 
 <table class="music">
@@ -142,7 +146,7 @@
         </c:url>
 
         <div class="albumThumb">
-            <div class="coverart dropshadow" style="width:213px">
+            <div class="coverart" style="width:213px">
                 <div style="position:relative">
                     <div>
                         <a href="${videoUrl}"><img src="${coverArtUrl}" height="120" width="213" alt=""

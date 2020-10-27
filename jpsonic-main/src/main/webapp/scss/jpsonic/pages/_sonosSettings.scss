@@ -1,0 +1,5 @@
+.mainframe.settings.sonosSettings {
+  input#sonosServiceName {
+    @include dlInputWidth(10);
+  }
+}

@@ -1,26 +1,70 @@
 <!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
-<html><head>
-    <%@ include file="head.jsp" %>
-    <link rel="alternate" type="application/rss+xml" title="Jpsonic Podcast" href="podcast.view?suffix=.rss">
+<html>
+<head>
+<%@ include file="head.jsp"%>
+<%@ include file="jquery.jsp"%>
+<link rel="alternate" type="application/rss+xml" title="Jpsonic Podcast" href="podcast.view?suffix=.rss">
 </head>
+<script>
 
-<frameset rows="80,*,0" border="0" framespacing="0" frameborder="0">
-    <frame name="upper" src="top.view?" class="bgcolor2">
-    <frameset id="mainFrameset" cols=${model.showSideBar ? "230,*" : "0,*"} border="0" framespacing="0" frameborder="0">
-        <frame name="left" src="left.view?" marginwidth="0" marginheight="0" class="bgcolor2">
+// deligate >>
+function onQueryFocus() {document.getElementById("upper").contentWindow.onQueryFocus()};
+function onToggleDrawer() {document.getElementById("upper").contentWindow.onToggleDrawer()};
+function onCloseDrawer() {document.getElementById("upper").contentWindow.onCloseDrawer()};
+function onChangeMainLocation(location) {document.getElementById("upper").contentWindow.onChangeMainLocation(location)};
+function onShowKeyboardShortcuts() {document.getElementById("upper").contentWindow.onShowKeyboardShortcuts()};
+function onToggleStartStop() {document.getElementById("playQueue").contentWindow.onToggleStartStop()};
+function onPrevious() {document.getElementById("playQueue").contentWindow.onPrevious()};
+function onNext() {document.getElementById("playQueue").contentWindow.onNext()};
+function onStarCurrent() {document.getElementById("playQueue").contentWindow.onStarCurrent()};
+function onGainAdd(val) {document.getElementById("playQueue").contentWindow.onGainAdd(val)};
+function onTogglePlayQueue() {document.getElementById("playQueue").contentWindow.onTogglePlayQueue();};
+function onCloseQueue() {document.getElementById("playQueue").contentWindow.onCloseQueue();};
+function onTryCloseDrawerBoth() {document.getElementById("upper").contentWindow.onTryCloseDrawer();document.getElementById("playQueue").contentWindow.onTryCloseQueue();};
+// deligate <<
 
-        <frameset id="playQueueFrameset" rows=${model.autoHidePlayQueue ? "*,50" : "*,150"} border="0" framespacing="0" frameborder="0">
-            <frameset cols="*,${model.showRight ? 235 : 0}" border="0" framespacing="0" frameborder="0">
-                <frame name="main" src="nowPlaying.view?" marginwidth="0" marginheight="0" class="bgcolor1">
-                <frame name="right" src="right.view?" class="bgcolor1">
-            </frameset>
-            <frame name="playQueue" src="playQueue.view?" class="bgcolor2">
-        </frameset>
-    </frameset>
-    <frame name="hidden" frameborder="0" noresize="noresize">
+function reloadUpper(...mainViewName) {
+    const upper = document.getElementById("upper");
+    const playQueue = document.getElementById("playQueue");
+    if (mainViewName.length == 1) {
+        document.getElementById('upper').contentWindow.location.href = "top.view?mainView=" + mainViewName[0];
+    } else {
+        document.getElementById('upper').contentWindow.location.reload(true);
+    }
+}
 
-</frameset>
+function reloadRight() {
+  document.getElementById('right').contentWindow.location.reload(true);
+}
 
+function reloadPlayQueue() {
+  document.getElementById('playQueue').contentWindow.location.reload(true);
+}
+
+function setDrawerOpened(isDrawerOpened) {
+	document.getElementById('isDrawerOpened').checked = isDrawerOpened;
+}
+
+function setQueueOpened(isQueueOpened) {
+	document.getElementById('isQueueOpened').checked = isQueueOpened;
+}
+
+function setQueueExpand(isQueueExpand) {
+    document.getElementById('isQueueExpand').checked = isQueueExpand;
+}
+
+</script>
+<body class="index">
+	<input type="checkbox" id="isRight" value="1" autofocus="false" ${model.showRight ? "checked" : ""} />
+	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
+
+	<iframe name="upper" id="upper" src="top.view?"></iframe>
+	<iframe name="right" id="right" src="right.view?"></iframe>
+
+	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
+    <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
+	<iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
+</body>
 </html>

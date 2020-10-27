@@ -1,0 +1,358 @@
+.top-frame {
+  .toast-position-top-right {
+    right: calc(#{$jp-right-width} + 20px) !important; //20px;
+  }
+}
+// ******************** input / top.jsp ***********************************
+
+input[type="text"]#query {
+  outline: none;
+  height: 26px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-radius: 13px 0 0 13px;
+  &:focus,
+  &:active {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 9px;
+    padding-right: 9px;
+    @include border(input-focus);
+  }
+}
+
+// ******************** toggler / top.jsp *********************************
+
+$jps-toggler-size: 28px;
+$jps-toggler-line-counts: 3;
+$jps-toggler-line-size: calc(#{$jps-toggler-size} / (#{$jps-toggler-line-counts} + #{$jps-toggler-line-counts} - 0.8));
+$jps-toggler-offset: 15px;
+
+@function strip-unit($value) {
+  @return $value / ($value * 0 + 1);
+}
+
+@mixin fluid-type($properties, $min-vw, $max-vw, $min-value, $max-value) {
+  @each $property in $properties {
+    #{$property}: $min-value;
+  }
+  @media screen and (min-width: $min-vw) {
+    @each $property in $properties {
+      #{$property}: calc(#{$min-value} + #{strip-unit($max-value - $min-value)} * (100vw - #{$min-vw}) / #{strip-unit($max-vw - $min-vw)});
+    }
+  }
+  @media screen and (min-width: $max-vw) {
+    @each $property in $properties {
+      #{$property}: $max-value;
+    }
+  }
+}
+
+.jps-toggler {
+  z-index: $jp-layer-3;
+  display: block;
+  position: fixed;
+  top: $jps-toggler-offset;
+  left: $jps-toggler-offset;
+  width: $jps-toggler-size;
+  height: $jps-toggler-size;
+  border-radius: calc(#{$jps-toggler-line-size} / 2);
+  @include dropShadow;
+  cursor: pointer;
+  &:active {
+    top: calc(#{$jps-toggler-offset} + 1px);
+    left: calc(#{$jps-toggler-offset} + 1px);
+  }
+}
+
+.jps-toggler-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: $jps-toggler-line-size;
+  background: $jp-color-base2;
+  border: solid 0.5px $jp-color-base3;
+  border-radius: calc(#{$jps-toggler-line-size} / 2);
+  transition: 0.3s;
+  $num: 1;
+  @while $num <= 3 {
+    &:nth-child(#{$num}) {
+      top: calc(#{$jps-toggler-line-size} * #{$num} + (#{$jps-toggler-line-size} * (#{$num} - 2)));
+    }
+    $num: $num + 1;
+  }
+}
+
+input[type="checkbox"].jps-input-toggler {
+  position: absolute;
+  top: -100%;
+  left: -100%;
+  &:checked ~ .jps-toggler {
+    .jps-toggler-line:not(:first-child):not(:last-child) {
+      opacity: 0;
+    }
+    .jps-toggler-line:first-child,
+    .jps-toggler-line:last-child {
+      border: solid 0px $jp-color-base2;
+      background-color: $jp-color-white;
+    }
+    .jps-toggler-line:first-child {
+      transform: translateY(calc(#{$jps-toggler-line-size} * (#{$jps-toggler-line-counts} - 1))) rotate(45deg);
+    }
+    .jps-toggler-line:last-child {
+      transform: translateY(calc(-1 * #{$jps-toggler-line-size} * (#{$jps-toggler-line-counts} - 1))) rotate(-45deg);
+    }
+  }
+  &:checked ~ .jps-drawer {
+    visibility: visible;
+    transform: translateX(0);
+    opacity: 0.98;
+  }
+  &:checked ~ .jps-drawer > aside .jps-radio {
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      visibility: visible;
+    }
+  }
+  &:focus ~ .jps-toggler {
+    outline: solid $jp-outline-width $jp-color-complementary3;
+  }
+  &:checked ~ #main {
+    left: $jp-drawer-width;
+  }
+}
+
+// ******************** topHeader / top.jsp *******************************
+
+$jps-search-form-width: 240px;
+
+.jps-topHeader {
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  height: $jp-header-height;
+  @include border(bottom);
+  > nav > ul.menu {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 0 calc(#{$jp-drawer-width} + 5px);
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+      margin: 0 0 0 60px;
+    }
+    li {
+      width: 30px;
+      height: 30px;
+    }
+  }
+  form {
+    width: $jps-search-form-width;
+    position: absolute;
+    left: calc(50vw - #{$jps-search-form-width} / 2);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+  }
+}
+
+// ******************** drawer / top.jsp *********************************
+
+/*
+ * If the drawer is hidden, all links have to be disabled.
+ * Unnecessary functions should be retained in the drawer when listening to music.
+ */
+.jps-drawer {
+  visibility: hidden;
+  z-index: $jp-layer-2;
+  position: absolute;
+  width: $jp-drawer-width;
+  height: 100vh;
+  margin: 0;
+  padding: $jp-header-height 0 0 0;
+  @include border(right);
+  background: $jp-color-base3;
+  transition: all 0.3s ease-out;
+  transition: all 0.3s ease-in;
+  transform: translateX(calc(#{$jp-drawer-width} * -1));
+  opacity: 0.5;
+  /*
+   * Not displayed when there is only one music folder.
+   */
+  > .jps-musicfolder {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    position: absolute;
+    top: 0;
+    width: calc(#{$jp-drawer-width} - 10px);
+    height: $jp-header-height;
+  }
+
+  /*
+   * Show index mainly for mouse/tap.
+   * Keyboard/screen reader index will provided on other pages.
+   */
+  > ul.jps-index {
+    z-index: $jp-layer-3;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    box-sizing: border-box;
+    width: $jp-drawer-width - 20px;
+    margin: 0px 10px 10px 10px;
+    padding: 8px 8px 8px 6px;
+    background-color: $jp-color-white;
+    @include border;
+    @include borderRadius;
+    li {
+      flex-basis: auto;
+      width: 30px;
+      height: 30px;
+    }
+    > li {
+      margin: 0 2px 2px 8px;
+      padding: 2px;
+      > a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-width: 24px;
+        height: 24px;
+        @include border;
+        @include blockLink($jp-color-base1, $jp-color-base4);
+        border-radius: 50%;
+        font-weight: 600;
+      }
+      > ul {
+        pointer-events: none;
+        > li {
+          display: block; //inline-block
+          width: 250px;
+          height: 30px;
+          > a {
+            display: inline-block;
+            position: absolute;
+            box-sizing: border-box;
+            left: -2300px;
+            height: 20px;
+            padding: 0 5px;
+          }
+        }
+      }
+    }
+    > li:focus-within ul {
+      z-index: $jp-layer-4;
+      position: absolute;
+      top: $jp-header-height + 20px;
+      left: $jp-drawer-width - 10px;
+      padding: 5px;
+      @include border;
+      border-radius: $jp-border-radius;
+      background-color: $jp-color-base2;
+      pointer-events: auto;
+      a {
+        visibility: visible;
+        display: block;
+        position: relative;
+        left: 0px;
+        top: 0px;
+        height: 26px;
+        padding: 2px;
+        @include border;
+        border-radius: $jp-border-radius;
+        @include blockLink($jp-color-white, $jp-color-base4);
+      }
+    }
+  }
+
+  > aside {
+    .jps-radio {
+      visibility: hidden;
+      li a.control.play {
+        position: relative;
+        top: -2px;
+      }
+    }
+    .jps-shortcuts,
+    .jps-radio {
+      z-index: $jp-layer-3;
+      display: flex;
+      flex-flow: column wrap;
+      justify-content: flex-start;
+      align-items: flex-start;
+      overflow: auto;
+      overflow-x: hidden;
+      box-sizing: border-box;
+      width: $jp-drawer-width - 20px;
+      margin: 0px 10px 10px 10px;
+      padding: 8px 8px 8px 6px;
+      @include border;
+      @include borderRadius;
+      background-color: $jp-color-white;
+      li {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 26px;
+        margin: 2px 5px 2px 5px;
+        padding: 2px 4px 2px 4px;
+        @include border;
+        @include blockLink($jp-color-base1, $jp-color-base4);
+        border-radius: 13px;
+        a {
+          color: $jp-color-base4;
+          &:active {
+            background: $jp-color-complementary3;
+          }
+        }
+      }
+    }
+  }
+
+  > .jps-side-menu {
+    position: absolute;
+    bottom: 0;
+    width: $jp-drawer-width - 20px;
+    margin: 0 10px 10px 10px;
+    > nav > ul.menu {
+      display: flex;
+      flex-flow: row wrap;
+      margin: 0;
+      padding: 10px 0 0 4px;
+      @include border;
+      @include borderRadius;
+      background-color: $jp-color-white;
+      //align-items: center;
+      //justify-content: space-around;
+      li {
+        width: 30px;
+        height: 30px;
+        margin-left: 20px;
+        margin-right: 20px;
+      }
+    }
+  }
+}
+
+input[type="checkbox"].jps-input-without-index {
+  display: none;
+  &:checked ~ ul.jps-index {
+    display: none;
+  }
+  &:checked ~ .jps-side-menu {
+    position: relative;
+    top: 0;
+  }
+}
+
+#keyboardShortcuts {
+  display: none;
+  overflow: hidden;
+  z-index: $jp-layer-5;
+}

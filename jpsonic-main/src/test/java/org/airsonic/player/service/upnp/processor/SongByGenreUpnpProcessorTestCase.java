@@ -61,6 +61,7 @@ public class SongByGenreUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
+        settingsService.setSortGenresByAlphabet(false);
         populateDatabaseOnlyOnce();
     }
 

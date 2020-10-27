@@ -52,7 +52,9 @@ public class SonosSettingsController {
     public String doGet(Model model) {
         model.addAttribute("model", LegacyMap.of(
                 "sonosEnabled", settingsService.isSonosEnabled(),
-                "sonosServiceName", settingsService.getSonosServiceName()));
+                "sonosServiceName", settingsService.getSonosServiceName(),
+                "useRadio", settingsService.isUseRadio(),
+                "useSonos", settingsService.isUseSonos()));
         return "sonosSettings";
     }
 

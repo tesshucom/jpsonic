@@ -1,0 +1,15 @@
+.mainframe.settings.playerSettings {
+  input#name {
+    @include dlInputWidth(4);
+  }
+  .player {
+    width: 240px;
+    min-width: 240px;
+    max-width: 270px;
+    margin: 34px 20px 3px 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 34px 20px 3px calc((100vw - (50vw - 60px)) / 2);
+    }
+  }
+}

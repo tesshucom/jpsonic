@@ -1,0 +1,50 @@
+.mainframe.settings.shareSettings {
+  input[name*="description"] {
+    @include dlInputWidth(10);
+  }
+
+  table.tabular.share-settings {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+    th {
+      text-align: center;
+    }
+    tr {
+      &:hover {
+        background-color: inherit;
+      }
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          padding: 0;
+          text-align: left;
+        }
+        &:nth-child(3) {
+          width: 60px;
+          text-align: center;
+        }
+      }
+    }
+  }
+
+  .deleteExpired {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: flex-end;
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+    height: 30px;
+  }
+}

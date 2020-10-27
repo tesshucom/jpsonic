@@ -1,0 +1,21 @@
+.mainframe.upload {
+  dl {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+    dd {
+      input#file {
+        cursor: pointer;
+        @include dlInputWidth(10);
+        padding: 0 0 0 10px;
+        border: none;
+      }
+      input#dir {
+        @include dlInputWidth(9);
+      }
+    }
+  }
+}

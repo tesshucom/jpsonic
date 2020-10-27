@@ -5,18 +5,17 @@
     <%@ include file="head.jsp" %>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='errorImage'/>" alt=""/>
-    <span style="vertical-align: middle"><fmt:message key="accessDenied.title"/></span>
-</h1>
+<section>
+    <h1 class="error"><fmt:message key="accessDenied.title"/></h1>
+</section>
 
 <p>
     <fmt:message key="accessDenied.text"/>
 </p>
 
-<div class="back"><a href="javascript:history.go(-1)"><fmt:message key="common.back"/></a></div>
+<div><a href="javascript:history.go(-1)"><fmt:message key="common.back"/></a></div>
 
 </body>
 </html>

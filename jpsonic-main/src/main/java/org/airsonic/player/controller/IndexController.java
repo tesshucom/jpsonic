@@ -29,7 +29,7 @@ public class IndexController {
                 "showRight", userSettings.isShowNowPlayingEnabled(),
                 "autoHidePlayQueue", userSettings.isAutoHidePlayQueue(),
                 "keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
-                "showSideBar", userSettings.isShowSideBar(),
+                "showLeft", userSettings.isCloseDrawer(),
                 "brand", settingsService.getBrand()));
     }
 }

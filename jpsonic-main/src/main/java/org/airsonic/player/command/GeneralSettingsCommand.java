@@ -46,6 +46,14 @@ public class GeneralSettingsCommand {
     private boolean gettingStartedEnabled;
     private boolean searchMethodLegacy;
     private boolean searchMethodChanged;
+    private boolean openDetailSetting;
+    private boolean useRadio;
+    private boolean useSonos;
+    private boolean publishPodcast;
+    private boolean showJavaJukebox;
+    private boolean showServerLog;
+    private boolean showRememberMe;
+    private boolean showToast;
     private String welcomeTitle;
     private String welcomeSubtitle;
     private String welcomeMessage;
@@ -54,6 +62,15 @@ public class GeneralSettingsCommand {
     private String[] locales;
     private String themeIndex;
     private Theme[] themes;
+    private String simpleIndexString;
+    private boolean showOutlineHelp;
+
+    private String defaultIndexString;
+    private boolean defaultSortAlbumsByYear;
+    private boolean defaultSortGenresByAlphabet;
+    private boolean defaultProhibitSortVarious;
+    private boolean defaultSortAlphanum;
+    private boolean defaultSortStrict;
 
     public String getPlaylistFolder() {
         return playlistFolder;
@@ -257,5 +274,132 @@ public class GeneralSettingsCommand {
     public void setSearchMethodChanged(boolean searchMethodChanged) {
         this.searchMethodChanged = searchMethodChanged;
     }
-    
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSono) {
+        this.useSonos = useSono;
+    }
+
+    public boolean isPublishPodcast() {
+        return publishPodcast;
+    }
+
+    public void setPublishPodcast(boolean publishPodcast) {
+        this.publishPodcast = publishPodcast;
+    }
+
+    public boolean isShowJavaJukebox() {
+        return showJavaJukebox;
+    }
+
+    public void setShowJavaJukebox(boolean showJavaJukebox) {
+        this.showJavaJukebox = showJavaJukebox;
+    }
+
+    public boolean isShowServerLog() {
+        return showServerLog;
+    }
+
+    public void setShowServerLog(boolean showServerLog) {
+        this.showServerLog = showServerLog;
+    }
+
+    public boolean isShowRememberMe() {
+        return showRememberMe;
+    }
+
+    public void setShowRememberMe(boolean showRememberMe) {
+        this.showRememberMe = showRememberMe;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
+    }
+
+    public String getSimpleIndexString() {
+        return simpleIndexString;
+    }
+
+    public void setSimpleIndexString(String simpleIndexString) {
+        this.simpleIndexString = simpleIndexString;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public String getDefaultIndexString() {
+        return defaultIndexString;
+    }
+
+    public void setDefaultIndexString(String defaultIndexString) {
+        this.defaultIndexString = defaultIndexString;
+    }
+
+    public boolean isDefaultSortAlbumsByYear() {
+        return defaultSortAlbumsByYear;
+    }
+
+    public void setDefaultSortAlbumsByYear(boolean defaultSortAlbumsByYear) {
+        this.defaultSortAlbumsByYear = defaultSortAlbumsByYear;
+    }
+
+    public boolean isDefaultSortGenresByAlphabet() {
+        return defaultSortGenresByAlphabet;
+    }
+
+    public void setDefaultSortGenresByAlphabet(boolean defaultSortGenresByAlphabet) {
+        this.defaultSortGenresByAlphabet = defaultSortGenresByAlphabet;
+    }
+
+    public boolean isDefaultProhibitSortVarious() {
+        return defaultProhibitSortVarious;
+    }
+
+    public void setDefaultProhibitSortVarious(boolean defaultProhibitSortVarious) {
+        this.defaultProhibitSortVarious = defaultProhibitSortVarious;
+    }
+
+    public boolean isDefaultSortAlphanum() {
+        return defaultSortAlphanum;
+    }
+
+    public void setDefaultSortAlphanum(boolean defaultSortAlphanum) {
+        this.defaultSortAlphanum = defaultSortAlphanum;
+    }
+
+    public boolean isDefaultSortStrict() {
+        return defaultSortStrict;
+    }
+
+    public void setDefaultSortStrict(boolean defaultSortStrict) {
+        this.defaultSortStrict = defaultSortStrict;
+    }
 }

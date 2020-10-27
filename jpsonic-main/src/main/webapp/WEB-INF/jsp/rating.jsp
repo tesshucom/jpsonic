@@ -9,43 +9,38 @@ PARAMETERS
   rating: The rating, an integer from 0 (no rating), through 10 (lowest rating), to 50 (highest rating).
 --%>
 
-<c:forEach var="i" begin="1" end="5">
+<div class="ratings">
+	<c:forEach var="i" begin="1" end="5">
 
-    <sub:url value="setRating.view" var="ratingUrl">
-        <sub:param name="id" value="${param.id}"/>
-        <sub:param name="action" value="rating"/>
-        <sub:param name="rating" value="${i}"/>
-    </sub:url>
+	    <sub:url value="setRating.view" var="ratingUrl">
+	        <sub:param name="id" value="${param.id}"/>
+	        <sub:param name="action" value="rating"/>
+	        <sub:param name="rating" value="${i}"/>
+	    </sub:url>
 
-    <c:choose>
-        <c:when test="${param.rating ge i * 10}">
-            <spring:theme code="ratingOnImage" var="imageUrl"/>
-        </c:when>
-        <c:when test="${param.rating ge i*10 - 7 and param.rating le i*10 - 3}">
-            <spring:theme code="ratingHalfImage" var="imageUrl"/>
-        </c:when>
-        <c:otherwise>
-            <spring:theme code="ratingOffImage" var="imageUrl"/>
-        </c:otherwise>
-    </c:choose>
+        <c:set var="starClass" value="" />
+	    <c:choose>
+	        <c:when test="${param.rating ge i * 10}">
+                <c:set var="starClass" value="star-fill" />
+	        </c:when>
+	        <c:when test="${param.rating ge i*10 - 7 and param.rating le i*10 - 3}">
+                <c:set var="starClass" value="star-half" />
+	        </c:when>
+	        <c:otherwise>
+                <c:set var="starClass" value="star" />
+	        </c:otherwise>
+	    </c:choose>
+	    <div title="<fmt:message key='rating.rating'/> ${i}" class="rating ${starClass}"><fmt:message key='rating.rating'/> ${i}</div>
+	</c:forEach>
 
-    <c:choose>
-        <c:when test="${param.readonly}">
-            <img style="height:18px" src="${imageUrl}" style="margin-right:-3px;height:18px;" alt="" title="<fmt:message key='rating.rating'/> ${param.rating/10}">
-        </c:when>
-        <c:otherwise>
-            <a href="${ratingUrl}"><img src="${imageUrl}" style="margin-right:-3px;height:18px" alt="" title="<fmt:message key='rating.rating'/> ${i}"></a>
-        </c:otherwise>
-    </c:choose>
+	<sub:url value="setRating.view" var="clearRatingUrl">
+	    <sub:param name="id" value="${param.id}"/>
+	    <sub:param name="action" value="rating"/>
+	    <sub:param name="rating" value="0"/>
+	</sub:url>
 
-</c:forEach>
-
-<sub:url value="setRating.view" var="clearRatingUrl">
-    <sub:param name="id" value="${param.id}"/>
-    <sub:param name="action" value="rating"/>
-    <sub:param name="rating" value="0"/>
-</sub:url>
-
-<c:if test="${not param.readonly}">
-    &nbsp;| <a href="${clearRatingUrl}"><img src="<spring:theme code='clearRatingImage'/>" alt="" title="<fmt:message key='rating.clearrating'/>" style="margin-right:5px;height:18px"></a>
-</c:if>
+	<c:if test="${not param.readonly}">
+	    <a href="${clearRatingUrl}" title="<fmt:message key='rating.clearrating'/>" class="rating clear"><fmt:message key='rating.clearrating'/></a>
+	</c:if>
+</div>
+	

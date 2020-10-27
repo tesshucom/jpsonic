@@ -19,8 +19,13 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.dao.MediaFileDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
@@ -57,6 +62,8 @@ public class StarredController {
     private SettingsService settingsService;
     @Autowired
     private MediaFileService mediaFileService;
+    @Autowired
+    private ViewAsListSelector viewSelector;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -88,7 +95,10 @@ public class StarredController {
                 "artists", artists,
                 "albums", albums,
                 "songs", songs,
-                "videos", videos));
+                "videos", videos,
+                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                "openDetailStar", userSettings.isOpenDetailStar(),
+                "simpleDisplay", userSettings.isSimpleDisplay()));
     }
 
 }

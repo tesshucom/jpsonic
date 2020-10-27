@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.domain;
 
+import com.tesshu.jpsonic.domain.FontScheme;
+
 import java.util.Date;
 import java.util.Locale;
 
@@ -39,7 +41,6 @@ public class UserSettings {
     private boolean songNotificationEnabled;
     private boolean keyboardShortcutsEnabled;
     private boolean autoHidePlayQueue;
-    private boolean showSideBar;
     private boolean viewAsList;
     private boolean queueFollowingSongs;
     private AlbumListType defaultAlbumList = AlbumListType.RANDOM;
@@ -58,6 +59,35 @@ public class UserSettings {
     private Integer systemAvatarId;
     private Date changed = new Date();
     private int paginationSize;
+
+    // JP >>>>
+    private boolean closeDrawer;
+    private boolean closePlayQueue;
+    private boolean alternativeDrawer;
+    private boolean showIndex;
+    private boolean assignAccesskeyToNumber;
+    private boolean openDetailIndex;
+    private boolean openDetailSetting;
+    private boolean openDetailStar;
+    private boolean simpleDisplay;
+    private boolean showSibling;
+    private boolean showRate;
+    private boolean showAlbumSearch;
+    private boolean showLastPlay;
+    private boolean showDownload;
+    private boolean showTag;
+    private boolean showComment;
+    private boolean showShare;
+    private boolean showChangeCoverArt;
+    private boolean showTopSongs;
+    private boolean showSimilar;
+    private boolean showAlbumActions;
+    private boolean breadcrumbIndex;
+    private boolean putMenuInDrawer;
+    private String fontSchemeName = FontScheme.DEFAULT.name();
+    private boolean showOutlineHelp;
+    private boolean forceBio2Eng;
+    // <<<< JP
 
     public UserSettings(String username) {
         this.username = username;
@@ -231,12 +261,68 @@ public class UserSettings {
         this.keyboardShortcutsEnabled = keyboardShortcutsEnabled;
     }
 
-    public boolean isShowSideBar() {
-        return showSideBar;
+    public boolean isCloseDrawer() {
+        return closeDrawer;
     }
 
-    public void setShowSideBar(boolean showSideBar) {
-        this.showSideBar = showSideBar;
+    public void setCloseDrawer(boolean closeDrawer) {
+        this.closeDrawer = closeDrawer;
+    }
+
+    public boolean isClosePlayQueue() {
+        return closePlayQueue;
+    }
+
+    public void setClosePlayQueue(boolean closePlayqueue) {
+        this.closePlayQueue = closePlayqueue;
+    }
+
+    public boolean isAlternativeDrawer() {
+        return alternativeDrawer;
+    }
+
+    public void setAlternativeDrawer(boolean alternativeDrawer) {
+        this.alternativeDrawer = alternativeDrawer;
+    }
+
+    public boolean isShowIndex() {
+        return showIndex;
+    }
+
+    public void setShowIndex(boolean showIndex) {
+        this.showIndex = showIndex;
+    }
+
+    public boolean isAssignAccesskeyToNumber() {
+        return assignAccesskeyToNumber;
+    }
+
+    public void setAssignAccesskeyToNumber(boolean assignAccesskeyToNumber) {
+        this.assignAccesskeyToNumber = assignAccesskeyToNumber;
+    }
+
+    public boolean isOpenDetailIndex() {
+        return openDetailIndex;
+    }
+
+    public void setOpenDetailIndex(boolean openDetailIndex) {
+        this.openDetailIndex = openDetailIndex;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isOpenDetailStar() {
+        return openDetailStar;
+    }
+
+    public void setOpenDetailStar(boolean openDetailStar) {
+        this.openDetailStar = openDetailStar;
     }
 
     public boolean isViewAsList() {
@@ -303,6 +389,150 @@ public class UserSettings {
 
     public void setPaginationSize(int paginationSize) {
         this.paginationSize = paginationSize;
+    }
+
+    public boolean isSimpleDisplay() {
+        return simpleDisplay;
+    }
+
+    public void setSimpleDisplay(boolean isSimpleDisplay) {
+        this.simpleDisplay = isSimpleDisplay;
+    }
+
+    public boolean isShowSibling() {
+        return showSibling;
+    }
+
+    public void setShowSibling(boolean isSiblingVisible) {
+        this.showSibling = isSiblingVisible;
+    }
+
+    public boolean isShowRate() {
+        return showRate;
+    }
+
+    public void setShowRate(boolean isRateVisible) {
+        this.showRate = isRateVisible;
+    }
+
+    public boolean isShowAlbumSearch() {
+        return showAlbumSearch;
+    }
+
+    public void setShowAlbumSearch(boolean isAlbumSearchVisible) {
+        this.showAlbumSearch = isAlbumSearchVisible;
+    }
+
+    public boolean isShowLastPlay() {
+        return showLastPlay;
+    }
+
+    public void setShowLastPlay(boolean isLastPlayVisible) {
+        this.showLastPlay = isLastPlayVisible;
+    }
+
+    public boolean isShowDownload() {
+        return showDownload;
+    }
+
+    public void setShowDownload(boolean isDownloadVisible) {
+        this.showDownload = isDownloadVisible;
+    }
+
+    public boolean isShowTag() {
+        return showTag;
+    }
+
+    public void setShowTag(boolean isTagVisible) {
+        this.showTag = isTagVisible;
+    }
+
+    public boolean isShowComment() {
+        return showComment;
+    }
+
+    public void setShowComment(boolean isCommentVisible) {
+        this.showComment = isCommentVisible;
+    }
+
+    public boolean isShowShare() {
+        return showShare;
+    }
+
+    public void setShowShare(boolean isShareVisible) {
+        this.showShare = isShareVisible;
+    }
+
+    public boolean isShowChangeCoverArt() {
+        return showChangeCoverArt;
+    }
+
+    public void setShowChangeCoverArt(boolean showChangeCoverArt) {
+        this.showChangeCoverArt = showChangeCoverArt;
+    }
+
+    public boolean isShowTopSongs() {
+        return showTopSongs;
+    }
+
+    public void setShowTopSongs(boolean showtopSongs) {
+        this.showTopSongs = showtopSongs;
+    }
+
+    public boolean isShowSimilar() {
+        return showSimilar;
+    }
+
+    public void setShowSimilar(boolean showSimilar) {
+        this.showSimilar = showSimilar;
+    }
+
+    public boolean isShowAlbumActions() {
+        return showAlbumActions;
+    }
+
+    public void setShowAlbumActions(boolean showAlbumActions) {
+        this.showAlbumActions = showAlbumActions;
+    }
+
+    public boolean isBreadcrumbIndex() {
+        return breadcrumbIndex;
+    }
+
+    public void setBreadcrumbIndex(boolean breadcrumbIndex) {
+        this.breadcrumbIndex = breadcrumbIndex;
+    }
+
+    public boolean isPutMenuInDrawer() {
+        return putMenuInDrawer;
+    }
+
+    public void setPutMenuInDrawer(boolean putMenuInDrawer) {
+        this.putMenuInDrawer = putMenuInDrawer;
+    }
+
+    public String getFontSchemeName() {
+        return fontSchemeName;
+    }
+
+    public void setFontSchemeName(String fontSchemeName) {
+        this.fontSchemeName = fontSchemeName;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public boolean isForceBio2Eng() {
+        return forceBio2Eng;
+    }
+
+    public void setForceBio2Eng(boolean forceBio2Eng) {
+        this.forceBio2Eng = forceBio2Eng;
     }
 
     /**

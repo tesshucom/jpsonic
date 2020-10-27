@@ -1,0 +1,62 @@
+.mainframe.settings.transcodingSettings {
+  @mixin transcodingInputWidth($size, $maxWidth: "") {
+    $baseWidth: 30px;
+    $dlPadding: 3px;
+    min-width: calc((#{$baseWidth} * #{$size}) - #{$dlPadding});
+    width: 100%;
+  }
+
+  input[name*="name"] {
+    @include transcodingInputWidth(3);
+  }
+  input[name*="sourceFormats"] {
+    @include transcodingInputWidth(9);
+    max-width: calc(100% - 100px);
+  }
+  input[name*="targetFormat"] {
+    @include transcodingInputWidth(3);
+    max-width: 90px;
+  }
+
+  input[name*="step1"] {
+    @include transcodingInputWidth(9);
+    max-width: 100%;
+  }
+  input[name*="step2"] {
+    @include transcodingInputWidth(9);
+    max-width: 100%;
+  }
+  input[name*="hlsCommand"] {
+    min-width: calc(90px - 3px);
+    width: calc(80% - 30px);
+    max-width: calc(80% - 30px);
+  }
+
+  table.tabular.transcoding {
+    margin-left: 0;
+    width: calc(100% - 60px);
+    margin: 30px 0 0 30px;
+    th {
+      text-align: center;
+    }
+    tr {
+      &:hover {
+        background-color: inherit;
+      }
+      td {
+        &:nth-child(1) {
+          width: 150px;
+          text-align: left;
+        }
+        &:nth-child(2) {
+          padding: 0;
+          text-align: left;
+        }
+        &:nth-child(3) {
+          width: 60px;
+          text-align: center;
+        }
+      }
+    }
+  }
+}

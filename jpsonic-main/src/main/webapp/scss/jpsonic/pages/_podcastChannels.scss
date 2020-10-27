@@ -1,0 +1,79 @@
+.mainframe.podcastChannels {
+  input.url {
+    @include tabularInputWidth(5);
+  }
+
+  input[name="add"] {
+    @include dlInputWidth(7);
+  }
+
+  div.coverart-container {
+    margin: 30px 0 0 $jp-subsection-indent;
+  }
+  .tabular.channels {
+    tr {
+      th,
+      td {
+        &:nth-child(1) {
+          @include buttonCell;
+        }
+        &.truncate {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          max-width: 8rem;
+        }
+        &.name,
+        &.description {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          min-width: 10rem;
+          max-width: calc((100vw - 500px) / 2);
+        }
+        &.url {
+          width: 180px;
+        }
+
+        &.status {
+          width: 60px;
+        }
+        &.count {
+          width: 120px;
+          text-align: right;
+        }
+      }
+    }
+  }
+  .tabular.episodes {
+    margin-top: 30px;
+    tr {
+      th,
+      td {
+        &:nth-child(1),
+        &:nth-child(2),
+        &:nth-child(3) {
+          @include buttonCell;
+        }
+        &.truncate {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          max-width: 8rem;
+        }
+        &.duration {
+          width: 90px;
+          text-align: right;
+        }
+        &.date {
+          width: 90px;
+        }
+      }
+    }
+  }
+
+  table.tabular + h2,
+  h2 + form {
+    margin-top: 30px;
+  }
+}

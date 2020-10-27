@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -63,8 +64,15 @@ public class PlayQueueController {
                 "player", player,
                 "players", playerService.getPlayersForUserAndClientId(user.getUsername(), null),
                 "visibility", userSettings.getPlaylistVisibility(),
+                "closePlayQueue", userSettings.isClosePlayQueue(),
                 "partyMode", userSettings.isPartyModeEnabled(),
                 "notify", userSettings.isSongNotificationEnabled(),
-                "autoHide", userSettings.isAutoHidePlayQueue()));
+                "autoHide", userSettings.isAutoHidePlayQueue(),
+                "coverArtSize", CoverArtScheme.SMALL.getSize(),
+                "showDownload", userSettings.isShowDownload(),
+                "showShare", userSettings.isShowShare(),
+                "alternativeDrawer", userSettings.isAlternativeDrawer(),
+                "showAlbumActions", userSettings.isShowAlbumActions(),
+                "simpleDisplay", userSettings.isSimpleDisplay()));
     }
 }

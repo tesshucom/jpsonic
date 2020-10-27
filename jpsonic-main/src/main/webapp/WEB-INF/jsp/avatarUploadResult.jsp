@@ -4,12 +4,11 @@
 <head>
     <%@ include file="head.jsp" %>
 </head>
-<body class="mainframe bgcolor1">
+<body class="mainframe">
 
-<h1>
-    <img src="<spring:theme code='settingsImage'/>" alt=""/>
-    <span style="vertical-align: middle"><fmt:message key="avataruploadresult.title"/></span>
-</h1>
+<section>
+    <h1 class="upload"><fmt:message key="avataruploadresult.title"/></h1>
+</section>
 
 <c:choose>
     <c:when test="${empty model.error}">
@@ -19,18 +18,15 @@
                 <sub:param name="username" value="${model.username}"/>
                 <sub:param name="forceCustom" value="true"/>
             </sub:url>
-            <img src="${avatarUrl}" alt="${model.avatar.name}" width="${model.avatar.width}"
-                 height="${model.avatar.height}" style="padding-left:2em"/>
+            <img src="${avatarUrl}" alt="${model.avatar.name}" width="${model.avatar.width}" height="${model.avatar.height}"/>
         </p>
     </c:when>
     <c:otherwise>
-        <p class="warning">
-            <fmt:message key="avataruploadresult.failure"/>
-        </p>
+        <p><strong><fmt:message key="avataruploadresult.failure"/></strong></p>
     </c:otherwise>
 </c:choose>
 
-<div class="back"><a href="personalSettings.view?"><fmt:message key="common.back"/></a></div>
+<div><a href="personalSettings.view?"><fmt:message key="common.back"/></a></div>
 
 </body>
 </html>

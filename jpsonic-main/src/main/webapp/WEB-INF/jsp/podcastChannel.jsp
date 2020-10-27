@@ -20,167 +20,167 @@
   --%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script>
 
-    <script type="text/javascript" language="javascript">
-        function init() {
-            $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
-                buttons: {
-                    "<fmt:message key="common.delete"/>": function() {
-                        location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}" +
-                                "&deleteChannel=${model.channel.id}";
-                    },
-                    "<fmt:message key="common.cancel"/>": function() {
-                        $(this).dialog("close");
-                    }
-                }});
+$(document).ready(function(){
+    $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
+        buttons: {
+            "<fmt:message key="common.delete"/>": function() {location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}&deleteChannel=${model.channel.id}";},
+            "<fmt:message key="common.cancel"/>": function() {$(this).dialog("close");}}});
+
+    initTruncate(".tabular-and-thumb", ".tabular.episodes", 4, ["description", "episode-title"]);
+
+});
+
+function downloadSelected() {
+    location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}" +
+            "&downloadEpisode=" + getSelectedEpisodes();
+}
+
+function deleteChannel() {
+    $("#dialog-delete").dialog("open");
+}
+
+function deleteSelected() {
+    location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}" +
+            "&deleteEpisode=" + getSelectedEpisodes();
+}
+
+function refreshChannels() {
+    location.href = "podcastReceiverAdmin.view?refresh&channelId=${model.channel.id}";
+}
+
+function refreshPage() {
+    location.href = "podcastChannel.view?id=${model.channel.id}";
+}
+
+function getSelectedEpisodes() {
+    var result = "";
+    for (var i = 0; i < ${fn:length(model.episodes)}; i++) {
+        var checkbox = $("#episode" + i);
+        if (checkbox.is(":checked")) {
+            result += (checkbox.val() + " ");
         }
+    }
+    return result;
+}
 
-        function downloadSelected() {
-            location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}" +
-                    "&downloadEpisode=" + getSelectedEpisodes();
-        }
-
-        function deleteChannel() {
-            $("#dialog-delete").dialog("open");
-        }
-
-        function deleteSelected() {
-            location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}" +
-                    "&deleteEpisode=" + getSelectedEpisodes();
-        }
-
-        function refreshChannels() {
-            location.href = "podcastReceiverAdmin.view?refresh&channelId=${model.channel.id}";
-        }
-
-        function refreshPage() {
-            location.href = "podcastChannel.view?id=${model.channel.id}";
-        }
-
-        function getSelectedEpisodes() {
-            var result = "";
-            for (var i = 0; i < ${fn:length(model.episodes)}; i++) {
-                var checkbox = $("#episode" + i);
-                if (checkbox.is(":checked")) {
-                    result += (checkbox.val() + " ");
-                }
-            }
-            return result;
-        }
-
-    </script>
+</script>
 </head>
-<body class="mainframe bgcolor1" onload="init()">
+<body class="mainframe podcastChannel">
 
-<div style="float:left;margin-right:1.5em;margin-bottom:1.5em">
-<c:import url="coverArt.jsp">
-    <c:param name="podcastChannelId" value="${model.channel.id}"/>
-    <c:param name="coverArtSize" value="200"/>
-</c:import>
+<nav>
+    <ul class="breadcrumb">
+        <li><a href="podcastChannels.view"><fmt:message key="podcastreceiver.title"/></a></li>
+    </ul>
+</nav>
+
+<section>
+    <c:choose>
+        <c:when test="${empty model.channel.description}">
+            <h1 class="podcast">${fn:escapeXml(model.channel.title)}</h1>
+        </c:when>
+        <c:otherwise>
+            <details>
+                <summary><h1 class="podcast">${fn:escapeXml(model.channel.title)}</h1></summary>
+                <div class="description">${fn:escapeXml(model.channel.description)}</div>
+            </details>
+        </c:otherwise>
+    </c:choose>
+</section>
+
+<div class="actions">
+    <ul class="controls">
+        <li><a href="javascript:top.playQueue.onPlayPodcastChannel(${model.channel.id})" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='podcastreceiver.check'/></a></li>
+        <c:choose>
+            <c:when test="${model.user.podcastRole}">
+                <li><a href="javascript:deleteChannel()" title="<fmt:message key='common.delete'/>" class="control cross"><fmt:message key='common.delete'/></a></li>
+                <li><a href="javascript:refreshChannels()" title="<fmt:message key='podcastreceiver.check'/>" class="control refresh"><fmt:message key='podcastreceiver.check'/></a></li>
+            </c:when>
+            <c:otherwise>
+                <li><a href="javascript:refreshPage()" title="<fmt:message key='podcastreceiver.refresh'/>" class="control refresh"><fmt:message key='podcastreceiver.refresh'/></a></li>
+            </c:otherwise>
+        </c:choose>
+    </ul>
 </div>
 
-<h1 id="name"><a href="podcastChannels.view"><fmt:message key="podcastreceiver.title"/></a> &raquo; ${fn:escapeXml(model.channel.title)}</h1>
-<h2>
-    <span class="header"><a href="javascript:top.playQueue.onPlayPodcastChannel(${model.channel.id})"><fmt:message key="common.play"/></a></span>
+<div class="tabular-and-thumb">
 
-    <c:if test="${model.user.podcastRole}">
-        | <span class="header"><a href="javascript:deleteChannel()"><fmt:message key="common.delete"/></a></span>
-        | <span class="header"><a href="javascript:refreshChannels()"><fmt:message key="podcastreceiver.check"/></a></span>
-    </c:if>
-</h2>
+        <c:if test="${not empty model.episodes}">
+            <table class="tabular episodes">
+                <c:if test="${model.channel.status eq 'ERROR'}">
+                    <caption><strong>${model.channel.errorMessage}</strong></caption>
+                </c:if>
+                <thead>
+                    <th></th><%-- play --%>
+                    <th></th><%-- add --%>
+                    <th></th><%-- next --%>
+                    <th></th><%-- check --%>
+                    <th class="song"><fmt:message key="podcast.episodename" /></th>
+                    <th class="description"><fmt:message key="podcast.description" /></th>
+                    <th class="status"><fmt:message key="podcast.status" /></th>
+                    <th class="duration"><fmt:message key="podcast.duration" /></th>
+                    <th class="date"><fmt:message key="podcast.publishdate" /></th>
+                </thead>
+                <tbody>
+                    <c:forEach items="${model.episodes}" var="episode" varStatus="i">
+                        <tr>
+                            <c:import url="playButtons.jsp">
+                                <c:param name="id" value="${episode.mediaFileId}"/>
+                                <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
+                                <c:param name="addEnabled" value="${model.user.streamRole and not model.partyMode}"/>
+                                <c:param name="asTable" value="true"/>
+                                <c:param name="onPlay" value="top.playQueue.onPlayPodcastEpisode(${episode.id})"/>
+                            </c:import>
+                            <td><input type="checkbox" id="episode${i.index}" value="${episode.id}"/></td>
+                            <td class="episode-title"><span>${episode.title}</span></td>
+                            <td class="description">
+                                <span>
+                                    <c:choose>
+                                        <c:when test="${episode.status eq 'ERROR'}">${episode.errorMessage}</c:when>
+                                        <c:otherwise>${episode.description}</c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </td>
+                            <td class="state">
+                                <c:choose>
+                                    <c:when test="${episode.status eq 'DOWNLOADING'}"><fmt:formatNumber type="percent" value="${episode.completionRate}"/></c:when>
+                                    <c:otherwise><fmt:message key="podcastreceiver.status.${fn:toLowerCase(episode.status)}"/></c:otherwise>
+                                </c:choose>
+                            </td>
+                            <td class="duration">${episode.duration}</td>
+                            <td class="date"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></td>
+                        </tr>
+                    </c:forEach>
+                </tbody>        
+            </table>
+            <c:if test="${model.user.podcastRole}">
+                <div class="actions">
+                    <ul class="controls">
+                        <li><a href="javascript:downloadSelected()" title="<fmt:message key='podcastreceiver.downloadselected'/>" class="control download"><fmt:message key='podcastreceiver.downloadselected'/></a></li>
+                        <li><a href="javascript:deleteSelected()" title="<fmt:message key='podcastreceiver.deleteselected'/>" class="control cross"><fmt:message key='podcastreceiver.deleteselected'/></a></li>
+                    </ul>
+                </div>
+            </c:if>
+        </c:if>
 
-<div class="detail" style="padding-top:0.2em;white-space:normal;width:80%">${fn:escapeXml(model.channel.description)}</div>
-
-<div class="detail" style="padding-top:1.0em">
-    <fmt:message key="podcastreceiver.episodes"><fmt:param value="${fn:length(model.episodes)}"/></fmt:message> &ndash;
-    <fmt:message key="podcastreceiver.status.${fn:toLowerCase(model.channel.status)}"/>
-    <c:if test="${model.channel.status eq 'ERROR'}">
-        <span class="warning">${model.channel.errorMessage}</span>
-    </c:if>
+    <div class="albumThumb">
+        <c:import url="coverArt.jsp">
+            <c:param name="podcastChannelId" value="${model.channel.id}"/>
+            <c:param name="coverArtSize" value="${model.coverArtSize}"/>
+        </c:import>
+    </div>
 </div>
 
-<div style="height:0.7em;clear:both"></div>
-
-<table class="music">
-    <c:forEach items="${model.episodes}" var="episode" varStatus="i">
-
-        <tr>
-
-            <td class="fit"><input type="checkbox" id="episode${i.index}" value="${episode.id}"/></td>
-
-            <c:choose>
-                <c:when test="${empty episode.mediaFileId or episode.status ne 'COMPLETED'}">
-                    <td colspan="4"></td>
-                </c:when>
-                <c:otherwise>
-                    <c:import url="playButtons.jsp">
-                        <c:param name="id" value="${episode.mediaFileId}"/>
-                        <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-                        <c:param name="addEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-                        <c:param name="asTable" value="true"/>
-                        <c:param name="onPlay" value="top.playQueue.onPlayPodcastEpisode(${episode.id})"/>
-                    </c:import>
-                </c:otherwise>
-            </c:choose>
-
-            <td class="truncate">
-                    <span title="${episode.title}" class="songTitle">${episode.title}</span>
-            </td>
-
-            <td class="fit">
-                <span class="detail">${episode.duration}</span>
-            </td>
-
-            <td class="fit">
-                <span class="detail"><fmt:formatDate value="${episode.publishDate}" dateStyle="medium"/></span>
-            </td>
-
-            <td class="fit" style="text-align:center">
-                <span class="detail">
-                    <c:choose>
-                        <c:when test="${episode.status eq 'DOWNLOADING'}">
-                            <fmt:formatNumber type="percent" value="${episode.completionRate}"/>
-                        </c:when>
-                        <c:otherwise>
-                            <fmt:message key="podcastreceiver.status.${fn:toLowerCase(episode.status)}"/>
-                        </c:otherwise>
-                    </c:choose>
-                </span>
-            </td>
-
-            <td class="truncate">
-                <c:choose>
-                    <c:when test="${episode.status eq 'ERROR'}">
-                        <span class="detail warning" title="${episode.errorMessage}">${episode.errorMessage}</span>
-                    </c:when>
-                    <c:otherwise>
-                        <span class="detail" title="${episode.description}">${episode.description}</span>
-                    </c:otherwise>
-                </c:choose>
-            </td>
-
-        </tr>
-    </c:forEach>
-
-</table>
-
-<table style="padding-top:1em"><tr>
-    <c:if test="${model.user.podcastRole}">
-        <td style="padding-right:2em"><div class="forward"><a href="javascript:downloadSelected()"><fmt:message key="podcastreceiver.downloadselected"/></a></div></td>
-        <td style="padding-right:2em"><div class="forward"><a href="javascript:deleteSelected()"><fmt:message key="podcastreceiver.deleteselected"/></a></div></td>
-    </c:if>
-    <td style="padding-right:2em"><div class="forward"><a href="javascript:refreshPage()"><fmt:message key="podcastreceiver.refresh"/></a></div></td>
-    <c:if test="${model.user.adminRole}">
-        <td style="padding-right:2em"><div class="forward"><a href="podcastSettings.view?"><fmt:message key="podcastreceiver.settings"/></a></div></td>
-    </c:if>
-</tr></table>
-
-
-<div id="dialog-delete" title="<fmt:message key='common.confirm'/>" style="display: none;">
-    <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 20px 0;"></span>
-        <fmt:message key="podcastreceiver.confirmdelete"/></p>
+<div id="dialog-delete" title="<fmt:message key='common.confirm'/>">
+    <p>
+        <span class="ui-icon ui-icon-alert"></span>
+        <fmt:message key="podcastreceiver.confirmdelete"/>
+    </p>
 </div>
 
 </body></html>

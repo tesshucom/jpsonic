@@ -1,0 +1,97 @@
+.mainframe.editTags {
+  @mixin tagsInputWidth($size, $isAll: false, $maxWidth: "") {
+    $baseWidth: 30px;
+    $tabularPadding: 10px;
+    @if $isAll {
+      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding} - 30px);
+      width: calc(100% - 30px);
+      @if $maxWidth != "" {
+        max-width: calc(#{$maxWidth} - 30px);
+      }
+    } @else {
+      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding});
+      width: 100%;
+      @if $maxWidth != "" {
+        max-width: $maxWidth;
+      }
+    }
+  }
+
+  input[name*="track"] {
+    @include tagsInputWidth(1, false, 30px);
+  }
+  input[name*="title"] {
+    @include tagsInputWidth(3);
+  }
+  input[name*="artist"] {
+    @include tagsInputWidth(3);
+  }
+  input[name*="album"] {
+    @include tagsInputWidth(3);
+  }
+  input[name*="year"] {
+    @include tagsInputWidth(3, false, 90px);
+  }
+  input[name*="genre"] {
+    @include tagsInputWidth(4, false, 120px);
+  }
+
+  input[name*="artistAll"] {
+    @include tagsInputWidth(3, true);
+  }
+  input[name*="albumAll"] {
+    @include tagsInputWidth(3, true);
+  }
+  input[name*="yearAll"] {
+    @include tagsInputWidth(3, true, 90px);
+  }
+  select[name*="genreAll"] {
+    @include tagsInputWidth(4, true, 120px);
+  }
+
+  .tabular.tags {
+    margin-top: 30px;
+    thead {
+      tr {
+        white-space: nowrap;
+        height: 30px;
+        &:nth-child(1) {
+          th {
+            border-bottom-style: none;
+            vertical-align: middle;
+            text-align: left;
+          }
+        }
+        &:nth-child(2) {
+          border-top-style: none;
+          th {
+            padding: 0 0 0 10px;
+            font-size: 0.93rem;
+            vertical-align: middle;
+            text-align: left;
+            &:first-child {
+              @include border(left);
+              @include borderRadius(none);
+            }
+            &:last-child {
+              @include border(right);
+              @include borderRadius(none);
+            }
+            &.prime-end {
+              @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+                @include border(right);
+                @include borderRadius(none);
+              }
+            }
+            > input,
+            > select {
+              position: relative;
+              top: -6px;
+              margin-right: 4px;
+            }
+          }
+        }
+      }
+    }
+  }
+}

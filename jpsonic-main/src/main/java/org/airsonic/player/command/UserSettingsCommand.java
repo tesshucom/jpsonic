@@ -63,6 +63,10 @@ public class UserSettingsCommand {
     private boolean transcodingSupported;
     private String transcodeDirectory;
 
+    private boolean useRadio;
+    private boolean useSonos;
+    private boolean showToast;
+
     public String getUsername() {
         return username;
     }
@@ -291,6 +295,30 @@ public class UserSettingsCommand {
 
     public void setTranscodeDirectory(String transcodeDirectory) {
         this.transcodeDirectory = transcodeDirectory;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
+    }
+
+    public boolean isShowToast() {
+        return showToast;
+    }
+
+    public void setShowToast(boolean showToast) {
+        this.showToast = showToast;
     }
 
     public void setUser(User user) {

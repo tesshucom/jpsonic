@@ -5,69 +5,78 @@
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
 
-    <script type="text/javascript">
+    <script>
         function init() {
-            $("#newMusicFolderName").attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
-            $("#newMusicFolderPath").attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
-
+            $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
+            $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
             <c:if test="${settings_reload}">
-            parent.frames.upper.location.href="top.view?";
-            parent.frames.left.location.href="left.view?";
-            parent.frames.right.location.href="right.view?";
+              window.top.reloadUpper("musicFolderSettings.view");
+              window.top.reloadPlayQueue();
+              window.top.reloadRight();
             </c:if>
         }
     </script>
 </head>
-<body class="mainframe bgcolor1" onload="init()">
-
+<body class="mainframe settings musicFolderSettings" onload="init()">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="musicFolder"/>
-    <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="toast" value="${command.showToast}"/>
+    <c:param name="useRadio" value="${command.useRadio}"/>
+    <c:param name="useSonos" value="${command.useSonos}"/>
 </c:import>
 
 <form:form modelAttribute="command" action="musicFolderSettings.view" method="post">
 
+    <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
-        <summary class="legacy"><fmt:message key="musicfoldersettings.specify"/></summary>
-
-            <table class="indent">
+        <summary><fmt:message key="musicfoldersettings.specify"/></summary>
+        <table class="tabular musicfolder">
+            <caption><fmt:message key="musicfoldersettings.registered"/></caption>
+            <thead>
                 <tr>
                     <th><fmt:message key="musicfoldersettings.name"/></th>
                     <th><fmt:message key="musicfoldersettings.path"/></th>
-                    <th style="padding-left:1em"><fmt:message key="musicfoldersettings.enabled"/></th>
-                    <th style="padding-left:1em"><fmt:message key="common.delete"/></th>
+                    <th><fmt:message key="musicfoldersettings.enabled"/></th>
+                    <th><fmt:message key="common.delete"/></th>
                     <th></th>
                 </tr>
+            </thead>
+            <tbody>
                 <c:forEach items="${command.musicFolders}" var="folder" varStatus="loopStatus">
                     <tr>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].name" size="20"/></td>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].path" size="40"/></td>
-                        <td align="center" style="padding-left:1em"><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled" cssClass="checkbox"/></td>
-                        <td align="center" style="padding-left:1em"><form:checkbox path="musicFolders[${loopStatus.count-1}].delete" cssClass="checkbox"/></td>
-                        <td><c:if test="${not folder.existing}"><span class="warning"><fmt:message key="musicfoldersettings.notfound"/></span></c:if></td>
+                        <td><form:input path="musicFolders[${loopStatus.count-1}].name"/></td>
+                        <td><form:input path="musicFolders[${loopStatus.count-1}].path"/></td>
+                        <td><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled"/></td>
+                        <td><form:checkbox path="musicFolders[${loopStatus.count-1}].delete"/></td>
+                        <td><c:if test="${not folder.existing}"><strong><fmt:message key="musicfoldersettings.notfound"/></strong></c:if></td>
                     </tr>
                 </c:forEach>
-                <c:if test="${not empty command.musicFolders}">
-                    <tr>
-                        <th colspan="4" align="left" style="padding-top:1em"><fmt:message key="musicfoldersettings.add"/></th>
-                    </tr>
-                </c:if>
+            </tbody>
+        </table>
+        <table class="tabular musicfolder">
+            <caption><fmt:message key="musicfoldersettings.add"/></caption>
+            <thead>
                 <tr>
-                    <td><form:input id="newMusicFolderName" path="newMusicFolder.name" size="20"/></td>
-                    <td><form:input id="newMusicFolderPath" path="newMusicFolder.path" size="40"/></td>
-                    <td align="center" style="padding-left:1em"><form:checkbox path="newMusicFolder.enabled" cssClass="checkbox"/></td>
-                    <td></td>
+                    <th><fmt:message key="musicfoldersettings.name"/></th>
+                    <th><fmt:message key="musicfoldersettings.path"/></th>
+                    <th><fmt:message key="musicfoldersettings.enabled"/></th>
                 </tr>
-            </table>
-
+            </thead>
+            <tbody>
+                <tr>
+                    <td><form:input id="newMusicFolderName" path="newMusicFolder.name"/></td>
+                    <td><form:input id="newMusicFolderPath" path="newMusicFolder.path"/></td>
+                    <td><form:checkbox path="newMusicFolder.enabled" cssClass="checkbox"/></td>
+                </tr>
+            </tbody>
+        </table>
     </details>
 
-
-    <details class="legacy" open>
+    <details open>
         <summary><fmt:message key="musicfoldersettings.execscan"/></summary>
         <c:if test="${command.scanning}">
-            <p class="warning"><fmt:message key="musicfoldersettings.nowscanning"/></p>
+            <strong><fmt:message key="musicfoldersettings.nowscanning"/></strong>
         </c:if>
         <dl>
             <dt><fmt:message key='musicfoldersettings.scannow'/><c:import url="helpToolTip.jsp"><c:param name="topic" value="scanMediaFolders"/></c:import></dt>
@@ -108,10 +117,10 @@
                 <div>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>" disabled/>
                         </c:when>
                         <c:otherwise>
-		                    <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?expunge'" value="<fmt:message key='musicfoldersettings.doexpunge'/>"/>
                         </c:otherwise>
                     </c:choose>
                 </div>
@@ -119,12 +128,12 @@
         </dl>
     </details>
 
-    <details>
-        <summary class="legacy"><fmt:message key="musicfoldersettings.exclusion"/></summary>
+    <details ${isOpen}>
+        <summary><fmt:message key="musicfoldersettings.exclusion"/></summary>
         <dl>
             <dt><fmt:message key="musicfoldersettings.excludepattern"/></dt>
             <dd>
-                <form:input path="excludePatternString" size="70"/>
+                <form:input path="excludePatternString"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="excludepattern"/></c:import>
             </dd>
             <dt></dt>
@@ -132,12 +141,13 @@
                 <form:checkbox path="ignoreSymLinks" id="ignoreSymLinks"/>
                 <form:label path="ignoreSymLinks"><fmt:message key="musicfoldersettings.ignoresymlinks"/></form:label>
             </dd>
+        </dl>
     </details>
 
-    <details>
+    <details open>
         <summary class="jpsonic"><fmt:message key="musicfoldersettings.other"/></summary>
         <dl>
-            <dt><fmt:message key="musicfoldersettings.excludepattern"/></dt>
+            <dt></dt>
             <dd>
                 <form:checkbox path="fastCache" cssClass="checkbox" id="fastCache"/>
                 <form:label path="fastCache"><fmt:message key="musicfoldersettings.fastcache"/></form:label>
@@ -149,15 +159,16 @@
                 <label for="indexEnglishPrior"><fmt:message key="generalsettings.indexEnglishPrior"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="indexEnglishPrior"/></c:import>
             </dd>
+        </dl>
     </details>
 
     <div class="submits">
         <c:choose>
             <c:when test='${command.scanning}'>
-            	<input type="submit" value="<fmt:message key='common.save'/>" disabled/>
+                <input type="submit" value="<fmt:message key='common.save'/>" disabled/>
             </c:when>
             <c:otherwise>
-            	<input type="submit" value="<fmt:message key='common.save'/>"/>
+                <input type="submit" value="<fmt:message key='common.save'/>"/>
             </c:otherwise>
         </c:choose>
         <input type="button" onClick="location.href='nowPlaying.view'" value="<fmt:message key='common.cancel'/>"/>

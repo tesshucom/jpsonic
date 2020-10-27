@@ -21,14 +21,15 @@
 <html><head>
     <%@ include file="head.jsp" %>
     <%@ include file="jquery.jsp" %>
-    <script type="text/javascript" src="<c:url value='/script/scripts.js'/>"></script>
 </head>
 
-<body class="mainframe bgcolor1">
+<body class="mainframe settings sonosSettings">
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="sonos"/>
     <c:param name="toast" value="${settings_toast}"/>
+    <c:param name="useRadio" value="${model.useRadio}"/>
+    <c:param name="useSonos" value="${model.useSonos}"/>
 </c:import>
 
 <form method="post" action="sonosSettings.view">
@@ -39,15 +40,14 @@
         <label for="sonosEnabled"><fmt:message key="sonossettings.enabled"/></label>
     </div>
 
-    <p class="detail" style="width:60%;white-space:normal">
+    <p class="detail">
         <fmt:message key="sonossettings.description"/>
     </p>
     <div>
         <fmt:message key="sonossettings.servicename"/>
-        <input name="sonosServiceName" id="sonosServiceName" size="40"
-               value="<c:out value='${model.sonosServiceName}' escapeXml='true'/>"/>
+        <input name="sonosServiceName" id="sonosServiceName" value="<c:out value='${model.sonosServiceName}' escapeXml='true'/>"/>
     </div>
-    <p class="detail" style="width:60%;white-space:normal;padding-top:0">
+    <p class="detail">
         <fmt:message key="sonossettings.servicename.description"/>
     </p>
 

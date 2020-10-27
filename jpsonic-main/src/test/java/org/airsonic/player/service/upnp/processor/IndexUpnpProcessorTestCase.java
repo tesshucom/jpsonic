@@ -60,6 +60,8 @@ public class IndexUpnpProcessorTestCase extends AbstractAirsonicHomeTest {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
+        // Test case is created on the premise of simpleIndex.
+        settingsService.setIndexString(settingsService.getSimpleIndexString());
         populateDatabaseOnlyOnce();
     }
 

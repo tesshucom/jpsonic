@@ -19,6 +19,8 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.*;
 import org.airsonic.player.service.SecurityService;
@@ -31,12 +33,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Controller for the page used to administrate per-user settings.
@@ -51,15 +55,20 @@ public class PersonalSettingsController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request,Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
         command.setUser(user);
+        command.setDefaultSettings(settingsService.getUserSettings(""));
+        command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
+        command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
         command.setLocaleIndex("-1");
         command.setThemeIndex("-1");
         command.setAlbumLists(AlbumListType.values());
@@ -69,6 +78,14 @@ public class PersonalSettingsController {
         command.setAvatarId(getAvatarId(userSettings));
         command.setPartyModeEnabled(userSettings.isPartyModeEnabled());
         command.setQueueFollowingSongs(userSettings.isQueueFollowingSongs());
+        command.setCloseDrawer(userSettings.isCloseDrawer());
+        command.setClosePlayQueue(userSettings.isClosePlayQueue());
+        command.setAlternativeDrawer(userSettings.isAlternativeDrawer());
+        command.setShowIndex(userSettings.isShowIndex());
+        command.setAssignAccesskeyToNumber(userSettings.isAssignAccesskeyToNumber());
+        command.setOpenDetailIndex(userSettings.isOpenDetailIndex());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+        command.setOpenDetailStar(userSettings.isOpenDetailStar());
         command.setShowNowPlayingEnabled(userSettings.isShowNowPlayingEnabled());
         command.setShowArtistInfoEnabled(userSettings.isShowArtistInfoEnabled());
         command.setNowPlayingAllowed(userSettings.isNowPlayingAllowed());
@@ -85,6 +102,27 @@ public class PersonalSettingsController {
         command.setListenBrainzEnabled(userSettings.isListenBrainzEnabled());
         command.setListenBrainzToken(userSettings.getListenBrainzToken());
         command.setPaginationSize(userSettings.getPaginationSize());
+        command.setSimpleDisplay(userSettings.isSimpleDisplay());
+        command.setShowSibling(userSettings.isShowSibling());
+        command.setShowRate(userSettings.isShowRate());
+        command.setShowAlbumSearch(userSettings.isShowAlbumSearch());
+        command.setShowLastPlay(userSettings.isShowLastPlay());
+        command.setShowDownload(userSettings.isShowDownload());
+        command.setShowTag(userSettings.isShowTag());
+        command.setShowComment(userSettings.isShowComment());
+        command.setShowShare(userSettings.isShowShare());
+        command.setShowChangeCoverArt(userSettings.isShowChangeCoverArt());
+        command.setShowTopSongs(userSettings.isShowTopSongs());
+        command.setShowSimilar(userSettings.isShowSimilar());
+        command.setShowAlbumActions(userSettings.isShowAlbumActions());
+        command.setBreadcrumbIndex(userSettings.isBreadcrumbIndex());
+        command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
+        command.setFontSchemes(FontScheme.values());
+        command.setFontSchemeName(userSettings.getFontSchemeName());
+        command.setForceBio2Eng(userSettings.isForceBio2Eng());
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+
+        toast.ifPresent(b -> command.setShowToast(b));
 
         Locale currentLocale = userSettings.getLocale();
         Locale[] locales = settingsService.getAvailableLocales();
@@ -106,6 +144,9 @@ public class PersonalSettingsController {
                 break;
             }
         }
+
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
 
         model.addAttribute("command",command);
     }
@@ -138,8 +179,17 @@ public class PersonalSettingsController {
         settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
         settings.setPartyModeEnabled(command.isPartyModeEnabled());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
+        boolean showNowPlayingEnabledChanged = settings.isShowNowPlayingEnabled() != command.isShowNowPlayingEnabled();
         settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
+        settings.setCloseDrawer(command.isCloseDrawer());
+        settings.setClosePlayQueue(command.isClosePlayQueue());
+        settings.setAlternativeDrawer(command.isAlternativeDrawer());
+        settings.setShowIndex(command.isShowIndex());
+        settings.setAssignAccesskeyToNumber(command.isAssignAccesskeyToNumber());
+        settings.setOpenDetailIndex(command.isOpenDetailIndex());
+        settings.setOpenDetailSetting(command.isOpenDetailSetting());
+        settings.setOpenDetailStar(command.isOpenDetailStar());
         settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setMainVisibility(command.getMainVisibility());
         settings.setPlaylistVisibility(command.getPlaylistVisibility());
@@ -155,6 +205,23 @@ public class PersonalSettingsController {
         settings.setSystemAvatarId(getSystemAvatarId(command));
         settings.setAvatarScheme(getAvatarScheme(command));
         settings.setPaginationSize(command.getPaginationSize());
+        settings.setSimpleDisplay(command.isSimpleDisplay());
+        settings.setShowSibling(command.isShowSibling());
+        settings.setShowRate(command.isShowRate());
+        settings.setShowAlbumSearch(command.isShowAlbumSearch());
+        settings.setShowLastPlay(command.isShowLastPlay());
+        settings.setShowDownload(command.isShowDownload());
+        settings.setShowTag(command.isShowTag());
+        settings.setShowComment(command.isShowComment());
+        settings.setShowShare(command.isShowShare());
+        settings.setShowChangeCoverArt(command.isShowChangeCoverArt());
+        settings.setShowTopSongs(command.isShowTopSongs());
+        settings.setShowSimilar(command.isShowSimilar());
+        settings.setShowAlbumActions(command.isShowAlbumActions());
+        settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
+        settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
+        settings.setFontSchemeName(command.getFontSchemeName());
+        settings.setForceBio2Eng(command.isForceBio2Eng());
 
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
@@ -164,7 +231,7 @@ public class PersonalSettingsController {
         settingsService.updateUserSettings(settings);
 
         redirectAttributes.addFlashAttribute("settings_reload", true);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute("index_reload", showNowPlayingEnabledChanged);
 
         return "redirect:personalSettings.view";
     }

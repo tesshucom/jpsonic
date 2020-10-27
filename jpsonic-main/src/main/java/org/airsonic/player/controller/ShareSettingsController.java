@@ -60,12 +60,13 @@ public class ShareSettingsController {
     @Autowired
     private SettingsService settingsService;
 
-
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
         model.addAttribute("model", LegacyMap.of(
                 "shareInfos", getShareInfos(request),
-                "user", securityService.getCurrentUser(request)));
+                "user", securityService.getCurrentUser(request),
+                "useRadio", settingsService.isUseRadio(),
+                "useSonos", settingsService.isUseSonos()));
         return "shareSettings";
     }
 

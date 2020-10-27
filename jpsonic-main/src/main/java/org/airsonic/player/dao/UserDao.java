@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.dao;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.AvatarScheme;
+import org.airsonic.player.domain.TranscodeScheme;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +58,11 @@ public class UserDao extends AbstractDao {
             "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, " +
             "keyboard_shortcuts_enabled, pagination_size, " +
             // JP >>>>
-            "main_composer, playlist_composer";
+            "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, " +
+            "open_detail_index, open_detail_setting, open_detail_star, show_index, " +
+            "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, " +
+            "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, " +
+            "show_outline_help, force_bio2eng"; 
             // <<<< JP
 
     private static final Integer ROLE_ID_ADMIN = 1;
@@ -225,10 +233,18 @@ public class UserDao extends AbstractDao {
                 settings.getAvatarScheme().name(), settings.getSystemAvatarId(), settings.getChanged(),
                 settings.isShowArtistInfoEnabled(), settings.isAutoHidePlayQueue(),
                 settings.isViewAsList(), settings.getDefaultAlbumList().getId(), settings.isQueueFollowingSongs(),
-                settings.isShowSideBar(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
+                settings.isCloseDrawer(), 60 /* Unused listReloadDelay */, settings.isKeyboardShortcutsEnabled(),
                 settings.getPaginationSize(),
                 // JP >>>>
-                main.isComposerVisible(), playlist.isComposerVisible());
+                main.isComposerVisible(), playlist.isComposerVisible(), settings.isCloseDrawer(),
+                settings.isClosePlayQueue(), settings.isAlternativeDrawer(), settings.isAssignAccesskeyToNumber(),
+                settings.isOpenDetailIndex(), settings.isOpenDetailSetting(), settings.isOpenDetailStar(),
+                settings.isShowIndex(), settings.isSimpleDisplay(), settings.isShowSibling(), settings.isShowRate(),
+                settings.isShowAlbumSearch(), settings.isShowLastPlay(), settings.isShowDownload(),
+                settings.isShowTag(), settings.isShowComment(), settings.isShowShare(), settings.isShowChangeCoverArt(),
+                settings.isShowTopSongs(), settings.isShowSimilar(), settings.isShowAlbumActions(),
+                settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
+                settings.isShowOutlineHelp(), settings.isForceBio2Eng());
                 // <<<< JP
     }
 
@@ -392,14 +408,40 @@ public class UserDao extends AbstractDao {
             settings.setViewAsList(rs.getBoolean(col++));
             settings.setDefaultAlbumList(AlbumListType.fromId(rs.getString(col++)));
             settings.setQueueFollowingSongs(rs.getBoolean(col++));
-            settings.setShowSideBar(rs.getBoolean(col++));
+            settings.setCloseDrawer(rs.getBoolean(col++));
             col++;  // Skip the now unused listReloadDelay
             settings.setKeyboardShortcutsEnabled(rs.getBoolean(col++));
             settings.setPaginationSize(rs.getInt(col++));
 
             // JP >>>>
             settings.getMainVisibility().setComposerVisible(rs.getBoolean(col++));
-            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col));
+            settings.getPlaylistVisibility().setComposerVisible(rs.getBoolean(col++));
+            settings.setCloseDrawer(rs.getBoolean(col++));
+            settings.setClosePlayQueue(rs.getBoolean(col++));
+            settings.setAlternativeDrawer(rs.getBoolean(col++));
+            settings.setAssignAccesskeyToNumber(rs.getBoolean(col++));
+            settings.setOpenDetailIndex(rs.getBoolean(col++));
+            settings.setOpenDetailSetting(rs.getBoolean(col++));
+            settings.setOpenDetailStar(rs.getBoolean(col++));
+            settings.setShowIndex(rs.getBoolean(col++));
+            settings.setSimpleDisplay(rs.getBoolean(col++));
+            settings.setShowSibling(rs.getBoolean(col++));
+            settings.setShowRate(rs.getBoolean(col++));
+            settings.setShowAlbumSearch(rs.getBoolean(col++));
+            settings.setShowLastPlay(rs.getBoolean(col++));
+            settings.setShowDownload(rs.getBoolean(col++));
+            settings.setShowTag(rs.getBoolean(col++));
+            settings.setShowComment(rs.getBoolean(col++));
+            settings.setShowShare(rs.getBoolean(col++));
+            settings.setShowChangeCoverArt(rs.getBoolean(col++));
+            settings.setShowTopSongs(rs.getBoolean(col++));
+            settings.setShowSimilar(rs.getBoolean(col++));
+            settings.setShowAlbumActions(rs.getBoolean(col++));
+            settings.setBreadcrumbIndex(rs.getBoolean(col++));
+            settings.setPutMenuInDrawer(rs.getBoolean(col++));
+            settings.setFontSchemeName(rs.getString(col++));
+            settings.setShowOutlineHelp(rs.getBoolean(col++));
+            settings.setForceBio2Eng(rs.getBoolean(col));
             // <<<< JP
             return settings;
         }

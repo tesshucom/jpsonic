@@ -25,7 +25,10 @@ import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaScannerService;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
 import org.slf4j.Logger;
@@ -40,8 +43,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -68,6 +74,8 @@ public class MusicFolderSettingsController {
     private MediaFileDao mediaFileDao;
     @Autowired
     private IndexManager indexManager;
+    @Autowired
+    private SecurityService securityService;
 
     private static AtomicBoolean isExpunging = new AtomicBoolean();
 
@@ -77,9 +85,11 @@ public class MusicFolderSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(@RequestParam(value = "scanNow",required = false) String scanNow,
-                                       @RequestParam(value = "expunge",required = false) String expunge,
-                                       Model model) {
+    protected void formBackingObject(HttpServletRequest request,
+            @RequestParam(value = "scanNow",required = false) String scanNow,
+            @RequestParam(value = "expunge",required = false) String expunge,
+            @RequestParam("toast") Optional<Boolean> toast, Model model) {
+
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
 
         if (scanNow != null) {
@@ -100,10 +110,16 @@ public class MusicFolderSettingsController {
         command.setExcludePatternString(settingsService.getExcludePatternString());
         command.setIgnoreSymLinks(settingsService.getIgnoreSymLinks());
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+        toast.ifPresent(b -> command.setShowToast(b));
+
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
         model.addAttribute("command",command);
     }
-
 
     private void expunge() {
 
@@ -198,8 +214,6 @@ public class MusicFolderSettingsController {
 
         settingsService.save();
 
-
-        redirectAttributes.addFlashAttribute("settings_toast", true);
         redirectAttributes.addFlashAttribute("settings_reload", true);
 
         mediaScannerService.schedule();

@@ -22,6 +22,7 @@ package org.airsonic.player.ajax;
 import org.airsonic.player.domain.ArtistBio;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.LastFmService;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Provides miscellaneous AJAX-enabled services.
@@ -65,7 +67,11 @@ public class MultiService {
 
         MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
         List<SimilarArtist> similarArtists = getSimilarArtists(mediaFileId, maxSimilarArtists);
-        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, airsonicLocaleResolver.resolveLocale(request));
+
+        User user = securityService.getCurrentUser(request);
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        Locale locale = userSettings.isForceBio2Eng() ? Locale.ENGLISH : airsonicLocaleResolver.resolveLocale(request);
+        ArtistBio artistBio = lastFmService.getArtistBio(mediaFile, locale);
         List<TopSong> topSongs = getTopSongs(mediaFile, maxTopSongs);
 
         return new ArtistInfo(similarArtists, artistBio, topSongs);
@@ -103,11 +109,11 @@ public class MultiService {
         return Arrays.asList(result);
     }
 
-    public void setShowSideBar(boolean show) {
+    public void setCloseDrawer(boolean b) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
         UserSettings userSettings = settingsService.getUserSettings(username);
-        userSettings.setShowSideBar(show);
+        userSettings.setCloseDrawer(b);
         userSettings.setChanged(new Date());
         settingsService.updateUserSettings(userSettings);
     }

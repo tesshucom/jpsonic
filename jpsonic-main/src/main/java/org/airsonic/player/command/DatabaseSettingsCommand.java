@@ -15,6 +15,9 @@ public class DatabaseSettingsCommand {
     private String jndiName;
     private int mysqlVarcharMaxlength;
     private String usertableQuote;
+    private boolean useRadio;
+    private boolean useSonos;
+    private boolean showOutlineHelp;
 
     public DataSourceConfigType getConfigType() {
         return configType;
@@ -79,4 +82,29 @@ public class DatabaseSettingsCommand {
     public void setUsertableQuote(String usertableQuote) {
         this.usertableQuote = usertableQuote;
     }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
+    }
+
+    public boolean isShowOutlineHelp() {
+        return showOutlineHelp;
+    }
+
+    public void setShowOutlineHelp(boolean showOutlineHelp) {
+        this.showOutlineHelp = showOutlineHelp;
+    }
+
 }

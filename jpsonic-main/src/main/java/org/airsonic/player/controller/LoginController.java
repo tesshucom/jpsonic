@@ -41,15 +41,15 @@ public class LoginController {
             password = StringUtil.urlEncode(password);
             return new ModelAndView(new RedirectView("/login?" +
                     UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username +
-                    "&" + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password
-            ));
+                    "&" + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
         }
 
         Map<String, Object> map = LegacyMap.of(
                 "logout", request.getParameter("logout") != null,
                 "error", request.getParameter("error") != null,
                 "brand", settingsService.getBrand(),
-                "loginMessage", settingsService.getLoginMessage());
+                "loginMessage", settingsService.getLoginMessage(),
+                "showRememberMe", settingsService.isShowRememberMe());
 
         User admin = securityService.getUserByName("admin");
         if (admin != null) {

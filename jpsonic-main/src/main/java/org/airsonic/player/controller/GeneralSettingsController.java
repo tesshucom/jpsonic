@@ -19,8 +19,12 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -29,9 +33,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Controller for the page used to administrate general settings.
@@ -44,6 +52,10 @@ public class GeneralSettingsController {
 
     @Autowired
     private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private OutlineHelpSelector outlineHelpSelector;
 
     @GetMapping
     protected String displayForm() {
@@ -51,7 +63,7 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(Model model) {
+    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
@@ -73,6 +85,25 @@ public class GeneralSettingsController {
         command.setWelcomeSubtitle(settingsService.getWelcomeSubtitle());
         command.setWelcomeMessage(settingsService.getWelcomeMessage());
         command.setLoginMessage(settingsService.getLoginMessage());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+        command.setPublishPodcast(settingsService.isPublishPodcast());
+        command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
+        command.setShowServerLog(settingsService.isShowServerLog());
+        command.setShowRememberMe(settingsService.isShowRememberMe());
+
+        command.setDefaultIndexString(settingsService.getDefaultIndexString());
+        command.setSimpleIndexString(settingsService.getSimpleIndexString());
+        command.setDefaultSortAlbumsByYear(settingsService.isDefaultSortAlbumsByYear());
+        command.setDefaultSortGenresByAlphabet(settingsService.isDefaultSortGenresByAlphabet());
+        command.setDefaultProhibitSortVarious(settingsService.isDefaultProhibitSortVarious());
+        command.setDefaultSortAlphanum(settingsService.isDefaultSortAlphanum());
+        command.setDefaultSortStrict(settingsService.isDefaultSortStrict());
+
+        User user = securityService.getCurrentUser(request);
+        command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+
+        toast.ifPresent(b -> command.setShowToast(b));
 
         Theme[] themes = settingsService.getAvailableThemes();
         command.setThemes(themes);
@@ -96,6 +127,9 @@ public class GeneralSettingsController {
         }
         command.setLocales(localeStrings);
 
+        UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
+        command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
+
         model.addAttribute("command",command);
     }
 
@@ -108,15 +142,15 @@ public class GeneralSettingsController {
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = settingsService.getAvailableLocales()[localeIndex];
 
-        redirectAttributes.addFlashAttribute("settings_toast", true);
-        redirectAttributes.addFlashAttribute(
-                "settings_reload",
-                   !settingsService.getIndexString().equals(command.getIndex())
+        boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
                 || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale));
-
+                || !settingsService.getLocale().equals(locale);
+        redirectAttributes.addFlashAttribute("settings_reload", isReload);
+        if (!isReload) {
+            redirectAttributes.addFlashAttribute("settings_toast", true);
+        }
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
         settingsService.setShortcuts(command.getShortcuts());
@@ -138,8 +172,14 @@ public class GeneralSettingsController {
         settingsService.setWelcomeSubtitle(command.getWelcomeSubtitle());
         settingsService.setWelcomeMessage(command.getWelcomeMessage());
         settingsService.setLoginMessage(command.getLoginMessage());
+        settingsService.setUseRadio(command.isUseRadio());
+        settingsService.setUseSonos(command.isUseSonos());
+        settingsService.setPublishPodcast(command.isPublishPodcast());
         settingsService.setThemeId(theme.getId());
         settingsService.setLocale(locale);
+        settingsService.setShowJavaJukebox(command.isShowJavaJukebox());
+        settingsService.setShowServerLog(command.isShowServerLog());
+        settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.save();
 
         return "redirect:generalSettings.view";

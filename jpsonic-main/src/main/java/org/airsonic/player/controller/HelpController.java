@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.User;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
@@ -39,8 +40,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -62,6 +65,8 @@ public class HelpController {
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
+    @Autowired
+    private AirsonicLocaleResolver airsonicLocaleResolver;
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
@@ -95,8 +100,11 @@ public class HelpController {
         List<String> latestLogEntries = getLatestLogEntries(logFile);
         map.put("logEntries", latestLogEntries);
         map.put("logFile", logFile);
-
-        return new ModelAndView("help","model",map);
+        Locale locale = airsonicLocaleResolver.resolveLocale(request);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale);
+        map.put("lastModified", format.format(logFile.lastModified()));
+        map.put("showServerLog", settingsService.isShowServerLog());
+        return new ModelAndView("help", "model", map);
     }
 
     private static List<String> getLatestLogEntries(File logFile) {

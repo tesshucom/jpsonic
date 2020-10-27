@@ -1,0 +1,66 @@
+h1.welcome {
+  // TODO
+}
+h2.welcome {
+  // TODO
+}
+div.welcome {
+  // TODO
+}
+
+.mainframe.home {
+  $home-controls-width: 800px;
+
+  section {
+    > .controls {
+      margin: -30px 0 10px calc((100% - #{$home-controls-width}) / 2);
+      padding: 8px 0px 5px 0px;
+      font-size: 0.86rem;
+    }
+  }
+
+  details {
+    ul.anchorList {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: start;
+      min-height: 30px;
+      width: calc(100% - 30px);
+      margin: 5px 0 0 0;
+      padding: 0 0 0 30px;
+      li {
+        margin: 5px 8px 5px 0px;
+      }
+      a {
+        height: 20px;
+        margin: 5px 8px 5px 0px;
+        padding: 0 4px 0 4px;
+        @include border;
+        border-radius: 10px;
+        font-size: 0.93rem;
+        font-weight: 600;
+        vertical-align: middle;
+        &:active {
+          top: -1px;
+        }
+      }
+    }
+  }
+
+  div.albums {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+  }
+
+  .albumThumb {
+    > .ratings {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: space-evenly;
+      width: 160px;
+    }
+  }
+}

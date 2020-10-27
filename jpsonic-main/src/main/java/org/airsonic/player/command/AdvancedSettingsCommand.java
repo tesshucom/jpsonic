@@ -49,6 +49,10 @@ public class AdvancedSettingsCommand {
     private String recaptchaSiteKey;
     private String recaptchaSecretKey;
 
+    private boolean openDetailSetting;
+    private boolean useRadio;
+    private boolean useSonos;
+
     public String getDownloadLimit() {
         return downloadLimit;
     }
@@ -191,5 +195,29 @@ public class AdvancedSettingsCommand {
 
     public void setRecaptchaSecretKey(String recaptchaSecretKey) {
         this.recaptchaSecretKey = recaptchaSecretKey;
+    }
+
+    public boolean isOpenDetailSetting() {
+        return openDetailSetting;
+    }
+
+    public void setOpenDetailSetting(boolean openDetailSetting) {
+        this.openDetailSetting = openDetailSetting;
+    }
+
+    public boolean isUseRadio() {
+        return useRadio;
+    }
+
+    public void setUseRadio(boolean useRadio) {
+        this.useRadio = useRadio;
+    }
+
+    public boolean isUseSonos() {
+        return useSonos;
+    }
+
+    public void setUseSonos(boolean useSonos) {
+        this.useSonos = useSonos;
     }
 }

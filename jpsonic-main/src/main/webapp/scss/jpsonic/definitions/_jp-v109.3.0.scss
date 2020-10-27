@@ -1,0 +1,620 @@
+* {
+  outline-color: $jp-color-complementary3;
+}
+
+body {
+  background: $jp-color-base1;
+  color: $jp-color-black;
+}
+
+strong {
+  color: $jp-color-alert;
+}
+
+p {
+  line-height: 30px;
+  margin: 30px 0 30px $jp-subsection-indent;
+}
+
+a {
+  text-decoration: none;
+  &:link,
+  &:active,
+  &:visited,
+  &:link *,
+  &:active *,
+  &:visited * {
+    color: $jp-color-base4;
+  }
+  &:hover,
+  &:hover * {
+    color: $jp-color-complementary3;
+  }
+  &.disabled,
+  &.disabled span,
+  span.disabled {
+    color: $jp-color-light-gray;
+    cursor: default;
+  }
+}
+
+img {
+  margin: 0;
+  padding: 0;
+  border-style: none;
+  @include border(zero);
+  vertical-align: middle;
+}
+
+$jp-user-inputs-baseline: 30%;
+
+dl,
+dl.single {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 0 0 $jp-subsection-indent;
+  padding: 0;
+  background-color: $jp-color-white;
+  dt,
+  dd {
+    min-height: 30px;
+  }
+  dt {
+    padding: 5px 3px 1px 3px;
+    width: $jp-user-inputs-baseline;
+    @include border(other-than-top);
+    background-color: $jp-color-base1;
+    color: $jp-color-black;
+    font-size: 0.86rem;
+    font-weight: 500;
+    &:first-child {
+      @include border(top);
+      @include borderRadius(upper-left);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-left);
+    }
+    > .popup.help {
+      vertical-align: middle;
+    }
+  }
+  dd {
+    padding: 3px;
+    @include border(right);
+    @include border(bottom);
+    &:first-of-type {
+      @include border(top);
+      @include borderRadius(upper-right);
+    }
+    &:last-of-type {
+      @include borderRadius(lower-right);
+    }
+    width: calc(100% - #{$jp-user-inputs-baseline});
+    font-size: 0.86rem;
+    > input[type="checkbox"] {
+      padding: 0;
+      vertical-align: middle;
+    }
+    > label {
+      vertical-align: middle;
+      > .popup.help {
+        vertical-align: middle;
+      }
+    }
+    > div {
+      vertical-align: middle;
+      text-align: right;
+    }
+  }
+}
+
+dl.single {
+  dt {
+    &:first-child {
+      @include border;
+      @include borderRadius(left);
+    }
+  }
+  dd {
+    &:last-of-type {
+      @include border(top);
+      @include borderRadius(right);
+    }
+  }
+}
+
+// ******************** input *********************************************
+
+input,
+textarea,
+select {
+  outline: none;
+  padding: 1px;
+  @include border(input);
+  @include borderRadius(input);
+  background: $jp-color-white;
+  font-size: 0.93rem;
+  vertical-align: middle;
+  &:focus {
+    @include transition;
+    outline: none;
+    padding: 0px;
+    @include border(input-focus);
+    background: $jp-color-complementary1;
+  }
+}
+
+input[type="submit"],
+input[type="button"] {
+  @include blockLink($jp-color-base4, $jp-color-white);
+}
+
+input[type="checkbox"] {
+  @include border(zero);
+}
+
+input[type="text"],
+input[type="search"],
+input[type="tel"],
+input[type="url"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+select {
+  height: 22px;
+  color: $jp-color-black;
+  font-size: 0.86rem;
+  text-align: justify;
+}
+
+textarea {
+  color: $jp-color-black;
+}
+
+// ******************** checkbox ******************************************
+
+input[type="checkbox"],
+input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  -o-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  position: relative;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  @include border(input);
+  background: $jp-color-white;
+  &:checked,
+  &:indeterminate {
+    background: $jp-color-base3;
+  }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
+  &:focus {
+    @include outline;
+  }
+}
+
+input[type="checkbox"] {
+  // 'box' >>
+  border-radius: 4px;
+  &::before {
+    // 'check' >>
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 4px;
+    width: 5px;
+    height: 8px;
+    margin-top: -5px;
+    padding: 0;
+    border-right: 3px solid $jp-color-white;
+    border-bottom: 3px solid $jp-color-white;
+    content: "";
+    transform: rotate(45deg);
+    // <
+  }
+  // <
+}
+
+// ******************** radio *********************************************
+
+input[type="radio"] {
+  // 'circle' >>
+  border-radius: 50%;
+  &:checked:before {
+    background: $jp-color-white;
+    transform: scale(1);
+  }
+  // 'check' >>
+  &:before {
+    content: "";
+    display: block;
+    width: 8px;
+    height: 8px;
+    margin: 3px;
+    border-radius: 50%;
+    transform: scale(0);
+    // <
+  }
+  // <
+}
+
+// ******************** submit ********************************************
+
+input[type="submit"],
+input[type="button"],
+dd.input[type="text"],
+input[type="select"] {
+  outline: none;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  padding-left: 20px;
+  padding-right: 20px;
+  &:focus,
+  &:active {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 19px;
+    padding-right: 19px;
+    @include border(input-focus);
+  }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
+}
+
+input[type="submit"],
+input[type="button"] {
+  margin-left: 10px;
+  margin-right: 10px;
+  min-width: 24px;
+}
+
+// ******************** coverart-container/artistMain.jsp, albumMain.jsp, home.jsp *******************
+
+div.coverart-container {
+  @include sectionContent();
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+// ******************** details template **********************************
+
+details {
+  @include subSection;
+  background-color: $jp-color-white;
+  vertical-align: middle;
+  summary {
+    position: relative;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: start;
+    height: 30px;
+    padding: 0 0 0 30px;
+    @include border;
+    border-radius: 15px;
+    background: $jp-color-white;
+    font-size: 1.07rem;
+    @include dropShadow;
+    cursor: pointer;
+    transition-duration: 0.5s;
+    &::-webkit-details-marker {
+      display: none;
+    }
+    &:before {
+      position: absolute;
+      left: 0px;
+      width: 8px;
+      height: 8px;
+      margin-top: 2px;
+      margin-left: 12px;
+      border-top: solid 4px $jp-color-base3; // one-off-border
+      border-right: solid 4px $jp-color-base3; // one-off-border
+      -ms-transform: rotate(45deg);
+      -webkit-transform: rotate(45deg);
+      transform: rotate(45deg);
+      transition: all 0.5s ease-out;
+      content: "";
+    }
+  }
+  > dl,
+  table.tabular,
+  div.coverart-container {
+    margin-top: 30px;
+  }
+}
+
+details[open] {
+  summary {
+    background: $jp-color-base1;
+    @include border;
+    @include dropShadow(none);
+    &:before {
+      border-top: solid 4px $jp-color-base1; // one-off-border
+      border-right: solid 4px $jp-color-base1; // one-off-border
+      -ms-transform: rotate(135deg);
+      -webkit-transform: rotate(135deg);
+      transform: rotate(135deg);
+      transition: all 0.5s ease-in;
+    }
+  }
+}
+
+// ******************** section template **********************************
+
+section {
+  min-height: 60px;
+  margin-top: 20px;
+  border-bottom: 1.4px solid $jp-color-base3;
+  > h1 {
+    display: flex;
+    align-items: center;
+    margin: 4px 0 0 8px;
+    padding: 3px 0 5px 0;
+    color: $jp-color-dark-gray;
+    font-size: 1.43rem;
+    white-space: nowrap;
+  }
+  > h2 {
+    background-color: red; // DEPRECATED
+  }
+  > details {
+    @include sectionContent;
+    > summary {
+      > h1 {
+        display: flex;
+        align-items: center;
+        margin: 0 0 0 8px;
+        padding: 0 0 0 0;
+        color: $jp-color-dark-gray;
+        font-size: 1.43rem;
+        white-space: nowrap;
+      }
+    }
+    > #artistBio,
+    .description {
+      overflow: auto;
+      width: calc(100vw - 480px);
+      height: 180px;
+      margin: 30px 0 30px calc(240px - 30px);
+      @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+        width: calc(100vw - 120px);
+        margin: 30px 0 30px calc(60px - 30px);
+      }
+      padding: 5px 10px 5px 10px;
+      background-color: $jp-color-complementary2;
+      @include border;
+      @include border;
+      @include borderRadius;
+      color: $jp-color-black;
+      line-height: 30px;
+    }
+  }
+  > details:not(.loading) {
+    > summary {
+      padding-left: 20px;
+      > h1 {
+        &:before {
+          display: none;
+          content: "";
+        }
+      }
+    }
+  }
+  > details.loading {
+    filter: none;
+    > summary {
+      padding-left: 0;
+      border: $jp-border-width solid transparent;
+      @include dropShadow(none);
+      &:before {
+        border-top: solid 4px transparent;
+        border-right: solid 4px transparent;
+      }
+    }
+  }
+}
+
+section + details {
+  margin-top: 30px;
+}
+
+// ******************** table template ************************************
+
+//table {
+//background-color: red; // DEPRECATED v109.3.0 right and video unfixed yet
+//}
+
+table.tabular {
+  @include sectionContent;
+  background: $jp-color-white;
+  @include border(top);
+  @include borderRadius(upper);
+  border-collapse: separate;
+  border-spacing: 0;
+  caption {
+    height: 30px;
+    max-height: 30px;
+    margin-top: 0;
+    padding: 6px;
+    color: $jp-color-dark-gray;
+    font-size: 0.93rem;
+    font-weight: 600;
+    text-align: left;
+  }
+  thead {
+    tr {
+      height: 30px;
+      &:first-child {
+        th {
+          padding: 0 0 0 10px;
+          font-size: 0.93rem;
+          vertical-align: middle;
+          text-align: left;
+          &:first-child {
+            @include border(left);
+            @include borderRadius(upper-left);
+          }
+          &:last-child {
+            @include border(right);
+            @include borderRadius(upper-right);
+          }
+          &.prime-end {
+            @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+              @include border(right);
+              @include borderRadius(upper-right);
+            }
+          }
+        }
+      }
+      th {
+        padding: 0 0 0 10px;
+        font-size: 0.93rem;
+        @include border(bottom);
+        background-color: $jp-color-base1;
+        color: $jp-color-black;
+        vertical-align: middle;
+        text-align: left;
+        &:first-child {
+          @include borderRadius(upper-left);
+        }
+        &:last-child {
+          @include borderRadius(upper-right);
+        }
+        &.supplement {
+          @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+            display: none;
+          }
+        }
+        &.prime-end {
+          @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+            @include borderRadius(upper-right);
+          }
+        }
+      }
+    }
+  }
+  tbody {
+    #pattern {
+      display: none;
+      margin: 0;
+      padding: 0;
+      border: 0;
+    }
+    tr {
+      height: 30px;
+      @include border(bottom-zero);
+      td {
+        padding: 0 0 0 10px;
+        font-size: 0.93rem;
+        white-space: nowrap;
+        vertical-align: middle;
+        text-align: left;
+        @include border(bottom);
+        &:first-child {
+          @include border(left);
+        }
+        &:last-child {
+          @include border(right);
+        }
+        &.supplement {
+          @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+            display: none;
+          }
+        }
+        &.prime-end {
+          @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+            @include border(right);
+          }
+        }
+      }
+      &:last-child {
+        td {
+          @include border(zero);
+        }
+      }
+      &:last-child {
+        th,
+        td {
+          @include border(bottom);
+          &:first-child {
+            @include border(left);
+            @include borderRadius(lower-left);
+          }
+          &:last-child {
+            @include border(right);
+            @include borderRadius(lower-right);
+          }
+          &.prime-end {
+            @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+              @include border(right);
+              @include borderRadius(lower-right);
+            }
+          }
+        }
+      }
+      &:hover {
+        background-color: $jp-color-mask-light-gray;
+      }
+    }
+  }
+}
+
+.actions + table.tabular {
+  margin-top: 30px;
+}
+
+// ******************** scrollbar *****************************************
+
+::-webkit-scrollbar {
+  width: $jp-scrollbar-size;
+  height: 10px;
+  background: $jp-color-base1;
+}
+
+::-webkit-scrollbar-button {
+  border: 0;
+  height: 0;
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: $jp-color-base3;
+  min-height: 60px;
+  @include border(top);
+  @include border(bottom);
+  @include borderRadius;
+  @include dropShadow;
+}
+
+::-webkit-scrollbar-track {
+  background: $jp-color-base1;
+}
+
+::-webkit-scrollbar-track-piece {
+  background: white;
+  @include border;
+  @include borderRadius;
+  @include dropShadow;
+}
+
+::-webkit-scrollbar-corner {
+  background-color: transparent;
+}
+
+::-webkit-resizer {
+  background-color: transparent;
+}

@@ -1,0 +1,185 @@
+// ## MIXIN #######################################################################
+
+// Typical border definition patterns.
+// For other definitions, one-off-border and comment are added.
+@mixin border($type: "") {
+  @if $type == "right" {
+    border-right: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "top" {
+    border-top: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "bottom" {
+    border-bottom: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "left" {
+    border-left: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "other-than-top" {
+    border-right: $jp-border-width solid $jp-color-light-gray;
+    border-bottom: $jp-border-width solid $jp-color-light-gray;
+    border-left: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "other-than-bottom" {
+    border-top: $jp-border-width solid $jp-color-light-gray;
+    border-right: $jp-border-width solid $jp-color-light-gray;
+    border-left: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "other-than-right" {
+    border-top: $jp-border-width solid $jp-color-light-gray;
+    border-bottom: $jp-border-width solid $jp-color-light-gray;
+    border-left: $jp-border-width solid $jp-color-light-gray;
+  } @else if $type == "zero" {
+    border: 0;
+  } @else if $type == "bottom-zero" {
+    border-bottom: 0;
+  } @else if $type == "input-focus" {
+    border: $jp-outline-width solid $jp-color-complementary3;
+  } @else if $type == "input" {
+    border: $jp-border-width solid $jp-color-medium-gray;
+  } @else {
+    border: $jp-border-width solid $jp-color-light-gray;
+  }
+}
+
+// Typical border-radius definition patterns.
+// For other definitions, 'one-off-border-radius' and comment are added.
+@mixin borderRadius($type: "") {
+  @if $type == "upper-left" {
+    border-radius: $jp-border-radius 0 0 0;
+  } @else if $type == "upper-right" {
+    border-radius: 0 $jp-border-radius 0 0;
+  } @else if $type == "lower-right" {
+    border-radius: 0 0 $jp-border-radius 0;
+  } @else if $type == "lower-left" {
+    border-radius: 0 0 0 $jp-border-radius;
+  } @else if $type == "upper" {
+    border-radius: $jp-border-radius $jp-border-radius 0 0;
+  } @else if $type == "right" {
+    border-radius: 0 $jp-border-radius $jp-border-radius 0;
+  } @else if $type == "lower" {
+    border-radius: 0 0 $jp-border-radius $jp-border-radius;
+  } @else if $type == "left" {
+    border-radius: $jp-border-radius 0 0 $jp-border-radius;
+  } @else if $type == "input" {
+    border-radius: $jp-border-input-radius;
+  } @else if $type == "none" {
+    border-radius: 0 0 0 0;
+  } @else {
+    border-radius: $jp-border-radius;
+  }
+}
+
+// Outline of inputs is realized by each specific methods.
+@mixin outline() {
+  box-shadow: 0 0 0 $jp-outline-width $jp-color-complementary3;
+}
+
+// private
+$jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
+
+// Image used for the link is highlighted by hover.
+@mixin imageLink($isDropShadow: "true") {
+  position: relative;
+  @if $isDropShadow == "true" {
+    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+  }
+  &:hover {
+    filter: hue-rotate(180deg) contrast(120%) drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+  }
+  &:active {
+    top: $jp-shadow-pressed-offset;
+    left: $jp-shadow-pressed-offset;
+    filter: hue-rotate(180deg) contrast(120%) drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+  }
+}
+
+// Block used for the link is highlighted by hover.
+@mixin blockLink($background, $color) {
+  filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+  &:focus {
+    @include border;
+  }
+  &:hover {
+    @include transition;
+    text-decoration: none;
+    background: $jp-color-complementary3;
+    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+  }
+  &:active {
+    top: $jp-shadow-pressed-offset;
+    left: $jp-shadow-pressed-offset;
+    background: $jp-color-complementary3;
+    filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+  }
+  background: $background;
+  color: $color;
+}
+
+@mixin dropShadow($state: "") {
+  @if $state == "none" {
+    -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    -moz-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+    filter: none;
+  } @else {
+    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+    &:active {
+      top: $jp-shadow-pressed-offset;
+      left: $jp-shadow-pressed-offset;
+      filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+    }
+  }
+}
+
+// Set to the background color masked by primaryColor .(used for mediaelement).
+@mixin primaryMaskedBg($transparency: "1") {
+  background: rgba($jp-color-base2, $transparency);
+}
+
+// Common transition applied to input etc.
+@mixin transition() {
+  transition: /* color 0.2s ease ,*/ background 0.2s ease;
+}
+
+@mixin subSection() {
+  width: calc(100% - 40px);
+  margin: 0 20px 30px 20px;
+  padding: 0;
+}
+@mixin sectionContent() {
+  width: calc(100% - 40px);
+  margin: 0 0 0 20px;
+  padding: 0;
+}
+
+@mixin subSectionContent() {
+  width: calc(100% - 30px);
+  margin: 30px 0 30px 30px;
+  padding: 0;
+}
+
+@mixin subSubSection() {
+  width: calc(100% - 60px);
+  margin: 0 0 0 30px;
+}
+
+@mixin buttonCell() {
+  width: 30px;
+  padding: 0 0 3px 10px;
+}
+
+@mixin dlInputWidth($size) {
+  $baseWidth: 30px;
+  $dlPadding: 3px;
+  width: calc((#{$baseWidth} * #{$size}) - #{$dlPadding});
+}
+
+@mixin tabularInputWidth($size) {
+  $baseWidth: 30px;
+  $tabularPadding: 10px;
+  width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding} * 2);
+  margin: 0 10px 0 10px;
+}
+
+@mixin tabularWithCoverArt() {
+  width: calc(100vw - #{$album-page-cover-art-size} - 60px - #{$jp-scrollbar-size});
+  @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+    width: calc(100vw - 60px - #{$jp-scrollbar-size});
+  }
+  margin: 0 0 30px 20px;
+}

@@ -1,0 +1,44 @@
+.mainframe.settings.databaseSettings {
+  input#embedDriver {
+    @include dlInputWidth(10);
+  }
+  input#embedUrl {
+    @include dlInputWidth(14);
+  }
+  input#embedUsername {
+    @include dlInputWidth(5);
+  }
+  input#embedPassword {
+    @include dlInputWidth(5);
+  }
+  input#JNDIName {
+    @include dlInputWidth(5);
+  }
+  input#mysqlVarcharMaxlength {
+    @include dlInputWidth(2);
+  }
+  input#usertableQuote {
+    @include dlInputWidth(1);
+  }
+
+  .methods {
+    width: 330px;
+    min-width: 330px;
+    max-width: 400px;
+    margin: 34px 20px 3px 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 34px 20px 3px calc((100vw - (50vw - 60px)) / 2);
+    }
+  }
+
+  dl,
+  dl.single {
+    width: calc(100vw - 60px);
+    margin: 30px 20px 0 20px;
+    @media screen and (min-width: $jp-supplement-width-threshold) {
+      width: calc(50vw - 60px);
+      margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
+    }
+  }
+}

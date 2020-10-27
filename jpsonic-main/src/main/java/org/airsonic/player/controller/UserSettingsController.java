@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Controller for the page used to administrate users.
@@ -73,7 +75,7 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(HttpServletRequest request, Model model) throws Exception {
+    protected String displayForm(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
         if (!model.containsAttribute("command")) {
             command = new UserSettingsCommand();
@@ -101,6 +103,9 @@ public class UserSettingsController {
         command.setTranscodeSchemes(TranscodeScheme.values());
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setAllMusicFolders(settingsService.getAllMusicFolders());
+        command.setUseRadio(settingsService.isUseRadio());
+        command.setUseSonos(settingsService.isUseSonos());
+        toast.ifPresent(b -> command.setShowToast(b));
         model.addAttribute("command", command);
         return "userSettings";
     }
@@ -140,7 +145,6 @@ public class UserSettingsController {
                 updateUser(command);
             }
             redirectAttributes.addFlashAttribute("settings_reload", true);
-            redirectAttributes.addFlashAttribute("settings_toast", true);
         } else {
             redirectAttributes.addFlashAttribute("command", command);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);

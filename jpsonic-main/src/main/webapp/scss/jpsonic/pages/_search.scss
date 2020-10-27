@@ -1,0 +1,77 @@
+.mainframe.search > details {
+  > .tabular {
+    //    @include subSectionContent;
+    width: calc(100vw - 90px - #{$jp-scrollbar-size});
+    margin: 30px 0 30px 30px;
+  }
+  > .tabular.artists,
+  > .tabular.albums,
+  > .tabular.songs {
+    td {
+      &:nth-child(1),
+      &:nth-child(2),
+      &:nth-child(3) {
+        @include buttonCell;
+      }
+      &.song.truncate,
+      &.album.truncate,
+      &.artist.truncate,
+      &.composer,
+      &.genre {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+  > .tabular.albums {
+    td {
+      &.album {
+        width: calc((100vw - 180px) * 0.7);
+        max-width: calc((100vw - 180px) * 0.7);
+      }
+      &.artist {
+        width: calc((100vw - 180px) * 0.3);
+        min-width: calc((100vw - 180px) * 0.3);
+        max-width: calc((100vw - 180px) * 0.3);
+      }
+      &.composer {
+        width: 10vw;
+        min-width: 10vw;
+        max-width: 10vw;
+      }
+      &.genre {
+        width: 10vw;
+        min-width: 10vw;
+        max-width: 10vw;
+      }
+    }
+  }
+  > .tabular.songs {
+    td {
+      &.song {
+        width: calc((100vw - 180px) * 0.4);
+        max-width: calc((100vw - 180px) * 0.4);
+      }
+      &.album {
+        width: calc((100vw - 180px) * 0.3);
+        max-width: calc((100vw - 180px) * 0.3);
+      }
+      &.artist {
+        width: calc((100vw - 180px) * 0.3);
+        min-width: calc((100vw - 180px) * 0.3);
+        max-width: calc((100vw - 180px) * 0.3);
+      }
+      &.composer {
+        width: 10vw;
+        min-width: 10vw;
+        max-width: 10vw;
+      }
+      &.genre {
+        width: 10vw;
+        min-width: 10vw;
+        max-width: 10vw;
+      }
+    }
+  }
+}
