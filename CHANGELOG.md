@@ -3,8 +3,32 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.2.0
+## v109.3.0
 #### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+
+#### fix
+
+  * Various library updates (Includes fix of CVE-2020-5421, CVE-2015-5211 and CVE-2020-11979)
+
+#### Other updates
+
+  * Remove tags that are not recommended in HTML5
+  * Remove opening and closing of playqueue by mouse hover
+  * Remove old themes all and add new themes
+  * Add list view for podcasts and playlists
+  * Add index to Home
+  * Add "Suppressed legacy features" and "Additional display features" to settings. It suppresses amount of display
+  * Add verbose help to setting pages. Redundant help has been added to some setting items and can be turned ON / OFF at once
+  * Add a button to reset to the initial value for some setting items
+  * Add option to force Bio's display language to English
+  * Add an option to allow general users to view logs
+  * Fix drawer and playqueue layout
+  * Fix layout so that songs with long titles like classical music are not truncate
+  * Fix setting pages
+  * Fix breadcrumb
+
+<details>
+<summary>v109.2.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
 #### fix
 
@@ -22,6 +46,7 @@
   * Change the design of the chart image
   * Add a theme that can use Japanese fonts to the theme of Web pages
   * Fix some web page for tags and CSS
+</details>
 
 <details>
 <summary>v109.1.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
