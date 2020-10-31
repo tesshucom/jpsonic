@@ -99,6 +99,7 @@ public class PersonalSettingsCommand {
     private EnumHolder[] fontSchemeHolders;
     private String fontSchemeName;
     private boolean showOutlineHelp;
+    private boolean voiceInputEnabled;
 
     public User getUser() {
         return user;
@@ -593,5 +594,13 @@ public class PersonalSettingsCommand {
 
     public void setShowOutlineHelp(boolean showOutlineHelp) {
         this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public boolean isVoiceInputEnabled() {
+        return voiceInputEnabled;
+    }
+
+    public void setVoiceInputEnabled(boolean voiceInputEnabled) {
+        this.voiceInputEnabled = voiceInputEnabled;
     }
 }

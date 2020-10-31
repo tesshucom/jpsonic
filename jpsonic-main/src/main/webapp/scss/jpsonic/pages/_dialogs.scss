@@ -1,0 +1,27 @@
+.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons.ui-draggable.ui-resizable {
+  @include border;
+  @include borderRadius;
+  @include dropShadow;
+  button {
+    @include blockLink($jp-color-base4, $jp-color-white);
+    outline: none;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border: 1px solid $jp-color-medium-gray;
+    border-radius: 10px;
+    font-size: 0.93rem;
+    vertical-align: middle;
+  }
+}
+
+#voice-input-dialog,
+#voice-input-result {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: start;
+  margin-left: 10px;
+  color: $jp-color-black;
+}

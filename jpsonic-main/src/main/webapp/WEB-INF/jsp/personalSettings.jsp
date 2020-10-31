@@ -28,6 +28,7 @@ function setSettings4DesktopPC() {
     $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
     $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
     $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
+    $('[name="voiceInputEnabled"]').prop('checked', ${command.defaultSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
 }
 
@@ -46,6 +47,7 @@ function setSettings4Tablet() {
     $('[name="openDetailSetting"]').prop('checked', ${command.tabletSettings.openDetailSetting});
     $('[name="openDetailStar"]').prop('checked', ${command.tabletSettings.openDetailStar});
     $('[name="openDetailIndex"]').prop('checked', ${command.tabletSettings.openDetailIndex});
+    $('[name="voiceInputEnabled"]').prop('checked', ${command.tabletSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.tabletSettings.songNotificationEnabled});
 }
 
@@ -64,6 +66,7 @@ function setSettings4Smartphone() {
     $('[name="openDetailSetting"]').prop('checked', ${command.smartphoneSettings.openDetailSetting});
     $('[name="openDetailStar"]').prop('checked', ${command.smartphoneSettings.openDetailStar});
     $('[name="openDetailIndex"]').prop('checked', ${command.smartphoneSettings.openDetailIndex});
+    $('[name="voiceInputEnabled"]').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
 }
 
@@ -295,6 +298,12 @@ function resetAdditionalDisplay() {
             <dd>
                 <form:checkbox path="openDetailIndex" id="openDetailIndex" />
                 <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
+            </dd>
+            <dt><fmt:message key="personalsettings.browser"/></dt>
+            <dd>
+                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
+                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
             </dd>
             <dt><fmt:message key="personalsettings.browser"/></dt>
             <dd>

@@ -87,6 +87,7 @@ public class UserSettings {
     private String fontSchemeName = FontScheme.DEFAULT.name();
     private boolean showOutlineHelp;
     private boolean forceBio2Eng;
+    private boolean voiceInputEnabled;
     // <<<< JP
 
     public UserSettings(String username) {
@@ -533,6 +534,14 @@ public class UserSettings {
 
     public void setForceBio2Eng(boolean forceBio2Eng) {
         this.forceBio2Eng = forceBio2Eng;
+    }
+
+    public boolean isVoiceInputEnabled() {
+        return voiceInputEnabled;
+    }
+
+    public void setVoiceInputEnabled(boolean voiceInputEnabled) {
+        this.voiceInputEnabled = voiceInputEnabled;
     }
 
     /**

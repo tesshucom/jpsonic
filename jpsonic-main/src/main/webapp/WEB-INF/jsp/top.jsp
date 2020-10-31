@@ -44,6 +44,46 @@ $(document).ready(function(){
         evt.preventDefault();
     });
 
+	<c:if test="${model.voiceInputEnabled}">
+		let sr;
+		let dialog = $("#voice-input-dialog").dialog({
+			autoOpen:false,
+			height: 120,
+	        width: 480,
+			modal:true,
+		    open: function(e, u) {
+		    	$("#voice-input-result").empty();
+		    	SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
+		    	sr = new SpeechRecognition();
+		    	sr.lang = '${model.voiceInputLocale}';
+		    	sr.interimResults = true;
+		    	sr.continuous = true;
+		    	sr.onresult = function(e) {
+		    		const results = e.results;
+		    	    for (var i = e.resultIndex; i < results.length; i++) {
+		    	        if (results[i].isFinal) {
+		    	          sr.stop();
+		    	        } else {
+			    	      $("#voice-input-result").text(results[i][0].transcript);
+		    	        }
+		    	      }
+		    	    }
+		    	    function onEnd(e) {
+		    	    	sr.stop();
+		    	    	$("#voice-input-dialog").dialog("close");
+		    	    	triggerVoiceInputSearch();
+		    	    };
+	    	        sr.onend = onEnd;
+		    	    sr.onerror = function(e) {console.log(e);onEnd(e)}
+		    	    sr.start();
+		    },
+			buttons: {"cancel": function() {sr.stop();}
+		}});
+		dialog.dialog("widget").find(".ui-dialog-titlebar").hide();
+		$("#voiceInputButton").click(function() {
+			$("#voice-input-dialog").dialog("open");
+		});
+	</c:if>
 });
 
 function triggerInstantSearch() {
@@ -59,6 +99,13 @@ function executeInstantSearch() {
         previousQuery = query;
         document.searchForm.submit();
     }
+}
+
+function triggerVoiceInputSearch() {
+	if($("#voice-input-result").text()) {
+	    $("#query").val($("#voice-input-result").text());
+	    executeInstantSearch();
+	}
 }
 
 function toggleDrawer() {
@@ -272,7 +319,15 @@ window.onShowKeyboardShortcuts = function() {
         </c:if>
         <form method="post" action="search.view" target="main" name="searchForm">
             <input required type="text" name="query" id="query" placeholder="${search}" onclick="select();" onkeyup="triggerInstantSearch();">
-            <a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
+	        <c:choose>
+	        	<c:when test="${model.voiceInputEnabled}">
+            		<a href="#" title="${search}" class="control microphone" id="voiceInputButton">${search}</a>
+	        	</c:when>
+	        	<c:otherwise>
+            		<a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
+	        	</c:otherwise>
+        	</c:choose>
+        	
         </form>
     </div>
 
@@ -299,6 +354,12 @@ window.onShowKeyboardShortcuts = function() {
         });
         </script>
     </c:if>
+
+	<c:if test="${model.voiceInputEnabled}">
+		<div id="voice-input-dialog">
+			<div id="voice-input-result"></div>
+		</div>
+	</c:if>
 
 </body>
 </html>

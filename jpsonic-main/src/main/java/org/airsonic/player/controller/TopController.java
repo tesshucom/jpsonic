@@ -25,6 +25,7 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.PlayerService;
@@ -73,6 +74,8 @@ public class TopController {
     private PlayerService playerService;
     @Autowired
     private VersionService versionService;
+    @Autowired
+    private AirsonicLocaleResolver localeResolver;
 
     private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList("musicFolderSettings.view",
             "generalSettings.view", "personalSettings.view", "userSettings.view", "playerSettings.view",
@@ -94,6 +97,8 @@ public class TopController {
         map.put("showIndex", userSettings.isShowIndex());
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
+        map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
+        map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         map.put("useRadio", settingsService.isUseRadio());
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, "refresh", false);
@@ -127,16 +132,6 @@ public class TopController {
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
         map.put("brand", settingsService.getBrand());
-
-//      MediaLibraryStatistics statistics = indexManager.getStatistics();
-//      Locale locale = RequestContextUtils.getLocale(request);
-//      if (statistics != null) {
-//          map.put("statistics", statistics);
-//          long bytes = statistics.getTotalLengthInBytes();
-//          long hours = statistics.getTotalDurationInSeconds() / 3600L;
-//          map.put("hours", hours);
-//          map.put("bytes", StringUtil.formatBytes(bytes, locale));
-//      }
 
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());

@@ -125,6 +125,7 @@ public class PersonalSettingsController {
         command.setFontSchemeName(userSettings.getFontSchemeName());
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
+        command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
 
         toast.ifPresent(b -> command.setShowToast(b));
 
@@ -226,6 +227,7 @@ public class PersonalSettingsController {
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
         settings.setFontSchemeName(command.getFontSchemeName());
         settings.setForceBio2Eng(command.isForceBio2Eng());
+        settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
 
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
