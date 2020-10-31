@@ -39,6 +39,7 @@
 //           └ pages                [Definition for each page of JSP. Global definition overrides and page-dependent definitions.]
 //                 ├ _all.scss       : There is no particular content. Links to all files in the pages directory.
 //                 ├ _global.scss    : Global definition, that depends on the CSS class used by Jpsonic's JSP.
+//                 ├ _dialogs.scss   : Definition that depends on the dialog class of jquery-ui. All dialogs are defined in one file.
 //                 └ *.scss          : CSS unique to each page. It corresponds to the web page (JSP).
 //
 

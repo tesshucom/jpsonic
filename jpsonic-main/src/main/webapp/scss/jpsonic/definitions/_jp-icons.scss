@@ -489,32 +489,44 @@ section > details > summary > h1 {
 .control.elasticity {
   @include createButton("\f36b", 18px, -0.09em, -0.06em);
 }
+.control.elasticity {
+  @include createButton("\f36b", 18px, -0.09em, -0.06em);
+}
 
-form .control.search {
+@mixin createSearchButton($content: "", $content-size: "") {
   $icon-height: 26px;
   $icon-width: 40px;
-  $content: "\f375";
-  $content-size: 20px;
   margin-left: 1px;
   height: $icon-height;
   width: $icon-width;
   border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
   border: 1.4px solid $jp-color-base3;
   &::before {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
     width: #{$icon-height};
     height: #{$icon-height};
-    margin: 0 0 0 0;
     padding-left: 0.4em;
     background: $jp-color-base2;
     color: $jp-color-white;
     -webkit-font-smoothing: antialiased;
-    line-height: calc(#{$icon-height} - 0.15em);
+    line-height: calc(#{$icon-height} - 0.1em);
     font-family: "ionic";
     font-weight: 300;
     font-size: #{$content-size};
     content: "#{$content}";
     display: block;
   }
+}
+
+form .control.search {
+  @include createSearchButton("\f375", 20px);
+}
+
+form .control.microphone {
+  @include createSearchButton("\f32c", 20px);
 }
 
 .popup.help {
