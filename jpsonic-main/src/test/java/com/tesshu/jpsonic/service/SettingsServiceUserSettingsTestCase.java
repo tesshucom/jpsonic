@@ -71,8 +71,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isOpenDetailSetting());
         assertFalse(userSettings.isOpenDetailStar());
         assertFalse(userSettings.isOpenDetailIndex());
-        assertTrue(userSettings.isSongNotificationEnabled());
+        assertFalse(userSettings.isSongNotificationEnabled());
         assertFalse(userSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
     }
 
     @Test
@@ -91,8 +92,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(tabletSettings.isOpenDetailSetting());
         assertFalse(tabletSettings.isOpenDetailStar());
         assertFalse(tabletSettings.isOpenDetailIndex());
-        assertTrue(tabletSettings.isSongNotificationEnabled());
+        assertFalse(tabletSettings.isSongNotificationEnabled());
         assertFalse(tabletSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
     }
 
     @Test
@@ -111,8 +113,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(smartphoneSettings.isOpenDetailSetting());
         assertFalse(smartphoneSettings.isOpenDetailStar());
         assertFalse(smartphoneSettings.isOpenDetailIndex());
-        assertTrue(smartphoneSettings.isSongNotificationEnabled());
+        assertFalse(smartphoneSettings.isSongNotificationEnabled());
         assertFalse(smartphoneSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
     }
 
     @Test

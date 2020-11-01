@@ -52,6 +52,8 @@ public class GeneralSettingsCommand {
     private boolean publishPodcast;
     private boolean showJavaJukebox;
     private boolean showServerLog;
+    private boolean showStatus;
+    private boolean othersPlayingEnabled;
     private boolean showRememberMe;
     private boolean showToast;
     private String welcomeTitle;
@@ -321,6 +323,22 @@ public class GeneralSettingsCommand {
 
     public void setShowServerLog(boolean showServerLog) {
         this.showServerLog = showServerLog;
+    }
+
+    public boolean isShowStatus() {
+        return showStatus;
+    }
+
+    public void setShowStatus(boolean showStatus) {
+        this.showStatus = showStatus;
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return othersPlayingEnabled;
+    }
+
+    public void setOthersPlayingEnabled(boolean othersplayingenabled) {
+        this.othersPlayingEnabled = othersplayingenabled;
     }
 
     public boolean isShowRememberMe() {

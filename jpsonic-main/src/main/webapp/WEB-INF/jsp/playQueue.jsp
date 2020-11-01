@@ -156,6 +156,7 @@ function onEnded() {
  * Callback function called when playback for the current song has started.
  */
 function onPlaying() {
+    top.onChangeCurrentSong(currentSong);
     if (currentSong) {
         updateWindowTitle(currentSong);
         <c:if test="${model.notify}">
@@ -292,18 +293,19 @@ window.onGainAdd = function(gain) {
 }
 
 function onSkip(index) {
-<c:choose>
-<c:when test="${model.player.web}">
-    loadPlayer(index);
-</c:when>
-<c:otherwise>
-    currentStreamUrl = songs[index].streamUrl;
-    if (isJavaJukeboxPresent()) {
-        updateJavaJukeboxPlayerControlBar(songs[index]);
-    }
-    playQueueService.skip(index, playQueueCallback);
-</c:otherwise>
-</c:choose>
+    top.onChangeCurrentSong(null);
+    <c:choose>
+    <c:when test="${model.player.web}">
+        loadPlayer(index);
+    </c:when>
+    <c:otherwise>
+        currentStreamUrl = songs[index].streamUrl;
+        if (isJavaJukeboxPresent()) {
+            updateJavaJukeboxPlayerControlBar(songs[index]);
+        }
+        playQueueService.skip(index, playQueueCallback);
+    </c:otherwise>
+    </c:choose>
 }
 window.onNext = function(wrap) {
     var index = parseInt(getCurrentSongIndex()) + 1;
@@ -755,6 +757,12 @@ function preparePlayer(index, position) {
     return currentSong;
 }
 
+window.initCurrentSongView = function() {
+	if(0 < $('#audioPlayer').get(0).currentTime) {
+	    top.onChangeCurrentSong(currentSong);
+	}
+}
+
 /**
  * Start playing a song by its index on the active player.
  *
@@ -818,6 +826,7 @@ function onPlayingStateUpdated() {
             $(receiver).removeClass('playing');
             if (song.streamUrl == currentStreamUrl) {
                 if($("#audioPlayer").get(0).paused) {
+                    top.onChangeCurrentSong(null);
                     $(receiver).addClass('paused');
                 } else {
                     $(receiver).addClass('playing');
@@ -1028,7 +1037,7 @@ window.onTryCloseQueue = function() {
             </c:if>
             
             <c:if test="${model.player.web or model.player.jukebox or model.player.external}">
-            	<li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
+                <li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
             </c:if>
         </ul>
     </div>
@@ -1041,7 +1050,7 @@ window.onTryCloseQueue = function() {
         <c:set var="songClass" value="song" />
         <c:set var="albumClass" value="album" />
         <c:set var="artistClass" value="artist" />
-	    <c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
+        <c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
         <table class="tabular queue">
             <thead id="playQueueHeader">
                 <tr>

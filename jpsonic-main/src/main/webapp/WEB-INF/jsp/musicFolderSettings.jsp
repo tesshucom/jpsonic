@@ -10,9 +10,8 @@
             $('#newMusicFolderName').attr("placeholder", "<fmt:message key="musicfoldersettings.name"/>");
             $('#newMusicFolderPath').attr("placeholder", "<fmt:message key="musicfoldersettings.path"/>");
             <c:if test="${settings_reload}">
-              window.top.reloadUpper("musicFolderSettings.view");
-              window.top.reloadPlayQueue();
-              window.top.reloadRight();
+                window.top.reloadUpper("musicFolderSettings.view");
+                window.top.reloadPlayQueue();
             </c:if>
         }
     </script>
@@ -84,10 +83,10 @@
                 <div>
                     <c:choose>
                         <c:when test='${command.scanning}'>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
+                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>" disabled/>
                         </c:when>
                         <c:otherwise>
-                            <input type="button" onClick="location.href='musicFolderSettings.view?scanNow'" value="<fmt:message key='musicfoldersettings.doscan'/>"/>
+                            <input type="button" onClick="top.onStartScanning();location.href='musicFolderSettings.view?scanNow=true'" value="<fmt:message key='musicfoldersettings.doscan'/>"/>
                         </c:otherwise>
                     </c:choose>
                 </div>

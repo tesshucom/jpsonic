@@ -165,6 +165,8 @@ public class SettingsService {
     private static final String KEY_PUBLISH_PODCAST = "PublishPodcast";
     private static final String KEY_SHOW_JAVAJUKE_BOX = "ShowJavaJukebox";
     private static final String KEY_SHOW_SERVER_LOG = "ShowServerLog";
+    private static final String KEY_SHOW_STATUS = "ShowStatus";
+    private static final String KEY_OTHERS_PLAYING_ENABLED = "OthersPlayingEnabled";
     private static final String KEY_SHOW_REMEMBER_ME = "ShowRememberMe";
     private static final String KEY_SONOS_ENABLED = "SonosEnabled";
     private static final String KEY_SONOS_SERVICE_NAME = "SonosServiceName";
@@ -279,6 +281,8 @@ public class SettingsService {
     private static final boolean DEFAULT_PUBLISH_PODCAST = false;
     private static final boolean DEFAULT_SHOW_JAVAJUKE_BOX = false;
     private static final boolean DEFAULT_SHOW_SERVER_LOG = false;
+    private static final boolean DEFAULT_SHOW_STATUS = false;
+    private static final boolean DEFAULT_OTHERS_PLAYING_ENABLED = false;
     private static final boolean DEFAULT_SHOW_REMEMBER_ME = false;
     private static final boolean DEFAULT_SONOS_ENABLED = false;
     private static final String DEFAULT_SONOS_SERVICE_NAME = "Jpsonic";
@@ -1355,7 +1359,8 @@ public class SettingsService {
         settings.setAssignAccesskeyToNumber(true);
         settings.setSimpleDisplay(true);
         settings.setQueueFollowingSongs(true);
-        settings.setSongNotificationEnabled(true);
+        settings.setShowCurrentSongInfo(true);
+        settings.setSongNotificationEnabled(false);
 
         // display
         UserSettings.Visibility main = settings.getMainVisibility();
@@ -1646,6 +1651,22 @@ public class SettingsService {
 
     public void setShowServerLog(boolean b) {
         setBoolean(KEY_SHOW_SERVER_LOG, b);
+    }
+
+    public boolean isShowStatus() {
+        return getBoolean(KEY_SHOW_STATUS, DEFAULT_SHOW_STATUS);
+    }
+
+    public void setShowStatus(boolean b) {
+        setBoolean(KEY_SHOW_STATUS, b);
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return getBoolean(KEY_OTHERS_PLAYING_ENABLED, DEFAULT_OTHERS_PLAYING_ENABLED);
+    }
+
+    public void setOthersPlayingEnabled(boolean b) {
+        setBoolean(KEY_OTHERS_PLAYING_ENABLED, b);
     }
 
     public boolean isShowRememberMe() {

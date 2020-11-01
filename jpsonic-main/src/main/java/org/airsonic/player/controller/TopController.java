@@ -91,7 +91,9 @@ public class TopController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         map.put("user", user);
-        map.put("showRight", userSettings.isShowNowPlayingEnabled());
+        map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());
+        map.put("showNowPlayingEnabled", userSettings.isShowNowPlayingEnabled());
+        map.put("showCurrentSongInfo", userSettings.isShowCurrentSongInfo());
         map.put("closeDrawer", userSettings.isCloseDrawer());
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());

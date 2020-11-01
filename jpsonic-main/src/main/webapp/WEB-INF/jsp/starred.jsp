@@ -8,7 +8,7 @@
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/starService.js'/>"></script>
 <script src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 <script>

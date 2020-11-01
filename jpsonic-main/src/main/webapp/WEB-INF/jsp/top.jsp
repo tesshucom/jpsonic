@@ -7,6 +7,7 @@
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/utils.js'/>"></script>
+<script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
 
 <script>
 
@@ -18,6 +19,8 @@ let main;
 let playQueue;
 
 $(document).ready(function(){
+
+    dwr.engine.setErrorHandler(null);
 
     drawer = document.getElementById('drawer');
     toggler = document.getElementById("toggler");
@@ -37,53 +40,74 @@ $(document).ready(function(){
         close : function() {$("#iframeDiv").remove();}
     });
 
-    dwr.engine.setErrorHandler(null);
-
     $('.radio-play').on('click', function(evt) {
         top.playQueue.onPlayInternetRadio($(this).data("id"), 0);
         evt.preventDefault();
     });
 
-	<c:if test="${model.voiceInputEnabled}">
-		let sr;
-		let dialog = $("#voice-input-dialog").dialog({
-			autoOpen:false,
-			height: 120,
-	        width: 480,
-			modal:true,
-		    open: function(e, u) {
-		    	$("#voice-input-result").empty();
-		    	SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
-		    	sr = new SpeechRecognition();
-		    	sr.lang = '${model.voiceInputLocale}';
-		    	sr.interimResults = true;
-		    	sr.continuous = true;
-		    	sr.onresult = function(e) {
-		    		const results = e.results;
-		    	    for (var i = e.resultIndex; i < results.length; i++) {
-		    	        if (results[i].isFinal) {
-		    	          sr.stop();
-		    	        } else {
-			    	      $("#voice-input-result").text(results[i][0].transcript);
-		    	        }
-		    	      }
-		    	    }
-		    	    function onEnd(e) {
-		    	    	sr.stop();
-		    	    	$("#voice-input-dialog").dialog("close");
-		    	    	triggerVoiceInputSearch();
-		    	    };
-	    	        sr.onend = onEnd;
-		    	    sr.onerror = function(e) {console.log(e);onEnd(e)}
-		    	    sr.start();
-		    },
-			buttons: {"cancel": function() {sr.stop();}
-		}});
-		dialog.dialog("widget").find(".ui-dialog-titlebar").hide();
-		$("#voiceInputButton").click(function() {
-			$("#voice-input-dialog").dialog("open");
-		});
-	</c:if>
+    <c:if test="${model.voiceInputEnabled}">
+        let sr;
+        let dialog = $("#voice-input-dialog").dialog({
+            autoOpen:false,
+            height: 120,
+            width: 480,
+            modal:true,
+            open: function(e, u) {
+                $("#voice-input-result").empty();
+                SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
+                sr = new SpeechRecognition();
+                sr.lang = '${model.voiceInputLocale}';
+                sr.interimResults = true;
+                sr.continuous = true;
+                sr.onresult = function(e) {
+                    const results = e.results;
+                    for (var i = e.resultIndex; i < results.length; i++) {
+                        if (results[i].isFinal) {
+                          sr.stop();
+                        } else {
+                          $("#voice-input-result").text(results[i][0].transcript);
+                        }
+                      }
+                    }
+                    function onEnd(e) {
+                        sr.stop();
+                        $("#voice-input-dialog").dialog("close");
+                        triggerVoiceInputSearch();
+                    };
+                    sr.onend = onEnd;
+                    sr.onerror = function(e) {console.log(e);onEnd(e)}
+                    sr.start();
+            },
+            buttons: {"cancel": function() {sr.stop();}
+        }});
+        dialog.dialog("widget").find(".ui-dialog-titlebar").hide();
+        $("#voiceInputButton").click(function() {
+            $("#voice-input-dialog").dialog("open");
+        });
+    </c:if>
+
+    $("#nowPlayingInfos").dialog({
+        autoOpen: false,
+        closeOnEscape: true,
+        width: 840,
+        height: 480,
+        draggable: false,
+        modal: true,
+        resizable: false,
+        stack: true,
+        hide     : "fold",
+        show     : "fold",
+        open : function() {
+            $("#nowPlayingInfos").append('<iframe id="iframeDiv" scrolling="no" frameborder="no"></iframe>');
+            $("#iframeDiv").attr({src : "nowPlayingInfos.view?", width : '100%', height : '100%' });},
+        buttons: {"close": function() {$(this).dialog('close');}},
+        close : function() {$("#iframeDiv").remove();}
+    }).dialog("widget").find(".ui-dialog-titlebar").hide();
+
+    top.initCurrentSongView();
+
+    callScanningStatus();
+
 });
 
 function triggerInstantSearch() {
@@ -102,27 +126,19 @@ function executeInstantSearch() {
 }
 
 function triggerVoiceInputSearch() {
-	if($("#voice-input-result").text()) {
-	    $("#query").val($("#voice-input-result").text());
-	    executeInstantSearch();
-	}
+    if($("#voice-input-result").text()) {
+        $("#query").val($("#voice-input-result").text());
+        executeInstantSearch();
+    }
 }
 
 function toggleDrawer() {
-    window.top.setDrawerOpened(toggler.checked);
-    // >> It will be modified when right.view is modified.
-    let mainWidth;
-    if(toggler.checked) {
-        mainWidth = "calc(100vw - 240px - " + ${model.showRight ? 240 : 0} + "px)";
-        <c:if test="${model.alternativeDrawer}">
+    top.setDrawerOpened(toggler.checked);
+    <c:if test="${model.alternativeDrawer}">
+        if(toggler.checked) {
             top.onCloseQueue();
-        </c:if>
-    } else {
-        mainWidth = "calc(100vw - " + ${model.showRight ? 240 : 0} + "px)";
-    }
-    main.style.width = mainWidth;
-    playQueue.style.width = mainWidth;
-    // <<
+        }
+    </c:if>
 }
 
 window.onToggleDrawer = function() {
@@ -157,6 +173,68 @@ window.onShowKeyboardShortcuts = function() {
     $('#keyboardShortcuts').dialog('open');
 }
 
+function callScanningStatus() {
+    nowPlayingService.getScanningStatus(getScanningStatusCallback);
+}
+
+let retryCallScanningStatus = false;
+
+window.onStartScanning = function() {
+    retryCallScanningStatus = true;
+    callScanningStatus();
+    $('#main').toastmessage("showNoticeToast", "<fmt:message key='main.scanstart'/>");
+}
+
+window.callPassiveScanningStatus = function() {
+    if(!$("#isScanning").prop('checked')) {
+        callScanningStatus();
+    }
+}
+
+function getScanningStatusCallback(scanInfo) {
+    let finished = $("#isScanning").prop('checked') && !scanInfo.scanning;
+    $("#isScanning").prop('checked', scanInfo.scanning);
+    $("#scanningStatus .message").text(scanInfo.count);
+    if (scanInfo.scanning) {
+        setTimeout("callScanningStatus()", ${model.user.settingsRole ? "3000" : "10000"});
+    } else {
+        if (finished) {
+            retryCallScanningStatus = false;
+            if (document.getElementById("main").contentDocument.location.pathname.split("/").pop().startsWith("musicFolderSettings")) {
+                document.getElementById("main").contentDocument.location = "musicFolderSettings.view";
+            }
+            $('#main').toastmessage("showNoticeToast", "<fmt:message key='main.scanend'/>");
+        } else if(retryCallScanningStatus) {
+            setTimeout("callScanningStatus()", 1000);
+        }
+    }
+}
+
+window.onChangeCurrentSong = function(song) {
+    <c:if test="${model.showCurrentSongInfo}">
+        if (song == null) {
+            $("#isNowPlaying").prop('checked', false);
+        } else {
+            $("#isNowPlaying").prop('checked', true);
+            if (song.coverArtUrl == null) {
+                $(".nowPlaying .coverArt").css("visibility", "hidden");
+            } else {
+                $(".nowPlaying .coverArt").css("visibility", "visible");
+                $(".nowPlaying .coverArt").attr('src', song.coverArtUrl + "&size=60");
+            }
+            if (song.albumUrl != null) {
+                $(".nowPlaying").on('click', function() {
+                    window.open(song.albumUrl, 'main');
+                });
+            }
+            $(".nowPlaying #songTitle").text(song.title);
+            $(".nowPlaying #dir").text(
+                    (song.artist == null ? '' : song.artist) +
+                    (song.artist == null || song.album == null ? '' : ' - ') +
+                    (song.album == null ? '' : song.album));
+        }
+    </c:if>
+}
 </script>
 </head>
 
@@ -164,6 +242,7 @@ window.onShowKeyboardShortcuts = function() {
 
     <fmt:message key="top.home" var="home" />
     <fmt:message key="top.now_playing" var="nowPlaying" />
+    <fmt:message key="top.othersplaying" var="othersPlaying" />
     <fmt:message key="top.starred" var="starred" />
     <fmt:message key="top.playlists" var="playlists" />
     <fmt:message key="top.settings" var="settings" />
@@ -175,7 +254,7 @@ window.onShowKeyboardShortcuts = function() {
     <fmt:message key="top.upload" var="upload" />
 
     <%-- toggler --%>
-    <input type="checkbox" id="toggler" class="jps-input-toggler" value="1" autofocus="true" checked onchange="toggleDrawer()" />
+    <input type="checkbox" id="toggler" class="jps-input-toggler" autofocus="true" checked onchange="toggleDrawer()" />
     <label for="toggler" class="jps-toggler" role="button" aria-pressed="false" aria-expanded="false" aria-label="Navigation button"> <span class="jps-toggler-line"></span> <span
         class="jps-toggler-line"></span> <span class="jps-toggler-line"></span>
     </label>
@@ -194,7 +273,7 @@ window.onShowKeyboardShortcuts = function() {
             </c:if>
         </div>
 
-        <input type="checkbox" class="jps-input-without-index" value="1" autofocus="false" ${model.showIndex ? '' : 'checked'} />
+        <input type="checkbox" class="jps-input-without-index" ${model.showIndex ? '' : 'checked'} />
         <c:if test="${not empty model.indexedArtists}">
             <ul class="jps-index">
                 <c:forEach items="${model.indexedArtists}" var="entry" varStatus="status">
@@ -245,7 +324,9 @@ window.onShowKeyboardShortcuts = function() {
                                 <a href="top.view?refresh=true" title="<fmt:message key='common.refresh'/>" class="menu-item refresh"><fmt:message key="common.refresh" /></a>
                             </c:otherwise>
                         </c:choose></li>
-                    <li><a href="nowPlaying.view?" target="main" title="${nowPlaying}" class="menu-item pulse">${nowPlaying}</a></li>
+                    <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
+                        <li><a href="javascript:$('#nowPlayingInfos').dialog('open');" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
+                    </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>
                     </c:if>
@@ -267,7 +348,6 @@ window.onShowKeyboardShortcuts = function() {
                                 </c:otherwise>
                             </c:choose>
                     </c:if>
-                    <li><a href="status.view?" target="main" title="<fmt:message key='top.status'/>" class="menu-item graph"><fmt:message key='top.status' /></a></li>
                     <c:if test="${model.user.uploadRole}">
                         <li><a href="uploadEntry.view?" target="main" title="${upload}" class="menu-item upload">${upload}</a></li>
                     </c:if>
@@ -307,6 +387,7 @@ window.onShowKeyboardShortcuts = function() {
 
     <%-- topHeader --%>
     <div class="jps-topHeader">
+        <%-- primary menu items --%>
         <c:if test="${not model.putMenuInDrawer}">
             <nav>
                 <ul class="menu">
@@ -317,18 +398,33 @@ window.onShowKeyboardShortcuts = function() {
                 </ul>
             </nav>
         </c:if>
+        <%-- scanning --%>
+        <input type="checkbox" id="isScanning" class="jps-input-scanning"/>
+        <div id="scanningStatus">
+            <div class="loader" title="<fmt:message key='main.scanning'/>"></div>
+            <div class="message" title="<fmt:message key='main.scannedfiles'/>"></div>
+        </div>
+        <%-- search --%>
         <form method="post" action="search.view" target="main" name="searchForm">
             <input required type="text" name="query" id="query" placeholder="${search}" onclick="select();" onkeyup="triggerInstantSearch();">
-	        <c:choose>
-	        	<c:when test="${model.voiceInputEnabled}">
-            		<a href="#" title="${search}" class="control microphone" id="voiceInputButton">${search}</a>
-	        	</c:when>
-	        	<c:otherwise>
-            		<a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
-	        	</c:otherwise>
-        	</c:choose>
-        	
+            <c:choose>
+                <c:when test="${model.voiceInputEnabled}">
+                    <a href="#" title="${search}" class="control microphone" id="voiceInputButton">${search}</a>
+                </c:when>
+                <c:otherwise>
+                    <a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
+                </c:otherwise>
+            </c:choose>
         </form>
+        <%-- nowPlaying --%>
+        <input type="checkbox" id="isNowPlaying"/>
+        <a href="nowPlaying.view?" target="main" title="${nowPlaying}" class="nowPlaying">
+            <img class="coverArt">
+            <div class="info">
+                <div id="songTitle"></div>
+                <div id="dir"></div>
+            </div>
+        </a>
     </div>
 
     <%-- main --%>
@@ -344,7 +440,7 @@ window.onShowKeyboardShortcuts = function() {
     <c:if test="${model.newVersionAvailable}">
         <fmt:message key="top.upgradeshort" var="versionNotice"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message>
         <script>
-        $().toastmessage('showToast', {
+        $('#main').toastmessage('showToast', {
             text     : '${fn:escapeXml(versionNotice)}',
             stayTime : 10000,
             sticky   : false,
@@ -355,11 +451,13 @@ window.onShowKeyboardShortcuts = function() {
         </script>
     </c:if>
 
-	<c:if test="${model.voiceInputEnabled}">
-		<div id="voice-input-dialog">
-			<div id="voice-input-result"></div>
-		</div>
-	</c:if>
+    <c:if test="${model.voiceInputEnabled}">
+        <div id="voice-input-dialog">
+            <div id="voice-input-result"></div>
+        </div>
+    </c:if>
+
+    <div id="nowPlayingInfos"></div>
 
 </body>
 </html>

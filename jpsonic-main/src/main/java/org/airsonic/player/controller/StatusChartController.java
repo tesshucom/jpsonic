@@ -69,7 +69,7 @@ public class StatusChartController extends AbstractChartController {
     @Autowired
     private FontLoader fontLoader;
 
-    public static final int IMAGE_WIDTH = 350;
+    public static final int IMAGE_WIDTH = 240;
     public static final int IMAGE_HEIGHT = 150;
 
     public static final Object LOCK = new Object();

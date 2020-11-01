@@ -14,4 +14,16 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-show-current-song-info" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_current_song_info" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_current_song_info" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

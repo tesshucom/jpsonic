@@ -21,6 +21,8 @@ package org.airsonic.player.controller;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
@@ -48,6 +50,10 @@ public class StatusController {
 
     @Autowired
     private StatusService statusService;
+    @Autowired
+    private SettingsService settingsService;
+    @Autowired
+    private SecurityService securityService;
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
@@ -72,8 +78,10 @@ public class StatusController {
         for (int i = 0; i < uploadStatuses.size(); i++) {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
-
         return new ModelAndView("status", "model", LegacyMap.of(
+                "brand", settingsService.getBrand(),
+                "admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()),
+                "showStatus", settingsService.isShowStatus(),
                 "transferStatuses", transferStatuses,
                 "chartWidth", StatusChartController.IMAGE_WIDTH,
                 "chartHeight", StatusChartController.IMAGE_HEIGHT));

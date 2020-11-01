@@ -26,7 +26,6 @@ public class IndexController {
         UserSettings userSettings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
 
         return new ModelAndView("index", "model", LegacyMap.of(
-                "showRight", userSettings.isShowNowPlayingEnabled(),
                 "autoHidePlayQueue", userSettings.isAutoHidePlayQueue(),
                 "keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
                 "showLeft", userSettings.isCloseDrawer(),

@@ -15,6 +15,10 @@ function onToggleDrawer() {document.getElementById("upper").contentWindow.onTogg
 function onCloseDrawer() {document.getElementById("upper").contentWindow.onCloseDrawer()};
 function onChangeMainLocation(location) {document.getElementById("upper").contentWindow.onChangeMainLocation(location)};
 function onShowKeyboardShortcuts() {document.getElementById("upper").contentWindow.onShowKeyboardShortcuts()};
+function onStartScanning() {document.getElementById("upper").contentWindow.onStartScanning();};
+function callPassiveScanningStatus() {document.getElementById("upper").contentWindow.callPassiveScanningStatus();};
+function onChangeCurrentSong(song) {document.getElementById("upper").contentWindow.onChangeCurrentSong(song);};
+function initCurrentSongView() {document.getElementById("playQueue").contentWindow.initCurrentSongView();}
 function onToggleStartStop() {document.getElementById("playQueue").contentWindow.onToggleStartStop()};
 function onPrevious() {document.getElementById("playQueue").contentWindow.onPrevious()};
 function onNext() {document.getElementById("playQueue").contentWindow.onNext()};
@@ -29,18 +33,14 @@ function reloadUpper(...mainViewName) {
     const upper = document.getElementById("upper");
     const playQueue = document.getElementById("playQueue");
     if (mainViewName.length == 1) {
-        document.getElementById('upper').contentWindow.location.href = "top.view?mainView=" + mainViewName[0];
+        document.getElementById('upper').contentWindow.location.replace("top.view?mainView=" + mainViewName[0]);
     } else {
         document.getElementById('upper').contentWindow.location.reload(true);
     }
 }
 
-function reloadRight() {
-  document.getElementById('right').contentWindow.location.reload(true);
-}
-
 function reloadPlayQueue() {
-  document.getElementById('playQueue').contentWindow.location.reload(true);
+    document.getElementById('playQueue').contentWindow.location.reload(true);
 }
 
 function setDrawerOpened(isDrawerOpened) {
@@ -57,11 +57,8 @@ function setQueueExpand(isQueueExpand) {
 
 </script>
 <body class="index">
-	<input type="checkbox" id="isRight" value="1" autofocus="false" ${model.showRight ? "checked" : ""} />
 	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
-
 	<iframe name="upper" id="upper" src="top.view?"></iframe>
-	<iframe name="right" id="right" src="right.view?"></iframe>
 
 	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
     <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
