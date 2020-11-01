@@ -30,6 +30,7 @@ function setSettings4DesktopPC() {
     $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
     $('[name="voiceInputEnabled"]').prop('checked', ${command.defaultSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
+    $('[name="showCurrentSongInfo"]').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
 }
 
 function setSettings4Tablet() {
@@ -49,6 +50,7 @@ function setSettings4Tablet() {
     $('[name="openDetailIndex"]').prop('checked', ${command.tabletSettings.openDetailIndex});
     $('[name="voiceInputEnabled"]').prop('checked', ${command.tabletSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.tabletSettings.songNotificationEnabled});
+    $('[name="showCurrentSongInfo"]').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
 }
 
 function setSettings4Smartphone() {
@@ -68,6 +70,7 @@ function setSettings4Smartphone() {
     $('[name="openDetailIndex"]').prop('checked', ${command.smartphoneSettings.openDetailIndex});
     $('[name="voiceInputEnabled"]').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
+    $('[name="showCurrentSongInfo"]').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
 }
 
 function resetDisplay() {
@@ -251,17 +254,17 @@ function resetAdditionalDisplay() {
                 <label for="closeDrawer"><fmt:message key="personalsettings.closedrawer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="closedrawer"/></c:import>
             </dd>
-            <dt><fmt:message key="personalsettings.pages.playqueue"/></dt>
-            <dd>
-                <form:checkbox path="closePlayQueue" id="closePlayQueue" />
-                <label for="closePlayQueue"><fmt:message key="personalsettings.closeplayqueue"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="closeplayqueue"/></c:import>
-            </dd>
             <dt><fmt:message key="personalsettings.pages.drawer"/></dt>
             <dd>
                 <form:checkbox path="alternativeDrawer" id="alternativeDrawer" />
                 <label for="alternativeDrawer"><fmt:message key="personalsettings.alternativedrawer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="alternativedrawer"/></c:import>
+            </dd>
+            <dt><fmt:message key="personalsettings.pages.playqueue"/></dt>
+            <dd>
+                <form:checkbox path="closePlayQueue" id="closePlayQueue" />
+                <label for="closePlayQueue"><fmt:message key="personalsettings.closeplayqueue"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="closeplayqueue"/></c:import>
             </dd>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
@@ -284,6 +287,25 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="queueFollowingSongs" id="queueFollowingSongs" />
                 <label for="queueFollowingSongs"><fmt:message key="personalsettings.queuefollowingsongs"/></label>
             </dd>
+
+            <dt></dt>
+            <dd>
+                <form:checkbox path="showCurrentSongInfo" id="showCurrentSongInfo" />
+                <label for="showCurrentSongInfo"><fmt:message key="personalsettings.showcurrentsonginfo"/></label>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.notification"/></dt>
+            <dd>
+                <form:checkbox path="songNotificationEnabled" id="song" />
+                <label for="song"><fmt:message key="personalsettings.songnotification"/></label>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.speechrecognition"/></dt>
+            <dd>
+                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
+                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
+            </dd>
             <dt><fmt:message key="personalsettings.summary"/></dt>
             <dd>
                 <form:checkbox path="openDetailSetting" id="openDetailSetting" />
@@ -298,17 +320,6 @@ function resetAdditionalDisplay() {
             <dd>
                 <form:checkbox path="openDetailIndex" id="openDetailIndex" />
                 <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
-            </dd>
-            <dt><fmt:message key="personalsettings.browser"/></dt>
-            <dd>
-                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
-                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
-            </dd>
-            <dt><fmt:message key="personalsettings.browser"/></dt>
-            <dd>
-                <form:checkbox path="songNotificationEnabled" id="song" />
-                <label for="song"><fmt:message key="personalsettings.songnotification"/></label>
             </dd>
         </dl>
     </details>
@@ -405,19 +416,20 @@ function resetAdditionalDisplay() {
                 <fmt:message key="personalsettings.additionaldisplayoutline"/>
             </div>
         </c:if>
-
         <dl>
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
-                <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-            </dd>
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
-            </dd>
+            <c:if test="${command.othersPlayingEnabled}">
+	            <dt><fmt:message key="personalsettings.menu"/></dt>
+	            <dd>
+	                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
+	                <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
+	                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
+	            </dd>
+	            <dt><fmt:message key="personalsettings.menu"/></dt>
+	            <dd>
+	                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
+	                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
+	            </dd>
+	        </c:if>
             <%-- There are many problems. Temporarily deleted. #622
             <dt><fmt:message key="personalsettings.frames"/></dt>
             <dd>
@@ -620,17 +632,8 @@ function resetAdditionalDisplay() {
 
 <c:if test="${settings_reload}">
     <script>
-        <c:choose>
-            <c:when test="${index_reload}">
-                <%--  There is a case of ON / OFF of right.view, so index.view must be reloaded. --%>
-                window.top.location.reload(true);
-            </c:when>
-            <c:otherwise>
-                window.top.reloadUpper("personalSettings.view");
-                window.top.reloadPlayQueue();
-                window.top.reloadRight();
-            </c:otherwise>
-        </c:choose>
+        window.top.reloadUpper("personalSettings.view");
+        window.top.reloadPlayQueue();
     </script>
 </c:if>
 

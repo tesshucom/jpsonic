@@ -122,6 +122,8 @@ public class PersonalSettingsController {
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
+        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
+        command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
 
         toast.ifPresent(b -> command.setShowToast(b));
 
@@ -180,8 +182,13 @@ public class PersonalSettingsController {
         settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
         settings.setPartyModeEnabled(command.isPartyModeEnabled());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
-        boolean showNowPlayingEnabledChanged = settings.isShowNowPlayingEnabled() != command.isShowNowPlayingEnabled();
-        settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
+        if (settingsService.isOthersPlayingEnabled()) {
+            settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
+            settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
+        } else {
+            settings.setShowNowPlayingEnabled(false);
+            settings.setNowPlayingAllowed(false);
+        }
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
         settings.setCloseDrawer(command.isCloseDrawer());
         settings.setClosePlayQueue(command.isClosePlayQueue());
@@ -191,7 +198,6 @@ public class PersonalSettingsController {
         settings.setOpenDetailIndex(command.isOpenDetailIndex());
         settings.setOpenDetailSetting(command.isOpenDetailSetting());
         settings.setOpenDetailStar(command.isOpenDetailStar());
-        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setMainVisibility(command.getMainVisibility());
         settings.setPlaylistVisibility(command.getPlaylistVisibility());
         settings.setFinalVersionNotificationEnabled(command.isFinalVersionNotificationEnabled());
@@ -224,6 +230,7 @@ public class PersonalSettingsController {
         settings.setFontSchemeName(command.getFontSchemeName());
         settings.setForceBio2Eng(command.isForceBio2Eng());
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
+        settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
 
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
@@ -233,7 +240,6 @@ public class PersonalSettingsController {
         settingsService.updateUserSettings(settings);
 
         redirectAttributes.addFlashAttribute("settings_reload", true);
-        redirectAttributes.addFlashAttribute("index_reload", showNowPlayingEnabledChanged);
 
         return "redirect:personalSettings.view";
     }

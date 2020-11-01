@@ -10,7 +10,7 @@
 <script src="<c:url value='/dwr/interface/transferService.js'/>"></script>
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/util.js'/>"></script>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script>
 
 function refreshProgress() {

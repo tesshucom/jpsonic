@@ -679,6 +679,9 @@ form .control.microphone {
 .menu-item.upload {
   @include createMenuButton("\f2e3", 24px, 0, 0, 180deg);
 }
+.menu-item.connecting {
+  @include createMenuButton("\f186", 24px, 0, 0.08em);
+}
 .rating.star {
   @include createButton("\f4b2", 18px, -0.09em, -0.06em);
 }

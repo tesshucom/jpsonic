@@ -1,0 +1,144 @@
+// ******************** topHeader / top.jsp *****************************
+
+.jps-topHeader {
+  $jps-search-form-width: 240px;
+  display: flex;
+  align-items: center;
+  width: 100vw;
+  height: $jp-header-height;
+  @include border(bottom);
+  > nav > ul.menu {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 0 calc(#{$jp-drawer-width} + 5px);
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+      margin: 0 0 0 60px;
+    }
+    li {
+      width: 30px;
+      height: 30px;
+    }
+  }
+  form {
+    width: $jps-search-form-width;
+    position: absolute;
+    left: calc(50vw - #{$jps-search-form-width} / 2);
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    input[type="text"]#query {
+      outline: none;
+      height: 26px;
+      padding-top: 2px;
+      padding-bottom: 2px;
+      padding-left: 10px;
+      padding-right: 10px;
+      border-radius: 13px 0 0 13px;
+      &:focus,
+      &:active {
+        padding-top: 1px;
+        padding-bottom: 1px;
+        padding-left: 9px;
+        padding-right: 9px;
+        @include border(input-focus);
+      }
+    }
+  }
+
+  input[type="checkbox"]#isNowPlaying {
+    display: none;
+    &:checked ~ a.nowPlaying {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: center;
+      justify-content: start;
+    }
+  }
+  a.nowPlaying {
+    display: none;
+    outline: none;
+    user-select: none;
+    position: absolute;
+    top: 4px;
+    right: 30px;
+    height: 50px;
+    max-width: calc(50vw - #{$jps-search-form-width} / 2 - 40px);
+    @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+      max-width: 330px;
+    }
+
+    @include border(none);
+    @include borderRadius;
+    border-color: $jp-color-base1;
+    background: $jp-color-base1;
+
+    &:hover {
+      filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+      top: 4px;
+      right: 30px;
+      @include border;
+      border-color: $jp-color-complementary3;
+      background: $jp-color-complementary3;
+    }
+    &:focus,
+    &:active {
+      filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
+      top: 5px;
+      right: 29px;
+      @include border;
+      border-color: $jp-color-complementary3;
+      background: $jp-color-complementary3;
+    }
+
+    &:link,
+    &:active,
+    &:visited,
+    &:link *,
+    &:active *,
+    &:visited * {
+      color: $jp-color-dark-gray;
+    }
+    &:hover,
+    &:hover * {
+      color: $jp-color-white;
+    }
+
+    .coverArt {
+      visibility: hidden;
+      margin: 4px;
+      width: 40px;
+      height: 40px;
+      @include borderRadius;
+      border: 0 solid transparent;
+    }
+    .info {
+      max-width: calc(50vw - #{$jps-search-form-width} / 2 - 100px);
+      @media screen and (max-width: #{$jp-supplement-width-threshold}) {
+        max-width: 270px;
+      }
+      display: flex;
+      flex-flow: column wrap;
+      align-items: center;
+      justify-content: start;
+      #songTitle,
+      #dir {
+        width: 100%;
+        padding: 0 10px 0 10px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      #songTitle {
+        font-weight: 600;
+        font-size: 1rem;
+      }
+      #dir {
+        font-size: 0.86rem;
+      }
+    }
+  }
+}

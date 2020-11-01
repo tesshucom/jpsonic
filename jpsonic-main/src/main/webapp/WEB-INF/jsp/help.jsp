@@ -4,13 +4,14 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <script src="<c:url value='/script/utils.js'/>"></script>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 </head>
 <body class="mainframe help">
 
 <c:import url="helpHeader.jsp">
     <c:param name="cat" value="help"/>
-    <c:param name="restricted" value="${not model.admin}"/>
+    <c:param name="isAdmin" value="${model.admin}"/>
+    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <c:choose>

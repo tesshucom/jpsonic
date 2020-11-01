@@ -88,6 +88,7 @@ public class UserSettings {
     private boolean showOutlineHelp;
     private boolean forceBio2Eng;
     private boolean voiceInputEnabled;
+    private boolean showCurrentSongInfo;
     // <<<< JP
 
     public UserSettings(String username) {
@@ -542,6 +543,14 @@ public class UserSettings {
 
     public void setVoiceInputEnabled(boolean voiceInputEnabled) {
         this.voiceInputEnabled = voiceInputEnabled;
+    }
+
+    public boolean isShowCurrentSongInfo() {
+        return showCurrentSongInfo;
+    }
+
+    public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
+        this.showCurrentSongInfo = showCurrentSongInfo;
     }
 
     /**

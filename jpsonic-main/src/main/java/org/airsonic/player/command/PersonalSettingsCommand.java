@@ -96,6 +96,8 @@ public class PersonalSettingsCommand {
     private String fontSchemeName;
     private boolean showOutlineHelp;
     private boolean voiceInputEnabled;
+    private boolean othersPlayingEnabled;
+    private boolean showCurrentSongInfo;
 
     public User getUser() {
         return user;
@@ -598,5 +600,21 @@ public class PersonalSettingsCommand {
 
     public void setVoiceInputEnabled(boolean voiceInputEnabled) {
         this.voiceInputEnabled = voiceInputEnabled;
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return othersPlayingEnabled;
+    }
+
+    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
+        this.othersPlayingEnabled = othersPlayingEnabled;
+    }
+
+    public boolean isShowCurrentSongInfo() {
+        return showCurrentSongInfo;
+    }
+
+    public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
+        this.showCurrentSongInfo = showCurrentSongInfo;
     }
 }

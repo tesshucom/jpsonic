@@ -104,6 +104,7 @@ public class HelpController {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", locale);
         map.put("lastModified", format.format(logFile.lastModified()));
         map.put("showServerLog", settingsService.isShowServerLog());
+        map.put("showStatus", settingsService.isShowStatus());
         return new ModelAndView("help", "model", map);
     }
 

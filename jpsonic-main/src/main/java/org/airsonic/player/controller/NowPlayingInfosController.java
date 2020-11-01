@@ -27,12 +27,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping("/keyboardShortcuts")
-public class KeyboardShortcutsController {
+@RequestMapping("/nowPlayingInfos")
+public class NowPlayingInfosController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
-        return new ModelAndView("keyboardShortcuts");
+        return new ModelAndView("nowPlayingInfos");
     }
 
 }

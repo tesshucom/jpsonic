@@ -1,4 +1,5 @@
-.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons.ui-draggable.ui-resizable {
+.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front.ui-dialog-buttons.ui-draggable.ui-resizable,
+.ui-dialog.ui-corner-all.ui-widget.ui-widget-content.ui-front {
   @include border;
   @include borderRadius;
   @include dropShadow;
@@ -16,12 +17,20 @@
   }
 }
 
-#voice-input-dialog,
-#voice-input-result {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
-  justify-content: start;
-  margin-left: 10px;
-  color: $jp-color-black;
+.top-frame {
+  #voice-input-dialog,
+  #voice-input-result {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: start;
+    margin-left: 10px;
+    color: $jp-color-black;
+  }
+
+  #keyboardShortcuts {
+    display: none;
+    overflow: hidden;
+    z-index: $jp-layer-5;
+  }
 }
