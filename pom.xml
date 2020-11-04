@@ -21,7 +21,7 @@
         <tomcat.version>9.0.39</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.33.v20201020</jetty.version>
-        <jetty-jsp.version>9.4.33.v20201020</jetty-jsp.version>
+        <jetty-jsp.version>9.4.34.v20201102</jetty-jsp.version>
         <pmd.version>6.29.0</pmd.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
