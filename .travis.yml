@@ -15,3 +15,4 @@ matrix:
   - jdk: openjdk12
   - jdk: openjdk13
   - jdk: openjdk14
+  - jdk: openjdk15

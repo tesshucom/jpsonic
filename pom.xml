@@ -659,10 +659,31 @@
             </properties>
         </profile>
         <profile>
+            <id>release12</id>
+            <properties>
+                <maven.compiler.release>12</maven.compiler.release>
+                <compile.version>12</compile.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>release13</id>
+            <properties>
+                <maven.compiler.release>13</maven.compiler.release>
+                <compile.version>13</compile.version>
+            </properties>
+        </profile>
+        <profile>
             <id>release14</id>
             <properties>
                 <maven.compiler.release>14</maven.compiler.release>
                 <compile.version>14</compile.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>release15</id>
+            <properties>
+                <maven.compiler.release>15</maven.compiler.release>
+                <compile.version>15</compile.version>
             </properties>
         </profile>
         <profile>
