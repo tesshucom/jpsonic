@@ -666,6 +666,13 @@
             </properties>
         </profile>
         <profile>
+            <id>release15</id>
+            <properties>
+                <maven.compiler.release>15</maven.compiler.release>
+                <compile.version>15</compile.version>
+            </properties>
+        </profile>
+        <profile>
             <id>unit-test</id>
             <modules>
                 <module>subsonic-rest-api</module>
