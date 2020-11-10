@@ -23,7 +23,7 @@
         <jetty.version>9.4.34.v20201102</jetty.version>
         <jetty-jsp.version>9.4.34.v20201102</jetty-jsp.version>
         <pmd.version>6.29.0</pmd.version>
-        <log4j.version>2.13.3</log4j.version>
+        <log4j.version>2.14.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
     </properties>
