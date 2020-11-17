@@ -118,10 +118,12 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
     filter: none;
   } @else {
     filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
-    &:active {
-      top: $jp-shadow-pressed-offset;
-      left: $jp-shadow-pressed-offset;
-      filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+    @if $state != "non-clickable" {
+      &:active {
+        top: $jp-shadow-pressed-offset;
+        left: $jp-shadow-pressed-offset;
+        filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
+      }
     }
   }
 }

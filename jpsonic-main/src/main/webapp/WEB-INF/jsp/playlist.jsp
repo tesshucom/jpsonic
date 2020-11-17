@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
 <html><head>
@@ -9,48 +10,72 @@
 <script src="<c:url value='/dwr/interface/starService.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 <script>
-
-$(document).ready(function(){
-	init();
-    initTruncate(".tabular-and-thumb", ".tabular.playlist", 5, ["album", "artist", "song"]);
-});
 
 var playlist;
 var songs;
-function init() {
+
+$(document).ready(function(){
     dwr.engine.setErrorHandler(null);
-    $("#dialog-edit").dialog({resizable: true, width:400, autoOpen: false,
-        buttons: {
+
+    initTruncate(".tabular-and-thumb", ".tabular.playlist", 5, ["album", "artist", "song"]);
+
+    const editPs = new PrefferedSize(480, 240);
+    top.$("#dialog-edit").dialog({
+    	autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : editPs.width,
+        height  : editPs.height,
+    	buttons: {
             "<fmt:message key="common.save"/>": function() {
-                $(this).dialog("close");
-                var name = $("#newName").val();
-                var comment = $("#newComment").val();
-                var shared = $("#newShared").is(":checked");
+            	top.$("#dialog-edit").dialog("close");
+                var name = top.$("#newName").val();
+                var comment = top.$("#newComment").val();
+                var shared = top.$("#newShared").is(":checked");
                 $("#name").text(name);
                 $("#comment").text(comment);
-                playlistService.updatePlaylist(playlist.id, name, comment, shared, function (playlistInfo){playlistCallback(playlistInfo); top.left.updatePlaylists()});
+                playlistService.updatePlaylist(playlist.id, name, comment, shared, function (playlistInfo){playlistCallback(playlistInfo);});
             },
             "<fmt:message key="common.cancel"/>": function() {
-                $(this).dialog("close");
+            	top.$("#dialog-edit").dialog("close");
             }
         }
     });
+    top.$("#newName").val("<sub:escapeJavaScript string='${model.playlist.name}'/>");
+    top.$("#newComment").val("<sub:escapeJavaScript string='${model.playlist.comment}'/>");
+    top.$("#newShared").prop('checked', ${model.playlist.shared});
 
-    $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
+    const deletePs = new PrefferedSize(480, 180);
+    top.$("#dialog-delete").dialog({
+    	autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : deletePs.width,
+        height  : deletePs.height,
         buttons: {
             "<fmt:message key="common.delete"/>": function() {
-                $(this).dialog("close");
+            	top.$("#dialog-delete").dialog("close");
                 playlistService.deletePlaylist(playlist.id, function (){
                     window.parent.main.location = "playlists.view";
                 });
             },
-            "<fmt:message key="common.cancel"/>": function() {
-                $(this).dialog("close");
-            } 
-        }
+            "<fmt:message key="common.cancel"/>": {
+            	text: "<fmt:message key="common.cancel"/>",
+            	id: 'ddCancelButton',
+            	click: function() {top.$("#dialog-delete").dialog("close");}
+            }
+        },
+        open: function() {top.$("#ddCancelButton").focus();}
     });
-
+    top.$("#dialog-delete").text("<fmt:message key='playlist2.confirmdelete2'><fmt:param><sub:escapeJavaScript string='${model.playlist.name}'/></fmt:param></fmt:message>");
+    
+    
     $("#playlistBody").sortable({
         stop: function(event, ui) {
             var indexes = [];
@@ -77,7 +102,8 @@ function init() {
     });
 
     getPlaylist();
-}
+
+});
 
 function getPlaylist() {
     playlistService.getPlaylist(${model.playlist.id}, playlistCallback);
@@ -171,10 +197,10 @@ function onRearrange(indexes) {
     playlistService.rearrange(playlist.id, indexes, playlistCallback);
 }
 function onEditPlaylist() {
-    $("#dialog-edit").dialog("open");
+	top.$("#dialog-edit").dialog("open");
 }
 function onDeletePlaylist() {
-    $("#dialog-delete").dialog("open");
+    top.$("#dialog-delete").dialog("open");
 }
 
 </script>
@@ -298,29 +324,6 @@ function onDeletePlaylist() {
         </c:import>
     </div>
 
-</div>
-
-<div id="dialog-delete" title="<fmt:message key='common.confirm'/>">
-    <p><span class="ui-icon ui-icon-alert"></span>
-        <fmt:message key="playlist2.confirmdelete"/>
-    </p>
-</div>
-
-<div id="dialog-edit" title="<fmt:message key='common.edit'/>">
-    <form>
-    
-    	<dl>
-    		<dt><label for="newName"><fmt:message key="playlist2.name"/></label></dt>
-        	<dd><input type="text" name="newName" id="newName" value="${fn:escapeXml(model.playlist.name)}" class="ui-widget-content"/></dd>
-        	<dt><label for="newComment"><fmt:message key="playlist2.comment"/></label></dt>
-        	<dd><input type="text" name="newComment" id="newComment" value="${fn:escapeXml(model.playlist.comment)}" class="ui-widget-content"/></dd>
-        	<dt></dt>
-        	<dd>
-        		<input type="checkbox" name="newShared" id="newShared" ${model.playlist.shared ? "checked='checked'" : ""}/>
-        		<label for="newShared"><fmt:message key="playlist2.public"/></label>
-        	</dd>
-        </dl>
-    </form>
 </div>
 
 </body></html>

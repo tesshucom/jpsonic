@@ -6,10 +6,9 @@
 <%@ include file="head.jsp"%>
 <%@ include file="jquery.jsp"%>
 <link rel="alternate" type="application/rss+xml" title="Jpsonic Podcast" href="podcast.view?suffix=.rss">
-</head>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 <script>
-
-// deligate >>
+<%-- deligate >> --%>
 function onQueryFocus() {document.getElementById("upper").contentWindow.onQueryFocus()};
 function onToggleDrawer() {document.getElementById("upper").contentWindow.onToggleDrawer()};
 function onCloseDrawer() {document.getElementById("upper").contentWindow.onCloseDrawer()};
@@ -27,7 +26,7 @@ function onGainAdd(val) {document.getElementById("playQueue").contentWindow.onGa
 function onTogglePlayQueue() {document.getElementById("playQueue").contentWindow.onTogglePlayQueue();};
 function onCloseQueue() {document.getElementById("playQueue").contentWindow.onCloseQueue();};
 function onTryCloseDrawerBoth() {document.getElementById("upper").contentWindow.onTryCloseDrawer();document.getElementById("playQueue").contentWindow.onTryCloseQueue();};
-// deligate <<
+<%-- deligate << --%>
 
 function reloadUpper(...mainViewName) {
     const upper = document.getElementById("upper");
@@ -56,6 +55,7 @@ function setQueueExpand(isQueueExpand) {
 }
 
 </script>
+</head>
 <body class="index">
 	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
 	<iframe name="upper" id="upper" src="top.view?"></iframe>
@@ -63,5 +63,7 @@ function setQueueExpand(isQueueExpand) {
 	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
     <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
 	<iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
+
+	<%@ include file="dialogs.jsp" %>
 </body>
 </html>

@@ -12,6 +12,7 @@
 <script src="<c:url value='/script/mediaelement/mediaelement-and-player.min.js'/>"></script>
 <script src="<c:url value='/script/playQueueCast.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 </head>
 
 <body class="playQueue">
@@ -46,14 +47,7 @@ $(document).ready(function(){
 
     dwr.engine.setErrorHandler(null);
     startTimer();
-
-    $("#dialog-select-playlist").dialog({resizable: true, height: 220, autoOpen: false,
-        buttons: {
-            "<fmt:message key="common.cancel"/>": function() {
-                $(this).dialog("close");
-            }
-        }});
-
+    
     <c:if test="${model.player.web}">createMediaElementPlayer();</c:if>
 
     $("#playQueueBody").sortable({
@@ -125,6 +119,49 @@ $(document).ready(function(){
     window.top.setQueueExpand(document.getElementById("isQueueExpand").checked);
 
     initTruncate(".queue-container", ".tabular.songs", 2, ["album", "artist", "song"]);
+    
+    top.refShowPlaylist4Playqueue = function() {
+        playlistService.getWritablePlaylists(function playlistCallback(playlists) {
+        	top.$("#dialog-select-playlist-list").empty();
+            for (var i = 0; i < playlists.length; i++) {
+                var playlist = playlists[i];
+                top.$("#dialog-select-playlist-list").append("<li><a href='#' onclick='refAppendPlaylist4Playqueue(" + playlist.id + ")'>" + escapeHtml(playlist.name) + "</a></li>");
+            }
+            top.$("#dialog-select-playlist").dialog("open");
+        });
+    }
+
+    top.refAppendPlaylist4Playqueue = function(playlistId) {
+    	top.$("#dialog-select-playlist").dialog("close");
+        var mediaFileIds = new Array();
+        for (var i = 0; i < songs.length; i++) {
+            if ($("#songIndex" + (i + 1)).is(":checked")) {
+                mediaFileIds.push(songs[i].id);
+            }
+        }
+        playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
+            top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
+        });
+    }
+    
+    const ps = new PrefferedSize(480, 360);
+    top.$("#dialog-select-playlist").dialog({
+    	autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : ps.width,
+        height  : ps.height,
+        buttons: {
+        	"<fmt:message key="common.cancel"/>": {
+        		text: "<fmt:message key="common.cancel"/>",
+        		id: 'dspCancelButton',
+        		click: function() {top.$("#dialog-select-playlist").dialog("close");}
+        	}
+        },
+        open: function() {top.$("#dspCancelButton").focus();}
+    });
 });
 
 function startTimer() {
@@ -422,32 +459,6 @@ function onSavePlaylist() {
     playlistService.createPlaylistForPlayQueue(function (playlistId) {
         top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
         $().toastmessage("showSuccessToast", "<fmt:message key="playlist.toast.saveasplaylist"/>");
-    });
-}
-function onAppendPlaylist() {
-    playlistService.getWritablePlaylists(playlistCallback);
-}
-function playlistCallback(playlists) {
-    $("#dialog-select-playlist-list").empty();
-    for (var i = 0; i < playlists.length; i++) {
-        var playlist = playlists[i];
-        $("<a href='#' onclick='appendPlaylist(" + playlist.id + ")'>" + escapeHtml(playlist.name)
-                + "</a>").appendTo("#dialog-select-playlist-list");
-    }
-    $("#dialog-select-playlist").dialog("open");
-}
-function appendPlaylist(playlistId) {
-    $("#dialog-select-playlist").dialog("close");
-
-    var mediaFileIds = new Array();
-    for (var i = 0; i < songs.length; i++) {
-        if ($("#songIndex" + (i + 1)).is(":checked")) {
-            mediaFileIds.push(songs[i].id);
-        }
-    }
-    playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
-        top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
-        $().toastmessage("showSuccessToast", "<fmt:message key="playlist.toast.appendtoplaylist"/>");
     });
 }
 
@@ -1108,15 +1119,10 @@ window.onTryCloseQueue = function() {
                 <c:if test="${model.user.downloadRole and model.showDownload}">
                     <li><a title="<fmt:message key='common.download'/>" href="javascript:downloadSelected()" class="control download"><fmt:message key='common.download'/></a></li>
                 </c:if>
-                <li><a title="<fmt:message key='playlist.append'/>" href="javascript:onAppendPlaylist()" class="control export"><fmt:message key='playlist.append'/></a></li>
+                <li><a title="<fmt:message key='playlist.append'/>" href="javascript:top.refShowPlaylist4Playqueue()" class="control export"><fmt:message key='playlist.append'/></a></li>
             </ul>
         </div>
     </c:if>
-</div>
-
-<div id="dialog-select-playlist" title="<fmt:message key='main.addtoplaylist.title'/>">
-    <p><fmt:message key="main.addtoplaylist.text"/></p>
-    <div id="dialog-select-playlist-list"></div>
 </div>
 
 <script>

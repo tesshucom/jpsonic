@@ -6,10 +6,6 @@
 </head>
 <body class="keyboardShortcuts">
 
-<section>
-    <h1 class="keyboad"><fmt:message key="more.keyboard.title"/></h1>
-</section>
-
 <table class="tabular keyboardShortcuts">
 	<thead>
 	    <tr>
