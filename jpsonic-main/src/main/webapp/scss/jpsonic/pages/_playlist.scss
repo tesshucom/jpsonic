@@ -182,21 +182,4 @@ $playlists-page-cover-art-size: 330px;
       @include borderRadius(right);
     }
   }
-
-  #dialog-edit {
-    display: none;
-    .ui-widget-content {
-      display: block;
-      width: 95%;
-    }
-  }
-  #dialog-delete {
-    display: none;
-    .ui-icon {
-      .ui-icon-alert {
-        float: left;
-        margin: 0 7px 20px 0;
-      }
-    }
-  }
 }

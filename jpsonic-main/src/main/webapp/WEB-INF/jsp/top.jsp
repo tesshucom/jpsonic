@@ -8,6 +8,7 @@
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 
 <script>
 
@@ -29,31 +30,44 @@ $(document).ready(function(){
 
     onToggleDrawer();
 
-    $("#keyboardShortcuts").dialog({
-        autoOpen: false,
-        width: 840,
-        height: 480,
-        modal: false,
-        open : function() {
-            $("#keyboardShortcuts").append('<iframe id="iframeDiv" scrolling="no" frameborder="no"></iframe>');
-            $("#iframeDiv").attr({src : "keyboardShortcuts.view?", width : '100%', height : '100%' });},
-        close : function() {$("#iframeDiv").remove();}
-    });
-
     $('.radio-play').on('click', function(evt) {
         top.playQueue.onPlayInternetRadio($(this).data("id"), 0);
         evt.preventDefault();
     });
 
+    top.initCurrentSongView();
+
+    callScanningStatus();
+
+    const shortcutsPs = new PrefferedSize(840, 480);
+    top.$("#dialog-keyboard-shortcuts").dialog({
+        autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : shortcutsPs.width,
+        height  : shortcutsPs.height,
+        open : function() {
+            top.$("#dialog-keyboard-shortcuts").append('<iframe id="iframeShortcuts" frameborder="no"></iframe>');
+            top.$("#iframeShortcuts").attr({src : "keyboardShortcuts.view?", width : '98%', height : '98%' });},
+        close : function() {top.$("#dialog-keyboard-shortcuts").dialog("close");top.$("#iframeShortcuts").remove();},
+        buttons: {"<fmt:message key='common.cancel'/>": function() {top.$("#dialog-keyboard-shortcuts").dialog("close");}}
+    });
+
     <c:if test="${model.voiceInputEnabled}">
+        const voicePs = new PrefferedSize(480, 180);
         let sr;
-        let dialog = $("#voice-input-dialog").dialog({
-            autoOpen:false,
-            height: 120,
-            width: 480,
-            modal:true,
+        top.$("#dialog-voice-input").dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            draggable: false,
+            resizable: false,
+            modal: true,
+            width  : voicePs.width,
+            height  : voicePs.height,
             open: function(e, u) {
-                $("#voice-input-result").empty();
+                top.$("#voice-input-result").empty();
                 SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
                 sr = new SpeechRecognition();
                 sr.lang = '${model.voiceInputLocale}';
@@ -63,50 +77,57 @@ $(document).ready(function(){
                     const results = e.results;
                     for (var i = e.resultIndex; i < results.length; i++) {
                         if (results[i].isFinal) {
-                          sr.stop();
+                            sr.stop();
                         } else {
-                          $("#voice-input-result").text(results[i][0].transcript);
+                            top.$("#voice-input-result").text(results[i][0].transcript);
                         }
                       }
                     }
                     function onEnd(e) {
                         sr.stop();
-                        $("#voice-input-dialog").dialog("close");
-                        triggerVoiceInputSearch();
+                        top.$("#dialog-voice-input").dialog("close");
+                        if(top.$("#voice-input-result").text()) {
+                            $("#query").val(top.$("#voice-input-result").text());
+                            executeInstantSearch();
+                        }
                     };
                     sr.onend = onEnd;
                     sr.onerror = function(e) {console.log(e);onEnd(e)}
                     sr.start();
             },
-            buttons: {"cancel": function() {sr.stop();}
+            close : function() {sr.stop();top.$("#dialog-keyboard-shortcuts").dialog("close");},
+            buttons: {"<fmt:message key='common.cancel'/>": function() {top.$("#dialog-voice-input").dialog("close");}
         }});
-        dialog.dialog("widget").find(".ui-dialog-titlebar").hide();
         $("#voiceInputButton").click(function() {
-            $("#voice-input-dialog").dialog("open");
+            top.$("#dialog-voice-input").dialog("open");
         });
     </c:if>
 
-    $("#nowPlayingInfos").dialog({
-        autoOpen: false,
-        closeOnEscape: true,
-        width: 840,
-        height: 480,
-        draggable: false,
-        modal: true,
-        resizable: false,
-        stack: true,
-        hide     : "fold",
-        show     : "fold",
-        open : function() {
-            $("#nowPlayingInfos").append('<iframe id="iframeDiv" scrolling="no" frameborder="no"></iframe>');
-            $("#iframeDiv").attr({src : "nowPlayingInfos.view?", width : '100%', height : '100%' });},
-        buttons: {"close": function() {$(this).dialog('close');}},
-        close : function() {$("#iframeDiv").remove();}
-    }).dialog("widget").find(".ui-dialog-titlebar").hide();
-
-    top.initCurrentSongView();
-
-    callScanningStatus();
+    <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
+        const nowPlayingsPs = new PrefferedSize(840, 480);
+        top.$("#dialog-nowplayinginfos").dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            draggable: false,
+            resizable: false,
+            modal: true,
+            width  : nowPlayingsPs.width,
+            height  : nowPlayingsPs.height,
+            stack: true,
+            buttons: {
+                "<fmt:message key='common.cancel'/>" : {
+                    text: "<fmt:message key='common.cancel'/>",
+                    id: 'npCancelButton',
+                    click: function() {top.$("#dialog-nowplayinginfos").dialog('close');}
+                }
+            },
+            open : function() {
+                top.$("#npCancelButton").focus();
+                top.$("#dialog-nowplayinginfos").append('<iframe id="iframeNowPlayings" scrolling="no" frameborder="no"></iframe>');
+                top.$("#iframeNowPlayings").attr({src : "nowPlayingInfos.view?", width : '98%', height : '98%' });},
+            close : function() {top.$("#iframeNowPlayings").remove();}
+        });
+    </c:if>
 
 });
 
@@ -122,13 +143,6 @@ function executeInstantSearch() {
     if (query.length > 1 && query != previousQuery) {
         previousQuery = query;
         document.searchForm.submit();
-    }
-}
-
-function triggerVoiceInputSearch() {
-    if($("#voice-input-result").text()) {
-        $("#query").val($("#voice-input-result").text());
-        executeInstantSearch();
     }
 }
 
@@ -170,7 +184,7 @@ window.onChangeMainLocation = function(location) {
 }
 
 window.onShowKeyboardShortcuts = function() {
-    $('#keyboardShortcuts').dialog('open');
+    top.$('#dialog-keyboard-shortcuts').dialog('open');
 }
 
 function callScanningStatus() {
@@ -325,7 +339,7 @@ window.onChangeCurrentSong = function(song) {
                             </c:otherwise>
                         </c:choose></li>
                     <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
-                        <li><a href="javascript:$('#nowPlayingInfos').dialog('open');" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
+                        <li><a href="javascript:top.$('#dialog-nowplayinginfos').dialog('open');" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
                     </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>
@@ -434,9 +448,6 @@ window.onChangeCurrentSong = function(song) {
     </c:if>
     <iframe name="main" id="main" src="${mainHref}" frameborder="no"></iframe>
 
-    <%-- keyboardShortcuts --%>
-    <div id="keyboardShortcuts"></div>
-
     <c:if test="${model.newVersionAvailable}">
         <fmt:message key="top.upgradeshort" var="versionNotice"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message>
         <script>
@@ -450,14 +461,6 @@ window.onChangeCurrentSong = function(song) {
         });
         </script>
     </c:if>
-
-    <c:if test="${model.voiceInputEnabled}">
-        <div id="voice-input-dialog">
-            <div id="voice-input-result"></div>
-        </div>
-    </c:if>
-
-    <div id="nowPlayingInfos"></div>
 
 </body>
 </html>
