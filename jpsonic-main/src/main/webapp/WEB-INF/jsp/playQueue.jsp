@@ -162,6 +162,11 @@ $(document).ready(function(){
         },
         open: function() {top.$("#dspCancelButton").focus();}
     });
+
+    document.getElementById("playerView").addEventListener('dblclick', function (e) {
+    	onTogglePlayQueue();
+    });
+
 });
 
 function startTimer() {
@@ -941,7 +946,7 @@ window.onTryCloseQueue = function() {
 <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
 
 <%-- player --%>
-<div class="playerView">
+<div id="playerView" class="playerView">
     <c:if test="${model.user.settingsRole and fn:length(model.players) gt 1}">
         <select name="player" onchange="location='playQueue.view?player=' + options[selectedIndex].value;">
             <c:forEach items="${model.players}" var="player">
