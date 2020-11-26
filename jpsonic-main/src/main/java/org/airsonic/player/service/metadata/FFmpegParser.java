@@ -77,7 +77,12 @@ public class FFmpegParser extends MetaDataParser {
             if (inTranscodeDirectory.exists()) {
                 ffprobe = inTranscodeDirectory.getAbsolutePath();
             } else {
-                ffprobe = "ffprobe";
+                File winffprobe = new File(transcodingService.getTranscodeDirectory(), "ffprobe.exe");
+                if (winffprobe.exists()) {
+                    ffprobe = winffprobe.getAbsolutePath();
+                } else {
+                    ffprobe = "ffprobe";
+                }
             }
 
             List<String> command = new ArrayList<>();
