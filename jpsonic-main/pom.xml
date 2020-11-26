@@ -16,7 +16,7 @@
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
         <jpsonic.version>109.3.0-RELEASE</jpsonic.version>
-        <lucene.version>8.6.3</lucene.version>
+        <lucene.version>8.7.0</lucene.version>
     </properties>
 
     <dependencies>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.3.4.RELEASE</version>
+            <version>2.3.5.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -173,7 +173,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>67.1</version>
+            <version>68.1</version>
         </dependency>
 
         <dependency>
@@ -297,7 +297,7 @@
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
@@ -468,7 +468,7 @@
         <dependency>
             <groupId>com.mattbertolini</groupId>
             <artifactId>liquibase-slf4j</artifactId>
-            <version>3.0.0</version>
+            <version>4.0.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -706,7 +706,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.3.4.RELEASE</version>
+                <version>2.3.5.RELEASE</version>
                 <configuration>
                     <mainClass>org.airsonic.player.Application</mainClass>
                     <layout>WAR</layout>

@@ -16,12 +16,12 @@
     <properties>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <cxf.version>3.4.0</cxf.version>
+        <cxf.version>3.4.1</cxf.version>
         <jackson.version>2.11.3</jackson.version>
         <tomcat.version>9.0.39</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.33.v20201020</jetty.version>
-        <jetty-jsp.version>9.4.33.v20201020</jetty-jsp.version>
+        <jetty.version>9.4.34.v20201102</jetty.version>
+        <jetty-jsp.version>9.4.34.v20201102</jetty-jsp.version>
         <pmd.version>6.29.0</pmd.version>
         <log4j.version>2.13.3</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
@@ -82,7 +82,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.3.4.RELEASE</version>
+                <version>2.3.5.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -150,7 +150,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.7.0</version>
+                <version>3.7.1</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -489,7 +489,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>6.0.2</version>
+                    <version>6.0.3</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
@@ -659,10 +659,31 @@
             </properties>
         </profile>
         <profile>
+            <id>release12</id>
+            <properties>
+                <maven.compiler.release>12</maven.compiler.release>
+                <compile.version>12</compile.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>release13</id>
+            <properties>
+                <maven.compiler.release>13</maven.compiler.release>
+                <compile.version>13</compile.version>
+            </properties>
+        </profile>
+        <profile>
             <id>release14</id>
             <properties>
                 <maven.compiler.release>14</maven.compiler.release>
                 <compile.version>14</compile.version>
+            </properties>
+        </profile>
+        <profile>
+            <id>release15</id>
+            <properties>
+                <maven.compiler.release>15</maven.compiler.release>
+                <compile.version>15</compile.version>
             </properties>
         </profile>
         <profile>
