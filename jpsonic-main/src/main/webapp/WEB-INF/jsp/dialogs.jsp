@@ -29,3 +29,5 @@
 <div id="dialog-voice-input" title="<fmt:message key='top.microphone'/>">
     <div id="voice-input-result"></div>
 </div>
+
+<div id="dialog-video"></div>

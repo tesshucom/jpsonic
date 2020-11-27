@@ -106,6 +106,9 @@ public class VideoPlayerController {
         map.put("bitRates", BIT_RATES);
         map.put("defaultBitRate", DEFAULT_BIT_RATE);
         map.put("user", user);
+        map.put("isShowDownload", userSettings.isShowDownload());
+        map.put("isShowShare", userSettings.isShowShare());
+
         try {
             MediaFile parent = mediaFileService.getParentOf(file);
             map.put("parent", parent);

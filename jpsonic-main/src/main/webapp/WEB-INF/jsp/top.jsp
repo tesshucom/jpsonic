@@ -9,7 +9,7 @@
 <script src="<c:url value='/script/utils.js'/>"></script>
 <script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
-
+<script src="<c:url value='/script/jpsonic/dialogsTop.js'/>"></script>
 <script>
 
 let previousQuery = "";
@@ -38,96 +38,6 @@ $(document).ready(function(){
     top.initCurrentSongView();
 
     callScanningStatus();
-
-    const shortcutsPs = new PrefferedSize(840, 480);
-    top.$("#dialog-keyboard-shortcuts").dialog({
-        autoOpen: false,
-        closeOnEscape: true,
-        draggable: false,
-        resizable: false,
-        modal: true,
-        width  : shortcutsPs.width,
-        height  : shortcutsPs.height,
-        open : function() {
-            top.$("#dialog-keyboard-shortcuts").append('<iframe id="iframeShortcuts" frameborder="no"></iframe>');
-            top.$("#iframeShortcuts").attr({src : "keyboardShortcuts.view?", width : '98%', height : '98%' });},
-        close : function() {top.$("#dialog-keyboard-shortcuts").dialog("close");top.$("#iframeShortcuts").remove();},
-        buttons: {"<fmt:message key='common.cancel'/>": function() {top.$("#dialog-keyboard-shortcuts").dialog("close");}}
-    });
-
-    <c:if test="${model.voiceInputEnabled}">
-        const voicePs = new PrefferedSize(480, 180);
-        let sr;
-        top.$("#dialog-voice-input").dialog({
-            autoOpen: false,
-            closeOnEscape: true,
-            draggable: false,
-            resizable: false,
-            modal: true,
-            width  : voicePs.width,
-            height  : voicePs.height,
-            open: function(e, u) {
-                top.$("#voice-input-result").empty();
-                SpeechRecognition = webkitSpeechRecognition || SpeechRecognition;
-                sr = new SpeechRecognition();
-                sr.lang = '${model.voiceInputLocale}';
-                sr.interimResults = true;
-                sr.continuous = true;
-                sr.onresult = function(e) {
-                    const results = e.results;
-                    for (var i = e.resultIndex; i < results.length; i++) {
-                        if (results[i].isFinal) {
-                            sr.stop();
-                        } else {
-                            top.$("#voice-input-result").text(results[i][0].transcript);
-                        }
-                      }
-                    }
-                    function onEnd(e) {
-                        sr.stop();
-                        top.$("#dialog-voice-input").dialog("close");
-                        if(top.$("#voice-input-result").text()) {
-                            $("#query").val(top.$("#voice-input-result").text());
-                            executeInstantSearch();
-                        }
-                    };
-                    sr.onend = onEnd;
-                    sr.onerror = function(e) {console.log(e);onEnd(e)}
-                    sr.start();
-            },
-            close : function() {sr.stop();top.$("#dialog-keyboard-shortcuts").dialog("close");},
-            buttons: {"<fmt:message key='common.cancel'/>": function() {top.$("#dialog-voice-input").dialog("close");}
-        }});
-        $("#voiceInputButton").click(function() {
-            top.$("#dialog-voice-input").dialog("open");
-        });
-    </c:if>
-
-    <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
-        const nowPlayingsPs = new PrefferedSize(840, 480);
-        top.$("#dialog-nowplayinginfos").dialog({
-            autoOpen: false,
-            closeOnEscape: true,
-            draggable: false,
-            resizable: false,
-            modal: true,
-            width  : nowPlayingsPs.width,
-            height  : nowPlayingsPs.height,
-            stack: true,
-            buttons: {
-                "<fmt:message key='common.cancel'/>" : {
-                    text: "<fmt:message key='common.cancel'/>",
-                    id: 'npCancelButton',
-                    click: function() {top.$("#dialog-nowplayinginfos").dialog('close');}
-                }
-            },
-            open : function() {
-                top.$("#npCancelButton").focus();
-                top.$("#dialog-nowplayinginfos").append('<iframe id="iframeNowPlayings" scrolling="no" frameborder="no"></iframe>');
-                top.$("#iframeNowPlayings").attr({src : "nowPlayingInfos.view?", width : '98%', height : '98%' });},
-            close : function() {top.$("#iframeNowPlayings").remove();}
-        });
-    </c:if>
 
 });
 
@@ -181,10 +91,6 @@ window.onQueryFocus = function() {
 
 window.onChangeMainLocation = function(location) {
     $('#main')[0].contentDocument.location = location;
-}
-
-window.onShowKeyboardShortcuts = function() {
-    top.$('#dialog-keyboard-shortcuts').dialog('open');
 }
 
 function callScanningStatus() {
@@ -249,6 +155,22 @@ window.onChangeCurrentSong = function(song) {
         }
     </c:if>
 }
+
+<%-- dialogs(dialogsTop.js) --%>
+function onOpenDialogVoiceInput() {
+    lazyOpenDialogVoiceInput('${model.voiceInputLocale}', "<fmt:message key='common.cancel'/>");
+}
+function onOpenDialogNowplayinginfos() {
+    lazyOpenDialogNowplayinginfos("<fmt:message key='common.cancel'/>");
+}
+window.onShowKeyboardShortcuts = function() {
+	lazyOpenDialogKeyboardShortcuts("<fmt:message key='common.cancel'/>");
+}
+
+window.onOpenDialogVideoPlayer = function(videoUrl) {
+	openDialogVideoPlayer(videoUrl, "<fmt:message key='common.cancel'/>");
+}
+
 </script>
 </head>
 
@@ -339,7 +261,7 @@ window.onChangeCurrentSong = function(song) {
                             </c:otherwise>
                         </c:choose></li>
                     <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
-                        <li><a href="javascript:top.$('#dialog-nowplayinginfos').dialog('open');" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
+                        <li><a href="javascript:onOpenDialogNowplayinginfos();" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
                     </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>
@@ -423,7 +345,7 @@ window.onChangeCurrentSong = function(song) {
             <input required type="text" name="query" id="query" placeholder="${search}" onclick="select();" onkeyup="triggerInstantSearch();">
             <c:choose>
                 <c:when test="${model.voiceInputEnabled}">
-                    <a href="#" title="${search}" class="control microphone" id="voiceInputButton">${search}</a>
+                    <a href="#" title="${search}" class="control microphone" onclick="onOpenDialogVoiceInput()" >${search}</a>
                 </c:when>
                 <c:otherwise>
                     <a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>

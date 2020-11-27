@@ -12,11 +12,11 @@ PARAMETERS : (mainContloler.model)
 	        <c:choose>
 	            <c:when test="${not empty model.selectedMusicFolder}">
 	                <c:if test="${model.dir.folder eq model.selectedMusicFolder.path}">
-	                    <li><a href="${indexUrl}" title="${fn:escapeXml(model.selectedMusicFolder.name)}">${fn:escapeXml(model.selectedMusicFolder.name)}</a></li>
+	                    <li><a target="main" href="${indexUrl}" title="${fn:escapeXml(model.selectedMusicFolder.name)}">${fn:escapeXml(model.selectedMusicFolder.name)}</a></li>
 	                </c:if>
 	            </c:when>
 	            <c:otherwise>
-	                <li><a href="${indexUrl}" title="<fmt:message key='left.allfolders'/>"><fmt:message key='left.allfolders'/></a></li>
+	                <li><a target="main" href="${indexUrl}" title="<fmt:message key='left.allfolders'/>"><fmt:message key='left.allfolders'/></a></li>
 	            </c:otherwise>
 	        </c:choose>
 	    </c:if>
@@ -24,7 +24,7 @@ PARAMETERS : (mainContloler.model)
             <sub:url value="main.view" var="ancestorUrl">
                 <sub:param name="id" value="${ancestor.id}"/>
             </sub:url>
-            <li><a href="${ancestorUrl}">${fn:escapeXml(ancestor.name)}</a></li>
+            <li><a target="main" href="${ancestorUrl}">${fn:escapeXml(ancestor.name)}</a></li>
         </c:forEach>
     </ul>
 </nav>

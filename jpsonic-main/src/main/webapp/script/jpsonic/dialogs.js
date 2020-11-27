@@ -13,17 +13,12 @@ class PrefferedSize {
     }
 }
 
-function refShowPlaylist4Album() {};
-function refAppendPlaylist4Album(playlistId) {};
-
-function refShowPlaylist4Playqueue() {};
-function refAppendPlaylist4Playqueue(playlistId) {};
-
 function isDialogOpened() {
     return top.$("#dialog-delete").is(":visible") ||
         top.$("#dialog-select-playlist").is(":visible") ||
         top.$("#dialog-keyboard-shortcuts").is(":visible") ||
         top.$("#dialog-edit").is(":visible") ||
         top.$("#dialog-nowplayinginfos").is(":visible") ||
-        top.$("#dialog-voice-input").is(":visible");
+        top.$("#dialog-voice-input").is(":visible") ||
+        top.$("#dialog-video").is(":visible");
 }

@@ -267,7 +267,7 @@ function onStart() {
 /**
  * Pause playing
  */
-function onStop() {
+window.onStop = function() {
     if (CastPlayer.castSession) {
         CastPlayer.pauseCast();
     } else if ($('#audioPlayer').get(0)) {

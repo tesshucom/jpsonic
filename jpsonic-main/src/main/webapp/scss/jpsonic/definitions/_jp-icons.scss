@@ -408,6 +408,19 @@ section > details > summary > h1 {
   @include createButton("\f203", 24px);
   font-weight: 600;
 }
+.control.cast-active {
+  @include createButton("\f22f", 20px, -0.05em);
+}
+.control.cast-idle {
+  @include createButton("\f22f", 20px, -0.05em);
+}
+.control.maximize {
+  @include createButton("\f1d7", 20px, -0.05em);
+  font-weight: 300;
+}
+.control.pip {
+  @include createButton("\f34f", 18px, -0.1em);
+}
 .control.expand {
   @include createButton("\f3d8", 22px, -0.05em);
   font-weight: 600;

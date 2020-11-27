@@ -469,7 +469,7 @@ function resetAdditionalDisplay() {
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="paginationsize"/></c:import>
             </dd>
             <c:if test="${command.user.downloadRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/></dt>
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
                 <dd>
                     <form:checkbox path="showDownload" id="showDownload" />
                     <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
@@ -495,7 +495,7 @@ function resetAdditionalDisplay() {
                 </dd>
             </c:if>
             <c:if test="${command.user.shareRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/></dt>
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
                 <dd>
                     <form:checkbox path="showShare" id="showShare" />
                     <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
