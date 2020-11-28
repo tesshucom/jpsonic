@@ -494,11 +494,11 @@ function playQueueCallback(playQueue) {
         } else if (repeatEnabled) {
             $("#repeatQueue").removeClass('control repeat');
             $("#repeatQueue").addClass('control no-repeat');
-            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_on'/>");
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_off'/>");
         } else {
             $("#repeatQueue").removeClass('control no-repeat');
             $("#repeatQueue").addClass('control repeat');
-            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_off'/>");
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_on'/>");
         }
     }
 
