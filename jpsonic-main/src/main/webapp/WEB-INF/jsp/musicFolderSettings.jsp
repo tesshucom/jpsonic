@@ -30,29 +30,31 @@
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details open>
         <summary><fmt:message key="musicfoldersettings.specify"/></summary>
-        <table class="tabular musicfolder">
-            <caption><fmt:message key="musicfoldersettings.registered"/></caption>
-            <thead>
-                <tr>
-                    <th><fmt:message key="musicfoldersettings.name"/></th>
-                    <th><fmt:message key="musicfoldersettings.path"/></th>
-                    <th><fmt:message key="musicfoldersettings.enabled"/></th>
-                    <th><fmt:message key="common.delete"/></th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                <c:forEach items="${command.musicFolders}" var="folder" varStatus="loopStatus">
+        <c:if test="${!empty command.musicFolders}">
+            <table class="tabular musicfolder">
+                <caption><fmt:message key="musicfoldersettings.registered"/></caption>
+                <thead>
                     <tr>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].name"/></td>
-                        <td><form:input path="musicFolders[${loopStatus.count-1}].path"/></td>
-                        <td><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled"/></td>
-                        <td><form:checkbox path="musicFolders[${loopStatus.count-1}].delete"/></td>
-                        <td><c:if test="${not folder.existing}"><strong><fmt:message key="musicfoldersettings.notfound"/></strong></c:if></td>
+                        <th><fmt:message key="musicfoldersettings.name"/></th>
+                        <th><fmt:message key="musicfoldersettings.path"/></th>
+                        <th><fmt:message key="musicfoldersettings.enabled"/></th>
+                        <th><fmt:message key="common.delete"/></th>
+                        <th></th>
                     </tr>
-                </c:forEach>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <c:forEach items="${command.musicFolders}" var="folder" varStatus="loopStatus">
+                        <tr>
+                            <td><form:input path="musicFolders[${loopStatus.count-1}].name"/></td>
+                            <td><form:input path="musicFolders[${loopStatus.count-1}].path"/></td>
+                            <td><form:checkbox path="musicFolders[${loopStatus.count-1}].enabled"/></td>
+                            <td><form:checkbox path="musicFolders[${loopStatus.count-1}].delete"/></td>
+                            <td><c:if test="${not folder.existing}"><strong><fmt:message key="musicfoldersettings.notfound"/></strong></c:if></td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </c:if>
         <table class="tabular musicfolder">
             <caption><fmt:message key="musicfoldersettings.add"/></caption>
             <thead>
