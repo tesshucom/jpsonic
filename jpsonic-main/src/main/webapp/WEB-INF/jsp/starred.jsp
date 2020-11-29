@@ -56,7 +56,7 @@ function onPlayAll() {
     <h1 class="star"><fmt:message key="starred.title"/></h1>
 </section>
 
-<c:if test="${empty model.artists and empty model.albums and empty model.songs}">
+<c:if test="${empty model.artists and empty model.albums and empty model.songs and empty model.videos}">
     <p><strong><fmt:message key="starred.empty"/></strong></p>
 </c:if>
 
