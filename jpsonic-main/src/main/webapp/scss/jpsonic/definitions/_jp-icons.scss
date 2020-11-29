@@ -694,11 +694,12 @@ form .control.microphone {
 .rating.star {
   @include createButton("\f4b2", 18px, -0.09em, -0.06em);
 }
-
 .tabular .control.play {
   @include createTabularButton("\f357", 11px, -0.12em);
 }
-
+.tabular .control.download {
+  @include createTabularButton("\f2e3", 14px, -0.1em);
+}
 .tabular .control.next {
   @include createTabularButton("\f3d1", 14px, -0.1em);
 }

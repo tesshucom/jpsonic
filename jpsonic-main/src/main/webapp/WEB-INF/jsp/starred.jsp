@@ -284,7 +284,7 @@ function onPlayAll() {
                             <c:param name="video" value="${model.player.web}"/>
                             <c:param name="asTable" value="true"/>
                         </c:import>
-                        <td><a href="${videoUrl}">${fn:escapeXml(video.name)}</a></td>
+                        <td><a href="javascript:top.onOpenDialogVideoPlayer('${videoUrl}')">${fn:escapeXml(video.name)}</a></td>
                     </tr>
                 </c:forEach>
             </tbody>
