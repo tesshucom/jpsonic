@@ -1049,7 +1049,7 @@ window.onTryCloseQueue = function() {
                 <li><a title="<fmt:message key='main.downloadall'/>" href="javascript:location.href = 'download.view?player=${model.player.id}';" class="control download"><fmt:message key="main.downloadall"/></a></li>
             </c:if>
             <c:if test="${model.user.shareRole and model.showShare}">
-                <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:top.upper.document.getElementById('main').src = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" class="control share"><fmt:message key="main.sharealbum"/></a></li>
+                <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:location.href = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" target="main" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
             
             <c:if test="${model.player.web or model.player.jukebox or model.player.external}">
