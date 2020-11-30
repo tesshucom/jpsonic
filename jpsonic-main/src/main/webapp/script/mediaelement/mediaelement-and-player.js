@@ -1739,7 +1739,7 @@ Object.assign(_player2.default.prototype, {
 					if (pos < 0) {
 						pos = 0;
 					}
-					if (t.options.useSmoothHover && cssMatrix !== null && typeof window[cssMatrix] !== 'undefined') {
+					if (t.options.useSmoothHover && cssMatrix != null && typeof window[cssMatrix] !== 'undefined') {
 						var matrix = new window[cssMatrix](getComputedStyle(t.handle)[transform]),
 						    handleLocation = matrix.m41,
 						    hoverScaleX = pos / parseFloat(getComputedStyle(t.total).width) - handleLocation / parseFloat(getComputedStyle(t.total).width);
@@ -2290,7 +2290,7 @@ Object.assign(_player2.default.prototype, {
 
 		this.findTracks();
 
-		if (!player.tracks.length && (!player.trackFiles || !player.trackFiles.length === 0)) {
+		if (!player.tracks.length && (!player.trackFiles || !player.trackFiles.length == 0)) {
 			return;
 		}
 
