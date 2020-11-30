@@ -1553,9 +1553,7 @@ var PluginDetector = exports.PluginDetector = {
 		} else if (_window2.default.ActiveXObject !== undefined) {
 			try {
 				ax = new ActiveXObject(activeX);
-				if (ax) {
-					version = axDetect(ax);
-				}
+				version = axDetect(ax);
 			} catch (e) {
 				
 			}
