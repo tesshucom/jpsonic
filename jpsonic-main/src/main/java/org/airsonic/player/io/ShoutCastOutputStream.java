@@ -80,7 +80,6 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
-    @SuppressWarnings("lgtm[java/java/xss]") // Specifications for podcasts in this project.
     public void write(byte[] b, int off, int len) throws IOException {
 
         int bytesWritten = 0;
@@ -100,7 +99,7 @@ public class ShoutCastOutputStream extends OutputStream {
              *  - Users can also use virus check tool to monitor the directory where audio files are stored.
              */
             out.write(b, off + bytesWritten, n);
-            bytesWritten += n;
+            bytesWritten += n; // lgtm[java/xss]
             byteCount += n;
 
             // Reached meta-data block?
