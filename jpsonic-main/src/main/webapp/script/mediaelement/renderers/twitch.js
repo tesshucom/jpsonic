@@ -344,7 +344,7 @@ var TwitchIframeRenderer = {
 		mediaElement.originalNode.autoplay = false;
 
 		twitch.setSize = function (width, height) {
-			if (TwitchApi !== null && !isNaN(width) && !isNaN(height)) {
+			if (TwitchApi != null && !isNaN(width) && !isNaN(height)) {
 				twitchContainer.setAttribute('width', width);
 				twitchContainer.setAttribute('height', height);
 			}
