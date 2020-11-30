@@ -2728,7 +2728,7 @@ Object.assign(_player2.default.prototype, {
 					(0, _dom.fadeOut)(visible[i], 400);
 				}
 			});
-			t.slides.entries[index].imgs = img = image;
+			t.slides.entries[index].imgs = image;
 		} else if (!(0, _dom.visible)(img)) {
 			var _visible = (0, _dom.siblings)(self, function (el) {
 				return _visible(el);
@@ -8496,20 +8496,12 @@ function convertSMPTEtoSeconds(SMPTE) {
 	}
 
 	SMPTE = SMPTE.replace(',', '.');
-
 	var decimalLen = ~SMPTE.indexOf('.') ? SMPTE.split('.')[1].length : 0;
-
-	var secs = 0,
-	    multiplier = 1;
-
 	SMPTE = SMPTE.split(':').reverse();
 
+	var secs = 0;
 	for (var i = 0, total = SMPTE.length; i < total; i++) {
-		multiplier = 1;
-		if (i > 0) {
-			multiplier = Math.pow(60, i);
-		}
-		secs += Number(SMPTE[i]) * multiplier;
+		secs += Number(SMPTE[i]) * i > 0 ? Math.pow(60, i) : 1;
 	}
 	return Number(secs.toFixed(decimalLen));
 }
