@@ -2728,7 +2728,7 @@ Object.assign(_player2.default.prototype, {
 					(0, _dom.fadeOut)(visible[i], 400);
 				}
 			});
-			t.slides.entries[index].imgs = img = image;
+			t.slides.entries[index].imgs = image;
 		} else if (!(0, _dom.visible)(img)) {
 			var _visible = (0, _dom.siblings)(self, function (el) {
 				return _visible(el);
@@ -8499,8 +8499,7 @@ function convertSMPTEtoSeconds(SMPTE) {
 
 	var decimalLen = ~SMPTE.indexOf('.') ? SMPTE.split('.')[1].length : 0;
 
-	var secs = 0,
-	    multiplier = 1;
+	var secs = 0;
 
 	SMPTE = SMPTE.split(':').reverse();
 
