@@ -1155,7 +1155,7 @@ _mejs2.default.Renderers = renderer;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var EN = exports.EN = {
+exports.EN = {
 	'mejs.plural-form': 1,
 
 	'mejs.download-file': 'Download File',
@@ -1553,9 +1553,7 @@ var PluginDetector = exports.PluginDetector = {
 		} else if (_window2.default.ActiveXObject !== undefined) {
 			try {
 				ax = new ActiveXObject(activeX);
-				if (ax) {
-					version = axDetect(ax);
-				}
+				version = axDetect(ax);
 			} catch (e) {
 				
 			}
@@ -3178,7 +3176,7 @@ var UA = exports.UA = NAV.userAgent.toLowerCase();
 var IS_IPAD = exports.IS_IPAD = /ipad/i.test(UA) && !_window2.default.MSStream;
 var IS_IPHONE = exports.IS_IPHONE = /iphone/i.test(UA) && !_window2.default.MSStream;
 var IS_IPOD = exports.IS_IPOD = /ipod/i.test(UA) && !_window2.default.MSStream;
-var IS_IOS = exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
+exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
 var IS_ANDROID = exports.IS_ANDROID = /android/i.test(UA);
 var IS_IE = exports.IS_IE = /(trident|microsoft)/i.test(NAV.appName);
 var IS_EDGE = exports.IS_EDGE = 'msLaunchUri' in NAV && !('documentMode' in _document2.default);
@@ -3439,7 +3437,7 @@ function fadeOut(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(1 - progress / duration, 2);
+		var opacity = parseFloat(1 - progress / duration);
 		el.style.opacity = opacity < 0 ? 0 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -3463,7 +3461,7 @@ function fadeIn(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(progress / duration, 2);
+		var opacity = parseFloat(progress / duration);
 		el.style.opacity = opacity > 1 ? 1 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -3519,38 +3517,36 @@ function ajax(url, dataType, success, error) {
 		accept = type + ', */*; q=0.01';
 	}
 
-	if (xhr) {
-		xhr.open('GET', url, true);
-		xhr.setRequestHeader('Accept', accept);
-		xhr.onreadystatechange = function () {
-			if (completed) {
-				return;
-			}
+	xhr.open('GET', url, true);
+	xhr.setRequestHeader('Accept', accept);
+	xhr.onreadystatechange = function () {
+		if (completed) {
+			return;
+		}
 
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200) {
-					completed = true;
-					var data = void 0;
-					switch (dataType) {
-						case 'json':
-							data = JSON.parse(xhr.responseText);
-							break;
-						case 'xml':
-							data = xhr.responseXML;
-							break;
-						default:
-							data = xhr.responseText;
-							break;
-					}
-					success(data);
-				} else if (typeof error === 'function') {
-					error(xhr.status);
+		if (xhr.readyState === 4) {
+			if (xhr.status === 200) {
+				completed = true;
+				var data = void 0;
+				switch (dataType) {
+					case 'json':
+						data = JSON.parse(xhr.responseText);
+						break;
+					case 'xml':
+						data = xhr.responseXML;
+						break;
+					default:
+						data = xhr.responseText;
+						break;
 				}
+				success(data);
+			} else if (typeof error === 'function') {
+				error(xhr.status);
 			}
-		};
+		}
+	};
 
-		xhr.send();
-	}
+	xhr.send();
 }
 
 _mejs2.default.Utils = _mejs2.default.Utils || {};

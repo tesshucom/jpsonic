@@ -300,7 +300,7 @@ var vimeoIframeRenderer = {
 						}
 					}
 				}).catch(function (error) {
-					errorHandler(error, vimeo);
+					errorHandler(error);
 				});
 			});
 			vimeoPlayer.on('progress', function () {

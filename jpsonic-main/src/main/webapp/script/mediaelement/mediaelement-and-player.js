@@ -1739,7 +1739,7 @@ Object.assign(_player2.default.prototype, {
 					if (pos < 0) {
 						pos = 0;
 					}
-					if (t.options.useSmoothHover && cssMatrix !== null && typeof window[cssMatrix] !== 'undefined') {
+					if (t.options.useSmoothHover && cssMatrix != null && typeof window[cssMatrix] !== 'undefined') {
 						var matrix = new window[cssMatrix](getComputedStyle(t.handle)[transform]),
 						    handleLocation = matrix.m41,
 						    hoverScaleX = pos / parseFloat(getComputedStyle(t.total).width) - handleLocation / parseFloat(getComputedStyle(t.total).width);
@@ -2290,7 +2290,7 @@ Object.assign(_player2.default.prototype, {
 
 		this.findTracks();
 
-		if (!player.tracks.length && (!player.trackFiles || !player.trackFiles.length === 0)) {
+		if (!player.tracks.length && (!player.trackFiles || !player.trackFiles.length == 0)) {
 			return;
 		}
 
@@ -2728,7 +2728,7 @@ Object.assign(_player2.default.prototype, {
 					(0, _dom.fadeOut)(visible[i], 400);
 				}
 			});
-			t.slides.entries[index].imgs = img = image;
+			t.slides.entries[index].imgs = image;
 		} else if (!(0, _dom.visible)(img)) {
 			var _visible = (0, _dom.siblings)(self, function (el) {
 				return _visible(el);
@@ -3334,7 +3334,7 @@ Object.assign(_player2.default.prototype, {
 			if (!mouseIsDown) {
 				toggleMute();
 			}
-			updateVolumeSlider(e);
+			updateVolumeSlider();
 		});
 
 		var rendered = false;
@@ -3383,7 +3383,7 @@ Object.assign(_player2.default.prototype, {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var EN = exports.EN = {
+exports.EN = {
 	'mejs.plural-form': 1,
 
 	'mejs.download-file': 'Download File',
@@ -4457,9 +4457,9 @@ var MediaElementPlayer = function () {
 
 			if (t.isVideo) {
 				if (t.height === '100%') {
-					newHeight = parseFloat(parentWidth * nativeHeight / nativeWidth, 10);
+					newHeight = parseFloat(parentWidth * nativeHeight / nativeWidth);
 				} else {
-					newHeight = t.height >= t.width ? parseFloat(parentWidth / aspectRatio, 10) : parseFloat(parentWidth * aspectRatio, 10);
+					newHeight = t.height >= t.width ? parseFloat(parentWidth / aspectRatio) : parseFloat(parentWidth * aspectRatio);
 				}
 			} else {
 				newHeight = nativeHeight;
@@ -5846,9 +5846,7 @@ var PluginDetector = exports.PluginDetector = {
 		} else if (_window2.default.ActiveXObject !== undefined) {
 			try {
 				ax = new ActiveXObject(activeX);
-				if (ax) {
-					version = axDetect(ax);
-				}
+				version = axDetect(ax);
 			} catch (e) {
 				
 			}
@@ -7471,7 +7469,7 @@ var UA = exports.UA = NAV.userAgent.toLowerCase();
 var IS_IPAD = exports.IS_IPAD = /ipad/i.test(UA) && !_window2.default.MSStream;
 var IS_IPHONE = exports.IS_IPHONE = /iphone/i.test(UA) && !_window2.default.MSStream;
 var IS_IPOD = exports.IS_IPOD = /ipod/i.test(UA) && !_window2.default.MSStream;
-var IS_IOS = exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
+exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
 var IS_ANDROID = exports.IS_ANDROID = /android/i.test(UA);
 var IS_IE = exports.IS_IE = /(trident|microsoft)/i.test(NAV.appName);
 var IS_EDGE = exports.IS_EDGE = 'msLaunchUri' in NAV && !('documentMode' in _document2.default);
@@ -7732,7 +7730,7 @@ function fadeOut(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(1 - progress / duration, 2);
+		var opacity = parseFloat(1 - progress / duration);
 		el.style.opacity = opacity < 0 ? 0 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -7756,7 +7754,7 @@ function fadeIn(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(progress / duration, 2);
+		var opacity = parseFloat(progress / duration);
 		el.style.opacity = opacity > 1 ? 1 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -7812,38 +7810,36 @@ function ajax(url, dataType, success, error) {
 		accept = type + ', */*; q=0.01';
 	}
 
-	if (xhr) {
-		xhr.open('GET', url, true);
-		xhr.setRequestHeader('Accept', accept);
-		xhr.onreadystatechange = function () {
-			if (completed) {
-				return;
-			}
+	xhr.open('GET', url, true);
+	xhr.setRequestHeader('Accept', accept);
+	xhr.onreadystatechange = function () {
+		if (completed) {
+			return;
+		}
 
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200) {
-					completed = true;
-					var data = void 0;
-					switch (dataType) {
-						case 'json':
-							data = JSON.parse(xhr.responseText);
-							break;
-						case 'xml':
-							data = xhr.responseXML;
-							break;
-						default:
-							data = xhr.responseText;
-							break;
-					}
-					success(data);
-				} else if (typeof error === 'function') {
-					error(xhr.status);
+		if (xhr.readyState === 4) {
+			if (xhr.status === 200) {
+				completed = true;
+				var data = void 0;
+				switch (dataType) {
+					case 'json':
+						data = JSON.parse(xhr.responseText);
+						break;
+					case 'xml':
+						data = xhr.responseXML;
+						break;
+					default:
+						data = xhr.responseText;
+						break;
 				}
+				success(data);
+			} else if (typeof error === 'function') {
+				error(xhr.status);
 			}
-		};
+		}
+	};
 
-		xhr.send();
-	}
+	xhr.send();
 }
 
 _mejs2.default.Utils = _mejs2.default.Utils || {};
@@ -8500,20 +8496,12 @@ function convertSMPTEtoSeconds(SMPTE) {
 	}
 
 	SMPTE = SMPTE.replace(',', '.');
-
 	var decimalLen = ~SMPTE.indexOf('.') ? SMPTE.split('.')[1].length : 0;
-
-	var secs = 0,
-	    multiplier = 1;
-
 	SMPTE = SMPTE.split(':').reverse();
 
+	var secs = 0;
 	for (var i = 0, total = SMPTE.length; i < total; i++) {
-		multiplier = 1;
-		if (i > 0) {
-			multiplier = Math.pow(60, i);
-		}
-		secs += Number(SMPTE[i]) * multiplier;
+		secs += Number(SMPTE[i]) * i > 0 ? Math.pow(60, i) : 1;
 	}
 	return Number(secs.toFixed(decimalLen));
 }

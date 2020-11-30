@@ -834,7 +834,7 @@ function fadeOut(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(1 - progress / duration, 2);
+		var opacity = parseFloat(1 - progress / duration);
 		el.style.opacity = opacity < 0 ? 0 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -858,7 +858,7 @@ function fadeIn(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(progress / duration, 2);
+		var opacity = parseFloat(progress / duration);
 		el.style.opacity = opacity > 1 ? 1 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -914,38 +914,36 @@ function ajax(url, dataType, success, error) {
 		accept = type + ', */*; q=0.01';
 	}
 
-	if (xhr) {
-		xhr.open('GET', url, true);
-		xhr.setRequestHeader('Accept', accept);
-		xhr.onreadystatechange = function () {
-			if (completed) {
-				return;
-			}
+	xhr.open('GET', url, true);
+	xhr.setRequestHeader('Accept', accept);
+	xhr.onreadystatechange = function () {
+		if (completed) {
+			return;
+		}
 
-			if (xhr.readyState === 4) {
-				if (xhr.status === 200) {
-					completed = true;
-					var data = void 0;
-					switch (dataType) {
-						case 'json':
-							data = JSON.parse(xhr.responseText);
-							break;
-						case 'xml':
-							data = xhr.responseXML;
-							break;
-						default:
-							data = xhr.responseText;
-							break;
-					}
-					success(data);
-				} else if (typeof error === 'function') {
-					error(xhr.status);
+		if (xhr.readyState === 4) {
+			if (xhr.status === 200) {
+				completed = true;
+				var data = void 0;
+				switch (dataType) {
+					case 'json':
+						data = JSON.parse(xhr.responseText);
+						break;
+					case 'xml':
+						data = xhr.responseXML;
+						break;
+					default:
+						data = xhr.responseText;
+						break;
 				}
+				success(data);
+			} else if (typeof error === 'function') {
+				error(xhr.status);
 			}
-		};
+		}
+	};
 
-		xhr.send();
-	}
+	xhr.send();
 }
 
 _mejs2.default.Utils = _mejs2.default.Utils || {};
