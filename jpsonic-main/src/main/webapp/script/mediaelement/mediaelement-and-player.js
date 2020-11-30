@@ -3334,7 +3334,7 @@ Object.assign(_player2.default.prototype, {
 			if (!mouseIsDown) {
 				toggleMute();
 			}
-			updateVolumeSlider(e);
+			updateVolumeSlider();
 		});
 
 		var rendered = false;
@@ -4457,9 +4457,9 @@ var MediaElementPlayer = function () {
 
 			if (t.isVideo) {
 				if (t.height === '100%') {
-					newHeight = parseFloat(parentWidth * nativeHeight / nativeWidth, 10);
+					newHeight = parseFloat(parentWidth * nativeHeight / nativeWidth);
 				} else {
-					newHeight = t.height >= t.width ? parseFloat(parentWidth / aspectRatio, 10) : parseFloat(parentWidth * aspectRatio, 10);
+					newHeight = t.height >= t.width ? parseFloat(parentWidth / aspectRatio) : parseFloat(parentWidth * aspectRatio);
 				}
 			} else {
 				newHeight = nativeHeight;
@@ -7732,7 +7732,7 @@ function fadeOut(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(1 - progress / duration, 2);
+		var opacity = parseFloat(1 - progress / duration);
 		el.style.opacity = opacity < 0 ? 0 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
@@ -7756,7 +7756,7 @@ function fadeIn(el) {
 	_window2.default.requestAnimationFrame(function animate(timestamp) {
 		start = start || timestamp;
 		var progress = timestamp - start;
-		var opacity = parseFloat(progress / duration, 2);
+		var opacity = parseFloat(progress / duration);
 		el.style.opacity = opacity > 1 ? 1 : opacity;
 		if (progress > duration) {
 			if (callback && typeof callback === 'function') {
