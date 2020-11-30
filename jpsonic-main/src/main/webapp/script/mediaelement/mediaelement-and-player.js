@@ -3383,7 +3383,7 @@ Object.assign(_player2.default.prototype, {
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-var EN = exports.EN = {
+exports.EN = {
 	'mejs.plural-form': 1,
 
 	'mejs.download-file': 'Download File',
@@ -7471,7 +7471,7 @@ var UA = exports.UA = NAV.userAgent.toLowerCase();
 var IS_IPAD = exports.IS_IPAD = /ipad/i.test(UA) && !_window2.default.MSStream;
 var IS_IPHONE = exports.IS_IPHONE = /iphone/i.test(UA) && !_window2.default.MSStream;
 var IS_IPOD = exports.IS_IPOD = /ipod/i.test(UA) && !_window2.default.MSStream;
-var IS_IOS = exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
+exports.IS_IOS = /ipad|iphone|ipod/i.test(UA) && !_window2.default.MSStream;
 var IS_ANDROID = exports.IS_ANDROID = /android/i.test(UA);
 var IS_IE = exports.IS_IE = /(trident|microsoft)/i.test(NAV.appName);
 var IS_EDGE = exports.IS_EDGE = 'msLaunchUri' in NAV && !('documentMode' in _document2.default);
