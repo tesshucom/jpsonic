@@ -20,6 +20,7 @@
 package org.airsonic.player.command;
 
 import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.controller.PersonalSettingsController;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.Avatar;
@@ -102,6 +103,9 @@ public class PersonalSettingsCommand {
     private boolean voiceInputEnabled;
     private boolean othersPlayingEnabled;
     private boolean showCurrentSongInfo;
+    private EnumHolder[] speechLangSchemeHolders;
+    private String speechLangSchemeName;
+    private String ietf;
 
     public User getUser() {
         return user;
@@ -621,4 +625,32 @@ public class PersonalSettingsCommand {
     public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
         this.showCurrentSongInfo = showCurrentSongInfo;
     }
+
+    public EnumHolder[] getSpeechLangSchemeHolders() {
+        return speechLangSchemeHolders;
+    }
+
+    public void setSpeechLangSchemes(SpeechToTextLangScheme[] speechLangSchemes) {
+        speechLangSchemeHolders = Arrays.stream(speechLangSchemes)
+            .map(s -> new EnumHolder(s.name(), s.toString()))
+            .collect(Collectors.toList())
+            .toArray(new EnumHolder[speechLangSchemes.length]);
+    }
+
+    public String getSpeechLangSchemeName() {
+        return speechLangSchemeName;
+    }
+
+    public void setSpeechLangSchemeName(String speechLangSchemeName) {
+        this.speechLangSchemeName = speechLangSchemeName;
+    }
+
+    public String getIetf() {
+        return ietf;
+    }
+
+    public void setIetf(String ietf) {
+        this.ietf = ietf;
+    }
+
 }

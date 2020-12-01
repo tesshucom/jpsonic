@@ -143,6 +143,9 @@ select,
     @include border(input-focus);
     background: $jp-color-complementary1;
   }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
 }
 .ui-dialog-buttonpane button {
   &:focus {

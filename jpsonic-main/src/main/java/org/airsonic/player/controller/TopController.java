@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.domain.MusicFolder;
@@ -100,8 +101,16 @@ public class TopController {
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
         map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
-        map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         map.put("useRadio", settingsService.isUseRadio());
+
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
+            map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
+        } else if (SpeechToTextLangScheme.BCP47.name().equals(userSettings.getSpeechLangSchemeName())
+                && userSettings.getIetf() != null) {
+            map.put("voiceInputLocale", userSettings.getIetf());
+        } else {
+            map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
+        }
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, "refresh", false);
         if (refresh) {

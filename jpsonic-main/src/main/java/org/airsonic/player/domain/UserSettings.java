@@ -20,6 +20,7 @@
 package org.airsonic.player.domain;
 
 import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 
 import java.util.Date;
 import java.util.Locale;
@@ -89,6 +90,8 @@ public class UserSettings {
     private boolean forceBio2Eng;
     private boolean voiceInputEnabled;
     private boolean showCurrentSongInfo;
+    private String speechLangSchemeName = SpeechToTextLangScheme.DEFAULT.name();
+    private String ietf = "en-US";
     // <<<< JP
 
     public UserSettings(String username) {
@@ -551,6 +554,22 @@ public class UserSettings {
 
     public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
         this.showCurrentSongInfo = showCurrentSongInfo;
+    }
+
+    public String getSpeechLangSchemeName() {
+        return speechLangSchemeName;
+    }
+
+    public void setSpeechLangSchemeName(String speechLangSchemeName) {
+        this.speechLangSchemeName = speechLangSchemeName;
+    }
+
+    public String getIetf() {
+        return ietf;
+    }
+
+    public void setIetf(String ietf) {
+        this.ietf = ietf;
     }
 
     /**

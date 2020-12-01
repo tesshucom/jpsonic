@@ -26,4 +26,28 @@
             </column>
         </addColumn>
     </changeSet>
+    <changeSet id="add-speech-lang-scheme-name" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="speech_lang_scheme_name" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="speech_lang_scheme_name" type="${varchar_type}" defaultValue="DEFAULT">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+	<changeSet id="add-ietf" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="ietf" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="ietf" type="${varchar_type}" defaultValue="en-US">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

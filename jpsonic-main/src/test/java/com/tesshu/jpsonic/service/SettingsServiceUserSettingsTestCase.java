@@ -19,6 +19,7 @@
  */
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
@@ -74,6 +75,8 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isSongNotificationEnabled());
         assertFalse(userSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertEquals("en-US", userSettings.getIetf());
     }
 
     @Test
@@ -93,8 +96,10 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(tabletSettings.isOpenDetailStar());
         assertFalse(tabletSettings.isOpenDetailIndex());
         assertFalse(tabletSettings.isSongNotificationEnabled());
-        assertFalse(tabletSettings.isVoiceInputEnabled());
+        assertTrue(tabletSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertEquals("en-US", userSettings.getIetf());
     }
 
     @Test
@@ -114,8 +119,10 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(smartphoneSettings.isOpenDetailStar());
         assertFalse(smartphoneSettings.isOpenDetailIndex());
         assertFalse(smartphoneSettings.isSongNotificationEnabled());
-        assertFalse(smartphoneSettings.isVoiceInputEnabled());
+        assertTrue(smartphoneSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertEquals("en-US", userSettings.getIetf());
     }
 
     @Test

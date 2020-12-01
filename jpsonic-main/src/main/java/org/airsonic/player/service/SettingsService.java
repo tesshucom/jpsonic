@@ -1390,6 +1390,7 @@ public class SettingsService {
         UserSettings settings = createDefaultUserSettings(username);
         settings.setKeyboardShortcutsEnabled(false);
         settings.setCloseDrawer(true);
+        settings.setVoiceInputEnabled(true);
         return settings;
     }
 
@@ -1400,6 +1401,7 @@ public class SettingsService {
         settings.setPutMenuInDrawer(true);
         settings.setShowIndex(false);
         settings.setCloseDrawer(true);
+        settings.setVoiceInputEnabled(true);
         return settings;
     }
 

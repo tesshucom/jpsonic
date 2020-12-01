@@ -10,7 +10,16 @@
 function resetThemeAndLanguage() {
     $('[name="localeIndex"]').prop("selectedIndex", 0);
     $('[name="themeIndex"]').prop("selectedIndex", 0);
-    $("#radio-" + "<fmt:message key='personalsettings.font.${fn:toLowerCase(command.defaultSettings.fontSchemeName)}'/>").prop('checked', true);
+    $("#radio1-" + "<fmt:message key='personalsettings.font.${fn:toLowerCase(command.defaultSettings.fontSchemeName)}'/>").prop('checked', true);
+}
+
+function speechEngineLangSelectEnabled(isEnabled) {
+    $("#radio2-${command.defaultSettings.speechLangSchemeName}").prop('checked', true);
+    $('[name="ietf"]').val('${command.defaultSettings.ietf}');
+    $("#ietf").prop('disabled', !isEnabled);
+    $("#radio2-DEFAULT").prop('disabled', !isEnabled);
+    $("#radio2-BCP47").prop('disabled', !isEnabled);
+    $("#ietf").prop('disabled', true);
 }
 
 function setSettings4DesktopPC() {
@@ -31,6 +40,7 @@ function setSettings4DesktopPC() {
     $('[name="voiceInputEnabled"]').prop('checked', ${command.defaultSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
     $('[name="showCurrentSongInfo"]').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(false);
 }
 
 function setSettings4Tablet() {
@@ -51,6 +61,7 @@ function setSettings4Tablet() {
     $('[name="voiceInputEnabled"]').prop('checked', ${command.tabletSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.tabletSettings.songNotificationEnabled});
     $('[name="showCurrentSongInfo"]').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(true);
 }
 
 function setSettings4Smartphone() {
@@ -71,6 +82,7 @@ function setSettings4Smartphone() {
     $('[name="voiceInputEnabled"]').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
     $('[name="songNotificationEnabled"]').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
     $('[name="showCurrentSongInfo"]').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(true);
 }
 
 function resetDisplay() {
@@ -127,6 +139,24 @@ function resetAdditionalDisplay() {
     $('[name="showAlbumActions"]').prop('checked', ${command.defaultSettings.showAlbumActions});
     $('[name="partyModeEnabled"]').prop('checked', ${command.defaultSettings.partyModeEnabled});
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+	
+	
+	
+    document.getElementById('voiceInputEnabled').onchange = function (e) {
+        speechEngineLangSelectEnabled(e.target.checked);
+    };
+    $("#radio2-DEFAULT").on('change', function(e){
+        $("#ietf").prop('disabled', true);
+    });
+    $("#radio2-BCP47").on('change', function(e){
+        $("#ietf").prop('disabled', false);
+    });
+}, false);
+
+    
+
 </script>
 
 </head>
@@ -187,10 +217,10 @@ function resetAdditionalDisplay() {
                             <fmt:message key="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/>
                         </c:set>
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio-${fontSchemeName}" path="fontSchemeName" value="${fontSchemeHolder.name}"
+                            <form:radiobutton class="technologyRadio" id="radio1-${fontSchemeName}" path="fontSchemeName" value="${fontSchemeHolder.name}"
                                 checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"
                                 disabled="${fontSchemeHolder.name eq 'CUSTOM'}"/>
-                            <label for="radio-${fontSchemeName}">${fontSchemeName}</label>
+                            <label for="radio1-${fontSchemeName}">${fontSchemeName}</label>
                             <c:if test="${fontSchemeHolder.name ne 'CUSTOM'}">
                                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
                             </c:if>
@@ -306,6 +336,25 @@ function resetAdditionalDisplay() {
                 <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
             </dd>
+            <dt><fmt:message key="personalsettings.speechenginelang"/></dt>
+            <dd>
+                <ul class="playerSettings">
+                    <c:forEach items="${command.speechLangSchemeHolders}" var="speechLangSchemeHolder">
+                        <c:set var="speechLangSchemeName">
+                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(speechLangSchemeHolder.name)}"/>
+                        </c:set>
+                        <li>
+                            <form:radiobutton class="technologyRadio" id="radio2-${speechLangSchemeHolder.name}" path="speechLangSchemeName" value="${speechLangSchemeHolder.name}"
+                                checked="${speechLangSchemeHolder.name eq command.speechLangSchemeName ? 'checked' : ''}"
+                                disabled="${!command.voiceInputEnabled}"/>
+                            <label for="radio2-${speechLangSchemeHolder.name}">${speechLangSchemeName}</label>
+                            <c:if test="${speechLangSchemeHolder.name eq 'BCP47'}">                
+                                <form:input path="ietf" id="ietf" disabled="${command.speechLangSchemeName eq 'DEFAULT'}"/>
+                            </c:if>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </dd>
             <dt><fmt:message key="personalsettings.summary"/></dt>
             <dd>
                 <form:checkbox path="openDetailSetting" id="openDetailSetting" />
@@ -418,18 +467,18 @@ function resetAdditionalDisplay() {
         </c:if>
         <dl>
             <c:if test="${command.othersPlayingEnabled}">
-	            <dt><fmt:message key="personalsettings.menu"/></dt>
-	            <dd>
-	                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
-	                <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
-	                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-	            </dd>
-	            <dt><fmt:message key="personalsettings.menu"/></dt>
-	            <dd>
-	                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-	                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
-	            </dd>
-	        </c:if>
+                <dt><fmt:message key="personalsettings.menu"/></dt>
+                <dd>
+                    <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
+                    <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
+                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
+                </dd>
+                <dt><fmt:message key="personalsettings.menu"/></dt>
+                <dd>
+                    <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
+                    <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
+                </dd>
+            </c:if>
             <%-- There are many problems. Temporarily deleted. #622
             <dt><fmt:message key="personalsettings.frames"/></dt>
             <dd>
@@ -458,6 +507,13 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="showSimilar" id="showSimilar" />
                 <label for="showSimilar"><fmt:message key="personalsettings.showsimilar"/></label>
             </dd>      
+            <c:if test="${command.user.commentRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
+                <dd>
+                    <form:checkbox path="showComment" id="showComment" />
+                    <label for="showComment"><fmt:message key="personalsettings.showcomment"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
                 <form:checkbox path="showSibling" id="showSibling" />
@@ -468,13 +524,6 @@ function resetAdditionalDisplay() {
                 <fmt:message key="personalsettings.paginationsize"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="paginationsize"/></c:import>
             </dd>
-            <c:if test="${command.user.downloadRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
-                <dd>
-                    <form:checkbox path="showDownload" id="showDownload" />
-                    <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
-                </dd>
-            </c:if>
             <c:if test="${command.user.coverArtRole eq true}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
                 <dd>
@@ -487,27 +536,6 @@ function resetAdditionalDisplay() {
                     <label for="showChangeCoverArt"><fmt:message key="personalsettings.showchangecoverart"/></label>
                 </dd>  
             </c:if>
-            <c:if test="${command.user.commentRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
-                <dd>
-                    <form:checkbox path="showComment" id="showComment" />
-                    <label for="showComment"><fmt:message key="personalsettings.showcomment"/></label>
-                </dd>
-            </c:if>
-            <c:if test="${command.user.shareRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
-                <dd>
-                    <form:checkbox path="showShare" id="showShare" />
-                    <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
-                </dd>
-            </c:if>
-            <c:if test="${command.user.commentRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.home"/></dt>
-                <dd>
-                    <form:checkbox path="showRate" id="showRate" />
-                    <label for="showRate"><fmt:message key="personalsettings.showrate"/></label>
-                </dd>
-            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
                 <form:checkbox path="showAlbumSearch" id="showAlbumSearch" />
@@ -518,12 +546,33 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="showLastPlay" id="showLastPlay" />
                 <label for="showLastPlay"><fmt:message key="personalsettings.showlastplay"/></label>
             </dd>
+            <c:if test="${command.user.commentRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.home"/></dt>
+                <dd>
+                    <form:checkbox path="showRate" id="showRate" />
+                    <label for="showRate"><fmt:message key="personalsettings.showrate"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/></dt>
             <dd>
                 <form:checkbox path="showAlbumActions" id="showAlbumActions" />
                 <label for="showAlbumActions"><fmt:message key="personalsettings.showalbumactions"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="albumactions"/></c:import>
             </dd>
+            <c:if test="${command.user.downloadRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
+                <dd>
+                    <form:checkbox path="showDownload" id="showDownload" />
+                    <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
+                </dd>
+            </c:if>
+            <c:if test="${command.user.shareRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
+                <dd>
+                    <form:checkbox path="showShare" id="showShare" />
+                    <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/> etc</dt>
             <dd>
                 <form:checkbox path="partyModeEnabled" id="partyModeEnabled" />

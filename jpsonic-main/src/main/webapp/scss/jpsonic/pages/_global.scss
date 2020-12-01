@@ -462,7 +462,7 @@ div.albumThumb > div.coverart > div > a {
 
 // Used when arranging radio buttons vertically
 .mainframe.settings.playerSettings details ul,
-.mainframe.settings.personalSettings details ul.playerSettings {
+.mainframe.settings.personalSettings details dl dd ul {
   li {
     height: 30px;
     display: flex;
