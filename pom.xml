@@ -17,13 +17,13 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.1</cxf.version>
-        <jackson.version>2.11.3</jackson.version>
-        <tomcat.version>9.0.39</tomcat.version>
+        <jackson.version>2.12.0</jackson.version>
+        <tomcat.version>9.0.40</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.34.v20201102</jetty.version>
-        <jetty-jsp.version>9.4.34.v20201102</jetty-jsp.version>
+        <jetty.version>9.4.35.v20201120</jetty.version>
+        <jetty-jsp.version>9.4.35.v20201120</jetty-jsp.version>
         <pmd.version>6.29.0</pmd.version>
-        <log4j.version>2.13.3</log4j.version>
+        <log4j.version>2.14.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
     </properties>
@@ -150,7 +150,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.7.1</version>
+                <version>3.8.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -204,7 +204,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
-                <version>4.8-1</version>
+                <version>4.9</version>
             </dependency>
 
             <!-- Tomcat dependencies are normally managed by Spring Boot, but we handle
@@ -333,6 +333,11 @@
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-util-ajax</artifactId>
+                <version>${jetty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-annotations</artifactId>
                 <version>${jetty.version}</version>
             </dependency>
@@ -450,7 +455,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-pmd-plugin</artifactId>
-                    <version>3.13.0</version>
+                    <version>3.14.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>net.sourceforge.pmd</groupId>
