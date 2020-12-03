@@ -699,7 +699,7 @@
                     </includes>
                     <minimumPriority>3</minimumPriority>
                     <rulesets>
-                        <ruleset>pmd-rulesets-priority3.xml</ruleset>
+                        <ruleset>ruleset.xml</ruleset>
                     </rulesets>
                 </configuration>
             </plugin>
@@ -811,7 +811,7 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <configuration>
-                    <excludeFilterFile>spotbugs-exclude.xml</excludeFilterFile>
+                    <excludeFilterFile>findbugs-excludes.xml</excludeFilterFile>
                 </configuration>
             </plugin>
             <plugin>
