@@ -3,7 +3,7 @@
 # jpsonic/jpsonic
 -->
 
-[![Build Status](https://travis-ci.com/tesshucom/jpsonic.svg?branch=master)](https://travis-ci.com/tesshucom/jpsonic) 
+[![CI](https://github.com/tesshucom/jpsonic/workflows/CI-verify/badge.svg)](https://github.com/tesshucom/jpsonic/actions?query=workflow%3ACI-verify)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/740778cca284442080c319e5469eaa33)](https://www.codacy.com/gh/tesshucom/jpsonic/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=tesshucom/jpsonic&amp;utm_campaign=Badge_Grade)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/tesshucom/jpsonic.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesshucom/jpsonic/alerts/)
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/tesshucom/jpsonic.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/tesshucom/jpsonic/context:javascript) 
