@@ -15,36 +15,44 @@ Jpsonic
 What is Jpsonic?
 -----------------
 
+Jpsonic is a free, web-based media streamer, an [Airsonic](https://github.com/airsonic/airsonic) Clone.
+
 <table>
 <tr>
 <td>
-Jpsonic is a free, web-based media streamer, providing ubiquitous access to your music.
-
-Use it to share your music with friends, or to listen to your own music while at work.
-Based on Java technology, Jpsonic runs on most platforms, including Windows, Mac, Linux and Unix variants.
-
-Jpsonic is an [Airsonic](https://github.com/airsonic/airsonic) Clone.
+<img src="contrib/assets/screenshot1.png" width="200">
 </td>
 <td>
-<img src="contrib/assets/screenshot.jpg" width="200">
+<img src="contrib/assets/screenshot2.png" width="200">
+</td>
+<td>
+<img src="contrib/assets/screenshot3.png" width="200">
+</td>
+<td>
+<img src="contrib/assets/screenshot4.png" width="200">
 </td>
 </tr>
 </table>
 
-What is the difference from Airsonic?
+Features
 -----------------
 
-Optimized for Japanese needs.
-The language processing suitable for Japanese and the DLNA function frequently used by Japanese are enhanced.
+<details>
+<summary>Enhanced meta processing</summary>
 
-Even if the server is linked to a famous external service, Japanese song information may not be easily linked.
-For this reason, Jpsonic is focusing on enhancing tag processing via CDDB.
-Sony/Apple tag specifications, which have a significant impact on commercial areas in Japan, are taken into account.
+To process Japanese well on a machine requires quite complicated mechanism.
+The index, sort, and search features of Jpsonic have been replaced with more accurate and reliable processing than Subsonic and Airsonic.
+It's not just a fix that is useful only to Japanese people.
+It will be further improved in the future, and Japanese index feature for overseas users will be added.
+
+</details>
 
 <details>
-<summary>Tags supported by Jpsonic</summary>
+<summary>General ID3 tags are supported</summary>
 
-Supports multiple genres.
+It supports standard tags, and the SONY/APPLE specifications are used as a reference.
+The reason Jpsonic refers to the SONY/APPLE specification is that their specifications take into account global multilingual support.
+Also supports multiple genres.
 
 |tag name |tag id|Subsonic/Airsonic |Jpsonic |Music Center (SONY) |itunes (APPLE)
 |:---|:---|:---:|:---:|:---:|:---:|
@@ -65,139 +73,31 @@ Supports multiple genres.
 
 </details>
 
-The reason Jpsonic refers to the SONY/APPLE specification is that their specifications take into account global multilingual support.
-
-Features
------------------
-
-### Enhanced meta processing
-
-To process Japanese well on a machine requires a lengthy mechanism. Conversely, if the system can handle Japanese well, it may be easy a little easier to support languages in other countries. Jpsonic will work without conflict, except in special cases like other chinese-character (except JP) and Arabic.
-
 <details>
-<summary>Enhanced index function</summary>
+<summary>Reimplemented DLNA features</summary>
 
-<table>
-<tr>
-<td>
- 
-Many character types such as alphabet/hiragana/katakana/chinese character/symbols are used in Japanese.
-
-Jpsonic correctly classifies them and creates a Japanese index.
-It is a very general and easy-to-understand index for Japanese people, just like Japanese dictionaries, bank branch names, telephone directories and karaoke indexes.
-</td>
-<td>
-<img src="contrib/assets/jp-index.png" width="200">
-</td>
-</tr>
-</table>
-
-Also, Japanese generally read ligatures in English.
-Therefore, decomposable ligatures are categorized alphabetically by default.
-Even if used by non-Japanese, the index will be slightly different from Airsonic.
+DLNA (UPnP) and OpenHome is mainstream technology in Japanese typical household.
+For this reason, many new features have been added to Jpsonic.
+Many display variations can be selected as options.
+You can specify the Music Folder to be published.
+It also runs faster than Subsonic and Airsonic.
 
 </details>
 
 <details>
-<summary>Enhanced sort function</summary>
+<summary>Support for speech recognition</summary>
 
-<table>
-<tr>
-<td>
-
- - Sort by name is expanded to allow for Japanese character string sorting. Even with a variety of character types, Japanese people can use it without feeling uncomfortable.
- - Advanced sorting is available with options. (``Albums of artists starting with "various" are not sorted by year`` / ``sorted considering serial numbers``)
-
-</td>
-<td>
-<img src="contrib/assets/jp-sort.png" width="200">
-</td>
-</tr>
-</table>
-
-Jpsonic does special processing for sort tags.
-
- - Strings are washed (full-width, half-width, etc.).
- - If multiple Sort tags are registered for one name in the library, they will be merged
- - If the tag is not registered and the name is Japanese, it will be supplemented by Japanese analysis
-
-CDDB sort tags are not perfect.
-These are necessary to achieve perfect sorting, reduce the size of the index and prevent missing searches.
-
-These are done automatically after the scan.
+The point of Japanese meta processing is the handling of syllables.
+The search feature by speech recognition from applications and browsers is inevitably enhanced.
+Even in languages other than Japanese where syllable processing is difficult, there is a possibility that it can be processed in the same way as Japanese by using sort tags well. You can use apps that support server side search and use speech recognition, such as [Subsonic Music Streamer](https://play.google.com/store/apps/details?id=net.sourceforge.subsonic.androidapp&hl=ja&gl=US) and [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en) .
+With a specific browser, voice recognition is possible from a headset connected to a PC.
 
 </details>
 
-<details>
-<summary>Enhanced search function</summary>
+Usage
+-----
 
-<table>
-<tr>
-<td>
-Supports phrase search.
-In addition, the sort tags corresponding to each field will also be searched.
-
-When searching, Japanese people enter the reading.
-Finally, convert to an appropriate character type with IME conversion.
-People in the countries that use Ideograph unknowingly perform complicated input procedures.
-Jpsonic allows you to search while inputting IME conversion.
-
-In addition to the phrase search, the old Subsonic search, the multi term search, is also maintained. It can be switched by the option.
-</td>
-<td>
-<img src="contrib/assets/jp-search.jpg" width="200">
-</td>
-</tr>
-</table>
-
-The search engine analyzer has been changed to a Japanese analyzer.
-This does not mean that only Japanese people can use it.
-Of course, Japanese people also listen to songs other than Japanese.
-
-</details>
-
-### Extension of DLNA function
-
-<table>
-<tr>
-<td>
-<img src="contrib/assets/dlna.jpg" width="200">
-</td>
-<td>
-
-DLNA (UPnP) is hardly improved in Subsonic/Airsonic.
-
-But DLNA (UPnP) is still popular in Japan, and OpenHome is also Hot.
-For this reason, Jpsonic has many new features.
-
-You can add or delete items you want to use from the setting screen.
-These features include those that are not supported on the web.
-Id3 index etc.
-
-Unlike Subsonic/Airsonic, Jpsonic has integrated and refactored sort-logic.
-Therefore, tree expansion on UPnP works faster than Subsonic/Airsonic.
-Of course, all sort-logic of Web/REST/UPnP work with the same rules.
-
-</td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td>
-
-For Jpsonic DLNA, you can specify the Music Folder to be published.
-You can also use apps that support voice search, such as [BubbleUPnP](https://play.google.com/store/apps/details?id=com.bubblesoft.android.bubbleupnp&hl=en).
-
-</td>
-<td>
-<img src="contrib/assets/dlna-setting.jpg" width="200">
-</td>
-</tr>
-</table>
-
-
-
+The basic installation procedure is almost the same as Airsonic. Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic. A more detailed specification description can be found at the [author's site](https://tesshu.com/category/spec).
 
 History
 -----
@@ -232,16 +132,11 @@ Therefore, the design of the search function of Airsonic and Jpsonic is a bit si
 
 </details>
 
-Cherry Blossoms
------
+<details>
+<summary>Cherry Blossoms</summary>
 
-The Japanese loved cherry blossoms for hundreds of years.
-
-Please ask the Japanese people "What is a flower?".
-
-The Japanese will answer "Sakura".
-
-During international exchange, Japan frequently plants cherry blossoms to show respect for partners.
+The Japanese loved cherry blossoms for hundreds of years. Please ask the Japanese people "What is a flower?". The Japanese will answer "Sakura". The Japanese frequently plants cherry blossoms in international exchange to show respect for partners.
+</details>
 
 License
 -------
@@ -257,26 +152,3 @@ The icons are from the amazing [feather](https://feathericons.com/) project,
 and are licensed under [MIT license](https://github.com/feathericons/feather/blob/master/LICENSE).
 
 [Kazesawa font](https://kazesawa.github.io/) is used for Japanese fonts. Copyright (C) 2002-2015 M+ FONTS PROJECT.
-
-Usage
------
-
-Jpsonic can be downloaded from
-[GitHub](https://github.com/jpsonic/jpsonic/releases).
-
-Specifications other than Japanese correspond to Airsonic.
-Please use the [Airsonic documentation](https://airsonic.github.io/docs/) for instructions on running Airsonic.
-
-There may be additional explanations that are not important at the [author's site](https://tesshu.com/jpsonic/) in the future.
-However, most are written in Japanese.
-
-Community
----------
-
-The roots Airsonic have several places outside of github for community discussion, questions, etc:
-
-- [#airsonic:matrix.org on Matrix](https://matrix.to/#/#airsonic:matrix.org)
-- [#airsonic on IRC](http://webchat.freenode.net?channels=%23airsonic)
-- [airsonic subreddit](https://www.reddit.com/r/airsonic)
-
-*Note that the Matrix room and IRC channel are bridged together.*
