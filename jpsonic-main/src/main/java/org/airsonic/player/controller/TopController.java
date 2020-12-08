@@ -29,7 +29,6 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.MusicIndexService;
-import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
@@ -71,8 +70,6 @@ public class TopController {
     private MediaScannerService mediaScannerService;
     @Autowired
     private MusicIndexService musicIndexService;
-    @Autowired
-    private PlayerService playerService;
     @Autowired
     private VersionService versionService;
     @Autowired
@@ -123,7 +120,6 @@ public class TopController {
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders : Collections.singletonList(selectedMusicFolder);
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
 
-        map.put("player", playerService.getPlayer(request, response));
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
         map.put("selectedMusicFolder", selectedMusicFolder);

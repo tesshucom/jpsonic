@@ -138,8 +138,8 @@
                         <c:import url="playButtons.jsp">
                             <c:param name="id" value="${child.id}"/>
                             <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-                            <c:param name="downloadEnabled" value="${model.user.downloadRole and model.showDownload and not model.partyMode}"/>
-                            <c:param name="video" value="${child.video and model.player.web}"/>
+                            <c:param name="downloadEnabled" value="${model.user.downloadRole and model.showDownload}"/>
+                            <c:param name="video" value="${child.video}"/>
                             <c:param name="asTable" value="true"/>
                         </c:import>
                         <c:if test="${!(model.user.downloadRole and model.showDownload and not model.partyMode)}"><td></td></c:if>

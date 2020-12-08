@@ -338,7 +338,7 @@ function toggleComment() {
                 <tr>
                     <c:import url="playButtons.jsp">
                         <c:param name="id" value="${song.id}"/>
-                        <c:param name="video" value="${song.video and model.player.web}"/>
+                        <c:param name="video" value="${song.video}"/>
                         <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
                         <c:param name="addEnabled" value="${model.user.streamRole and (not model.partyMode or not song.directory)}"/>
                         <c:param name="starEnabled" value="true"/>

@@ -204,14 +204,14 @@ $(document).ready(function(){
         <summary><fmt:message key="home.index.child"/></summary>
         <ul>
             <c:forEach items="${model.singleSongs}" var="song">
-                <li>
+                <li class="fileControls">
                     ${fn:escapeXml(song.title)}
                     <c:import url="playButtons.jsp">
                         <c:param name="id" value="${song.id}"/>
                         <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
-                        <c:param name="addEnabled" value="${model.user.streamRole}"/>
-                        <c:param name="downloadEnabled" value="${model.user.downloadRole and not model.partyMode}"/>
-                        <c:param name="video" value="${song.video and model.player.web}"/>
+                        <c:param name="addEnabled" value="${model.user.streamRole and not model.partyMode}"/>
+                        <c:param name="downloadEnabled" value="${model.user.downloadRole and model.showDownload}"/>
+                        <c:param name="video" value="${song.video}"/>
                     </c:import>
                 </li>
             </c:forEach>

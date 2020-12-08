@@ -41,8 +41,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,11 +72,6 @@ public class VideoPlayerController {
         MediaFile file = mediaFileService.getMediaFile(id);
         MediaFile dir = mediaFileService.getParentOf(file);
 
-        // Redirect if root directory.
-        if (mediaFileService.isRoot(dir)) {
-            return new ModelAndView(new RedirectView("home.view?"));
-        }
-
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
             return new ModelAndView(new RedirectView("accessDenied.view"));
@@ -95,7 +88,6 @@ public class VideoPlayerController {
 
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
-        map.put("ancestors", getAncestors(file));
         map.put("breadcrumbIndex", userSettings.isBreadcrumbIndex());
         map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(user.getUsername()));
         map.put("video", file);
@@ -124,22 +116,6 @@ public class VideoPlayerController {
         LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {
             result.put(StringUtil.formatDurationMSS(i), i);
-        }
-        return result;
-    }
-
-    @SuppressWarnings("PMD.EmptyCatchBlock")
-    private List<MediaFile> getAncestors(MediaFile dir) {
-        LinkedList<MediaFile> result = new LinkedList<>();
-
-        try {
-            MediaFile parent = mediaFileService.getParentOf(dir);
-            while (parent != null && !mediaFileService.isRoot(parent)) {
-                result.addFirst(parent);
-                parent = mediaFileService.getParentOf(parent);
-            }
-        } catch (SecurityException x) {
-            // Happens if Podcast directory is outside music folder.
         }
         return result;
     }

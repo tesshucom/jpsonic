@@ -306,10 +306,20 @@
   }
 }
 
+.fileControls .control,
 .tabular .control,
 .jps-radio .control {
   @include createTabularButton;
   color: transparent !important;
+}
+.fileControls {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  div,
+  a {
+    margin: 0 2px 0 2px !important;
+  }
 }
 
 nav > ul.menu li {
@@ -339,6 +349,9 @@ section > details > summary > h1 {
 }
 .control.download {
   @include createButton("\f2e3", 20px, -0.06em);
+}
+.control.next {
+  @include createTabularButton("\f3d1", 20px, -0.06em, 0.1em);
 }
 .control.edit,
 .control.comment {
@@ -694,15 +707,19 @@ form .control.microphone {
 .rating.star {
   @include createButton("\f4b2", 18px, -0.09em, -0.06em);
 }
+.fileControls .control.play,
 .tabular .control.play {
   @include createTabularButton("\f357", 11px, -0.12em);
 }
+.fileControls .control.download,
 .tabular .control.download {
   @include createTabularButton("\f2e3", 14px, -0.1em);
 }
+.fileControls .control.next,
 .tabular .control.next {
   @include createTabularButton("\f3d1", 14px, -0.1em);
 }
+.fileControls .control.plus,
 .tabular .control.plus {
   @include createTabularButton("\f102", 20px, -0.08em, -0.08em);
 }
