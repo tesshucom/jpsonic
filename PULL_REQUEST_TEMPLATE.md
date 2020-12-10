@@ -1,6 +1,11 @@
 
 # Getting your pull-requests reviewed and merged
 
+<details>
+<summary>Definition in Airsonic</summary>
+
+<blockquote>
+
 Once you have submitted a pull-request, a number of factors may determine how
 much attention it receives, how quickly it may be reviewed, and whether or not
 it eventually gets accepted and merged. Here are a few guidelines that can help
@@ -57,3 +62,11 @@ discovered that is likely to impact users significantly), may happen more
 quickly if needed. Even after acceptance, the inclusion of larger changes may
 be delayed until a major version release in order to ensure that the impact to
 users is minimized and that stability is maintained.
+
+</blockquote>
+
+</details>
+
+By the way, Jpsonic does not accept pull requests at this time.
+This is entirely a matter of my capacity. Accepting indiscriminate requests is because we have determined that the side effects outweigh the slight benefits.
+If you have a request that involves a big architect change rather than a small feature, and it's a very groundbreaking idea that benefits a lot of people, and most of the design/implementation/verification work is done by you alone, then Please contact us.
