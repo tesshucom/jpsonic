@@ -1,4 +1,9 @@
 
+<details>
+<summary>Suggesting modifications Definition in Airsonic</summary>
+
+<blockquote>
+
 # Suggesting modifications
 
 Airsonic's source code is hosted on [github](https://github.com/airsonic/airsonic/),
@@ -10,6 +15,14 @@ a relatively small group of contributors who have many other responsibilities
 and demands on their time. Development, maintenance, and administration of the
 project is done on a best-effort basis, as time and other constraints permit.
 
+</blockquote>
+
+</details>
+
+<details>
+<summary>Getting your pull-requests reviewed and merged in Airsonic</summary>
+
+<blockquote>
 
 # Getting your pull-requests reviewed and merged
 
@@ -70,10 +83,15 @@ quickly if needed. Even after acceptance, the inclusion of larger changes may
 be delayed until a major version release in order to ensure that the impact to
 users is minimized and that stability is maintained.
 
-# Getting help
+</blockquote>
 
-The documentation is hosted [here](https://airsonic.github.io/) (you can
-contribute to it [here](https://github.com/airsonic/documentation)), and aims
-at being comprehensive. You can also use [irc](irc://irc.freenode.net/airsonic)
-and [reddit](https://www.reddit.com/r/airsonic/) if you want to discuss or ask
-questions.
+</details>
+
+By the way, 
+
+ - Jpsonic does not accept pull requests at this time.
+ - This is entirely a matter of my capacity. Accepting indiscriminate requests is because we have determined that the side effects outweigh the slight benefits.
+ - This is the current status and can change if circumstances change
+ - If you have a request that involves a big architect change rather than a small feature, and it's a very groundbreaking idea that benefits a lot of people, and most of the design/implementation/verification work is done by you alone, then please contact us.
+
+ 
