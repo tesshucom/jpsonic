@@ -1,7 +1,8 @@
 # Getting a .war
 
-Airsonic is using [Maven](https://maven.apache.org/) to manage its build
-process. Any version above 3.3+ should do the job.
+Jpsonic is using [Maven](https://maven.apache.org/) to manage its build
+process.
+
 
 If you want to run the testsuite and get a `.war` is everything went fine,
 you this command:
@@ -14,20 +15,37 @@ If you don't care about the result of the testsuite, but only
 want a `.war` as quick as possible, you can use this instead:
 
 ```
-$ mvn -Dmaven.test.skip=true clean package 
+$ mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true
 ```
 
+If you want to use Jetty instead of Tomcat:
+
+```
+$ mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed
+```
+
+When using the Java 15 compiler and JVM:
+
+```
+$ mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease15
+```
+
+See [the documentation](https://tesshu.com/update/how-to-compile-jpsonic) for more information.
 
 # Suggesting modifications
 
-Airsonic's source code is hosted on [github](https://github.com/airsonic/airsonic/),
+**Airsonic**'s source code is hosted on [github](https://github.com/airsonic/airsonic/),
 who provides a [lot of documentation](https://help.github.com/en) on how
 to contribute to projects hosted there.
-
 Keep in mind that this is a non-funded community-driven project maintained by
 a relatively small group of contributors who have many other responsibilities
 and demands on their time. Development, maintenance, and administration of the
 project is done on a best-effort basis, as time and other constraints permit.
+
+**Jpsonic** is currently not actively accepting change proposals.
+There are already many planned features that Jpsonic is trying to achieve, and there is little need to discuss it with you.
+If you want to add functionality, please publish the fork.
+If you want to redistribute the modified program, please make an appropriate brand change.
 
 # Getting help
 
