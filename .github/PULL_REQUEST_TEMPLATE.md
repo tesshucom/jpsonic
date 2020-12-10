@@ -1,22 +1,3 @@
-# Getting a .war
-
-Airsonic is using [Maven](https://maven.apache.org/) to manage its build
-process. Any version above 3.3+ should do the job.
-
-If you want to run the testsuite and get a `.war` is everything went fine,
-you this command:
-
-```
-$ mvn clean package 
-```
-
-If you don't care about the result of the testsuite, but only
-want a `.war` as quick as possible, you can use this instead:
-
-```
-$ mvn -Dmaven.test.skip=true clean package 
-```
-
 
 # Suggesting modifications
 
