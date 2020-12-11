@@ -697,7 +697,7 @@
                         <include>**/*.jsp</include>
                         <include>**/*.jspf</include>
                     </includes>
-                    <minimumPriority>3</minimumPriority>
+                    <minimumPriority>5</minimumPriority>
                     <rulesets>
                         <ruleset>ruleset.xml</ruleset>
                     </rulesets>
