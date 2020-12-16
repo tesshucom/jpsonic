@@ -281,10 +281,9 @@ public class InternetRadioService {
         HttpURLConnection connection = connectToURL(currentURL);
 
         // While it redirects, follow redirects in new connections.
-        while (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM ||
-               connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP ||
-               connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
-
+        while ((int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
+                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
+                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
             // Check if redirect count is not too large.
             redirectCount += 1;
             if (maxRedirects > 0 && redirectCount > maxRedirects) {
