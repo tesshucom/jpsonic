@@ -1438,7 +1438,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         int[] ids = getRequiredIntParameters(request, "id");
         long[] times = getLongParameters(request, "time");
-        if (times.length > 0 && times.length != ids.length) {
+        if (times.length > 0 && (int) times.length != (int) ids.length) {
             error(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
             return;
         }
