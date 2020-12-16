@@ -9,6 +9,16 @@ import org.apache.lucene.util.AttributeFactory;
  */
 public class Id3ArtistTokenizer extends CharTokenizer {
 
+    /*
+     * see http://id3.org/
+     * ; v2.2 
+     * / v2.3
+     * \0 v2.4 (Required for security)
+     */
+    private static final int ID3_DELIM = ';' | '/' | '\0';
+
+    private static final int SPACE_SEPARATOR = (int) Character.SPACE_SEPARATOR;
+
     /**
      * Construct a new Id3ArtistTokenizer.
      */
@@ -44,28 +54,7 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      */
     @Override
     protected boolean isTokenChar(int c) {
-
-        /*
-         * see http://id3.org/
-         * ; v2.2 
-         * / v2.3
-         * \0 v2.4 (Required for security)
-         */
-        int id3delim = ';' | '/' | '\0';
-
-        if (id3delim == c) {
-            return false;
-        }
-
-        if (Character.SPACE_SEPARATOR == Character.getType(c)) {
-            return false;
-        }
-
-        if (',' == c) {
-            return false;
-        }
-
-        return true;
+        return !(ID3_DELIM == c || SPACE_SEPARATOR == Character.getType(c) || ',' == c);
     }
 
 }
