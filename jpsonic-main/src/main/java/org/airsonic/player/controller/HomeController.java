@@ -19,8 +19,21 @@
  */
 package org.airsonic.player.controller;
 
-import org.airsonic.player.domain.*;
-import org.airsonic.player.service.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.Genre;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.MusicFolderContent;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.MediaScannerService;
+import org.airsonic.player.service.MusicIndexService;
+import org.airsonic.player.service.RatingService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,7 +44,12 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
 import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;

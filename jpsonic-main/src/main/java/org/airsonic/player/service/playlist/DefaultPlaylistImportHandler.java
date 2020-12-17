@@ -1,6 +1,11 @@
 package org.airsonic.player.service.playlist;
 
-import chameleon.playlist.*;
+import chameleon.playlist.Media;
+import chameleon.playlist.Parallel;
+import chameleon.playlist.Playlist;
+import chameleon.playlist.PlaylistVisitor;
+import chameleon.playlist.Sequence;
+import chameleon.playlist.SpecificPlaylist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;

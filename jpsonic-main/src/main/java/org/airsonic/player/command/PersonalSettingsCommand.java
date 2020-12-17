@@ -21,7 +21,11 @@ package org.airsonic.player.command;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.controller.PersonalSettingsController;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.AlbumListType;
+import org.airsonic.player.domain.Avatar;
+import org.airsonic.player.domain.Theme;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 
 import java.util.Arrays;
 import java.util.List;

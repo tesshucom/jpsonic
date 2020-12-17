@@ -21,7 +21,12 @@ package org.airsonic.player.service;
 
 import org.airsonic.player.controller.VideoPlayerController;
 import org.airsonic.player.dao.TranscodingDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.TranscodeScheme;
+import org.airsonic.player.domain.Transcoding;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.io.TranscodeInputStream;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;

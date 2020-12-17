@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.controller;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.RandomSearchCriteria;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
@@ -41,7 +45,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Controller for the creating a random play queue.

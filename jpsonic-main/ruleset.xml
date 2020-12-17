@@ -53,9 +53,6 @@
 
         <!-- # important -->
         <exclude name="UseVarargs" />
-        <!-- ****************************** Should be triaged! ****************************** -->
-        <exclude name="UnusedImports" />
-
         <!-- [low priority] << -->
 
         <!-- ****************************** if possible! ****************************** -->
@@ -98,8 +95,6 @@
         <exclude name="UseShortArrayInitializer" />
 
         <!-- # important -->
-        <!-- ****************************** Should be triaged! ****************************** -->
-        <exclude name="DuplicateImports" />
         <exclude name="UselessParentheses" />
         <!-- ****************************** Should be triaged! ****************************** -->
         <exclude name="UnnecessaryFullyQualifiedName" />
