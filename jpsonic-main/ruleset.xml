@@ -96,8 +96,6 @@
 
         <!-- # important -->
         <exclude name="UselessParentheses" />
-        <!-- ****************************** Should be triaged! ****************************** -->
-        <exclude name="UnnecessaryFullyQualifiedName" />
         <exclude name="BooleanGetMethodName" />
         <exclude name="ShortClassName" />
 
