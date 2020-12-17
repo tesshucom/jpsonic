@@ -727,6 +727,7 @@
                 <configuration>
                     <skip>${surefire.skip}</skip>
                     <reuseForks>false</reuseForks>
+                    <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
             <plugin>
