@@ -47,7 +47,6 @@ import org.airsonic.player.domain.logic.CoverArtLogic;
 import org.airsonic.player.service.LastFmService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
-import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.PodcastService;
@@ -697,7 +696,7 @@ public class SonosHelper {
         Player player = createPlayerIfNecessary(username);
         MediaFile song = mediaFileService.getMediaFile(mediaFileId);
 
-        return NetworkService.getBaseUrl(request) + "stream?id=" + song.getId() + "&player=" + player.getId();
+        return getBaseUrl(request) + "stream?id=" + song.getId() + "&player=" + player.getId();
     }
 
     private Player createPlayerIfNecessary(String username) {
