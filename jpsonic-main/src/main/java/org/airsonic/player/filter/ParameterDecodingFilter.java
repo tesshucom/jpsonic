@@ -126,7 +126,7 @@ public class ParameterDecodingFilter implements Filter {
                 return decode(values);
             }
 
-            return null;
+            return new String[0];
         }
 
         private String[] decode(String[] values) {
