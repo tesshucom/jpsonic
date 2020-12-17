@@ -161,9 +161,6 @@
         <exclude name="NonStaticInitializer" />
         <exclude name="BeanMembersShouldSerialize" />
 
-        <!-- # warning -->
-        <exclude name="InvalidLogMessageFormat" />
-
         <!-- [low priority] << -->
     </rule>
 
