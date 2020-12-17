@@ -109,7 +109,7 @@ public class RESTRequestParameterProcessingFilter implements Filter {
 
         // The username and credentials parameters are not required if the user
         // was previously authenticated, for example using Basic Auth.
-        boolean passwordOrTokenPresent = password != null || (salt != null && token != null);
+        boolean passwordOrTokenPresent = password != null || salt != null && token != null;
         Authentication previousAuth = SecurityContextHolder.getContext().getAuthentication();
         boolean missingCredentials = previousAuth == null && (username == null || !passwordOrTokenPresent);
         if (missingCredentials || version == null || client == null) {

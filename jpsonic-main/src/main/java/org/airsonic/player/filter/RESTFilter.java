@@ -64,7 +64,9 @@ public class RESTFilter implements Filter {
             t = t.getCause();
         }
 
-        SubsonicRESTController.ErrorCode code = (t instanceof ServletRequestBindingException) ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
+        SubsonicRESTController.ErrorCode code = t instanceof ServletRequestBindingException
+                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER
+                : SubsonicRESTController.ErrorCode.GENERIC;
         String msg = getErrorMessage(t);
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error in REST API: " + msg, t);

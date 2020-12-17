@@ -274,7 +274,7 @@ public class PlayQueueService {
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
         if (!radio.isEnabled()) {
-            throw new ExecutionException(new IOException(("Radio is not enabled")));
+            throw new ExecutionException(new IOException("Radio is not enabled"));
         }
 
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();

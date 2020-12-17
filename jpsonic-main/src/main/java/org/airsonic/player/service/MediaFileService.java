@@ -166,9 +166,9 @@ public class MediaFileService {
     }
 
     private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
-        if (useFastCache || (mediaFile.getVersion() >= MediaFileDao.VERSION
+        if (useFastCache || mediaFile.getVersion() >= MediaFileDao.VERSION
                 && !settingsService.isIgnoreFileTimestamps()
-                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile()))) {
+                && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
             }
@@ -493,7 +493,7 @@ public class MediaFileService {
         }
 
         // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
-        return (name.startsWith(".") && !name.startsWith("..")) || name.startsWith("@eaDir") || "Thumbs.db".equals(name);
+        return name.startsWith(".") && !name.startsWith("..") || name.startsWith("@eaDir") || "Thumbs.db".equals(name);
     }
 
     private MediaFile createMediaFile(File file) {

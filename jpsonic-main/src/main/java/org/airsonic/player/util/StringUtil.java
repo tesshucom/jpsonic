@@ -102,6 +102,7 @@ public final class StringUtil {
      * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is found,
      *         <code>application/octet-stream</code> is returned.
      */
+    @SuppressWarnings("PMD.UselessParentheses")
     public static String getMimeType(String suffix) {
         for (String[] map : MIME_TYPES) {
             if (map[0].equalsIgnoreCase(suffix) || ('.' + map[0]).equalsIgnoreCase(suffix)) {

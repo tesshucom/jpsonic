@@ -94,7 +94,7 @@ public final class ComplementaryFilter extends TokenFilter {
         if (input.incrementToken()) {
             String term = termAtt.toString();
 
-            if ((Mode.HIRA_KATA_ONLY != mode && onlyStopWords.matcher(term).matches())) {
+            if (Mode.HIRA_KATA_ONLY != mode && onlyStopWords.matcher(term).matches()) {
                 return true;
             }
             if (Mode.STOP_WORDS_ONLY != mode && isHiraKataOnly(term)) {
