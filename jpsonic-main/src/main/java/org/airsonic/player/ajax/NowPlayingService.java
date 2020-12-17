@@ -19,8 +19,16 @@
  */
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.domain.*;
-import org.airsonic.player.service.*;
+import org.airsonic.player.domain.AvatarScheme;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayStatus;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.MediaScannerService;
+import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;

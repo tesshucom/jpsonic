@@ -21,24 +21,41 @@
 package org.airsonic.player.service.search;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.Genre;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.ParamSearchResult;
+import org.airsonic.player.domain.RandomSearchCriteria;
+import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.search.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
+import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static org.airsonic.player.service.search.IndexType.*;
+import static org.airsonic.player.service.search.IndexType.ALBUM;
+import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
+import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
+import static org.airsonic.player.service.search.IndexType.SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service

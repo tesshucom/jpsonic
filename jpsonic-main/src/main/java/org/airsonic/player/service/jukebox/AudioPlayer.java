@@ -32,7 +32,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.*;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.CLOSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.EOM;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PAUSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
 
 /**
  * A simple wrapper for playing sound from an input stream.

@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.dao;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.PlayerTechnology;
+import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.util.LegacyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Provides player-related database services.

@@ -21,8 +21,15 @@ package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.domain.*;
-import org.airsonic.player.service.*;
+import org.airsonic.player.domain.CoverArtScheme;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.RatingService;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +45,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
+
 
 /**
  * Controller for the main page.

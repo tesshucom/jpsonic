@@ -1,7 +1,12 @@
 package org.airsonic.player;
 
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
-import org.airsonic.player.filter.*;
+import org.airsonic.player.filter.BootstrapVerificationFilter;
+import org.airsonic.player.filter.MetricsFilter;
+import org.airsonic.player.filter.ParameterDecodingFilter;
+import org.airsonic.player.filter.RESTFilter;
+import org.airsonic.player.filter.RequestEncodingFilter;
+import org.airsonic.player.filter.ResponseHeaderFilter;
 import org.airsonic.player.util.LegacyHsqlUtil;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;

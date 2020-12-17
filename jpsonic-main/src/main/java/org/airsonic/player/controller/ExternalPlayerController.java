@@ -20,9 +20,18 @@
 package org.airsonic.player.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaFileWithUrlInfo;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.Share;
 import org.airsonic.player.security.JWTAuthenticationToken;
-import org.airsonic.player.service.*;
+import org.airsonic.player.service.JWTSecurityService;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,7 +48,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**

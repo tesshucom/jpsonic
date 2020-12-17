@@ -19,7 +19,11 @@
  */
 package org.airsonic.player.io;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.TransferStatus;
+import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.service.AudioScrobblerService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;

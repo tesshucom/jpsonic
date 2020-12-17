@@ -19,9 +19,19 @@
  */
 package org.airsonic.player.controller;
 
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.Playlist;
+import org.airsonic.player.domain.TransferStatus;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.io.RangeOutputStream;
-import org.airsonic.player.service.*;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.PlaylistService;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.HttpRange;
 import org.airsonic.player.util.PlayerUtils;
@@ -39,7 +49,11 @@ import org.springframework.web.servlet.mvc.LastModified;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
