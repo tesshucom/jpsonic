@@ -132,7 +132,7 @@ public class PlayerService {
                 isUpdate = true;
             }
             if (player.getIpAddress() == null || isStreamRequest ||
-                (!isPlayerConnected(player) && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress()))) {
+                !isPlayerConnected(player) && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress())) {
                 player.setIpAddress(request.getRemoteAddr());
                 isUpdate = true;
             }

@@ -95,7 +95,6 @@
         <exclude name="UseShortArrayInitializer" />
 
         <!-- # important -->
-        <exclude name="UselessParentheses" />
         <exclude name="BooleanGetMethodName" />
         <exclude name="ShortClassName" />
 

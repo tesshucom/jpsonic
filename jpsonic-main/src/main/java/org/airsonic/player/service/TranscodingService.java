@@ -232,12 +232,12 @@ public class TranscodingService {
             }
         }
 
-        if (mb == 0 || (bitRate != 0 && bitRate < mb)) {
+        if (mb == 0 || bitRate != 0 && bitRate < mb) {
             mb = bitRate;
         }
 
-        if (transcoding != null && ((mb != 0 && (bitRate == 0 || bitRate > mb)) ||
-            (preferredTargetFormat != null && ! mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat)))) {
+        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb) ||
+            preferredTargetFormat != null && ! mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
             parameters.setTranscoding(transcoding);
         }
 
