@@ -39,9 +39,9 @@ typeset -r client="scan-trigger"
 trigger_scan() {
   typeset -r url="${server}/rest/startScan?u=${username}&t=${token}&s=${salt}&v=1.15.0&c=${client}"
 
-  response=$($cmd_curl -s $url)
-  echo $response | grep -q 'status="ok"' || error "Scan request failed"
-  echo $response | grep -q 'scanning="false"' || info "Server is already scanning"
+  response=$("$cmd_curl" -s "$url")
+  echo "$response" | grep -q 'status="ok"' || error "Scan request failed"
+  echo "$response" | grep -q 'scanning="false"' || info "Server is already scanning"
 }
 
 info "Start watching dirs '$dirs'"
