@@ -109,7 +109,7 @@ public class MusicIndex implements Serializable {
      */
     @Override
     public int hashCode() {
-        return (index != null ? index.hashCode() : 0);
+        return index != null ? index.hashCode() : 0;
     }
 
     /**

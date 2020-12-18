@@ -33,7 +33,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
                 LOG.error("The exception is as follows\n", e);
                 LOG.error("===============================================");
             }
-            throw(e);
+            throw e;
         }
     }
 

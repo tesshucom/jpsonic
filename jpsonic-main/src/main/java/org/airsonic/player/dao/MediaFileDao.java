@@ -576,8 +576,8 @@ public class MediaFileDao extends AbstractDao {
                 "unstarred", criteria.isShowUnstarredSongs(),
                 "format", criteria.getFormat());
 
-        boolean joinAlbumRating = (criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null);
-        boolean joinStarred = (criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs());
+        boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
+        boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
 
         StringBuilder query = new StringBuilder(900);
 

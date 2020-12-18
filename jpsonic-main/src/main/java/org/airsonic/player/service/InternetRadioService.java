@@ -1,6 +1,12 @@
 package org.airsonic.player.service;
 
-import chameleon.playlist.*;
+import chameleon.playlist.Media;
+import chameleon.playlist.Parallel;
+import chameleon.playlist.Playlist;
+import chameleon.playlist.PlaylistVisitor;
+import chameleon.playlist.Sequence;
+import chameleon.playlist.SpecificPlaylist;
+import chameleon.playlist.SpecificPlaylistFactory;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.domain.InternetRadioSource;
 import org.apache.commons.io.input.BoundedInputStream;
@@ -281,10 +287,9 @@ public class InternetRadioService {
         HttpURLConnection connection = connectToURL(currentURL);
 
         // While it redirects, follow redirects in new connections.
-        while (connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM ||
-               connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP ||
-               connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
-
+        while ((int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM
+                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP
+                || (int) connection.getResponseCode() == HttpURLConnection.HTTP_SEE_OTHER) {
             // Check if redirect count is not too large.
             redirectCount += 1;
             if (maxRedirects > 0 && redirectCount > maxRedirects) {

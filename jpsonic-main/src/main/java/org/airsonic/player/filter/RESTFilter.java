@@ -26,7 +26,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.util.NestedServletException;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -60,7 +64,9 @@ public class RESTFilter implements Filter {
             t = t.getCause();
         }
 
-        SubsonicRESTController.ErrorCode code = (t instanceof ServletRequestBindingException) ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
+        SubsonicRESTController.ErrorCode code = t instanceof ServletRequestBindingException
+                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER
+                : SubsonicRESTController.ErrorCode.GENERIC;
         String msg = getErrorMessage(t);
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error in REST API: " + msg, t);

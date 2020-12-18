@@ -145,10 +145,10 @@ public class HLSController {
         for (Pair<Integer, Dimension> bitRate : bitRates) {
             Integer kbps = bitRate.getLeft();
             writer.println("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
-            UriComponentsBuilder url = (UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
+            UriComponentsBuilder url = UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
                     .queryParam("id", id)
                     .queryParam("player", player.getId())
-                    .queryParam("bitRate", kbps));
+                    .queryParam("bitRate", kbps);
             jwtSecurityService.addJWTToken(url);
             writer.print(url.toUriString());
             Dimension dimension = bitRate.getRight();

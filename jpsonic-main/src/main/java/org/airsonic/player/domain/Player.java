@@ -121,11 +121,11 @@ public class Player {
     }
 
     public boolean isJukebox() {
-        return (technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX);
+        return technology == PlayerTechnology.JUKEBOX || technology == PlayerTechnology.JAVA_JUKEBOX;
     }
 
     public boolean isJavaJukebox() {
-        return (technology == PlayerTechnology.JAVA_JUKEBOX);
+        return technology == PlayerTechnology.JAVA_JUKEBOX;
     }
 
     public boolean isExternal() {

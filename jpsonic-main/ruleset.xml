@@ -6,9 +6,14 @@
 
     <description>
         PMD 6.28.0 rulesets for Jpsonic.
-        blocker  (priority1) : Almost follow default rules
-        critical (priority2) : Almost follow default rules
-        urgent   (priority3) : only important rules
+
+		[Priority level value controllable by Maven / Logical name in Eclipse plug-in]
+
+        priority 1 / blocker   : Almost follow default rules
+        priority 2 / critical  : Almost follow default rules
+        priority 3 / urgent    : only important rules
+        priority 4 / important : only important rules
+        priority 5 / warning   : only important rules
 
         - There is a rule that is not an error but has an influence on the server operation.
           Purpose is to triage such rules.
@@ -16,6 +21,11 @@
           It is easy to re-evaluate new rules when upgrading PMD.
         - Readability rules in priority 3 are basically discarded.
           (Readability rules for priority 1 and 2 are reasonable and should be followed.)
+        - Rules in priority 4, 5 are basically discarded.
+          However, this hierarchy has a large number of cases but is easy, so may be fixed quickly.
+          (Some tools, such as codacy, have no control over their priorities.
+          In this hierarchy, fix are more effective than adding many suppression rules.)
+
     </description>
 
     <exclude-pattern>.*/.*Test*.java</exclude-pattern>
@@ -26,9 +36,11 @@
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
-    <!-- for Java 6.28.0 -->
     <rule ref="category/java/bestpractices.xml">
+
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="MissingOverride" />
         <exclude name="UseCollectionIsEmpty" />
         <exclude name="LooseCoupling" />
@@ -36,12 +48,19 @@
         <exclude name="AccessorClassGeneration" />
         <exclude name="JUnitTestContainsTooManyAsserts" />
         <exclude name="JUnitAssertionsShouldIncludeMessage" />
-        <exclude name="MethodReturnsInternalArray" /><!-- Because used for reference only. -->
+        <!-- Because used for reference only. -->
+        <exclude name="MethodReturnsInternalArray" />
+
+        <!-- # important -->
+        <exclude name="UseVarargs" />
         <!-- [low priority] << -->
 
-        <exclude name="AccessorMethodGeneration" />                <!-- *** if possible *** -->
-
+        <!-- ****************************** if possible! ****************************** -->
+        <!-- # critical -->
+        <exclude name="AccessorMethodGeneration" />
     </rule>
+
+    <!-- # critical -->
     <rule
         ref="category/java/bestpractices.xml/AvoidReassigningLoopVariables">
         <properties>
@@ -51,8 +70,11 @@
             <property name="forReassign" value="skip" />
         </properties>
     </rule>
+
     <rule ref="category/java/codestyle.xml">
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="ShortVariable" />
         <exclude name="LocalVariableCouldBeFinal" />
@@ -71,10 +93,18 @@
         <exclude name="UseUnderscoresInNumericLiterals" />
         <exclude name="TooManyStaticImports" />
         <exclude name="UseShortArrayInitializer" />
+
+        <!-- # important -->
+        <exclude name="BooleanGetMethodName" />
+        <exclude name="ShortClassName" />
+
         <!-- [low priority] << -->
     </rule>
+
     <rule ref="category/java/design.xml">
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="TooManyMethods" />
         <exclude name="GodClass" />
         <exclude name="TooManyFields" />
@@ -101,17 +131,25 @@
         <exclude name="ExcessiveClassLength" />
         <exclude name="CouplingBetweenObjects" />
         <exclude name="SwitchDensity" />
+
         <!-- [low priority] << -->
     </rule>
+
     <rule ref="category/java/documentation.xml">
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="UncommentedEmptyConstructor" />
         <exclude name="CommentRequired" />
         <exclude name="CommentSize" />
+
         <!-- [low priority] << -->
     </rule>
+
     <rule ref="category/java/errorprone.xml">
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="AvoidFieldNameMatchingMethodName" />
         <exclude name="MissingSerialVersionUID" />
         <exclude name="AvoidDuplicateLiterals" />
@@ -121,50 +159,86 @@
         <exclude name="AvoidFieldNameMatchingTypeName" />
         <exclude name="NonStaticInitializer" />
         <exclude name="BeanMembersShouldSerialize" />
+
         <!-- [low priority] << -->
     </rule>
-    <rule ref="category/java/errorprone.xml/AssignmentInOperand"><!-- Partially allow customary rules -->
+
+    <!-- Partially allow customary rules -->
+    <!-- # critical -->
+    <rule ref="category/java/errorprone.xml/AssignmentInOperand">
         <properties>
             <property name="allowIf" value="false" />
             <property name="allowFor" value="false" />
-            <property name="allowWhile" value="true" /><!-- It is used in readLine traditionally. -->
+            <!-- It is used in readLine traditionally. -->
+            <property name="allowWhile" value="true" />
             <property name="allowIncrementDecrement" value="false" />
         </properties>
     </rule>
+
+    <!-- # critical -->
     <rule ref="category/java/multithreading.xml">
-        <exclude name="DoNotUseThreads" />                      <!-- *** Should be triaged! *** -->
+        <!-- ****************************** Should be triaged (#586) ****************************** -->
+        <exclude name="DoNotUseThreads" />
     </rule>
+
     <rule ref="category/java/performance.xml">
         <!-- [low priority] >> -->
+
+        <!-- # critical -->
         <exclude name="TooFewBranchesForASwitchStatement" />
-        <exclude name="SimplifyStartsWith" /><!-- It is a bug rule. -->
-        <exclude name="ConsecutiveLiteralAppends" /><!-- Is old. Obsolete due to conflict with ConsecutiveAppendsShouldReuse. -->
-        <exclude name="UseIOStreamsWithApacheCommonsFileItem" /><!-- It is a bug rule. -->
+        <!-- It is a bug rule. -->
+        <exclude name="SimplifyStartsWith" />
+        <!-- Is old. Obsolete due to conflict with ConsecutiveAppendsShouldReuse. -->
+        <exclude name="ConsecutiveLiteralAppends" />
+        <!-- It is a bug rule. -->
+        <exclude name="UseIOStreamsWithApacheCommonsFileItem" />
+
         <!-- [low priority] << -->
     </rule>
+
     <rule ref="category/java/security.xml" />
 
-    <!-- for JSP 6.28.0 -->
     <rule ref="category/jsp/bestpractices.xml">
         <!-- [low priority] >> -->
-        <exclude name="NoClassAttribute" /><!-- Style is destroyed when applied. -->
+
+        <!-- # blocker -->
+        <!-- Style is destroyed when applied. -->
+        <exclude name="NoClassAttribute" />
+
         <!-- [low priority] << -->
     </rule>
+
     <rule ref="category/jsp/codestyle.xml" />
+
     <rule ref="category/jsp/design.xml">
         <!-- [low priority] >> -->
-        <exclude name="NoLongScripts" /><!-- Many include JSTL, and excessive partitioning reduces productivity and communication efficiency. -->
-        <exclude name="NoInlineScript" /><!-- Most of them have low reusability. -->
+
+        <!-- # blocker -->
+        <!-- Many include JSTL, and excessive partitioning reduces productivity 
+            and communication efficiency. -->
+        <exclude name="NoLongScripts" />
+
+        <!-- # critical -->
+        <!-- Most of them have low reusability. -->
+        <exclude name="NoInlineScript" />
+
         <!-- [low priority] << -->
 
-        <exclude name="NoScriptlets" />                      <!-- *** Should be triaged! #696 *** -->
-
+        <!-- # critical -->
+        <!-- ****************************** Should be triaged (#696) ****************************** -->
+        <exclude name="NoScriptlets" />
     </rule>
+
     <rule ref="category/jsp/documentation.xml" />
+
     <rule ref="category/jsp/errorprone.xml" />
+
     <rule ref="category/jsp/multithreading.xml" />
+
     <rule ref="category/jsp/performance.xml" />
+
     <rule ref="category/jsp/security.xml">
+        <!-- # critical -->
         <!-- *** Escape is applied to required items. #614 *** -->
         <exclude name="NoUnsanitizedJSPExpression" />
     </rule>

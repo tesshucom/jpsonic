@@ -26,7 +26,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
     @Override
     public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws Exception {
-        chameleon.playlist.Playlist playlist = createChameleonGenericPlaylistFromDBId(id);
+        Playlist playlist = createChameleonGenericPlaylistFromDBId(id);
         return provider.toSpecificPlaylist(playlist);
     }
 

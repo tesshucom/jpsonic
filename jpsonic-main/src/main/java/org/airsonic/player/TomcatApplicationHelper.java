@@ -17,7 +17,7 @@ public class TomcatApplicationHelper {
             standardJarScanFilter.setTldSkip("*");
             context.getJarScanner().setJarScanFilter(standardJarScanFilter);
 
-            boolean development = (System.getProperty("airsonic.development") != null);
+            boolean development = System.getProperty("airsonic.development") != null;
 
             // Increase the size and time before eviction of the Tomcat
             // cache so that resources aren't uncompressed too often.

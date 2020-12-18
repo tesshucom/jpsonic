@@ -22,7 +22,7 @@
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.35.v20201120</jetty.version>
         <jetty-jsp.version>9.4.35.v20201120</jetty-jsp.version>
-        <pmd.version>6.29.0</pmd.version>
+        <pmd.version>6.30.0</pmd.version>
         <log4j.version>2.14.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
@@ -138,7 +138,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>29.0-jre</version>
+                <version>30.1-jre</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>org.checkerframework</artifactId>
@@ -155,7 +155,7 @@
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
                 <artifactId>ecj</artifactId>
-                <version>3.23.0</version>
+                <version>3.24.0</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>

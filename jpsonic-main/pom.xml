@@ -173,7 +173,7 @@
         <dependency>
             <groupId>com.ibm.icu</groupId>
             <artifactId>icu4j</artifactId>
-            <version>68.1</version>
+            <version>68.2</version>
         </dependency>
 
         <dependency>
@@ -697,7 +697,7 @@
                         <include>**/*.jsp</include>
                         <include>**/*.jspf</include>
                     </includes>
-                    <minimumPriority>3</minimumPriority>
+                    <minimumPriority>5</minimumPriority>
                     <rulesets>
                         <ruleset>ruleset.xml</ruleset>
                     </rulesets>
@@ -727,6 +727,7 @@
                 <configuration>
                     <skip>${surefire.skip}</skip>
                     <reuseForks>false</reuseForks>
+                    <runOrder>alphabetical</runOrder>
                 </configuration>
             </plugin>
             <plugin>

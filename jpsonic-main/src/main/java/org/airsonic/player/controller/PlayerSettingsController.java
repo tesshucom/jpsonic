@@ -21,7 +21,12 @@ package org.airsonic.player.controller;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import org.airsonic.player.command.PlayerSettingsCommand;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.PlayerTechnology;
+import org.airsonic.player.domain.TranscodeScheme;
+import org.airsonic.player.domain.Transcoding;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;

@@ -97,7 +97,7 @@ public class HttpRange {
      * @return The size in bytes if the range is closed, -1 otherwise.
      */
     public long size() {
-        return isClosed() ? (lastBytePos - firstBytePos + 1) : -1;
+        return isClosed() ? lastBytePos - firstBytePos + 1 : -1;
     }
 
     /**

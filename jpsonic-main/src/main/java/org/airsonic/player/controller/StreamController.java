@@ -20,12 +20,25 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.TransferStatus;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.io.PlayQueueInputStream;
 import org.airsonic.player.io.RangeOutputStream;
 import org.airsonic.player.io.ShoutCastOutputStream;
 import org.airsonic.player.security.JWTAuthenticationToken;
-import org.airsonic.player.service.*;
+import org.airsonic.player.service.AudioScrobblerService;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.PlayerService;
+import org.airsonic.player.service.PlaylistService;
+import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.StatusService;
+import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.HttpRange;
 import org.airsonic.player.util.PlayerUtils;
@@ -45,7 +58,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.awt.*;
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;

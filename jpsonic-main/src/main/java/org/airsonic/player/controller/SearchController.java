@@ -20,7 +20,10 @@
 package org.airsonic.player.controller;
 
 import org.airsonic.player.command.SearchCommand;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.domain.SearchResult;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;

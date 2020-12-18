@@ -273,8 +273,8 @@ public class JapaneseReadingUtils {
             if (Character.UnicodeBlock.HIRAGANA.equals(b)
                     || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
-                    || (Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
-                            && s.chars().anyMatch(c -> (65382 <= c && c <= 65437)))) {
+                    || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
+                            && s.chars().anyMatch(c -> 65382 <= c && c <= 65437)) {
                 return true;
             } // @formatter:on
             return false;
