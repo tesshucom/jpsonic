@@ -42,7 +42,10 @@ public class PersonalSettingsCommand {
     private UserSettings defaultSettings;
     private UserSettings tabletSettings;
     private UserSettings smartphoneSettings;
-    
+    private String fontFamilyDefault;
+    private String fontFamilyJpEmbedDefault;
+    private int fontSizeDefault;
+    private int fontSizeJpEmbedDefault;
     private String localeIndex;
     private String[] locales;
     private String themeIndex;
@@ -106,6 +109,8 @@ public class PersonalSettingsCommand {
     private EnumHolder[] speechLangSchemeHolders;
     private String speechLangSchemeName;
     private String ietf;
+    private String fontFamily;
+    private int fontSize;
 
     public User getUser() {
         return user;
@@ -137,6 +142,38 @@ public class PersonalSettingsCommand {
 
     public void setSmartphoneSettings(UserSettings smartphoneSettings) {
         this.smartphoneSettings = smartphoneSettings;
+    }
+
+    public String getFontFamilyDefault() {
+        return fontFamilyDefault;
+    }
+
+    public void setFontFamilyDefault(String fontFamilyDefault) {
+        this.fontFamilyDefault = fontFamilyDefault;
+    }
+
+    public String getFontFamilyJpEmbedDefault() {
+        return fontFamilyJpEmbedDefault;
+    }
+
+    public void setFontFamilyJpEmbedDefault(String fontFamilyJpEmbed) {
+        this.fontFamilyJpEmbedDefault = fontFamilyJpEmbed;
+    }
+
+    public int getFontSizeDefault() {
+        return fontSizeDefault;
+    }
+
+    public void setFontSizeDefault(int fontSizeDefault) {
+        this.fontSizeDefault = fontSizeDefault;
+    }
+
+    public int getFontSizeJpEmbedDefault() {
+        return fontSizeJpEmbedDefault;
+    }
+
+    public void setFontSizeJpEmbedDefault(int fontSizeJpEmbedDefault) {
+        this.fontSizeJpEmbedDefault = fontSizeJpEmbedDefault;
     }
 
     public String getLocaleIndex() {
@@ -653,4 +690,19 @@ public class PersonalSettingsCommand {
         this.ietf = ietf;
     }
 
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public void setFontFamily(String font) {
+        this.fontFamily = font;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
 }

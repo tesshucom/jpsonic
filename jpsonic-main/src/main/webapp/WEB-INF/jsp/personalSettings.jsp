@@ -10,12 +10,17 @@
 function resetThemeAndLanguage() {
     $('[name="localeIndex"]').prop("selectedIndex", 0);
     $('[name="themeIndex"]').prop("selectedIndex", 0);
-    $("#radio1-" + "<fmt:message key='personalsettings.font.${fn:toLowerCase(command.defaultSettings.fontSchemeName)}'/>").prop('checked', true);
+    $("#radio1-1").prop('checked', true);
+    $("#fontFamily").val('${command.fontFamilyDefault}');
+    $("#fontFamily").prop('disabled', true);
+    $("#fontSize").val(${command.fontSizeDefault});
+    $("#fontSizeSlider").val(${command.fontSizeDefault});
+    $("#fontSizeSlider").slider({ disabled: true });
 }
 
 function speechEngineLangSelectEnabled(isEnabled) {
     $("#radio2-${command.defaultSettings.speechLangSchemeName}").prop('checked', true);
-    $('[name="ietf"]').val('${command.defaultSettings.ietf}');
+    $("#ietf").val('${command.defaultSettings.ietf}');
     $("#ietf").prop('disabled', !isEnabled);
     $("#radio2-DEFAULT").prop('disabled', !isEnabled);
     $("#radio2-BCP47").prop('disabled', !isEnabled);
@@ -141,21 +146,40 @@ function resetAdditionalDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-	
-	
-	
     document.getElementById('voiceInputEnabled').onchange = function (e) {
         speechEngineLangSelectEnabled(e.target.checked);
     };
+    if(${command.fontSchemeName ne 'CUSTOM'}){
+            $("#fontSizeSlider").slider({ disabled: true });
+    }
+    $("#radio1-1").on('change', function(e){
+        $("#fontFamily").prop('disabled', true);
+        $("#fontFamily").val('${command.fontFamilyDefault}');
+        $("#fontSize").val(${command.fontSizeDefault});
+        $("#fontSizeSlider").val(${command.fontSizeDefault});
+        $("#fontSizeSlider").slider({ disabled: true });
+    });
+    $("#radio1-2").on('change', function(e){
+        $("#fontFamily").prop('disabled', true);
+        $("#fontFamily").val('${command.fontFamilyJpEmbedDefault}');
+        $("#fontSize").val(${command.fontSizeJpEmbedDefault});
+        $("#fontSizeSlider").val(${command.fontSizeJpEmbedDefault});
+        $("#fontSizeSlider").slider({ disabled: true });
+    });
+    $("#radio1-3").on('change', function(e){
+        $("#fontFamily").prop('disabled', false);
+        $("#fontSizeSlider").slider({ disabled: false });
+    });
     $("#radio2-DEFAULT").on('change', function(e){
         $("#ietf").prop('disabled', true);
     });
     $("#radio2-BCP47").on('change', function(e){
         $("#ietf").prop('disabled', false);
     });
+    document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+        $("#fontSize").val(e.target.value);
+    });
 }, false);
-
-    
 
 </script>
 
@@ -212,20 +236,26 @@ document.addEventListener('DOMContentLoaded', function () {
             <dt><fmt:message key="personalsettings.font"/></dt>
             <dd>
                 <ul class="playerSettings">
-                    <c:forEach items="${command.fontSchemeHolders}" var="fontSchemeHolder">
+                    <c:forEach items="${command.fontSchemeHolders}" var="fontSchemeHolder" varStatus="status">
                         <c:set var="fontSchemeName">
                             <fmt:message key="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/>
                         </c:set>
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio1-${fontSchemeName}" path="fontSchemeName" value="${fontSchemeHolder.name}"
-                                checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"
-                                disabled="${fontSchemeHolder.name eq 'CUSTOM'}"/>
-                            <label for="radio1-${fontSchemeName}">${fontSchemeName}</label>
-                            <c:if test="${fontSchemeHolder.name ne 'CUSTOM'}">
-                                <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fontSchemeName" value="${fontSchemeHolder.name}"
+                                checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"/>
+                            <label for="radio1-${status.count}">${fontSchemeName}</label>
+                            <c:if test="${fontSchemeHolder.name eq 'CUSTOM'}">
+                                <form:input path="fontFamily" id="fontFamily" disabled="${command.fontSchemeName ne 'CUSTOM'}"/>
                             </c:if>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
                         </li>
                     </c:forEach>
+                    <li class="fontSizeSettings">
+                        <fmt:message key="personalsettings.fontsize"/>
+                        <input type="range" id="fontSizeSlider" min="14" max="18" value="${command.fontSize}">
+                        <form:input path="fontSize" id="fontSize" readonly="true" />
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.fontsize"/></c:import>
+                    </li>
                 </ul>
             </dd>
         </dl>

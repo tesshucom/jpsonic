@@ -62,7 +62,7 @@ public class UserDao extends AbstractDao {
             "open_detail_index, open_detail_setting, open_detail_star, show_index, " +
             "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, " +
             "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, " +
-            "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf";
+            "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, font_family, font_size";
             // <<<< JP
 
     private static final Integer ROLE_ID_ADMIN = 1;
@@ -245,7 +245,8 @@ public class UserDao extends AbstractDao {
                 settings.isShowTopSongs(), settings.isShowSimilar(), settings.isShowAlbumActions(),
                 settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
                 settings.isShowOutlineHelp(), settings.isForceBio2Eng(), settings.isVoiceInputEnabled(),
-                settings.isShowCurrentSongInfo(), settings.getSpeechLangSchemeName(), settings.getIetf());
+                settings.isShowCurrentSongInfo(), settings.getSpeechLangSchemeName(), settings.getIetf(),
+                settings.getFontFamily(), settings.getFontSize());
                 // <<<< JP
     }
 
@@ -446,7 +447,9 @@ public class UserDao extends AbstractDao {
             settings.setVoiceInputEnabled(rs.getBoolean(col++));
             settings.setShowCurrentSongInfo(rs.getBoolean(col++));
             settings.setSpeechLangSchemeName(rs.getString(col++));
-            settings.setIetf(rs.getString(col));
+            settings.setIetf(rs.getString(col++));
+            settings.setFontFamily(rs.getString(col++));
+            settings.setFontSize(rs.getInt(col));
             // <<<< JP
             return settings;
         }

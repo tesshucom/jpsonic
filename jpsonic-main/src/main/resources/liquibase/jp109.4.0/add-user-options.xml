@@ -50,4 +50,28 @@
             </column>
         </addColumn>
     </changeSet>
+	<changeSet id="add-font-family" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="font_family" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="font_family" type="${varchar_type}" defaultValue="-apple-system, blinkMacSystemFont, &quot;Helvetica Neue&quot;, &quot;Segoe UI&quot;, &quot;Noto Sans JP&quot;, YuGothicM, YuGothic, Meiryo, sans-serif">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-font-size" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="font_size" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="font_size" type="int" defaultValueNumeric="14">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
 </databaseChangeLog>

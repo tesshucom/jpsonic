@@ -223,10 +223,6 @@
         <exclude name="NoInlineScript" />
 
         <!-- [low priority] << -->
-
-        <!-- # critical -->
-        <!-- ****************************** Should be triaged (#696) ****************************** -->
-        <exclude name="NoScriptlets" />
     </rule>
 
     <rule ref="category/jsp/documentation.xml" />

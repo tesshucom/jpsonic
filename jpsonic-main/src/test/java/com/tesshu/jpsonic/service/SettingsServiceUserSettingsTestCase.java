@@ -19,6 +19,8 @@
  */
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.controller.WebFontUtils;
+import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.UserSettings;
@@ -77,6 +79,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
         assertEquals("en-US", userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test
@@ -100,6 +105,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
         assertEquals("en-US", userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test
@@ -123,6 +131,9 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
         assertEquals("en-US", userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test

@@ -170,7 +170,7 @@ public class Application extends SpringBootServletInitializer implements WebServ
     public FilterRegistrationBean<FontSchemeFilter> fontSchemeFilterRegistration() {
         FilterRegistrationBean<FontSchemeFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new FontSchemeFilter());
-        registration.addUrlPatterns("*.view");
+        registration.addUrlPatterns("*.view", "/login", "/index");
         registration.setOrder(8);
         return registration;
     }

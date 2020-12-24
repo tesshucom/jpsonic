@@ -18,8 +18,8 @@
  */
 package com.tesshu.jpsonic.filter;
 
+import com.tesshu.jpsonic.controller.WebFontUtils;
 import org.airsonic.player.domain.User;
-import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
@@ -65,8 +65,9 @@ public class FontSchemeFilter implements Filter {
         if (!isEmpty(settingsService) && !isEmpty(securityService)) {
             User user = securityService.getCurrentUser(request);
             if (!isEmpty(user)) {
-                UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
-                request.setAttribute("filter.fontSchemeName", userSettings.getFontSchemeName());
+                WebFontUtils.setToRequest(settingsService.getUserSettings(user.getUsername()), request);
+            } else {
+                WebFontUtils.setToRequest(null, request);
             }
         }
         chain.doFilter(request, res);

@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
@@ -74,6 +75,10 @@ public class PersonalSettingsController {
         command.setDefaultSettings(settingsService.getUserSettings(""));
         command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
+        command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
+        command.setFontFamilyJpEmbedDefault(WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
+        command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
+        command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
         command.setLocaleIndex("-1");
         command.setThemeIndex("-1");
         command.setAlbumLists(AlbumListType.values());
@@ -124,6 +129,7 @@ public class PersonalSettingsController {
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
         command.setFontSchemes(FontScheme.values());
         command.setFontSchemeName(userSettings.getFontSchemeName());
+        command.setFontSize(userSettings.getFontSize());
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
@@ -132,7 +138,7 @@ public class PersonalSettingsController {
         command.setSpeechLangSchemes(SpeechToTextLangScheme.values());
         command.setSpeechLangSchemeName(userSettings.getSpeechLangSchemeName());
         command.setIetf(userSettings.getIetf());
-
+        WebFontUtils.setToCommand(userSettings, command);
         toast.ifPresent(b -> command.setShowToast(b));
 
         Locale currentLocale = userSettings.getLocale();
@@ -236,6 +242,7 @@ public class PersonalSettingsController {
         settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
         settings.setFontSchemeName(command.getFontSchemeName());
+        settings.setFontSize(command.getFontSize());
         settings.setForceBio2Eng(command.isForceBio2Eng());
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
@@ -246,6 +253,7 @@ public class PersonalSettingsController {
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
         }
+        WebFontUtils.setToSettings(command, settings);
         settings.setChanged(new Date());
         settingsService.updateUserSettings(settings);
 

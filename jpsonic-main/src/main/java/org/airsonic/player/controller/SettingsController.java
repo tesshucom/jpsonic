@@ -48,7 +48,7 @@ public class SettingsController {
         User user = securityService.getCurrentUser(request);
 
         // Redirect to music folder settings if admin.
-        String view = user.isAdminRole() ? "musicFolderSettings" : "personalSettings";
+        String view = user.isAdminRole() ? "musicFolderSettings.view" : "personalSettings.view";
 
         return new ModelAndView(new RedirectView(view));
     }

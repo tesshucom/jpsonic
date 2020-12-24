@@ -19,9 +19,6 @@
  */
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.domain.FontScheme;
-import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
-
 import java.util.Date;
 import java.util.Locale;
 
@@ -85,13 +82,15 @@ public class UserSettings {
     private boolean showAlbumActions;
     private boolean breadcrumbIndex;
     private boolean putMenuInDrawer;
-    private String fontSchemeName = FontScheme.DEFAULT.name();
+    private String fontSchemeName;
     private boolean showOutlineHelp;
     private boolean forceBio2Eng;
     private boolean voiceInputEnabled;
     private boolean showCurrentSongInfo;
-    private String speechLangSchemeName = SpeechToTextLangScheme.DEFAULT.name();
-    private String ietf = "en-US";
+    private String speechLangSchemeName;
+    private String ietf;
+    private String fontFamily;
+    private int fontSize;
     // <<<< JP
 
     public UserSettings(String username) {
@@ -570,6 +569,22 @@ public class UserSettings {
 
     public void setIetf(String ietf) {
         this.ietf = ietf;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public void setFontFamily(String font) {
+        this.fontFamily = font;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
     }
 
     /**

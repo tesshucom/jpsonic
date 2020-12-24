@@ -20,6 +20,9 @@
 package org.airsonic.player.service;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.WebFontUtils;
+import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.AvatarDao;
 import org.airsonic.player.dao.InternetRadioDao;
@@ -1361,6 +1364,11 @@ public class SettingsService {
         settings.setQueueFollowingSongs(true);
         settings.setShowCurrentSongInfo(true);
         settings.setSongNotificationEnabled(false);
+        settings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
+        settings.setIetf("en-US");
+        settings.setFontSchemeName(FontScheme.DEFAULT.name());
+        settings.setFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY);
+        settings.setFontSize(WebFontUtils.DEFAULT_FONT_SIZE);
 
         // display
         UserSettings.Visibility main = settings.getMainVisibility();
