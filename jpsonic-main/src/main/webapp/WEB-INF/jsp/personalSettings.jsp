@@ -20,7 +20,6 @@ function resetThemeAndLanguage() {
 
 function speechEngineLangSelectEnabled(isEnabled) {
     $("#radio2-${command.defaultSettings.speechLangSchemeName}").prop('checked', true);
-    $("#ietf").val('${command.defaultSettings.ietf}');
     $("#ietf").prop('disabled', !isEnabled);
     $("#radio2-DEFAULT").prop('disabled', !isEnabled);
     $("#radio2-BCP47").prop('disabled', !isEnabled);
@@ -28,65 +27,68 @@ function speechEngineLangSelectEnabled(isEnabled) {
 }
 
 function setSettings4DesktopPC() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.defaultSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.defaultSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.defaultSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.defaultSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.defaultSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.defaultSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.defaultSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.defaultSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.defaultSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.defaultSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
-    $('[name="voiceInputEnabled"]').prop('checked', ${command.defaultSettings.voiceInputEnabled});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
-    $('[name="showCurrentSongInfo"]').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.defaultSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.defaultSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.defaultSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.defaultSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.defaultSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.defaultSettings.closePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.defaultSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.defaultSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.defaultSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.defaultSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.defaultSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.defaultSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.defaultSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.defaultSettings.voiceInputEnabled});
+	$("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.defaultSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(false);
 }
 
 function setSettings4Tablet() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.tabletSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.tabletSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.tabletSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.tabletSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.tabletSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.tabletSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.tabletSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.tabletSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.tabletSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.tabletSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.tabletSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.tabletSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.tabletSettings.openDetailIndex});
-    $('[name="voiceInputEnabled"]').prop('checked', ${command.tabletSettings.voiceInputEnabled});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.tabletSettings.songNotificationEnabled});
-    $('[name="showCurrentSongInfo"]').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.tabletSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.tabletSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.tabletSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.tabletSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.tabletSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.tabletSettings.closePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.tabletSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.tabletSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.tabletSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.tabletSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.tabletSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.tabletSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.tabletSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.tabletSettings.voiceInputEnabled});
+	$("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.tabletSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
 }
 
 function setSettings4Smartphone() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.smartphoneSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.smartphoneSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.smartphoneSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.smartphoneSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.smartphoneSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.smartphoneSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.smartphoneSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.smartphoneSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.smartphoneSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.smartphoneSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.smartphoneSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.smartphoneSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.smartphoneSettings.openDetailIndex});
-    $('[name="voiceInputEnabled"]').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
-    $('[name="showCurrentSongInfo"]').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.smartphoneSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.smartphoneSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.smartphoneSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.smartphoneSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.smartphoneSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.smartphoneSettings.closePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.smartphoneSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.smartphoneSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.smartphoneSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.smartphoneSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.smartphoneSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.smartphoneSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.smartphoneSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
+	$("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
 }
 
@@ -171,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $("#fontSizeSlider").slider({ disabled: false });
     });
     $("#radio2-DEFAULT").on('change', function(e){
+    	$("#ietf").val('${command.ietfDefault}');
         $("#ietf").prop('disabled', true);
     });
     $("#radio2-BCP47").on('change', function(e){
@@ -213,6 +216,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 <li><a href="javascript:resetThemeAndLanguage()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
             </ul>
         </div>
+
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="personalsettings.themeoutline"/>
+            </div>
+        </c:if>
 
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
@@ -356,8 +365,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             <dt><fmt:message key="personalsettings.notification"/></dt>
             <dd>
-                <form:checkbox path="songNotificationEnabled" id="song" />
-                <label for="song"><fmt:message key="personalsettings.songnotification"/></label>
+                <form:checkbox path="songNotificationEnabled" id="songNotificationEnabled" />
+                <label for="songNotificationEnabled"><fmt:message key="personalsettings.songnotification"/></label>
             </dd>
 
             <dt><fmt:message key="personalsettings.speechrecognition"/></dt>
@@ -378,6 +387,9 @@ document.addEventListener('DOMContentLoaded', function () {
                                 checked="${speechLangSchemeHolder.name eq command.speechLangSchemeName ? 'checked' : ''}"
                                 disabled="${!command.voiceInputEnabled}"/>
                             <label for="radio2-${speechLangSchemeHolder.name}">${speechLangSchemeName}</label>
+                            <c:if test="${speechLangSchemeHolder.name eq 'DEFAULT'}">
+                                  - ${command.ietfDisplayDefault}
+                            </c:if>
                             <c:if test="${speechLangSchemeHolder.name eq 'BCP47'}">                
                                 <form:input path="ietf" id="ietf" disabled="${command.speechLangSchemeName eq 'DEFAULT'}"/>
                             </c:if>
