@@ -1365,7 +1365,6 @@ public class SettingsService {
         settings.setShowCurrentSongInfo(true);
         settings.setSongNotificationEnabled(false);
         settings.setSpeechLangSchemeName(SpeechToTextLangScheme.DEFAULT.name());
-        settings.setIetf("en-US");
         settings.setFontSchemeName(FontScheme.DEFAULT.name());
         settings.setFontFamily(WebFontUtils.DEFAULT_FONT_FAMILY);
         settings.setFontSize(WebFontUtils.DEFAULT_FONT_SIZE);

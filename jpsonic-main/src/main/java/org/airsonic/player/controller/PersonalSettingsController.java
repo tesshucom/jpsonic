@@ -23,6 +23,7 @@ import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.domain.SupportableBCP47;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.AvatarScheme;
@@ -47,6 +48,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Controller for the page used to administrate per-user settings.
@@ -137,7 +140,20 @@ public class PersonalSettingsController {
         command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
         command.setSpeechLangSchemes(SpeechToTextLangScheme.values());
         command.setSpeechLangSchemeName(userSettings.getSpeechLangSchemeName());
-        command.setIetf(userSettings.getIetf());
+        if (isEmpty(userSettings.getLocale())) {
+            command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
+            command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
+        } else {
+            command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
+            command.setIetfDisplayDefault(userSettings.getLocale().getDisplayName(userSettings.getLocale()));
+        }
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
+            command.setIetf(SupportableBCP47
+                    .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale() : userSettings.getLocale())
+                    .getValue());
+        } else {
+            command.setIetf(userSettings.getIetf());
+        }
         WebFontUtils.setToCommand(userSettings, command);
         toast.ifPresent(b -> command.setShowToast(b));
 
@@ -247,7 +263,9 @@ public class PersonalSettingsController {
         settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
         settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
         settings.setSpeechLangSchemeName(command.getSpeechLangSchemeName());
-        if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(command.getSpeechLangSchemeName())) {
+            settings.setIetf(SupportableBCP47.valueOf(locale).getValue());
+        } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
             settings.setIetf(command.getIetf());
         }
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
