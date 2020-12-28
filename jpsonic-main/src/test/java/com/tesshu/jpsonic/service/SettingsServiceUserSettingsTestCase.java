@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -78,7 +79,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
-        assertEquals("en-US", userSettings.getIetf());
+        assertNull(userSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
@@ -104,7 +105,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(tabletSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
-        assertEquals("en-US", userSettings.getIetf());
+        assertNull(userSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
@@ -130,7 +131,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(smartphoneSettings.isVoiceInputEnabled());
         assertTrue(userSettings.isShowCurrentSongInfo());
         assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
-        assertEquals("en-US", userSettings.getIetf());
+        assertNull(userSettings.getIetf());
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());

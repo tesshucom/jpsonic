@@ -46,6 +46,8 @@ public class PersonalSettingsCommand {
     private String fontFamilyJpEmbedDefault;
     private int fontSizeDefault;
     private int fontSizeJpEmbedDefault;
+    private String ietfDefault;
+    private String ietfDisplayDefault;
     private String localeIndex;
     private String[] locales;
     private String themeIndex;
@@ -174,6 +176,22 @@ public class PersonalSettingsCommand {
 
     public void setFontSizeJpEmbedDefault(int fontSizeJpEmbedDefault) {
         this.fontSizeJpEmbedDefault = fontSizeJpEmbedDefault;
+    }
+
+    public String getIetfDefault() {
+        return ietfDefault;
+    }
+
+    public void setIetfDefault(String ietfDefault) {
+        this.ietfDefault = ietfDefault;
+    }
+
+    public String getIetfDisplayDefault() {
+        return ietfDisplayDefault;
+    }
+
+    public void setIetfDisplayDefault(String ietfDisplayDefault) {
+        this.ietfDisplayDefault = ietfDisplayDefault;
     }
 
     public String getLocaleIndex() {
