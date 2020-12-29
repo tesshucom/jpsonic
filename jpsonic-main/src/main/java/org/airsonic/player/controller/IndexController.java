@@ -29,7 +29,6 @@ public class IndexController {
     private Map<String, Object> createDefaultModel(HttpServletRequest request) {
         UserSettings userSettings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
         return LegacyMap.of(
-                "autoHidePlayQueue", userSettings.isAutoHidePlayQueue(),
                 "keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
                 "showLeft", userSettings.isCloseDrawer(),
                 "brand", settingsService.getBrand());

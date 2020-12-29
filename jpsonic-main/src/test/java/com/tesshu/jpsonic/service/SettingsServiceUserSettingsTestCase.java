@@ -68,6 +68,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isCloseDrawer());
         assertTrue(userSettings.isClosePlayQueue());
         assertTrue(userSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(userSettings.isBreadcrumbIndex());
         assertTrue(userSettings.isAssignAccesskeyToNumber());
         assertTrue(userSettings.isSimpleDisplay());
@@ -94,6 +95,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(tabletSettings.isCloseDrawer());
         assertTrue(tabletSettings.isClosePlayQueue());
         assertTrue(tabletSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(tabletSettings.isBreadcrumbIndex());
         assertTrue(tabletSettings.isAssignAccesskeyToNumber());
         assertTrue(tabletSettings.isSimpleDisplay());
@@ -120,6 +122,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(smartphoneSettings.isCloseDrawer());
         assertTrue(smartphoneSettings.isClosePlayQueue());
         assertTrue(smartphoneSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(smartphoneSettings.isBreadcrumbIndex());
         assertTrue(smartphoneSettings.isAssignAccesskeyToNumber());
         assertTrue(smartphoneSettings.isSimpleDisplay());
@@ -166,7 +169,6 @@ public class SettingsServiceUserSettingsTestCase {
     public void testAdditionalDisplay() {
         assertFalse(userSettings.isShowNowPlayingEnabled());
         assertFalse(userSettings.isNowPlayingAllowed());
-        assertFalse(userSettings.isAutoHidePlayQueue());
         assertFalse(userSettings.isShowArtistInfoEnabled());
         assertFalse(userSettings.isForceBio2Eng());
         assertFalse(userSettings.isShowTopSongs());
