@@ -73,6 +73,7 @@ public class PlayQueueController {
                 "showShare", userSettings.isShowShare(),
                 "alternativeDrawer", userSettings.isAlternativeDrawer(),
                 "showAlbumActions", userSettings.isShowAlbumActions(),
-                "simpleDisplay", userSettings.isSimpleDisplay()));
+                "simpleDisplay", userSettings.isSimpleDisplay(),
+                "playqueueQuickOpen", userSettings.isAutoHidePlayQueue()));
     }
 }

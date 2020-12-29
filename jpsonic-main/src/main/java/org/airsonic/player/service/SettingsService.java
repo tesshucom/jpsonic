@@ -1358,6 +1358,7 @@ public class SettingsService {
         settings.setShowIndex(true);
         settings.setClosePlayQueue(true);
         settings.setAlternativeDrawer(true);
+        settings.setAutoHidePlayQueue(true);
         settings.setBreadcrumbIndex(true);
         settings.setAssignAccesskeyToNumber(true);
         settings.setSimpleDisplay(true);
