@@ -31,6 +31,10 @@ function onCloseQueue() {document.getElementById("playQueue").contentWindow.onCl
 function onTryCloseDrawerBoth() {document.getElementById("upper").contentWindow.onTryCloseDrawer();document.getElementById("playQueue").contentWindow.onTryCloseQueue();};
 <%-- deligate << --%>
 
+function reloadAll(mainViewName) {
+    location.replace("index.view?mainView=" + mainViewName);
+}
+
 function reloadUpper(...mainViewName) {
     const upper = document.getElementById("upper");
     const playQueue = document.getElementById("playQueue");
@@ -61,8 +65,14 @@ function setQueueExpand(isQueueExpand) {
 </head>
 <body class="index">
 	<input type="checkbox" id="isDrawerOpened" value="1" autofocus="false" checked />
-	<iframe name="upper" id="upper" src="top.view?"></iframe>
-
+	<c:choose>
+		<c:when test="${not empty model.mainView}">
+			<iframe name="upper" id="upper" src="top.view?mainView=${model.mainView}"></iframe>
+		</c:when>
+		<c:otherwise>
+			<iframe name="upper" id="upper" src="top.view?"></iframe>
+		</c:otherwise>
+	</c:choose>
 	<input type="checkbox" id="isQueueOpened" value="1" autofocus="false" tabindex="-1"/>
     <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
 	<iframe name="playQueue" id="playQueue" src="playQueue.view?"></iframe>
