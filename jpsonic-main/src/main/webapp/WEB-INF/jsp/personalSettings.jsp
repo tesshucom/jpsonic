@@ -42,7 +42,7 @@ function setSettings4DesktopPC() {
     $('#openDetailStar').prop('checked', ${command.defaultSettings.openDetailStar});
     $('#openDetailIndex').prop('checked', ${command.defaultSettings.openDetailIndex});
     $('#voiceInputEnabled').prop('checked', ${command.defaultSettings.voiceInputEnabled});
-	$("#ietf").val('${command.ietfDefault}');
+    $("#ietf").val('${command.ietfDefault}');
     $('#songNotificationEnabled').prop('checked', ${command.defaultSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(false);
@@ -64,7 +64,7 @@ function setSettings4Tablet() {
     $('#openDetailStar').prop('checked', ${command.tabletSettings.openDetailStar});
     $('#openDetailIndex').prop('checked', ${command.tabletSettings.openDetailIndex});
     $('#voiceInputEnabled').prop('checked', ${command.tabletSettings.voiceInputEnabled});
-	$("#ietf").val('${command.ietfDefault}');
+    $("#ietf").val('${command.ietfDefault}');
     $('#songNotificationEnabled').prop('checked', ${command.tabletSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
@@ -86,7 +86,7 @@ function setSettings4Smartphone() {
     $('#openDetailStar').prop('checked', ${command.smartphoneSettings.openDetailStar});
     $('#openDetailIndex').prop('checked', ${command.smartphoneSettings.openDetailIndex});
     $('#voiceInputEnabled').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
-	$("#ietf").val('${command.ietfDefault}');
+    $("#ietf").val('${command.ietfDefault}');
     $('#songNotificationEnabled').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
     $('#showCurrentSongInfo').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
     speechEngineLangSelectEnabled(true);
@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
         $("#fontSizeSlider").slider({ disabled: false });
     });
     $("#radio2-DEFAULT").on('change', function(e){
-    	$("#ietf").val('${command.ietfDefault}');
+        $("#ietf").val('${command.ietfDefault}');
         $("#ietf").prop('disabled', true);
     });
     $("#radio2-BCP47").on('change', function(e){
@@ -189,6 +189,16 @@ document.addEventListener('DOMContentLoaded', function () {
 </head>
 
 <body class="mainframe settings personalSettings">
+
+<c:if test="${settings_reload}">
+    <form:form name="reloadAll" action="index.view" method="post">
+        <input name="mainView" type="hidden" value="personalSettings.view" />
+    </form:form>
+    <script>
+        document.reloadAll.target="_top";
+        document.reloadAll.submit();
+    </script>
+</c:if>
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="personal"/>
@@ -720,12 +730,5 @@ document.addEventListener('DOMContentLoaded', function () {
         </dd>
     </dl>
 </details>
-
-<c:if test="${settings_reload}">
-    <script>
-        window.top.reloadUpper("personalSettings.view");
-        window.top.reloadPlayQueue();
-    </script>
-</c:if>
 
 </body></html>
