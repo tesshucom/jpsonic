@@ -13,13 +13,7 @@
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 <script>
 
-$(document).ready(function(){
-    document.getElementById('albumsContainer').addEventListener("toggle", function(event) {
-        adjustCoverartContainer();
-    });
-    document.getElementById('songsContainer').addEventListener("toggle", function(event) {
-        checkTruncate("#songsContainer", ".tabular.songs", 4, ["album", "artist", "song"]);
-    });
+document.addEventListener("DOMContentLoaded", function(){
     initTruncate("#songsContainer", ".tabular.songs", 4, ["album", "artist", "song"]);
 });
 
@@ -98,7 +92,7 @@ function onPlayAll() {
 </c:if>
 
 <c:if test="${not empty model.albums}">
-    <details ${isOpen} id="albumsContainer">
+    <details ${isOpen} id="albumsContainer" onclicl="adjustCoverartContainer()">
         <summary><fmt:message key="search.hits.albums"/> (${fn:length(model.albums)})</summary>
         <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="starred.view"/>
@@ -170,7 +164,7 @@ function onPlayAll() {
 </c:if>
 
 <c:if test="${not empty model.songs}">
-    <details ${isOpen} id="songsContainer">
+    <details ${isOpen} id="songsContainer" onClicl="checkTruncate('#songsContainer', '.tabular.songs', 4, ['album', 'artist', 'song'])">
         <summary><fmt:message key="search.hits.songs"/> (${fn:length(model.songs)})</summary>
         <ul class="controls">
             <li><a href="javascript:onPlayAll()" title="<fmt:message key='main.playall'/>" class="control play"><fmt:message key="main.playall"/></a></li>
