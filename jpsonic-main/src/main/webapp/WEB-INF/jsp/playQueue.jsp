@@ -122,7 +122,7 @@ $(document).ready(function(){
     
     top.refShowPlaylist4Playqueue = function() {
         playlistService.getWritablePlaylists(function playlistCallback(playlists) {
-        	top.$("#dialog-select-playlist-list").empty();
+            top.$("#dialog-select-playlist-list").empty();
             for (var i = 0; i < playlists.length; i++) {
                 var playlist = playlists[i];
                 top.$("#dialog-select-playlist-list").append("<li><a href='#' onclick='refAppendPlaylist4Playqueue(" + playlist.id + ")'>" + escapeHtml(playlist.name) + "</a></li>");
@@ -132,7 +132,7 @@ $(document).ready(function(){
     }
 
     top.refAppendPlaylist4Playqueue = function(playlistId) {
-    	top.$("#dialog-select-playlist").dialog("close");
+        top.$("#dialog-select-playlist").dialog("close");
         var mediaFileIds = new Array();
         for (var i = 0; i < songs.length; i++) {
             if ($("#songIndex" + (i + 1)).is(":checked")) {
@@ -146,7 +146,7 @@ $(document).ready(function(){
     
     const ps = new PrefferedSize(480, 360);
     top.$("#dialog-select-playlist").dialog({
-    	autoOpen: false,
+        autoOpen: false,
         closeOnEscape: true,
         draggable: false,
         resizable: false,
@@ -154,19 +154,19 @@ $(document).ready(function(){
         width  : ps.width,
         height  : ps.height,
         buttons: {
-        	"<fmt:message key="common.cancel"/>": {
-        		text: "<fmt:message key="common.cancel"/>",
-        		id: 'dspCancelButton',
-        		click: function() {top.$("#dialog-select-playlist").dialog("close");}
-        	}
+            "<fmt:message key="common.cancel"/>": {
+                text: "<fmt:message key="common.cancel"/>",
+                id: 'dspCancelButton',
+                click: function() {top.$("#dialog-select-playlist").dialog("close");}
+            }
         },
         open: function() {top.$("#dspCancelButton").focus();}
     });
-
-    document.getElementById("playerView").addEventListener('dblclick', function (e) {
-    	onTogglePlayQueue();
-    });
-
+    <c:if test="${model.playqueueQuickOpen}">
+        document.getElementById("playerView").addEventListener('dblclick', function (e) {
+            onTogglePlayQueue();
+        });
+    </c:if>
 });
 
 function startTimer() {
@@ -774,9 +774,9 @@ function preparePlayer(index, position) {
 }
 
 window.initCurrentSongView = function() {
-	if(0 < $('#audioPlayer').get(0).currentTime) {
-	    top.onChangeCurrentSong(currentSong);
-	}
+    if(0 < $('#audioPlayer').get(0).currentTime) {
+        top.onChangeCurrentSong(currentSong);
+    }
 }
 
 /**

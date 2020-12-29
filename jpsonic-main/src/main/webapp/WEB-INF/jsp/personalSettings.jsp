@@ -33,6 +33,7 @@ function setSettings4DesktopPC() {
     $('#showIndex').prop('checked', ${command.defaultSettings.showIndex});
     $('#closeDrawer').prop('checked', ${command.defaultSettings.closeDrawer});
     $('#closePlayQueue').prop('checked', ${command.defaultSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
     $('#alternativeDrawer').prop('checked', ${command.defaultSettings.alternativeDrawer});
     $('#breadcrumbIndex').prop('checked', ${command.defaultSettings.breadcrumbIndex});
     $('#assignAccesskeyToNumber').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
@@ -55,6 +56,7 @@ function setSettings4Tablet() {
     $('#showIndex').prop('checked', ${command.tabletSettings.showIndex});
     $('#closeDrawer').prop('checked', ${command.tabletSettings.closeDrawer});
     $('#closePlayQueue').prop('checked', ${command.tabletSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
     $('#alternativeDrawer').prop('checked', ${command.tabletSettings.alternativeDrawer});
     $('#breadcrumbIndex').prop('checked', ${command.tabletSettings.breadcrumbIndex});
     $('#assignAccesskeyToNumber').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
@@ -77,6 +79,7 @@ function setSettings4Smartphone() {
     $('#showIndex').prop('checked', ${command.smartphoneSettings.showIndex});
     $('#closeDrawer').prop('checked', ${command.smartphoneSettings.closeDrawer});
     $('#closePlayQueue').prop('checked', ${command.smartphoneSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
     $('#alternativeDrawer').prop('checked', ${command.smartphoneSettings.alternativeDrawer});
     $('#breadcrumbIndex').prop('checked', ${command.smartphoneSettings.breadcrumbIndex});
     $('#assignAccesskeyToNumber').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
@@ -118,7 +121,6 @@ function resetDisplay() {
 function resetAdditionalDisplay() {
     $('[name="showNowPlayingEnabled"]').prop('checked', ${command.defaultSettings.showNowPlayingEnabled});
     $('[name="nowPlayingAllowed"]').prop('checked', ${command.defaultSettings.nowPlayingAllowed});
-    $('[name="autoHidePlayQueue"]').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
     $('[name="showArtistInfoEnabled"]').prop('checked', ${command.defaultSettings.showArtistInfoEnabled});
     $('[name="forceBio2Eng"]').prop('checked', ${command.defaultSettings.forceBio2Eng});
     $('[name="showTopSongs"]').prop('checked', ${command.defaultSettings.showTopSongs});
@@ -345,6 +347,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="closePlayQueue"><fmt:message key="personalsettings.closeplayqueue"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="closeplayqueue"/></c:import>
             </dd>
+
+            <dt><fmt:message key="personalsettings.pages.playqueue"/></dt>
+            <dd>
+                <%-- Param has been changed and reused. @See #622, #727, #804 --%>
+                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" />
+                <label for="autoHidePlayQueue"><fmt:message key="personalsettings.playqueuequickopen"/></label>
+            </dd>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
                 <form:checkbox path="breadcrumbIndex" id="breadcrumbIndex" />
@@ -531,13 +540,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
                 </dd>
             </c:if>
-            <%-- There are many problems. Temporarily deleted. #622
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" />
-                <label for="autoHidePlayQueue"><fmt:message key="personalsettings.autohideplayqueue"/></label>
-            </dd>
-             --%>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
                 <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />

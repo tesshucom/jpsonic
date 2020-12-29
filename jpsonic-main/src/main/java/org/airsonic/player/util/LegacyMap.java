@@ -80,6 +80,12 @@ public class LegacyMap {
                 v12, k13, v13, k14, v14);
     }
 
+    public static <K, V> java.util.Map<K, V> of(K k1, V v1, K k2, V v2, K k3, V v3, K k4, V v4, K k5, V v5, K k6, V v6,
+            K k7, V v7, K k8, V v8, K k9, V v9, K k10, V v10, K k11, V v11, K k12, V v12, K k13, V v13, K k14, V v14, K k15, V v15) {
+        return createMapN(k1, v1, k2, v2, k3, v3, k4, v4, k5, v5, k6, v6, k7, v7, k8, v8, k9, v9, k10, v10, k11, v11, k12,
+                v12, k13, v13, k14, v14, k15, v15);
+    }
+
     public static <K, V> java.util.Map<K, V> of(K key, V value) {
         java.util.Map<K, V> result = new HashMap<>(1);
         @SuppressWarnings("unchecked")
