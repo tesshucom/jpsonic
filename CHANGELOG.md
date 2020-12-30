@@ -3,10 +3,36 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.3.0
+## v109.4.0
 #### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
 
-#### fix
+#### Fixes
+
+  * Update libs. Includes fixes for CVE-2020-13954, CVE-2020-27218 and updates mediaelements.js
+  * Fix bug where video meta-analysis was incorrect on Windows
+  * Fix browsing feature of video directory
+  * Fix share in playqueue
+
+#### Other updates
+
+  * Support JDK15
+  * Add feature to change the font/font size of web pages
+  * Add voice recognition search in web page
+  * Improve video player in web page
+  * Add maximization feature to video player
+  * Add picture in picture feature to video player
+  * Add option to open and close the playqueue with double click/tap
+  * Suppress network status page to be available only to administrators by default
+  * Delete the frame on the right side of web page
+  * Suppress the list of songs currently playing and make them available only to administrators by default
+  * Fix to display scan status regardless of settings
+  * Add option to display information and links for the song being played
+  * Minor fixes for CSS and messages
+
+<details>
+<summary>v109.3.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
+
+#### Fixes
 
   * Various library updates (Includes fix of CVE-2020-5421, CVE-2015-5211 and CVE-2020-11979)
 
@@ -26,11 +52,12 @@
   * Fix layout so that songs with long titles like classical music are not truncate
   * Fix setting pages
   * Fix breadcrumb
+</details>
 
 <details>
 <summary>v109.2.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
-#### fix
+#### Fixes
 
   * Clean up CVE suppression files and remove unnecessary rules
   * Various library updates (ecj, mariadb-java-client, jackson, cxf, pmd, liquibase-core, checker-qual, tomcat, mysql-connector-java, lucene, commons-lang3)
@@ -54,7 +81,7 @@
 > Jpsonic will be developed for LTS Java11 from this version.
 > Compatibility with Java 11 or later is given priority, and compatibility with Java 10 or earlier is not necessarily guaranteed.
 
-#### fix
+#### Fixes
 
   * Updated ant to 1.10.8(CVE-2020-1945).
   * Updated spring-boot-dependencies to 2.2.7(CVE-2020-5407).
