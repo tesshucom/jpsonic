@@ -27,22 +27,25 @@ div.welcome {
       justify-content: start;
       min-height: 30px;
       width: calc(100% - 30px);
-      margin: 5px 0 0 0;
+      margin: 0;
       padding: 0 0 0 30px;
       li {
-        margin: 5px 8px 5px 0px;
-      }
-      a {
-        height: 20px;
-        margin: 5px 8px 5px 0px;
-        padding: 0 4px 0 4px;
-        @include border;
-        border-radius: 10px;
-        font-size: 0.93rem;
-        font-weight: 600;
-        vertical-align: middle;
-        &:active {
-          top: -1px;
+        display: flex;
+        align-items: center;
+        margin: 0px 8px 0px 0px;
+
+        a {
+          height: 24px;
+          margin: 6px 8px 0px 0px;
+          padding: 1px 10px 1px 10px;
+          @include border;
+          border-radius: 12px;
+          font-size: 1rem;
+          font-weight: 500;
+          vertical-align: middle;
+          &:active {
+            top: -1px;
+          }
         }
       }
     }

@@ -8,18 +8,12 @@
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/starService.js'/>"></script>
 <script src="<c:url value='/dwr/interface/playlistService.js'/>"></script>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
 <script>
 
-$(document).ready(function(){
-    document.getElementById('albumsContainer').addEventListener("toggle", function(event) {
-        adjustCoverartContainer();
-    });
-    document.getElementById('songsContainer').addEventListener("toggle", function(event) {
-        checkTruncate("#songsContainer", ".tabular.songs", 4, ["album", "artist", "song"]);
-    });
+document.addEventListener("DOMContentLoaded", function(){
     initTruncate("#songsContainer", ".tabular.songs", 4, ["album", "artist", "song"]);
 });
 
@@ -56,7 +50,7 @@ function onPlayAll() {
     <h1 class="star"><fmt:message key="starred.title"/></h1>
 </section>
 
-<c:if test="${empty model.artists and empty model.albums and empty model.songs}">
+<c:if test="${empty model.artists and empty model.albums and empty model.songs and empty model.videos}">
     <p><strong><fmt:message key="starred.empty"/></strong></p>
 </c:if>
 
@@ -98,7 +92,7 @@ function onPlayAll() {
 </c:if>
 
 <c:if test="${not empty model.albums}">
-    <details ${isOpen} id="albumsContainer">
+    <details ${isOpen} id="albumsContainer" onclicl="adjustCoverartContainer()">
         <summary><fmt:message key="search.hits.albums"/> (${fn:length(model.albums)})</summary>
         <c:import url="viewAsListSelector.jsp">
             <c:param name="targetView" value="starred.view"/>
@@ -170,7 +164,7 @@ function onPlayAll() {
 </c:if>
 
 <c:if test="${not empty model.songs}">
-    <details ${isOpen} id="songsContainer">
+    <details ${isOpen} id="songsContainer" onClicl="checkTruncate('#songsContainer', '.tabular.songs', 4, ['album', 'artist', 'song'])">
         <summary><fmt:message key="search.hits.songs"/> (${fn:length(model.songs)})</summary>
         <ul class="controls">
             <li><a href="javascript:onPlayAll()" title="<fmt:message key='main.playall'/>" class="control play"><fmt:message key="main.playall"/></a></li>
@@ -284,7 +278,7 @@ function onPlayAll() {
                             <c:param name="video" value="${model.player.web}"/>
                             <c:param name="asTable" value="true"/>
                         </c:import>
-                        <td><a href="${videoUrl}">${fn:escapeXml(video.name)}</a></td>
+                        <td><a href="javascript:top.onOpenDialogVideoPlayer('${videoUrl}')">${fn:escapeXml(video.name)}</a></td>
                     </tr>
                 </c:forEach>
             </tbody>

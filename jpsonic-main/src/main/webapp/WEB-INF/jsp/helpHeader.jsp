@@ -1,7 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1" %>
 <%@ include file="include.jsp" %>
 
-<c:set var="categories" value="${param.restricted ? 'help' : 'help internalhelp'}"/>
+<c:set var="categories" value="${param.isAdmin ? 'help status internalhelp' : param.showStatus ? 'help status' : 'help'}"/>
 
 <section>
     <h1 class="info"><fmt:message key="help.title"><fmt:param value="${model.brand}"/></fmt:message></h1>

@@ -19,15 +19,16 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.MusicIndexService;
-import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
@@ -70,9 +71,9 @@ public class TopController {
     @Autowired
     private MusicIndexService musicIndexService;
     @Autowired
-    private PlayerService playerService;
-    @Autowired
     private VersionService versionService;
+    @Autowired
+    private AirsonicLocaleResolver localeResolver;
 
     private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList("musicFolderSettings.view",
             "generalSettings.view", "personalSettings.view", "userSettings.view", "playerSettings.view",
@@ -88,13 +89,25 @@ public class TopController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         map.put("user", user);
-        map.put("showRight", userSettings.isShowNowPlayingEnabled());
+        map.put("othersPlayingEnabled", settingsService.isOthersPlayingEnabled());
+        map.put("showNowPlayingEnabled", userSettings.isShowNowPlayingEnabled());
+        map.put("showCurrentSongInfo", userSettings.isShowCurrentSongInfo());
         map.put("closeDrawer", userSettings.isCloseDrawer());
         map.put("showAvatar", userSettings.getAvatarScheme() != AvatarScheme.NONE);
         map.put("showIndex", userSettings.isShowIndex());
         map.put("putMenuInDrawer", userSettings.isPutMenuInDrawer());
         map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
+        map.put("voiceInputEnabled", userSettings.isVoiceInputEnabled());
         map.put("useRadio", settingsService.isUseRadio());
+
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
+            map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
+        } else if (SpeechToTextLangScheme.BCP47.name().equals(userSettings.getSpeechLangSchemeName())
+                && userSettings.getIetf() != null) {
+            map.put("voiceInputLocale", userSettings.getIetf());
+        } else {
+            map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
+        }
 
         boolean refresh = ServletRequestUtils.getBooleanParameter(request, "refresh", false);
         if (refresh) {
@@ -107,7 +120,6 @@ public class TopController {
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders : Collections.singletonList(selectedMusicFolder);
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
 
-        map.put("player", playerService.getPlayer(request, response));
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
         map.put("selectedMusicFolder", selectedMusicFolder);
@@ -127,16 +139,6 @@ public class TopController {
             map.put("latestVersion", versionService.getLatestBetaVersion());
         }
         map.put("brand", settingsService.getBrand());
-
-//      MediaLibraryStatistics statistics = indexManager.getStatistics();
-//      Locale locale = RequestContextUtils.getLocale(request);
-//      if (statistics != null) {
-//          map.put("statistics", statistics);
-//          long bytes = statistics.getTotalLengthInBytes();
-//          long hours = statistics.getTotalDurationInSeconds() / 3600L;
-//          map.put("hours", hours);
-//          map.put("bytes", StringUtil.formatBytes(bytes, locale));
-//      }
 
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());

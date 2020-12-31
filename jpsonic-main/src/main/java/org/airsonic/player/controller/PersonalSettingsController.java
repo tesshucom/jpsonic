@@ -20,7 +20,10 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
+import com.tesshu.jpsonic.domain.SupportableBCP47;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.AvatarScheme;
@@ -45,6 +48,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Controller for the page used to administrate per-user settings.
@@ -73,6 +78,10 @@ public class PersonalSettingsController {
         command.setDefaultSettings(settingsService.getUserSettings(""));
         command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
+        command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
+        command.setFontFamilyJpEmbedDefault(WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
+        command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
+        command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
         command.setLocaleIndex("-1");
         command.setThemeIndex("-1");
         command.setAlbumLists(AlbumListType.values());
@@ -123,9 +132,29 @@ public class PersonalSettingsController {
         command.setPutMenuInDrawer(userSettings.isPutMenuInDrawer());
         command.setFontSchemes(FontScheme.values());
         command.setFontSchemeName(userSettings.getFontSchemeName());
+        command.setFontSize(userSettings.getFontSize());
         command.setForceBio2Eng(userSettings.isForceBio2Eng());
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-
+        command.setVoiceInputEnabled(userSettings.isVoiceInputEnabled());
+        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
+        command.setShowCurrentSongInfo(userSettings.isShowCurrentSongInfo());
+        command.setSpeechLangSchemes(SpeechToTextLangScheme.values());
+        command.setSpeechLangSchemeName(userSettings.getSpeechLangSchemeName());
+        if (isEmpty(userSettings.getLocale())) {
+            command.setIetfDefault(SupportableBCP47.valueOf(settingsService.getLocale()).getValue());
+            command.setIetfDisplayDefault(settingsService.getLocale().getDisplayName(settingsService.getLocale()));
+        } else {
+            command.setIetfDefault(SupportableBCP47.valueOf(userSettings.getLocale()).getValue());
+            command.setIetfDisplayDefault(userSettings.getLocale().getDisplayName(userSettings.getLocale()));
+        }
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(userSettings.getSpeechLangSchemeName())) {
+            command.setIetf(SupportableBCP47
+                    .valueOf(isEmpty(userSettings.getLocale()) ? settingsService.getLocale() : userSettings.getLocale())
+                    .getValue());
+        } else {
+            command.setIetf(userSettings.getIetf());
+        }
+        WebFontUtils.setToCommand(userSettings, command);
         toast.ifPresent(b -> command.setShowToast(b));
 
         Locale currentLocale = userSettings.getLocale();
@@ -183,8 +212,13 @@ public class PersonalSettingsController {
         settings.setDefaultAlbumList(AlbumListType.fromId(command.getAlbumListId()));
         settings.setPartyModeEnabled(command.isPartyModeEnabled());
         settings.setQueueFollowingSongs(command.isQueueFollowingSongs());
-        boolean showNowPlayingEnabledChanged = settings.isShowNowPlayingEnabled() != command.isShowNowPlayingEnabled();
-        settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
+        if (settingsService.isOthersPlayingEnabled()) {
+            settings.setShowNowPlayingEnabled(command.isShowNowPlayingEnabled());
+            settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
+        } else {
+            settings.setShowNowPlayingEnabled(false);
+            settings.setNowPlayingAllowed(false);
+        }
         settings.setShowArtistInfoEnabled(command.isShowArtistInfoEnabled());
         settings.setCloseDrawer(command.isCloseDrawer());
         settings.setClosePlayQueue(command.isClosePlayQueue());
@@ -194,7 +228,6 @@ public class PersonalSettingsController {
         settings.setOpenDetailIndex(command.isOpenDetailIndex());
         settings.setOpenDetailSetting(command.isOpenDetailSetting());
         settings.setOpenDetailStar(command.isOpenDetailStar());
-        settings.setNowPlayingAllowed(command.isNowPlayingAllowed());
         settings.setMainVisibility(command.getMainVisibility());
         settings.setPlaylistVisibility(command.getPlaylistVisibility());
         settings.setFinalVersionNotificationEnabled(command.isFinalVersionNotificationEnabled());
@@ -225,17 +258,24 @@ public class PersonalSettingsController {
         settings.setBreadcrumbIndex(command.isBreadcrumbIndex());
         settings.setPutMenuInDrawer(command.isPutMenuInDrawer());
         settings.setFontSchemeName(command.getFontSchemeName());
+        settings.setFontSize(command.getFontSize());
         settings.setForceBio2Eng(command.isForceBio2Eng());
-
+        settings.setVoiceInputEnabled(command.isVoiceInputEnabled());
+        settings.setShowCurrentSongInfo(command.isShowCurrentSongInfo());
+        settings.setSpeechLangSchemeName(command.getSpeechLangSchemeName());
+        if (SpeechToTextLangScheme.DEFAULT.name().equals(command.getSpeechLangSchemeName())) {
+            settings.setIetf(SupportableBCP47.valueOf(locale).getValue());
+        } else if (StringUtils.isNotBlank(command.getIetf()) && command.getIetf().matches("[a-zA-Z\\-\\_]+")) {
+            settings.setIetf(command.getIetf());
+        }
         if (StringUtils.isNotBlank(command.getLastFmPassword())) {
             settings.setLastFmPassword(command.getLastFmPassword());
         }
-
+        WebFontUtils.setToSettings(command, settings);
         settings.setChanged(new Date());
         settingsService.updateUserSettings(settings);
 
         redirectAttributes.addFlashAttribute("settings_reload", true);
-        redirectAttributes.addFlashAttribute("index_reload", showNowPlayingEnabledChanged);
 
         return "redirect:personalSettings.view";
     }

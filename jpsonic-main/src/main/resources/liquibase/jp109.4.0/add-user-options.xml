@@ -1,0 +1,77 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+    <changeSet id="add-voice-input-enabled" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="voice_input_enabled" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="voice_input_enabled" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-show-current-song-info" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="show_current_song_info" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="show_current_song_info" type="boolean" defaultValueBoolean="true">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-speech-lang-scheme-name" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="speech_lang_scheme_name" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="speech_lang_scheme_name" type="${varchar_type}" defaultValue="DEFAULT">
+                <constraints nullable="false" />
+            </column>
+        </addColumn>
+    </changeSet>
+	<changeSet id="add-ietf" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="ietf" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="ietf" type="${varchar_type}">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+	<changeSet id="add-font-family" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="font_family" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="font_family" type="${varchar_type}" defaultValue="-apple-system, blinkMacSystemFont, &quot;Helvetica Neue&quot;, &quot;Segoe UI&quot;, &quot;Noto Sans JP&quot;, YuGothicM, YuGothic, Meiryo, sans-serif">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+    <changeSet id="add-font-size" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="user_settings" columnName="font_size" />
+            </not>
+        </preConditions>
+        <addColumn tableName="user_settings">
+            <column name="font_size" type="int" defaultValueNumeric="14">
+                <constraints nullable="true" />
+            </column>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

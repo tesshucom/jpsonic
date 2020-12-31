@@ -90,6 +90,8 @@ public class GeneralSettingsController {
         command.setPublishPodcast(settingsService.isPublishPodcast());
         command.setShowJavaJukebox(settingsService.isShowJavaJukebox());
         command.setShowServerLog(settingsService.isShowServerLog());
+        command.setShowStatus(settingsService.isShowStatus());
+        command.setOthersPlayingEnabled(settingsService.isOthersPlayingEnabled());
         command.setShowRememberMe(settingsService.isShowRememberMe());
 
         command.setDefaultIndexString(settingsService.getDefaultIndexString());
@@ -146,7 +148,8 @@ public class GeneralSettingsController {
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
                 || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale);
+                || !settingsService.getLocale().equals(locale)
+                || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
         redirectAttributes.addFlashAttribute("settings_reload", isReload);
         if (!isReload) {
             redirectAttributes.addFlashAttribute("settings_toast", true);
@@ -179,6 +182,8 @@ public class GeneralSettingsController {
         settingsService.setLocale(locale);
         settingsService.setShowJavaJukebox(command.isShowJavaJukebox());
         settingsService.setShowServerLog(command.isShowServerLog());
+        settingsService.setShowStatus(command.isShowStatus());
+        settingsService.setOthersPlayingEnabled(command.isOthersPlayingEnabled());
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.save();
 

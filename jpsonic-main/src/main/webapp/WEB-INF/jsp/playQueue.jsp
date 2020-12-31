@@ -12,6 +12,7 @@
 <script src="<c:url value='/script/mediaelement/mediaelement-and-player.min.js'/>"></script>
 <script src="<c:url value='/script/playQueueCast.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 </head>
 
 <body class="playQueue">
@@ -46,14 +47,7 @@ $(document).ready(function(){
 
     dwr.engine.setErrorHandler(null);
     startTimer();
-
-    $("#dialog-select-playlist").dialog({resizable: true, height: 220, autoOpen: false,
-        buttons: {
-            "<fmt:message key="common.cancel"/>": function() {
-                $(this).dialog("close");
-            }
-        }});
-
+    
     <c:if test="${model.player.web}">createMediaElementPlayer();</c:if>
 
     $("#playQueueBody").sortable({
@@ -125,6 +119,54 @@ $(document).ready(function(){
     window.top.setQueueExpand(document.getElementById("isQueueExpand").checked);
 
     initTruncate(".queue-container", ".tabular.songs", 2, ["album", "artist", "song"]);
+    
+    top.refShowPlaylist4Playqueue = function() {
+        playlistService.getWritablePlaylists(function playlistCallback(playlists) {
+            top.$("#dialog-select-playlist-list").empty();
+            for (var i = 0; i < playlists.length; i++) {
+                var playlist = playlists[i];
+                top.$("#dialog-select-playlist-list").append("<li><a href='#' onclick='refAppendPlaylist4Playqueue(" + playlist.id + ")'>" + escapeHtml(playlist.name) + "</a></li>");
+            }
+            top.$("#dialog-select-playlist").dialog("open");
+        });
+    }
+
+    top.refAppendPlaylist4Playqueue = function(playlistId) {
+        top.$("#dialog-select-playlist").dialog("close");
+        var mediaFileIds = new Array();
+        for (var i = 0; i < songs.length; i++) {
+            if ($("#songIndex" + (i + 1)).is(":checked")) {
+                mediaFileIds.push(songs[i].id);
+            }
+        }
+        playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
+            top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
+        });
+    }
+    
+    const ps = new PrefferedSize(480, 360);
+    top.$("#dialog-select-playlist").dialog({
+        autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : ps.width,
+        height  : ps.height,
+        buttons: {
+            "<fmt:message key="common.cancel"/>": {
+                text: "<fmt:message key="common.cancel"/>",
+                id: 'dspCancelButton',
+                click: function() {top.$("#dialog-select-playlist").dialog("close");}
+            }
+        },
+        open: function() {top.$("#dspCancelButton").focus();}
+    });
+    <c:if test="${model.playqueueQuickOpen}">
+        document.getElementById("playerView").addEventListener('dblclick', function (e) {
+            onTogglePlayQueue();
+        });
+    </c:if>
 });
 
 function startTimer() {
@@ -156,6 +198,7 @@ function onEnded() {
  * Callback function called when playback for the current song has started.
  */
 function onPlaying() {
+    top.onChangeCurrentSong(currentSong);
     if (currentSong) {
         updateWindowTitle(currentSong);
         <c:if test="${model.notify}">
@@ -224,7 +267,7 @@ function onStart() {
 /**
  * Pause playing
  */
-function onStop() {
+window.onStop = function() {
     if (CastPlayer.castSession) {
         CastPlayer.pauseCast();
     } else if ($('#audioPlayer').get(0)) {
@@ -292,18 +335,19 @@ window.onGainAdd = function(gain) {
 }
 
 function onSkip(index) {
-<c:choose>
-<c:when test="${model.player.web}">
-    loadPlayer(index);
-</c:when>
-<c:otherwise>
-    currentStreamUrl = songs[index].streamUrl;
-    if (isJavaJukeboxPresent()) {
-        updateJavaJukeboxPlayerControlBar(songs[index]);
-    }
-    playQueueService.skip(index, playQueueCallback);
-</c:otherwise>
-</c:choose>
+    top.onChangeCurrentSong(null);
+    <c:choose>
+    <c:when test="${model.player.web}">
+        loadPlayer(index);
+    </c:when>
+    <c:otherwise>
+        currentStreamUrl = songs[index].streamUrl;
+        if (isJavaJukeboxPresent()) {
+            updateJavaJukeboxPlayerControlBar(songs[index]);
+        }
+        playQueueService.skip(index, playQueueCallback);
+    </c:otherwise>
+    </c:choose>
 }
 window.onNext = function(wrap) {
     var index = parseInt(getCurrentSongIndex()) + 1;
@@ -422,32 +466,6 @@ function onSavePlaylist() {
         $().toastmessage("showSuccessToast", "<fmt:message key="playlist.toast.saveasplaylist"/>");
     });
 }
-function onAppendPlaylist() {
-    playlistService.getWritablePlaylists(playlistCallback);
-}
-function playlistCallback(playlists) {
-    $("#dialog-select-playlist-list").empty();
-    for (var i = 0; i < playlists.length; i++) {
-        var playlist = playlists[i];
-        $("<a href='#' onclick='appendPlaylist(" + playlist.id + ")'>" + escapeHtml(playlist.name)
-                + "</a>").appendTo("#dialog-select-playlist-list");
-    }
-    $("#dialog-select-playlist").dialog("open");
-}
-function appendPlaylist(playlistId) {
-    $("#dialog-select-playlist").dialog("close");
-
-    var mediaFileIds = new Array();
-    for (var i = 0; i < songs.length; i++) {
-        if ($("#songIndex" + (i + 1)).is(":checked")) {
-            mediaFileIds.push(songs[i].id);
-        }
-    }
-    playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
-        top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
-        $().toastmessage("showSuccessToast", "<fmt:message key="playlist.toast.appendtoplaylist"/>");
-    });
-}
 
 function isJavaJukeboxPresent() {
     return $("#javaJukeboxPlayerControlBarContainer").length==1;
@@ -476,11 +494,11 @@ function playQueueCallback(playQueue) {
         } else if (repeatEnabled) {
             $("#repeatQueue").removeClass('control repeat');
             $("#repeatQueue").addClass('control no-repeat');
-            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_on'/>");
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_off'/>");
         } else {
             $("#repeatQueue").removeClass('control no-repeat');
             $("#repeatQueue").addClass('control repeat');
-            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_off'/>");
+            $("#repeatQueue").attr('title', "<fmt:message key='playlist.repeat_on'/>");
         }
     }
 
@@ -755,6 +773,12 @@ function preparePlayer(index, position) {
     return currentSong;
 }
 
+window.initCurrentSongView = function() {
+    if(0 < $('#audioPlayer').get(0).currentTime) {
+        top.onChangeCurrentSong(currentSong);
+    }
+}
+
 /**
  * Start playing a song by its index on the active player.
  *
@@ -818,6 +842,7 @@ function onPlayingStateUpdated() {
             $(receiver).removeClass('playing');
             if (song.streamUrl == currentStreamUrl) {
                 if($("#audioPlayer").get(0).paused) {
+                    top.onChangeCurrentSong(null);
                     $(receiver).addClass('paused');
                 } else {
                     $(receiver).addClass('playing');
@@ -921,7 +946,7 @@ window.onTryCloseQueue = function() {
 <input type="checkbox" id="isQueueExpand" value="1" autofocus="false" tabindex="-1"/>
 
 <%-- player --%>
-<div class="playerView">
+<div id="playerView" class="playerView">
     <c:if test="${model.user.settingsRole and fn:length(model.players) gt 1}">
         <select name="player" onchange="location='playQueue.view?player=' + options[selectedIndex].value;">
             <c:forEach items="${model.players}" var="player">
@@ -1024,11 +1049,11 @@ window.onTryCloseQueue = function() {
                 <li><a title="<fmt:message key='main.downloadall'/>" href="javascript:location.href = 'download.view?player=${model.player.id}';" class="control download"><fmt:message key="main.downloadall"/></a></li>
             </c:if>
             <c:if test="${model.user.shareRole and model.showShare}">
-                <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:top.upper.document.getElementById('main').src = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" class="control share"><fmt:message key="main.sharealbum"/></a></li>
+                <li><a title="<fmt:message key='main.sharealbum'/>" href="javascript:location.href = 'createShare.view?player=${model.player.id}&' + getSelectedIndexes();" target="main" class="control share"><fmt:message key="main.sharealbum"/></a></li>
             </c:if>
             
             <c:if test="${model.player.web or model.player.jukebox or model.player.external}">
-            	<li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
+                <li><a title="<fmt:message key='playlist.repeat_on'/>" href="javascript:onToggleRepeat()" id="repeatQueue" class="control repeat"><fmt:message key="playlist.repeat_on"/></a></li>
             </c:if>
         </ul>
     </div>
@@ -1041,7 +1066,7 @@ window.onTryCloseQueue = function() {
         <c:set var="songClass" value="song" />
         <c:set var="albumClass" value="album" />
         <c:set var="artistClass" value="artist" />
-	    <c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
+        <c:set var="suppl" value="${model.simpleDisplay ? 'supplement' : ''}" />
         <table class="tabular queue">
             <thead id="playQueueHeader">
                 <tr>
@@ -1099,15 +1124,10 @@ window.onTryCloseQueue = function() {
                 <c:if test="${model.user.downloadRole and model.showDownload}">
                     <li><a title="<fmt:message key='common.download'/>" href="javascript:downloadSelected()" class="control download"><fmt:message key='common.download'/></a></li>
                 </c:if>
-                <li><a title="<fmt:message key='playlist.append'/>" href="javascript:onAppendPlaylist()" class="control export"><fmt:message key='playlist.append'/></a></li>
+                <li><a title="<fmt:message key='playlist.append'/>" href="javascript:top.refShowPlaylist4Playqueue()" class="control export"><fmt:message key='playlist.append'/></a></li>
             </ul>
         </div>
     </c:if>
-</div>
-
-<div id="dialog-select-playlist" title="<fmt:message key='main.addtoplaylist.title'/>">
-    <p><fmt:message key="main.addtoplaylist.text"/></p>
-    <div id="dialog-select-playlist-list"></div>
 </div>
 
 <script>

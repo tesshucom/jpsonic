@@ -1,4 +1,5 @@
 @import "_global";
+@import "_dialogs";
 @import "_login";
 @import "_error";
 @import "_coverArt";
@@ -33,7 +34,6 @@
 @import "_internetRadioSettings";
 @import "_externalPlayer.scss";
 @import "_helpToolTip";
-@import "_right";
 @import "_editTags";
 @import "_help";
 @import "_more";
@@ -45,3 +45,5 @@
 @import "_homePager";
 @import "_userSettings";
 @import "_podcastSettings";
+@import "_nowPlayingInfos";
+@import "_videoMain";

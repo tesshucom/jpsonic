@@ -1,0 +1,87 @@
+.ui-dialog.ui-corner-all.ui-widget.ui-widget-content {
+  position: fixed;
+  top: 50vw;
+  left: 50vw;
+  transform: translate(-50%, -50%);
+  outline: none;
+  @include border;
+  @include borderRadius;
+  @include dropShadow(non-clickable);
+  background-color: $jp-color-white;
+  color: $jp-color-black;
+  .ui-dialog-titlebar.ui-corner-all.ui-widget-header {
+    height: 30px;
+    margin: 4px 4px 0 4px;
+    background: none;
+    background-color: $jp-color-base4;
+    color: $jp-color-white;
+    .ui-dialog-title {
+      position: relative;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: start;
+      top: -8px;
+      height: 30px;
+      color: $jp-color-white;
+      font-size: 0.93rem;
+    }
+    button.ui-button.ui-dialog-titlebar-close {
+      display: none;
+      font-size: 0.93rem;
+    }
+  }
+  .ui-dialog-content {
+    padding: 4px !important;
+  }
+}
+
+div[id^="dialog"] {
+  display: none;
+  top: 0;
+  left: 0;
+  margin: 0;
+  width: 100% !important;
+  font-size: 1rem;
+  color: $jp-color-black;
+}
+
+#dialog-edit {
+  form {
+    margin: 0;
+    dl {
+      margin: 0;
+    }
+  }
+}
+
+ul#dialog-select-playlist-list {
+  padding: 0;
+  @include border;
+  @include borderRadius;
+  li {
+    padding: 4px;
+    list-style-type: none;
+    background: $jp-color-white;
+    @include borderRadius;
+    border-collapse: separate;
+    border-spacing: 0;
+    line-height: 30px;
+    font-size: 0.93rem;
+    color: $jp-color-black;
+    a {
+      outline: none;
+    }
+  }
+  li:hover,
+  li:focus-within {
+    padding: 2px;
+    a {
+      color: $jp-color-complementary3;
+    }
+    background-color: $jp-color-mask-light-gray;
+
+    @include border(input-focus);
+    @include borderRadius;
+  }
+}

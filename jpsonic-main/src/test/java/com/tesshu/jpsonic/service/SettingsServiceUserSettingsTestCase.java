@@ -19,6 +19,9 @@
  */
 package com.tesshu.jpsonic.service;
 
+import com.tesshu.jpsonic.controller.WebFontUtils;
+import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
@@ -29,6 +32,7 @@ import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -64,6 +68,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isCloseDrawer());
         assertTrue(userSettings.isClosePlayQueue());
         assertTrue(userSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(userSettings.isBreadcrumbIndex());
         assertTrue(userSettings.isAssignAccesskeyToNumber());
         assertTrue(userSettings.isSimpleDisplay());
@@ -71,7 +76,14 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(userSettings.isOpenDetailSetting());
         assertFalse(userSettings.isOpenDetailStar());
         assertFalse(userSettings.isOpenDetailIndex());
-        assertTrue(userSettings.isSongNotificationEnabled());
+        assertFalse(userSettings.isSongNotificationEnabled());
+        assertFalse(userSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertNull(userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test
@@ -83,6 +95,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(tabletSettings.isCloseDrawer());
         assertTrue(tabletSettings.isClosePlayQueue());
         assertTrue(tabletSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(tabletSettings.isBreadcrumbIndex());
         assertTrue(tabletSettings.isAssignAccesskeyToNumber());
         assertTrue(tabletSettings.isSimpleDisplay());
@@ -90,7 +103,14 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(tabletSettings.isOpenDetailSetting());
         assertFalse(tabletSettings.isOpenDetailStar());
         assertFalse(tabletSettings.isOpenDetailIndex());
-        assertTrue(tabletSettings.isSongNotificationEnabled());
+        assertFalse(tabletSettings.isSongNotificationEnabled());
+        assertTrue(tabletSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertNull(userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test
@@ -102,6 +122,7 @@ public class SettingsServiceUserSettingsTestCase {
         assertTrue(smartphoneSettings.isCloseDrawer());
         assertTrue(smartphoneSettings.isClosePlayQueue());
         assertTrue(smartphoneSettings.isAlternativeDrawer());
+        assertTrue(userSettings.isAutoHidePlayQueue());
         assertTrue(smartphoneSettings.isBreadcrumbIndex());
         assertTrue(smartphoneSettings.isAssignAccesskeyToNumber());
         assertTrue(smartphoneSettings.isSimpleDisplay());
@@ -109,7 +130,14 @@ public class SettingsServiceUserSettingsTestCase {
         assertFalse(smartphoneSettings.isOpenDetailSetting());
         assertFalse(smartphoneSettings.isOpenDetailStar());
         assertFalse(smartphoneSettings.isOpenDetailIndex());
-        assertTrue(smartphoneSettings.isSongNotificationEnabled());
+        assertFalse(smartphoneSettings.isSongNotificationEnabled());
+        assertTrue(smartphoneSettings.isVoiceInputEnabled());
+        assertTrue(userSettings.isShowCurrentSongInfo());
+        assertEquals(SpeechToTextLangScheme.DEFAULT.name(), userSettings.getSpeechLangSchemeName());
+        assertNull(userSettings.getIetf());
+        assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
+        assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
+        assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
     }
 
     @Test
@@ -141,7 +169,6 @@ public class SettingsServiceUserSettingsTestCase {
     public void testAdditionalDisplay() {
         assertFalse(userSettings.isShowNowPlayingEnabled());
         assertFalse(userSettings.isNowPlayingAllowed());
-        assertFalse(userSettings.isAutoHidePlayQueue());
         assertFalse(userSettings.isShowArtistInfoEnabled());
         assertFalse(userSettings.isForceBio2Eng());
         assertFalse(userSettings.isShowTopSongs());

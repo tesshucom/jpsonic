@@ -23,10 +23,8 @@ import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.RatingService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -65,8 +63,6 @@ public class MainController {
 
     @Autowired
     private SecurityService securityService;
-    @Autowired
-    private PlayerService playerService;
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -131,7 +127,6 @@ public class MainController {
         mediaFileService.populateStarredDate(dir, username);
         mediaFileService.populateStarredDate(children, username);
 
-        Player player = playerService.getPlayer(request, response);
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
         map.put("files", files);
@@ -139,7 +134,6 @@ public class MainController {
         map.put("ancestors", getAncestors(dir));
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());
         map.put("coverArtSizeLarge", CoverArtScheme.LARGE.getSize());
-        map.put("player", player);
         map.put("user", securityService.getCurrentUser(request));
         map.put("visibility", userSettings.getMainVisibility());
         map.put("showAlbumYear", settingsService.isSortAlbumsByYear());

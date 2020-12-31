@@ -7,7 +7,9 @@
 <script src="<c:url value='/dwr/engine.js'/>"></script>
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/utils.js'/>"></script>
-
+<script src="<c:url value='/dwr/interface/nowPlayingService.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogsTop.js'/>"></script>
 <script>
 
 let previousQuery = "";
@@ -19,6 +21,8 @@ let playQueue;
 
 $(document).ready(function(){
 
+    dwr.engine.setErrorHandler(null);
+
     drawer = document.getElementById('drawer');
     toggler = document.getElementById("toggler");
     main = document.getElementById("main");
@@ -26,23 +30,14 @@ $(document).ready(function(){
 
     onToggleDrawer();
 
-    $("#keyboardShortcuts").dialog({
-        autoOpen: false,
-        width: 840,
-        height: 480,
-        modal: false,
-        open : function() {
-            $("#keyboardShortcuts").append('<iframe id="iframeDiv" scrolling="no" frameborder="no"></iframe>');
-            $("#iframeDiv").attr({src : "keyboardShortcuts.view?", width : '100%', height : '100%' });},
-        close : function() {$("#iframeDiv").remove();}
-    });
-
-    dwr.engine.setErrorHandler(null);
-
     $('.radio-play').on('click', function(evt) {
         top.playQueue.onPlayInternetRadio($(this).data("id"), 0);
         evt.preventDefault();
     });
+
+    top.initCurrentSongView();
+
+    callScanningStatus();
 
 });
 
@@ -62,20 +57,12 @@ function executeInstantSearch() {
 }
 
 function toggleDrawer() {
-    window.top.setDrawerOpened(toggler.checked);
-    // >> It will be modified when right.view is modified.
-    let mainWidth;
-    if(toggler.checked) {
-        mainWidth = "calc(100vw - 240px - " + ${model.showRight ? 240 : 0} + "px)";
-        <c:if test="${model.alternativeDrawer}">
+    top.setDrawerOpened(toggler.checked);
+    <c:if test="${model.alternativeDrawer}">
+        if(toggler.checked) {
             top.onCloseQueue();
-        </c:if>
-    } else {
-        mainWidth = "calc(100vw - " + ${model.showRight ? 240 : 0} + "px)";
-    }
-    main.style.width = mainWidth;
-    playQueue.style.width = mainWidth;
-    // <<
+        }
+    </c:if>
 }
 
 window.onToggleDrawer = function() {
@@ -106,8 +93,82 @@ window.onChangeMainLocation = function(location) {
     $('#main')[0].contentDocument.location = location;
 }
 
+function callScanningStatus() {
+    nowPlayingService.getScanningStatus(getScanningStatusCallback);
+}
+
+let retryCallScanningStatus = false;
+
+window.onStartScanning = function() {
+    retryCallScanningStatus = true;
+    callScanningStatus();
+    $('#main').toastmessage("showNoticeToast", "<fmt:message key='main.scanstart'/>");
+}
+
+window.callPassiveScanningStatus = function() {
+    if(!$("#isScanning").prop('checked')) {
+        callScanningStatus();
+    }
+}
+
+function getScanningStatusCallback(scanInfo) {
+    let finished = $("#isScanning").prop('checked') && !scanInfo.scanning;
+    $("#isScanning").prop('checked', scanInfo.scanning);
+    $("#scanningStatus .message").text(scanInfo.count);
+    if (scanInfo.scanning) {
+        setTimeout("callScanningStatus()", ${model.user.settingsRole ? "3000" : "10000"});
+    } else {
+        if (finished) {
+            retryCallScanningStatus = false;
+            if (document.getElementById("main").contentDocument.location.pathname.split("/").pop().startsWith("musicFolderSettings")) {
+                document.getElementById("main").contentDocument.location = "musicFolderSettings.view";
+            }
+            $('#main').toastmessage("showNoticeToast", "<fmt:message key='main.scanend'/>");
+        } else if(retryCallScanningStatus) {
+            setTimeout("callScanningStatus()", 1000);
+        }
+    }
+}
+
+window.onChangeCurrentSong = function(song) {
+    <c:if test="${model.showCurrentSongInfo}">
+        if (song == null) {
+            $("#isNowPlaying").prop('checked', false);
+        } else {
+            $("#isNowPlaying").prop('checked', true);
+            if (song.coverArtUrl == null) {
+                $(".nowPlaying .coverArt").css("visibility", "hidden");
+            } else {
+                $(".nowPlaying .coverArt").css("visibility", "visible");
+                $(".nowPlaying .coverArt").attr('src', song.coverArtUrl + "&size=60");
+            }
+            if (song.albumUrl != null) {
+                $(".nowPlaying").on('click', function() {
+                    window.open(song.albumUrl, 'main');
+                });
+            }
+            $(".nowPlaying #songTitle").text(song.title);
+            $(".nowPlaying #dir").text(
+                    (song.artist == null ? '' : song.artist) +
+                    (song.artist == null || song.album == null ? '' : ' - ') +
+                    (song.album == null ? '' : song.album));
+        }
+    </c:if>
+}
+
+<%-- dialogs(dialogsTop.js) --%>
+function onOpenDialogVoiceInput() {
+    lazyOpenDialogVoiceInput('${model.voiceInputLocale}', "<fmt:message key='common.cancel'/>");
+}
+function onOpenDialogNowplayinginfos() {
+    lazyOpenDialogNowplayinginfos("<fmt:message key='common.cancel'/>");
+}
 window.onShowKeyboardShortcuts = function() {
-    $('#keyboardShortcuts').dialog('open');
+	lazyOpenDialogKeyboardShortcuts("<fmt:message key='common.cancel'/>");
+}
+
+window.onOpenDialogVideoPlayer = function(videoUrl) {
+	openDialogVideoPlayer(videoUrl, "<fmt:message key='common.cancel'/>");
 }
 
 </script>
@@ -117,6 +178,7 @@ window.onShowKeyboardShortcuts = function() {
 
     <fmt:message key="top.home" var="home" />
     <fmt:message key="top.now_playing" var="nowPlaying" />
+    <fmt:message key="top.othersplaying" var="othersPlaying" />
     <fmt:message key="top.starred" var="starred" />
     <fmt:message key="top.playlists" var="playlists" />
     <fmt:message key="top.settings" var="settings" />
@@ -128,7 +190,7 @@ window.onShowKeyboardShortcuts = function() {
     <fmt:message key="top.upload" var="upload" />
 
     <%-- toggler --%>
-    <input type="checkbox" id="toggler" class="jps-input-toggler" value="1" autofocus="true" checked onchange="toggleDrawer()" />
+    <input type="checkbox" id="toggler" class="jps-input-toggler" autofocus="true" checked onchange="toggleDrawer()" />
     <label for="toggler" class="jps-toggler" role="button" aria-pressed="false" aria-expanded="false" aria-label="Navigation button"> <span class="jps-toggler-line"></span> <span
         class="jps-toggler-line"></span> <span class="jps-toggler-line"></span>
     </label>
@@ -147,7 +209,7 @@ window.onShowKeyboardShortcuts = function() {
             </c:if>
         </div>
 
-        <input type="checkbox" class="jps-input-without-index" value="1" autofocus="false" ${model.showIndex ? '' : 'checked'} />
+        <input type="checkbox" class="jps-input-without-index" ${model.showIndex ? '' : 'checked'} />
         <c:if test="${not empty model.indexedArtists}">
             <ul class="jps-index">
                 <c:forEach items="${model.indexedArtists}" var="entry" varStatus="status">
@@ -198,7 +260,9 @@ window.onShowKeyboardShortcuts = function() {
                                 <a href="top.view?refresh=true" title="<fmt:message key='common.refresh'/>" class="menu-item refresh"><fmt:message key="common.refresh" /></a>
                             </c:otherwise>
                         </c:choose></li>
-                    <li><a href="nowPlaying.view?" target="main" title="${nowPlaying}" class="menu-item pulse">${nowPlaying}</a></li>
+                    <c:if test="${model.othersPlayingEnabled and model.showNowPlayingEnabled}">
+                        <li><a href="javascript:onOpenDialogNowplayinginfos();" title="${othersPlaying}" class="menu-item connecting">${othersPlaying}</a></li>
+                    </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>
                     </c:if>
@@ -220,7 +284,6 @@ window.onShowKeyboardShortcuts = function() {
                                 </c:otherwise>
                             </c:choose>
                     </c:if>
-                    <li><a href="status.view?" target="main" title="<fmt:message key='top.status'/>" class="menu-item graph"><fmt:message key='top.status' /></a></li>
                     <c:if test="${model.user.uploadRole}">
                         <li><a href="uploadEntry.view?" target="main" title="${upload}" class="menu-item upload">${upload}</a></li>
                     </c:if>
@@ -260,6 +323,7 @@ window.onShowKeyboardShortcuts = function() {
 
     <%-- topHeader --%>
     <div class="jps-topHeader">
+        <%-- primary menu items --%>
         <c:if test="${not model.putMenuInDrawer}">
             <nav>
                 <ul class="menu">
@@ -270,10 +334,33 @@ window.onShowKeyboardShortcuts = function() {
                 </ul>
             </nav>
         </c:if>
+        <%-- scanning --%>
+        <input type="checkbox" id="isScanning" class="jps-input-scanning"/>
+        <div id="scanningStatus">
+            <div class="loader" title="<fmt:message key='main.scanning'/>"></div>
+            <div class="message" title="<fmt:message key='main.scannedfiles'/>"></div>
+        </div>
+        <%-- search --%>
         <form method="post" action="search.view" target="main" name="searchForm">
             <input required type="text" name="query" id="query" placeholder="${search}" onclick="select();" onkeyup="triggerInstantSearch();">
-            <a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
+            <c:choose>
+                <c:when test="${model.voiceInputEnabled}">
+                    <a href="#" title="${search}" class="control microphone" onclick="onOpenDialogVoiceInput()" >${search}</a>
+                </c:when>
+                <c:otherwise>
+                    <a href="javascript:document.searchForm.submit()" title="${search}" class="control search">${search}</a>
+                </c:otherwise>
+            </c:choose>
         </form>
+        <%-- nowPlaying --%>
+        <input type="checkbox" id="isNowPlaying"/>
+        <a href="nowPlaying.view?" target="main" title="${nowPlaying}" class="nowPlaying">
+            <img class="coverArt">
+            <div class="info">
+                <div id="songTitle"></div>
+                <div id="dir"></div>
+            </div>
+        </a>
     </div>
 
     <%-- main --%>
@@ -283,13 +370,10 @@ window.onShowKeyboardShortcuts = function() {
     </c:if>
     <iframe name="main" id="main" src="${mainHref}" frameborder="no"></iframe>
 
-    <%-- keyboardShortcuts --%>
-    <div id="keyboardShortcuts"></div>
-
     <c:if test="${model.newVersionAvailable}">
         <fmt:message key="top.upgradeshort" var="versionNotice"><fmt:param value="${model.brand}"/><fmt:param value="${model.latestVersion}"/></fmt:message>
         <script>
-        $().toastmessage('showToast', {
+        $('#main').toastmessage('showToast', {
             text     : '${fn:escapeXml(versionNotice)}',
             stayTime : 10000,
             sticky   : false,

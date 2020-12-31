@@ -20,6 +20,7 @@
 package org.airsonic.player.command;
 
 import com.tesshu.jpsonic.domain.FontScheme;
+import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.controller.PersonalSettingsController;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.Avatar;
@@ -41,7 +42,12 @@ public class PersonalSettingsCommand {
     private UserSettings defaultSettings;
     private UserSettings tabletSettings;
     private UserSettings smartphoneSettings;
-    
+    private String fontFamilyDefault;
+    private String fontFamilyJpEmbedDefault;
+    private int fontSizeDefault;
+    private int fontSizeJpEmbedDefault;
+    private String ietfDefault;
+    private String ietfDisplayDefault;
     private String localeIndex;
     private String[] locales;
     private String themeIndex;
@@ -99,6 +105,14 @@ public class PersonalSettingsCommand {
     private EnumHolder[] fontSchemeHolders;
     private String fontSchemeName;
     private boolean showOutlineHelp;
+    private boolean voiceInputEnabled;
+    private boolean othersPlayingEnabled;
+    private boolean showCurrentSongInfo;
+    private EnumHolder[] speechLangSchemeHolders;
+    private String speechLangSchemeName;
+    private String ietf;
+    private String fontFamily;
+    private int fontSize;
 
     public User getUser() {
         return user;
@@ -130,6 +144,54 @@ public class PersonalSettingsCommand {
 
     public void setSmartphoneSettings(UserSettings smartphoneSettings) {
         this.smartphoneSettings = smartphoneSettings;
+    }
+
+    public String getFontFamilyDefault() {
+        return fontFamilyDefault;
+    }
+
+    public void setFontFamilyDefault(String fontFamilyDefault) {
+        this.fontFamilyDefault = fontFamilyDefault;
+    }
+
+    public String getFontFamilyJpEmbedDefault() {
+        return fontFamilyJpEmbedDefault;
+    }
+
+    public void setFontFamilyJpEmbedDefault(String fontFamilyJpEmbed) {
+        this.fontFamilyJpEmbedDefault = fontFamilyJpEmbed;
+    }
+
+    public int getFontSizeDefault() {
+        return fontSizeDefault;
+    }
+
+    public void setFontSizeDefault(int fontSizeDefault) {
+        this.fontSizeDefault = fontSizeDefault;
+    }
+
+    public int getFontSizeJpEmbedDefault() {
+        return fontSizeJpEmbedDefault;
+    }
+
+    public void setFontSizeJpEmbedDefault(int fontSizeJpEmbedDefault) {
+        this.fontSizeJpEmbedDefault = fontSizeJpEmbedDefault;
+    }
+
+    public String getIetfDefault() {
+        return ietfDefault;
+    }
+
+    public void setIetfDefault(String ietfDefault) {
+        this.ietfDefault = ietfDefault;
+    }
+
+    public String getIetfDisplayDefault() {
+        return ietfDisplayDefault;
+    }
+
+    public void setIetfDisplayDefault(String ietfDisplayDefault) {
+        this.ietfDisplayDefault = ietfDisplayDefault;
     }
 
     public String getLocaleIndex() {
@@ -593,5 +655,72 @@ public class PersonalSettingsCommand {
 
     public void setShowOutlineHelp(boolean showOutlineHelp) {
         this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public boolean isVoiceInputEnabled() {
+        return voiceInputEnabled;
+    }
+
+    public void setVoiceInputEnabled(boolean voiceInputEnabled) {
+        this.voiceInputEnabled = voiceInputEnabled;
+    }
+
+    public boolean isOthersPlayingEnabled() {
+        return othersPlayingEnabled;
+    }
+
+    public void setOthersPlayingEnabled(boolean othersPlayingEnabled) {
+        this.othersPlayingEnabled = othersPlayingEnabled;
+    }
+
+    public boolean isShowCurrentSongInfo() {
+        return showCurrentSongInfo;
+    }
+
+    public void setShowCurrentSongInfo(boolean showCurrentSongInfo) {
+        this.showCurrentSongInfo = showCurrentSongInfo;
+    }
+
+    public EnumHolder[] getSpeechLangSchemeHolders() {
+        return speechLangSchemeHolders;
+    }
+
+    public void setSpeechLangSchemes(SpeechToTextLangScheme[] speechLangSchemes) {
+        speechLangSchemeHolders = Arrays.stream(speechLangSchemes)
+            .map(s -> new EnumHolder(s.name(), s.toString()))
+            .collect(Collectors.toList())
+            .toArray(new EnumHolder[speechLangSchemes.length]);
+    }
+
+    public String getSpeechLangSchemeName() {
+        return speechLangSchemeName;
+    }
+
+    public void setSpeechLangSchemeName(String speechLangSchemeName) {
+        this.speechLangSchemeName = speechLangSchemeName;
+    }
+
+    public String getIetf() {
+        return ietf;
+    }
+
+    public void setIetf(String ietf) {
+        this.ietf = ietf;
+    }
+
+    public String getFontFamily() {
+        return fontFamily;
+    }
+
+    public void setFontFamily(String font) {
+        this.fontFamily = font;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
     }
 }

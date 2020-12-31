@@ -12,22 +12,64 @@
 <script src="<c:url value='/dwr/interface/multiService.js'/>"></script>
 <script src="<c:url value='/script/jquery.fancyzoom.js'/>"></script>
 <script src="<c:url value='/script/utils.js'/>"></script>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/coverartContainer.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
+
 <script>
 
 $(document).ready(function(){
     $("a.fancy").fancyZoom({
         minBorder: 30
     });
-    $("#dialog-select-playlist").dialog({resizable: true, height: 350, autoOpen: false,
-        buttons: {
-            "<fmt:message key="common.cancel"/>": function() {
-                $(this).dialog("close");
-            }
-        }});
+
     initTruncate(".tabular-and-thumb", ".tabular.songs", 5, ["album", "artist", "song"]);
+
+    top.refShowPlaylist4Album = function () {
+        playlistService.getWritablePlaylists(function playlistCallback(playlists) {
+            top.$("#dialog-select-playlist-list").empty();
+            for (var i = 0; i < playlists.length; i++) {
+                var playlist = playlists[i];
+                top.$("#dialog-select-playlist-list").append("<li><a href='#' onclick='refAppendPlaylist4Album(" + playlist.id + ")'>" + escapeHtml(playlist.name) + "</a></li>");
+            }
+            top.$("#dialog-select-playlist").dialog("open");
+        });
+    }
+
+    top.refAppendPlaylist4Album = function(playlistId) {
+    	top.$("#dialog-select-playlist").dialog("close");
+        var mediaFileIds = new Array();
+        for (var i = 0; i < ${fn:length(model.files)}; i++) {
+            var checkbox = $("#songIndex" + i);
+            if (checkbox && checkbox.is(":checked")) {
+                mediaFileIds.push($("#songId" + i).html());
+            }
+        }
+        playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
+            top.upper.document.getElementById("main").src = "playlist.view?id=" + playlistId;
+        });
+    }
+
+    const ps = new PrefferedSize(480, 360);
+    top.$("#dialog-select-playlist").dialog({
+    	autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : ps.width,
+        height  : ps.height,
+        buttons: {
+        	"<fmt:message key="common.cancel"/>": {
+        		text: "<fmt:message key="common.cancel"/>",
+        		id: 'dspCancelButton',
+        		click: function() {top.$("#dialog-select-playlist").dialog("close");}
+        	}
+        },
+        open: function() {top.$("#dspCancelButton").focus();}
+    });
+
 });
 
 function getSelectedIndexes() {
@@ -107,32 +149,6 @@ function playSimilar() {
     top.playQueue.onPlaySimilar(${model.dir.id}, 50);
 }
 
-function onAppendPlaylist() {
-    playlistService.getWritablePlaylists(playlistCallback);
-}
-function playlistCallback(playlists) {
-    $("#dialog-select-playlist-list").empty();
-    for (var i = 0; i < playlists.length; i++) {
-        var playlist = playlists[i];
-        $("<p><a href='#' onclick='appendPlaylist(" + playlist.id + ")'>" + escapeHtml(playlist.name)
-                + "</a>").appendTo("#dialog-select-playlist-list");
-    }
-    $("#dialog-select-playlist").dialog("open");
-}
-function appendPlaylist(playlistId) {
-    $("#dialog-select-playlist").dialog("close");
-
-    var mediaFileIds = new Array();
-    for (var i = 0; i < ${fn:length(model.files)}; i++) {
-        var checkbox = $("#songIndex" + i);
-        if (checkbox && checkbox.is(":checked")) {
-            mediaFileIds.push($("#songId" + i).html());
-        }
-    }
-    playlistService.appendToPlaylist(playlistId, mediaFileIds, function (){
-        $().toastmessage("showSuccessToast", "<fmt:message key='playlist.toast.appendtoplaylist'/>");
-    });
-}
 function showAllAlbums() {
     window.location.href = updateQueryStringParameter(window.location.href, "showAll", "1");
 }
@@ -322,7 +338,7 @@ function toggleComment() {
                 <tr>
                     <c:import url="playButtons.jsp">
                         <c:param name="id" value="${song.id}"/>
-                        <c:param name="video" value="${song.video and model.player.web}"/>
+                        <c:param name="video" value="${song.video}"/>
                         <c:param name="playEnabled" value="${model.user.streamRole and not model.partyMode}"/>
                         <c:param name="addEnabled" value="${model.user.streamRole and (not model.partyMode or not song.directory)}"/>
                         <c:param name="starEnabled" value="true"/>
@@ -367,7 +383,7 @@ function toggleComment() {
                     <c:if test="${model.user.shareRole and model.showShare}">
                         <li><a href="javascript:shareSelected()" title="<fmt:message key='main.more.share'/>" class="control share"><fmt:message key='main.more.share'/></a></li>
                     </c:if>
-                    <li><a href="javascript:onAppendPlaylist()" title="<fmt:message key='playlist.append'/>" class="control export"><fmt:message key='playlist.append'/></a></li>
+                    <li><a href="javascript:top.refShowPlaylist4Album()" title="<fmt:message key='playlist.append'/>" class="control export"><fmt:message key='playlist.append'/></a></li>
                 </ul>
             </div>
         </c:if>
@@ -461,11 +477,6 @@ function toggleComment() {
         </c:otherwise>
     </c:choose>
 </c:if>
-
-<div id="dialog-select-playlist" title="<fmt:message key='main.addtoplaylist.title'/>">
-    <p><fmt:message key="main.addtoplaylist.text"/></p>
-    <div id="dialog-select-playlist-list"></div>
-</div>
 
 </body>
 </html>

@@ -190,9 +190,8 @@ $(document).ready(function() {
 
 <c:if test="${settings_reload}">
     <script>
-      window.top.reloadUpper("playerSettings.view");
-      window.top.reloadPlayQueue();
-      window.top.reloadRight();
+        window.top.reloadUpper("playerSettings.view");
+        window.top.reloadPlayQueue();
     </script>
 </c:if>
 

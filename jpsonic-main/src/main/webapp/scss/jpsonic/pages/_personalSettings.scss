@@ -1,4 +1,17 @@
 .mainframe.settings.personalSettings {
+  .fontSizeSettings {
+    height: 30px;
+    margin-left: 22px;
+  }
+  input#fontFamily {
+    @include dlInputWidth(12);
+  }
+  input#fontSize {
+    @include dlInputWidth(2);
+  }
+  input#ietf {
+    @include dlInputWidth(2);
+  }
   input#paginationSize {
     @include dlInputWidth(1);
   }
@@ -16,6 +29,42 @@
     @include dlInputWidth(10);
     padding: 0 0 0 10px;
     border: none;
+  }
+
+  input#fontSizeSlider {
+    -webkit-appearance: none; /* 🚩これ無しだとスタイルがほぼ全く反映されないので注意 */
+    appearance: none;
+    cursor: pointer;
+    outline: none;
+    height: 10px; /* バーの高さ */
+    background: $jp-color-base1;
+    border-radius: 5px;
+    border: solid 1px $jp-color-medium-gray;
+  }
+
+  input#fontSizeSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    background: $jp-color-base3;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    @include dropShadow;
+  }
+  input#fontSizeSlider::-moz-range-thumb {
+    background: $jp-color-base3;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    @include dropShadow;
+    border: none;
+  }
+  input#fontSizeSlider::-moz-focus-outer {
+    border: 0;
+  }
+  input#fontSizeSlider:focus::-webkit-slider-thumb,
+  input#fontSizeSlider:hover::-webkit-slider-thumb,
+  input#fontSizeSlider:active::-webkit-slider-thumb {
+    background: $jp-color-complementary3;
   }
 
   table.tabular.personalsettings-display {

@@ -2,13 +2,16 @@
 <%@ page language="java" contentType="text/html; charset=utf-8" pageEncoding="iso-8859-1"%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <script src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 </head>
 <body class="mainframe settings">
 
 <c:import url="helpHeader.jsp">
 	<c:param name="cat" value="internalhelp"/>
+    <c:param name="isAdmin" value="${model.admin}"/>
+    <c:param name="showStatus" value="${model.showStatus}"/>
 </c:import>
 
 <details>

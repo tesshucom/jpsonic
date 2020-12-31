@@ -51,6 +51,8 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
 /**
  * Controller for the page used to administrate the set of music folders.
  *
@@ -91,12 +93,11 @@ public class MusicFolderSettingsController {
             @RequestParam("toast") Optional<Boolean> toast, Model model) {
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
-
-        if (scanNow != null) {
+        if (!isEmpty(scanNow)) {
             settingsService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
         }
-        if (expunge != null) {
+        if (!isEmpty(expunge)) {
             expunge();
         }
 

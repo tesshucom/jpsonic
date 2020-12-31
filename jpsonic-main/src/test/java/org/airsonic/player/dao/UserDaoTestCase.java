@@ -4,11 +4,14 @@ import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SettingsService;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Date;
 import java.util.Locale;
 
@@ -163,11 +166,15 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
     }
 
     @Test
-    public void testUserSettings() {
+    public void testUserSettings() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
         assertNull("Error in getUserSettings.", userDao.getUserSettings("sindre"));
 
+        SettingsService settingsService = new SettingsService();
+        Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+        method.setAccessible(true);
         try {
-            userDao.updateUserSettings(new UserSettings("sindre"));
+            userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre"));
             fail("Expected DataIntegrityViolationException.");
         } catch (DataIntegrityViolationException ignored) {
         }
@@ -175,12 +182,12 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         userDao.createUser(new User("sindre", "secret", null));
         assertNull("Error in getUserSettings.", userDao.getUserSettings("sindre"));
 
-        userDao.updateUserSettings(new UserSettings("sindre"));
+        userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre"));
         UserSettings userSettings = userDao.getUserSettings("sindre");
         assertNotNull("Error in getUserSettings().", userSettings);
         assertNull("Error in getUserSettings().", userSettings.getLocale());
         assertNull("Error in getUserSettings().", userSettings.getThemeId());
-        assertFalse("Error in getUserSettings().", userSettings.isFinalVersionNotificationEnabled());
+        assertTrue("Error in getUserSettings().", userSettings.isFinalVersionNotificationEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isBetaVersionNotificationEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isSongNotificationEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isCloseDrawer());
@@ -196,10 +203,10 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         assertFalse("Error in getUserSettings().", userSettings.isNowPlayingAllowed());
         assertSame("Error in getUserSettings().", AvatarScheme.NONE, userSettings.getAvatarScheme());
         assertNull("Error in getUserSettings().", userSettings.getSystemAvatarId());
-        assertFalse("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
-        assertEquals("Error in getUserSettings().", 0, userSettings.getPaginationSize());
+        assertTrue("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
+        assertEquals("Error in getUserSettings().", 40, userSettings.getPaginationSize());
 
-        UserSettings settings = new UserSettings("sindre");
+        UserSettings settings = (UserSettings) method.invoke(settingsService, "sindre");
         settings.setLocale(Locale.SIMPLIFIED_CHINESE);
         settings.setThemeId("midnight");
         settings.setBetaVersionNotificationEnabled(true);
@@ -233,7 +240,7 @@ public class UserDaoTestCase extends DaoTestCaseBean2 {
         userSettings = userDao.getUserSettings("sindre");
         assertNotNull("Error in getUserSettings().", userSettings);
         assertEquals("Error in getUserSettings().", Locale.SIMPLIFIED_CHINESE, userSettings.getLocale());
-        assertEquals("Error in getUserSettings().", false, userSettings.isFinalVersionNotificationEnabled());
+        assertEquals("Error in getUserSettings().", true, userSettings.isFinalVersionNotificationEnabled());
         assertEquals("Error in getUserSettings().", true, userSettings.isBetaVersionNotificationEnabled());
         assertEquals("Error in getUserSettings().", false, userSettings.isSongNotificationEnabled());
         assertEquals("Error in getUserSettings().", true, userSettings.isCloseDrawer());

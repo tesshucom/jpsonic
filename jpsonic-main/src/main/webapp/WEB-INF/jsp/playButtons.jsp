@@ -31,10 +31,10 @@ PARAMETERS
 <c:if test="${empty param.playEnabled or param.playEnabled}">
     <c:choose>
         <c:when test="${param.video}">
-            <sub:url value="/videoPlayer.view" var="videoUrl">
+        	<sub:url value="/videoPlayer.view" var="videoUrl">
                 <sub:param name="id" value="${param.id}"/>
             </sub:url>
-            <a target="main" href="${videoUrl}" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></a>
+            <div onclick="top.onOpenDialogVideoPlayer('${videoUrl}')" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/></div>
         </c:when>
         <c:when test="${not empty param.onPlay}">
             <div onclick="${param.onPlay}; return false;" title="<fmt:message key='common.play'/>" class="control play"><fmt:message key='common.play'/><fmt:message key='common.play'/></div>

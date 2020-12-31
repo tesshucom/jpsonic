@@ -3,20 +3,11 @@
 .index {
   height: 100vh;
   overflow: hidden;
-  > input#isRight {
-    display: none;
-    &:checked ~ iframe[name*="right"] {
-      width: $jp-drawer-width;
-    }
-    &:checked ~ #main,
-    &:checked ~ #playQueue {
-      width: calc(100vw - #{$jp-right-width});
-    }
-  }
   > input#isDrawerOpened {
     display: none;
     &:checked ~ #playQueue {
       left: $jp-drawer-width;
+      width: calc(100vw - #{$jp-drawer-width});
     }
   }
   > input#isQueueOpened {
@@ -59,7 +50,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    // width[**JSP**]; DEPRECATED
+    width: 100vw;
     height: $jp-player-height;
     margin: 0;
     border: none;
@@ -72,7 +63,7 @@
   position: absolute;
   top: #{$jp-header-height};
   left: 0;
-  // width[**JSP**]; DEPRECATED
+  width: 100vw;
   height: calc(100vh - #{$jp-header-height} - #{$jp-player-height});
   margin: 0;
   border: none;

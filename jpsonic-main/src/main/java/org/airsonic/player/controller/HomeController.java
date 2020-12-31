@@ -150,6 +150,11 @@ public class HomeController {
                 break;
         }
 
+        map.put("user", user);
+        map.put("partyMode", userSettings.isPartyModeEnabled());
+        map.put("downloadRole", user.isDownloadRole());
+        map.put("showDownload", userSettings.isShowDownload());
+
         map.put("albums", albums);
         map.put("welcomeTitle", settingsService.getWelcomeTitle());
         map.put("welcomeSubtitle", settingsService.getWelcomeSubtitle());

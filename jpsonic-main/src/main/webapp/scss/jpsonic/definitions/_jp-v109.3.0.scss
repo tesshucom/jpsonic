@@ -127,7 +127,8 @@ dl.single {
 
 input,
 textarea,
-select {
+select,
+.ui-dialog-buttonpane button {
   outline: none;
   padding: 1px;
   @include border(input);
@@ -142,13 +143,16 @@ select {
     @include border(input-focus);
     background: $jp-color-complementary1;
   }
+  &:disabled {
+    background: $jp-color-medium-gray;
+  }
 }
-
-input[type="submit"],
-input[type="button"] {
-  @include blockLink($jp-color-base4, $jp-color-white);
+.ui-dialog-buttonpane button {
+  &:focus {
+    background: $jp-color-base4;
+    color: $jp-color-white;
+  }
 }
-
 input[type="checkbox"] {
   @include border(zero);
 }
@@ -253,8 +257,15 @@ input[type="radio"] {
 
 input[type="submit"],
 input[type="button"],
+.ui-dialog-buttonpane button {
+  @include blockLink($jp-color-base4, $jp-color-white);
+}
+
+input[type="submit"],
+input[type="button"],
 dd.input[type="text"],
-input[type="select"] {
+input[type="select"],
+.ui-dialog-buttonpane button {
   outline: none;
   padding-top: 2px;
   padding-bottom: 2px;
@@ -274,7 +285,8 @@ input[type="select"] {
 }
 
 input[type="submit"],
-input[type="button"] {
+input[type="button"],
+.ui-dialog-buttonpane button {
   margin-left: 10px;
   margin-right: 10px;
   min-width: 24px;

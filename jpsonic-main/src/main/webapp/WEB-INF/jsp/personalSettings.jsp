@@ -10,61 +10,89 @@
 function resetThemeAndLanguage() {
     $('[name="localeIndex"]').prop("selectedIndex", 0);
     $('[name="themeIndex"]').prop("selectedIndex", 0);
-    $("#radio-" + "<fmt:message key='personalsettings.font.${fn:toLowerCase(command.defaultSettings.fontSchemeName)}'/>").prop('checked', true);
+    $("#radio1-1").prop('checked', true);
+    $("#fontFamily").val('${command.fontFamilyDefault}');
+    $("#fontFamily").prop('disabled', true);
+    $("#fontSize").val(${command.fontSizeDefault});
+    $("#fontSizeSlider").val(${command.fontSizeDefault});
+    $("#fontSizeSlider").slider({ disabled: true });
+}
+
+function speechEngineLangSelectEnabled(isEnabled) {
+    $("#radio2-${command.defaultSettings.speechLangSchemeName}").prop('checked', true);
+    $("#ietf").prop('disabled', !isEnabled);
+    $("#radio2-DEFAULT").prop('disabled', !isEnabled);
+    $("#radio2-BCP47").prop('disabled', !isEnabled);
+    $("#ietf").prop('disabled', true);
 }
 
 function setSettings4DesktopPC() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.defaultSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.defaultSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.defaultSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.defaultSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.defaultSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.defaultSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.defaultSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.defaultSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.defaultSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.defaultSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.defaultSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.defaultSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.defaultSettings.openDetailIndex});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.defaultSettings.songNotificationEnabled});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.defaultSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.defaultSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.defaultSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.defaultSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.defaultSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.defaultSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.defaultSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.defaultSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.defaultSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.defaultSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.defaultSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.defaultSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.defaultSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.defaultSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.defaultSettings.voiceInputEnabled});
+    $("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.defaultSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.defaultSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(false);
 }
 
 function setSettings4Tablet() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.tabletSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.tabletSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.tabletSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.tabletSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.tabletSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.tabletSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.tabletSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.tabletSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.tabletSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.tabletSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.tabletSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.tabletSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.tabletSettings.openDetailIndex});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.tabletSettings.songNotificationEnabled});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.tabletSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.tabletSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.tabletSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.tabletSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.tabletSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.tabletSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.tabletSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.tabletSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.tabletSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.tabletSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.tabletSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.tabletSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.tabletSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.tabletSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.tabletSettings.voiceInputEnabled});
+    $("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.tabletSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.tabletSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(true);
 }
 
 function setSettings4Smartphone() {
-    $('[name="keyboardShortcutsEnabled"]').prop('checked', ${command.smartphoneSettings.keyboardShortcutsEnabled});
-    $('[name="albumListId"]').val('${command.smartphoneSettings.defaultAlbumList.id}');
-    $('[name="putMenuInDrawer"]').prop('checked', ${command.smartphoneSettings.putMenuInDrawer});
-    $('[name="showIndex"]').prop('checked', ${command.smartphoneSettings.showIndex});
-    $('[name="closeDrawer"]').prop('checked', ${command.smartphoneSettings.closeDrawer});
-    $('[name="closePlayQueue"]').prop('checked', ${command.smartphoneSettings.closePlayQueue});
-    $('[name="alternativeDrawer"]').prop('checked', ${command.smartphoneSettings.alternativeDrawer});
-    $('[name="breadcrumbIndex"]').prop('checked', ${command.smartphoneSettings.breadcrumbIndex});
-    $('[name="assignAccesskeyToNumber"]').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
-    $('[name="simpleDisplay"]').prop('checked', ${command.smartphoneSettings.simpleDisplay});
-    $('[name="queueFollowingSongs"]').prop('checked', ${command.smartphoneSettings.queueFollowingSongs});
-    $('[name="openDetailSetting"]').prop('checked', ${command.smartphoneSettings.openDetailSetting});
-    $('[name="openDetailStar"]').prop('checked', ${command.smartphoneSettings.openDetailStar});
-    $('[name="openDetailIndex"]').prop('checked', ${command.smartphoneSettings.openDetailIndex});
-    $('[name="songNotificationEnabled"]').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
+    $('#keyboardShortcutsEnabled').prop('checked', ${command.smartphoneSettings.keyboardShortcutsEnabled});
+    $('#albumListId').val('${command.smartphoneSettings.defaultAlbumList.id}');
+    $('#putMenuInDrawer').prop('checked', ${command.smartphoneSettings.putMenuInDrawer});
+    $('#showIndex').prop('checked', ${command.smartphoneSettings.showIndex});
+    $('#closeDrawer').prop('checked', ${command.smartphoneSettings.closeDrawer});
+    $('#closePlayQueue').prop('checked', ${command.smartphoneSettings.closePlayQueue});
+    $('#autoHidePlayQueue').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
+    $('#alternativeDrawer').prop('checked', ${command.smartphoneSettings.alternativeDrawer});
+    $('#breadcrumbIndex').prop('checked', ${command.smartphoneSettings.breadcrumbIndex});
+    $('#assignAccesskeyToNumber').prop('checked', ${command.smartphoneSettings.assignAccesskeyToNumber});
+    $('#simpleDisplay').prop('checked', ${command.smartphoneSettings.simpleDisplay});
+    $('#queueFollowingSongs').prop('checked', ${command.smartphoneSettings.queueFollowingSongs});
+    $('#openDetailSetting').prop('checked', ${command.smartphoneSettings.openDetailSetting});
+    $('#openDetailStar').prop('checked', ${command.smartphoneSettings.openDetailStar});
+    $('#openDetailIndex').prop('checked', ${command.smartphoneSettings.openDetailIndex});
+    $('#voiceInputEnabled').prop('checked', ${command.smartphoneSettings.voiceInputEnabled});
+    $("#ietf").val('${command.ietfDefault}');
+    $('#songNotificationEnabled').prop('checked', ${command.smartphoneSettings.songNotificationEnabled});
+    $('#showCurrentSongInfo').prop('checked', ${command.smartphoneSettings.showCurrentSongInfo});
+    speechEngineLangSelectEnabled(true);
 }
 
 function resetDisplay() {
@@ -93,7 +121,6 @@ function resetDisplay() {
 function resetAdditionalDisplay() {
     $('[name="showNowPlayingEnabled"]').prop('checked', ${command.defaultSettings.showNowPlayingEnabled});
     $('[name="nowPlayingAllowed"]').prop('checked', ${command.defaultSettings.nowPlayingAllowed});
-    $('[name="autoHidePlayQueue"]').prop('checked', ${command.defaultSettings.autoHidePlayQueue});
     $('[name="showArtistInfoEnabled"]').prop('checked', ${command.defaultSettings.showArtistInfoEnabled});
     $('[name="forceBio2Eng"]').prop('checked', ${command.defaultSettings.forceBio2Eng});
     $('[name="showTopSongs"]').prop('checked', ${command.defaultSettings.showTopSongs});
@@ -121,11 +148,59 @@ function resetAdditionalDisplay() {
     $('[name="showAlbumActions"]').prop('checked', ${command.defaultSettings.showAlbumActions});
     $('[name="partyModeEnabled"]').prop('checked', ${command.defaultSettings.partyModeEnabled});
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('voiceInputEnabled').onchange = function (e) {
+        speechEngineLangSelectEnabled(e.target.checked);
+    };
+    if(${command.fontSchemeName ne 'CUSTOM'}){
+            $("#fontSizeSlider").slider({ disabled: true });
+    }
+    $("#radio1-1").on('change', function(e){
+        $("#fontFamily").prop('disabled', true);
+        $("#fontFamily").val('${command.fontFamilyDefault}');
+        $("#fontSize").val(${command.fontSizeDefault});
+        $("#fontSizeSlider").val(${command.fontSizeDefault});
+        $("#fontSizeSlider").slider({ disabled: true });
+    });
+    $("#radio1-2").on('change', function(e){
+        $("#fontFamily").prop('disabled', true);
+        $("#fontFamily").val('${command.fontFamilyJpEmbedDefault}');
+        $("#fontSize").val(${command.fontSizeJpEmbedDefault});
+        $("#fontSizeSlider").val(${command.fontSizeJpEmbedDefault});
+        $("#fontSizeSlider").slider({ disabled: true });
+    });
+    $("#radio1-3").on('change', function(e){
+        $("#fontFamily").prop('disabled', false);
+        $("#fontSizeSlider").slider({ disabled: false });
+    });
+    $("#radio2-DEFAULT").on('change', function(e){
+        $("#ietf").val('${command.ietfDefault}');
+        $("#ietf").prop('disabled', true);
+    });
+    $("#radio2-BCP47").on('change', function(e){
+        $("#ietf").prop('disabled', false);
+    });
+    document.getElementById('fontSizeSlider').addEventListener('input', (e) => {
+        $("#fontSize").val(e.target.value);
+    });
+}, false);
+
 </script>
 
 </head>
 
 <body class="mainframe settings personalSettings">
+
+<c:if test="${settings_reload}">
+    <form:form name="reloadAll" action="index.view" method="post">
+        <input name="mainView" type="hidden" value="personalSettings.view" />
+    </form:form>
+    <script>
+        document.reloadAll.target="_top";
+        document.reloadAll.submit();
+    </script>
+</c:if>
 
 <c:import url="settingsHeader.jsp">
     <c:param name="cat" value="personal"/>
@@ -154,6 +229,12 @@ function resetAdditionalDisplay() {
             </ul>
         </div>
 
+        <c:if test="${command.showOutlineHelp}">
+            <div class="outlineHelp">
+                <fmt:message key="personalsettings.themeoutline"/>
+            </div>
+        </c:if>
+
         <dl>
             <dt><fmt:message key="generalsettings.language"/></dt>
             <dd>
@@ -176,20 +257,26 @@ function resetAdditionalDisplay() {
             <dt><fmt:message key="personalsettings.font"/></dt>
             <dd>
                 <ul class="playerSettings">
-                    <c:forEach items="${command.fontSchemeHolders}" var="fontSchemeHolder">
+                    <c:forEach items="${command.fontSchemeHolders}" var="fontSchemeHolder" varStatus="status">
                         <c:set var="fontSchemeName">
                             <fmt:message key="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/>
                         </c:set>
                         <li>
-                            <form:radiobutton class="technologyRadio" id="radio-${fontSchemeName}" path="fontSchemeName" value="${fontSchemeHolder.name}"
-                                checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"
-                                disabled="${fontSchemeHolder.name eq 'CUSTOM'}"/>
-                            <label for="radio-${fontSchemeName}">${fontSchemeName}</label>
-                            <c:if test="${fontSchemeHolder.name ne 'CUSTOM'}">
-                                <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
+                            <form:radiobutton class="technologyRadio" id="radio1-${status.count}" path="fontSchemeName" value="${fontSchemeHolder.name}"
+                                checked="${fontSchemeHolder.name eq command.fontSchemeName ? 'checked' : ''}"/>
+                            <label for="radio1-${status.count}">${fontSchemeName}</label>
+                            <c:if test="${fontSchemeHolder.name eq 'CUSTOM'}">
+                                <form:input path="fontFamily" id="fontFamily" disabled="${command.fontSchemeName ne 'CUSTOM'}"/>
                             </c:if>
+                            <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.font.${fn:toLowerCase(fontSchemeHolder.name)}"/></c:import>
                         </li>
                     </c:forEach>
+                    <li class="fontSizeSettings">
+                        <fmt:message key="personalsettings.fontsize"/>
+                        <input type="range" id="fontSizeSlider" min="14" max="18" value="${command.fontSize}">
+                        <form:input path="fontSize" id="fontSize" readonly="true" />
+                        <c:import url="helpToolTip.jsp"><c:param name="topic" value="personalsettings.fontsize"/></c:import>
+                    </li>
                 </ul>
             </dd>
         </dl>
@@ -248,17 +335,24 @@ function resetAdditionalDisplay() {
                 <label for="closeDrawer"><fmt:message key="personalsettings.closedrawer"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="closedrawer"/></c:import>
             </dd>
+            <dt><fmt:message key="personalsettings.pages.drawer"/></dt>
+            <dd>
+                <form:checkbox path="alternativeDrawer" id="alternativeDrawer" />
+                <label for="alternativeDrawer"><fmt:message key="personalsettings.alternativedrawer"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="alternativedrawer"/></c:import>
+            </dd>
             <dt><fmt:message key="personalsettings.pages.playqueue"/></dt>
             <dd>
                 <form:checkbox path="closePlayQueue" id="closePlayQueue" />
                 <label for="closePlayQueue"><fmt:message key="personalsettings.closeplayqueue"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="closeplayqueue"/></c:import>
             </dd>
-            <dt><fmt:message key="personalsettings.pages.drawer"/></dt>
+
+            <dt><fmt:message key="personalsettings.pages.playqueue"/></dt>
             <dd>
-                <form:checkbox path="alternativeDrawer" id="alternativeDrawer" />
-                <label for="alternativeDrawer"><fmt:message key="personalsettings.alternativedrawer"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="alternativedrawer"/></c:import>
+                <%-- Param has been changed and reused. @See #622, #727, #804 --%>
+                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" />
+                <label for="autoHidePlayQueue"><fmt:message key="personalsettings.playqueuequickopen"/></label>
             </dd>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
@@ -281,6 +375,47 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="queueFollowingSongs" id="queueFollowingSongs" />
                 <label for="queueFollowingSongs"><fmt:message key="personalsettings.queuefollowingsongs"/></label>
             </dd>
+
+            <dt></dt>
+            <dd>
+                <form:checkbox path="showCurrentSongInfo" id="showCurrentSongInfo" />
+                <label for="showCurrentSongInfo"><fmt:message key="personalsettings.showcurrentsonginfo"/></label>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.notification"/></dt>
+            <dd>
+                <form:checkbox path="songNotificationEnabled" id="songNotificationEnabled" />
+                <label for="songNotificationEnabled"><fmt:message key="personalsettings.songnotification"/></label>
+            </dd>
+
+            <dt><fmt:message key="personalsettings.speechrecognition"/></dt>
+            <dd>
+                <form:checkbox path="voiceInputEnabled" id="voiceInputEnabled" />
+                <label for="voiceInputEnabled"><fmt:message key="personalsettings.voiceinputenabled"/></label>
+                <c:import url="helpToolTip.jsp"><c:param name="topic" value="voiceinputenabled"/></c:import>
+            </dd>
+            <dt><fmt:message key="personalsettings.speechenginelang"/></dt>
+            <dd>
+                <ul class="playerSettings">
+                    <c:forEach items="${command.speechLangSchemeHolders}" var="speechLangSchemeHolder">
+                        <c:set var="speechLangSchemeName">
+                            <fmt:message key="personalsettings.speechenginelang.${fn:toLowerCase(speechLangSchemeHolder.name)}"/>
+                        </c:set>
+                        <li>
+                            <form:radiobutton class="technologyRadio" id="radio2-${speechLangSchemeHolder.name}" path="speechLangSchemeName" value="${speechLangSchemeHolder.name}"
+                                checked="${speechLangSchemeHolder.name eq command.speechLangSchemeName ? 'checked' : ''}"
+                                disabled="${!command.voiceInputEnabled}"/>
+                            <label for="radio2-${speechLangSchemeHolder.name}">${speechLangSchemeName}</label>
+                            <c:if test="${speechLangSchemeHolder.name eq 'DEFAULT'}">
+                                  - ${command.ietfDisplayDefault}
+                            </c:if>
+                            <c:if test="${speechLangSchemeHolder.name eq 'BCP47'}">                
+                                <form:input path="ietf" id="ietf" disabled="${command.speechLangSchemeName eq 'DEFAULT'}"/>
+                            </c:if>
+                        </li>
+                    </c:forEach>
+                </ul>
+            </dd>
             <dt><fmt:message key="personalsettings.summary"/></dt>
             <dd>
                 <form:checkbox path="openDetailSetting" id="openDetailSetting" />
@@ -295,11 +430,6 @@ function resetAdditionalDisplay() {
             <dd>
                 <form:checkbox path="openDetailIndex" id="openDetailIndex" />
                 <label for="openDetailIndex"><fmt:message key="personalsettings.summary.openindexes"/></label>
-            </dd>
-            <dt><fmt:message key="personalsettings.browser"/></dt>
-            <dd>
-                <form:checkbox path="songNotificationEnabled" id="song" />
-                <label for="song"><fmt:message key="personalsettings.songnotification"/></label>
             </dd>
         </dl>
     </details>
@@ -396,26 +526,20 @@ function resetAdditionalDisplay() {
                 <fmt:message key="personalsettings.additionaldisplayoutline"/>
             </div>
         </c:if>
-
         <dl>
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
-                <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
-                <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
-            </dd>
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
-                <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
-            </dd>
-            <%-- There are many problems. Temporarily deleted. #622
-            <dt><fmt:message key="personalsettings.frames"/></dt>
-            <dd>
-                <form:checkbox path="autoHidePlayQueue" id="autoHidePlayQueue" />
-                <label for="autoHidePlayQueue"><fmt:message key="personalsettings.autohideplayqueue"/></label>
-            </dd>
-             --%>
+            <c:if test="${command.othersPlayingEnabled}">
+                <dt><fmt:message key="personalsettings.menu"/></dt>
+                <dd>
+                    <form:checkbox path="showNowPlayingEnabled" id="nowPlaying" />
+                    <label for="nowPlaying"><fmt:message key="personalsettings.shownowplaying"/></label>
+                    <c:import url="helpToolTip.jsp"><c:param name="topic" value="shownowplaying"/></c:import>
+                </dd>
+                <dt><fmt:message key="personalsettings.menu"/></dt>
+                <dd>
+                    <form:checkbox path="nowPlayingAllowed" id="nowPlayingAllowed" />
+                    <label for="nowPlayingAllowed"><fmt:message key="personalsettings.nowplayingallowed"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
                 <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />
@@ -437,6 +561,13 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="showSimilar" id="showSimilar" />
                 <label for="showSimilar"><fmt:message key="personalsettings.showsimilar"/></label>
             </dd>      
+            <c:if test="${command.user.commentRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
+                <dd>
+                    <form:checkbox path="showComment" id="showComment" />
+                    <label for="showComment"><fmt:message key="personalsettings.showcomment"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
                 <form:checkbox path="showSibling" id="showSibling" />
@@ -447,13 +578,6 @@ function resetAdditionalDisplay() {
                 <fmt:message key="personalsettings.paginationsize"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="paginationsize"/></c:import>
             </dd>
-            <c:if test="${command.user.downloadRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/></dt>
-                <dd>
-                    <form:checkbox path="showDownload" id="showDownload" />
-                    <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
-                </dd>
-            </c:if>
             <c:if test="${command.user.coverArtRole eq true}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
                 <dd>
@@ -466,27 +590,6 @@ function resetAdditionalDisplay() {
                     <label for="showChangeCoverArt"><fmt:message key="personalsettings.showchangecoverart"/></label>
                 </dd>  
             </c:if>
-            <c:if test="${command.user.commentRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
-                <dd>
-                    <form:checkbox path="showComment" id="showComment" />
-                    <label for="showComment"><fmt:message key="personalsettings.showcomment"/></label>
-                </dd>
-            </c:if>
-            <c:if test="${command.user.shareRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/></dt>
-                <dd>
-                    <form:checkbox path="showShare" id="showShare" />
-                    <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
-                </dd>
-            </c:if>
-            <c:if test="${command.user.commentRole eq true}">
-                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.home"/></dt>
-                <dd>
-                    <form:checkbox path="showRate" id="showRate" />
-                    <label for="showRate"><fmt:message key="personalsettings.showrate"/></label>
-                </dd>
-            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
             <dd>
                 <form:checkbox path="showAlbumSearch" id="showAlbumSearch" />
@@ -497,12 +600,33 @@ function resetAdditionalDisplay() {
                 <form:checkbox path="showLastPlay" id="showLastPlay" />
                 <label for="showLastPlay"><fmt:message key="personalsettings.showlastplay"/></label>
             </dd>
+            <c:if test="${command.user.commentRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.home"/></dt>
+                <dd>
+                    <form:checkbox path="showRate" id="showRate" />
+                    <label for="showRate"><fmt:message key="personalsettings.showrate"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/></dt>
             <dd>
                 <form:checkbox path="showAlbumActions" id="showAlbumActions" />
                 <label for="showAlbumActions"><fmt:message key="personalsettings.showalbumactions"/></label>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="albumactions"/></c:import>
             </dd>
+            <c:if test="${command.user.downloadRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
+                <dd>
+                    <form:checkbox path="showDownload" id="showDownload" />
+                    <label for="showDownload"><fmt:message key="personalsettings.showdownload"/></label>
+                </dd>
+            </c:if>
+            <c:if test="${command.user.shareRole eq true}">
+                <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playqueue"/> / <fmt:message key="personalsettings.pages.video"/></dt>
+                <dd>
+                    <form:checkbox path="showShare" id="showShare" />
+                    <label for="showShare"><fmt:message key="personalsettings.showshare"/></label>
+                </dd>
+            </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/> / <fmt:message key="personalsettings.pages.playlist"/> etc</dt>
             <dd>
                 <form:checkbox path="partyModeEnabled" id="partyModeEnabled" />
@@ -608,21 +732,5 @@ function resetAdditionalDisplay() {
         </dd>
     </dl>
 </details>
-
-<c:if test="${settings_reload}">
-    <script>
-        <c:choose>
-            <c:when test="${index_reload}">
-                <%--  There is a case of ON / OFF of right.view, so index.view must be reloaded. --%>
-                window.top.location.reload(true);
-            </c:when>
-            <c:otherwise>
-                window.top.reloadUpper("personalSettings.view");
-                window.top.reloadPlayQueue();
-                window.top.reloadRight();
-            </c:otherwise>
-        </c:choose>
-    </script>
-</c:if>
 
 </body></html>

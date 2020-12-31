@@ -22,18 +22,38 @@
 <html><head>
 <%@ include file="head.jsp" %>
 <%@ include file="jquery.jsp" %>
-<script src="<c:url value='/script/jpsonic/tryCloseDrawer.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/onSceneChanged.js'/>"></script>
 <script src="<c:url value='/script/jpsonic/truncate.js'/>"></script>
+<script src="<c:url value='/script/jpsonic/dialogs.js'/>"></script>
 <script>
 
 $(document).ready(function(){
-    $("#dialog-delete").dialog({resizable: false, height: 170, autoOpen: false,
-        buttons: {
-            "<fmt:message key="common.delete"/>": function() {location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}&deleteChannel=${model.channel.id}";},
-            "<fmt:message key="common.cancel"/>": function() {$(this).dialog("close");}}});
 
     initTruncate(".tabular-and-thumb", ".tabular.episodes", 4, ["description", "episode-title"]);
 
+    const ps = new PrefferedSize(480, 180);
+    top.$("#dialog-delete").dialog({
+    	autoOpen: false,
+        closeOnEscape: true,
+        draggable: false,
+        resizable: false,
+        modal: true,
+        width  : ps.width,
+        height  : ps.height,
+        buttons: {
+            "<fmt:message key="common.delete"/>": function() {
+            	top.$("#dialog-delete").dialog("close");
+            	location.href = "podcastReceiverAdmin.view?channelId=${model.channel.id}&deleteChannel=${model.channel.id}";
+            },
+            "<fmt:message key="common.cancel"/>": {
+            	text: "<fmt:message key="common.cancel"/>",
+            	id: 'ddCancelButton',
+            	click: function() {top.$("#dialog-delete").dialog("close");}
+            }
+        },
+	    open: function() {top.$("#ddCancelButton").focus();}
+    });
+    top.$("#dialog-delete").text("<fmt:message key='podcastreceiver.confirmdelete2'><fmt:param><sub:escapeJavaScript string='${model.channel.title}'/></fmt:param></fmt:message>");
 });
 
 function downloadSelected() {
@@ -42,7 +62,7 @@ function downloadSelected() {
 }
 
 function deleteChannel() {
-    $("#dialog-delete").dialog("open");
+    top.$("#dialog-delete").dialog("open");
 }
 
 function deleteSelected() {
@@ -174,13 +194,6 @@ function getSelectedEpisodes() {
             <c:param name="coverArtSize" value="${model.coverArtSize}"/>
         </c:import>
     </div>
-</div>
-
-<div id="dialog-delete" title="<fmt:message key='common.confirm'/>">
-    <p>
-        <span class="ui-icon ui-icon-alert"></span>
-        <fmt:message key="podcastreceiver.confirmdelete"/>
-    </p>
 </div>
 
 </body></html>
