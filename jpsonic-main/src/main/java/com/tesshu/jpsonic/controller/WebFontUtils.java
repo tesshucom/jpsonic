@@ -79,7 +79,7 @@ public final class WebFontUtils {
             to.setAttribute(FONT_FAMILY_KEY, DEFAULT_FONT_FAMILY);
             return;
         }
-        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName())
+        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm [java/dereferenced-value-may-be-null]
                 ? new StringBuilder("@font-face ")
                     .append('{')
                     .append("font-family: \"").append(JP_FONT_NAME).append("\";")
