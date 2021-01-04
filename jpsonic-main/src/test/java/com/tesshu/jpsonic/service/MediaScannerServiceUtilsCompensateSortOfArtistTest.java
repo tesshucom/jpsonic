@@ -33,10 +33,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -82,10 +84,11 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
     }
 
     @Test
-    public void testCompensateSortOfArtist() {
+    public void testCompensateSortOfArtist() throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
 
-        utils.mergeSortOfArtist();
-        utils.copySortOfArtist();
+        invokeUtils(utils, "mergeSortOfArtist");
+        invokeUtils(utils, "copySortOfArtist");
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
         List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
@@ -142,7 +145,7 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
             }
         });
 
-        utils.compensateSortOfArtist();
+        invokeUtils(utils, "compensateSortOfArtist");
 
         artists = mediaFileDao.getArtistAll(musicFolders);
         albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);

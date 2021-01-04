@@ -34,11 +34,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
@@ -101,9 +103,10 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
     }
 
     @Test
-    public void testMergeSortOfArtist() {
+    public void testMergeSortOfArtist() throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
 
-        utils.mergeSortOfArtist();
+        invokeUtils(utils, "mergeSortOfArtist");
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
         assertEquals(3, artists.size());

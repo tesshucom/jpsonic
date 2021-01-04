@@ -70,6 +70,7 @@ import java.util.List;
 // @formatter:on
 @Component
 @DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
+@SuppressWarnings("PMD.AccessorMethodGeneration")
 public class MediaScannerServiceUtils {
 
     private final SettingsService settingsService;
@@ -114,37 +115,37 @@ public class MediaScannerServiceUtils {
         albumDao.clearOrder();
     }
 
-    FixedIds compensateSortOfAlbum() {
+    private FixedIds compensateSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds compensateSortOfArtist() {
+    private FixedIds compensateSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getSortForPersonWithoutSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds copySortOfAlbum() {
+    private FixedIds copySortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds copySortOfArtist() {
+    private FixedIds copySortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForPersons();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds mergeSortOfAlbum() {
+    private FixedIds mergeSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.guessAlbumSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds mergeSortOfArtist() {
+    private FixedIds mergeSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.guessPersonsSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
@@ -269,7 +270,7 @@ public class MediaScannerServiceUtils {
         return ids;
     }
 
-    static class FixedIds {
+    private static class FixedIds {
         private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<>();
         private LinkedHashSet<Integer> artistIds = new LinkedHashSet<>();
         private LinkedHashSet<Integer> albumIds = new LinkedHashSet<>();
