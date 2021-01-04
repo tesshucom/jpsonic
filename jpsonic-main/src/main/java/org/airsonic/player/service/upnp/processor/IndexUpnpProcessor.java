@@ -228,6 +228,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return min;
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     static class MediaIndex extends MediaFile {
 
         private final MusicIndex deligate;

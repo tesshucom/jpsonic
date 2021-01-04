@@ -297,6 +297,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     class Id3 implements Id3Wrapper {
 
         private final String id;

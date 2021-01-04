@@ -49,11 +49,8 @@
 
         <!-- # important -->
         <exclude name="UseVarargs" />
-        <!-- [low priority] << -->
 
-        <!-- ****************************** if possible! ****************************** -->
-        <!-- # critical -->
-        <exclude name="AccessorMethodGeneration" />
+        <!-- [low priority] << -->
     </rule>
 
     <!-- # critical -->

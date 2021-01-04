@@ -177,6 +177,7 @@ public class AudioPlayer {
         }
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class AudioDataWriter implements Runnable {
 
         public AudioDataWriter() {

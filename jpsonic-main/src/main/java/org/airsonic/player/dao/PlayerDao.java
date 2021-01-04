@@ -188,6 +188,7 @@ public class PlayerDao extends AbstractDao {
         player.setPlayQueue(playQueue);
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class PlayerRowMapper implements RowMapper<Player> {
         public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
             Player player = new Player();

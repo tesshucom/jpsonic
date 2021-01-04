@@ -99,6 +99,7 @@ public class TransferStatus {
      *
      * @return Number of milliseconds, or <code>0</code> if never updated.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public long getMillisSinceLastUpdate() {
         synchronized (HISTORY_LOCK) {
             if (history.isEmpty()) {

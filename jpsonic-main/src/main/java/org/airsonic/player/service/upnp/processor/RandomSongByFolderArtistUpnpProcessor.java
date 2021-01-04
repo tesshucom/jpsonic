@@ -169,6 +169,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     class FolderArtist implements FolderArtistWrapper {
 
         private final Artist artist;

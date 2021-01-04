@@ -2415,6 +2415,7 @@ public class SubsonicRESTController {
         return wrapRequest(request, false);
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private HttpServletRequest wrapRequest(final HttpServletRequest request, boolean jukebox) {
         final String playerId = createPlayerIfNecessary(request, jukebox);
         return new HttpServletRequestWrapper(request) {

@@ -169,7 +169,7 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return a list of internet radio sources
      */
-    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
+    @SuppressWarnings({ "PMD.UncommentedEmptyMethodBody", "PMD.AccessorMethodGeneration" })
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();

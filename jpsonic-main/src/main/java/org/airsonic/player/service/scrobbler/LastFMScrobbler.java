@@ -102,6 +102,7 @@ public class LastFMScrobbler {
         }
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private RegistrationData createRegistrationData(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
         RegistrationData reg = new RegistrationData();
         reg.username = username;
@@ -121,6 +122,7 @@ public class LastFMScrobbler {
      *
      * @param registrationData Registration data for the song.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private void scrobble(RegistrationData registrationData) throws URISyntaxException, ClientProtocolException, IOException {
         if (registrationData == null) {
             return;
@@ -167,6 +169,7 @@ public class LastFMScrobbler {
      * <p/>
      * If authentication fails, <code>null</code> is returned.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private String[] authenticate(RegistrationData registrationData) throws URISyntaxException, ClientProtocolException, IOException {
         String clientId = "sub";
         String clientVersion = "0.1";
@@ -221,6 +224,7 @@ public class LastFMScrobbler {
         return lines;
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private String[] registerSubmission(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
         Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
@@ -236,6 +240,7 @@ public class LastFMScrobbler {
         return executePostRequest(url, params);
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private String[] registerNowPlaying(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
         Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
@@ -280,6 +285,7 @@ public class LastFMScrobbler {
         }
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class RegistrationThread extends Thread {
         private RegistrationThread() {
             super("LastFMScrobbler Registration");

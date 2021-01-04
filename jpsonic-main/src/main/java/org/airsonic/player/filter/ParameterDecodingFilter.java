@@ -134,6 +134,7 @@ public class ParameterDecodingFilter implements Filter {
             return new String[0];
         }
 
+        @SuppressWarnings("PMD.AccessorMethodGeneration")
         private String[] decode(String[] values) {
             if (values == null) {
                 return null;

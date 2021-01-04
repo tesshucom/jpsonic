@@ -172,6 +172,7 @@ public class MediaScannerService {
      * Scans the media library.
      * The scanning is done asynchronously, i.e., this method returns immediately.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public void scanLibrary() {
 
         if (isScanning()) {

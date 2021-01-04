@@ -115,6 +115,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     @Configuration
     @Order(1)
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         public ExtSecurityConfiguration() {
@@ -150,6 +151,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     @Configuration
     @Order(2)
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         @Override

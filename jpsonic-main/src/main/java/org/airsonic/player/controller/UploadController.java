@@ -238,6 +238,7 @@ public class UploadController {
     /**
      * Receives callbacks as the file upload progresses.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class UploadListenerImpl implements UploadListener {
         private TransferStatus status;
         private long start;

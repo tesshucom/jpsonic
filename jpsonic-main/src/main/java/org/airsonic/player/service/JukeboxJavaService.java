@@ -82,6 +82,7 @@ public class JukeboxJavaService {
     }
 
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private com.github.biconou.AudioPlayer.api.Player initAudioPlayer(final Player airsonicPlayer) {
 
         if (!airsonicPlayer.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {

@@ -201,6 +201,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     class Leaf implements FolderArtistAlbumWrapper {
 
         private final Artist artist;

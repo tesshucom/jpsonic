@@ -92,6 +92,7 @@ public class ListenBrainzScrobbler {
 
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private RegistrationData createRegistrationData(MediaFile mediaFile, String token, boolean submission, Date time) {
         RegistrationData reg = new RegistrationData();
         reg.token = token;
@@ -113,6 +114,7 @@ public class ListenBrainzScrobbler {
      *
      * @param registrationData Registration data for the song.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
         if (registrationData == null || registrationData.token == null) {
             return;
@@ -134,6 +136,7 @@ public class ListenBrainzScrobbler {
     /**
      * Returns if submission succeeds.
      */
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private boolean submit(RegistrationData registrationData) throws ClientProtocolException, IOException {
         Map<String, Object> additionalInfo = LegacyMap.of();
         additionalInfo.computeIfAbsent("release_mbid", k -> registrationData.musicBrainzReleaseId);
@@ -192,6 +195,7 @@ public class ListenBrainzScrobbler {
         }
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class RegistrationThread extends Thread {
         private RegistrationThread() {
             super("ListenBrainzScrobbler Registration");

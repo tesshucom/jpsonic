@@ -348,6 +348,8 @@ public class UserDao extends AbstractDao {
         }
     }
 
+
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private static class UserRowMapper implements RowMapper<User> {
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new User(rs.getString(1),
@@ -360,6 +362,8 @@ public class UserDao extends AbstractDao {
         }
     }
 
+
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private static class UserSettingsRowMapper implements RowMapper<UserSettings> {
         public UserSettings mapRow(ResultSet rs, int rowNum) throws SQLException {
             int col = 1;
