@@ -29,8 +29,13 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +45,9 @@ import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
@@ -64,6 +72,17 @@ import static org.junit.Assert.assertTrue;
 @AutoConfigureMockMvc
 public class JpsonicComparatorsTest {
 
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+
+    @Rule
+    public ThreadRule r = new ThreadRule(100);
+
+    @AfterAll
+    public static void tearDown() {
+        EXECUTOR.shutdownNow();
+    }
+
+    @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
     private @interface ComparatorsDecisions { // @formatter:off
         @interface Conditions {
@@ -130,7 +149,7 @@ public class JpsonicComparatorsTest {
     }
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule();
+    public static final HomeRule CLASS_RULE = new HomeRule();
 
     @Autowired
     private JpsonicComparatorsTestUtils testUtils;
@@ -913,7 +932,7 @@ public class JpsonicComparatorsTest {
      */
     @Test
     public void testCollation() {
-        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+        List<TestSortableArtist> artists = new ArrayList<>();
 
         artists.add(new TestSortableArtist("p\u00e9ch\u00e9"));
         artists.add(new TestSortableArtist("peach"));
@@ -1051,7 +1070,7 @@ public class JpsonicComparatorsTest {
      */
     @Test
     public void testSorting() {
-        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+        List<TestSortableArtist> artists = new ArrayList<>();
 
         artists.add(new TestSortableArtist("ABBA"));
         artists.add(new TestSortableArtist("Abba"));
@@ -1076,7 +1095,7 @@ public class JpsonicComparatorsTest {
      */
     @Test
     public void testSortingWithAccents() {
-        List<TestSortableArtist> artists = new ArrayList<TestSortableArtist>();
+        List<TestSortableArtist> artists = new ArrayList<>();
 
         TestSortableArtist a1 = new TestSortableArtist("Sea");
         TestSortableArtist a2 = new TestSortableArtist("SEB");
@@ -1115,5 +1134,36 @@ public class JpsonicComparatorsTest {
         Collections.shuffle(artists);
         Collections.sort(artists);
         assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString());
+    }
+
+    private class ThreadRule implements MethodRule {
+
+        private final int count;
+
+        public ThreadRule(int count) {
+            this.count = count;
+        }
+
+        @Override
+        public Statement apply(final Statement base, FrameworkMethod method, Object target) {
+            return new Statement() {
+                @Override
+                public void evaluate() throws Throwable {
+                    List<Future<?>> futures = new ArrayList<>(count);
+                    for (int i = 0; i < count; i++) {
+                        futures.add(i, EXECUTOR.submit(() -> {
+                            try {
+                                base.evaluate();
+                            } catch (Throwable t) {
+                                throw new RuntimeException(t);
+                            }
+                        }));
+                    }
+                    for (Future<?> f : futures) {
+                        f.get();
+                    }
+                }
+            };
+        }
     }
 }

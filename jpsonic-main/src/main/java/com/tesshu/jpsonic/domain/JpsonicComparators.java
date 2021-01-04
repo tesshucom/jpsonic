@@ -45,6 +45,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
+@SuppressWarnings("PMD.AccessorMethodGeneration")
 public class JpsonicComparators {
 
     public enum OrderBy {
@@ -72,15 +73,12 @@ public class JpsonicComparators {
      */
     public Comparator<Album> albumOrderByAlpha() {
         return new Comparator<Album>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(Album o1, Album o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return c.compare(o1.getNameReading(), o2.getNameReading());
+                return createCollator().compare(o1.getNameReading(), o2.getNameReading());
             }
         };
     }
@@ -92,15 +90,12 @@ public class JpsonicComparators {
      */
     public Comparator<Artist> artistOrderByAlpha() {
         return new Comparator<Artist>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(Artist o1, Artist o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return c.compare(o1.getReading(), o2.getReading());
+                return createCollator().compare(o1.getReading(), o2.getReading());
             }
         };
     }
@@ -119,14 +114,11 @@ public class JpsonicComparators {
 
     public Comparator<Genre> genreOrderByAlpha() {
         return new Comparator<Genre>() {
-
-            private final Comparator<Object> c = createCollator();
-
             @Override
             public int compare(Genre o1, Genre o2) {
                 utils.analyze(o1);
                 utils.analyze(o2);
-                return c.compare(o1.getReading(), o2.getReading());
+                return createCollator().compare(o1.getReading(), o2.getReading());
             }
         };
     }
@@ -164,9 +156,6 @@ public class JpsonicComparators {
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return new Comparator<MediaFile>() {
-
-            private final Comparator<Object> c = createCollator();
-
             public int compare(MediaFile a, MediaFile b) {
                 switch (orderBy) {
                     case TRACK:
@@ -180,9 +169,9 @@ public class JpsonicComparators {
                         }
                         return trackA.compareTo(trackB);
                     case ARTIST:
-                        return c.compare(a.getArtistReading(), b.getArtistReading());
+                        return createCollator().compare(a.getArtistReading(), b.getArtistReading());
                     case ALBUM:
-                        return c.compare(a.getAlbumReading(), b.getAlbumReading());
+                        return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
                     default:
                         return 0;
                 }
@@ -205,14 +194,11 @@ public class JpsonicComparators {
 
     public Comparator<Playlist> playlistOrder() {
         return new Comparator<Playlist>() {
-
-            private final Comparator<Object> c = createCollator();
-
             @Override
             public int compare(Playlist o1, Playlist o2) {
                 utils.analyze(o1);
                 utils.analyze(o2);
-                return c.compare(o1.getReading(), o2.getReading());
+                return createCollator().compare(o1.getReading(), o2.getReading());
             }
         };
     }
@@ -220,12 +206,9 @@ public class JpsonicComparators {
     public Comparator<SortableArtist> sortableArtistOrder() {
 
         return new Comparator<SortableArtist>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(SortableArtist o1, SortableArtist o2) {
-                return c.compare(o1.getSortableName(), o2.getSortableName());
+                return createCollator().compare(o1.getSortableName(), o2.getSortableName());
             }
         };
     }
