@@ -40,7 +40,8 @@
 
         <!-- # critical -->
         <exclude name="UseCollectionIsEmpty" />
-        <exclude name="LooseCoupling" />
+
+        <!-- # urgent -->
         <exclude name="UnusedPrivateField" />
         <exclude name="AccessorClassGeneration" />
         <!-- Because used for reference only. -->

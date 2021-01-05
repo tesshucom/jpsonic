@@ -34,7 +34,7 @@ import java.util.List;
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
-    private ArrayList<Container> containers = new ArrayList<>();
+    private List<Container> containers = new ArrayList<>();
 
     private SettingsService settingsService;
 

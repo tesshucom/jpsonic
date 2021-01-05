@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 //@formatter:off
 /**
@@ -271,9 +272,9 @@ public class MediaScannerServiceUtils {
     }
 
     private static class FixedIds {
-        private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<>();
-        private LinkedHashSet<Integer> artistIds = new LinkedHashSet<>();
-        private LinkedHashSet<Integer> albumIds = new LinkedHashSet<>();
+        private Set<Integer> mediaFileIds = new LinkedHashSet<>();
+        private Set<Integer> artistIds = new LinkedHashSet<>();
+        private Set<Integer> albumIds = new LinkedHashSet<>();
     }
 
 }
