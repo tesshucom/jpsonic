@@ -37,16 +37,12 @@
         <!-- Because it is a single project and caller is guaranteed. -->
         <!-- 3 --><exclude name="MethodReturnsInternalArray" />
     </rule>
-    <!-- 3 -->
-    <rule
-        ref="category/java/bestpractices.xml/AvoidReassigningLoopVariables">
-        <properties>
-            <!-- Not preferred but had been used already. -->
-            <property name="foreachReassign" value="firstOnly" />
-            <!-- Not preferred but had been used already. -->
-            <property name="forReassign" value="skip" />
-        </properties>
-    </rule>
+    <!-- 3 Used only with PunctuationStemFilter. -->
+	<rule ref="category/java/bestpractices.xml/AvoidReassigningLoopVariables">
+		<properties>
+			<property name="forReassign" value="skip" />
+		</properties>
+	</rule>
 
 	<!-- Java Rules:Code Style -->
     <rule ref="category/java/codestyle.xml">
