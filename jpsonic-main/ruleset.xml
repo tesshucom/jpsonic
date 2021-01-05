@@ -42,7 +42,6 @@
         <exclude name="UseCollectionIsEmpty" />
 
         <!-- # urgent -->
-        <exclude name="UnusedPrivateField" />
         <exclude name="AccessorClassGeneration" />
         <!-- Because used for reference only. -->
         <exclude name="MethodReturnsInternalArray" />

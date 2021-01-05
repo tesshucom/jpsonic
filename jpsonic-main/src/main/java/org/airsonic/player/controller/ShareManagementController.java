@@ -27,7 +27,6 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
-import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.ShareService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +55,6 @@ public class ShareManagementController {
 
     @Autowired
     private MediaFileService mediaFileService;
-    @Autowired
-    private SettingsService settingsService;
     @Autowired
     private ShareService shareService;
     @Autowired
