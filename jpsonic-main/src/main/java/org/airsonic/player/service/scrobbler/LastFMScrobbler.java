@@ -287,7 +287,7 @@ public class LastFMScrobbler {
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class RegistrationThread extends Thread {
-        private RegistrationThread() {
+        RegistrationThread() {
             super("LastFMScrobbler Registration");
         }
 

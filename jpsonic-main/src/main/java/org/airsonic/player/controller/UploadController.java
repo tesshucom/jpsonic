@@ -243,7 +243,7 @@ public class UploadController {
         private TransferStatus status;
         private long start;
 
-        private UploadListenerImpl(TransferStatus status) {
+        UploadListenerImpl(TransferStatus status) {
             this.status = status;
             start = System.currentTimeMillis();
         }

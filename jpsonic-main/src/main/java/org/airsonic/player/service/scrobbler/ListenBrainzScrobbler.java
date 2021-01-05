@@ -197,7 +197,7 @@ public class ListenBrainzScrobbler {
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class RegistrationThread extends Thread {
-        private RegistrationThread() {
+        RegistrationThread() {
             super("ListenBrainzScrobbler Registration");
         }
 

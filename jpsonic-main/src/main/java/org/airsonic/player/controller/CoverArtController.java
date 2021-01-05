@@ -442,7 +442,7 @@ public class CoverArtController implements LastModified {
 
         private final Artist artist;
 
-        private ArtistCoverArtRequest(Artist artist) {
+        ArtistCoverArtRequest(Artist artist) {
             super(artist.getCoverArtPath());
             this.artist = artist;
         }
@@ -478,7 +478,7 @@ public class CoverArtController implements LastModified {
 
         private final Album album;
 
-        private AlbumCoverArtRequest(Album album) {
+        AlbumCoverArtRequest(Album album) {
             super(album.getCoverArtPath());
             this.album = album;
         }
@@ -514,7 +514,7 @@ public class CoverArtController implements LastModified {
 
         private final Playlist playlist;
 
-        private PlaylistCoverArtRequest(Playlist playlist) {
+        PlaylistCoverArtRequest(Playlist playlist) {
             super(null);
             this.playlist = playlist;
         }
@@ -614,7 +614,7 @@ public class CoverArtController implements LastModified {
         private final MediaFile mediaFile;
         private final MediaFile dir;
 
-        private MediaFileCoverArtRequest(MediaFile mediaFile) {
+        MediaFileCoverArtRequest(MediaFile mediaFile) {
             this.mediaFile = mediaFile;
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
@@ -652,7 +652,7 @@ public class CoverArtController implements LastModified {
         private final MediaFile mediaFile;
         private final int offset;
 
-        private VideoCoverArtRequest(MediaFile mediaFile, int offset) {
+        VideoCoverArtRequest(MediaFile mediaFile, int offset) {
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
