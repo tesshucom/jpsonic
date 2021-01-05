@@ -84,7 +84,7 @@ public class PodcastReceiverAdminController {
         return new ModelAndView(new RedirectView("podcastChannels.view"));
     }
 
-    private void download(int[] episodeIds) {
+    private void download(int... episodeIds) {
         for (int episodeId : episodeIds) {
             PodcastEpisode episode = podcastService.getEpisode(episodeId, false);
             if (episode != null && episode.getUrl() != null &&

@@ -72,7 +72,7 @@ public class TranscodingDao extends AbstractDao {
      * @param playerId       The player ID.
      * @param transcodingIds ID's of the active transcodings.
      */
-    public void setTranscodingsForPlayer(Integer playerId, int[] transcodingIds) {
+    public void setTranscodingsForPlayer(Integer playerId, int... transcodingIds) {
         update("delete from player_transcoding2 where player_id = ?", playerId);
         String sql = "insert into player_transcoding2(player_id, transcoding_id) values (?, ?)";
         for (int transcodingId : transcodingIds) {

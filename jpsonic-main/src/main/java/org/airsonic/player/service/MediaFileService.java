@@ -441,7 +441,7 @@ public class MediaFileService {
         return false;
     }
 
-    public List<File> filterMediaFiles(File[] candidates) {
+    public List<File> filterMediaFiles(File... candidates) {
         List<File> result = new ArrayList<>();
         for (File candidate : candidates) {
             if (includeMediaFile(candidate)) {
@@ -659,7 +659,7 @@ public class MediaFileService {
      * Finds a cover art image for the given directory, by looking for it on the disk.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    private File findCoverArt(File[] candidates) {
+    private File findCoverArt(File... candidates) {
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
                 if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase()) && !candidate.getName().startsWith(".")) {

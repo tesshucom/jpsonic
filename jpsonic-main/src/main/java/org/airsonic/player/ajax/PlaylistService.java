@@ -211,7 +211,7 @@ public class PlaylistService {
         return getPlaylist(id);
     }
 
-    public PlaylistInfo rearrange(int id, int[] indexes) {
+    public PlaylistInfo rearrange(int id, int... indexes) {
         List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
         MediaFile[] newFiles = new MediaFile[files.size()];
         for (int i = 0; i < indexes.length; i++) {

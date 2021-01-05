@@ -45,9 +45,6 @@
         <!-- Because used for reference only. -->
         <exclude name="MethodReturnsInternalArray" />
 
-        <!-- # important -->
-        <exclude name="UseVarargs" />
-
         <!-- [low priority] << -->
     </rule>
 

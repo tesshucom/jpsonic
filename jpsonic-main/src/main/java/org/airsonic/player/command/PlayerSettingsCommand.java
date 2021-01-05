@@ -160,7 +160,7 @@ public class PlayerSettingsCommand {
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setActiveTranscodingIds(int[] activeTranscodingIds) {
+    public void setActiveTranscodingIds(int... activeTranscodingIds) {
         this.activeTranscodingIds = activeTranscodingIds;
     }
 
@@ -169,7 +169,7 @@ public class PlayerSettingsCommand {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public void setTechnologies(PlayerTechnology[] technologies) {
+    public void setTechnologies(PlayerTechnology... technologies) {
         technologyHolders = new EnumHolder[technologies.length];
         for (int i = 0; i < technologies.length; i++) {
             PlayerTechnology technology = technologies[i];
@@ -182,7 +182,7 @@ public class PlayerSettingsCommand {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public void setTranscodeSchemes(TranscodeScheme[] transcodeSchemes) {
+    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {
             TranscodeScheme scheme = transcodeSchemes[i];
@@ -203,7 +203,7 @@ public class PlayerSettingsCommand {
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setPlayers(Player[] players) {
+    public void setPlayers(Player... players) {
         this.players = players;
     }
 
@@ -228,7 +228,7 @@ public class PlayerSettingsCommand {
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setJavaJukeboxMixers(String[] javaJukeboxMixers) {
+    public void setJavaJukeboxMixers(String... javaJukeboxMixers) {
         this.javaJukeboxMixers = javaJukeboxMixers;
     }
 

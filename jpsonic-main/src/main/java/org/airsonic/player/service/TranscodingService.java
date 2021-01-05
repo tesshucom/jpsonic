@@ -99,7 +99,7 @@ public class TranscodingService {
      * @param player         The player.
      * @param transcodingIds ID's of the active transcodings.
      */
-    public void setTranscodingsForPlayer(Player player, int[] transcodingIds) {
+    public void setTranscodingsForPlayer(Player player, int... transcodingIds) {
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingIds);
     }
 

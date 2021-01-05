@@ -95,7 +95,7 @@ public final class PlayerUtils {
         return list.subList((int) offset, Math.min(list.size(), (int) (offset + max)));
     }
 
-    public static List<Integer> toIntegerList(int[] values) {
+    public static List<Integer> toIntegerList(int... values) {
         if (values == null) {
             return Collections.emptyList();
         }

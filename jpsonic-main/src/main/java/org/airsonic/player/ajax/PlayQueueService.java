@@ -625,7 +625,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo removeMany(int[] indexes) throws Exception {
+    public PlayQueueInfo removeMany(int... indexes) throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -635,7 +635,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo rearrange(int[] indexes) throws Exception {
+    public PlayQueueInfo rearrange(int... indexes) throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);

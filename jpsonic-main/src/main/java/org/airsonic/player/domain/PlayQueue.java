@@ -304,7 +304,7 @@ public class PlayQueue {
     /**
      * Rearranges the playlist using the provided indexes.
      */
-    public void rearrange(int[] indexes) {
+    public void rearrange(int... indexes) {
         synchronized (SEQUENCE_LOCK) {
             makeBackup();
             if (indexes == null || indexes.length != size()) {

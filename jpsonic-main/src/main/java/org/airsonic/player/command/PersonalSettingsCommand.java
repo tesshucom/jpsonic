@@ -207,7 +207,7 @@ public class PersonalSettingsCommand {
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setLocales(String[] locales) {
+    public void setLocales(String... locales) {
         this.locales = locales;
     }
 
@@ -223,7 +223,7 @@ public class PersonalSettingsCommand {
         return themes;
     }
 
-    public void setThemes(Theme[] themes) {
+    public void setThemes(Theme... themes) {
         if (themes != null) {
             this.themes = themes.clone();
         }
@@ -242,7 +242,7 @@ public class PersonalSettingsCommand {
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly") // enum#values
-    public void setAlbumLists(AlbumListType[] albumLists) {
+    public void setAlbumLists(AlbumListType... albumLists) {
         this.albumLists = albumLists;
     }
 
@@ -634,7 +634,7 @@ public class PersonalSettingsCommand {
         return fontSchemeHolders;
     }
 
-    public void setFontSchemes(FontScheme[] fontSchemes) {
+    public void setFontSchemes(FontScheme... fontSchemes) {
         fontSchemeHolders = Arrays.stream(fontSchemes)
             .map(s -> new EnumHolder(s.name(), s.toString()))
             .collect(Collectors.toList())
@@ -685,7 +685,7 @@ public class PersonalSettingsCommand {
         return speechLangSchemeHolders;
     }
 
-    public void setSpeechLangSchemes(SpeechToTextLangScheme[] speechLangSchemes) {
+    public void setSpeechLangSchemes(SpeechToTextLangScheme... speechLangSchemes) {
         speechLangSchemeHolders = Arrays.stream(speechLangSchemes)
             .map(s -> new EnumHolder(s.name(), s.toString()))
             .collect(Collectors.toList())
