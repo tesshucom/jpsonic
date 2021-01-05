@@ -41,6 +41,7 @@ public class RequestEncodingFilter implements Filter {
 
     private String encoding;
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
@@ -50,10 +51,12 @@ public class RequestEncodingFilter implements Filter {
         chain.doFilter(req, res);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         encoding = filterConfig.getInitParameter("encoding");
     }
 
+    @Override
     public void destroy() {
         encoding = null;
     }

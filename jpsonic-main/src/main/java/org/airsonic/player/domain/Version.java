@@ -53,6 +53,7 @@ public class Version implements Comparable<Version> {
      * @param o Object to compare to.
      * @return Whether this object is equals to another.
      */
+    @Override
     public boolean equals(Object o) {
         if (o instanceof Version) {
             return internalVersion.equals(((Version)o).internalVersion);
@@ -65,6 +66,7 @@ public class Version implements Comparable<Version> {
      * Returns a hash code for this object.
      * @return A hash code for this object.
      */
+    @Override
     public int hashCode() {
         return internalVersion.hashCode();
     }
@@ -73,6 +75,7 @@ public class Version implements Comparable<Version> {
      * Returns a string representation of the form "1.27", "1.27.2" or "1.27.beta3".
      * @return A string representation of the form "1.27", "1.27.2" or "1.27.beta3".
      */
+    @Override
     public String toString() {
         return internalVersion.toString();
     }
@@ -83,6 +86,7 @@ public class Version implements Comparable<Version> {
      * @return A negative integer, zero, or a positive integer as this object is less than, equal to, or
      * greater than the specified object.
      */
+    @Override
     public int compareTo(Version version) {
         return internalVersion.compareTo(version.internalVersion);
     }

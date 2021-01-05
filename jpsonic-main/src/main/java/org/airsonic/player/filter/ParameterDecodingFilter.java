@@ -54,6 +54,7 @@ public class ParameterDecodingFilter implements Filter {
     public static final String PARAM_SUFFIX = "Utf8Hex";
     private static final Logger LOG = LoggerFactory.getLogger(ParameterDecodingFilter.class);
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
@@ -64,10 +65,12 @@ public class ParameterDecodingFilter implements Filter {
         chain.doFilter(decodedRequest, response);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }

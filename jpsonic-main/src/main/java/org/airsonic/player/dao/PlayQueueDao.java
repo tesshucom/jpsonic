@@ -65,6 +65,7 @@ public class PlayQueueDao extends AbstractDao {
     }
 
     private static class PlayQueueMapper implements RowMapper<SavedPlayQueue> {
+        @Override
         public SavedPlayQueue mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new SavedPlayQueue(rs.getInt(1),
                                       rs.getString(2),

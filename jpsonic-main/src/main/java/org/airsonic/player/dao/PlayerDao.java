@@ -190,6 +190,7 @@ public class PlayerDao extends AbstractDao {
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class PlayerRowMapper implements RowMapper<Player> {
+        @Override
         public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
             Player player = new Player();
             int col = 1;

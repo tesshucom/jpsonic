@@ -124,6 +124,7 @@ public class PlaylistDao extends AbstractDao {
     }
 
     private static class PlaylistMapper implements RowMapper<Playlist> {
+        @Override
         public Playlist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Playlist(
                     rs.getInt(1),

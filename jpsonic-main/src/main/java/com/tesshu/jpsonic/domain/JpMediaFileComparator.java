@@ -42,6 +42,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         comparator = collator;
     }
 
+    @Override
     public int compare(MediaFile a, MediaFile b) {
 
         // Directories before files.

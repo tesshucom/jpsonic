@@ -52,7 +52,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     // ~ Methods
     // ========================================================================================================
-
+    @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
                                           Collection<? extends GrantedAuthority> authorities) {
         String dn = ctx.getNameInNamespace();
@@ -113,6 +113,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     }
 
+    @Override
     public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
         throw new UnsupportedOperationException(
                 "LdapUserDetailsMapper only supports reading from a context. Please "

@@ -80,6 +80,7 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         return requiresAuthenticationRequestMatcher.matches(request);
     }
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
@@ -208,10 +209,12 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }

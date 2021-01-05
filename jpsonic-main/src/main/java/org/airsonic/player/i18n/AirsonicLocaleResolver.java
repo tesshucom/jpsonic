@@ -54,6 +54,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     * @param request Request to be used for resolution.
     * @return The current locale.
     */
+    @Override
     public Locale resolveLocale(HttpServletRequest request) {
         Locale locale = (Locale) request.getAttribute("airsonic.locale");
         if (locale != null) {
@@ -103,6 +104,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
         return locales.contains(locale);
     }
 
+    @Override
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
         throw new UnsupportedOperationException("Cannot change locale - use a different locale resolution strategy");
     }

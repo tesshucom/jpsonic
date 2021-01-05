@@ -155,6 +155,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         }
     }
 
+    @Override
     public void stateChanged(AudioPlayer audioPlayer, AudioPlayer.State state) {
         synchronized (PLAYER_LOCK) {
             if (state == AudioPlayer.State.EOM) {

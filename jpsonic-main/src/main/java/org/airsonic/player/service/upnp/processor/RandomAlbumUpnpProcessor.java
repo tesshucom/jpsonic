@@ -53,10 +53,12 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.randomAlbum");
     }
 
+    @Override
     public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();

@@ -80,6 +80,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
+    @Override
     public void write(byte[] b, int off, int len) throws IOException {
 
         int bytesWritten = 0;
@@ -113,6 +114,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte array to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
+    @Override
     public void write(byte[] b) throws IOException {
         write(b, 0, b.length);
     }
@@ -120,6 +122,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Writes the given byte to the underlying stream, adding SHOUTcast meta-data as necessary.
      */
+    @Override
     public void write(int b) throws IOException {
         byte[] buf = new byte[]{(byte) b};
         write(buf);
@@ -128,6 +131,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Flushes the underlying stream.
      */
+    @Override
     public void flush() throws IOException {
         out.flush();
     }
@@ -135,6 +139,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Closes the underlying stream.
      */
+    @Override
     public void close() throws IOException {
         out.close();
     }

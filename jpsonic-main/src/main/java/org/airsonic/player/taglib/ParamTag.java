@@ -33,6 +33,7 @@ public class ParamTag extends TagSupport {
     private String name;
     private String value;
 
+    @Override
     public int doEndTag() throws JspTagException {
 
         // Add parameter name and value to surrounding 'url' tag.
@@ -44,6 +45,7 @@ public class ParamTag extends TagSupport {
         return EVAL_PAGE;
     }
 
+    @Override
     public void release() {
         name = null;
         value = null;

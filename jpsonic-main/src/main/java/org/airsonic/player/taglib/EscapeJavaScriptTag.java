@@ -51,10 +51,12 @@ public class EscapeJavaScriptTag extends BodyTagSupport {
 
     private String string;
 
+    @Override
     public int doStartTag() {
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         try {
             pageContext.getOut().print(StringEscapeUtils.escapeJavaScript(string));
@@ -64,6 +66,7 @@ public class EscapeJavaScriptTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    @Override
     public void release() {
         string = null;
         super.release();

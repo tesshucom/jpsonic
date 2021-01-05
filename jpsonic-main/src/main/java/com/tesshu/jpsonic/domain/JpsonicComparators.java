@@ -156,6 +156,7 @@ public class JpsonicComparators {
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return new Comparator<MediaFile>() {
+            @Override
             public int compare(MediaFile a, MediaFile b) {
                 switch (orderBy) {
                     case TRACK:

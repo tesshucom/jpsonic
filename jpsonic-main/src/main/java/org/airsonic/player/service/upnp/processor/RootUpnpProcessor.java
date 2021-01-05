@@ -43,6 +43,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         this.settingsService = settingsService;
     }
 
+    @Override
     protected final Container createRootContainer() {
         StorageFolder root = new StorageFolder();
         root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
@@ -68,6 +69,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         // to be none
     }
 
+    @Override
     public Container createContainer(Container item) {
         // the items are the containers in this case.
         return item;
@@ -134,6 +136,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
     }
 
+    @Override
     public Container getItemById(String id) {
         return createRootContainer();
     }
@@ -152,6 +155,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return org.airsonic.player.util.PlayerUtils.subList(getChildren(item), offset, maxResults);
     }
 
+    @Override
     public void addChild(DIDLContent didl, Container child) {
         // special case; root doesn't have object instances
     }

@@ -72,6 +72,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.folders");
     }
@@ -99,6 +100,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
     }
 
+    @Override
     public Container createContainer(MediaFile item) {
         if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
@@ -148,6 +150,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return returnValue;
     }
 
+    @Override
     public MediaFile getItemById(String id) {
         return mediaFileService.getMediaFile(Integer.parseInt(id));
     }
@@ -168,6 +171,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getName()));
     }
 
+    @Override
     public void addItem(DIDLContent didl, MediaFile item) {
         if (item.isFile()) {
             didl.addItem(createItem(item));
@@ -176,6 +180,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (child.isFile()) {
             didl.addItem(createItem(child));

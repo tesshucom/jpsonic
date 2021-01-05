@@ -37,6 +37,7 @@ import java.io.File;
 public class CacheFactory implements InitializingBean {
     private CacheManager cacheManager;
 
+    @Override
     public void afterPropertiesSet() {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
 

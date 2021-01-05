@@ -48,10 +48,12 @@ public class FormatBytesTag extends BodyTagSupport {
 
     private long bytes;
 
+    @Override
     public int doStartTag() {
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         Locale locale = RequestContextUtils.getLocale((HttpServletRequest) pageContext.getRequest());
         String result = StringUtil.formatBytes(bytes, locale);
@@ -64,6 +66,7 @@ public class FormatBytesTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    @Override
     public void release() {
         bytes = 0L;
         super.release();

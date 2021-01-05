@@ -820,6 +820,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     private static class MediaFileMapper implements RowMapper<MediaFile> {
+        @Override
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new MediaFile(
                     rs.getInt(1),
@@ -874,6 +875,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     private static class MusicFileInfoMapper implements RowMapper<MediaFile> {
+        @Override
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
             MediaFile file = new MediaFile();
             file.setPlayCount(rs.getInt(1));
@@ -884,6 +886,7 @@ public class MediaFileDao extends AbstractDao {
     }
 
     private static class GenreMapper implements RowMapper<Genre> {
+        @Override
         public Genre mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Genre(rs.getString(1), rs.getInt(2), rs.getInt(3));
         }

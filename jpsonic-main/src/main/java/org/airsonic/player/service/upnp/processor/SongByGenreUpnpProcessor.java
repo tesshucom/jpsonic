@@ -50,6 +50,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.songbygenres");
     }
@@ -57,6 +58,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
     /**
      * Browses the top-level content of a type.
      */
+    @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         // we have to override this to do an index-based id.
         DIDLContent didl = new DIDLContent();
@@ -69,6 +71,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
     }
 
     @Deprecated
+    @Override
     public Container createContainer(Genre item) {
         return null;
     }
@@ -92,6 +95,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
         return searchService.getGenres(false, offset, maxResults);
     }
 
+    @Override
     public Genre getItemById(String id) {
         int index = Integer.parseInt(id);
         List<Genre> genres = searchService.getGenres(false);
@@ -111,6 +115,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
         return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }

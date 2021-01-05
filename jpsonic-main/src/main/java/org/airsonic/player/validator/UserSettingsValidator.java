@@ -49,6 +49,7 @@ public class UserSettingsValidator implements Validator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public boolean supports(Class clazz) {
         return clazz.equals(UserSettingsCommand.class);
     }
@@ -56,6 +57,7 @@ public class UserSettingsValidator implements Validator {
     /**
      * {@inheritDoc}
      */
+    @Override
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
         String username = command.getUsername();

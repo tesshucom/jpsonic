@@ -63,11 +63,13 @@ public class UrlTag extends BodyTagSupport {
     private String encoding = DEFAULT_ENCODING;
     private List<Pair<String, String>> parameters = new ArrayList<>();
 
+    @Override
     public int doStartTag() {
         parameters.clear();
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
 
         // Rewrite and encode the url.
@@ -154,6 +156,7 @@ public class UrlTag extends BodyTagSupport {
         return true;
     }
 
+    @Override
     public void release() {
         var = null;
         value = null;

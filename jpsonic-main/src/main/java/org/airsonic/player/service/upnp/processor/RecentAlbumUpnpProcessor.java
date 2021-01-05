@@ -49,10 +49,12 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.recentAlbums");
     }
 
+    @Override
     public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         if (offset < RECENT_COUNT) {

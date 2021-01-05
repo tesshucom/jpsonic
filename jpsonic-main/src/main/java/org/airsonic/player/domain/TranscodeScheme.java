@@ -81,6 +81,7 @@ public enum TranscodeScheme {
      *
      * @return A human-readable string representation of this object.
      */
+    @Override
     public String toString() {
         if (this == OFF) {
             return "No limit";

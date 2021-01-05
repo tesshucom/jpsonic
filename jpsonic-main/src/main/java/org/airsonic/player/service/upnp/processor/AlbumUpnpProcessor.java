@@ -69,6 +69,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.albums");
     }
@@ -76,6 +77,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     /**
      * Browses the top-level content of a type.
      */
+    @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true, util.getAllMusicFolders());
@@ -85,6 +87,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
     }
 
+    @Override
     public Container createContainer(Album album) {
         MusicAlbum container = new MusicAlbum();
 
@@ -115,6 +118,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return albumDao.getAlphabeticalAlbums((int) offset, (int) maxResults, false, true, util.getAllMusicFolders());
     }
 
+    @Override
     public Album getItemById(String id) {
         Album returnValue;
         if (id.startsWith(ALL_BY_ARTIST) || id.equalsIgnoreCase(ALL_RECENT_ID3)) {
@@ -164,6 +168,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return albumDao.getAlbumsForArtist(offset, maxResults, artist, byYear, musicFolders);
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }

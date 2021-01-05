@@ -57,10 +57,12 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.playlists");
     }
 
+    @Override
     public Container createContainer(Playlist item) {
         PlaylistContainer container = new PlaylistContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
@@ -84,6 +86,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return org.airsonic.player.util.PlayerUtils.subList(playlists, offset, maxResults);
     }
 
+    @Override
     public Playlist getItemById(String id) {
         return playlistService.getPlaylist(Integer.parseInt(id));
     }
@@ -98,6 +101,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return playlistService.getFilesInPlaylist(item.getId(), offset, maxResults);
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }

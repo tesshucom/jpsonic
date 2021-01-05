@@ -73,6 +73,7 @@ public class SecurityService implements UserDetailsService {
      * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority.
      * @throws DataAccessException       If user could not be found for a repository-specific reason.
      */
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         return loadUserByUsername(username, true);
     }

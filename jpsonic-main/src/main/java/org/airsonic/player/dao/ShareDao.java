@@ -132,6 +132,7 @@ public class ShareDao extends AbstractDao {
     }
 
     private static class ShareRowMapper implements RowMapper<Share> {
+        @Override
         public Share mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Share(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getTimestamp(5),
                     rs.getTimestamp(6), rs.getTimestamp(7), rs.getInt(8));
@@ -139,6 +140,7 @@ public class ShareDao extends AbstractDao {
     }
 
     private static class ShareFileRowMapper implements RowMapper<String> {
+        @Override
         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString(1);
         }

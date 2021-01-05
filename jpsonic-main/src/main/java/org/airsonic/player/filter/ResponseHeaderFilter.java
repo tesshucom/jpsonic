@@ -40,6 +40,7 @@ import java.util.Enumeration;
 public class ResponseHeaderFilter implements Filter {
     private FilterConfig filterConfig;
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) res;
@@ -54,10 +55,12 @@ public class ResponseHeaderFilter implements Filter {
         chain.doFilter(req, response);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
     }
 
+    @Override
     public void destroy() {
         this.filterConfig = null;
     }

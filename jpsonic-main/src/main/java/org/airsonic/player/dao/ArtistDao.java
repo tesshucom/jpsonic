@@ -217,6 +217,7 @@ public class ArtistDao extends AbstractDao {
     }
 
     private static class ArtistMapper implements RowMapper<Artist> {
+        @Override
         public Artist mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Artist(
                     rs.getInt(1),

@@ -6,8 +6,6 @@ interface FolderArtistAlbumWrapper extends FolderArtistWrapper {
 
     Album getAlbum();
 
-    boolean isArtist();
-
     boolean isAlbum();
 
 }

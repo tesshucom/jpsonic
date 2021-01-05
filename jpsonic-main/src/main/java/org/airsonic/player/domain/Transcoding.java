@@ -206,6 +206,7 @@ public class Transcoding {
         this.defaultActive = defaultActive;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -218,6 +219,7 @@ public class Transcoding {
         return Objects.equals(id, that.id);
     }
 
+    @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }

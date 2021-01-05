@@ -60,10 +60,12 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.albumbygenres");
     }
 
+    @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<MediaFile> selectedItems = getItems(firstResult, maxResults);
@@ -126,6 +128,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         return searchService.getGenres(true, offset, maxResults).stream().map(toMediaFile).collect(Collectors.toList());
     }
 
+    @Override
     public MediaFile getItemById(String id) {
         int index = Integer.parseInt(id);
         List<Genre> genres = searchService.getGenres(true);
@@ -148,6 +151,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         return mediaFileService.getSongsForAlbum(offset, maxResults, item);
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (isEmpty(child.getMediaType())) {
             didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));

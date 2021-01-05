@@ -43,6 +43,7 @@ public class MonitoredDiskFileItem extends DiskFileItem {
         }
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         if (mos == null) {
             mos = new MonitoredOutputStream(super.getOutputStream(), listener);

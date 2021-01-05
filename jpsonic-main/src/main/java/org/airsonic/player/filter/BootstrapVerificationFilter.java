@@ -54,6 +54,7 @@ public class BootstrapVerificationFilter implements Filter {
     private boolean jpsonicHomeVerified;
     private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
 
@@ -117,10 +118,12 @@ public class BootstrapVerificationFilter implements Filter {
                     "</html>");
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }

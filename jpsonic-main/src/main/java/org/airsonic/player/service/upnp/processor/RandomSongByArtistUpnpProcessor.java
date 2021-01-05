@@ -57,10 +57,12 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.randomSongByArtist");
     }
 
+    @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = new MusicArtist();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
@@ -83,6 +85,7 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getAllMusicFolders());
     }
 
+    @Override
     public Artist getItemById(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }

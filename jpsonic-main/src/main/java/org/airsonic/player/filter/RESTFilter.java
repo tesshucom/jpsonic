@@ -48,6 +48,7 @@ public class RESTFilter implements Filter {
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
         try {
             HttpServletResponse response = (HttpServletResponse) res;
@@ -88,10 +89,12 @@ public class RESTFilter implements Filter {
         return x.getClass().getSimpleName();
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }

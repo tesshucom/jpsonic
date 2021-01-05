@@ -72,6 +72,7 @@ public class PlayerTest implements AudioPlayer.Listener {
         new PlayerTest();
     }
 
+    @Override
     public void stateChanged(AudioPlayer player, AudioPlayer.State state) {
         if (LOG.isInfoEnabled()) {
             LOG.info(state.name());

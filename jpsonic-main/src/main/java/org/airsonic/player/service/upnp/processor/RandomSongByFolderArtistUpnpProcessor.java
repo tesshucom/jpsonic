@@ -153,6 +153,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.randomSongByArtist");
     }
@@ -207,26 +208,32 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
             this.name = folder.getName();
         }
 
+        @Override
         public Artist getArtist() {
             return artist;
         }
 
+        @Override
         public MusicFolder getFolder() {
             return folder;
         };
 
+        @Override
         public String getId() {
             return id;
         };
 
+        @Override
         public String getName() {
             return name;
         };
 
+        @Override
         public MediaFile getSong() {
             return song;
         };
 
+        @Override
         public boolean isArtist() {
             return null != artist;
         };

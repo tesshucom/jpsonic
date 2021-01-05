@@ -91,6 +91,7 @@ public class DownloadController implements LastModified {
     @Autowired
     private MediaFileService mediaFileService;
 
+    @Override
     public long getLastModified(HttpServletRequest request) {
         try {
             MediaFile mediaFile = getMediaFile(request);

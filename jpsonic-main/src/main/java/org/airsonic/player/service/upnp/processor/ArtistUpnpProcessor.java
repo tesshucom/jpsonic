@@ -57,10 +57,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.artists");
     }
 
+    @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = new MusicArtist();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
@@ -83,6 +85,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
+    @Override
     public Artist getItemById(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }
@@ -111,6 +114,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         return albums;
     }
 
+    @Override
     public void addChild(DIDLContent didl, Album album) {
         didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
     }

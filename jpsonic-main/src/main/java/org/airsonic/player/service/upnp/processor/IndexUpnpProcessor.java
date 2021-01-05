@@ -82,6 +82,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (!child.isFile()) {
             didl.addContainer(createContainer(child));
@@ -90,6 +91,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
+    @Override
     public void addItem(DIDLContent didl, MediaFile item) {
         if (!item.isFile() || isIndex(item)) {
             didl.addContainer(createContainer(item));
@@ -120,6 +122,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
+    @Override
     public Container createContainer(MediaFile item) {
         if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
@@ -165,6 +168,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return mediaFileService.getChildSizeOf(item);
     }
 
+    @Override
     public MediaFile getItemById(String ids) {
         int id = Integer.parseInt(ids);
         if (isIndex(id)) {
@@ -192,6 +196,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.index");
     }

@@ -215,6 +215,7 @@ public class MusicIndexService {
             this.indexes = indexes;
         }
 
+        @Override
         public int compare(MusicIndex a, MusicIndex b) {
             int indexA = indexes.indexOf(a);
             int indexB = indexes.indexOf(b);

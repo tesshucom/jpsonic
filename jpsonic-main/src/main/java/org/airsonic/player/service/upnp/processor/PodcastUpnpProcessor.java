@@ -74,10 +74,12 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.podcast");
     }
 
+    @Override
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<PodcastChannel> channels = getItems(firstResult, maxResults);
@@ -87,6 +89,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
         return createBrowseResult(didl, (int) didl.getCount(), getItemCount());
     }
 
+    @Override
     public Container createContainer(PodcastChannel channel) {
         MusicAlbum container = new MusicAlbum();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + channel.getId());
@@ -141,6 +144,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
         return org.airsonic.player.util.PlayerUtils.subList(podcastService.getAllChannels(), offset, maxResults);
     }
 
+    @Override
     public PodcastChannel getItemById(String id) {
         return podcastService.getChannel(Integer.parseInt(id));
     }
@@ -155,6 +159,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
         return org.airsonic.player.util.PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset, maxResults);
     }
 
+    @Override
     public void addChild(DIDLContent didl, PodcastEpisode child) {
         didl.addItem(createItem(child));
     }

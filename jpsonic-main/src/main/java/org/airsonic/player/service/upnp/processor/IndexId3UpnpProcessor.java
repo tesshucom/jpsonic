@@ -94,6 +94,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootId(CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
+    @Override
     public void addChild(DIDLContent didl, Id3Wrapper item) {
         if (!item.isSong()) {
             didl.addContainer(createContainer(item));
@@ -102,6 +103,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
+    @Override
     public void addItem(DIDLContent didl, Id3Wrapper item) {
         if (!item.isSong() || item.isIndex()) {
             didl.addContainer(createContainer(item));
@@ -124,6 +126,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         container.setChildCount(getChildSizeOf(item));
     }
 
+    @Override
     public Container createContainer(Id3Wrapper item) {
         int id = toRawId(item.getId());
         if (item.isAlbum()) {
@@ -175,6 +178,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return item.getChildSize();
     }
 
+    @Override
     public Id3Wrapper getItemById(String ids) {
         int id = toRawId(ids);
         if (-1 > id) {
@@ -206,6 +210,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.index");
     }

@@ -181,6 +181,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.artists");
     }
@@ -258,22 +259,27 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             return album;
         }
 
+        @Override
         public Artist getArtist() {
             return artist;
         }
 
+        @Override
         public MusicFolder getFolder() {
             return folder;
         }
 
+        @Override
         public String getId() {
             return id;
         };
 
+        @Override
         public String getName() {
             return name;
         };
 
+        @Override
         public MediaFile getSong() {
             return song;
         };
@@ -283,6 +289,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             return null != album;
         };
 
+        @Override
         public boolean isArtist() {
             return null != artist;
         };

@@ -45,6 +45,7 @@ public class AvatarController implements LastModified {
     @Autowired
     private SettingsService settingsService;
 
+    @Override
     public long getLastModified(HttpServletRequest request) {
         Avatar avatar = getAvatar(request);
         long result = avatar == null ? -1L : avatar.getCreatedDate().getTime();

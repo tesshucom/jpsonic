@@ -186,6 +186,7 @@ public class PodcastDao extends AbstractDao {
     }
 
     private static class PodcastChannelRowMapper implements RowMapper<PodcastChannel> {
+        @Override
         public PodcastChannel mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new PodcastChannel(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                                       PodcastStatus.valueOf(rs.getString(6)), rs.getString(7));
@@ -193,6 +194,7 @@ public class PodcastDao extends AbstractDao {
     }
 
     private static class PodcastEpisodeRowMapper implements RowMapper<PodcastEpisode> {
+        @Override
         public PodcastEpisode mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new PodcastEpisode(rs.getInt(1), rs.getInt(2), rs.getString(3), rs.getString(4), rs.getString(5),
                     rs.getString(6), rs.getTimestamp(7), rs.getString(8), (Long) rs.getObject(9),

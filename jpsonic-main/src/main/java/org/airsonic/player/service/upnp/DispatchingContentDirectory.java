@@ -219,6 +219,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         return albumProcessor;
     }
 
+    @Override
     public RecentAlbumUpnpProcessor getRecentAlbumProcessor() {
         return recentAlbumProcessor;
     }
@@ -253,6 +254,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
         return indexProcessor;
     }
 
+    @Override
     public IndexId3UpnpProcessor getIndexId3Processor() {
         return indexId3Processor;
     }

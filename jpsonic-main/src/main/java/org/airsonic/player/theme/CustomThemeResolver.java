@@ -52,6 +52,7 @@ public class CustomThemeResolver implements ThemeResolver {
     * @param request Request to be used for resolution
     * @return The current theme name
     */
+    @Override
     public String resolveThemeName(HttpServletRequest request) {
         String themeId = (String) request.getAttribute("airsonic.theme");
         if (themeId != null) {
@@ -111,6 +112,7 @@ public class CustomThemeResolver implements ThemeResolver {
      * @throws UnsupportedOperationException If the ThemeResolver implementation
      *                                       does not support dynamic changing of the theme
      */
+    @Override
     public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
         throw new UnsupportedOperationException("Cannot change theme - use a different theme resolution strategy");
     }

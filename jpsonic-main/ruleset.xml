@@ -39,7 +39,6 @@
         <!-- [low priority] >> -->
 
         <!-- # critical -->
-        <exclude name="MissingOverride" />
         <exclude name="UseCollectionIsEmpty" />
         <exclude name="LooseCoupling" />
         <exclude name="UnusedPrivateField" />

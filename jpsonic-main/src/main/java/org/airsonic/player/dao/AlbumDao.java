@@ -401,6 +401,7 @@ public class AlbumDao extends AbstractDao {
     }
 
     private static class AlbumMapper implements RowMapper<Album> {
+        @Override
         public Album mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Album(
                     rs.getInt(1),

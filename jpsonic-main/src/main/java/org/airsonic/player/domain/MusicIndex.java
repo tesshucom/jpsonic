@@ -135,6 +135,7 @@ public class MusicIndex implements Serializable {
             return sortableName;
         }
 
+        @Override
         public int compareTo(SortableArtist other) {
             return c.compare(this, other);
         }
