@@ -111,7 +111,7 @@ public class JpsonicComparatorsTest {
     } // @formatter:on
 
     /*
-     * Quoted and modified from SortableArtistTestCase
+     * Quoted and modified from SortableArtistTest
      *
      * Copyright 2020 (C) tesshu.com
      * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
@@ -904,7 +904,7 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTestCase
+     * Quoted from SortableArtistTest
      * Jpsonic does not change the behavior of legacy test specifications.
      *
      * Copyright 2020 (C) tesshu.com
@@ -924,7 +924,7 @@ public class JpsonicComparatorsTest {
     }
     
     /*
-     * Quoted from MediaFileComparatorTestCase
+     * Quoted from MediaFileComparatorTest
      * Jpsonic does not change the behavior of legacy test specifications.
      *
      * Copyright 2020 (C) tesshu.com
@@ -972,7 +972,7 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from MediaFileComparatorTestCase
+     * Quoted from MediaFileComparatorTest
      * Jpsonic does not change the behavior of legacy test specifications.
      *
      * Copyright 2020 (C) tesshu.com
@@ -1042,7 +1042,7 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTestCase
+     * Quoted from SortableArtistTest
      * Jpsonic does not change the behavior of legacy test specifications.
      *
      * Copyright 2020 (C) tesshu.com
@@ -1067,7 +1067,7 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTestCase
+     * Quoted from SortableArtistTest
      * Jpsonic does not change the behavior of legacy test specifications.
      *
      * Copyright 2020 (C) tesshu.com

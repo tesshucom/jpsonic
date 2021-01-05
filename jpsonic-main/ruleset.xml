@@ -28,11 +28,9 @@
 
     </description>
 
-    <exclude-pattern>.*/.*Test*.java</exclude-pattern>
-    <exclude-pattern>.*/.*TestCase*.java</exclude-pattern>
-    <exclude-pattern>.*/.*DaoTestCaseBean2.java</exclude-pattern>
-    <exclude-pattern>.*/.*TestData*.java</exclude-pattern>
-    <exclude-pattern>.*/.*TestUtils*.java</exclude-pattern>
+    <exclude-pattern>.*/.*Test.java</exclude-pattern>
+    <exclude-pattern>.*/.*TestData.java</exclude-pattern>
+    <exclude-pattern>.*/.*TestUtils.java</exclude-pattern>
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
@@ -46,8 +44,6 @@
         <exclude name="LooseCoupling" />
         <exclude name="UnusedPrivateField" />
         <exclude name="AccessorClassGeneration" />
-        <exclude name="JUnitTestContainsTooManyAsserts" />
-        <exclude name="JUnitAssertionsShouldIncludeMessage" />
         <!-- Because used for reference only. -->
         <exclude name="MethodReturnsInternalArray" />
 

@@ -115,7 +115,7 @@ public final class AnalyzerFactory {
      * Because changes in underscores before and after words
      * have a major effect on user's forward match search.
      *
-     * @see AnalyzerFactoryTestCase
+     * @see AnalyzerFactoryTest
      */
     private void addTokenFilterForUnderscoreRemovalAroundToken(Builder builder) throws IOException {
         builder

@@ -19,10 +19,15 @@
 
 package org.airsonic.player.service;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public class SonosServiceTest extends TestCase {
+import static org.junit.Assert.assertEquals;
 
+@SpringBootTest
+public class SonosServiceTest {
+
+    @Test
     public void testParsePlaylistIndices() {
         SonosService sonosService = new SonosService();
         assertEquals("[]", sonosService.parsePlaylistIndices("").toString());
