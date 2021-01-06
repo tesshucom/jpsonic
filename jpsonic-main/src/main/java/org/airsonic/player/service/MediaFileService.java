@@ -493,7 +493,8 @@ public class MediaFileService {
         }
 
         // Exclude all hidden files starting with a single "." or "@eaDir" (thumbnail dir created on Synology devices).
-        return name.startsWith(".") && !name.startsWith("..") || name.startsWith("@eaDir") || "Thumbs.db".equals(name);
+        return !name.isEmpty() && name.charAt(0) == '.' & !name.startsWith("..") || name.startsWith("@eaDir")
+                || "Thumbs.db".equals(name);
     }
 
     private MediaFile createMediaFile(File file) {
@@ -662,7 +663,8 @@ public class MediaFileService {
     private File findCoverArt(File... candidates) {
         for (String mask : settingsService.getCoverArtFileTypesAsArray()) {
             for (File candidate : candidates) {
-                if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase()) && !candidate.getName().startsWith(".")) {
+                if (candidate.isFile() && candidate.getName().toUpperCase().endsWith(mask.toUpperCase())
+                        && candidate.getName().charAt(0) != '.') {
                     return candidate;
                 }
             }

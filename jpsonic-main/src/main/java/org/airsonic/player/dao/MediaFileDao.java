@@ -555,6 +555,13 @@ public class MediaFileDao extends AbstractDao {
                           rowMapper, args);
     }
 
+    
+
+    @SuppressWarnings("PMD.ConsecutiveLiteralAppends")
+    /*
+     * Detected by Ubuntu but not detected by Windows. The literal is too big, so
+     * split the append into multiple lines for readability.
+     */
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, final String username) {
         if (criteria.getMusicFolders().isEmpty()) {
             return Collections.emptyList();

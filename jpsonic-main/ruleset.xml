@@ -130,8 +130,6 @@
 
 	<!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml">
-        <!-- It is a bug rule. -->
-        <!-- 3 --><exclude name="SimplifyStartsWith" />
         <!-- Because there is bug with the rules and it cannot be used. -->
         <!-- 3 --><exclude name="UseIOStreamsWithApacheCommonsFileItem" />
     </rule>

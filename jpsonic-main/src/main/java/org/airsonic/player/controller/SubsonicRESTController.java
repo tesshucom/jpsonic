@@ -1459,7 +1459,9 @@ public class SubsonicRESTController {
 
             if (filePathLower.startsWith(folderPathLower)) {
                 String relativePath = filePath.substring(folderPath.length());
-                return relativePath.startsWith("/") ? relativePath.substring(1) : relativePath;
+                return !relativePath.isEmpty() && relativePath.charAt(0) == '/'
+                        ? relativePath.substring(1)
+                        : relativePath;
             }
         }
 
