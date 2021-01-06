@@ -357,7 +357,7 @@ public class DownloadController implements LastModified {
     private void zip(ZipOutputStream out, File root, File file, TransferStatus status, HttpRange range) throws IOException {
 
         // Exclude all hidden files starting with a "."
-        if (file.getName().startsWith(".")) {
+        if (!file.getName().isEmpty() && file.getName().charAt(0) == '.') {
             return;
         }
 
