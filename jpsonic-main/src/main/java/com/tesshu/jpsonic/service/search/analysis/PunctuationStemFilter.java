@@ -17,6 +17,7 @@ public class PunctuationStemFilter extends TokenFilter {
         super(in);
     }
 
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // The only place using reassigning.
     @Override
     public final boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
