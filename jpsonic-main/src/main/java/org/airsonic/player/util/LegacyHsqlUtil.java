@@ -196,17 +196,15 @@ public class LegacyHsqlUtil {
                     writer.write(setRegularNamesFalse + System.getProperty("line.separator"));
                     writer.write(line + System.getProperty("line.separator"));
                     int i = 1;
-                    while (null != (line = reader.readLine())) {
+                    for (line = reader.readLine(); line != null; line = reader.readLine()) {
                         i++;
                         writer.write(line + System.getProperty("line.separator"));
                         if (i % 100 == 0) {
                             writer.flush();
                         }
                     }
-                    writer.close();
                 }
             }
-            reader.close();
         }
     }
 
