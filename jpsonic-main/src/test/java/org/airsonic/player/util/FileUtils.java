@@ -104,9 +104,7 @@ public class FileUtils {
     private static boolean copyStream(final InputStream is, final OutputStream os) {
         try {
             final byte[] buf = new byte[1024];
-
-            int len;
-            while ((len = is.read(buf)) > 0) {
+            for (int len = is.read(buf); len > 0; len = is.read(buf)) {
                 os.write(buf, 0, len);
             }
             is.close();

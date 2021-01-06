@@ -600,11 +600,10 @@ public class PodcastService {
 
                         byte[] buffer = new byte[4096];
                         long bytesDownloaded = 0;
-                        int n;
                         long nextLogCount = 30000L;
 
                         try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
-                            while ((n = in.read(buffer)) != -1) {
+                            for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
                                 out.write(buffer, 0, n);
                                 bytesDownloaded += n;
     

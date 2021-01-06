@@ -429,8 +429,7 @@ public class InternalHelpController {
     private static List<String> getLatestLogEntries(File logFile) {
         List<String> lines = new ArrayList<>(LOG_LINES_TO_SHOW);
         try (ReversedLinesFileReader reader = new ReversedLinesFileReader(logFile, Charset.defaultCharset())) {
-            String current;
-            while ((current = reader.readLine()) != null) {
+            for (String current = reader.readLine(); current != null; current = reader.readLine()) {
                 if (lines.size() >= LOG_LINES_TO_SHOW) {
                     break;
                 }
