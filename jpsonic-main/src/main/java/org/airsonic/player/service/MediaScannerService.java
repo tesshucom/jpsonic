@@ -71,7 +71,7 @@ public class MediaScannerService {
     private static final Object SCAN_LOCK = new Object();
 
     // for debug
-    private boolean isJpsonicCleansingProcess = true;
+    private boolean jpsonicCleansingProcess = true;
 
     private ScheduledExecutorService scheduler;
 
@@ -259,7 +259,7 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
-            if (isJpsonicCleansingProcess) {
+            if (jpsonicCleansingProcess) {
 
                 if (LOG.isInfoEnabled()) {
                     LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
@@ -470,11 +470,11 @@ public class MediaScannerService {
     }
 
     public boolean isJpsonicCleansingProcess() {
-        return isJpsonicCleansingProcess;
+        return jpsonicCleansingProcess;
     }
 
     public void setJpsonicCleansingProcess(boolean isJpsonicCleansingProcess) {
-        this.isJpsonicCleansingProcess = isJpsonicCleansingProcess;
+        this.jpsonicCleansingProcess = isJpsonicCleansingProcess;
     }
 
     public void setSettingsService(SettingsService settingsService) {

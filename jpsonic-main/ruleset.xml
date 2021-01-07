@@ -101,7 +101,6 @@
 
 	<!-- Java Rules:Error Prone -->
     <rule ref="category/java/errorprone.xml">
-        <!-- 3 --><exclude name="AvoidFieldNameMatchingMethodName" />
         <!-- 3 --><exclude name="MissingSerialVersionUID" />
         <!-- 3 --><exclude name="AvoidDuplicateLiterals" />
         <!-- 3 --><exclude name="AvoidCatchingThrowable" />

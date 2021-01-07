@@ -253,7 +253,7 @@ public class StreamController {
                 byte[] buf = new byte[BUFFER_SIZE];
                 long bytesWritten = 0;
 
-                while (!status.terminated()) {
+                while (!status.isTerminated()) {
                     if (player.getPlayQueue().getStatus() == PlayQueue.Status.STOPPED) {
                         if (isPodcast || isSingleFile) {
                             break;

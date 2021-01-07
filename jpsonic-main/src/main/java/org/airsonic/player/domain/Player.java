@@ -38,9 +38,9 @@ public class Player {
     private String type;
     private String username;
     private String ipAddress;
-    private boolean isDynamicIp = true;
-    private boolean isAutoControlEnabled = true;
-    private boolean isM3uBomEnabled = true;
+    private boolean dynamicIp = true;
+    private boolean autoControlEnabled = true;
+    private boolean m3uBomEnabled = true;
     private Date lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
@@ -182,7 +182,7 @@ public class Player {
      * @return Whether the player is automatically started.
      */
     public boolean isAutoControlEnabled() {
-        return isAutoControlEnabled;
+        return autoControlEnabled;
     }
 
     /**
@@ -191,7 +191,7 @@ public class Player {
      * @param isAutoControlEnabled Whether the player is automatically started.
      */
     public void setAutoControlEnabled(boolean isAutoControlEnabled) {
-        this.isAutoControlEnabled = isAutoControlEnabled;
+        this.autoControlEnabled = isAutoControlEnabled;
     }
 
     /**
@@ -200,7 +200,7 @@ public class Player {
      * @return Whether apply BOM mark when generating a M3U file.
      */
     public boolean isM3uBomEnabled() {
-        return isM3uBomEnabled;
+        return m3uBomEnabled;
     }
 
     /**
@@ -209,7 +209,7 @@ public class Player {
      * @param isM3uBomEnabled Whether apply BOM mark when generating a M3U file.
      */
     public void setM3uBomEnabled(boolean isM3uBomEnabled) {
-        this.isM3uBomEnabled = isM3uBomEnabled;
+        this.m3uBomEnabled = isM3uBomEnabled;
     }
 
     /**
@@ -272,7 +272,7 @@ public class Player {
      * @return Whether this player has a dynamic IP address.
      */
     public boolean isDynamicIp() {
-        return isDynamicIp;
+        return dynamicIp;
     }
 
     /**
@@ -281,7 +281,7 @@ public class Player {
      * @param dynamicIp Whether this player has a dynamic IP address.
      */
     public void setDynamicIp(boolean dynamicIp) {
-        isDynamicIp = dynamicIp;
+        this.dynamicIp = dynamicIp;
     }
 
     /**
