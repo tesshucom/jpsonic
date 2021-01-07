@@ -52,6 +52,8 @@ import java.util.List;
 public class PlayerService {
 
     private static final String COOKIE_NAME = "player";
+    private static final String ATTRIBUTE_SESSION_KEY = "player";
+    private static final String ATTRIBUTE_REQUEST_KEY = "player";
     private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
 
     @Autowired
@@ -93,11 +95,11 @@ public class PlayerService {
         synchronized (LOCK) {
 
             // Find by 'player' request parameter.
-            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, "player"));
+            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, ATTRIBUTE_REQUEST_KEY));
 
             // Find in session context.
             if (player == null && remoteControlEnabled) {
-                Integer playerId = (Integer) request.getSession().getAttribute("player");
+                Integer playerId = (Integer) request.getSession().getAttribute(ATTRIBUTE_SESSION_KEY);
                 if (playerId != null) {
                     player = getPlayerById(playerId);
                 }
@@ -164,7 +166,7 @@ public class PlayerService {
 
             // Save player in session context.
             if (remoteControlEnabled) {
-                request.getSession().setAttribute("player", player.getId());
+                request.getSession().setAttribute(ATTRIBUTE_SESSION_KEY, player.getId());
             }
 
             return player;

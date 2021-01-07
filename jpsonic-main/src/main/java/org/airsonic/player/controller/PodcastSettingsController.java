@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.PodcastSettingsCommand;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SettingsService;
@@ -54,7 +55,7 @@ public class PodcastSettingsController {
         command.setEpisodeDownloadCount(String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
         command.setFolder(settingsService.getPodcastFolder());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.model.command.name, command);
         return "podcastSettings";
     }
 

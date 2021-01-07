@@ -1,6 +1,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import de.triology.recaptchav2java.ReCaptcha;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -43,6 +44,10 @@ public class RecoverController {
     private final SecureRandom random = new SecureRandom();
     private static final int PASSWORD_LENGTH = 32;
 
+    private static final String SESSION_KEY_MAIL_PREF = "mail.";
+    private static final String SESSION_VALUE_TRUE = "true";
+    
+    
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -69,11 +74,11 @@ public class RecoverController {
             }
 
             if (!captchaOk) {
-                map.put("error", "recover.error.invalidcaptcha");
+                map.put(Attributes.model.keys.error, "recover.error.invalidcaptcha");
             } else if (user == null) {
-                map.put("error", "recover.error.usernotfound");
+                map.put(Attributes.model.keys.error, "recover.error.usernotfound");
             } else if (user.getEmail() == null) {
-                map.put("error", "recover.error.noemail");
+                map.put(Attributes.model.keys.error, "recover.error.noemail");
             } else {
                 StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
                 for (int i = 0; i < PASSWORD_LENGTH; i++) {
@@ -88,7 +93,7 @@ public class RecoverController {
                     user.setPassword(password);
                     securityService.updateUser(user);
                 } else {
-                    map.put("error", "recover.error.sendfailed");
+                    map.put(Attributes.model.keys.error, "recover.error.sendfailed");
                 }
             }
         }
@@ -127,16 +132,16 @@ public class RecoverController {
         Properties props = new Properties();
         if ("SSL/TLS".equals(settingsService.getSmtpEncryption())) {
             prot = "smtps";
-            props.put("mail." + prot + ".ssl.enable", "true");
+            props.put(SESSION_KEY_MAIL_PREF + prot + ".ssl.enable", SESSION_VALUE_TRUE);
         } else if ("STARTTLS".equals(settingsService.getSmtpEncryption())) {
             prot = "smtp";
-            props.put("mail." + prot + ".starttls.enable", "true");
+            props.put(SESSION_KEY_MAIL_PREF + prot + ".starttls.enable", SESSION_VALUE_TRUE);
         }
-        props.put("mail." + prot + ".host", settingsService.getSmtpServer());
-        props.put("mail." + prot + ".port", settingsService.getSmtpPort());
+        props.put(SESSION_KEY_MAIL_PREF + prot + ".host", settingsService.getSmtpServer());
+        props.put(SESSION_KEY_MAIL_PREF + prot + ".port", settingsService.getSmtpPort());
         /* use authentication when SmtpUser is configured */
         if (settingsService.getSmtpUser() != null && !settingsService.getSmtpUser().isEmpty()) {
-            props.put("mail." + prot + ".auth", "true");
+            props.put(SESSION_KEY_MAIL_PREF + prot + ".auth", SESSION_VALUE_TRUE);
         }
 
         Session session = Session.getInstance(props, null);
@@ -156,7 +161,7 @@ public class RecoverController {
             message.setSentDate(new Date());
 
             try (Transport trans = session.getTransport(prot)) {
-                if (props.get("mail." + prot + ".auth") != null && props.get("mail." + prot + ".auth").equals("true")) {
+                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
                     trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
                             settingsService.getSmtpPassword());
                 } else {

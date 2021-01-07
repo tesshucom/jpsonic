@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.UserSettingsCommand;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.TranscodeScheme;
@@ -75,9 +76,10 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
+    protected String displayForm(HttpServletRequest request, Model model,
+            @RequestParam("toast") Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
-        if (!model.containsAttribute("command")) {
+        if (!model.containsAttribute(Attributes.model.command.name)) {
             command = new UserSettingsCommand();
 
             User user = getUser(request);
@@ -95,7 +97,7 @@ public class UserSettingsController {
             }
 
         } else {
-            command = (UserSettingsCommand) model.asMap().get("command");
+            command = (UserSettingsCommand) model.asMap().get(Attributes.model.command.name);
         }
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -106,7 +108,7 @@ public class UserSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
-        model.addAttribute("command", command);
+        model.addAttribute(Attributes.model.command.name, command);
         return "userSettings";
     }
 
@@ -134,7 +136,9 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") @Validated UserSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    protected String doSubmitAction(
+            @ModelAttribute(Attributes.model.command.name) @Validated UserSettingsCommand command,
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (!bindingResult.hasErrors()) {
             if (command.isDeleteUser()) {
@@ -146,7 +150,7 @@ public class UserSettingsController {
             }
             redirectAttributes.addFlashAttribute("settings_reload", true);
         } else {
-            redirectAttributes.addFlashAttribute("command", command);
+            redirectAttributes.addFlashAttribute(Attributes.model.command.name, command);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);
             redirectAttributes.addFlashAttribute("userIndex", getUserIndex(command));
         }

@@ -91,6 +91,15 @@ public final class AnalyzerFactory {
 
     boolean isSearchMethodLegacy;
 
+    private static final String FILTER_ATTR_PATTERN = "pattern";
+
+    private static final String FILTER_ATTR_REPLACEMENT = "replacement";
+
+    private static final String FILTER_ATTR_REPLACE = "replace";
+
+    private static final String FILTER_ATTR_ALL = "all";
+
+    
     // Package method for test. Only called from the constructor during normal
     void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
         this.isSearchMethodLegacy = isSearchMethodLegacy;
@@ -120,9 +129,9 @@ public final class AnalyzerFactory {
     private void addTokenFilterForUnderscoreRemovalAroundToken(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "^\\_", "replacement", "", "replace", "all")
+                    FILTER_ATTR_PATTERN, "^\\_", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\_$", "replacement", "", "replace", "all");
+                    FILTER_ATTR_PATTERN, "\\_$", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL);
     }
 
     /*
@@ -142,15 +151,15 @@ public final class AnalyzerFactory {
     private void addTokenFilterForTokenToDomainValue(Builder builder) throws IOException {
         builder
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\(", "replacement", "", "replace", "all")
+                    FILTER_ATTR_PATTERN, "\\(", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\)$", "replacement", "", "replace", "all")
+                    FILTER_ATTR_PATTERN, "\\)$", FILTER_ATTR_REPLACEMENT, "", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\)", "replacement", " ", "replace", "all")
+                    FILTER_ATTR_PATTERN, "\\)", FILTER_ATTR_REPLACEMENT, " ", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\{\\}", "replacement", "\\{ \\}", "replace", "all")
+                    FILTER_ATTR_PATTERN, "\\{\\}", FILTER_ATTR_REPLACEMENT, "\\{ \\}", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL)
             .addTokenFilter(PatternReplaceFilterFactory.class,
-                    "pattern", "\\[\\]", "replacement", "\\[ \\]", "replace", "all");
+                    FILTER_ATTR_PATTERN, "\\[\\]", FILTER_ATTR_REPLACEMENT, "\\[ \\]", FILTER_ATTR_REPLACE, FILTER_ATTR_ALL);
     }
 
     private CustomAnalyzer.Builder basicFilters(CustomAnalyzer.Builder builder, boolean isArtist) throws IOException {

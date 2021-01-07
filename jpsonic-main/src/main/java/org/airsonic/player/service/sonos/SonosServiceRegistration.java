@@ -58,6 +58,7 @@ public class SonosServiceRegistration {
 
         List<Pair<String, String>> params = new ArrayList<>();
         params.add(Pair.of("sid", String.valueOf(sonosServiceId)));
+        String keyCaps = "caps";
         if (enabled) {
             params.add(Pair.of("name", sonosServiceName));
             params.add(Pair.of("uri", localUrl));
@@ -65,11 +66,11 @@ public class SonosServiceRegistration {
             params.add(Pair.of("pollInterval", "1200"));
             params.add(Pair.of("authType", "UserId"));
             params.add(Pair.of("containerType", "MService"));
-            params.add(Pair.of("caps", "search"));
-            params.add(Pair.of("caps", "trFavorites"));
-            params.add(Pair.of("caps", "alFavorites"));
-            params.add(Pair.of("caps", "ucPlaylists"));
-            params.add(Pair.of("caps", "extendedMD"));
+            params.add(Pair.of(keyCaps, "search"));
+            params.add(Pair.of(keyCaps, "trFavorites"));
+            params.add(Pair.of(keyCaps, "alFavorites"));
+            params.add(Pair.of(keyCaps, "ucPlaylists"));
+            params.add(Pair.of(keyCaps, "extendedMD"));
             params.add(Pair.of("presentationMapVersion", "1"));
             params.add(Pair.of("presentationMapUri", airsonicBaseUrl + "sonos/presentationMap.xml"));
             params.add(Pair.of("stringsVersion", "5"));

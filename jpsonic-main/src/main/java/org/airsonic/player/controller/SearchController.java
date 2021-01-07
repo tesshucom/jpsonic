@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.SearchCommand;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
@@ -74,12 +75,12 @@ public class SearchController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
-        model.addAttribute("command",new SearchCommand());
+        model.addAttribute(Attributes.model.command.name, new SearchCommand());
     }
 
     @PostMapping
-    protected String onSubmit(HttpServletRequest request, HttpServletResponse response,@ModelAttribute("command") SearchCommand command, Model model)
-            throws Exception {
+    protected String onSubmit(HttpServletRequest request, HttpServletResponse response,
+            @ModelAttribute(Attributes.model.command.name) SearchCommand command, Model model) throws Exception {
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

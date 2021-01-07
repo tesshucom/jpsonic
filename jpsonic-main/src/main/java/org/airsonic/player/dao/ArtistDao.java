@@ -36,6 +36,7 @@ import java.util.*;
  * @author Sindre Mehus
  */
 @Repository
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
 public class ArtistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, " +
             // JP >>>>

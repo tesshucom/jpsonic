@@ -173,6 +173,12 @@ public class DownloadController implements LastModified {
         return id == null ? null : mediaFileService.getMediaFile(id);
     }
 
+    private void writeLog(String phase, String source, Player player) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(phase + " '" + source + "' to " + player);
+        }
+    }
+
     /**
      * Downloads a single file.
      *
@@ -183,9 +189,7 @@ public class DownloadController implements LastModified {
      * @throws IOException If an I/O error occurs.
      */
     private void downloadFile(HttpServletResponse response, TransferStatus status, File file, HttpRange range) throws IOException {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Starting to download '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
-        }
+        writeLog("Starting to download", FileUtil.getShortPath(file), status.getPlayer());
         status.setFile(file);
 
         response.setContentType("application/x-download");
@@ -195,9 +199,7 @@ public class DownloadController implements LastModified {
         }
 
         copyFileToStream(file, RangeOutputStream.wrap(response.getOutputStream(), range), status, range);
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Downloaded '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
-        }
+        writeLog("Downloaded", FileUtil.getShortPath(file), status.getPlayer());
     }
 
     private String encodeAsRFC5987(String string) {
@@ -237,9 +239,7 @@ public class DownloadController implements LastModified {
 
         boolean coverEmbedded = false;
 
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Starting to download '" + zipFileName + "' to " + status.getPlayer());
-        }
+        writeLog("Starting to download", zipFileName, status.getPlayer());
         response.setContentType("application/x-download");
         response.setHeader("Content-Disposition", "attachment; filename*=UTF-8''" + encodeAsRFC5987(zipFileName));
 
@@ -275,10 +275,7 @@ public class DownloadController implements LastModified {
             }
 
         }
-
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Downloaded '" + zipFileName + "' to " + status.getPlayer());
-        }
+        writeLog("Downloaded", zipFileName, status.getPlayer());
     }
 
     /**
@@ -291,9 +288,7 @@ public class DownloadController implements LastModified {
      * @throws IOException If an I/O error occurs.
      */
     private void copyFileToStream(File file, OutputStream out, TransferStatus status, HttpRange range) throws IOException {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Downloading '" + FileUtil.getShortPath(file) + "' to " + status.getPlayer());
-        }
+        writeLog("Downloading", FileUtil.getShortPath(file), status.getPlayer());
 
         final int bufferSize = 16 * 1024; // 16 Kbit
 

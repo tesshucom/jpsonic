@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.command.DatabaseSettingsCommand;
 import org.airsonic.player.domain.User;
@@ -69,13 +70,12 @@ public class DatabaseSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        model.addAttribute("command", command);
+        model.addAttribute(Attributes.model.command.name, command);
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute("command") @Validated DatabaseSettingsCommand command,
-                              BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
+    protected String onSubmit(@ModelAttribute(Attributes.model.command.name) @Validated DatabaseSettingsCommand command,
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());

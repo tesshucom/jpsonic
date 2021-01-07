@@ -466,11 +466,6 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return artist.getName();
         }
-
-        @Override
-        public String toString() {
-            return "Artist " + artist.getId() + " - " + artist.getName();
-        }
     }
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
@@ -502,11 +497,6 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return album.getArtist();
         }
-
-        @Override
-        public String toString() {
-            return "Album " + album.getId() + " - " + album.getName();
-        }
     }
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
@@ -537,11 +527,6 @@ public class CoverArtController implements LastModified {
         @Override
         public String getArtist() {
             return playlist.getName();
-        }
-
-        @Override
-        public String toString() {
-            return "Playlist " + playlist.getId() + " - " + playlist.getName();
         }
 
         @Override
@@ -611,11 +596,9 @@ public class CoverArtController implements LastModified {
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class MediaFileCoverArtRequest extends CoverArtRequest {
 
-        private final MediaFile mediaFile;
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
-            this.mediaFile = mediaFile;
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
@@ -638,11 +621,6 @@ public class CoverArtController implements LastModified {
         @Override
         public String getArtist() {
             return dir.getAlbumArtist() != null ? dir.getAlbumArtist() : dir.getArtist();
-        }
-
-        @Override
-        public String toString() {
-            return "Media file " + mediaFile.getId() + " - " + mediaFile;
         }
     }
 
@@ -693,11 +671,6 @@ public class CoverArtController implements LastModified {
         @Override
         public String getArtist() {
             return mediaFile.getName();
-        }
-
-        @Override
-        public String toString() {
-            return "Video file " + mediaFile.getId() + " - " + mediaFile;
         }
     }
 
