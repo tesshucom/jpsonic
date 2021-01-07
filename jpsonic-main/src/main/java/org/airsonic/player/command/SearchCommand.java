@@ -37,13 +37,13 @@ public class SearchCommand {
     private List<MediaFile> artists;
     private List<MediaFile> albums;
     private List<MediaFile> songs;
-    private boolean isIndexBeingCreated;
+    private boolean indexBeingCreated;
     private User user;
     private boolean partyModeEnabled;
     private Player player;
-    private boolean isComposerVisible;
-    private boolean isGenreVisible;
-    private boolean isSimpleDisplay;
+    private boolean composerVisible;
+    private boolean genreVisible;
+    private boolean simpleDisplay;
 
     public String getQuery() {
         return query;
@@ -54,11 +54,11 @@ public class SearchCommand {
     }
 
     public boolean isIndexBeingCreated() {
-        return isIndexBeingCreated;
+        return indexBeingCreated;
     }
 
     public void setIndexBeingCreated(boolean indexBeingCreated) {
-        isIndexBeingCreated = indexBeingCreated;
+        this.indexBeingCreated = indexBeingCreated;
     }
 
     public List<MediaFile> getArtists() {
@@ -110,27 +110,27 @@ public class SearchCommand {
     }
 
     public boolean isComposerVisible() {
-        return isComposerVisible;
+        return composerVisible;
     }
 
     public void setComposerVisible(boolean isComposerVisible) {
-        this.isComposerVisible = isComposerVisible;
+        this.composerVisible = isComposerVisible;
     }
 
     public boolean isGenreVisible() {
-        return isGenreVisible;
+        return genreVisible;
     }
 
     public void setGenreVisible(boolean isGenreVisible) {
-        this.isGenreVisible = isGenreVisible;
+        this.genreVisible = isGenreVisible;
     }
 
     public boolean isSimpleDisplay() {
-        return isSimpleDisplay;
+        return simpleDisplay;
     }
 
     public void setSimpleDisplay(boolean isSimpleDisplay) {
-        this.isSimpleDisplay = isSimpleDisplay;
+        this.simpleDisplay = isSimpleDisplay;
     }
 
     public static class Match {

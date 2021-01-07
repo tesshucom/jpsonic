@@ -39,9 +39,9 @@ public class PlayerSettingsCommand {
     private String description;
     private String type;
     private Date lastSeen;
-    private boolean isDynamicIp;
-    private boolean isAutoControlEnabled;
-    private boolean isM3uBomEnabled;
+    private boolean dynamicIp;
+    private boolean autoControlEnabled;
+    private boolean m3uBomEnabled;
     private String technologyName;
     private String transcodeSchemeName;
     private boolean transcodingSupported;
@@ -51,7 +51,7 @@ public class PlayerSettingsCommand {
     private EnumHolder[] technologyHolders;
     private EnumHolder[] transcodeSchemeHolders;
     private Player[] players;
-    private boolean isAdmin;
+    private boolean admin;
     private String javaJukeboxMixer;
     private String[] javaJukeboxMixers;
     private boolean openDetailSetting;
@@ -100,27 +100,27 @@ public class PlayerSettingsCommand {
     }
 
     public boolean isDynamicIp() {
-        return isDynamicIp;
+        return dynamicIp;
     }
 
     public void setDynamicIp(boolean dynamicIp) {
-        isDynamicIp = dynamicIp;
+        this.dynamicIp = dynamicIp;
     }
 
     public boolean isAutoControlEnabled() {
-        return isAutoControlEnabled;
+        return autoControlEnabled;
     }
 
     public void setAutoControlEnabled(boolean autoControlEnabled) {
-        isAutoControlEnabled = autoControlEnabled;
+        this.autoControlEnabled = autoControlEnabled;
     }
 
     public boolean isM3uBomEnabled() {
-        return isM3uBomEnabled;
+        return m3uBomEnabled;
     }
 
     public void setM3uBomEnabled(boolean m3uBomEnabled) {
-        isM3uBomEnabled = m3uBomEnabled;
+        this.m3uBomEnabled = m3uBomEnabled;
     }
 
     public String getTranscodeSchemeName() {
@@ -208,11 +208,11 @@ public class PlayerSettingsCommand {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
     public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        this.admin = admin;
     }
 
     public String getJavaJukeboxMixer() {
@@ -269,11 +269,11 @@ public class PlayerSettingsCommand {
      */
     public static class TranscodingHolder {
         private Transcoding transcoding;
-        private boolean isActive;
+        private boolean active;
 
         public TranscodingHolder(Transcoding transcoding, boolean isActive) {
             this.transcoding = transcoding;
-            this.isActive = isActive;
+            this.active = isActive;
         }
 
         public Transcoding getTranscoding() {
@@ -281,7 +281,7 @@ public class PlayerSettingsCommand {
         }
 
         public boolean isActive() {
-            return isActive;
+            return active;
         }
     }
 }

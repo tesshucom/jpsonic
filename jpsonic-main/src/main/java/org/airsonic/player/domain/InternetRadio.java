@@ -33,7 +33,7 @@ public class InternetRadio {
     private String name;
     private String streamUrl;
     private String homepageUrl;
-    private boolean isEnabled;
+    private boolean enabled;
     private Date changed;
 
     /**
@@ -51,7 +51,7 @@ public class InternetRadio {
         this.name = name;
         this.streamUrl = streamUrl;
         this.homepageUrl = homepageUrl;
-        this.isEnabled = isEnabled;
+        this.enabled = isEnabled;
         this.changed = changed;
     }
 
@@ -137,7 +137,7 @@ public class InternetRadio {
      * @return Whether the radio station is enabled.
      */
     public boolean isEnabled() {
-        return isEnabled;
+        return enabled;
     }
 
     /**
@@ -146,7 +146,7 @@ public class InternetRadio {
      * @param enabled Whether the radio station is enabled.
      */
     public void setEnabled(boolean enabled) {
-        isEnabled = enabled;
+        this.enabled = enabled;
     }
 
     /**

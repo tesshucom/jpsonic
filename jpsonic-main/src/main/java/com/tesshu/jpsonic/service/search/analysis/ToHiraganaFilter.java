@@ -17,12 +17,12 @@ public final class ToHiraganaFilter extends TokenFilter {
      */
     static final class ReplaceableTermAttribute implements Replaceable {
         private char buffer[];
-        private int length;
+        private int unitLength;
         private CharTermAttribute token;
 
         @Override
         public int char32At(int pos) {
-            return UTF16.charAt(buffer, 0, length, pos);
+            return UTF16.charAt(buffer, 0, unitLength, pos);
         }
 
         @Override
@@ -49,15 +49,15 @@ public final class ToHiraganaFilter extends TokenFilter {
 
         @Override
         public int length() {
-            return length;
+            return unitLength;
         }
 
         @Override
         public void replace(int start, int limit, char[] text, int charsStart, int charsLen) {
             final int newLength = shiftForReplace(start, limit, charsLen);
             System.arraycopy(text, charsStart, buffer, start, charsLen);
-            length = newLength;
-            token.setLength(length);
+            unitLength = newLength;
+            token.setLength(unitLength);
         }
 
         @Override
@@ -65,24 +65,24 @@ public final class ToHiraganaFilter extends TokenFilter {
             final int charsLen = text.length();
             final int newLength = shiftForReplace(start, limit, charsLen);
             text.getChars(0, charsLen, buffer, start);
-            length = newLength;
-            token.setLength(length);
+            unitLength = newLength;
+            token.setLength(unitLength);
         }
 
         void setText(final CharTermAttribute token) {
             this.token = token;
             this.buffer = token.buffer();
-            this.length = token.length();
+            this.unitLength = token.length();
         }
 
         /** shift text (if necessary) for a replacement operation */
         private int shiftForReplace(int start, int limit, int charsLen) {
             final int replacementLength = limit - start;
-            final int newLength = length - replacementLength + charsLen;
-            if (newLength > length)
+            final int newLength = unitLength - replacementLength + charsLen;
+            if (newLength > unitLength)
                 buffer = token.resizeBuffer(newLength);
-            if (replacementLength != charsLen && limit < length)
-                System.arraycopy(buffer, limit, buffer, start + charsLen, length - limit);
+            if (replacementLength != charsLen && limit < unitLength)
+                System.arraycopy(buffer, limit, buffer, start + charsLen, unitLength - limit);
             return newLength;
         }
     }

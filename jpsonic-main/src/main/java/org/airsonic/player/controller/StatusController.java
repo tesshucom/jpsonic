@@ -90,32 +90,32 @@ public class StatusController {
 
     public static class TransferStatusHolder {
         private TransferStatus transferStatus;
-        private boolean isStream;
-        private boolean isDownload;
-        private boolean isUpload;
+        private boolean stream;
+        private boolean download;
+        private boolean upload;
         private int index;
         private Locale locale;
 
         TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
                              int index, Locale locale) {
             this.transferStatus = transferStatus;
-            this.isStream = isStream;
-            this.isDownload = isDownload;
-            this.isUpload = isUpload;
+            this.stream = isStream;
+            this.download = isDownload;
+            this.upload = isUpload;
             this.index = index;
             this.locale = locale;
         }
 
         public boolean isStream() {
-            return isStream;
+            return stream;
         }
 
         public boolean isDownload() {
-            return isDownload;
+            return download;
         }
 
         public boolean isUpload() {
-            return isUpload;
+            return upload;
         }
 
         public int getIndex() {

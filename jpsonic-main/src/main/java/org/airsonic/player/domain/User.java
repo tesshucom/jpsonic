@@ -36,17 +36,17 @@ public class User {
     private long bytesDownloaded;
     private long bytesUploaded;
 
-    private boolean isAdminRole;
-    private boolean isSettingsRole;
-    private boolean isDownloadRole;
-    private boolean isUploadRole;
-    private boolean isPlaylistRole;
-    private boolean isCoverArtRole;
-    private boolean isCommentRole;
-    private boolean isPodcastRole;
-    private boolean isStreamRole;
-    private boolean isJukeboxRole;
-    private boolean isShareRole;
+    private boolean adminRole;
+    private boolean settingsRole;
+    private boolean downloadRole;
+    private boolean uploadRole;
+    private boolean playlistRole;
+    private boolean coverArtRole;
+    private boolean commentRole;
+    private boolean podcastRole;
+    private boolean streamRole;
+    private boolean jukeboxRole;
+    private boolean shareRole;
 
     public User(String username, String password, String email, boolean ldapAuthenticated,
                 long bytesStreamed, long bytesDownloaded, long bytesUploaded) {
@@ -116,128 +116,128 @@ public class User {
     }
 
     public boolean isAdminRole() {
-        return isAdminRole;
+        return adminRole;
     }
 
     public void setAdminRole(boolean isAdminRole) {
-        this.isAdminRole = isAdminRole;
+        this.adminRole = isAdminRole;
     }
 
     public boolean isSettingsRole() {
-        return isAdminRole || isSettingsRole;
+        return adminRole || settingsRole;
     }
 
     public void setSettingsRole(boolean isSettingsRole) {
-        this.isSettingsRole = isSettingsRole;
+        this.settingsRole = isSettingsRole;
     }
 
     public boolean isCommentRole() {
-        return isCommentRole;
+        return commentRole;
     }
 
     public void setCommentRole(boolean isCommentRole) {
-        this.isCommentRole = isCommentRole;
+        this.commentRole = isCommentRole;
     }
 
     public boolean isDownloadRole() {
-        return isDownloadRole;
+        return downloadRole;
     }
 
     public void setDownloadRole(boolean isDownloadRole) {
-        this.isDownloadRole = isDownloadRole;
+        this.downloadRole = isDownloadRole;
     }
 
     public boolean isUploadRole() {
-        return isUploadRole;
+        return uploadRole;
     }
 
     public void setUploadRole(boolean isUploadRole) {
-        this.isUploadRole = isUploadRole;
+        this.uploadRole = isUploadRole;
     }
 
     public boolean isPlaylistRole() {
-        return isPlaylistRole;
+        return playlistRole;
     }
 
     public void setPlaylistRole(boolean isPlaylistRole) {
-        this.isPlaylistRole = isPlaylistRole;
+        this.playlistRole = isPlaylistRole;
     }
 
     public boolean isCoverArtRole() {
-        return isCoverArtRole;
+        return coverArtRole;
     }
 
     public void setCoverArtRole(boolean isCoverArtRole) {
-        this.isCoverArtRole = isCoverArtRole;
+        this.coverArtRole = isCoverArtRole;
     }
 
     public boolean isPodcastRole() {
-        return isPodcastRole;
+        return podcastRole;
     }
 
     public void setPodcastRole(boolean isPodcastRole) {
-        this.isPodcastRole = isPodcastRole;
+        this.podcastRole = isPodcastRole;
     }
 
     public boolean isStreamRole() {
-        return isStreamRole;
+        return streamRole;
     }
 
     public void setStreamRole(boolean streamRole) {
-        isStreamRole = streamRole;
+        this.streamRole = streamRole;
     }
 
     public boolean isJukeboxRole() {
-        return isJukeboxRole;
+        return jukeboxRole;
     }
 
     public void setJukeboxRole(boolean jukeboxRole) {
-        isJukeboxRole = jukeboxRole;
+        this.jukeboxRole = jukeboxRole;
     }
 
     public boolean isShareRole() {
-        return isShareRole;
+        return shareRole;
     }
 
     public void setShareRole(boolean shareRole) {
-        isShareRole = shareRole;
+        this.shareRole = shareRole;
     }
 
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(username);
 
-        if (isAdminRole) {
+        if (adminRole) {
             result.append(" [admin]");
         }
-        if (isSettingsRole) {
+        if (settingsRole) {
             result.append(" [settings]");
         }
-        if (isDownloadRole) {
+        if (downloadRole) {
             result.append(" [download]");
         }
-        if (isUploadRole) {
+        if (uploadRole) {
             result.append(" [upload]");
         }
-        if (isPlaylistRole) {
+        if (playlistRole) {
             result.append(" [playlist]");
         }
-        if (isCoverArtRole) {
+        if (coverArtRole) {
             result.append(" [coverart]");
         }
-        if (isCommentRole) {
+        if (commentRole) {
             result.append(" [comment]");
         }
-        if (isPodcastRole) {
+        if (podcastRole) {
             result.append(" [podcast]");
         }
-        if (isStreamRole) {
+        if (streamRole) {
             result.append(" [stream]");
         }
-        if (isJukeboxRole) {
+        if (jukeboxRole) {
             result.append(" [jukebox]");
         }
-        if (isShareRole) {
+        if (shareRole) {
             result.append(" [share]");
         }
 

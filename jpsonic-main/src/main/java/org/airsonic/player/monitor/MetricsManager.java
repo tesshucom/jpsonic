@@ -42,7 +42,7 @@ public class MetricsManager {
         }
     }
 
-    private boolean metricsActivatedByConfiguration() {
+    private boolean isMetricsActivatedByConfiguration() {
         if (!metricsActivatedByConfiguration.get()) {
             synchronized (lock) {
                 if (!metricsActivatedByConfiguration.get()) {
@@ -58,7 +58,7 @@ public class MetricsManager {
      * qualified name.
      */
     public Timer timer(Class clazz, String name) {
-        if (metricsActivatedByConfiguration()) {
+        if (isMetricsActivatedByConfiguration()) {
             return new TimerBuilder().timer(clazz, name);
         } else {
             return NULL_TIMER_SINGLETON;
@@ -79,7 +79,7 @@ public class MetricsManager {
      * no timer will be registered in the Metrics registry.
      */
     public TimerBuilder condition(boolean ifTrue) {
-        if (metricsActivatedByConfiguration()) {
+        if (isMetricsActivatedByConfiguration()) {
             if (!ifTrue) {
                 return CONDITION_FALSE_TIMER_BUILDER_SINGLETON;
             }

@@ -225,7 +225,7 @@ public class TransferStatus {
      *
      * @return Whether this stream has been terminated.
      */
-    public boolean terminated() {
+    public boolean isTerminated() {
         boolean result = terminated;
         terminated = false;
         return result;

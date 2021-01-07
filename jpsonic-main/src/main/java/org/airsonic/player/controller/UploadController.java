@@ -241,11 +241,11 @@ public class UploadController {
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class UploadListenerImpl implements UploadListener {
         private TransferStatus status;
-        private long start;
+        private long startTime;
 
         UploadListenerImpl(TransferStatus status) {
             this.status = status;
-            start = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
         }
 
         @Override
@@ -261,7 +261,7 @@ public class UploadController {
             long byteCount = status.getBytesTransfered() + bytesRead;
             long bitCount = byteCount * 8L;
 
-            float elapsedMillis = Math.max(1, System.currentTimeMillis() - start);
+            float elapsedMillis = Math.max(1, System.currentTimeMillis() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 
