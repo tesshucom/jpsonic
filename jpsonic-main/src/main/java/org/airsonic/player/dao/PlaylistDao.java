@@ -35,6 +35,7 @@ import java.util.*;
  * @author Sindre Mehus
  */
 @Repository
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
 public class PlaylistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "username, is_public, name, comment, file_count, duration_seconds, " +
                                                 "created, changed, imported_from";

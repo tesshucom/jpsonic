@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.MusicFolderSettingsCommand;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -119,7 +120,7 @@ public class MusicFolderSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.model.command.name, command);
     }
 
     private void expunge() {
@@ -187,7 +188,8 @@ public class MusicFolderSettingsController {
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute("command") MusicFolderSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected String onSubmit(@ModelAttribute(Attributes.model.command.name) MusicFolderSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {

@@ -62,6 +62,8 @@ import java.util.Map;
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
+    
+    private static final String REQUEST_VALUE_ANY = "any";
 
     @Autowired
     private PlayerService playerService;
@@ -113,19 +115,19 @@ public class RandomPlayQueueController {
         }
 
         // Handle the genre filter
-        if (StringUtils.equalsIgnoreCase("any", genre)) {
+        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genre)) {
             genre = null;
         }
 
         // Handle the release year filter
-        if (!StringUtils.equalsIgnoreCase("any", year)) {
+        if (!StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
             String[] tmp = StringUtils.split(year);
             fromYear = Integer.parseInt(tmp[0]);
             toYear = Integer.parseInt(tmp[1]);
         }
 
         // Handle the song rating filter
-        if (StringUtils.equalsIgnoreCase("any", songRating)) {
+        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
             doesShowStarredSongs = true;
             doesShowUnstarredSongs = true;
         } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
@@ -140,7 +142,7 @@ public class RandomPlayQueueController {
         Calendar lastPlayed = Calendar.getInstance();
         lastPlayed.setTime(new Date());
         switch (lastPlayedValue) { // nullable
-            case "any":
+            case REQUEST_VALUE_ANY:
                 lastPlayed = null;
                 break;
             case "1day":
@@ -240,7 +242,7 @@ public class RandomPlayQueueController {
         }
 
         // Handle the format filter
-        if (StringUtils.equalsIgnoreCase(format, "any")) format = null;
+        if (StringUtils.equalsIgnoreCase(format, REQUEST_VALUE_ANY)) format = null;
 
         // Handle the music folder filter
         List<MusicFolder> musicFolders = getMusicFolders(request);

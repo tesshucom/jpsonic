@@ -36,6 +36,7 @@ import java.util.List;
  * @author Sindre Mehus
  */
 @Repository
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
 public class PodcastDao extends AbstractDao {
 
     private static final String CHANNEL_INSERT_COLUMNS = "url, title, description, image_url, status, error_message";

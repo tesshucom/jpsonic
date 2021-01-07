@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.AdvancedSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -81,12 +82,13 @@ public class AdvancedSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         
-        model.addAttribute("command", command);
+        model.addAttribute(Attributes.model.command.name, command);
         return "advancedSettings";
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute AdvancedSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected String doSubmitAction(@ModelAttribute AdvancedSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         redirectAttributes.addFlashAttribute("settings_reload", false);
         redirectAttributes.addFlashAttribute("settings_toast", true);

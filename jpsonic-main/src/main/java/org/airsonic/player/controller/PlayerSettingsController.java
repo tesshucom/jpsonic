@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.PlayerSettingsCommand;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -135,7 +136,7 @@ public class PlayerSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.model.command.name, command);
     }
 
     @PostMapping

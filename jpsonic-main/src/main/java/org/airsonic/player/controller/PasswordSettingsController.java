@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.PasswordSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -63,11 +64,13 @@ public class PasswordSettingsController {
         User user = securityService.getCurrentUser(request);
         command.setUsername(user.getUsername());
         command.setLdapAuthenticated(user.isLdapAuthenticated());
-        return new ModelAndView("passwordSettings","command",command);
+        return new ModelAndView("passwordSettings", Attributes.model.command.name, command);
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") @Validated PasswordSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    protected String doSubmitAction(
+            @ModelAttribute(Attributes.model.command.name) @Validated PasswordSettingsCommand command,
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             User user = securityService.getUserByName(command.getUsername());
             user.setPassword(command.getPassword());

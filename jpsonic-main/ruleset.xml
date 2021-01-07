@@ -7,7 +7,7 @@
     <description>
         PMD 6.30.0 rulesets for Jpsonic.
 
-		[Priority level value controllable by Maven / Logical name in Eclipse plug-in]
+        [Priority level value controllable by Maven / Logical name in Eclipse plug-in]
 
         priority 1 / blocker   : Almost follow default rules
         priority 2 / critical  : Almost follow default rules
@@ -30,7 +30,7 @@
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
-	<!-- Java Rules:Best Practices -->
+    <!-- Java Rules:Best Practices -->
     <rule ref="category/java/bestpractices.xml">
         <!-- Because currently contains bugs pmd/pmd/issues/2833. -->
         <!-- 3 --><exclude name="UseCollectionIsEmpty" />
@@ -38,7 +38,7 @@
         <!-- 3 --><exclude name="MethodReturnsInternalArray" />
     </rule>
 
-	<!-- Java Rules:Code Style -->
+    <!-- Java Rules:Code Style -->
     <rule ref="category/java/codestyle.xml">
         <!-- 3 --><exclude name="MethodArgumentCouldBeFinal" />
         <!-- 3 --><exclude name="ShortVariable" />
@@ -62,7 +62,7 @@
         <!-- 4 --><exclude name="ShortClassName" />
     </rule>
 
-	<!-- Java Rules:Design -->
+    <!-- Java Rules:Design -->
     <rule ref="category/java/design.xml">
         <!-- 3 --><exclude name="TooManyMethods" />
         <!-- 3 --><exclude name="GodClass" />
@@ -92,17 +92,17 @@
         <!-- 3 --><exclude name="SwitchDensity" />
     </rule>
 
-	<!-- Java Rules:Documentation -->
+    <!-- Java Rules:Documentation -->
     <rule ref="category/java/documentation.xml">
         <!-- 3 --><exclude name="UncommentedEmptyConstructor" />
         <!-- 3 --><exclude name="CommentRequired" />
         <!-- 3 --><exclude name="CommentSize" />
     </rule>
 
-	<!-- Java Rules:Error Prone -->
+    <!-- Java Rules:Error Prone -->
     <rule ref="category/java/errorprone.xml">
         <!-- 3 --><exclude name="MissingSerialVersionUID" />
-        <!-- 3 --><exclude name="AvoidDuplicateLiterals" />
+        <!-- ****************************** Should be triaged (v109.6.0 or later) ****************************** -->
         <!-- 3 --><exclude name="AvoidCatchingThrowable" />
         <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />
         <!-- 3 --><exclude name="NullAssignment" />
@@ -110,32 +110,38 @@
         <!-- 3 --><exclude name="NonStaticInitializer" />
         <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
     </rule>
+    <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
+    <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
+        <properties>
+            <property name="skipAnnotations" value="true" />
+        </properties>
+    </rule>
 
     <!-- Java Rules:Multithreading -->
     <rule ref="category/java/multithreading.xml">
-        <!-- ****************************** Should be triaged (#586) ****************************** -->
+        <!-- ****************************** Should be triaged (#586, v109.6.0 or later) ****************************** -->
         <!-- 3 --><exclude name="DoNotUseThreads" />
     </rule>
 
-	<!-- Java Rules:Performance -->
+    <!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml">
         <!-- Because there is bug with the rules and it cannot be used. -->
         <!-- 3 --><exclude name="UseIOStreamsWithApacheCommonsFileItem" />
     </rule>
 
-	<!-- Java Rules:Security -->
+    <!-- Java Rules:Security -->
     <rule ref="category/java/security.xml" />
 
-	<!-- JSP Rules:Best Practices -->
+    <!-- JSP Rules:Best Practices -->
     <rule ref="category/jsp/bestpractices.xml">
         <!-- Style is destroyed when applied. -->
         <!-- 2 --><exclude name="NoClassAttribute" />
     </rule>
 
-	<!-- JSP Rules:Code Style -->
+    <!-- JSP Rules:Code Style -->
     <rule ref="category/jsp/codestyle.xml" />
 
-	<!-- JSP Rules:Design -->
+    <!-- JSP Rules:Design -->
     <rule ref="category/jsp/design.xml">
         <!-- Many include JSTL, and excessive partitioning reduces productivity and communication efficiency. -->
         <!-- 2 --><exclude name="NoLongScripts" />
@@ -143,10 +149,10 @@
         <!-- 3 --><exclude name="NoInlineScript" />
     </rule>
 
-	<!-- JSP Rules:Error Prone -->
+    <!-- JSP Rules:Error Prone -->
     <rule ref="category/jsp/errorprone.xml" />
 
-	<!-- JSP Rules:Security -->
+    <!-- JSP Rules:Security -->
     <rule ref="category/jsp/security.xml">
         <!-- *** Escape is applied to required items. #614 *** -->
         <!-- 3 --><exclude name="NoUnsanitizedJSPExpression" />

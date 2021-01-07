@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
@@ -132,11 +133,12 @@ public class GeneralSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.model.command.name, command);
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") GeneralSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected String doSubmitAction(@ModelAttribute(Attributes.model.command.name) GeneralSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         Theme theme = settingsService.getAvailableThemes()[themeIndex];

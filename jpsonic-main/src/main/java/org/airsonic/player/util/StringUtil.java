@@ -47,15 +47,17 @@ public final class StringUtil {
 
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
+    private static final String MP4 = "audio/mp4";
+    
     private static final String[][] MIME_TYPES = {
             {"mp3", "audio/mpeg"},
             {"ogg", "audio/ogg"},
             {"oga", "audio/ogg"},
             {"opus", "audio/ogg"},
             {"ogx", "application/ogg"},
-            {"aac", "audio/mp4"},
-            {"m4a", "audio/mp4"},
-            {"m4b", "audio/mp4"},
+            {"aac", MP4},
+            {"m4a", MP4},
+            {"m4b", MP4},
             {"flac", "audio/flac"},
             {"wav", "audio/x-wav"},
             {"wma", "audio/x-ms-wma"},
@@ -115,8 +117,8 @@ public final class StringUtil {
     public static String getMimeType(String suffix, boolean sonos) {
         String result = getMimeType(suffix);
 
-        // Sonos doesn't work with "audio/mp4" but needs "audio/aac" for ALAC and AAC (in MP4 container)
-        return sonos && "audio/mp4".equals(result) ? "audio/aac" : result;
+        // Sonos doesn't work with MP4 but needs "audio/aac" for ALAC and AAC (in MP4 container)
+        return sonos && MP4.equals(result) ? "audio/aac" : result;
     }
 
     public static String getSuffix(String mimeType) {
