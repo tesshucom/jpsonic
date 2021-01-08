@@ -90,7 +90,7 @@
         <!-- 3 --><exclude name="ExcessiveClassLength" />
         <!-- 3 --><exclude name="CouplingBetweenObjects" />
         <!-- 3 --><exclude name="SwitchDensity" />
-		<!-- Because this rule traditionally causes an error that the class does not exist. -->
+        <!-- Because this rule traditionally causes an error that the class does not exist. -->
         <!-- 3 --><exclude name="LoosePackageCoupling" />
     </rule>
 
@@ -103,11 +103,12 @@
 
     <!-- Java Rules:Error Prone -->
     <rule ref="category/java/errorprone.xml">
-        <!-- 3 --><exclude name="MissingSerialVersionUID" />
-        <!-- ****************************** Should be triaged (v109.6.0 or later) ****************************** -->
+        <!-- ****************************** Should be triaged (#824, v109.6.0 or later) ****************************** -->
         <!-- 3 --><exclude name="AvoidCatchingThrowable" />
-        <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />
+        <!-- 3 --><exclude name="MissingSerialVersionUID" />
         <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
+
+        <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />
     </rule>
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
     <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
@@ -156,4 +157,17 @@
         <!-- *** Escape is applied to required items. #614 *** -->
         <!-- 3 --><exclude name="NoUnsanitizedJSPExpression" />
     </rule>
+
+    <!-- VM:Best Practices -->
+    <rule ref="category/vm/bestpractices.xml" />
+
+    <!-- VM:Design -->
+    <rule ref="category/vm/design.xml" />
+
+    <!-- VM:Error Prone -->
+    <rule ref="category/vm/errorprone.xml" />
+
+    <!-- POM:Error Prone -->
+    <rule ref="category/pom/errorprone.xml" />
+
 </ruleset>
