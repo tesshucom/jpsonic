@@ -100,7 +100,13 @@ public final class AnalyzerFactory {
     private static final String FILTER_ATTR_ALL = "all";
 
     
-    // Package method for test. Only called from the constructor during normal
+    @SuppressWarnings("PMD.NullAssignment")
+    /*
+     * Dynamic analyzer changes require explicit cache clearing.
+     * (The constructor is called by Spring, so changes are always dynamic.)
+     * However, this method is usually executed only once when the server starts.
+     * The timing of initialization and dynamic changes should only be considered during testing.
+     */
     void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
         this.isSearchMethodLegacy = isSearchMethodLegacy;
         if (!isSearchMethodLegacy) {

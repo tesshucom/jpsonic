@@ -189,7 +189,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         final String complement = children.get(2).getText();
 
         if (UNSUPPORTED_CLASS.contains(complement)) {
-            mediaTypeQueryBuilder = null;
             throw createIllegal("The current version does not support searching for this class.", subject, verb, complement);
         }
 
@@ -232,7 +231,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                         break;
 
                     default:
-                        mediaTypeQueryBuilder = null;
                         throw createIllegal("An unknown class was specified.", subject, verb, complement);
 
                 }
@@ -281,7 +279,6 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
                         break;
 
                     default:
-                        mediaTypeQueryBuilder = null;
                         throw createIllegal("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.", subject, verb, complement);
 
                 }

@@ -60,6 +60,7 @@ public class ResponseHeaderFilter implements Filter {
         this.filterConfig = filterConfig;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to destroy
     @Override
     public void destroy() {
         this.filterConfig = null;

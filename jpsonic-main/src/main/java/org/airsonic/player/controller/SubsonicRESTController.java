@@ -2317,6 +2317,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, res);
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @RequestMapping("/setRating")
     public void setRating(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);

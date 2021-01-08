@@ -573,6 +573,7 @@ public class SettingsService {
         }
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     public void setMusicFileTypes(String fileTypes) {
         synchronized (LOCKS.get(LocksKeys.MUSIC_FILE)) {
             setProperty(KEY_MUSIC_FILE_TYPES, fileTypes);
@@ -595,6 +596,7 @@ public class SettingsService {
         }
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     public void setVideoFileTypes(String fileTypes) {
         synchronized (LOCKS.get(LocksKeys.VIDEO_FILE)) {
             setProperty(KEY_VIDEO_FILE_TYPES, fileTypes);
@@ -617,6 +619,7 @@ public class SettingsService {
         }
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     public void setCoverArtFileTypes(String fileTypes) {
         synchronized (LOCKS.get(LocksKeys.COVER_ART)) {
             setProperty(KEY_COVER_ART_FILE_TYPES, fileTypes);
@@ -997,6 +1000,7 @@ public class SettingsService {
         compileExcludePattern();
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     private void compileExcludePattern() {
         if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());
@@ -1053,6 +1057,7 @@ public class SettingsService {
      *
      * @param locale The locale.
      */
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     public void setLocale(Locale locale) {
         this.locale = null;
         setProperty(KEY_LOCALE_LANGUAGE, locale.getLanguage());
@@ -1276,6 +1281,7 @@ public class SettingsService {
         clearMusicFolderCache();
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to clear cache
     public void clearMusicFolderCache() {
         cachedMusicFolders = null;
         cachedMusicFoldersPerUser.clear();

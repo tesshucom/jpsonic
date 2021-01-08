@@ -181,6 +181,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
 
         private String name;
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(Artist artist) {
             super();
             this.artist = artist;
@@ -190,6 +191,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
             this.name = artist.getName();
         }
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(MediaFile song) {
             super();
             this.song = song;
@@ -199,6 +201,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
             this.name = song.getName();
         }
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(MusicFolder folder) {
             super();
             this.folder = folder;

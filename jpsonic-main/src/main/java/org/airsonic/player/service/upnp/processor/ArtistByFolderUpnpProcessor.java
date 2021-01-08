@@ -214,6 +214,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
 
         private String name;
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(Album album) {
             super();
             this.artist = null;
@@ -224,6 +225,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             this.name = album.getName();
         }
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(Artist artist) {
             super();
             this.artist = artist;
@@ -234,6 +236,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             this.name = artist.getName();
         }
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(MediaFile song) {
             super();
             this.song = song;
@@ -244,6 +247,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             this.name = song.getName();
         }
 
+        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(MusicFolder folder) {
             super();
             this.folder = folder;

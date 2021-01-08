@@ -49,7 +49,7 @@ public class SetRatingController {
     @Autowired
     private MediaFileService mediaFileService;
 
-
+    @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
         int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
