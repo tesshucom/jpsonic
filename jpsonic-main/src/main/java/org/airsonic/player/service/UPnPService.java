@@ -71,7 +71,7 @@ public class UPnPService {
     @Autowired
     private SettingsService settingsService;
 
-    private UpnpService upnpService;
+    private UpnpService deligate;
 
     @Autowired
     @Qualifier("dispatchingContentDirectory")
@@ -107,15 +107,15 @@ public class UPnPService {
     public void ensureServiceStopped() {
         running.getAndUpdate(bo -> {
             if (bo) {
-                if (upnpService != null) {
+                if (deligate != null) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Disabling UPnP/DLNA media server");
                     }
-                    upnpService.getRegistry().removeAllLocalDevices();
+                    deligate.getRegistry().removeAllLocalDevices();
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Shutting down UPnP service...");
                     }
-                    upnpService.shutdown();
+                    deligate.shutdown();
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Shutting down UPnP service - Done!");
                     }
@@ -155,9 +155,9 @@ public class UPnPService {
             UpnpServiceConfiguration upnpConf = 0 < SettingsService.getDefaultUPnPPort()
                     ? new DefaultUpnpServiceConfiguration(SettingsService.getDefaultUPnPPort())
                     : new ApacheUpnpServiceConfiguration();
-            upnpService = new UpnpServiceImpl(upnpConf);
+            deligate = new UpnpServiceImpl(upnpConf);
             // Asynch search for other devices (most importantly UPnP-enabled routers for port-mapping)
-            upnpService.getControlPoint().search();
+            deligate.getControlPoint().search();
         }
     }
 
@@ -165,7 +165,7 @@ public class UPnPService {
         if (enabled) {
             ensureServiceStarted();
             try {
-                upnpService.getRegistry().addDevice(createMediaServerDevice());
+                deligate.getRegistry().addDevice(createMediaServerDevice());
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Enabling UPnP/DLNA media server");
                 }
@@ -238,7 +238,7 @@ public class UPnPService {
     public List<String> getSonosControllerHosts() {
         ensureServiceStarted();
         List<String> result = new ArrayList<>();
-        for (Device device : upnpService.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
+        for (Device device : deligate.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
             if (device instanceof RemoteDevice) {
                 URL descriptorURL = ((RemoteDevice) device).getIdentity().getDescriptorURL();
                 if (descriptorURL != null) {
@@ -250,7 +250,7 @@ public class UPnPService {
     }
 
     public UpnpService getUpnpService() {
-        return upnpService;
+        return deligate;
     }
 
     public void setSettingsService(SettingsService settingsService) {
