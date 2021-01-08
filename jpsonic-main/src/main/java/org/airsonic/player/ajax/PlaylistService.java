@@ -31,6 +31,7 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -53,7 +54,8 @@ public class PlaylistService {
     @Autowired
     private SecurityService securityService;
     @Autowired
-    private org.airsonic.player.service.PlaylistService playlistService;
+    @Qualifier("playlistService")
+    private org.airsonic.player.service.PlaylistService deligate;
     @Autowired
     private MediaFileDao mediaFileDao;
     @Autowired
@@ -66,20 +68,20 @@ public class PlaylistService {
     public List<Playlist> getReadablePlaylists() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        return playlistService.getReadablePlaylistsForUser(username);
+        return deligate.getReadablePlaylistsForUser(username);
     }
 
     public List<Playlist> getWritablePlaylists() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        return playlistService.getWritablePlaylistsForUser(username);
+        return deligate.getWritablePlaylistsForUser(username);
     }
 
     public PlaylistInfo getPlaylist(int id) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
 
-        Playlist playlist = playlistService.getPlaylist(id);
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        Playlist playlist = deligate.getPlaylist(id);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
 
         String username = securityService.getCurrentUsername(request);
         mediaFileService.populateStarredDate(files, username);
@@ -108,7 +110,7 @@ public class PlaylistService {
         playlist.setShared(false);
         playlist.setName(dateFormat.format(now));
 
-        playlistService.createPlaylist(playlist);
+        deligate.createPlaylist(playlist);
         return getReadablePlaylists();
     }
 
@@ -127,8 +129,8 @@ public class PlaylistService {
         playlist.setShared(false);
         playlist.setName(dateFormat.format(now));
 
-        playlistService.createPlaylist(playlist);
-        playlistService.setFilesInPlaylist(playlist.getId(), player.getPlayQueue().getFiles());
+        deligate.createPlaylist(playlist);
+        deligate.setFilesInPlaylist(playlist.getId(), player.getPlayQueue().getFiles());
 
         return playlist.getId();
     }
@@ -149,23 +151,23 @@ public class PlaylistService {
         ResourceBundle bundle = ResourceBundle.getBundle("org.airsonic.player.i18n.ResourceBundle", locale);
         playlist.setName(bundle.getString("top.starred") + " " + dateFormat.format(now));
 
-        playlistService.createPlaylist(playlist);
+        deligate.createPlaylist(playlist);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaFile> songs = mediaFileDao.getStarredFiles(0, Integer.MAX_VALUE, username, musicFolders);
-        playlistService.setFilesInPlaylist(playlist.getId(), songs);
+        deligate.setFilesInPlaylist(playlist.getId(), songs);
 
         return playlist.getId();
     }
 
     public void appendToPlaylist(int playlistId, List<Integer> mediaFileIds) {
-        List<MediaFile> files = playlistService.getFilesInPlaylist(playlistId, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(playlistId, true);
         for (Integer mediaFileId : mediaFileIds) {
             MediaFile file = mediaFileService.getMediaFile(mediaFileId);
             if (file != null) {
                 files.add(file);
             }
         }
-        playlistService.setFilesInPlaylist(playlistId, files);
+        deligate.setFilesInPlaylist(playlistId, files);
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
@@ -182,7 +184,7 @@ public class PlaylistService {
     public PlaylistInfo toggleStar(int id, int index) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile file = files.get(index);
 
         boolean starred = mediaFileDao.getMediaFileStarredDate(file.getId(), username) != null;
@@ -195,57 +197,57 @@ public class PlaylistService {
     }
 
     public PlaylistInfo remove(int id, int index) {
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         files.remove(index);
-        playlistService.setFilesInPlaylist(id, files);
+        deligate.setFilesInPlaylist(id, files);
         return getPlaylist(id);
     }
 
     public PlaylistInfo up(int id, int index) {
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         if (index > 0) {
             MediaFile file = files.remove(index);
             files.add(index - 1, file);
-            playlistService.setFilesInPlaylist(id, files);
+            deligate.setFilesInPlaylist(id, files);
         }
         return getPlaylist(id);
     }
 
     public PlaylistInfo rearrange(int id, int... indexes) {
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         MediaFile[] newFiles = new MediaFile[files.size()];
         for (int i = 0; i < indexes.length; i++) {
             newFiles[i] = files.get(indexes[i]);
         }
-        playlistService.setFilesInPlaylist(id, Arrays.asList(newFiles));
+        deligate.setFilesInPlaylist(id, Arrays.asList(newFiles));
         return getPlaylist(id);
     }
 
     public PlaylistInfo down(int id, int index) {
-        List<MediaFile> files = playlistService.getFilesInPlaylist(id, true);
+        List<MediaFile> files = deligate.getFilesInPlaylist(id, true);
         if (index < files.size() - 1) {
             MediaFile file = files.remove(index);
             files.add(index + 1, file);
-            playlistService.setFilesInPlaylist(id, files);
+            deligate.setFilesInPlaylist(id, files);
         }
         return getPlaylist(id);
     }
 
     public void deletePlaylist(int id) {
-        playlistService.deletePlaylist(id);
+        deligate.deletePlaylist(id);
     }
 
     public PlaylistInfo updatePlaylist(int id, String name, String comment, boolean shared) {
-        Playlist playlist = playlistService.getPlaylist(id);
+        Playlist playlist = deligate.getPlaylist(id);
         playlist.setName(name);
         playlist.setComment(comment);
         playlist.setShared(shared);
-        playlistService.updatePlaylist(playlist);
+        deligate.updatePlaylist(playlist);
         return getPlaylist(id);
     }
 
     public void setPlaylistService(org.airsonic.player.service.PlaylistService playlistService) {
-        this.playlistService = playlistService;
+        this.deligate = playlistService;
     }
 
     public void setSecurityService(SecurityService securityService) {

@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Genres {
 
-    private final Map<String, Genre> genres = new ConcurrentHashMap<>();
+    private final Map<String, Genre> genreMap = new ConcurrentHashMap<>();
 
     public void incrementAlbumCount(String genreName) {
         Genre genre = getOrCreateGenre(genreName);
@@ -45,15 +45,15 @@ public class Genres {
     }
 
     private Genre getOrCreateGenre(String genreName) {
-        Genre genre = genres.get(genreName);
+        Genre genre = genreMap.get(genreName);
         if (genre == null) {
             genre = new Genre(genreName);
-            genres.put(genreName, genre);
+            genreMap.put(genreName, genre);
         }
         return genre;
     }
 
     public List<Genre> getGenres() {
-        return new ArrayList<Genre>(genres.values());
+        return new ArrayList<Genre>(genreMap.values());
     }
 }
