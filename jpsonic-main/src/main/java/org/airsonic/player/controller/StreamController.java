@@ -97,6 +97,7 @@ public class StreamController {
     @Autowired
     private SearchService searchService;
 
+    @SuppressWarnings("PMD.NullAssignment") // (maxBitRate)Intentional allocation to register null
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 

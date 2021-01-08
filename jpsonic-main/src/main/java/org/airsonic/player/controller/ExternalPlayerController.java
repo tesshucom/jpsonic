@@ -75,6 +75,7 @@ public class ExternalPlayerController {
     @Autowired
     private JWTSecurityService jwtSecurityService;
 
+    @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 

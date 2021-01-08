@@ -66,6 +66,7 @@ public class EscapeJavaScriptTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to release
     @Override
     public void release() {
         string = null;

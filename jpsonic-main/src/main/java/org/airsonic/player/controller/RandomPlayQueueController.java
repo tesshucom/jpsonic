@@ -76,6 +76,11 @@ public class RandomPlayQueueController {
     @Autowired
     private IndexManager indexManager;
 
+    @SuppressWarnings("PMD.NullAssignment")
+    /*
+     * (genre, lastPlayed, format)
+     * Intentional assignment in the case of receiving a param indicating no condition value.
+     */
     @PostMapping
     protected String handleRandomPlayQueue(
             ModelMap model,
@@ -170,12 +175,10 @@ public class RandomPlayQueueController {
         if (lastPlayed != null) {
             switch (lastPlayedComp) { // nullable
                 case "lt":
-                    minLastPlayedDate = null;
                     maxLastPlayedDate = lastPlayed.getTime();
                     break;
                 case "gt":
                     minLastPlayedDate = lastPlayed.getTime();
-                    maxLastPlayedDate = null;
                     break;
                 default:
                     // none
@@ -187,20 +190,16 @@ public class RandomPlayQueueController {
         if (albumRatingValue != null) {
             switch (albumRatingComp) { // nullable
                 case "lt":
-                    minAlbumRating = null;
                     maxAlbumRating = albumRatingValue - 1;
                     break;
                 case "gt":
                     minAlbumRating = albumRatingValue + 1;
-                    maxAlbumRating = null;
                     break;
                 case "le":
-                    minAlbumRating = null;
                     maxAlbumRating = albumRatingValue;
                     break;
                 case "ge":
                     minAlbumRating = albumRatingValue;
-                    maxAlbumRating = null;
                     break;
                 case "eq":
                     minAlbumRating = albumRatingValue;
@@ -216,20 +215,16 @@ public class RandomPlayQueueController {
         if (playCountValue != null) {
             switch (playCountComp) { // nullable
                 case "lt":
-                    minPlayCount = null;
                     maxPlayCount = playCountValue - 1;
                     break;
                 case "gt":
                     minPlayCount = playCountValue + 1;
-                    maxPlayCount = null;
                     break;
                 case "le":
-                    minPlayCount = null;
                     maxPlayCount = playCountValue;
                     break;
                 case "ge":
                     minPlayCount = playCountValue;
-                    maxPlayCount = null;
                     break;
                 case "eq":
                     minPlayCount = playCountValue;
@@ -242,7 +237,9 @@ public class RandomPlayQueueController {
         }
 
         // Handle the format filter
-        if (StringUtils.equalsIgnoreCase(format, REQUEST_VALUE_ANY)) format = null;
+        if (StringUtils.equalsIgnoreCase(format, REQUEST_VALUE_ANY)) {
+            format = null;
+        }
 
         // Handle the music folder filter
         List<MusicFolder> musicFolders = getMusicFolders(request);
@@ -299,6 +296,7 @@ public class RandomPlayQueueController {
         return "reload";
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional assignment in the case of receiving a param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request) throws ServletRequestBindingException {
         String username = securityService.getCurrentUsername(request);
         Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, "musicFolderId");

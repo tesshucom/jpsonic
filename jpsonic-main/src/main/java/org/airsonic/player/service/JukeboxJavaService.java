@@ -179,7 +179,6 @@ public class JukeboxJavaService {
         LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
         if (status != null) {
             statusService.removeStreamStatus(status);
-            status = null;
         }
         status = statusService.createStreamStatus(player);
         status.setFile(file.getFile());
@@ -188,6 +187,7 @@ public class JukeboxJavaService {
         scrobble(player, file, false);
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to encourage garbage collection.
     private void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
