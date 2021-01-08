@@ -107,7 +107,6 @@
         <!-- ****************************** Should be triaged (v109.6.0 or later) ****************************** -->
         <!-- 3 --><exclude name="AvoidCatchingThrowable" />
         <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />
-        <!-- 3 --><exclude name="NonStaticInitializer" />
         <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
     </rule>
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
