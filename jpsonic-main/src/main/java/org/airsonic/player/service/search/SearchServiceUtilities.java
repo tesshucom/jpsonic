@@ -94,17 +94,15 @@ public class SearchServiceUtilities {
     @Autowired
     private MediaFileService mediaFileService;
 
-    private Random random;
+    private static Random random;
 
-    private Random secureRandom;
-
-    {
+    static {
         try {
-            secureRandom = SecureRandom.getInstance("NativePRNG");
+            random = SecureRandom.getInstance("NativePRNG");
             LOG.info("NativePRNG is used to create a random list of songs.");
         } catch (NoSuchAlgorithmException e) {
             try {
-                secureRandom = SecureRandom.getInstance("SHA1PRNG");
+                random = SecureRandom.getInstance("SHA1PRNG");
                 LOG.info("SHA1PRNG is used to create a random list of songs.");
             } catch (NoSuchAlgorithmException e1) {
                 random = new Random(System.currentTimeMillis());
@@ -113,8 +111,7 @@ public class SearchServiceUtilities {
         }
     }
 
-    public Function<Integer, Integer> nextInt = (range) -> 
-        isEmpty(secureRandom) ? random.nextInt(range) : secureRandom.nextInt(range);  
+    public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
     public final Function<Long, Integer> round = (i) -> {
         // return
