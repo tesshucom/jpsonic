@@ -49,6 +49,7 @@ public class InternetRadioService {
     /**
      * Generic exception class for playlists.
      */
+    @SuppressWarnings("serial")
     private static class PlaylistException extends Exception {
         public PlaylistException(String message) {
             super(message);
@@ -58,6 +59,7 @@ public class InternetRadioService {
     /**
      * Exception thrown when the remote playlist is too large to be parsed completely.
      */
+    @SuppressWarnings("serial")
     private class PlaylistTooLarge extends PlaylistException {
         public PlaylistTooLarge(String message) {
             super(message);
@@ -67,6 +69,7 @@ public class InternetRadioService {
     /**
      * Exception thrown when the remote playlist format cannot be determined.
      */
+    @SuppressWarnings("serial")
     private class PlaylistFormatUnsupported extends PlaylistException {
         public PlaylistFormatUnsupported(String message) {
             super(message);
@@ -76,6 +79,7 @@ public class InternetRadioService {
     /**
      * Exception thrown when too many redirects occurred when retrieving a remote playlist.
      */
+    @SuppressWarnings("serial")
     private class PlaylistHasTooManyRedirects extends PlaylistException {
         public PlaylistHasTooManyRedirects(String message) {
             super(message);

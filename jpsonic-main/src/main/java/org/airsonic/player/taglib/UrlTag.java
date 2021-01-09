@@ -53,6 +53,7 @@ import java.util.List;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class UrlTag extends BodyTagSupport {
 
     private static final String DEFAULT_ENCODING = "Utf8Hex";

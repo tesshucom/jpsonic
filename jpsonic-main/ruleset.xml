@@ -105,7 +105,9 @@
     <rule ref="category/java/errorprone.xml">
         <!-- ****************************** Should be triaged (#824, v109.6.0 or later) ****************************** -->
         <!-- 3 --><exclude name="AvoidCatchingThrowable" />
+        <!-- Because not needed for this project. -->
         <!-- 3 --><exclude name="MissingSerialVersionUID" />
+        <!-- Because not needed for this project. -->
         <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
 
         <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />

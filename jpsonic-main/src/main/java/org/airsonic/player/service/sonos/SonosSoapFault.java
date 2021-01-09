@@ -23,6 +23,7 @@ package org.airsonic.player.service.sonos;
  * @author Sindre Mehus
  * @version $Id$
  */
+@SuppressWarnings("serial")
 public class SonosSoapFault extends RuntimeException {
 
     private final String faultCode;
@@ -43,6 +44,7 @@ public class SonosSoapFault extends RuntimeException {
         return sonosError;
     }
 
+    @SuppressWarnings("serial")
     public static class LoginInvalid extends SonosSoapFault {
 
         public LoginInvalid() {
@@ -50,6 +52,7 @@ public class SonosSoapFault extends RuntimeException {
         }
     }
 
+    @SuppressWarnings("serial")
     public static class LoginUnauthorized extends SonosSoapFault {
 
         public LoginUnauthorized() {
