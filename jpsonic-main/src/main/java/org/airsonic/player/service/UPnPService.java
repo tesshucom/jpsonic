@@ -192,9 +192,9 @@ public class UPnPService {
                 new ModelDetails(serverName),
                 new DLNADoc[]{new DLNADoc("DMS", DLNADoc.Version.V1_5)}, null);
 
+        @SuppressWarnings("unchecked")
         LocalService<CustomContentDirectory> contentDirectoryservice = new AnnotationLocalServiceBinder().read(CustomContentDirectory.class);
         contentDirectoryservice.setManager(new DefaultServiceManager<CustomContentDirectory>(contentDirectoryservice) {
-
             @Override
             protected CustomContentDirectory createServiceInstance() {
                 return dispatchingContentDirectory;
@@ -216,6 +216,7 @@ public class UPnPService {
             }
         }
 
+        @SuppressWarnings("unchecked")
         LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder().read(ConnectionManagerService.class);
         connetionManagerService.setManager(new DefaultServiceManager<ConnectionManagerService>(connetionManagerService) {
             @Override
@@ -225,6 +226,7 @@ public class UPnPService {
         });
 
         // For compatibility with Microsoft
+        @SuppressWarnings("unchecked")
         LocalService<MSMediaReceiverRegistrarService> receiverService = new AnnotationLocalServiceBinder().read(MSMediaReceiverRegistrarService.class);
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
@@ -238,7 +240,7 @@ public class UPnPService {
     public List<String> getSonosControllerHosts() {
         ensureServiceStarted();
         List<String> result = new ArrayList<>();
-        for (Device device : deligate.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
+        for (Device<?, ?, ?> device : deligate.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
             if (device instanceof RemoteDevice) {
                 URL descriptorURL = ((RemoteDevice) device).getIdentity().getDescriptorURL();
                 if (descriptorURL != null) {
