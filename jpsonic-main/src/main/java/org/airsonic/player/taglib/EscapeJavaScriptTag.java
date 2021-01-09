@@ -47,6 +47,7 @@ import java.io.IOException;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class EscapeJavaScriptTag extends BodyTagSupport {
 
     private String string;

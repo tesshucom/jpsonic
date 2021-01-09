@@ -44,6 +44,7 @@ import java.util.Locale;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class FormatBytesTag extends BodyTagSupport {
 
     private long bytes;

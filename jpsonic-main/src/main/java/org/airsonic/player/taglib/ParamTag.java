@@ -28,6 +28,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * @see ParamTag
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class ParamTag extends TagSupport {
 
     private String name;

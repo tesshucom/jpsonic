@@ -207,6 +207,7 @@ public class MusicIndexService {
         this.mediaFileService = mediaFileService;
     }
 
+    @SuppressWarnings("serial")
     private static class MusicIndexComparator implements Comparator<MusicIndex>, Serializable {
 
         private List<MusicIndex> indexes;

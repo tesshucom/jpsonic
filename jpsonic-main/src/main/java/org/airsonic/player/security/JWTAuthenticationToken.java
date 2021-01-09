@@ -5,6 +5,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
+@SuppressWarnings("serial")
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
     private final String token;
