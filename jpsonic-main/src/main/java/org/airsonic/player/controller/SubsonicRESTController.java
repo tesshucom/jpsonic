@@ -249,6 +249,8 @@ public class SubsonicRESTController {
     private static final String MSG_PLAYLIST_DENIED = "Permission denied for playlist: ";
     private static final String MSG_PODCAST_NOT_AUTHORIZED = " is not authorized to administrate podcasts.";
 
+    private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public void handleMissingRequestParam(HttpServletRequest request,
                                           HttpServletResponse response,
@@ -1339,7 +1341,7 @@ public class SubsonicRESTController {
             }
 
             long minutesAgo = status.getMinutesAgo();
-            if (minutesAgo < 60) {
+            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 NowPlayingEntry entry = new NowPlayingEntry();
                 entry.setUsername(username);
                 entry.setPlayerId(player.getId());

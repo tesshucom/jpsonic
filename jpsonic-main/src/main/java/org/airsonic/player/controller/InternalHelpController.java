@@ -72,6 +72,7 @@ public class InternalHelpController {
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
 
     private static final int LOG_LINES_TO_SHOW = 50;
+    private static final String TABLE_TYPE_TABLE = "table";
 
     public static class IndexStatistics {
         private String name;
@@ -348,7 +349,7 @@ public class InternalHelpController {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
                     }
-                    if (!"table".equalsIgnoreCase(tableType))
+                    if (!TABLE_TYPE_TABLE.equalsIgnoreCase(tableType))
                         continue; // Table type
                     // MariaDB has "null" schemas, while other databases use "public".
                     if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema))

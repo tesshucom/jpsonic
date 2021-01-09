@@ -69,7 +69,7 @@ public enum SupportableBCP47 {
     }
 
     public static SupportableBCP47 valueOf(Locale locale) {
-        if (locale == null || "en-US".equals(locale.toLanguageTag())) {
+        if (locale == null || EN_US.name().equals(locale.toLanguageTag())) {
             return EN;
         } else if ("en-GB".equals(locale.toLanguageTag())) {
             return EN_GB;

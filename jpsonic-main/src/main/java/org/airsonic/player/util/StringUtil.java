@@ -48,7 +48,11 @@ public final class StringUtil {
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
 
     private static final String MP4 = "audio/mp4";
-    
+
+    private static final long BINARY_1KB = 1024L;
+
+    private static final long DURATION_FORMAT_THRESHOLD = 3600;
+
     private static final String[][] MIME_TYPES = {
             {"mp3", "audio/mpeg"},
             {"ogg", "audio/ogg"},
@@ -147,25 +151,25 @@ public final class StringUtil {
     public static String formatBytes(long byteCount, Locale locale) {
         synchronized (FORMAT_LOCK) {
             // More than 1 TB?
-            if (byteCount >= 1024L * 1024 * 1024 * 1024) {
+            if (byteCount >= BINARY_1KB * 1024 * 1024 * 1024) {
                 NumberFormat teraByteFormat = new DecimalFormat("0.00 TB", new DecimalFormatSymbols(locale));
                 return teraByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024 * 1024));
             }
 
             // More than 1 GB?
-            if (byteCount >= 1024L * 1024 * 1024) {
+            if (byteCount >= BINARY_1KB * 1024 * 1024) {
                 NumberFormat gigaByteFormat = new DecimalFormat("0.00 GB", new DecimalFormatSymbols(locale));
                 return gigaByteFormat.format(byteCount / ((double) 1024 * 1024 * 1024));
             }
 
             // More than 1 MB?
-            if (byteCount >= 1024L * 1024) {
+            if (byteCount >= BINARY_1KB * 1024) {
                 NumberFormat megaByteFormat = new DecimalFormat("0.0 MB", new DecimalFormatSymbols(locale));
                 return megaByteFormat.format(byteCount / ((double) 1024 * 1024));
             }
 
             // More than 1 KB?
-            if (byteCount >= 1024L) {
+            if (byteCount >= BINARY_1KB) {
                 NumberFormat kiloByteFormat = new DecimalFormat("0 KB", new DecimalFormatSymbols(locale));
                 return kiloByteFormat.format((double) byteCount / 1024);
             }
@@ -198,7 +202,7 @@ public final class StringUtil {
      * Formats a duration to M:SS or H:MM:SS
      */
     public static String formatDuration(int seconds) {
-        if (seconds >= 3600) {
+        if (seconds >= DURATION_FORMAT_THRESHOLD) {
             return formatDurationHMMSS(seconds);
         }
         return formatDurationMSS(seconds);

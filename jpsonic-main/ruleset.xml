@@ -109,13 +109,19 @@
         <!-- 3 --><exclude name="MissingSerialVersionUID" />
         <!-- Because not needed for this project. -->
         <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
-
-        <!-- 3 --><exclude name="AvoidLiteralsInIfCondition" />
     </rule>
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
+    <!-- 3 -->
     <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
         <properties>
             <property name="skipAnnotations" value="true" />
+        </properties>
+    </rule>
+    <!-- 3 -->
+    <!-- 0L was added. -->
+    <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
+        <properties>
+            <property name="ignoreMagicNumbers" value="-1,0,0L" />
         </properties>
     </rule>
 

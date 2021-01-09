@@ -55,6 +55,8 @@ public class StatusController {
     @Autowired
     private SecurityService securityService;
 
+    private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
+
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
@@ -68,7 +70,7 @@ public class StatusController {
 
         for (int i = 0; i < streamStatuses.size(); i++) {
             long minutesAgo = streamStatuses.get(i).getMillisSinceLastUpdate() / 1000L / 60L;
-            if (minutesAgo < 60L) {
+            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 transferStatuses.add(new TransferStatusHolder(streamStatuses.get(i), true, false, false, i, locale));
             }
         }

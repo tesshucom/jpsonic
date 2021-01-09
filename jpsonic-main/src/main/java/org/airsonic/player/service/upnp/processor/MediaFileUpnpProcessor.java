@@ -63,6 +63,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final PlayerService playerService;
 
+    public static final int SINGLE_MUSIC_FOLDER = 1;
+    
     public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
         super(d, u);
         this.util = u;
@@ -128,7 +130,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     public int getItemCount() {
         int count;
         List<MusicFolder> allFolders = util.getAllMusicFolders();
-        if (allFolders.size() == 1) {
+        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             count = mediaFileService.getChildSizeOf(allFolders.get(0));
         } else {
             count = allFolders.size();
@@ -140,7 +142,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     public List<MediaFile> getItems(long offset, long maxResults) {
         List<MusicFolder> allFolders = util.getAllMusicFolders();
         List<MediaFile> returnValue = new ArrayList<>();
-        if (1 == allFolders.size()) {
+        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
         } else {
             for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {

@@ -78,6 +78,8 @@ public class UserDao extends AbstractDao {
     private static final Integer ROLE_ID_JUKEBOX = 10;
     private static final Integer ROLE_ID_SHARE = 11;
 
+    private static final int SINGLE_USER = 1;
+
     private UserRowMapper userRowMapper = new UserRowMapper();
     private UserSettingsRowMapper userSettingsRowMapper = new UserSettingsRowMapper();
 
@@ -104,9 +106,9 @@ public class UserDao extends AbstractDao {
         }
         List<User> users = query(sql, userRowMapper, username);
         User user = null;
-        if (users.size() == 1) {
+        if (users.size() == SINGLE_USER) {
             user = users.iterator().next();
-        } else if (users.size() > 1) {
+        } else if (users.size() > SINGLE_USER) {
             throw new IllegalArgumentException("Too many matching users");
         }
         if (user != null) {

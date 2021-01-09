@@ -502,6 +502,8 @@ public class CoverArtController implements LastModified {
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class PlaylistCoverArtRequest extends CoverArtRequest {
 
+        private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
+
         private final Playlist playlist;
 
         PlaylistCoverArtRequest(Playlist playlist) {
@@ -535,7 +537,7 @@ public class CoverArtController implements LastModified {
             if (albums.isEmpty()) {
                 return createAutoCover(size, size);
             }
-            if (albums.size() < 4) {
+            if (albums.size() < IMAGE_COMPOSITES_THRESHOLD) {
                 return new MediaFileCoverArtRequest(albums.get(0)).createImage(size);
             }
 

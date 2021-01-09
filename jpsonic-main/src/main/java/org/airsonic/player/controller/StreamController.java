@@ -97,6 +97,10 @@ public class StreamController {
     @Autowired
     private SearchService searchService;
 
+    private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL1 = 400;
+    private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL2 = 600;
+    private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL3 = 1800;
+
     @SuppressWarnings("PMD.NullAssignment") // (maxBitRate)Intentional allocation to register null
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -441,11 +445,11 @@ public class StreamController {
         }
 
         int w;
-        if (maxBitRate < 400) {
+        if (maxBitRate < MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL1) {
             w = 400;
-        } else if (maxBitRate < 600) {
+        } else if (maxBitRate < MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL2) {
             w = 480;
-        } else if (maxBitRate < 1800) {
+        } else if (maxBitRate < MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL3) {
             w = 640;
         } else {
             w = 960;
