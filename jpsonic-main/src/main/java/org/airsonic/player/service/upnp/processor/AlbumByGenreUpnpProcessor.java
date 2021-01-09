@@ -66,7 +66,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<MediaFile> selectedItems = getItems(firstResult, maxResults);
         for (int i = 0; i < selectedItems.size(); i++) {

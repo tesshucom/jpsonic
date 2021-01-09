@@ -80,7 +80,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<PodcastChannel> channels = getItems(firstResult, maxResults);
         for (PodcastChannel channel : channels) {

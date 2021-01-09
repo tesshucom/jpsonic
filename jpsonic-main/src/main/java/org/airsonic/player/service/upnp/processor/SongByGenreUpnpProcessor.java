@@ -59,7 +59,7 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
      * Browses the top-level content of a type.
      */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
         // we have to override this to do an index-based id.
         DIDLContent didl = new DIDLContent();
         List<Genre> selectedItems = getItems(firstResult, maxResults);
