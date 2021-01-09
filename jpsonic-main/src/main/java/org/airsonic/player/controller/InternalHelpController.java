@@ -32,6 +32,7 @@ import org.airsonic.player.service.VersionService;
 import org.airsonic.player.service.search.AnalyzerFactory;
 import org.airsonic.player.service.search.IndexManager;
 import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
@@ -42,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -372,7 +374,7 @@ public class InternalHelpController {
             }
         }
 
-        if (environment.acceptsProfiles("legacy")) {
+        if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
             map.put("dbIsLegacy", true);
             File dbDirectory = new File(SettingsService.getJpsonicHome(), "db");
             map.put("dbDirectorySizeBytes", dbDirectory.exists() ? FileUtils.sizeOfDirectory(dbDirectory) : 0);
