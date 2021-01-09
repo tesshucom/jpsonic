@@ -7,6 +7,7 @@ import org.airsonic.player.filter.ParameterDecodingFilter;
 import org.airsonic.player.filter.RESTFilter;
 import org.airsonic.player.filter.RequestEncodingFilter;
 import org.airsonic.player.filter.ResponseHeaderFilter;
+import org.airsonic.player.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.airsonic.player.util.LegacyHsqlUtil;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;
@@ -28,6 +29,7 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Profiles;
 import org.springframework.util.ReflectionUtils;
 
 import javax.servlet.Filter;
@@ -184,7 +186,7 @@ public class Application extends SpringBootServletInitializer implements WebServ
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
         // Handle HSQLDB database upgrades from 1.8 to 2.x before any beans are started.
         application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
-            if (event.getApplicationContext().getEnvironment().acceptsProfiles("legacy")) {
+            if (event.getApplicationContext().getEnvironment().acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
                 LegacyHsqlUtil.upgradeHsqldbDatabaseSafely();
             }
         });

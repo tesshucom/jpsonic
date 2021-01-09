@@ -27,13 +27,23 @@ import java.util.Map;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
 
+    public static class ProfileNameConstants {
+
+        public static final String LEGACY = "legacy";
+        public static final String EMBED = "embed";
+        public static final String JNDI = "jndi";
+
+        private ProfileNameConstants() {
+        }
+    }
+    
     @Bean
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean
-    @Profile("legacy")
+    @Profile(ProfileNameConstants.LEGACY)
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
         return new LegacyHsqlDaoHelper(dataSource);
@@ -47,7 +57,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    @Profile("legacy")
+    @Profile(ProfileNameConstants.LEGACY)
     public DataSource legacyDataSource() {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("org.hsqldb.jdbcDriver");
@@ -58,7 +68,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    @Profile("embed")
+    @Profile(ProfileNameConstants.EMBED)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
                                            @Value("${DatabaseConfigEmbedUrl}") String url,
                                            @Value("${DatabaseConfigEmbedUsername}") String username,
@@ -72,7 +82,7 @@ public class DatabaseConfiguration {
     }
 
     @Bean
-    @Profile("jndi")
+    @Profile(ProfileNameConstants.JNDI)
     public DataSource jndiDataSource(@Value("${DatabaseConfigJNDIName}") String jndiName) {
         JndiDataSourceLookup jndiLookup = new JndiDataSourceLookup();
         return jndiLookup.getDataSource(jndiName);
