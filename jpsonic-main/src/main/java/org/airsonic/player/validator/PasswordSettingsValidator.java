@@ -34,7 +34,7 @@ import org.springframework.validation.Validator;
 public class PasswordSettingsValidator implements Validator {
 
     @Override
-    public boolean supports(Class clazz) {
+    public boolean supports(Class<?> clazz) {
         return clazz.equals(PasswordSettingsCommand.class);
     }
 
