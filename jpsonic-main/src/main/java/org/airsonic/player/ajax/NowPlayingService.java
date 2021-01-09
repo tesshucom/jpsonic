@@ -65,6 +65,8 @@ public class NowPlayingService {
     @Autowired
     private MediaScannerService mediaScannerService;
 
+    private final static int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+    
     /**
      * Returns details about what the current player is playing.
      *
@@ -152,7 +154,7 @@ public class NowPlayingService {
 
             long minutesAgo = status.getMinutesAgo();
 
-            if (minutesAgo < 60) {
+            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 result.add(new NowPlayingInfo(player.getId(),username, artist, title, tooltip, streamUrl, albumUrl, lyricsUrl,
                                               coverArtUrl, avatarUrl, (int) minutesAgo));
             }

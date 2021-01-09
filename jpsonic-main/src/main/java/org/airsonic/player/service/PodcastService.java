@@ -90,6 +90,9 @@ public class PodcastService {
     private final ExecutorService downloadExecutor;
     private final ScheduledExecutorService scheduledExecutor;
     private ScheduledFuture<?> scheduledRefresh;
+
+    private static final long DURATION_FORMAT_THRESHOLD = 3600;
+
     @Autowired
     private PodcastDao podcastDao;
     @Autowired
@@ -528,7 +531,7 @@ public class PodcastService {
         if (duration == null) return null;
         if (duration.matches("^\\d+$")) {
             long seconds = Long.parseLong(duration);
-            if (seconds >= 3600)
+            if (seconds >= DURATION_FORMAT_THRESHOLD)
                 return String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60, seconds % 60);
             else
                 return String.format("%02d:%02d", seconds / 60, seconds % 60);

@@ -22,6 +22,7 @@ package org.airsonic.player.ajax;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
@@ -65,6 +66,7 @@ public class LyricsService {
      * @param song   The song.
      * @return The lyrics, never <code>null</code> .
      */
+    @SuppressWarnings("PMD.CompareObjectsWithEquals") // FP:Occurs on Ubuntu. This rule has been modified in 6.30.0.
     public LyricsInfo getLyrics(final String artist, final String song) {
         LyricsInfo lyrics = new LyricsInfo();
         try {
@@ -78,7 +80,7 @@ public class LyricsService {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
             }
-            if (x.getStatusCode() == 503) {
+            if (x.getStatusCode() == HttpStatus.SC_SERVICE_UNAVAILABLE) {
                 lyrics.setTryLater(true);
             }
         } catch (SocketException | ConnectTimeoutException x) {

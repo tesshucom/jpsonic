@@ -91,6 +91,8 @@ public class DownloadController implements LastModified {
     @Autowired
     private MediaFileService mediaFileService;
 
+    private static final int BITRATE_LIMIT_UPDATE_INTERVAL = 5000;
+
     @Override
     public long getLastModified(HttpServletRequest request) {
         try {
@@ -315,7 +317,7 @@ public class DownloadController implements LastModified {
                 long after = System.currentTimeMillis();
 
                 // Calculate bitrate limit every 5 seconds.
-                if (after - lastLimitCheck > 5000) {
+                if (after - lastLimitCheck > BITRATE_LIMIT_UPDATE_INTERVAL) {
                     bitrateLimit = 1024L * settingsService.getDownloadBitrateLimit() /
                             Math.max(1, statusService.getAllDownloadStatuses().size());
                     lastLimitCheck = after;

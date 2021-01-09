@@ -2,6 +2,7 @@ package org.airsonic.player.util;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.spring.AirsonicHsqlDatabase;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,9 @@ import java.util.concurrent.CompletionException;
 public class LegacyHsqlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyHsqlUtil.class);
+
+    public static final String UPGRADE_NEEDED_VERSION1 = "1.8.0";
+    public static final String UPGRADE_NEEDED_VERSION2 = "1.8.1";
 
     /**
      * Return the current version of the HSQLDB database, as reported by the database properties file.
@@ -92,7 +96,7 @@ public class LegacyHsqlUtil {
                     .getDeclaredConstructor()
                     .newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
-            if (driver.getMajorVersion() != 2) {
+            if (driver.getMajorVersion() != AirsonicHsqlDatabase.CURRENT_SUPPORTED_MAJOR_VERSION) {
                 LOG.warn("HSQLDB database driver version {} is untested ; trying to connect anyway, this may upgrade the database from version {}", driverVersion, currentVersion);
                 return true;
             }
@@ -120,7 +124,7 @@ public class LegacyHsqlUtil {
                 LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion, driverVersion);
             }
             return false;
-        } else if ("1.8.0".equals(currentVersion) || "1.8.1".equals(currentVersion)) {
+        } else if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
             // If we're on a 1.8.0 or 1.8.1 database and upgrading to 2.x, we're going to handle this manually and check what we're doing.
             if (LOG.isInfoEnabled()) {
                 LOG.info("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);

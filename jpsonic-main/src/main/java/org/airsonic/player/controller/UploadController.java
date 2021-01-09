@@ -76,6 +76,8 @@ public class UploadController {
     @Autowired
     private SettingsService settingsService;
     public static final String UPLOAD_STATUS = "uploadStatus";
+    public static final String FIELD_NAME_DIR = "dir";
+    public static final String FIELD_NAME_UNZIP = "unzip";
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     @PostMapping
@@ -106,15 +108,13 @@ public class UploadController {
             FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
             ServletFileUpload upload = new ServletFileUpload(factory);
 
-            List<?> items = upload.parseRequest(request);
+            List<FileItem> items = upload.parseRequest(request);
 
             // First, look for "dir" and "unzip" parameters.
-            for (Object o : items) {
-                FileItem item = (FileItem) o;
-
-                if (item.isFormField() && "dir".equals(item.getFieldName())) {
+            for (FileItem item : items) {
+                if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
                     dir = new File(item.getString());
-                } else if (item.isFormField() && "unzip".equals(item.getFieldName())) {
+                } else if (item.isFormField() && FIELD_NAME_UNZIP.equals(item.getFieldName())) {
                     unzip = true;
                 }
             }

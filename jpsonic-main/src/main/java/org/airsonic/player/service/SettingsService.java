@@ -87,6 +87,9 @@ public class SettingsService {
         LOCKS = Collections.unmodifiableMap(m);
     }
 
+    private static final int ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME = 2;
+    private static final int ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME = 3;
+
     // Jpsonic home directory.
     private static final File JPSONIC_HOME_WINDOWS = new File("c:/jpsonic");
     private static final File JPSONIC_HOME_OTHER = new File("/var/jpsonic");
@@ -1098,9 +1101,9 @@ public class SettingsService {
                     String[] lines = StringUtil.readLines(in);
                     for (String line : lines) {
                         String[] elements = StringUtil.split(line);
-                        if (elements.length == 2) {
+                        if (elements.length == ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME) {
                             l.add(new Theme(elements[0], elements[1]));
-                        } else if (elements.length == 3) {
+                        } else if (elements.length == ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME) {
                             l.add(new Theme(elements[0], elements[1], elements[2]));
                         } else {
                             if (LOG.isWarnEnabled()) {

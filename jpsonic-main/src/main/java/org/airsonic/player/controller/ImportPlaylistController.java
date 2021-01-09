@@ -50,7 +50,9 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/importPlaylist")
 public class ImportPlaylistController {
 
+    private static final String FIELD_NAME_FILE = "file";
     private static final long MAX_PLAYLIST_SIZE_MB = 5L;
+    
 
     @Autowired
     private SecurityService securityService;
@@ -73,7 +75,7 @@ public class ImportPlaylistController {
                 for (Object o : items) {
                     FileItem item = (FileItem) o;
 
-                    if ("file".equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
+                    if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
                         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
                             throw new ExecutionException(new IOException("The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
                         }

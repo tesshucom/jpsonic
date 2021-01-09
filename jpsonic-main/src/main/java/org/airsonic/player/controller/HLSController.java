@@ -67,6 +67,8 @@ public class HLSController {
     @Autowired
     private JWTSecurityService jwtSecurityService;
 
+    private static final int SINGLE_ELEMENT = 1;
+    
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -98,10 +100,12 @@ public class HLSController {
         response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
         List<Pair<Integer, Dimension>> bitRates = parseBitRates(request);
         try (PrintWriter writer = response.getWriter()) {
-            if (bitRates.size() > 1) {
+            if (bitRates.size() > SINGLE_ELEMENT) {
                 generateVariantPlaylist(request, id, player, bitRates, writer);
             } else {
-                generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+                generateNormalPlaylist(request, id, player,
+                        bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null,
+                                duration, writer);
             }
         }
     }

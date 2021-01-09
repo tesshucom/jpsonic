@@ -90,6 +90,8 @@ public class SonosHelper {
 
     public static final String JPSONIC_CLIENT_ID = "sonos";
 
+    public static final int SINGLE_MUSIC_FOLDER = 1;
+
     @Autowired
     private MediaFileService mediaFileService;
     @Autowired
@@ -204,7 +206,7 @@ public class SonosHelper {
     public List<AbstractMedia> forLibrary(String username, HttpServletRequest request) {
 
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
-        if (musicFolders.size() == 1) {
+        if (musicFolders.size() == SINGLE_MUSIC_FOLDER) {
             return forMusicFolder(musicFolders.get(0), username, request);
         }
 
