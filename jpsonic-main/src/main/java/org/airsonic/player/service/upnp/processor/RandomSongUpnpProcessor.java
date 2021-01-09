@@ -58,7 +58,7 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

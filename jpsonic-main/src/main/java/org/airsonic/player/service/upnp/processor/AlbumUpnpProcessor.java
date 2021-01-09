@@ -78,7 +78,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
      * Browses the top-level content of a type.
      */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true, util.getAllMusicFolders());
         for (Album item : selectedItems) {
