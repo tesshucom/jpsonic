@@ -556,9 +556,6 @@ public class MediaFileDao extends AbstractDao {
                           rowMapper, args);
     }
 
-    
-
-    @SuppressWarnings("PMD.ConsecutiveLiteralAppends")
     /*
      * Detected by Ubuntu but not detected by Windows. The literal is too big, so
      * split the append into multiple lines for readability.
@@ -587,7 +584,7 @@ public class MediaFileDao extends AbstractDao {
         boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
         boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
 
-        StringBuilder query = new StringBuilder(900);
+        StringBuilder query = new StringBuilder(988);
 
         query.append("select ").append(prefix(QUERY_COLUMNS, "media_file")).append(" from media_file ");
 
@@ -596,9 +593,9 @@ public class MediaFileDao extends AbstractDao {
         }
 
         if (joinAlbumRating) {
-            query
-                .append("left outer join media_file media_album on media_album.type = 'ALBUM' and media_album.album = media_file.album and media_album.artist = media_file.artist ")
-                .append("left outer join user_rating on user_rating.path = media_album.path and user_rating.username = :username ");
+            query.append(
+                    "left outer join media_file media_album on media_album.type = 'ALBUM' and media_album.album = media_file.album and media_album.artist = media_file.artist "
+                            + "left outer join user_rating on user_rating.path = media_album.path and user_rating.username = :username ");
         }
 
         query.append(" where media_file.present and media_file.type = 'MUSIC'");
@@ -667,7 +664,7 @@ public class MediaFileDao extends AbstractDao {
             query.append(" and starred_media_file.id is null");
         }
 
-        query.append(" order by rand()").append(" limit ").append(criteria.getCount());
+        query.append(" order by rand() limit ").append(criteria.getCount());
 
         return namedQuery(query.toString(), rowMapper, args);
     }
