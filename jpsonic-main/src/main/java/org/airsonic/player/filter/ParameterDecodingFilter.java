@@ -123,7 +123,7 @@ public class ParameterDecodingFilter implements Filter {
         }
 
         @Override
-        public String[] getParameterValues(String name) { // NOPMD - ReturnEmptyArrayRatherThanNull : Due to third party specifications
+        public String[] getParameterValues(String name) {
             String[] values = super.getParameterValues(name);
             if (values != null) {
                 return values;
