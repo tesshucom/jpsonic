@@ -159,9 +159,10 @@ public class PlayerSettingsCommand {
         return activeTranscodingIds;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setActiveTranscodingIds(int... activeTranscodingIds) {
-        this.activeTranscodingIds = activeTranscodingIds;
+        if (activeTranscodingIds != null) {
+            this.activeTranscodingIds = activeTranscodingIds.clone();
+        }
     }
 
     public EnumHolder[] getTechnologyHolders() {
@@ -202,9 +203,10 @@ public class PlayerSettingsCommand {
         return players;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setPlayers(Player... players) {
-        this.players = players;
+        if (players != null) {
+            this.players = players.clone();
+        }
     }
 
     public boolean isAdmin() {
@@ -227,9 +229,10 @@ public class PlayerSettingsCommand {
         return javaJukeboxMixers;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setJavaJukeboxMixers(String... javaJukeboxMixers) {
-        this.javaJukeboxMixers = javaJukeboxMixers;
+        if (javaJukeboxMixers != null) {
+            this.javaJukeboxMixers = javaJukeboxMixers.clone();
+        }
     }
 
     public boolean isOpenDetailSetting() {

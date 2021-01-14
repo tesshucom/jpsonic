@@ -142,9 +142,8 @@ public enum IndexType {
 
     private final String[] fields;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     private IndexType(String[] fieldNames, Map<String, Float> boosts) {
-        this.fields = fieldNames;
+        this.fields = fieldNames.clone();
         this.boosts = boosts;
     }
 

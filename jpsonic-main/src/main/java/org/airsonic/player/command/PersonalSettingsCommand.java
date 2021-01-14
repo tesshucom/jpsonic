@@ -206,9 +206,8 @@ public class PersonalSettingsCommand {
         return locales;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setLocales(String... locales) {
-        this.locales = locales;
+        this.locales = locales.clone();
     }
 
     public String getThemeIndex() {
@@ -241,9 +240,8 @@ public class PersonalSettingsCommand {
         return albumLists;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // enum#values
     public void setAlbumLists(AlbumListType... albumLists) {
-        this.albumLists = albumLists;
+        this.albumLists = albumLists.clone();
     }
 
     public int getAvatarId() {

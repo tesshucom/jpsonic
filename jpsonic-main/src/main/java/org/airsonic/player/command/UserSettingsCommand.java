@@ -255,9 +255,10 @@ public class UserSettingsCommand {
         return allowedMusicFolderIds;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setAllowedMusicFolderIds(int... allowedMusicFolderIds) {
-        this.allowedMusicFolderIds = allowedMusicFolderIds;
+        if (allowedMusicFolderIds != null) {
+            this.allowedMusicFolderIds = allowedMusicFolderIds.clone();
+        }
     }
 
     public String getTranscodeSchemeName() {
