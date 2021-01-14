@@ -1445,7 +1445,7 @@ public class SubsonicRESTController {
         return null;
     }
 
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions", "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     public static String getRelativePath(MediaFile musicFile, SettingsService settingsService) {
 
         String filePath = musicFile.getPath();
@@ -1461,7 +1461,7 @@ public class SubsonicRESTController {
             folderPath = folderPath.replace('\\', '/');
             String folderPathLower = folderPath.toLowerCase();
             if (!folderPathLower.endsWith("/")) {
-                folderPathLower += "/";
+                folderPathLower = new StringBuilder(folderPathLower).append('/').toString();
             }
 
             if (filePathLower.startsWith(folderPathLower)) {
@@ -2474,7 +2474,6 @@ public class SubsonicRESTController {
         jaxbWriter.writeErrorResponse(request, response, code, message);
     }
 
-    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     private String createPlayerIfNecessary(HttpServletRequest request, boolean jukebox) {
         String username = request.getRemoteUser();
         String clientId = request.getParameter("c");

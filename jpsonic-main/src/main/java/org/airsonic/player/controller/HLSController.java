@@ -203,13 +203,12 @@ public class HLSController {
         return builder.toUriString();
     }
 
-    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     private String getContextPath(HttpServletRequest request) {
         String contextPath = request.getContextPath();
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/";
         } else {
-            contextPath += "/";
+            contextPath = new StringBuilder(contextPath).append('/').toString();
         }
         return contextPath;
     }

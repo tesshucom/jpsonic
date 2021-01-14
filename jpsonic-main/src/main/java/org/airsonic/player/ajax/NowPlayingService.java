@@ -107,7 +107,7 @@ public class NowPlayingService {
         return new ScanInfo(mediaScannerService.isScanning(), mediaScannerService.getScanCount());
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
+    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops" })
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String url = NetworkService.getBaseUrl(request);
@@ -146,7 +146,7 @@ public class NowPlayingService {
             String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
 
             if (StringUtils.isNotBlank(player.getName())) {
-                username += "@" + player.getName();
+                username = new StringBuilder(username).append('@').append(player.getName()).toString();
             }
             artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
             title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));

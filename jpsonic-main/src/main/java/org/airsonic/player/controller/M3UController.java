@@ -55,7 +55,6 @@ public class M3UController {
     @Autowired
     private JWTSecurityService jwtSecurityService;
 
-    @SuppressWarnings("PMD.UseStringBufferForStringAppends") // "+" is OK if it is not a critical
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("audio/x-mpegurl");
@@ -97,7 +96,6 @@ public class M3UController {
         }
     }
 
-    @SuppressWarnings("PMD.UseStringBufferForStringAppends") // "+" is OK if it is not a critical
     private void createServerSidePlaylist(PrintWriter out, Player player, final String urlStr) {
 
         String url = urlStr;
@@ -107,7 +105,7 @@ public class M3UController {
         // Get suffix of current file, e.g., ".mp3".
         String suffix = getSuffix(player);
         if (suffix != null) {
-            url += "&suffix=." + suffix;
+            url = new StringBuilder(url).append("&suffix=.").append(suffix).toString();
         }
 
         if (player.isM3uBomEnabled()) {
