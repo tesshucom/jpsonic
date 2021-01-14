@@ -102,7 +102,6 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @author Sindre Mehus
  * @version $Id$
  */
-@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Service
 public class SonosService implements SonosSoap {
 
@@ -644,10 +643,12 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportAccountAction(String type) throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override
     public void setPlayedSeconds(String id, int seconds, String contextId, String privateData, Integer offsetMillis) throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override
@@ -662,7 +663,7 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportStatus(String id, int errorCode, String message) throws CustomFault {
-
+        // Nothing is currently done.
     }
 
     @Override
@@ -672,6 +673,7 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportPlayStatus(String id, String status, String contextId, Integer offsetMillis) throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override

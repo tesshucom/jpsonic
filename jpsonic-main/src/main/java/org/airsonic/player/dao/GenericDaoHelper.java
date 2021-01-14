@@ -35,4 +35,9 @@ public class GenericDaoHelper implements DaoHelper {
     public DataSource getDataSource() {
         return dataSource;
     }
+
+    @Override
+    public void checkpoint() {
+        // Nothing is currently done.
+    }
 }
