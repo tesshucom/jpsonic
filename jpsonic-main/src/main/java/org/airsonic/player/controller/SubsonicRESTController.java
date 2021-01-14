@@ -166,7 +166,7 @@ import static org.springframework.web.bind.ServletRequestUtils.getStringParamete
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.GuardLogStatement" }) // Suppressed due to false detection of error method
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops"})
 @Controller
 @RequestMapping(value = "/rest", method = {RequestMethod.GET, RequestMethod.POST})
 public class SubsonicRESTController {
@@ -255,7 +255,7 @@ public class SubsonicRESTController {
     public void handleMissingRequestParam(HttpServletRequest request,
                                           HttpServletResponse response,
                                           MissingServletRequestParameterException exception) {
-        error(request, response, ErrorCode.MISSING_PARAMETER, "Required param (" + exception.getParameterName() + ") is missing");
+        writeError(request, response, ErrorCode.MISSING_PARAMETER, "Required param (" + exception.getParameterName() + ") is missing");
     }
 
     @RequestMapping("/ping")
@@ -444,7 +444,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
 
@@ -471,7 +471,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
@@ -518,7 +518,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
 
@@ -558,7 +558,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
@@ -616,7 +616,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
@@ -678,7 +678,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         Album album = albumDao.getAlbum(id);
         if (album == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Album not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Album not found.");
             return;
         }
 
@@ -701,13 +701,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         MediaFile song = mediaFileDao.getMediaFile(id);
         if (song == null || song.isDirectory()) {
-            error(request, response, ErrorCode.NOT_FOUND, "Song not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Song not found.");
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(song, username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
         
@@ -723,13 +723,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         MediaFile dir = mediaFileService.getMediaFile(id);
         if (dir == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Directory not found");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Directory not found");
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
 
@@ -903,7 +903,7 @@ public class SubsonicRESTController {
         if (requestedUsername == null) {
             requestedUsername = authenticatedUsername;
         } else if (!user.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, authenticatedUsername + " is not authorized to get playlists for " + requestedUsername);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, authenticatedUsername + " is not authorized to get playlists for " + requestedUsername);
             return;
         }
 
@@ -924,13 +924,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!playlistService.isReadAllowed(playlist, username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
         }
 
@@ -953,7 +953,7 @@ public class SubsonicRESTController {
 
         User user = securityService.getCurrentUser(request);
         if (!user.isJukeboxRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to use jukebox.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to use jukebox.");
             return;
         }
 
@@ -1051,7 +1051,7 @@ public class SubsonicRESTController {
         Integer playlistId = getIntParameter(request, "playlistId");
         String name = request.getParameter("name");
         if (playlistId == null && name == null) {
-            error(request, response, ErrorCode.MISSING_PARAMETER, "Playlist ID or name must be specified.");
+            writeError(request, response, ErrorCode.MISSING_PARAMETER, "Playlist ID or name must be specified.");
             return;
         }
 
@@ -1060,11 +1060,11 @@ public class SubsonicRESTController {
         if (playlistId != null) {
             playlist = playlistService.getPlaylist(playlistId);
             if (playlist == null) {
-                error(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + playlistId);
+                writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + playlistId);
                 return;
             }
             if (!playlistService.isWriteAllowed(playlist, username)) {
-                error(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + playlistId);
+                writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + playlistId);
                 return;
             }
         } else {
@@ -1096,13 +1096,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "playlistId");
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
         }
 
@@ -1164,13 +1164,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
-            error(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
+            writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!playlistService.isWriteAllowed(playlist, username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + id);
             return;
         }
         playlistService.deletePlaylist(id);
@@ -1480,7 +1480,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isDownloadRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to download files.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to download files.");
             return;
         }
 
@@ -1504,7 +1504,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
             return;
         }
 
@@ -1516,17 +1516,17 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to play files.");
             return;
         }
         int id = getRequiredIntParameter(request, "id");
         MediaFile video = mediaFileDao.getMediaFile(id);
         if (video == null || video.isDirectory()) {
-            error(request, response, ErrorCode.NOT_FOUND, "Video not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Video not found.");
             return;
         }
         if (!securityService.isFolderAccessAllowed(video, user.getUsername())) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Access denied");
             return;
         }
         hlsController.handleRequest(request, response);
@@ -1538,7 +1538,7 @@ public class SubsonicRESTController {
         int[] ids = getRequiredIntParameters(request, "id");
         long[] times = getLongParameters(request, "time");
         if (times.length > 0 && (int) times.length != (int) ids.length) {
-            error(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
+            writeError(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
             return;
         }
 
@@ -1582,7 +1582,7 @@ public class SubsonicRESTController {
         for (int id : getIntParameters(request, "id")) {
             MediaFile mediaFile = mediaFileDao.getMediaFile(id);
             if (mediaFile == null) {
-                error(request, response, ErrorCode.NOT_FOUND, "Media file not found: " + id);
+                writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found: " + id);
                 return;
             }
             if (star) {
@@ -1594,7 +1594,7 @@ public class SubsonicRESTController {
         for (int albumId : getIntParameters(request, "albumId")) {
             Album album = albumDao.getAlbum(albumId);
             if (album == null) {
-                error(request, response, ErrorCode.NOT_FOUND, "Album not found: " + albumId);
+                writeError(request, response, ErrorCode.NOT_FOUND, "Album not found: " + albumId);
                 return;
             }
             if (star) {
@@ -1606,7 +1606,7 @@ public class SubsonicRESTController {
         for (int artistId : getIntParameters(request, "artistId")) {
             org.airsonic.player.domain.Artist artist = artistDao.getArtist(artistId);
             if (artist == null) {
-                error(request, response, ErrorCode.NOT_FOUND, "Artist not found: " + artistId);
+                writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found: " + artistId);
                 return;
             }
             if (star) {
@@ -1745,7 +1745,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
         podcastService.refreshAllChannels(true);
@@ -1757,7 +1757,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
@@ -1771,7 +1771,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
@@ -1785,7 +1785,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
@@ -1799,14 +1799,14 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + MSG_PODCAST_NOT_AUTHORIZED);
             return;
         }
 
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.PodcastEpisode episode = podcastService.getEpisode(id, true);
         if (episode == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Podcast episode " + id + " not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Podcast episode " + id + " not found.");
             return;
         }
 
@@ -1918,7 +1918,7 @@ public class SubsonicRESTController {
         List<Integer> mediaFileIds = PlayerUtils.toIntegerList(getIntParameters(request, "id"));
         Integer current = getIntParameter(request, "current");
         if (!mediaFileIds.contains(current)) {
-            error(request, response, ErrorCode.GENERIC, "Current track is not included in play queue");
+            writeError(request, response, ErrorCode.GENERIC, "Current track is not included in play queue");
             return;
         }
 
@@ -1959,7 +1959,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isShareRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to share media.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to share media.");
             return;
         }
 
@@ -1999,13 +1999,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
             return;
         }
 
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to delete shared media.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to delete shared media.");
             return;
         }
 
@@ -2020,13 +2020,13 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
+            writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
             return;
         }
 
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole() && !share.getUsername().equals(user.getUsername())) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to modify shared media.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not authorized to modify shared media.");
             return;
         }
 
@@ -2074,7 +2074,7 @@ public class SubsonicRESTController {
         boolean allowed = authUser.isAdminRole()
                 || username.equals(authUser.getUsername()) && authUser.isSettingsRole();
         if (!allowed) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, authUser.getUsername() + " is not authorized to change password for " + username);
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, authUser.getUsername() + " is not authorized to change password for " + username);
             return;
         }
 
@@ -2094,13 +2094,13 @@ public class SubsonicRESTController {
 
         User currentUser = securityService.getCurrentUser(request);
         if (!username.equals(currentUser.getUsername()) && !currentUser.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername() + " is not authorized to get details for other users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername() + " is not authorized to get details for other users.");
             return;
         }
 
         User requestedUser = securityService.getUserByName(username);
         if (requestedUser == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
         }
 
@@ -2115,7 +2115,7 @@ public class SubsonicRESTController {
 
         User currentUser = securityService.getCurrentUser(request);
         if (!currentUser.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername() + " is not authorized to get details for other users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, currentUser.getUsername() + " is not authorized to get details for other users.");
             return;
         }
 
@@ -2169,7 +2169,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to create new users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to create new users.");
             return;
         }
 
@@ -2206,20 +2206,20 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to update users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to update users.");
             return;
         }
 
         String username = getRequiredStringParameter(request, Attributes.requestParam.names.username);
         User u = securityService.getUserByName(username);
         if (u == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
         } else if (user.getUsername().equals(username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change own user");
             return;
         } else if (securityService.isAdmin(username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change admin user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to change admin user");
             return;
         }
 
@@ -2269,7 +2269,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to delete users.");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, user.getUsername() + " is not authorized to delete users.");
             return;
         }
 
@@ -2277,13 +2277,13 @@ public class SubsonicRESTController {
         User u = securityService.getUserByName(username);
 
         if (u == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
+            writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
             return;
         } else if (user.getUsername().equals(username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete own user");
             return;
         } else if (securityService.isAdmin(username)) {
-            error(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete admin user");
+            writeError(request, response, ErrorCode.NOT_AUTHORIZED, "Not allowed to delete admin user");
             return;
         }
 
@@ -2331,7 +2331,7 @@ public class SubsonicRESTController {
         int id = getRequiredIntParameter(request, "id");
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            error(request, response, ErrorCode.NOT_FOUND, "File not found: " + id);
+            writeError(request, response, ErrorCode.NOT_FOUND, "File not found: " + id);
             return;
         }
 
@@ -2349,7 +2349,7 @@ public class SubsonicRESTController {
 
         MediaFile mediaFile = this.mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
-            error(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Media file not found.");
+            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
         AlbumNotes albumNotes = this.lastFmService.getAlbumNotes(mediaFile);
@@ -2368,7 +2368,7 @@ public class SubsonicRESTController {
 
         Album album = this.albumDao.getAlbum(id);
         if (album == null) {
-            error(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Album not found.");
+            writeError(request, response, SubsonicRESTController.ErrorCode.NOT_FOUND, "Album not found.");
             return;
         }
         AlbumNotes albumNotes = this.lastFmService.getAlbumNotes(album);
@@ -2470,7 +2470,7 @@ public class SubsonicRESTController {
         jaxbWriter.writeResponse(request, response, createResponse());
     }
 
-    public void error(HttpServletRequest request, HttpServletResponse response, ErrorCode code, String message) {
+    public void writeError(HttpServletRequest request, HttpServletResponse response, ErrorCode code, String message) {
         jaxbWriter.writeErrorResponse(request, response, code, message);
     }
 

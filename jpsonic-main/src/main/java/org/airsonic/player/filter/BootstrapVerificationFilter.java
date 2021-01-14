@@ -47,7 +47,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.GuardLogStatement") // Suppressed due to false detection of error method
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
@@ -66,13 +65,13 @@ public class BootstrapVerificationFilter implements Filter {
 
         File home = SettingsService.getJpsonicHome();
         if (!directoryExists(home)) {
-            error(res, "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, " +
+            writeError(res, "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, " +
                        "then restart the servlet container.</p>" +
                        "<p>(You can override the directory location by specifying -Dairsonic.home=... when " +
                        "starting the servlet container.)</p>");
 
         } else if (!directoryWritable(home)) {
-            error(res, "<p>The directory <b>" + home + "</b> is not writable. Please change file permissions, " +
+            writeError(res, "<p>The directory <b>" + home + "</b> is not writable. Please change file permissions, " +
                        "then restart the servlet container.</p>" +
                        "<p>(You can override the directory location by specifying -Dairsonic.home=... when " +
                        "starting the servlet container.)</p>");
@@ -107,7 +106,7 @@ public class BootstrapVerificationFilter implements Filter {
     }
 
     @SuppressWarnings("PMD.CloseResource") // Should be closed in container
-    private void error(ServletResponse res, String error) throws IOException {
+    private void writeError(ServletResponse res, String error) throws IOException {
         ServletOutputStream out = res.getOutputStream();
         out.println("<html>" +
                     "<head><title>Airsonic Error</title></head>" +
