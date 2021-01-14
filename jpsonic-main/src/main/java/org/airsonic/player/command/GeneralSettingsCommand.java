@@ -174,9 +174,8 @@ public class GeneralSettingsCommand {
         return locales;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
     public void setLocales(String... locales) {
-        this.locales = locales;
+        this.locales = locales.clone();
     }
 
     public String getThemeIndex() {

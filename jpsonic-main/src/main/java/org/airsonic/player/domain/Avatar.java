@@ -36,7 +36,10 @@ public class Avatar {
     private int height;
     private byte[] data;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
+    /*
+     * False positive. The caller is guaranteed and cloning is a waste of time.
+     */
     public Avatar(int id, String name, Date createdDate, String mimeType, int width, int height, byte[] data) {
         this.id = id;
         this.name = name;
