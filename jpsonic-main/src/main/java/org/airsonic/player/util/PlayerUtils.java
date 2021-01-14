@@ -138,11 +138,12 @@ public final class PlayerUtils {
      * @param request An HTTP request instance
      * @return The associated URL
      */
-    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     public static String getURLForRequest(HttpServletRequest request) {
         String url = request.getRequestURL().toString();
         String queryString = request.getQueryString();
-        if (queryString != null && !queryString.isEmpty()) url += "?" + queryString;
+        if (queryString != null && !queryString.isEmpty()) {
+            url = new StringBuilder(url).append('?').append(queryString).toString();
+        }
         return url;
     }
 
