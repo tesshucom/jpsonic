@@ -29,7 +29,6 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
         return true;
     }
 
-    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     @Override
     public Pair<List<MediaFile>, List<String>> handle(
             SpecificPlaylist inputSpecificPlaylist
@@ -40,32 +39,32 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
             inputSpecificPlaylist.toPlaylist().acceptDown(new PlaylistVisitor() {
                 @Override
                 public void beginVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
@@ -86,7 +85,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
                 @Override
                 public void endVisitMedia(Media media) {
-
+                    // Nothing is currently done.
                 }
             });
         } catch (Exception e) {

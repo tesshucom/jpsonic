@@ -67,9 +67,9 @@ public class DefaultMetaDataParser extends MetaDataParser {
      * @param file     The file to update.
      * @param metaData The new meta data.
      */
-    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
+        // Nothing is currently done. It seems that it is only implemented in JaudiotaggerParser...
     }
 
     /**

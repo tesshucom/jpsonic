@@ -93,7 +93,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * Service Template Version 1.01 (For UPnP Version 1.0). Therefore, at this
  * stage, this class has many redundant skeleton methods.
  */
-@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Component
 @Scope("prototype")
 public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
@@ -159,22 +158,27 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterAsterisk(AsteriskContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBaseName(BaseNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBaseProperties(BasePropertiesContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBinOp(BinOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterClassName(ClassNameContext ctx) {
+        // Nothing is currently done.
     }
 
     /**
@@ -293,38 +297,47 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterDef_return(Def_returnContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterDerivedName(DerivedNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterDQuote(DQuoteContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterExistsOp(ExistsOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterFormFeed(FormFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterHTab(HTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterLineFeed(LineFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterLinksToContainers(LinksToContainersContext ctx) {
+        // Nothing is currently done.
     }
 
     /*
@@ -346,14 +359,17 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterPeopleInvolved(PeopleInvolvedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterProperty(PropertyContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterPropertyBooleanValue(PropertyBooleanValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
@@ -400,102 +416,127 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterPropertyStringValue(PropertyStringValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterRelOp(RelOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSearchCrit(SearchCritContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSearchExp(SearchExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterShortName(ShortNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSpace(SpaceContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterStringOp(StringOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterVTab(VTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterWChar(WCharContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitAsterisk(AsteriskContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBaseName(BaseNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBaseProperties(BasePropertiesContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBinOp(BinOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitClassName(ClassNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitClassRelExp(ClassRelExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDef_return(Def_returnContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDerivedName(DerivedNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDQuote(DQuoteContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitExistsOp(ExistsOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitFormFeed(FormFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitHTab(HTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLineFeed(LineFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLinksToContainers(LinksToContainersContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLogOp(LogOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
@@ -525,62 +566,77 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void exitPeopleInvolved(PeopleInvolvedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitProperty(PropertyContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyBooleanValue(PropertyBooleanValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyExp(PropertyExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyStringValue(PropertyStringValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitRelOp(RelOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSearchCrit(SearchCritContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSearchExp(SearchExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitShortName(ShortNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSpace(SpaceContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitStringOp(StringOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitVTab(VTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitWChar(WCharContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void visitErrorNode(ErrorNode node) {
+        // Nothing is currently done.
     }
 
     @Override
     public void visitTerminal(TerminalNode node) {
+        // Nothing is currently done.
     }
 
     private IllegalArgumentException createIllegal(String message, String subject, String verb, String complement) {

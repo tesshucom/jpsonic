@@ -173,7 +173,7 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return a list of internet radio sources
      */
-    @SuppressWarnings({ "PMD.UncommentedEmptyMethodBody", "PMD.AccessorMethodGeneration" })
+    @SuppressWarnings({ "PMD.AccessorMethodGeneration" })
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
@@ -188,32 +188,32 @@ public class InternetRadioService {
             inputPlaylist.toPlaylist().acceptDown(new PlaylistVisitor() {
                 @Override
                 public void beginVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
@@ -233,7 +233,7 @@ public class InternetRadioService {
 
                 @Override
                 public void endVisitMedia(Media media) {
-
+                    // Nothing is currently done.
                 }
             });
         } catch (PlaylistTooLarge e) {
