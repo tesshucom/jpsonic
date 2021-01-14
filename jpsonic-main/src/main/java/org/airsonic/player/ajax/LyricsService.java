@@ -42,6 +42,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.SocketException;
+import java.util.Objects;
 
 import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 
@@ -66,7 +67,6 @@ public class LyricsService {
      * @param song   The song.
      * @return The lyrics, never <code>null</code> .
      */
-    @SuppressWarnings("PMD.CompareObjectsWithEquals") // FP:Occurs on Ubuntu. This rule has been modified in 6.30.0.
     public LyricsInfo getLyrics(final String artist, final String song) {
         LyricsInfo lyrics = new LyricsInfo();
         try {
@@ -80,7 +80,7 @@ public class LyricsService {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
             }
-            if (x.getStatusCode() == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+            if (Objects.equals(HttpStatus.SC_SERVICE_UNAVAILABLE, x.getStatusCode())) {
                 lyrics.setTryLater(true);
             }
         } catch (SocketException | ConnectTimeoutException x) {
