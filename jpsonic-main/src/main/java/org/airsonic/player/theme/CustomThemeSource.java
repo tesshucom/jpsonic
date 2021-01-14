@@ -41,14 +41,14 @@ public class CustomThemeSource extends ResourceBundleThemeSource {
     private SettingsService settingsService;
     private String basenamePrefix;
 
-    @SuppressWarnings("PMD.UselessParentheses")
     @Override
     protected MessageSource createMessageSource(String basename) {
         ResourceBundleMessageSource messageSource = (ResourceBundleMessageSource) super.createMessageSource(basename);
 
         // Create parent theme recursively.
         for (Theme theme : settingsService.getAvailableThemes()) {
-            if ((basenamePrefix + theme.getId()).equals(basename) && theme.getParent() != null) {
+            String maybeBasename = basenamePrefix + theme.getId();
+            if (maybeBasename.equals(basename) && theme.getParent() != null) {
                 String parent = basenamePrefix + theme.getParent();
                 messageSource.setParentMessageSource(createMessageSource(parent));
                 break;
