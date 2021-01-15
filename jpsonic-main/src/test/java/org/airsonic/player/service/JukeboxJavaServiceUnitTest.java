@@ -90,10 +90,9 @@ public class JukeboxJavaServiceUnitTest {
     public void playWithNonJukeboxUser() {
         // Given
         when(user.isJukeboxRole()).thenReturn(false);
+        // CreateJavaPlayer should not be called if you do not have permission.
         // When
         service.play(airsonicPlayer);
-        // Then
-        verify(javaPlayerFactory).createJavaPlayer();
         verify(player, never()).play();
     }
 
