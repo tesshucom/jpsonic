@@ -56,7 +56,7 @@ public class RequestEncodingFilter implements Filter {
         encoding = filterConfig.getInitParameter("encoding");
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to destroy
+    @SuppressWarnings("PMD.NullAssignment") // (encoding) Intentional allocation to destroy
     @Override
     public void destroy() {
         encoding = null;

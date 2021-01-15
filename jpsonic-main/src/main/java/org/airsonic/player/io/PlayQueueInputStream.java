@@ -146,7 +146,7 @@ public class PlayQueueInputStream extends InputStream {
         }
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to encourage garbage collection.
+    @SuppressWarnings("PMD.NullAssignment") // (currentInputStream, currentFile) Intentional allocation to encourage garbage collection.
     @Override
     public void close() throws IOException {
         try {
