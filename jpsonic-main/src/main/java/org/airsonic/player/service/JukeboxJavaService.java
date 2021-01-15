@@ -207,11 +207,8 @@ public class JukeboxJavaService {
     /**
      * Plays the playqueue of a jukebox player starting at the beginning.
      */
-    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void play(Player airsonicPlayer) {
         LOG.debug("begin play jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
-
-        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
 
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
@@ -221,6 +218,7 @@ public class JukeboxJavaService {
         }
 
         LOG.debug("Different file to play -> start a new play list");
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
         if (airsonicPlayer.getPlayQueue().getCurrentFile() != null) {
             audioPlayer.setPlayList(new PlayList() {
 
@@ -271,11 +269,8 @@ public class JukeboxJavaService {
         play(airsonicPlayer);
     }
 
-    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void stop(Player airsonicPlayer) {
         LOG.debug("begin stop jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
-
-        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
 
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
@@ -284,15 +279,13 @@ public class JukeboxJavaService {
             return;
         }
 
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
         LOG.debug("PlayQueue.Status is {}", airsonicPlayer.getPlayQueue().getStatus());
         audioPlayer.pause();
     }
 
-    @SuppressWarnings("PMD.PrematureDeclaration") // Can't judge without initializing player
     public void skip(Player airsonicPlayer, int index, int offset) {
         LOG.debug("begin skip jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
-
-        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
 
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
@@ -301,6 +294,7 @@ public class JukeboxJavaService {
             return;
         }
 
+        com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
         if (index == 0 && offset == 0) {
             play(airsonicPlayer);
         } else {
