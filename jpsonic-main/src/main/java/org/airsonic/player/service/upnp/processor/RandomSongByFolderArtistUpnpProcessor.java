@@ -173,40 +173,30 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     class FolderArtist implements FolderArtistWrapper {
 
-        private final Artist artist;
-        private final MusicFolder folder;
-        private final MediaFile song;
+        private Artist artist;
+        private MusicFolder folder;
+        private MediaFile song;
 
-        private String id;
+        private final String id;
+        private final String name;
 
-        private String name;
-
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(Artist artist) {
             super();
             this.artist = artist;
-            this.folder = null;
-            this.song = null;
             this.id = createArtistId(Integer.toString(artist.getId()));
             this.name = artist.getName();
         }
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(MediaFile song) {
             super();
             this.song = song;
-            this.folder = null;
-            this.artist = null;
             this.id = Integer.toString(song.getId());
             this.name = song.getName();
         }
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public FolderArtist(MusicFolder folder) {
             super();
             this.folder = folder;
-            this.artist = null;
-            this.song = null;
             this.id = createMusicFolderId(Integer.toString(folder.getId()));
             this.name = folder.getName();
         }

@@ -205,55 +205,39 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
     @SuppressWarnings("PMD.AccessorMethodGeneration")
     class Leaf implements FolderArtistAlbumWrapper {
 
-        private final Artist artist;
-        private final Album album;
-        private final MusicFolder folder;
-        private final MediaFile song;
+        private Artist artist;
+        private Album album;
+        private MusicFolder folder;
+        private MediaFile song;
 
-        private String id;
+        private final String id;
 
-        private String name;
+        private final String name;
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(Album album) {
             super();
-            this.artist = null;
             this.album = album;
-            this.folder = null;
-            this.song = null;
             this.id = createAlbumId(Integer.toString(album.getId()));
             this.name = album.getName();
         }
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(Artist artist) {
             super();
             this.artist = artist;
-            this.album = null;
-            this.folder = null;
-            this.song = null;
             this.id = createArtistId(Integer.toString(artist.getId()));
             this.name = artist.getName();
         }
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(MediaFile song) {
             super();
             this.song = song;
-            this.folder = null;
-            this.artist = null;
-            this.album = null;
             this.id = Integer.toString(song.getId());
             this.name = song.getName();
         }
 
-        @SuppressWarnings("PMD.NullAssignment") // No problem at the moment
         public Leaf(MusicFolder folder) {
             super();
             this.folder = folder;
-            this.artist = null;
-            this.album = null;
-            this.song = null;
             this.id = createMusicFolderId(Integer.toString(folder.getId()));
             this.name = folder.getName();
         }

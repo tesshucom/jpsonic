@@ -157,7 +157,7 @@ public class UrlTag extends BodyTagSupport {
         return true;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to release
+    @SuppressWarnings("PMD.NullAssignment") // (var, value) Intentional allocation to release
     @Override
     public void release() {
         var = null;

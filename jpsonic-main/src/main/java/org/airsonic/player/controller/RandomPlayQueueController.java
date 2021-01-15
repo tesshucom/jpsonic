@@ -296,7 +296,7 @@ public class RandomPlayQueueController {
         return "reload";
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional assignment in the case of receiving a param indicating no condition value.
+    @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the case of receiving a param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request) throws ServletRequestBindingException {
         String username = securityService.getCurrentUsername(request);
         Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, "musicFolderId");

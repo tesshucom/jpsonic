@@ -102,6 +102,7 @@ public final class AnalyzerFactory {
     
     @SuppressWarnings("PMD.NullAssignment")
     /*
+     * (analyzer, queryAnalyzer) Intentional allocation to clear cache.
      * Dynamic analyzer changes require explicit cache clearing.
      * (The constructor is called by Spring, so changes are always dynamic.)
      * However, this method is usually executed only once when the server starts.

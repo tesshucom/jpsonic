@@ -187,7 +187,7 @@ public class JukeboxJavaService {
         scrobble(player, file, false);
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to encourage garbage collection.
+    @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
     private void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));

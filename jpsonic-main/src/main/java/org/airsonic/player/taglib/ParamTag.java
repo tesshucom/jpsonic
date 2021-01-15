@@ -46,7 +46,7 @@ public class ParamTag extends TagSupport {
         return EVAL_PAGE;
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // Intentional allocation to release
+    @SuppressWarnings("PMD.NullAssignment") // (name, value)Intentional allocation to release
     @Override
     public void release() {
         name = null;
