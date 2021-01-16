@@ -80,6 +80,10 @@ public class UploadController {
     public static final String FIELD_NAME_UNZIP = "unzip";
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [UseLocaleWithCaseConversions]
+     * The locale doesn't matter, as only comparing the extension literal.
+     */
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 

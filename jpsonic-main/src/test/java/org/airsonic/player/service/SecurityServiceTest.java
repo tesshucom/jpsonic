@@ -19,8 +19,9 @@
  */
 package org.airsonic.player.service;
 
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -30,12 +31,13 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
-public class SecurityServiceTest {
+public class SecurityServiceTest extends AbstractAirsonicHomeTest {
+
+    @Autowired
+    private SecurityService service;
 
     @Test
     public void testIsFileInFolder() {
-        SecurityService service = new SecurityService();
 
         assertTrue(service.isFileInFolder("/music/foo.mp3", "\\"));
         assertTrue(service.isFileInFolder("/music/foo.mp3", "/"));

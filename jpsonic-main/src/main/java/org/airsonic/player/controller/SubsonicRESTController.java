@@ -1445,7 +1445,6 @@ public class SubsonicRESTController {
         return null;
     }
 
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     public static String getRelativePath(MediaFile musicFile, SettingsService settingsService) {
 
         String filePath = musicFile.getPath();
@@ -1453,13 +1452,13 @@ public class SubsonicRESTController {
         // Convert slashes.
         filePath = filePath.replace('\\', '/');
 
-        String filePathLower = filePath.toLowerCase();
+        String filePathLower = filePath.toLowerCase(settingsService.getLocale());
 
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getAllMusicFolders(false, true);
         for (org.airsonic.player.domain.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPath().getPath();
             folderPath = folderPath.replace('\\', '/');
-            String folderPathLower = folderPath.toLowerCase();
+            String folderPathLower = folderPath.toLowerCase(settingsService.getLocale());
             if (!folderPathLower.endsWith("/")) {
                 folderPathLower = new StringBuilder(folderPathLower).append('/').toString();
             }
