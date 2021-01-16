@@ -379,6 +379,10 @@ public class SettingsService {
     }
 
     @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [UseLocaleWithCaseConversions]
+     * The locale doesn't matter, as only comparing the OS names.
+     */
     public static File getJpsonicHome() {
         File home;
         synchronized (LOCKS.get(LocksKeys.HOME)) {

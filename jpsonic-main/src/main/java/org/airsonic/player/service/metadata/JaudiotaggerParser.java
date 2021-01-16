@@ -278,6 +278,10 @@ public class JaudiotaggerParser extends MetaDataParser {
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [UseLocaleWithCaseConversions]
+     * The locale doesn't matter, as only comparing the extension literal.
+     */
     @Override
     public boolean isApplicable(File file) {
         if (!file.isFile()) {

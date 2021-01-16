@@ -98,6 +98,10 @@ public class SecurityService implements UserDetailsService {
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [UseLocaleWithCaseConversions]
+     * The locale doesn't matter because just converting the literal.
+     */
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -373,7 +377,6 @@ public class SecurityService implements UserDetailsService {
      * @param folder The folder in question.
      * @return Whether the given file is located in the given folder.
      */
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;
@@ -384,7 +387,8 @@ public class SecurityService implements UserDetailsService {
         }
 
         // Convert slashes.
-        return file.replace('\\', '/').toUpperCase().startsWith(folder.replace('\\', '/').toUpperCase());
+        return file.replace('\\', '/').toUpperCase(settingsService.getLocale())
+                .startsWith(folder.replace('\\', '/').toUpperCase(settingsService.getLocale()));
     }
 
     public void setSettingsService(SettingsService settingsService) {
