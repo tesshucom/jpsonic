@@ -74,7 +74,7 @@ public class StatusChartController extends AbstractChartController {
 
     public static final Object LOCK = new Object();
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Millisecond, Date) Not reusable
     @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {

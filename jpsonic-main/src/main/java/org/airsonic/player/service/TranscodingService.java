@@ -348,7 +348,7 @@ public class TranscodingService {
      * @param mediaFile                The media file.
      * @param in                       Data to feed to the process.  May be {@code null}.  @return The newly created input stream.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private TranscodeInputStream createTranscodeInputStream(String command, Integer maxBitRate,
                                                             VideoTranscodingSettings videoTranscodingSettings, MediaFile mediaFile, InputStream in) throws IOException {
 

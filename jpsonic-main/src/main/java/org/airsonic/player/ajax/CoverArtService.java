@@ -91,6 +91,8 @@ public class CoverArtService {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
+     * [AvoidInstantiatingObjectsInLoops]
+     * (File) Not reusable
      * [UseLocaleWithCaseConversions]
      * The locale doesn't matter, as only comparing the extension literal.
      */

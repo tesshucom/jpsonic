@@ -107,11 +107,12 @@ public class NowPlayingService {
         return new ScanInfo(mediaScannerService.isScanning(), mediaScannerService.getScanCount());
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops" })
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String url = NetworkService.getBaseUrl(request);
         List<NowPlayingInfo> result = new ArrayList<>();
+        final StringBuilder builder = new StringBuilder();
         for (PlayStatus status : playStatuses) {
 
             Player player = status.getPlayer();
@@ -146,7 +147,8 @@ public class NowPlayingService {
             String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
 
             if (StringUtils.isNotBlank(player.getName())) {
-                username = new StringBuilder(username).append('@').append(player.getName()).toString();
+                builder.setLength(0);
+                username = builder.append(username).append('@').append(player.getName()).toString();
             }
             artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
             title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));

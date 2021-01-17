@@ -53,7 +53,7 @@ public class RatingService {
      * @param musicFolders Only return albums in these folders.
      * @return The highest rated albums.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     public List<MediaFile> getHighestRatedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
         List<String> highestRated = ratingDao.getHighestRatedAlbums(offset, count, musicFolders);
         List<MediaFile> result = new ArrayList<>();

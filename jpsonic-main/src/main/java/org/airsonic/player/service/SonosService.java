@@ -156,7 +156,6 @@ public class SonosService implements SonosSoap {
     @Resource
     private WebServiceContext context;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
@@ -556,7 +555,6 @@ public class SonosService implements SonosSoap {
         return messageContext == null ? null : (HttpServletRequest) messageContext.get("HTTP.REQUEST");
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (!(messageContext instanceof WrappedMessageContext)) {
@@ -569,14 +567,23 @@ public class SonosService implements SonosSoap {
         Message message = ((WrappedMessageContext) messageContext).getWrappedMessage();
         List<Header> headers = CastUtils.cast((List<?>) message.get(Header.HEADER_LIST));
         if (headers != null) {
+            // Unwrap the node using JAXB
+            JAXBContext jaxbContext = null;
+            try {
+                jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
+            } catch (JAXBException e) {
+                // failed to get the credentials object from the headers
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("JAXB error trying to unwrap credentials", e);
+                }
+            }
+            if (jaxbContext == null) {
+                return null;
+            }
             for (Header h : headers) {
                 Object o = h.getObject();
-                // Unwrap the node using JAXB
                 if (o instanceof Node) {
-                    JAXBContext jaxbContext;
                     try {
-                        // TODO: Check performance
-                        jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
                         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                         o = unmarshaller.unmarshal((Node) o);
                     } catch (JAXBException e) {

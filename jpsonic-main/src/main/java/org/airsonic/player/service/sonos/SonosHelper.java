@@ -81,7 +81,6 @@ import static org.airsonic.player.service.NetworkService.getBaseUrl;
  * @author Sindre Mehus
  * @version $Id$
  */
-@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 @Service
 public class SonosHelper {
 
@@ -203,6 +202,7 @@ public class SonosHelper {
         return forMediaFiles(songs, username, request);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     public List<AbstractMedia> forLibrary(String username, HttpServletRequest request) {
 
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
@@ -313,6 +313,7 @@ public class SonosHelper {
         return mediaCollection;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaCollection, AlbumArtUrl) Not reusable
     public List<MediaCollection> forPlaylists(String username, HttpServletRequest request) {
         List<MediaCollection> result = new ArrayList<>();
         for (Playlist playlist : playlistService.getReadablePlaylistsForUser(username)) {
@@ -334,6 +335,7 @@ public class SonosHelper {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaCollection) Not reusable
     public List<MediaCollection> forAlbumLists() {
         List<MediaCollection> result = new ArrayList<>();
 
@@ -347,6 +349,7 @@ public class SonosHelper {
         return result;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaCollection) Not reusable
     public List<MediaCollection> forPodcastChannels() {
         List<MediaCollection> result = new ArrayList<>();
         for (PodcastChannel channel : podcastService.getAllChannels()) {
@@ -445,6 +448,7 @@ public class SonosHelper {
         return new AlbumList(albums, total);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaCollection) Not reusable
     private MediaList forDecades(int offset, int count) {
         List<MediaCollection> mediaCollections = new ArrayList<>();
         int currentDecade = Calendar.getInstance().get(Calendar.YEAR) / 10;
@@ -460,6 +464,7 @@ public class SonosHelper {
         return createSubList(offset, count, mediaCollections);
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MediaCollection) Not reusable
     private MediaList forGenres(int offset, int count) {
         List<MediaCollection> mediaCollections = new ArrayList<>();
         List<Genre> genres = searchService.getGenres(true);

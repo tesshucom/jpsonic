@@ -230,7 +230,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IndexID3) Not reusable
     private final void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);

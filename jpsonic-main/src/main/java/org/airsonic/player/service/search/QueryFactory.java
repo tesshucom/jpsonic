@@ -59,7 +59,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * On the other hand, the generated queries are relatively small by version.
  * Therefore, test cases of this class are useful for large version upgrades.
  **/
-@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CloseResource" }) // Analyzer should not be closed
+@SuppressWarnings("PMD.CloseResource") // Analyzer should not be closed
 @Component
 public class QueryFactory {
 
@@ -107,6 +107,7 @@ public class QueryFactory {
      *  - Self made parser process reduces one library dependency.
      *  - It is easy to make corrections later when changing the query to improve search accuracy.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery, BooleanQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
@@ -157,6 +158,7 @@ public class QueryFactory {
 
     };
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
 
@@ -247,6 +249,7 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getRandomSongs(RandomSearchCriteria)}.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getRandomSongs(RandomSearchCriteria criteria) throws IOException {
 
@@ -305,6 +308,7 @@ public class QueryFactory {
      * @return Query
      * @throws IOException When parsing of QueryParser fails
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term, WildcardQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query searchByName(String fieldName, String name) throws IOException {
 
@@ -372,6 +376,7 @@ public class QueryFactory {
      * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
      * @param musicFolders
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
@@ -405,6 +410,7 @@ public class QueryFactory {
      * @param musicFolders
      * @return
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
@@ -432,6 +438,7 @@ public class QueryFactory {
 
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
 

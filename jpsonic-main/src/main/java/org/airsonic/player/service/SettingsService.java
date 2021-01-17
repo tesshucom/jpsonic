@@ -1096,7 +1096,7 @@ public class SettingsService {
      * @return A list of available themes.
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Theme) Cannot be reused but is cached
     public Theme[] getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
             if (themes == null) {

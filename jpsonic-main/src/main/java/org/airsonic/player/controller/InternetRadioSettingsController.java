@@ -73,9 +73,10 @@ public class InternetRadioSettingsController {
         return "redirect:internetRadioSettings.view";
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
     private String handleParameters(HttpServletRequest request) {
         List<InternetRadio> radios = settingsService.getAllInternetRadios(true);
+        Date current = new Date();
         for (InternetRadio radio : radios) {
             Integer id = radio.getId();
             String streamUrl = getParameter(request, "streamUrl", id);
@@ -93,7 +94,7 @@ public class InternetRadioSettingsController {
                 if (streamUrl == null) {
                     return "internetradiosettings.nourl";
                 }
-                settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, new Date()));
+                settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
             }
         }
 

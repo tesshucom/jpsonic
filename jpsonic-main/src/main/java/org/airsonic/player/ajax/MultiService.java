@@ -77,7 +77,7 @@ public class MultiService {
         return new ArtistInfo(similarArtists, artistBio, topSongs);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TopSong) Not reusable
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
@@ -93,7 +93,7 @@ public class MultiService {
         return result;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (SimilarArtist) Not reusable
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
