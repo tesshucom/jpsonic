@@ -67,7 +67,7 @@ public class AvatarUploadController {
     @Autowired
     private SecurityService securityService;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Exception) Not reusable
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
 

@@ -32,7 +32,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
         return Playlist.class.equals(playlistClass);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     @Override
     public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();

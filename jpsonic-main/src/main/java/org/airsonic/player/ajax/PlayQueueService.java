@@ -735,7 +735,7 @@ public class PlayQueueService {
         );
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlayQueueInfo.Entry> convertMediaFileList(HttpServletRequest request, Player player) {
 
         String url = NetworkService.getBaseUrl(request);
@@ -765,7 +765,7 @@ public class PlayQueueService {
         return entries;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlayQueueInfo.Entry> convertInternetRadio(Player player) {
 
         PlayQueue playQueue = player.getPlayQueue();

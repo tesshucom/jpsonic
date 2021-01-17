@@ -98,7 +98,8 @@ public class SecurityService implements UserDetailsService {
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
-    /*
+    /* [AvoidInstantiatingObjectsInLoops]
+     * (SimpleGrantedAuthority) Not reusable
      * [UseLocaleWithCaseConversions]
      * The locale doesn't matter because just converting the literal.
      */

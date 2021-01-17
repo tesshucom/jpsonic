@@ -250,7 +250,7 @@ public class PodcastService {
         }));
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private List<PodcastEpisode> filterAllowed(List<PodcastEpisode> episodes) {
         List<PodcastEpisode> result = new ArrayList<>(episodes.size());
         for (PodcastEpisode episode : episodes) {
@@ -442,7 +442,7 @@ public class PodcastService {
         downloadExecutor.submit(task);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
     private void refreshEpisodes(PodcastChannel channel, List<Element> episodeElements) {
 
         List<PodcastEpisode> episodes = new ArrayList<>();
@@ -720,7 +720,7 @@ public class PodcastService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private File getFile(PodcastChannel channel, PodcastEpisode episode) {
 
         File channelDir = getChannelDirectory(channel);

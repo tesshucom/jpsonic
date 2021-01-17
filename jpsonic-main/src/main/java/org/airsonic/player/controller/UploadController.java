@@ -81,6 +81,8 @@ public class UploadController {
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
+     * [AvoidInstantiatingObjectsInLoops]
+     * (File, GeneralSecurityException) Not reusable
      * [UseLocaleWithCaseConversions]
      * The locale doesn't matter, as only comparing the extension literal.
      */
@@ -180,7 +182,7 @@ public class UploadController {
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") //  (File, IOException, GeneralSecurityException, byte[]) Not reusable
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);

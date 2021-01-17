@@ -180,6 +180,9 @@ public class UPnPService {
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AccessorMethodGeneration" })
+    /* [PMD.AvoidInstantiatingObjectsInLoops]
+     * (DLNAProtocolInfo, AssertionError) Not reusable
+     */
     private LocalDevice createMediaServerDevice() throws Exception {
 
         String serverName = settingsService.getDlnaServerName();

@@ -83,7 +83,7 @@ public class SonosServiceRegistration {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BasicNameValuePair) Not reusable
     private String execute(String url, List<Pair<String, String>> parameters) throws IOException {
         List<NameValuePair> params = new ArrayList<>();
         for (Pair<String, String> parameter : parameters) {

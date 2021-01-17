@@ -176,7 +176,7 @@ public class StatusService {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Date, PlayStatus) Not reusable
     public List<PlayStatus> getPlayStatuses() {
         synchronized (STREAM_LOCK) {
             synchronized (REMOTE_LOCK) {

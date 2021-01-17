@@ -66,7 +66,6 @@ import java.util.*;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 @Controller
 @RequestMapping("/internalhelp")
 public class InternalHelpController {
@@ -263,7 +262,12 @@ public class InternalHelpController {
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.CloseResource") // Do not close searcher resources
+    @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
+    /* [CloseResource]
+     * Do not close searcher resources
+     * [AvoidInstantiatingObjectsInLoops]
+     * (IndexStatistics) Not reusable
+     */
     private void gatherIndexInfo(Map<String, Object> map) {
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
         for (IndexType indexType : IndexType.values()) {
@@ -275,10 +279,6 @@ public class InternalHelpController {
                 IndexReader reader = searcher.getIndexReader();
                 stat.setCount(reader.numDocs());
                 stat.setDeletedCount(reader.numDeletedDocs());
-                /*
-                 *  The following code is appropriate for Airsonic.
-                 * In case of Jpsonic, exception may occur (Before first scan)
-                 */
                 indexManager.release(indexType, searcher);
             } else {
                 stat.setCount(0);
@@ -410,6 +410,7 @@ public class InternalHelpController {
         map.put("dbMediaFilesWithMusicFolderMismatchSample", mediaFileDao.getFilesWithMusicFolderMismatch(10));
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
     private void gatherFilesystemInfo(Map<String, Object> map) {
         map.put("fsHomeDirectorySizeBytes", FileUtils.sizeOfDirectory(SettingsService.getJpsonicHome()));
         map.put("fsHomeDirectorySize", FileUtils.byteCountToDisplaySize((long)map.get("fsHomeDirectorySizeBytes")));
@@ -450,6 +451,7 @@ public class InternalHelpController {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private File lookForExecutable(String executableName) {
         for (String path : System.getenv("PATH").split(File.pathSeparator)) {
             File file = new File(path, executableName);
@@ -467,13 +469,17 @@ public class InternalHelpController {
         return null;
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private File lookForTranscodingExecutable(String executableName) {
-        File executableLocation;
-        for (String name: Arrays.asList(executableName, String.format("%s.exe", executableName))) {
-            executableLocation = new File(transcodingService.getTranscodeDirectory(), name);
-            if (executableLocation.exists()) return executableLocation;
+        for (String name : Arrays.asList(executableName, String.format("%s.exe", executableName))) {
+            File executableLocation = new File(transcodingService.getTranscodeDirectory(), name);
+            if (executableLocation.exists()) {
+                return executableLocation;
+            }
             executableLocation = lookForExecutable(executableName);
-            if (executableLocation != null && executableLocation.exists()) return executableLocation;
+            if (executableLocation != null && executableLocation.exists()) {
+                return executableLocation;
+            }
         }
         return null;
     }

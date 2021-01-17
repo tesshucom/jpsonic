@@ -359,7 +359,7 @@ public class CoverArtController implements LastModified {
         return dir;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BufferedImage) Not reusable
     public static BufferedImage scale(BufferedImage image, int width, int height) {
         int w = image.getWidth();
         int h = image.getHeight();

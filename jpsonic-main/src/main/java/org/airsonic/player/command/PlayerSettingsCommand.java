@@ -169,7 +169,7 @@ public class PlayerSettingsCommand {
         return technologyHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
     public void setTechnologies(PlayerTechnology... technologies) {
         technologyHolders = new EnumHolder[technologies.length];
         for (int i = 0; i < technologies.length; i++) {
@@ -182,7 +182,7 @@ public class PlayerSettingsCommand {
         return transcodeSchemeHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
     public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {

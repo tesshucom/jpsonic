@@ -618,7 +618,7 @@ public class IndexManager {
 
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Genre) Not reusable
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);

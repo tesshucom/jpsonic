@@ -57,7 +57,7 @@ public class StatusController {
 
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 

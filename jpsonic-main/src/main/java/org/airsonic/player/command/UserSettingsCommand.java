@@ -273,7 +273,7 @@ public class UserSettingsCommand {
         return transcodeSchemeHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
     public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {

@@ -166,7 +166,11 @@ import static org.springframework.web.bind.ServletRequestUtils.getStringParamete
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops"})
+@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+/*
+ * There are 21 loop instantiatings, but none of them can be reused. This class
+ * has many loop instances because it is responsible for conversion objects.
+ */
 @Controller
 @RequestMapping(value = "/rest", method = {RequestMethod.GET, RequestMethod.POST})
 public class SubsonicRESTController {
@@ -425,11 +429,11 @@ public class SubsonicRESTController {
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService.getIndexedArtists(artists);
         for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
             IndexID3 index = new IndexID3();
-            result.getIndex().add(index);
             index.setName(entry.getKey().getIndex());
             for (MusicIndex.SortableArtistWithArtist sortableArtist : entry.getValue()) {
                 index.getArtist().add(createJaxbArtist(new ArtistID3(), sortableArtist.getArtist(), username));
             }
+            result.getIndex().add(index);
         }
 
         Response res = createResponse();
@@ -1455,14 +1459,15 @@ public class SubsonicRESTController {
         String filePathLower = filePath.toLowerCase(settingsService.getLocale());
 
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getAllMusicFolders(false, true);
+        StringBuilder builder = new StringBuilder();
         for (org.airsonic.player.domain.MusicFolder musicFolder : musicFolders) {
             String folderPath = musicFolder.getPath().getPath();
             folderPath = folderPath.replace('\\', '/');
             String folderPathLower = folderPath.toLowerCase(settingsService.getLocale());
             if (!folderPathLower.endsWith("/")) {
-                folderPathLower = new StringBuilder(folderPathLower).append('/').toString();
+                builder.setLength(0);
+                folderPathLower = builder.append(folderPathLower).append('/').toString();
             }
-
             if (filePathLower.startsWith(folderPathLower)) {
                 String relativePath = filePath.substring(folderPath.length());
                 return !relativePath.isEmpty() && relativePath.charAt(0) == '/'
@@ -1552,9 +1557,8 @@ public class SubsonicRESTController {
                 }
                 continue;
             }
-            Date time = times.length == 0 ? null : new Date(times[i]);
-
-            statusService.addRemotePlay(new PlayStatus(file, player, time == null ? new Date() : time));
+            Date time = times.length == 0 ? new Date() : new Date(times[i]);
+            statusService.addRemotePlay(new PlayStatus(file, player, time));
             mediaFileService.incrementPlayCount(file);
             if (settingsService.getUserSettings(player.getUsername()).isLastFmEnabled()) {
                 audioScrobblerService.register(file, player.getUsername(), submission, time);
