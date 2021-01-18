@@ -82,6 +82,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
+    static final int getIDAndIncrement() {
+        return INDEX_IDS.getAndIncrement();
+    }
+
     @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (!child.isFile()) {
@@ -233,7 +237,6 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return min;
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     static class MediaIndex extends MediaFile {
 
         private final MusicIndex deligate;
@@ -241,7 +244,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
         public MediaIndex(MusicIndex deligate) {
             this.deligate = deligate;
-            this.id = INDEX_IDS.getAndIncrement();
+            this.id = getIDAndIncrement();
         }
 
         public MusicIndex getDeligate() {

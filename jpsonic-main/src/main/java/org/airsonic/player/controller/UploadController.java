@@ -109,7 +109,7 @@ public class UploadController {
             File dir = null;
             boolean unzip = false;
 
-            UploadListener listener = new UploadListenerImpl(status);
+            UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
 
             FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
             ServletFileUpload upload = new ServletFileUpload(factory);
@@ -244,14 +244,20 @@ public class UploadController {
     /**
      * Receives callbacks as the file upload progresses.
      */
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    private class UploadListenerImpl implements UploadListener {
+    private static class UploadListenerImpl implements UploadListener {
+
         private TransferStatus status;
         private long startTime;
+        private final StatusService statusService;
+        private final SettingsService settingsService;
 
-        UploadListenerImpl(TransferStatus status) {
+        private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
+
+        UploadListenerImpl(TransferStatus status, StatusService statusService, SettingsService settingsService) {
             this.status = status;
             startTime = System.currentTimeMillis();
+            this.statusService = statusService;
+            this.settingsService = settingsService;
         }
 
         @Override
@@ -288,7 +294,8 @@ public class UploadController {
         }
 
         private long getBitrateLimit() {
-            return 1024L * settingsService.getUploadBitrateLimit() / Math.max(1, statusService.getAllUploadStatuses().size());
+            return 1024L * this.settingsService.getUploadBitrateLimit()
+                    / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }
 

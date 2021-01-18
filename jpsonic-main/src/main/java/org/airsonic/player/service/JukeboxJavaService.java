@@ -85,7 +85,6 @@ public class JukeboxJavaService {
         return "The player " + player.getName() + " is not a java jukebox player";
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private com.github.biconou.AudioPlayer.api.Player initAudioPlayer(final Player player) {
 
         if (!player.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
@@ -174,7 +173,7 @@ public class JukeboxJavaService {
     }
 
 
-    private void onSongStart(Player player) {
+    final void onSongStart(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
         if (status != null) {
@@ -188,7 +187,7 @@ public class JukeboxJavaService {
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
-    private void onSongEnd(Player player) {
+    final void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
         if (status != null) {

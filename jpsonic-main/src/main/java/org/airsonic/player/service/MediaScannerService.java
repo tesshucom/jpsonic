@@ -172,7 +172,7 @@ public class MediaScannerService {
      * Scans the media library.
      * The scanning is done asynchronously, i.e., this method returns immediately.
      */
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
+    @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
 
         if (isScanning()) {
@@ -180,7 +180,7 @@ public class MediaScannerService {
         }
 
         synchronized (SCAN_LOCK) {
-        
+
             IS_SCANNING.set(true);
 
             Thread thread = new Thread("MediaLibraryScanner") {

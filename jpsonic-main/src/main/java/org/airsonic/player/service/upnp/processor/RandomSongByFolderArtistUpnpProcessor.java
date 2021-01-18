@@ -76,7 +76,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         }
     }
 
-    private String createArtistId(String id) {
+    final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
@@ -106,7 +106,7 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         }
     }
 
-    private String createMusicFolderId(String id) {
+    final String createMusicFolderId(String id) {
         if (isMusicFolderId(id)) {
             return id;
         }
@@ -170,7 +170,6 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     class FolderArtist implements FolderArtistWrapper {
 
         private Artist artist;

@@ -264,7 +264,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    private static String decrypt(String s) {
+    final static String decrypt(String s) {
         if (s == null) {
             return null;
         }
@@ -352,7 +352,6 @@ public class UserDao extends AbstractDao {
     }
 
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private static class UserRowMapper implements RowMapper<User> {
         @Override
         public User mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -367,7 +366,6 @@ public class UserDao extends AbstractDao {
     }
 
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private static class UserSettingsRowMapper implements RowMapper<UserSettings> {
         @Override
         public UserSettings mapRow(ResultSet rs, int rowNum) throws SQLException {

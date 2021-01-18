@@ -45,7 +45,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 public class JpsonicComparators {
 
     public enum OrderBy {
@@ -103,7 +102,7 @@ public class JpsonicComparators {
     /**
      * Returns Collator which is used as standard in Jpsonic.
      */
-    private final Collator createCollator() {
+    final Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
@@ -113,14 +112,7 @@ public class JpsonicComparators {
     }
 
     public Comparator<Genre> genreOrderByAlpha() {
-        return new Comparator<Genre>() {
-            @Override
-            public int compare(Genre o1, Genre o2) {
-                utils.analyze(o1);
-                utils.analyze(o2);
-                return createCollator().compare(o1.getReading(), o2.getReading());
-            }
-        };
+        return new GenreComparator(utils, createCollator());
     }
 
     private final boolean isSortAlbumsByYear(MediaFile parent) {
@@ -194,14 +186,7 @@ public class JpsonicComparators {
     }
 
     public Comparator<Playlist> playlistOrder() {
-        return new Comparator<Playlist>() {
-            @Override
-            public int compare(Playlist o1, Playlist o2) {
-                utils.analyze(o1);
-                utils.analyze(o2);
-                return createCollator().compare(o1.getReading(), o2.getReading());
-            }
-        };
+        return new PlaylistComparator(utils, createCollator());
     }
 
     public Comparator<SortableArtist> sortableArtistOrder() {
@@ -212,5 +197,41 @@ public class JpsonicComparators {
                 return createCollator().compare(o1.getSortableName(), o2.getSortableName());
             }
         };
+    }
+
+    private static class GenreComparator implements Comparator<Genre> {
+        final JapaneseReadingUtils utils;
+        final Collator collator;
+
+        public GenreComparator(JapaneseReadingUtils utils, Collator collator) {
+            super();
+            this.utils = utils;
+            this.collator = collator;
+        }
+
+        @Override
+        public int compare(Genre o1, Genre o2) {
+            this.utils.analyze(o1);
+            this.utils.analyze(o2);
+            return this.collator.compare(o1.getReading(), o2.getReading());
+        }
+    }
+
+    private static class PlaylistComparator implements Comparator<Playlist> {
+        final JapaneseReadingUtils utils;
+        final Collator collator;
+
+        public PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
+            super();
+            this.utils = utils;
+            this.collator = collator;
+        }
+
+        @Override
+        public int compare(Playlist o1, Playlist o2) {
+            this.utils.analyze(o1);
+            this.utils.analyze(o2);
+            return this.collator.compare(o1.getReading(), o2.getReading());
+        }
     }
 }

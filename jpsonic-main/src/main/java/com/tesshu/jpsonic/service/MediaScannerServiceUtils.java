@@ -71,7 +71,6 @@ import java.util.Set;
 // @formatter:on
 @Component
 @DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
-@SuppressWarnings("PMD.AccessorMethodGeneration")
 public class MediaScannerServiceUtils {
 
     private final SettingsService settingsService;
@@ -155,25 +154,25 @@ public class MediaScannerServiceUtils {
     private void updateIndexOfAlbum(FixedIds... fixedIds) {
         FixedIds fixedIdAll = new FixedIds();
         for (FixedIds toBeFixed : fixedIds) {
-            fixedIdAll.mediaFileIds.addAll(toBeFixed.mediaFileIds);
-            fixedIdAll.artistIds.addAll(toBeFixed.artistIds);
-            fixedIdAll.albumIds.addAll(toBeFixed.albumIds);
+            fixedIdAll.getMediaFileIds().addAll(toBeFixed.getMediaFileIds());
+            fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
+            fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.mediaFileIds.forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
-        fixedIdAll.albumIds.forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
+        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     private void updateIndexOfArtist(FixedIds... fixedIds) {
         FixedIds fixedIdAll = new FixedIds();
         for (FixedIds toBeFixed : fixedIds) {
-            fixedIdAll.mediaFileIds.addAll(toBeFixed.mediaFileIds);
-            fixedIdAll.artistIds.addAll(toBeFixed.artistIds);
-            fixedIdAll.albumIds.addAll(toBeFixed.albumIds);
+            fixedIdAll.getMediaFileIds().addAll(toBeFixed.getMediaFileIds());
+            fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
+            fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.mediaFileIds.forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
+        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-        fixedIdAll.artistIds.forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
-        fixedIdAll.albumIds.forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
+        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     private void updateOrderOfAlbum() {
@@ -239,8 +238,8 @@ public class MediaScannerServiceUtils {
         if (0 == candidates.size()) {
             return ids;
         }
-        ids.mediaFileIds.addAll(mediaFileDao.getSortOfAlbumToBeFixed(candidates));
-        ids.albumIds.addAll(albumDao.getSortOfAlbumToBeFixed(candidates));
+        ids.getMediaFileIds().addAll(mediaFileDao.getSortOfAlbumToBeFixed(candidates));
+        ids.getAlbumIds().addAll(albumDao.getSortOfAlbumToBeFixed(candidates));
         candidates.forEach(c -> {
             mediaFileDao.updateAlbumSort(c);
             albumDao.updateAlbumSort(c);
@@ -260,9 +259,9 @@ public class MediaScannerServiceUtils {
         if (0 == candidates.size()) {
             return ids;
         }
-        ids.mediaFileIds.addAll(mediaFileDao.getSortOfArtistToBeFixed(candidates));
-        ids.artistIds.addAll(artistDao.getSortOfArtistToBeFixed(candidates));
-        ids.albumIds.addAll(albumDao.getSortOfArtistToBeFixed(candidates));
+        ids.getMediaFileIds().addAll(mediaFileDao.getSortOfArtistToBeFixed(candidates));
+        ids.getArtistIds().addAll(artistDao.getSortOfArtistToBeFixed(candidates));
+        ids.getAlbumIds().addAll(albumDao.getSortOfArtistToBeFixed(candidates));
         candidates.forEach(c -> {
             mediaFileDao.updateArtistSort(c);
             artistDao.updateArtistSort(c);
@@ -275,6 +274,17 @@ public class MediaScannerServiceUtils {
         private Set<Integer> mediaFileIds = new LinkedHashSet<>();
         private Set<Integer> artistIds = new LinkedHashSet<>();
         private Set<Integer> albumIds = new LinkedHashSet<>();
-    }
 
+        public Set<Integer> getMediaFileIds() {
+            return mediaFileIds;
+        }
+
+        public Set<Integer> getArtistIds() {
+            return artistIds;
+        }
+
+        public Set<Integer> getAlbumIds() {
+            return albumIds;
+        }
+    }
 }

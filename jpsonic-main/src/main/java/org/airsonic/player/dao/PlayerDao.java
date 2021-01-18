@@ -24,7 +24,6 @@ import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.TranscodeScheme;
-import org.airsonic.player.util.LegacyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +34,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides player-related database services.
@@ -56,8 +55,7 @@ public class PlayerDao extends AbstractDao {
     @Autowired
     private PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
 
-    private PlayerRowMapper rowMapper = new PlayerRowMapper();
-    private Map<Integer, PlayQueue> playlists = Collections.synchronizedMap(LegacyMap.of());
+    private Map<Integer, PlayQueue> playlists = new ConcurrentHashMap<>();
 
     /**
      * Returns all players.
@@ -66,7 +64,7 @@ public class PlayerDao extends AbstractDao {
      */
     public List<Player> getAllPlayers() {
         String sql = "select " + QUERY_COLUMNS + " from player";
-        return query(sql, rowMapper);
+        return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory));
     }
 
     /**
@@ -80,10 +78,10 @@ public class PlayerDao extends AbstractDao {
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
         if (clientId != null) {
             String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
-            return query(sql, rowMapper, username, clientId);
+            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
         } else {
             String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id is null";
-            return query(sql, rowMapper, username);
+            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
         }
     }
 
@@ -95,7 +93,7 @@ public class PlayerDao extends AbstractDao {
      */
     public Player getPlayerById(int id) {
         String sql = "select " + QUERY_COLUMNS + " from player where id=?";
-        return queryOne(sql, rowMapper, id);
+        return queryOne(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), id);
     }
 
     /**
@@ -117,7 +115,7 @@ public class PlayerDao extends AbstractDao {
                player.getLastSeen(), CoverArtScheme.MEDIUM.name(),
                player.getTranscodeScheme().name(), player.isDynamicIp(),
                player.getTechnology().name(), player.getClientId(), player.getJavaJukeboxMixer());
-        addPlaylist(player);
+        addPlaylist(player, playlists, playerDaoPlayQueueFactory);
 
         if (LOG.isInfoEnabled()) {
             LOG.info("Created player " + id + '.');
@@ -180,17 +178,27 @@ public class PlayerDao extends AbstractDao {
                player.getTechnology().name(), player.getClientId(), player.getJavaJukeboxMixer(), player.getId());
     }
 
-    private void addPlaylist(Player player) {
-        PlayQueue playQueue = playlists.get(player.getId());
+    final static void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
+            PlayerDaoPlayQueueFactory factory) {
+        PlayQueue playQueue = playlistMap.get(player.getId());
         if (playQueue == null) {
-            playQueue = playerDaoPlayQueueFactory.createPlayQueue();
-            playlists.put(player.getId(), playQueue);
+            playQueue = factory.createPlayQueue();
+            playlistMap.put(player.getId(), playQueue);
         }
         player.setPlayQueue(playQueue);
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    private class PlayerRowMapper implements RowMapper<Player> {
+    private static class PlayerRowMapper implements RowMapper<Player> {
+
+        final Map<Integer, PlayQueue> playlistMap;
+        final PlayerDaoPlayQueueFactory factory;
+
+        public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap, PlayerDaoPlayQueueFactory factory) {
+            super();
+            this.playlistMap = playlistMap;
+            this.factory = factory;
+        }
+
         @Override
         public Player mapRow(ResultSet rs, int rowNum) throws SQLException {
             Player player = new Player();
@@ -209,8 +217,7 @@ public class PlayerDao extends AbstractDao {
             player.setTechnology(PlayerTechnology.valueOf(rs.getString(col++)));
             player.setClientId(rs.getString(col++));
             player.setJavaJukeboxMixer(rs.getString(col));
-
-            addPlaylist(player);
+            addPlaylist(player, playlistMap, factory);
             return player;
         }
     }
