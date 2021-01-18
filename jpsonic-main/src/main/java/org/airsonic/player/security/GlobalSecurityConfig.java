@@ -46,16 +46,10 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     private SecurityService securityService;
 
     @Autowired
-    private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
-
-    @Autowired
     SettingsService settingsService;
 
     @Autowired
     CustomUserDetailsContextMapper customUserDetailsContextMapper;
-
-    @Autowired
-    ApplicationEventPublisher eventPublisher;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -107,16 +101,12 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         return passworEncoder;
     }
 
-    private static String generateRememberMeKey() {
-        byte[] array = new byte[32];
-        new SecureRandom().nextBytes(array);
-        return new String(array, StandardCharsets.UTF_8);
-    }
-
     @Configuration
     @Order(1)
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    public class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    public static class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+        @Autowired
+        private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
         public ExtSecurityConfiguration() {
             super(true);
@@ -151,8 +141,27 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     @Configuration
     @Order(2)
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+    public static class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+        private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfiguration.class);
+
+        @Autowired
+        private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
+
+        @Autowired
+        ApplicationEventPublisher eventPublisher;
+
+        @Autowired
+        private SecurityService securityService;
+
+        @Autowired
+        SettingsService settingsService;
+
+        private String generateRememberMeKey() {
+            byte[] array = new byte[32];
+            new SecureRandom().nextBytes(array);
+            return new String(array, StandardCharsets.UTF_8);
+        }
 
         @Override
         protected void configure(HttpSecurity http) throws Exception {

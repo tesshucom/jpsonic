@@ -178,6 +178,10 @@ public class AudioPlayer {
     }
 
     @SuppressWarnings("PMD.AccessorMethodGeneration")
+    /*
+     * It is problematic and needs to be redesigned.
+     * At Jpsonic, the jukebox is one of the suppressed legacy features.
+     */
     private class AudioDataWriter implements Runnable {
 
         public AudioDataWriter() {

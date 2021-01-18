@@ -94,6 +94,10 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootId(CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
+    static final int getIDAndIncrement() {
+        return INDEX_IDS.getAndIncrement();
+    }
+
     @Override
     public void addChild(DIDLContent didl, Id3Wrapper item) {
         if (!item.isSong()) {
@@ -276,34 +280,33 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private static final String TYPE_PREFIX_ARTIST = "artist:";
     private static final String TYPE_PREFIX_ALBUM = "album:";
 
-    private boolean isArtistId(String id) {
+    static final boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);
     }
 
-    private String createArtistId(String id) {
+    static final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
         return TYPE_PREFIX_ARTIST.concat(id);
     }
 
-    private String createArtistId(int id) {
+    final String createArtistId(int id) {
         return TYPE_PREFIX_ARTIST.concat(String.valueOf(id));
     }
 
-    private boolean isAlbumId(String id) {
+    static final boolean isAlbumId(String id) {
         return id.startsWith(TYPE_PREFIX_ALBUM);
     }
 
-    private String createAlbumId(String id) {
+    static final String createAlbumId(String id) {
         if (isArtistId(id)) {
             return id;
         }
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    class Id3 implements Id3Wrapper {
+    static class Id3 implements Id3Wrapper {
 
         private final String id;
         private IndexID3 index;
@@ -315,7 +318,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         private int childCount;
 
         public Id3(IndexID3 index) {
-            this.id = String.valueOf(INDEX_IDS.getAndIncrement());
+            this.id = String.valueOf(getIDAndIncrement());
             name = index.getName();
             childCount = index.getArtist().size();
             this.index = index;

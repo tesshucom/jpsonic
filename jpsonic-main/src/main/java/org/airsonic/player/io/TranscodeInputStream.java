@@ -54,7 +54,6 @@ public final class TranscodeInputStream extends InputStream {
      * @param tmpFile Temporary file to delete when this stream is closed.  May be {@code null}.
      * @throws IOException If an I/O error occurs.
      */
-    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock", "PMD.AccessorMethodGeneration" }) // TODO #581
     public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile) throws IOException {
         this.tmpFile = tmpFile;
 
@@ -74,19 +73,31 @@ public final class TranscodeInputStream extends InputStream {
 
         // Copy data in a separate thread
         if (in != null) {
-            new Thread(name + " TranscodedInputStream copy thread") {
-                @Override
-                public void run() {
-                    try {
-                        IOUtils.copy(in, processOutputStream);
-                    } catch (IOException x) {
-                        // Intentionally ignored. Will happen if the remote player closes the stream.
-                    } finally {
-                        FileUtil.closeQuietly(in);
-                        FileUtil.closeQuietly(processOutputStream);
-                    }
-                }
-            }.start();
+            new TranscodedInputStreamThread(name, in, processOutputStream).start();
+        }
+    }
+
+    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" })
+    private static class TranscodedInputStreamThread extends Thread {
+        final InputStream in;
+        final OutputStream out;
+
+        public TranscodedInputStreamThread(String name, InputStream in, OutputStream out) {
+            super(name + " TranscodedInputStream copy thread");
+            this.in = in;
+            this.out = out;
+        }
+
+        @Override
+        public void run() {
+            try {
+                IOUtils.copy(in, out);
+            } catch (IOException x) {
+                // Intentionally ignored. Will happen if the remote player closes the stream.
+            } finally {
+                FileUtil.closeQuietly(in);
+                FileUtil.closeQuietly(out);
+            }
         }
     }
 

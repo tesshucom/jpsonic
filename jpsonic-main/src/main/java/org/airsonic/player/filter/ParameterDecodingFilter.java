@@ -52,7 +52,6 @@ import java.util.Map;
 public class ParameterDecodingFilter implements Filter {
 
     public static final String PARAM_SUFFIX = "Utf8Hex";
-    private static final Logger LOG = LoggerFactory.getLogger(ParameterDecodingFilter.class);
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -76,6 +75,8 @@ public class ParameterDecodingFilter implements Filter {
     }
 
     private static class DecodingServletRequestWrapper extends HttpServletRequestWrapper {
+
+        private static final Logger LOG = LoggerFactory.getLogger(DecodingServletRequestWrapper.class);
 
         public DecodingServletRequestWrapper(HttpServletRequest servletRequest) {
             super(servletRequest);
@@ -137,7 +138,6 @@ public class ParameterDecodingFilter implements Filter {
             return new String[0];
         }
 
-        @SuppressWarnings("PMD.AccessorMethodGeneration")
         private String[] decode(String... values) {
             if (values == null) {
                 return null;

@@ -2428,7 +2428,6 @@ public class SubsonicRESTController {
         return wrapRequest(request, false);
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private HttpServletRequest wrapRequest(final HttpServletRequest request, boolean jukebox) {
         final String playerId = createPlayerIfNecessary(request, jukebox);
         return new HttpServletRequestWrapper(request) {
@@ -2449,7 +2448,7 @@ public class SubsonicRESTController {
         };
     }
 
-    private String mapId(String id) {
+    final String mapId(String id) {
         
         
         if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {

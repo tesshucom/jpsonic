@@ -179,7 +179,7 @@ public class UPnPService {
         }
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.AccessorMethodGeneration" })
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
     /* [PMD.AvoidInstantiatingObjectsInLoops]
      * (DLNAProtocolInfo, AssertionError) Not reusable
      */
@@ -196,13 +196,10 @@ public class UPnPService {
                 new DLNADoc[]{new DLNADoc("DMS", DLNADoc.Version.V1_5)}, null);
 
         @SuppressWarnings("unchecked")
-        LocalService<CustomContentDirectory> contentDirectoryservice = new AnnotationLocalServiceBinder().read(CustomContentDirectory.class);
-        contentDirectoryservice.setManager(new DefaultServiceManager<CustomContentDirectory>(contentDirectoryservice) {
-            @Override
-            protected CustomContentDirectory createServiceInstance() {
-                return dispatchingContentDirectory;
-            }
-        });
+        LocalService<CustomContentDirectory> directoryservice = new AnnotationLocalServiceBinder()
+                .read(CustomContentDirectory.class);
+        ServiceManager serviceManager = new ServiceManager(directoryservice, dispatchingContentDirectory);
+        directoryservice.setManager(serviceManager);
 
         final ProtocolInfos protocols = new ProtocolInfos();
         for (DLNAProfiles dlnaProfile : DLNAProfiles.values()) {
@@ -237,7 +234,7 @@ public class UPnPService {
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
         }
-        return new LocalDevice(identity, type, details, new Icon[]{icon}, new LocalService[]{contentDirectoryservice, connetionManagerService, receiverService});
+        return new LocalDevice(identity, type, details, new Icon[]{icon}, new LocalService[]{directoryservice, connetionManagerService, receiverService});
     }
 
     public List<String> getSonosControllerHosts() {
@@ -264,5 +261,20 @@ public class UPnPService {
 
     public void setCustomContentDirectory(CustomContentDirectory customContentDirectory) {
         this.dispatchingContentDirectory = customContentDirectory;
+    }
+
+    private static class ServiceManager extends DefaultServiceManager<CustomContentDirectory> {
+
+        final CustomContentDirectory directory;
+
+        public ServiceManager(LocalService<CustomContentDirectory> service, CustomContentDirectory directory) {
+            super(service);
+            this.directory = directory;
+        }
+
+        @Override
+        protected CustomContentDirectory createServiceInstance() {
+            return this.directory;
+        }
     }
 }

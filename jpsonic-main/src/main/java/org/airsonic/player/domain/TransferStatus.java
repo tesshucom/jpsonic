@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class TransferStatus {
 
-    private static final int HISTORY_LENGTH = 200;
+    static final int HISTORY_LENGTH = 200;
     private static final long SAMPLE_INTERVAL_MILLIS = 5000;
 
     private Player player;
@@ -39,7 +39,7 @@ public class TransferStatus {
     private AtomicLong bytesTransfered = new AtomicLong();
     private AtomicLong bytesSkipped = new AtomicLong();
     private AtomicLong bytesTotal = new AtomicLong();
-    private final SampleHistory history = new SampleHistory();
+    private final SampleHistory history = new SampleHistory(HISTORY_LENGTH);
     private boolean terminated;
     private boolean active = true;
 
@@ -99,13 +99,12 @@ public class TransferStatus {
      *
      * @return Number of milliseconds, or <code>0</code> if never updated.
      */
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public long getMillisSinceLastUpdate() {
         synchronized (HISTORY_LOCK) {
             if (history.isEmpty()) {
                 return 0L;
             }
-            return System.currentTimeMillis() - history.getLast().timestamp;
+            return System.currentTimeMillis() - history.getLast().getTimestamp();
         }
     }
 
@@ -199,7 +198,7 @@ public class TransferStatus {
      */
     public SampleHistory getHistory() {
         synchronized (HISTORY_LOCK) {
-            return new SampleHistory(history);
+            return new SampleHistory(HISTORY_LENGTH, history);
         }
     }
 
@@ -307,12 +306,12 @@ public class TransferStatus {
     @SuppressWarnings("serial")
     public static class SampleHistory extends CircularFifoQueue<Sample> {
 
-        public SampleHistory() {
-            super(HISTORY_LENGTH);
+        public SampleHistory(int length) {
+            super(length);
         }
 
-        public SampleHistory(SampleHistory other) {
-            super(HISTORY_LENGTH);
+        public SampleHistory(int length, SampleHistory other) {
+            this(length);
             addAll(other);
         }
 

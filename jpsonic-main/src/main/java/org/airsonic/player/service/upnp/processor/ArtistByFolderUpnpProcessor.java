@@ -78,14 +78,14 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         }
     }
 
-    private String createAlbumId(String id) {
+    static final String createAlbumId(String id) {
         if (isAlbumId(id)) {
             return id;
         }
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
-    private String createArtistId(String id) {
+    static final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
@@ -128,7 +128,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         }
     }
 
-    private String createMusicFolderId(String id) {
+    static final String createMusicFolderId(String id) {
         if (isMusicFolderId(id)) {
             return id;
         }
@@ -186,15 +186,15 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         setRootTitleWithResource("dlna.title.artists");
     }
 
-    private boolean isAlbumId(String id) {
+    private static final boolean isAlbumId(String id) {
         return id.startsWith(TYPE_PREFIX_ALBUM);
     }
 
-    private boolean isArtistId(String id) {
+    private static final boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);
     }
 
-    private boolean isMusicFolderId(String id) {
+    private static final boolean isMusicFolderId(String id) {
         return id.startsWith(TYPE_PREFIX_MUSIC_FOLDER);
     }
 
@@ -202,8 +202,7 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
-    class Leaf implements FolderArtistAlbumWrapper {
+    static class Leaf implements FolderArtistAlbumWrapper {
 
         private Artist artist;
         private Album album;

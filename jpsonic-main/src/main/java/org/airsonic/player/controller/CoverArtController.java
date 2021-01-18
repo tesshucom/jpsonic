@@ -87,6 +87,7 @@ import java.util.concurrent.Semaphore;
  */
 @Controller
 @RequestMapping({"/coverArt", "/ext/coverArt"})
+@SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
 public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
@@ -132,7 +133,6 @@ public class CoverArtController implements LastModified {
     }
 
     @GetMapping
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
@@ -247,7 +247,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private void sendUnscaled(CoverArtRequest coverArtRequest, HttpServletResponse response) throws IOException {
         File file = coverArtRequest.getCoverArt();
         Pair<InputStream, String> imageInputStreamWithType = getImageInputStreamWithType(file);
@@ -257,7 +256,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
         File cachedImage = new File(getImageCacheDirectory(size), DigestUtils.md5Hex(request.getKey()) + "." + encoding);
@@ -389,7 +387,6 @@ public class CoverArtController implements LastModified {
         return thumb;
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private abstract class CoverArtRequest {
 
         protected File coverArt;
@@ -437,7 +434,6 @@ public class CoverArtController implements LastModified {
         public abstract String getArtist();
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class ArtistCoverArtRequest extends CoverArtRequest {
 
         private final Artist artist;
@@ -468,7 +464,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
@@ -499,7 +494,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class PlaylistCoverArtRequest extends CoverArtRequest {
 
         private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
@@ -565,7 +559,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class PodcastCoverArtRequest extends CoverArtRequest {
 
         private final PodcastChannel channel;
@@ -595,7 +588,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class MediaFileCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile dir;
@@ -626,7 +618,6 @@ public class CoverArtController implements LastModified {
         }
     }
 
-    @SuppressWarnings("PMD.AccessorMethodGeneration")
     private class VideoCoverArtRequest extends CoverArtRequest {
 
         private final MediaFile mediaFile;

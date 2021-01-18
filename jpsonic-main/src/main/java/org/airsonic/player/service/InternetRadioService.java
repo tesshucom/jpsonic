@@ -60,7 +60,7 @@ public class InternetRadioService {
      * Exception thrown when the remote playlist is too large to be parsed completely.
      */
     @SuppressWarnings("serial")
-    private class PlaylistTooLarge extends PlaylistException {
+    private static class PlaylistTooLarge extends PlaylistException {
         public PlaylistTooLarge(String message) {
             super(message);
         }
@@ -70,7 +70,7 @@ public class InternetRadioService {
      * Exception thrown when the remote playlist format cannot be determined.
      */
     @SuppressWarnings("serial")
-    private class PlaylistFormatUnsupported extends PlaylistException {
+    private static class PlaylistFormatUnsupported extends PlaylistException {
         public PlaylistFormatUnsupported(String message) {
             super(message);
         }
@@ -80,7 +80,7 @@ public class InternetRadioService {
      * Exception thrown when too many redirects occurred when retrieving a remote playlist.
      */
     @SuppressWarnings("serial")
-    private class PlaylistHasTooManyRedirects extends PlaylistException {
+    private static class PlaylistHasTooManyRedirects extends PlaylistException {
         public PlaylistHasTooManyRedirects(String message) {
             super(message);
         }
@@ -173,7 +173,6 @@ public class InternetRadioService {
      * @param maxRedirects maximum number of redirects, or 0 if unlimited
      * @return a list of internet radio sources
      */
-    @SuppressWarnings({ "PMD.AccessorMethodGeneration" })
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
@@ -184,64 +183,80 @@ public class InternetRadioService {
 
         // Retrieve stream URLs
         List<InternetRadioSource> entries = new ArrayList<>();
+
+        PlaylistVisitor visitor = new PlaylistVisitorImpl(maxCount, entries);
         try {
-            inputPlaylist.toPlaylist().acceptDown(new PlaylistVisitor() {
-                @Override
-                public void beginVisitPlaylist(Playlist playlist) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void endVisitPlaylist(Playlist playlist) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void beginVisitParallel(Parallel parallel) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void endVisitParallel(Parallel parallel) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void beginVisitSequence(Sequence sequence) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void endVisitSequence(Sequence sequence) {
-                    // Nothing is currently done.
-                }
-
-                @Override
-                public void beginVisitMedia(Media media) throws Exception {
-                    // Since we're dealing with remote content, we place a hard
-                    // limit on the maximum number of items to load from the playlist,
-                    // in order to avoid parsing erroneous data.
-                    if (maxCount > 0 && entries.size() >= maxCount) {
-                        throw new PlaylistTooLarge("Remote playlist has too many sources (maximum " + maxCount + ")");
-                    }
-                    String streamUrl = media.getSource().getURI().toString();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Got source media at {}", streamUrl);
-                    }
-                    entries.add(new InternetRadioSource(streamUrl));
-                }
-
-                @Override
-                public void endVisitMedia(Media media) {
-                    // Nothing is currently done.
-                }
-            });
+            inputPlaylist.toPlaylist().acceptDown(visitor);
         } catch (PlaylistTooLarge e) {
             // Ignore if playlist is too large, but truncate the rest and log a warning.
             LOG.warn(e.getMessage());
         }
 
         return entries;
+    }
+
+    private static class PlaylistVisitorImpl implements PlaylistVisitor {
+
+        private static final Logger LOG = LoggerFactory.getLogger(PlaylistVisitorImpl.class);
+
+        final int maxCount;
+        final List<InternetRadioSource> entries;
+
+        public PlaylistVisitorImpl(int maxCount, List<InternetRadioSource> entries) {
+            super();
+            this.maxCount = maxCount;
+            this.entries = entries;
+        }
+
+        @Override
+        public void beginVisitPlaylist(Playlist playlist) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void endVisitPlaylist(Playlist playlist) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void beginVisitParallel(Parallel parallel) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void endVisitParallel(Parallel parallel) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void beginVisitSequence(Sequence sequence) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void endVisitSequence(Sequence sequence) {
+            // Nothing is currently done.
+        }
+
+        @Override
+        public void beginVisitMedia(Media media) throws Exception {
+            // Since we're dealing with remote content, we place a hard
+            // limit on the maximum number of items to load from the playlist,
+            // in order to avoid parsing erroneous data.
+            if (maxCount > 0 && entries.size() >= maxCount) {
+                throw new PlaylistTooLarge("Remote playlist has too many sources (maximum " + maxCount + ")");
+            }
+            String streamUrl = media.getSource().getURI().toString();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Got source media at {}", streamUrl);
+            }
+            entries.add(new InternetRadioSource(streamUrl));
+        }
+
+        @Override
+        public void endVisitMedia(Media media) {
+            // Nothing is currently done.
+        }
     }
 
     /**
