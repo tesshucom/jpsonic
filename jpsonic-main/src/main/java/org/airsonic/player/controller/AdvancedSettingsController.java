@@ -82,7 +82,7 @@ public class AdvancedSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
         
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "advancedSettings";
     }
 

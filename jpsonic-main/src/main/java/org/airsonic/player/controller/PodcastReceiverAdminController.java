@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.controller;
 
-import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.PodcastEpisode;
 import org.airsonic.player.domain.PodcastStatus;
 import org.airsonic.player.service.PodcastService;
@@ -54,34 +54,34 @@ public class PodcastReceiverAdminController {
         if (request.getParameter("add") != null) {
             String url = StringUtils.trim(request.getParameter("add"));
             podcastService.createChannel(url);
-            return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels));
+            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
         }
 
         Integer channelId = ServletRequestUtils.getIntParameter(request, "channelId");
         if (request.getParameter("downloadEpisode") != null && channelId != null) {
             download(StringUtil.parseInts(request.getParameter("downloadEpisode")));
-            return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels + "?id=" + channelId));
+            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?id=" + channelId));
         }
         if (request.getParameter("deleteChannel") != null && channelId != null) {
             podcastService.deleteChannel(channelId);
-            return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels));
+            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
         }
         if (request.getParameter("deleteEpisode") != null) {
             for (int episodeId : StringUtil.parseInts(request.getParameter("deleteEpisode"))) {
                 podcastService.deleteEpisode(episodeId, true);
             }
-            return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels + "?id=" + channelId));
+            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?id=" + channelId));
         }
         if (request.getParameter("refresh") != null) {
             if (channelId != null) {
                 podcastService.refreshChannel(channelId, true);
-                return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels + "?id=" + channelId));
+                return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?id=" + channelId));
             } else {
                 podcastService.refreshAllChannels(true);
-                return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels));
+                return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
             }
         }
-        return new ModelAndView(new RedirectView(Attributes.view.names.podcastChannels));
+        return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
     }
 
     private void download(int... episodeIds) {

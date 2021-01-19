@@ -70,11 +70,11 @@ public class DatabaseSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute(Attributes.model.command.name) @Validated DatabaseSettingsCommand command,
+    protected String onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();

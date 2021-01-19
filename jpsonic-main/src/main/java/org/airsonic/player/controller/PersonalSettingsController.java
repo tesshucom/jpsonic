@@ -182,7 +182,7 @@ public class PersonalSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
 
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @GetMapping

@@ -55,7 +55,7 @@ public class PodcastSettingsController {
         command.setEpisodeDownloadCount(String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
         command.setFolder(settingsService.getPodcastFolder());
 
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "podcastSettings";
     }
 

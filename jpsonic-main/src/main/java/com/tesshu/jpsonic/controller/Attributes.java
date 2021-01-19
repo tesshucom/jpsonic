@@ -1,54 +1,93 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2021 (C) tesshu.com
+ */
 package com.tesshu.jpsonic.controller;
 
-/*
- * Naming conventions of this class are exceptional so that we can code in property styles.
+/**
+ * Hierarchical enumeration of Attributes used by the controller.
  */
-@SuppressWarnings({ "PMD.ClassNamingConventions", "PMD.FieldNamingConventions" })
+/*
+ * The immediate purpose is to port the legacy. It is useful for preventing
+ * spelling mistakes, understanding the hierarchical structure, identifying
+ * where to use it, and considering better management methods.
+ */
 public class Attributes {
 
-    public class model {
-        public class command {
-            public class keys {
+    public enum Model {
+
+        ERROR("error");
+
+        public static final String VALUE = "model";// Used from annotation
+
+        public enum Command {
+            ID("id");
+
+            public static final String VALUE = "command";// Used from annotation
+
+            private String v;
+
+            private Command(String value) {
+                this.v = value;
             }
 
-            public static final String name = "command";
-        }
-
-        public class keys {
-            public static final String error = "error";
-
-            private keys() {
+            public String value() {
+                return v;
             }
         }
 
-        public static final String name = "model";
+        private String v;
 
-        private model() {
+        private Model(String value) {
+            this.v = value;
         }
 
-    }
-
-    public class requestParam {
-        public class names {
-            public static final String count = "count";
-            public static final String genre = "genre";
-            public static final String musicFolderId = "musicFolderId";
-            public static final String offset = "offset";
-            public static final String password = "password";
-            public static final String size = "size";
-            public static final String username = "username";
-
-            private names() {
-            }
+        public String value() {
+            return v;
         }
     }
 
-    public class view {
-        public class names {
-            public static final String podcastChannels = "podcastChannels.view";
+    public enum RequestParam {
+        COUNT(NameConstants.COUNT),
+        GENRE(NameConstants.GENRE),
+        MUSIC_FOLDER_ID(NameConstants.MUSIC_FOLDER_ID),
+        OFFSET(NameConstants.OFFSET),
+        PASSWORD(NameConstants.PASSWORD),
+        SIZE(NameConstants.SIZE),
+        USERNAME(NameConstants.USERNAME);
+        public class NameConstants { // Used from annotation
+            public static final String COUNT = "count";
+            public static final String GENRE = "genre";
+            public static final String MUSIC_FOLDER_ID = "musicFolderId";
+            public static final String OFFSET = "offset";
+            public static final String PASSWORD = "password";
+            public static final String SIZE = "size";
+            public static final String USERNAME = "username";
+            private NameConstants() {}
+        }
 
-            private names() {
-            }
+        private String v;
+
+        private RequestParam(String value) {
+            this.v = value;
+        }
+
+        public String value() {
+            return v;
         }
     }
 }

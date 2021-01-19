@@ -136,7 +136,7 @@ public class PlayerSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
 
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
