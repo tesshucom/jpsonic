@@ -120,7 +120,7 @@ public class MusicFolderSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     private void expunge() {
@@ -188,7 +188,7 @@ public class MusicFolderSettingsController {
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute(Attributes.model.command.name) MusicFolderSettingsCommand command,
+    protected String onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {

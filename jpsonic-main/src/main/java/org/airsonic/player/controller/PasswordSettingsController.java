@@ -64,12 +64,12 @@ public class PasswordSettingsController {
         User user = securityService.getCurrentUser(request);
         command.setUsername(user.getUsername());
         command.setLdapAuthenticated(user.isLdapAuthenticated());
-        return new ModelAndView("passwordSettings", Attributes.model.command.name, command);
+        return new ModelAndView("passwordSettings", Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
     protected String doSubmitAction(
-            @ModelAttribute(Attributes.model.command.name) @Validated PasswordSettingsCommand command,
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated PasswordSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             User user = securityService.getUserByName(command.getUsername());

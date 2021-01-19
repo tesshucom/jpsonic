@@ -74,11 +74,11 @@ public class RecoverController {
             }
 
             if (!captchaOk) {
-                map.put(Attributes.model.keys.error, "recover.error.invalidcaptcha");
+                map.put(Attributes.Model.ERROR.value(), "recover.error.invalidcaptcha");
             } else if (user == null) {
-                map.put(Attributes.model.keys.error, "recover.error.usernotfound");
+                map.put(Attributes.Model.ERROR.value(), "recover.error.usernotfound");
             } else if (user.getEmail() == null) {
-                map.put(Attributes.model.keys.error, "recover.error.noemail");
+                map.put(Attributes.Model.ERROR.value(), "recover.error.noemail");
             } else {
                 StringBuilder sb = new StringBuilder(PASSWORD_LENGTH);
                 for (int i = 0; i < PASSWORD_LENGTH; i++) {
@@ -93,7 +93,7 @@ public class RecoverController {
                     user.setPassword(password);
                     securityService.updateUser(user);
                 } else {
-                    map.put(Attributes.model.keys.error, "recover.error.sendfailed");
+                    map.put(Attributes.Model.ERROR.value(), "recover.error.sendfailed");
                 }
             }
         }

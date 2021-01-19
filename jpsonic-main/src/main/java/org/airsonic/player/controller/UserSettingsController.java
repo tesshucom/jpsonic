@@ -79,7 +79,7 @@ public class UserSettingsController {
     protected String displayForm(HttpServletRequest request, Model model,
             @RequestParam("toast") Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
-        if (!model.containsAttribute(Attributes.model.command.name)) {
+        if (!model.containsAttribute(Attributes.Model.Command.VALUE)) {
             command = new UserSettingsCommand();
 
             User user = getUser(request);
@@ -97,7 +97,7 @@ public class UserSettingsController {
             }
 
         } else {
-            command = (UserSettingsCommand) model.asMap().get(Attributes.model.command.name);
+            command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);
         }
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -108,7 +108,7 @@ public class UserSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "userSettings";
     }
 
@@ -137,7 +137,7 @@ public class UserSettingsController {
 
     @PostMapping
     protected String doSubmitAction(
-            @ModelAttribute(Attributes.model.command.name) @Validated UserSettingsCommand command,
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (!bindingResult.hasErrors()) {
@@ -150,7 +150,7 @@ public class UserSettingsController {
             }
             redirectAttributes.addFlashAttribute("settings_reload", true);
         } else {
-            redirectAttributes.addFlashAttribute(Attributes.model.command.name, command);
+            redirectAttributes.addFlashAttribute(Attributes.Model.Command.VALUE, command);
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);
             redirectAttributes.addFlashAttribute("userIndex", getUserIndex(command));
         }

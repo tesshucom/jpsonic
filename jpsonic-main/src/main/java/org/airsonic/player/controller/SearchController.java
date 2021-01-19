@@ -75,12 +75,12 @@ public class SearchController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model) {
-        model.addAttribute(Attributes.model.command.name, new SearchCommand());
+        model.addAttribute(Attributes.Model.Command.VALUE, new SearchCommand());
     }
 
     @PostMapping
     protected String onSubmit(HttpServletRequest request, HttpServletResponse response,
-            @ModelAttribute(Attributes.model.command.name) SearchCommand command, Model model) throws Exception {
+            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command, Model model) throws Exception {
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

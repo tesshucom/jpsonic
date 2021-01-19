@@ -133,11 +133,11 @@ public class GeneralSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute(Attributes.model.command.name, command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute(Attributes.model.command.name) GeneralSettingsCommand command,
+    protected String doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
