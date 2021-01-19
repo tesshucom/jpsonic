@@ -44,7 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author Sindre Mehus
  */
 @Repository
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class PlayerDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerDao.class);

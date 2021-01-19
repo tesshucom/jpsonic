@@ -221,8 +221,7 @@ public final class AnalyzerFactory {
         CharArraySet stopWords4Artist = getWords(STOP_WARDS_FOR_ARTIST);
         Set<String> stopTagset = loadStopTags();
         return new StopwordAnalyzerBase() {
-
-            @SuppressWarnings("PMD.CloseResource")
+            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -257,7 +256,7 @@ public final class AnalyzerFactory {
 
         return new StopwordAnalyzerBase() {
 
-            @SuppressWarnings("PMD.CloseResource")
+            @SuppressWarnings("PMD.CloseResource") // False positive. Stream is reused by ReuseStrategy.
             @Override
             protected TokenStreamComponents createComponents(String fieldName) {
                 final Tokenizer source = new StandardTokenizer();
@@ -297,6 +296,11 @@ public final class AnalyzerFactory {
     }
 
     @SuppressWarnings("PMD.CloseResource")
+    /*
+     * Analysers are the factory class for TokenStreams and thread-safe. Loaded only
+     * once at startup and used for scanning and searching. Do not explicitly close
+     * now. Triaged by #829.
+     */
     public Analyzer getAnalyzer() throws IOException {
         if (isEmpty(analyzer)) {
             try {

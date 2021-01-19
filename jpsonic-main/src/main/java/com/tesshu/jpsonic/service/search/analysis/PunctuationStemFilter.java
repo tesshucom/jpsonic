@@ -17,7 +17,15 @@ public class PunctuationStemFilter extends TokenFilter {
         super(in);
     }
 
-    @SuppressWarnings("PMD.AvoidReassigningLoopVariables") // The only place using reassigning.
+    @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
+    /*
+     * It's a complicated way of writing, but it has been confirmed to work.
+     * This rule can be operated as a normal rule by ruleset.xml.
+     * <property name="forReassign" value="skip" />
+     * However, it is rarely used unless performance is required,
+     * so use annotation suppression to pay attention.
+     * If new code is added that issues this warning, it should be scrutinized.
+     */
     @Override
     public final boolean incrementToken() throws IOException {
         if (input.incrementToken()) {

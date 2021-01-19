@@ -77,7 +77,7 @@ public class LastFmCache extends Cache {
         }
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();

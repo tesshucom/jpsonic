@@ -105,7 +105,10 @@ public class BootstrapVerificationFilter implements Filter {
         }
     }
 
-    @SuppressWarnings("PMD.CloseResource") // Should be closed in container
+    @SuppressWarnings("PMD.CloseResource")
+    /*
+     * False positive. The container will close at the end of service.
+     */
     private void writeError(ServletResponse res, String error) throws IOException {
         ServletOutputStream out = res.getOutputStream();
         out.println("<html>" +

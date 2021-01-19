@@ -43,7 +43,7 @@ import java.util.List;
  */
 @Repository
 @Transactional
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class UserDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDao.class);

@@ -50,7 +50,7 @@ public class InputStreamReaderThread extends Thread {
         this.log = log;
     }
 
-    @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
+    @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
     @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {

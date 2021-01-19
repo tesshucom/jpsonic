@@ -144,7 +144,7 @@ public class FFmpegParser extends MetaDataParser {
      * @param file The file in question.
      * @return Whether this parser is applicable to the given file.
      */
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     @Override
     public boolean isApplicable(File file) {
         String format = FilenameUtils.getExtension(file.getName()).toLowerCase();

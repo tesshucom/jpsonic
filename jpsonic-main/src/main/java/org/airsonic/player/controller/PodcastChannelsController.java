@@ -57,7 +57,11 @@ public class PodcastChannelsController {
     private ViewAsListSelector viewSelector;
 
     @GetMapping
-    @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    /*
+     * LinkedHashMap used in Legacy code.
+     * Should be triaged in #831.
+     */
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
         Map<PodcastChannel, List<PodcastEpisode>> channels = new LinkedHashMap<>();

@@ -59,7 +59,12 @@ import static org.springframework.util.ObjectUtils.isEmpty;
  * On the other hand, the generated queries are relatively small by version.
  * Therefore, test cases of this class are useful for large version upgrades.
  **/
-@SuppressWarnings("PMD.CloseResource") // Analyzer should not be closed
+@SuppressWarnings("PMD.CloseResource")
+/*
+ * Analysers are the factory class for TokenStreams and
+ * thread-safe. Loaded only once at startup and used for scanning and searching.
+ * Do not explicitly close in this class.
+ */
 @Component
 public class QueryFactory {
 

@@ -64,7 +64,7 @@ public class VideoPlayerController {
     @Autowired
     private SettingsService settingsService;
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
@@ -111,7 +111,11 @@ public class VideoPlayerController {
         return new ModelAndView("videoPlayer", "model", map);
     }
 
-    @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    /*
+     * LinkedHashMap used in Legacy code.
+     * Should be triaged in #831.
+     */
     public static Map<String, Integer> createSkipOffsets(int durationSeconds) {
         LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {

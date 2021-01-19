@@ -378,7 +378,7 @@ public class SettingsService {
 
     }
 
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     /*
      * [UseLocaleWithCaseConversions]
      * The locale doesn't matter, as only comparing the OS names.

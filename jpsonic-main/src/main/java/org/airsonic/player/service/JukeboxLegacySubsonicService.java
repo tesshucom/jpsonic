@@ -113,7 +113,12 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         }
     }
 
-    @SuppressWarnings("PMD.CloseResource") // see AudioPlayer#close
+    @SuppressWarnings("PMD.CloseResource")
+    /*
+     * This class opens the resource, but due to the nature of the media
+     * manipulation logic, the close is done at a different location / timing. See
+     * AudioPlayer#close. Do not explicitly close it in this class.
+     */
     private void play(MediaFile file, int offset) {
         InputStream in = null;
         try {
