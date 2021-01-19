@@ -43,7 +43,7 @@ import java.util.*;
  * @author Sindre Mehus
  */
 @Repository
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class MediaFileDao extends AbstractDao {
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, " +

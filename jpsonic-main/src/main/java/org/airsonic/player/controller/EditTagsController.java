@@ -95,7 +95,7 @@ public class EditTagsController {
         return new ModelAndView("editTags","model",map);
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 

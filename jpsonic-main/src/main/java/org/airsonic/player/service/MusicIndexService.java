@@ -187,6 +187,10 @@ public class MusicIndexService {
      * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
      */
     @SuppressWarnings("PMD.UnusedPrivateMethod")
+    /*
+     * Fals positive. It has been confirmed to occur on Ubuntu.
+     * This constraint will be removed if it is confirmed the rule to work properly in the future.
+     */
     private MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
         String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {

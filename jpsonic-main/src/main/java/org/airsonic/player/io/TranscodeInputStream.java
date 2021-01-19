@@ -78,6 +78,12 @@ public final class TranscodeInputStream extends InputStream {
     }
 
     @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" })
+    /*
+     * [UseTryWithResources]
+     * False positive. pmd/pmd/issues/2882
+     * [EmptyCatchBlock]
+     * Triage in #824
+     */
     private static class TranscodedInputStreamThread extends Thread {
         final InputStream in;
         final OutputStream out;

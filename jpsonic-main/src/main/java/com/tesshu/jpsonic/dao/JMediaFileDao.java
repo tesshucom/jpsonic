@@ -41,7 +41,7 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jmediaFileDao")
 @DependsOn({ "mediaFileDao" })
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // DAO is currently excluded from this check
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class JMediaFileDao extends AbstractDao {
 
     private final MediaFileDao deligate;

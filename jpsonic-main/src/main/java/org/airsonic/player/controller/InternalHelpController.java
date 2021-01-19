@@ -264,7 +264,9 @@ public class InternalHelpController {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
     /* [CloseResource]
-     * Do not close searcher resources
+     * False positive. SearcherManager inherits Closeable but ensures each searcher
+     * is closed only once all threads have finished using it. Use release instead
+     * of close for reuse. No explicit close is done here.
      * [AvoidInstantiatingObjectsInLoops]
      * (IndexStatistics) Not reusable
      */
@@ -304,7 +306,7 @@ public class InternalHelpController {
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     /*
      * Locale doesn't matter because it's a modifier comparison of lang-tags.
      */

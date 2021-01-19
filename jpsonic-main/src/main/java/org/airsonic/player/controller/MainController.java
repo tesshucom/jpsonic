@@ -76,7 +76,7 @@ public class MainController {
     @Autowired
     private ViewAsListSelector viewSelector;
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
     protected ModelAndView handleRequestInternal(@RequestParam(name = "showAll", required = false) Boolean showAll,
                                                  HttpServletRequest request,
@@ -286,7 +286,7 @@ public class MainController {
         return new ArrayList<>(result);
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     private List<MediaFile> getAncestors(MediaFile dir) {
         LinkedList<MediaFile> result = new LinkedList<>();
 

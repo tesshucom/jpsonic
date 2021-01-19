@@ -46,7 +46,11 @@ import static java.util.Collections.unmodifiableList;
  * @author Sindre Mehus
  * @see TransferStatus
  */
-@SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
+@SuppressWarnings("PMD.UseConcurrentHashMap")
+/*
+ * LinkedHashMap used in Legacy code.
+ * Should be triaged in #831.
+ */
 @Service
 @DependsOn("mediaFileService")
 public class StatusService {

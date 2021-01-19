@@ -132,7 +132,7 @@ public final class FileUtil {
      * @param closeable The Closable to close, may be {@code null}.
      * @deprecated Deprecated in current Java
      */
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Deprecated
     public static void closeQuietly(Closeable closeable) {
         if (closeable != null) {
