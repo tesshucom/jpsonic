@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -58,7 +59,7 @@ import java.util.Map;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/randomPlayQueue.view")
+@RequestMapping("/" + ViewName.ViewNameConstants.RANDOM_PLAYQUEUE)
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
@@ -289,8 +290,8 @@ public class RandomPlayQueueController {
 
         // Render the 'reload' view to reload the play queue and the main page
         List<ReloadFrame> reloadFrames = new ArrayList<>();
-        reloadFrames.add(new ReloadFrame("playQueue", "playQueue.view?"));
-        reloadFrames.add(new ReloadFrame("upper", "top.view?"));
+        reloadFrames.add(new ReloadFrame("playQueue", ViewName.PLAY_QUEUE.value() + "?"));
+        reloadFrames.add(new ReloadFrame("upper", ViewName.TOP.value() + "?"));
         Map<String, Object> map = LegacyMap.of("reloadFrames", reloadFrames);
         model.addAttribute("model", map);
         return "reload";

@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,13 +45,10 @@ public class SettingsController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
-
         User user = securityService.getCurrentUser(request);
-
         // Redirect to music folder settings if admin.
-        String view = user.isAdminRole() ? "musicFolderSettings.view" : "personalSettings.view";
-
-        return new ModelAndView(new RedirectView(view));
+        return new ModelAndView(new RedirectView(
+                user.isAdminRole() ? ViewName.MUSIC_FOLDER_SETTINGS.value() : ViewName.PERSONAL_SETTINGS.value()));
     }
 
 }

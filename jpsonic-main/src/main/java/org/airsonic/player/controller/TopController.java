@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.InternetRadio;
@@ -75,9 +76,14 @@ public class TopController {
     @Autowired
     private AirsonicLocaleResolver localeResolver;
 
-    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList("musicFolderSettings.view",
-            "generalSettings.view", "personalSettings.view", "userSettings.view", "playerSettings.view",
-            "internetRadioSettings.view", "more.view");
+    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(
+            ViewName.MUSIC_FOLDER_SETTINGS.value(),
+            ViewName.GENERAL_SETTINGS.value(),
+            ViewName.PERSONAL_SETTINGS.value(),
+            ViewName.USER_SETTINGS.value(),
+            ViewName.PLAYER_SETTINGS.value(),
+            ViewName.INTERNET_RADIO_SETTINGS.value(),
+            ViewName.MORE.value());
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response, @RequestParam("mainView") Optional<String> mainView) throws Exception {

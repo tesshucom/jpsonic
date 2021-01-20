@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Share;
@@ -36,7 +37,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -71,12 +74,10 @@ public class ShareSettingsController {
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-
         redirectAttributes.addFlashAttribute("settings_toast", true);
-
-        return "redirect:shareSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.SHARE_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {

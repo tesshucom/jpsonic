@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
@@ -42,7 +43,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -191,7 +194,7 @@ public class PersonalSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute("command") PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
@@ -278,7 +281,7 @@ public class PersonalSettingsController {
 
         redirectAttributes.addFlashAttribute("settings_reload", true);
 
-        return "redirect:personalSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.PERSONAL_SETTINGS.value()));
     }
 
     private int getAvatarId(UserSettings userSettings) {

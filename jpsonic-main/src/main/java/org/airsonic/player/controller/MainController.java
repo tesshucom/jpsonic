@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -84,7 +85,7 @@ public class MainController {
 
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {
-            return new ModelAndView(new RedirectView("notFound.view"));
+            return new ModelAndView(new RedirectView(ViewName.NOTFOUND.value()));
         }
 
         MediaFile dir = mediaFiles.get(0);
@@ -94,12 +95,12 @@ public class MainController {
 
         // Redirect if root directory.
         if (mediaFileService.isRoot(dir)) {
-            return new ModelAndView(new RedirectView("home.view?"));
+            return new ModelAndView(new RedirectView(ViewName.HOME.value() + "?"));
         }
 
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
-            return new ModelAndView(new RedirectView("accessDenied.view"));
+            return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
         UserSettings userSettings = settingsService.getUserSettings(username);

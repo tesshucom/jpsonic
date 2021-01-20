@@ -18,6 +18,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
@@ -31,7 +32,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -98,10 +101,10 @@ public class DLNASettingsController {
     }
 
     @PostMapping
-    public String handlePost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView handlePost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
         redirectAttributes.addFlashAttribute("settings_toast", true);
-        return "redirect:dlnaSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.DLNA_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {

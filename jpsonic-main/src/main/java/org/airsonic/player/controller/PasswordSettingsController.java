@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PasswordSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -57,7 +59,6 @@ public class PasswordSettingsController {
         binder.addValidators(passwordSettingsValidator);
     }
 
-
     @GetMapping
     protected ModelAndView displayForm(HttpServletRequest request) {
         PasswordSettingsCommand command = new PasswordSettingsCommand();
@@ -68,7 +69,7 @@ public class PasswordSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(
+    protected ModelAndView doSubmitAction(
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated PasswordSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
@@ -79,9 +80,9 @@ public class PasswordSettingsController {
             command.setPassword(null);
             command.setConfirmPassword(null);
             redirectAttributes.addFlashAttribute("settings_toast", true);
-            return "redirect:passwordSettings.view";
+            return new ModelAndView(new RedirectView(ViewName.PASSWORD_SETTINGS.value()));
         } else {
-            return "passwordSettings";
+            return new ModelAndView("passwordSettings");
         }
     }
 

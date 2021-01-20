@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileWithUrlInfo;
 import org.airsonic.player.domain.MusicFolder;
@@ -156,7 +157,7 @@ public class ExternalPlayerController {
 
         String coverArtUrl = jwtSecurityService.addJWTToken(
                 UriComponentsBuilder
-                        .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/coverArt.view")
+                        .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
                         .queryParam("id", mediaFile.getId())
                         .queryParam("size", "500"),
                 expires)

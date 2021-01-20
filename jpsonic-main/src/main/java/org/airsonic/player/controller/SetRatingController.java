@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.RatingService;
@@ -61,6 +62,6 @@ public class SetRatingController {
         String username = securityService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
 
-        return new ModelAndView(new RedirectView("main.view?id=" + id));
+        return new ModelAndView(new RedirectView(ViewName.MAIN.value() + "?id=" + id));
     }
 }

@@ -18,6 +18,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.SonosService;
@@ -30,7 +31,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,12 +62,10 @@ public class SonosSettingsController {
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-
         redirectAttributes.addFlashAttribute("settings_toast", true);
-
-        return "redirect:sonosSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.SONOS_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {

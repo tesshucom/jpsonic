@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
@@ -113,7 +114,7 @@ public class PodcastController {
         return new ModelAndView("podcast", "model", LegacyMap.of(
                 "url", url,
                 "lang", lang,
-                "logo", url.replaceAll("podcast/podcast.view$", "") + "/icons/logo.png",
+                "logo", url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png",
                 "podcasts", podcasts));
     }
 

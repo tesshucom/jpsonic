@@ -28,6 +28,7 @@ import com.sonos.services._1.MediaCollection;
 import com.sonos.services._1.MediaList;
 import com.sonos.services._1.MediaMetadata;
 import com.sonos.services._1.TrackMetadata;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -668,7 +669,7 @@ public class SonosHelper {
     }
 
     private String getCoverArtUrl(String id, HttpServletRequest request) {
-        return getBaseUrl(request) + "coverArt.view?id=" + id + "&size=" + CoverArtScheme.LARGE.getSize();
+        return getBaseUrl(request) + ViewName.COVER_ART.value() + "?id=" + id + "&size=" + CoverArtScheme.LARGE.getSize();
     }
 
     public static MediaList createSubList(int index, int count, List<? extends AbstractMedia> mediaCollections) {

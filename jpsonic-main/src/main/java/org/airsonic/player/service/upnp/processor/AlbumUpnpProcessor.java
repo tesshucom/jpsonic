@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Album;
@@ -178,7 +179,7 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     public URI createAlbumArtURI(Album album) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", coverArtLogic.createKey(album))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }

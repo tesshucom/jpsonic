@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
@@ -64,9 +65,9 @@ public class NowPlayingController {
 
         String url;
         if (dir != null && !mediaFileService.isRoot(dir)) {
-            url = "main.view?id=" + dir.getId();
+            url = ViewName.MAIN.value() + "?id=" + dir.getId();
         } else {
-            url = "home.view";
+            url = ViewName.HOME.value();
         }
 
         return new ModelAndView(new RedirectView(url));

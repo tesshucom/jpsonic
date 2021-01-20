@@ -1,5 +1,6 @@
 package org.airsonic.player.api.jukebox;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.SubsonicRESTController;
 import org.airsonic.player.dao.*;
@@ -229,7 +230,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private void performStatusAction(String expectedPlayingValue) throws Exception {
-        mvc.perform(get("/rest/jukeboxControl.view")
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
                 .param("v", AIRSONIC_API_VERSION)
                 .param("c", CLIENT_NAME)
                 .param("f", EXPECTED_FORMAT)
@@ -243,7 +244,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private ResultActions performGetAction() throws Exception {
-        return mvc.perform(get("/rest/jukeboxControl.view")
+        return mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
                 .param("v", AIRSONIC_API_VERSION)
                 .param("c", CLIENT_NAME)
                 .param("f", EXPECTED_FORMAT)
@@ -254,7 +255,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private void performStopAction() throws Exception {
-        mvc.perform(get("/rest/jukeboxControl.view")
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
                 .param("v", AIRSONIC_API_VERSION)
                 .param("c", CLIENT_NAME)
                 .param("f", EXPECTED_FORMAT)
@@ -268,7 +269,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private void performStartAction() throws Exception {
-        mvc.perform(get("/rest/jukeboxControl.view")
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
                 .param("v", AIRSONIC_API_VERSION)
                 .param("c", CLIENT_NAME)
                 .param("f", EXPECTED_FORMAT)
