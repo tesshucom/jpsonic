@@ -79,8 +79,10 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(HttpServletRequest request, Model model,
-            @RequestParam("toast") Optional<Boolean> toast) throws Exception {
+    protected String displayForm(
+            HttpServletRequest request,
+            Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
         if (!model.containsAttribute(Attributes.Model.Command.VALUE)) {
             command = new UserSettingsCommand();
@@ -116,7 +118,7 @@ public class UserSettingsController {
     }
 
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer userIndex = ServletRequestUtils.getIntParameter(request, "userIndex");
+        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Request.USER_INDEX.value());
         if (userIndex != null) {
             List<User> allUsers = securityService.getAllUsers();
             if (userIndex >= 0 && userIndex < allUsers.size()) {
@@ -151,11 +153,11 @@ public class UserSettingsController {
             } else {
                 updateUser(command);
             }
-            redirectAttributes.addFlashAttribute("settings_reload", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         } else {
-            redirectAttributes.addFlashAttribute(Attributes.Model.Command.VALUE, command);
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);
-            redirectAttributes.addFlashAttribute("userIndex", getUserIndex(command));
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
         }
         return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }

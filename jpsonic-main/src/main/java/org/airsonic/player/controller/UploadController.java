@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlayerService;
@@ -75,7 +76,7 @@ public class UploadController {
     private StatusService statusService;
     @Autowired
     private SettingsService settingsService;
-    public static final String UPLOAD_STATUS = "uploadStatus";
+
     public static final String FIELD_NAME_DIR = "dir";
     public static final String FIELD_NAME_UNZIP = "unzip";
 
@@ -99,7 +100,7 @@ public class UploadController {
             status = statusService.createUploadStatus(playerService.getPlayer(request, response, false, false));
             status.setBytesTotal(request.getContentLength());
 
-            request.getSession().setAttribute(UPLOAD_STATUS, status);
+            request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
 
             // Check that we have a file upload request
             if (!ServletFileUpload.isMultipartContent(request)) {
@@ -169,7 +170,7 @@ public class UploadController {
         } finally {
             if (status != null) {
                 statusService.removeUploadStatus(status);
-                request.getSession().removeAttribute(UPLOAD_STATUS);
+                request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
                 User user = securityService.getCurrentUser(request);
                 securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
             }

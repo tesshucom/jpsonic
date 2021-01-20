@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -88,8 +89,8 @@ public class HomeController {
         if (user.isAdminRole() && settingsService.isGettingStartedEnabled()) {
             return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }
-        int listOffset = getIntParameter(request, "listOffset", 0);
-        AlbumListType listType = AlbumListType.fromId(getStringParameter(request, "listType"));
+        int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
+        AlbumListType listType = AlbumListType.fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
@@ -126,7 +127,7 @@ public class HomeController {
             case DECADE:
                 List<Integer> decades = createDecades();
                 map.put("decades", decades);
-                int decade = getIntParameter(request, "decade", decades.get(0));
+                int decade = getIntParameter(request, Attributes.Request.DECADE.value(), decades.get(0));
                 map.put("decade", decade);
                 albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
                 break;
@@ -134,7 +135,7 @@ public class HomeController {
                 List<Genre> genres = searchService.getGenres(true);
                 map.put("genres", genres);
                 if (!genres.isEmpty()) {
-                    String genre = getStringParameter(request, "genre", genres.get(0).getName());
+                    String genre = getStringParameter(request, Attributes.Request.GENRE.value(), genres.get(0).getName());
                     map.put("genre", genre);
                     albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
                 }

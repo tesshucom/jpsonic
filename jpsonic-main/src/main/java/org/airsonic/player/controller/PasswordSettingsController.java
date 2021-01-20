@@ -79,7 +79,7 @@ public class PasswordSettingsController {
 
             command.setPassword(null);
             command.setConfirmPassword(null);
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             return new ModelAndView(new RedirectView(ViewName.PASSWORD_SETTINGS.value()));
         } else {
             return new ModelAndView("passwordSettings");

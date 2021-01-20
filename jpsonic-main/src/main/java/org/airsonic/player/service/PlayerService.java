@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.service;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.dao.PlayerDao;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Transcoding;
@@ -53,7 +54,6 @@ public class PlayerService {
 
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
-    private static final String ATTRIBUTE_REQUEST_KEY = "player";
     private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
 
     @Autowired
@@ -96,7 +96,7 @@ public class PlayerService {
         synchronized (LOCK) {
 
             // Find by 'player' request parameter.
-            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, ATTRIBUTE_REQUEST_KEY));
+            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value()));
 
             // Find in session context.
             if (player == null && remoteControlEnabled) {
@@ -167,7 +167,7 @@ public class PlayerService {
 
             // Save player in session context.
             if (remoteControlEnabled) {
-                request.getSession().setAttribute(ATTRIBUTE_SESSION_KEY, player.getId());
+                request.getSession().setAttribute(Attributes.Session.PLAYER.value(), player.getId());
             }
 
             return player;

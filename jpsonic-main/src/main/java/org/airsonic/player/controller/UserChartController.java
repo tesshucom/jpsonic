@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -72,7 +73,7 @@ public class UserChartController extends AbstractChartController {
     @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String type = request.getParameter("type");
+        String type = request.getParameter(Attributes.Request.TYPE.value());
         CategoryDataset dataset = createDataset(type);
         JFreeChart chart = createChart(dataset, request);
 

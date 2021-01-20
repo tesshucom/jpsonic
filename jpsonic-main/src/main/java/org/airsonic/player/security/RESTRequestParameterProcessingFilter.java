@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.security;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.controller.JAXBWriter;
 import org.airsonic.player.controller.SubsonicRESTController;
 import org.airsonic.player.domain.User;
@@ -99,12 +100,12 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
 
 
-        String username = StringUtils.trimToNull(httpRequest.getParameter("u"));
-        String password = decrypt(StringUtils.trimToNull(httpRequest.getParameter("p")));
-        String salt = StringUtils.trimToNull(httpRequest.getParameter("s"));
-        String token = StringUtils.trimToNull(httpRequest.getParameter("t"));
-        String version = StringUtils.trimToNull(httpRequest.getParameter("v"));
-        String client = StringUtils.trimToNull(httpRequest.getParameter("c"));
+        String username = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.U.value()));
+        String password = decrypt(StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.P.value())));
+        String salt = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.S.value()));
+        String token = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.T.value()));
+        String version = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.V.value()));
+        String client = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.C.value()));
 
         SubsonicRESTController.ErrorCode errorCode = null;
 

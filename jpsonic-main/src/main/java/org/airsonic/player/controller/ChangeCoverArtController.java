@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
@@ -58,9 +59,9 @@ public class ChangeCoverArtController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
-        String artist = request.getParameter("artist");
-        String album = request.getParameter("album");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        String artist = request.getParameter(Attributes.Request.ARTIST.value());
+        String album = request.getParameter(Attributes.Request.ALBUM.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
 
         if (StringUtils.isBlank(artist)) {

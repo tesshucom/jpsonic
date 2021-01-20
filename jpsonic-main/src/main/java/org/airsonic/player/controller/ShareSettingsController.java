@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -76,7 +77,7 @@ public class ShareSettingsController {
     @PostMapping
     public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         return new ModelAndView(new RedirectView(ViewName.SHARE_SETTINGS.value()));
     }
 
@@ -85,9 +86,9 @@ public class ShareSettingsController {
         for (Share share : shareService.getSharesForUser(user)) {
             int id = share.getId();
 
-            String description = getParameter(request, "description", id);
-            boolean delete = getParameter(request, "delete", id) != null;
-            String expireIn = getParameter(request, "expireIn", id);
+            String description = getParameter(request, Attributes.Request.DESCRIPTION.value(), id);
+            boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
+            String expireIn = getParameter(request, Attributes.Request.EXPIRE_IN.value(), id);
 
             if (delete) {
                 shareService.deleteShare(id);
@@ -100,7 +101,7 @@ public class ShareSettingsController {
             }
         }
 
-        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request, "deleteExpired", false);
+        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
             Date now = new Date();
             for (Share share : shareService.getSharesForUser(user)) {

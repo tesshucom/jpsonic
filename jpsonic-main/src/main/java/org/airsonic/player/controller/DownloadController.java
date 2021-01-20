@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -117,9 +118,9 @@ public class DownloadController implements LastModified {
 
             MediaFile mediaFile = getMediaFile(request);
 
-            Integer playlistId = ServletRequestUtils.getIntParameter(request, "playlist");
-            Integer playerId = ServletRequestUtils.getIntParameter(request, "player");
-            int[] indexes = request.getParameter("i") == null ? null : ServletRequestUtils.getIntParameters(request, "i");
+            Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
+            Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
+            int[] indexes = request.getParameter(Attributes.Request.I.value()) == null ? null : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
 
             if (mediaFile != null) {
                 response.setIntHeader("ETag", mediaFile.getId());
@@ -171,7 +172,7 @@ public class DownloadController implements LastModified {
     }
 
     private MediaFile getMediaFile(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer id = ServletRequestUtils.getIntParameter(request, "id");
+        Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         return id == null ? null : mediaFileService.getMediaFile(id);
     }
 

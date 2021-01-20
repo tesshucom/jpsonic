@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -100,12 +101,16 @@ public class M3UController {
 
         String url = urlStr;
 
-        url += "player=" + player.getId();
+        url += Attributes.Request.PLAYER.value() + "=" + player.getId();
 
         // Get suffix of current file, e.g., ".mp3".
         String suffix = getSuffix(player);
         if (suffix != null) {
-            url = new StringBuilder(url).append("&suffix=.").append(suffix).toString();
+            url = new StringBuilder(url)
+                    .append('&')
+                    .append(Attributes.Request.SUFFIX.value())
+                    .append("=.")
+                    .append(suffix).toString();
         }
 
         if (player.isM3uBomEnabled()) {

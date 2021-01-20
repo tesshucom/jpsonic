@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.service.StatusService;
@@ -78,8 +79,8 @@ public class StatusChartController extends AbstractChartController {
     @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String type = request.getParameter("type");
-        int index = ServletRequestUtils.getIntParameter(request, "index", 0);
+        String type = request.getParameter(Attributes.Request.TYPE.value());
+        int index = ServletRequestUtils.getIntParameter(request, Attributes.Request.INDEX.value(), 0);
 
         List<TransferStatus> statuses = Collections.emptyList();
         if ("stream".equals(type)) {

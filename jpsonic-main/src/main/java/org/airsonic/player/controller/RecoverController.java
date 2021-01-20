@@ -57,16 +57,16 @@ public class RecoverController {
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> map = LegacyMap.of();
-        String usernameOrEmail = StringUtils.trimToNull(request.getParameter("usernameOrEmail"));
+        String usernameOrEmail = StringUtils.trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
 
         if (usernameOrEmail != null) {
 
-            map.put("usernameOrEmail", usernameOrEmail);
+            map.put(Attributes.Request.USERNAME_OR_EMAIL.value(), usernameOrEmail);
             User user = getUserByUsernameOrEmail(usernameOrEmail);
 
             boolean captchaOk;
             if (settingsService.isCaptchaEnabled()) {
-                String recaptchaResponse = request.getParameter("g-recaptcha-response");
+                String recaptchaResponse = request.getParameter(Attributes.Request.G_RECAPTCHA_RESPONSE.value());
                 ReCaptcha captcha = new ReCaptcha(settingsService.getRecaptchaSecretKey());
                 captchaOk = recaptchaResponse != null && captcha.isValid(recaptchaResponse);
             } else {

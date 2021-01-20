@@ -19,6 +19,7 @@
 
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
@@ -52,7 +53,7 @@ public class PodcastChannelController {
 
         ModelAndView result = new ModelAndView();
 
-        int channelId = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         result.addObject("model", LegacyMap.of(
                 "user", securityService.getCurrentUser(request),
                 "channel", podcastService.getChannel(channelId),

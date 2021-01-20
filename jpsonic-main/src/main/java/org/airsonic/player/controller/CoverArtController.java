@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -139,7 +140,7 @@ public class CoverArtController implements LastModified {
         if (LOG.isTraceEnabled()) {
             LOG.trace("handleRequest - " + coverArtRequest);
         }
-        Integer size = ServletRequestUtils.getIntParameter(request, "size");
+        Integer size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value());
 
         // Send fallback image if no ID is given. (No need to cache it, since it will be cached in browser.)
         if (coverArtRequest == null) {
@@ -173,7 +174,7 @@ public class CoverArtController implements LastModified {
     }
 
     private CoverArtRequest createCoverArtRequest(HttpServletRequest request) {
-        String id = request.getParameter("id");
+        String id = request.getParameter(Attributes.Request.ID.value());
         if (id == null) {
             return null;
         }
@@ -221,7 +222,7 @@ public class CoverArtController implements LastModified {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils.getIntParameter(request, "offset", 60);
+            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 60);
             return new VideoCoverArtRequest(mediaFile, offset);
         }
         return new MediaFileCoverArtRequest(mediaFile);

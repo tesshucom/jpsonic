@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
@@ -65,7 +66,7 @@ public class EditTagsController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
         List<MediaFile> files = mediaFileService.getChildrenOf(dir, true, false, true, false);
 
