@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.DatabaseSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -35,7 +36,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -74,7 +77,7 @@ public class DatabaseSettingsController {
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
+    protected ModelAndView onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
@@ -99,9 +102,9 @@ public class DatabaseSettingsController {
             }
             redirectAttributes.addFlashAttribute("settings_toast", true);
             settingsService.save();
-            return "redirect:databaseSettings.view";
+            return new ModelAndView(new RedirectView(ViewName.DATABASE_SETTINGS.value()));
         } else {
-            return "databaseSettings.view";
+            return new ModelAndView(ViewName.DATABASE_SETTINGS.value());
         }
     }
 

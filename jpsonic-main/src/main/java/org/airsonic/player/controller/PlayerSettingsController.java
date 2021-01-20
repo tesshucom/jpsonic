@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PlayerSettingsCommand;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -42,7 +43,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -140,7 +143,7 @@ public class PlayerSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute("command") PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
         if (player != null) {
             player.setAutoControlEnabled(command.isAutoControlEnabled());
@@ -156,9 +159,9 @@ public class PlayerSettingsController {
 
             redirectAttributes.addFlashAttribute("settings_reload", true);
             redirectAttributes.addFlashAttribute("settings_toast", true);
-            return "redirect:playerSettings.view";
+            return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
         } else {
-            return "redirect:notFound";
+            return new ModelAndView(new RedirectView("notFound"));
         }
     }
 

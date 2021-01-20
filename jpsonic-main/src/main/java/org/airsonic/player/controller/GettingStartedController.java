@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class GettingStartedController {
         if (request.getParameter("hide") != null) {
             settingsService.setGettingStartedEnabled(false);
             settingsService.save();
-            return new ModelAndView(new RedirectView("home.view"));
+            return new ModelAndView(new RedirectView(ViewName.HOME.value()));
         }
 
         return new ModelAndView("gettingStarted", "model",

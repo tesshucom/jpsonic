@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.Transcoding;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -34,7 +35,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -75,14 +78,14 @@ public class TranscodingSettingsController {
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         String error = handleParameters(request, redirectAttributes);
         if (error != null) {
             redirectAttributes.addFlashAttribute("error", error);
         } else {
             redirectAttributes.addFlashAttribute("settings_toast", true);
         }
-        return "redirect:transcodingSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
     }
 
     private String handleParameters(HttpServletRequest request, RedirectAttributes redirectAttributes) {

@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
@@ -107,7 +108,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     private URI getArtURI(Playlist playlist) {
-        return util.addJWTToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.addJWTToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", coverArtLogic.createKey(playlist))
                 .queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
     }

@@ -21,6 +21,7 @@ package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.User;
@@ -35,7 +36,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -137,7 +140,7 @@ public class GeneralSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
@@ -189,7 +192,7 @@ public class GeneralSettingsController {
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.save();
 
-        return "redirect:generalSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.GENERAL_SETTINGS.value()));
     }
 
 }

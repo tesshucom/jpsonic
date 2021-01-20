@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -56,7 +57,7 @@ public class SetMusicFileInfoController {
             mediaFileService.updateMediaFile(mediaFile);
         }
 
-        String url = "main.view?id=" + id;
+        String url = ViewName.MAIN.value() + "?id=" + id;
         return new ModelAndView(new RedirectView(url));
     }
 

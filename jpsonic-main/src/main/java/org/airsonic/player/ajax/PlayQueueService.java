@@ -20,6 +20,7 @@
 package org.airsonic.player.ajax;
 
 import com.google.common.collect.Lists;
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.InternetRadioDao;
 import org.airsonic.player.dao.MediaFileDao;
@@ -745,12 +746,12 @@ public class PlayQueueService {
         List<PlayQueueInfo.Entry> entries = new ArrayList<>();
         for (MediaFile file : playQueue.getFiles()) {
 
-            String albumUrl = url + "main.view?id=" + file.getId();
+            String albumUrl = url + ViewName.MAIN.value() + "?id=" + file.getId();
             String streamUrl = url + "stream?player=" + player.getId() + "&id=" + file.getId();
-            String coverArtUrl = url + "coverArt.view?id=" + file.getId();
+            String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
 
             String remoteStreamUrl = jwtSecurityService.addJWTToken(url + "ext/stream?player=" + player.getId() + "&id=" + file.getId());
-            String remoteCoverArtUrl = jwtSecurityService.addJWTToken(url + "ext/coverArt.view?id=" + file.getId());
+            String remoteCoverArtUrl = jwtSecurityService.addJWTToken(url + "ext/" + ViewName.COVER_ART.value() + "?id=" + file.getId());
 
             String format = file.getFormat();
             String username = securityService.getCurrentUsername(request);

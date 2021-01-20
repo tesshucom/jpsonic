@@ -18,8 +18,10 @@
  */
 package com.tesshu.jpsonic.filter;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
@@ -34,6 +36,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
@@ -42,6 +46,8 @@ public class FontSchemeFilter implements Filter {
 
     private SettingsService settingsService;
     private SecurityService securityService;
+
+    private final List<String> excludes = Arrays.asList("/".concat(ViewName.COVER_ART.value()));
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -63,13 +69,10 @@ public class FontSchemeFilter implements Filter {
          * judgment block can be deleted by improving
          * AbstractAirsonicRestApiJukeboxIntTest.
          */
-        if (!isEmpty(settingsService) && !isEmpty(securityService)) {
+        if (!excludes.contains(request.getServletPath()) && !isEmpty(settingsService) && !isEmpty(securityService)) {
             User user = securityService.getCurrentUser(request);
-            if (!isEmpty(user)) {
-                WebFontUtils.setToRequest(settingsService.getUserSettings(user.getUsername()), request);
-            } else {
-                WebFontUtils.setToRequest(null, request);
-            }
+            UserSettings settings = isEmpty(user) ? null : settingsService.getUserSettings(user.getUsername());
+            WebFontUtils.setToRequest(settings, request);
         }
         chain.doFilter(request, res);
     }

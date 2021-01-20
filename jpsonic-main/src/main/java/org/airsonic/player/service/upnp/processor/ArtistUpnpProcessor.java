@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -120,7 +121,7 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     }
 
     public URI createArtistArtURI(Artist artist) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", coverArtLogic.createKey(artist))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }

@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PodcastSettingsCommand;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SettingsService;
@@ -30,7 +31,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the Podcast receiver.
@@ -60,7 +63,7 @@ public class PodcastSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute PodcastSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute PodcastSettingsCommand command, RedirectAttributes redirectAttributes) {
         settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
         settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
         settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
@@ -69,7 +72,8 @@ public class PodcastSettingsController {
 
         podcastService.schedule();
         redirectAttributes.addFlashAttribute("settings_toast", true);
-        return "redirect:podcastSettings.view";
+
+        return new ModelAndView(new RedirectView(ViewName.PODCAST_SETTINGS.value()));
     }
 
 }

@@ -1,5 +1,6 @@
 package org.airsonic.player.filter;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.monitor.MetricsManager;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -31,8 +32,8 @@ public class MetricsFilter implements Filter {
         HttpServletRequest httpServletRequest = (HttpServletRequest)request;
 
         String timerName = httpServletRequest.getRequestURI();
-        // Add a metric that measures the time spent for each http request for the /main.view url.
-        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains("main.view")).timer(this,timerName)) {
+        // Add a metric that measures the time spent for each http request for the /ViewName.MAIN.value() url.
+        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains(ViewName.MAIN.value())).timer(this,timerName)) {
             chain.doFilter(request, response);
         }
     }

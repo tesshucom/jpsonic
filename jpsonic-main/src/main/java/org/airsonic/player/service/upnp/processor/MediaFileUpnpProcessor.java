@@ -19,6 +19,7 @@
 */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -247,13 +248,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public final URI createArtistArtURI(MediaFile artist) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", artist.getId())
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final URI createAlbumArtURI(MediaFile album) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", album.getId())
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }

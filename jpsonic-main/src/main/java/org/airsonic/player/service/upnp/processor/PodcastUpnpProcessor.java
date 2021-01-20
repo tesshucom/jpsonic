@@ -18,6 +18,7 @@
  */
 package org.airsonic.player.service.upnp.processor;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PodcastChannel;
@@ -165,7 +166,7 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     private URI createPodcastChannelURI(PodcastChannel channel) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
+        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
                 .queryParam("id", coverArtLogic.createKey(channel))
                 .queryParam("size", CoverArtScheme.LARGE.getSize()));
     }

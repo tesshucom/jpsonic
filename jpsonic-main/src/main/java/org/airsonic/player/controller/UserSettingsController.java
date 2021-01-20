@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.UserSettingsCommand;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.TranscodeScheme;
@@ -45,7 +46,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -136,7 +139,7 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(
+    protected ModelAndView doSubmitAction(
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
@@ -154,8 +157,7 @@ public class UserSettingsController {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);
             redirectAttributes.addFlashAttribute("userIndex", getUserIndex(command));
         }
-
-        return "redirect:userSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }
 
     private Integer getUserIndex(UserSettingsCommand command) {

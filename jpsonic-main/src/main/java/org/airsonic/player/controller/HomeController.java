@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Genre;
@@ -85,7 +86,7 @@ public class HomeController {
 
         User user = securityService.getCurrentUser(request);
         if (user.isAdminRole() && settingsService.isGettingStartedEnabled()) {
-            return new ModelAndView(new RedirectView("gettingStarted.view"));
+            return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }
         int listOffset = getIntParameter(request, "listOffset", 0);
         AlbumListType listType = AlbumListType.fromId(getStringParameter(request, "listType"));

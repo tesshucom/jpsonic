@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -74,7 +75,7 @@ public class VideoPlayerController {
 
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
-            return new ModelAndView(new RedirectView("accessDenied.view"));
+            return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
         User user = securityService.getCurrentUser(request);
@@ -83,7 +84,7 @@ public class VideoPlayerController {
         Integer playerId = playerService.getPlayer(request, response).getId();
         String url = NetworkService.getBaseUrl(request);
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
-        String coverArtUrl = url + "coverArt.view?id=" + file.getId();
+        String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();

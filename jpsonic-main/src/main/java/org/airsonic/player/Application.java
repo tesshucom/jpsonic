@@ -1,5 +1,6 @@
 package org.airsonic.player;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
 import org.airsonic.player.filter.BootstrapVerificationFilter;
 import org.airsonic.player.filter.MetricsFilter;
@@ -131,7 +132,14 @@ public class Application extends SpringBootServletInitializer implements WebServ
     public FilterRegistrationBean<Filter> cacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(cacheFilter());
-        registration.addUrlPatterns("/icons/*", "/style/*", "/script/*", "/dwr/*", "/icons/*", "/coverArt.view", "/avatar.view");
+        registration.addUrlPatterns(
+                "/icons/*",
+                "/style/*",
+                "/script/*",
+                "/dwr/*",
+                "/icons/*",
+                "/" + ViewName.COVER_ART.value(),
+                "/" + ViewName.AVATAR.value());
         registration.addInitParameter("Cache-Control", "max-age=36000");
         registration.setName("CacheFilter");
         registration.setOrder(5);
@@ -147,7 +155,15 @@ public class Application extends SpringBootServletInitializer implements WebServ
     public FilterRegistrationBean<Filter> noCacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(noCacheFilter());
-        registration.addUrlPatterns("/statusChart.view", "/userChart.view", "/playQueue.view", "/podcastChannels.view", "/podcastChannel.view", "/help.view", "/top.view", "/home.view");
+        registration.addUrlPatterns(
+                "/" + ViewName.STATUS_CHART.value(),
+                "/" + ViewName.USER_CHART.value(),
+                "/" + ViewName.PLAY_QUEUE.value(),
+                "/" + ViewName.PODCAST_CHANNELS.value(),
+                "/" + ViewName.PODCAST_CHANNEL.value(),
+                "/" + ViewName.HELP.value(),
+                "/" + ViewName.TOP.value(),
+                "/" + ViewName.HOME.value());
         registration.addInitParameter("Cache-Control", "no-cache, post-check=0, pre-check=0");
         registration.addInitParameter("Pragma", "no-cache");
         registration.addInitParameter("Expires", "Thu, 01 Dec 1994 16:00:00 GMT");

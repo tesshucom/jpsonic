@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
@@ -30,7 +31,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,14 +66,14 @@ public class InternetRadioSettingsController {
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
 
         String error = handleParameters(request);
         if (error == null) {
             redirectAttributes.addFlashAttribute("settings_reload", true);
         }
         redirectAttributes.addFlashAttribute("error", error);
-        return "redirect:internetRadioSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.INTERNET_RADIO_SETTINGS.value()));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
