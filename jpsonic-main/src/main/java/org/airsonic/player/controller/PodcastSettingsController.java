@@ -71,7 +71,7 @@ public class PodcastSettingsController {
         settingsService.save();
 
         podcastService.schedule();
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.PODCAST_SETTINGS.value()));
     }

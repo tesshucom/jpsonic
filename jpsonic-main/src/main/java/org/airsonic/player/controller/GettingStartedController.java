@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
@@ -41,7 +42,7 @@ public class GettingStartedController {
     @GetMapping
     public ModelAndView gettingStarted(HttpServletRequest request) {
 
-        if (request.getParameter("hide") != null) {
+        if (request.getParameter(Attributes.Request.HIDE.value()) != null) {
             settingsService.setGettingStartedEnabled(false);
             settingsService.save();
             return new ModelAndView(new RedirectView(ViewName.HOME.value()));

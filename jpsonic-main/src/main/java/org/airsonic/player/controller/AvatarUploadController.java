@@ -60,6 +60,7 @@ import java.util.Map;
 public class AvatarUploadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
+
     private static final int MAX_AVATAR_SIZE = 64;
 
     @Autowired

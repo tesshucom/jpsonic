@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AvatarScheme;
@@ -115,7 +116,7 @@ public class TopController {
             map.put("voiceInputLocale", localeResolver.resolveLocale(request).getLanguage());
         }
 
-        boolean refresh = ServletRequestUtils.getBooleanParameter(request, "refresh", false);
+        boolean refresh = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.REFRESH.value(), false);
         if (refresh) {
             settingsService.clearMusicFolderCache();
         }
@@ -217,7 +218,7 @@ public class TopController {
     }
 
     private boolean saveSelectedMusicFolder(HttpServletRequest request) throws Exception {
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request, "musicFolderId");
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {
             return false;
         }

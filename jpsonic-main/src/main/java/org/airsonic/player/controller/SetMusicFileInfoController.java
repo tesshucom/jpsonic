@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
@@ -47,17 +48,17 @@ public class SetMusicFileInfoController {
 
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
-        String action = request.getParameter("action");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        String action = request.getParameter(Attributes.Request.ACTION.value());
 
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
 
         if ("comment".equals(action)) {
-            mediaFile.setComment(StringEscapeUtils.escapeHtml(request.getParameter("comment")));
+            mediaFile.setComment(StringEscapeUtils.escapeHtml(request.getParameter(Attributes.Request.COMMENT.value())));
             mediaFileService.updateMediaFile(mediaFile);
         }
 
-        String url = ViewName.MAIN.value() + "?id=" + id;
+        String url = ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id;
         return new ModelAndView(new RedirectView(url));
     }
 

@@ -67,7 +67,9 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
+    protected void formBackingObject(
+            HttpServletRequest request, Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
@@ -155,9 +157,9 @@ public class GeneralSettingsController {
                 || !settingsService.getThemeId().equals(theme.getId())
                 || !settingsService.getLocale().equals(locale)
                 || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
-        redirectAttributes.addFlashAttribute("settings_reload", isReload);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
         if (!isReload) {
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());

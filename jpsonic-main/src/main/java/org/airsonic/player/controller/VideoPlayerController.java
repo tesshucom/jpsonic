@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.User;
@@ -69,7 +70,7 @@ public class VideoPlayerController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile file = mediaFileService.getMediaFile(id);
         MediaFile dir = mediaFileService.getParentOf(file);
 

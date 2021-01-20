@@ -1,5 +1,6 @@
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
@@ -29,7 +30,7 @@ public class ExportPlayListController {
     @GetMapping
     public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (!playlistService.isReadAllowed(playlist, securityService.getCurrentUsername(request))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);

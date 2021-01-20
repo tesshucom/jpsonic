@@ -72,7 +72,10 @@ public class PersonalSettingsController {
     private OutlineHelpSelector outlineHelpSelector;
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
+    protected void formBackingObject(
+            HttpServletRequest request,
+            Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUser(request);
@@ -194,7 +197,7 @@ public class PersonalSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute("command") PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
@@ -279,7 +282,7 @@ public class PersonalSettingsController {
         settings.setChanged(new Date());
         settingsService.updateUserSettings(settings);
 
-        redirectAttributes.addFlashAttribute("settings_reload", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.PERSONAL_SETTINGS.value()));
     }

@@ -18,6 +18,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.NetworkService;
 import org.airsonic.player.service.SettingsService;
@@ -64,13 +65,13 @@ public class SonosSettingsController {
     @PostMapping
     public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         return new ModelAndView(new RedirectView(ViewName.SONOS_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {
-        boolean sonosEnabled = ServletRequestUtils.getBooleanParameter(request, "sonosEnabled", false);
-        String sonosServiceName = StringUtils.trimToNull(request.getParameter("sonosServiceName"));
+        boolean sonosEnabled = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SONOS_ENABLED.value(), false);
+        String sonosServiceName = StringUtils.trimToNull(request.getParameter(Attributes.Request.SONOS_SERVICE_NAME.value()));
         if (sonosServiceName == null) {
             sonosServiceName = "Jpsonic";
         }

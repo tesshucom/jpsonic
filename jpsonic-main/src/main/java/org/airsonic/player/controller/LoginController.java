@@ -1,5 +1,6 @@
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -34,19 +35,19 @@ public class LoginController {
     public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
 
         // Auto-login if "user" and "password" parameters are given.
-        String username = request.getParameter("user");
-        String password = request.getParameter("password");
+        String username = request.getParameter(Attributes.Request.USER.value());
+        String password = request.getParameter(Attributes.Request.PASSWORD.value());
         if (username != null && password != null) {
             username = StringUtil.urlEncode(username);
             password = StringUtil.urlEncode(password);
             return new ModelAndView(new RedirectView("/login?" +
-                    UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username +
-                    "&" + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
+                    UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username + "&" +
+                    UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
         }
 
         Map<String, Object> map = LegacyMap.of(
-                "logout", request.getParameter("logout") != null,
-                "error", request.getParameter("error") != null,
+                "logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null,
+                "error", request.getParameter(Attributes.Request.ERROR.value()) != null,
                 "brand", settingsService.getBrand(),
                 "loginMessage", settingsService.getLoginMessage(),
                 "showRememberMe", settingsService.isShowRememberMe());

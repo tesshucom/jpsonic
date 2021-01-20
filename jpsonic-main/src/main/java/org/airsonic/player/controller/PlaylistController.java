@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Playlist;
@@ -61,7 +62,7 @@ public class PlaylistController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             return new ModelAndView(new RedirectView("notFound"));

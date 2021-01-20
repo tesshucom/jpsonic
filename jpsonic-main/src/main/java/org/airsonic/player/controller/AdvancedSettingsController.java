@@ -50,7 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("/advancedSettings")
 public class AdvancedSettingsController {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);
 
     @Autowired
@@ -93,8 +93,8 @@ public class AdvancedSettingsController {
     protected ModelAndView doSubmitAction(@ModelAttribute AdvancedSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
-        redirectAttributes.addFlashAttribute("settings_reload", false);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         try { // Should be rewritten if necessary
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));

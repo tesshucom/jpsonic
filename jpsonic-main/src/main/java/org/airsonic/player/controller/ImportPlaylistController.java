@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
@@ -92,7 +93,7 @@ public class ImportPlaylistController {
             map.put("error", e.getMessage());
         }
 
-        redirectAttributes.addFlashAttribute("model", map);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.MODEL.value(), map);
         return "redirect:importPlaylist";
     }
 

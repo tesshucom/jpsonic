@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileWithUrlInfo;
@@ -65,6 +66,9 @@ public class ExternalPlayerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalPlayerController.class);
 
+    private static final String MAX_BIT_RATE_VALUE = "1200";
+    private static final String MAX_SIZE_VALUE = "500";
+    
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -148,9 +152,9 @@ public class ExternalPlayerController {
         String streamUrl = jwtSecurityService.addJWTToken(
                 UriComponentsBuilder
                         .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/stream")
-                        .queryParam("id", mediaFile.getId())
-                        .queryParam("player", player.getId())
-                        .queryParam("maxBitRate", "1200"),
+                        .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
+                        .queryParam(Attributes.Request.PLAYER.value(), player.getId())
+                        .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE),
                 expires)
                 .build()
                 .toUriString();
@@ -158,8 +162,8 @@ public class ExternalPlayerController {
         String coverArtUrl = jwtSecurityService.addJWTToken(
                 UriComponentsBuilder
                         .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
-                        .queryParam("id", mediaFile.getId())
-                        .queryParam("size", "500"),
+                        .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
+                        .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE),
                 expires)
                 .build()
                 .toUriString();

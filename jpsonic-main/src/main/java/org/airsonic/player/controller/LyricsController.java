@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,7 +41,7 @@ public class LyricsController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
         return new ModelAndView("lyrics", "model", LegacyMap.of(
-                "artist", request.getParameter("artist"),
-                "song", request.getParameter("song")));
+                "artist", request.getParameter(Attributes.Request.ARTIST.value()),
+                "song", request.getParameter(Attributes.Request.SONG.value())));
     }
 }

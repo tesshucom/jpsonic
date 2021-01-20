@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.util.StringUtil;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -118,8 +119,8 @@ public class JAXBWriter {
 
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
 
-        String format = getStringParameter(request, "f", "xml");
-        String jsonpCallback = request.getParameter("callback");
+        String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
+        String jsonpCallback = request.getParameter(Attributes.Request.CALLBACK.value());
         boolean json = "json".equals(format);
         boolean jsonp = "jsonp".equals(format) && jsonpCallback != null;
         Marshaller marshaller;

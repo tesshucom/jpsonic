@@ -100,7 +100,7 @@ public class DatabaseSettingsController {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
                 settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());
             }
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             settingsService.save();
             return new ModelAndView(new RedirectView(ViewName.DATABASE_SETTINGS.value()));
         } else {

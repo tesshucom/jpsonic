@@ -19,7 +19,7 @@
  */
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.controller.UploadController;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.TransferStatus;
 import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
@@ -42,7 +42,7 @@ public class TransferService {
     public UploadInfo getUploadInfo() {
 
         HttpSession session = WebContextFactory.get().getSession();
-        TransferStatus status = (TransferStatus) session.getAttribute(UploadController.UPLOAD_STATUS);
+        TransferStatus status = (TransferStatus) session.getAttribute(Attributes.Session.UPLOAD_STATUS.value());
 
         if (status != null) {
             return new UploadInfo(status.getBytesTransfered(), status.getBytesTotal());

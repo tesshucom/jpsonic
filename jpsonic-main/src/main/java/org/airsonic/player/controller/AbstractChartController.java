@@ -39,37 +39,45 @@ public abstract class AbstractChartController {
     public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception;
 
+    private final static String KEY_BACKGROUND_COLOR = "backgroundColor";
+    private final static String KEY_STROKE_COLOR = "strokeColor";
+    private final static String KEY_TEXT_COLOR = "textColor";
+
     /**
      * Returns the chart background color for the current theme.
+     * 
      * @param request The servlet request.
      * @return The chart background color.
      */
     protected Color getBackground(HttpServletRequest request) {
-        return getColor("backgroundColor", request);
+        return getColor(KEY_BACKGROUND_COLOR, request);
     }
 
     /**
      * Returns the chart foreground color for the current theme.
+     * 
      * @param request The servlet request.
      * @return The chart foreground color.
      */
     protected Color getForeground(HttpServletRequest request) {
-        return getColor("textColor", request);
+        return getColor(KEY_TEXT_COLOR, request);
     }
 
     /**
      * Returns the chart stroke color for the current theme.
+     * 
      * @param request The servlet request.
      * @return The chart stroke color.
      */
     protected Color getStroke(HttpServletRequest request) {
-        return getColor("strokeColor", request);
+        return getColor(KEY_STROKE_COLOR, request);
     }
-    private Color getColor(String code, HttpServletRequest request) {
+
+    private Color getColor(String key, HttpServletRequest request) {
         Theme theme = RequestContextUtils.getTheme(request);
         if (theme != null) {
             Locale locale = RequestContextUtils.getLocale(request);
-            String colorHex = theme.getMessageSource().getMessage(code, new Object[0], locale);
+            String colorHex = theme.getMessageSource().getMessage(key, new Object[0], locale);
             return new Color(Integer.parseInt(colorHex, 16));
         }
         return Color.RED;

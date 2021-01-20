@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +40,8 @@ public class AllmusicController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView result = new ModelAndView();
-        result.addObject("album", request.getParameter("album"));
+        result.addObject(Attributes.Request.ALBUM.value(),
+                request.getParameter(Attributes.Request.ALBUM.value()));
         return result;
     }
 }

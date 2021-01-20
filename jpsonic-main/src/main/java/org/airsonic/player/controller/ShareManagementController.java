@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -91,20 +92,20 @@ public class ShareManagementController {
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer playlistId = ServletRequestUtils.getIntParameter(request, "playlist");
+        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
         return playlistId == null ? null : playlistService.getPlaylist(playlistId).getName();
     }
 
     private List<MediaFile> getMediaFiles(HttpServletRequest request) throws Exception {
-        Integer id = ServletRequestUtils.getIntParameter(request, "id");
-        Integer playerId = ServletRequestUtils.getIntParameter(request, "player");
-        Integer playlistId = ServletRequestUtils.getIntParameter(request, "playlist");
+        Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
+        Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
+        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
 
         List<MediaFile> result = new ArrayList<>();
 
         if (id != null) {
             MediaFile album = mediaFileService.getMediaFile(id);
-            int[] indexes = ServletRequestUtils.getIntParameters(request, "i");
+            int[] indexes = ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
             if (indexes.length == 0) {
                 return Arrays.asList(album);
             }

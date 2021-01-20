@@ -1,5 +1,6 @@
 package org.airsonic.player.security;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -247,8 +248,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                     .permitAll()
                     .defaultSuccessUrl("/index", true)
                     .failureUrl(FAILURE_URL)
-                    .usernameParameter("j_username")
-                    .passwordParameter("j_password")
+                    .usernameParameter(Attributes.Request.J_USERNAME.value())
+                    .passwordParameter(Attributes.Request.J_PASSWORD.value())
                     // see http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
                     .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")).logoutSuccessUrl(
                     "/login?logout")

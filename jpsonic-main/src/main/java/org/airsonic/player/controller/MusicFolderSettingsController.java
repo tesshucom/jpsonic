@@ -92,9 +92,9 @@ public class MusicFolderSettingsController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request,
-            @RequestParam(value = "scanNow",required = false) String scanNow,
-            @RequestParam(value = "expunge",required = false) String expunge,
-            @RequestParam("toast") Optional<Boolean> toast, Model model) {
+            @RequestParam(value = Attributes.Request.NameConstants.SCAN_NOW, required = false) String scanNow,
+            @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
         if (!isEmpty(scanNow)) {
@@ -220,7 +220,7 @@ public class MusicFolderSettingsController {
 
         settingsService.save();
 
-        redirectAttributes.addFlashAttribute("settings_reload", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         mediaScannerService.schedule();
 

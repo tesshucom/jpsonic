@@ -78,7 +78,10 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
+    protected void formBackingObject(
+            HttpServletRequest request,
+            Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
 
         handleRequestParameters(request);
         List<Player> players = getPlayers(request);
@@ -86,7 +89,7 @@ public class PlayerSettingsController {
         User user = securityService.getCurrentUser(request);
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         Player player = null;
-        Integer playerId = ServletRequestUtils.getIntParameter(request, "id");
+        Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         if (playerId != null) {
             player = playerService.getPlayerById(playerId);
         } else if (!players.isEmpty()) {
@@ -143,7 +146,7 @@ public class PlayerSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute("command") PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
         if (player != null) {
             player.setAutoControlEnabled(command.isAutoControlEnabled());
@@ -157,8 +160,8 @@ public class PlayerSettingsController {
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());
 
-            redirectAttributes.addFlashAttribute("settings_reload", true);
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
         } else {
             return new ModelAndView(new RedirectView("notFound"));
@@ -181,13 +184,13 @@ public class PlayerSettingsController {
     }
 
     private void handleRequestParameters(HttpServletRequest request) throws Exception {
-        if (request.getParameter("delete") != null) {
-            Integer delete = ServletRequestUtils.getIntParameter(request, "delete");
+        if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
+            Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {
                 playerService.removePlayerById(delete);
             }
-        } else if (request.getParameter("clone") != null) {
-            Integer clone = ServletRequestUtils.getIntParameter(request, "clone");
+        } else if (request.getParameter(Attributes.Request.CLONE.value()) != null) {
+            Integer clone = ServletRequestUtils.getIntParameter(request, Attributes.Request.CLONE.value());
             if (clone != null) {
                 playerService.clonePlayer(clone);
             }

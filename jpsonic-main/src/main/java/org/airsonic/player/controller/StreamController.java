@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -120,7 +121,7 @@ public class StreamController {
 
             // If "playlist" request parameter is set, this is a Podcast request. In that case, create a separate
             // play queue (in order to support multiple parallel Podcast streams).
-            Integer playlistId = ServletRequestUtils.getIntParameter(request, "playlist");
+            Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
             boolean isPodcast = playlistId != null;
             if (isPodcast) {
                 PlayQueue playQueue = new PlayQueue();
@@ -134,11 +135,11 @@ public class StreamController {
 
             response.setHeader("Access-Control-Allow-Origin", "*");
 
-            String contentType = StringUtil.getMimeType(request.getParameter("suffix"));
+            String contentType = StringUtil.getMimeType(request.getParameter(Attributes.Request.SUFFIX.value()));
             response.setContentType(contentType);
 
-            String preferredTargetFormat = request.getParameter("format");
-            Integer maxBitRate = ServletRequestUtils.getIntParameter(request, "maxBitRate");
+            String preferredTargetFormat = request.getParameter(Attributes.Request.FORMAT.value());
+            Integer maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
             if (Integer.valueOf(0).equals(maxBitRate)) {
                 maxBitRate = null;
             }
@@ -177,7 +178,7 @@ public class StreamController {
 
                 TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
                         preferredTargetFormat, null);
-                boolean isHls = ServletRequestUtils.getBooleanParameter(request, "hls", false);
+                boolean isHls = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.HLS.value(), false);
                 fileLengthExpected = parameters.getExpectedLength();
 
                 // Wrangle response length and ranges.
@@ -352,11 +353,11 @@ public class StreamController {
     @SuppressFBWarnings(value = {
             "PT_ABSOLUTE_PATH_TRAVERSAL" }, justification = "Has been verified in subsequent processing.")
     private MediaFile getSingleFile(HttpServletRequest request) throws ServletRequestBindingException {
-        String path = request.getParameter("path");
+        String path = request.getParameter(Attributes.Request.PATH.value());
         if (path != null) {
             return mediaFileService.getMediaFile(path);
         }
-        Integer id = ServletRequestUtils.getIntParameter(request, "id");
+        Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         if (id != null) {
             return mediaFileService.getMediaFile(id);
         }
@@ -373,7 +374,7 @@ public class StreamController {
         }
 
         // Second, look for "offsetSeconds" request parameter.
-        String offsetSeconds = request.getParameter("offsetSeconds");
+        String offsetSeconds = request.getParameter(Attributes.Request.OFFSET_SECONDS.value());
         range = parseAndConvertOffsetSeconds(offsetSeconds, fileDuration, fileSize);
         return range;
 
@@ -407,14 +408,14 @@ public class StreamController {
             throws ServletRequestBindingException {
         Integer existingWidth = file.getWidth();
         Integer existingHeight = file.getHeight();
-        Integer maxBitRate = ServletRequestUtils.getIntParameter(request, "maxBitRate");
-        int timeOffset = ServletRequestUtils.getIntParameter(request, "timeOffset", 0);
+        Integer maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
+        int timeOffset = ServletRequestUtils.getIntParameter(request, Attributes.Request.TIME_OFFSET.value(), 0);
         int defaultDuration = file.getDurationSeconds() == null ? Integer.MAX_VALUE :
                 file.getDurationSeconds() - timeOffset;
-        int duration = ServletRequestUtils.getIntParameter(request, "duration", defaultDuration);
-        boolean hls = ServletRequestUtils.getBooleanParameter(request, "hls", false);
+        int duration = ServletRequestUtils.getIntParameter(request, Attributes.Request.DURATION.value(), defaultDuration);
+        boolean hls = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.HLS.value(), false);
 
-        Dimension dim = getRequestedVideoSize(request.getParameter("size"));
+        Dimension dim = getRequestedVideoSize(request.getParameter(Attributes.Request.SIZE.value()));
         if (dim == null) {
             dim = getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         }

@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.PlayQueue;
@@ -87,18 +88,18 @@ public class RandomPlayQueueController {
             ModelMap model,
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestParam("size") final Integer sizeParam,
-            @RequestParam(value = "genre", required = false) final String genreParam,
-            @RequestParam(value = "year", required = false) String year,
-            @RequestParam(value = "songRating", required = false) String songRating,
-            @RequestParam(value = "lastPlayedValue", required = false) String lastPlayedValue,
-            @RequestParam(value = "lastPlayedComp", required = false) String lastPlayedComp,
-            @RequestParam(value = "albumRatingValue", required = false) Integer albumRatingValue,
-            @RequestParam(value = "albumRatingComp", required = false) String albumRatingComp,
-            @RequestParam(value = "playCountValue", required = false) Integer playCountValue,
-            @RequestParam(value = "playCountComp", required = false) String playCountComp,
-            @RequestParam(value = "format", required = false) final String formatParam,
-            @RequestParam(value = "autoRandom", required = false) String autoRandom
+            @RequestParam(Attributes.Request.NameConstants.SIZE) final Integer sizeParam,
+            @RequestParam(value = Attributes.Request.NameConstants.GENRE, required = false) final String genreParam,
+            @RequestParam(value = Attributes.Request.NameConstants.YEAR, required = false) String year,
+            @RequestParam(value = Attributes.Request.NameConstants.SONG_RATING, required = false) String songRating,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_VALUE, required = false) String lastPlayedValue,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_COMP, required = false) String lastPlayedComp,
+            @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_VALUE, required = false) Integer albumRatingValue,
+            @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_COMP, required = false) String albumRatingComp,
+            @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_VALUE, required = false) Integer playCountValue,
+            @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_COMP, required = false) String playCountComp,
+            @RequestParam(value = Attributes.Request.NameConstants.FORMAT, required = false) final String formatParam,
+            @RequestParam(value = Attributes.Request.NameConstants.AUTO_RANDOM, required = false) String autoRandom
     ) throws Exception {
 
         Integer fromYear = null;
@@ -246,7 +247,7 @@ public class RandomPlayQueueController {
         List<MusicFolder> musicFolders = getMusicFolders(request);
 
         // Do we add to the current playlist or do we replace it?
-        boolean shouldAddToPlayList = request.getParameter("addToPlaylist") != null;
+        boolean shouldAddToPlayList = request.getParameter(Attributes.Request.ADD_TO_PLAYLIST.value()) != null;
 
         List<String> genres = null;
         if (null != genre) {
@@ -300,7 +301,7 @@ public class RandomPlayQueueController {
     @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the case of receiving a param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request) throws ServletRequestBindingException {
         String username = securityService.getCurrentUsername(request);
-        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, "musicFolderId");
+        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (selectedMusicFolderId == -1) {
             selectedMusicFolderId = null;
         }

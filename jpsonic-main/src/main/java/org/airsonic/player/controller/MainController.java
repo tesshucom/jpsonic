@@ -19,6 +19,7 @@
  */
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
@@ -79,10 +80,10 @@ public class MainController {
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
-    protected ModelAndView handleRequestInternal(@RequestParam(name = "showAll", required = false) Boolean showAll,
-                                                 HttpServletRequest request,
-                                                 HttpServletResponse response) throws Exception {
-
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
+                                                 HttpServletResponse response,
+                                                 @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll) throws Exception {
+        
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {
             return new ModelAndView(new RedirectView(ViewName.NOTFOUND.value()));

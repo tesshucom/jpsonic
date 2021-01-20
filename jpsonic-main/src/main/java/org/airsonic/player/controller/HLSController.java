@@ -20,6 +20,7 @@
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.JWTSecurityService;
@@ -75,7 +76,7 @@ public class HLSController {
 
         response.setHeader("Access-Control-Allow-Origin", "*");
 
-        int id = ServletRequestUtils.getIntParameter(request, "id", 0);
+        int id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value(), 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
@@ -150,9 +151,9 @@ public class HLSController {
             Integer kbps = bitRate.getLeft();
             writer.println("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
             UriComponentsBuilder url = UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
-                    .queryParam("id", id)
-                    .queryParam("player", player.getId())
-                    .queryParam("bitRate", kbps);
+                    .queryParam(Attributes.Request.ID.value(), id)
+                    .queryParam(Attributes.Request.PLAYER.value(), player.getId())
+                    .queryParam(Attributes.Request.BITRATE.value(), kbps);
             jwtSecurityService.addJWTToken(url);
             writer.print(url.toUriString());
             Dimension dimension = bitRate.getRight();
@@ -186,17 +187,17 @@ public class HLSController {
 
     private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration, Pair<Integer, Dimension> bitRate) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getContextPath(request) + "ext/stream/stream.ts");
-        builder.queryParam("id", id);
-        builder.queryParam("hls", "true");
-        builder.queryParam("timeOffset", offset);
-        builder.queryParam("player", player.getId());
-        builder.queryParam("duration", duration);
+        builder.queryParam(Attributes.Request.ID.value(), id);
+        builder.queryParam(Attributes.Request.HLS.value(), "true");
+        builder.queryParam(Attributes.Request.TIME_OFFSET.value(), offset);
+        builder.queryParam(Attributes.Request.PLAYER.value(), player.getId());
+        builder.queryParam(Attributes.Request.DURATION.value(), duration);
         if (bitRate != null) {
-            builder.queryParam("maxBitRate", bitRate.getLeft());
+            builder.queryParam(Attributes.Request.MAX_BIT_RATE.value(), bitRate.getLeft());
             Dimension dimension = bitRate.getRight();
             if (dimension != null) {
-                builder.queryParam("size", dimension.width);
-                builder.queryParam("x", dimension.height);
+                builder.queryParam(Attributes.Request.SIZE.value(), dimension.width);
+                builder.queryParam(Attributes.Request.X.value(), dimension.height);
             }
         }
         jwtSecurityService.addJWTToken(builder);
