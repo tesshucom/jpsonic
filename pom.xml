@@ -441,7 +441,7 @@
                             <id>validate</id>
                             <phase>validate</phase>
                             <configuration>
-                                <configLocation>${project.basedir}/../checkstyle.xml</configLocation>
+                                <configLocation>${project.basedir}/../jpsonic-main/checkstyle.xml</configLocation>
                                 <encoding>UTF-8</encoding>
                                 <consoleOutput>true</consoleOutput>
                                 <failOnViolation>true</failOnViolation>
@@ -652,6 +652,25 @@
                     <reportSet>
                         <reports>
                             <report>index</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <configLocation>${project.basedir}/../jpsonic-main/checkstyle.xml</configLocation>
+                    <encoding>UTF-8</encoding>
+                    <consoleOutput>false</consoleOutput>
+                    <failOnViolation>false</failOnViolation>
+                    <includeTestSourceDirectory>true</includeTestSourceDirectory>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>checkstyle</report>
                         </reports>
                     </reportSet>
                 </reportSets>
