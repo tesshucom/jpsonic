@@ -236,9 +236,6 @@
     <module name="SingleLineJavadoc">
       <property name="ignoreInlineTags" value="false"/>
     </module>
-    <module name="EmptyCatchBlock">
-      <property name="exceptionVariableName" value="expected"/>
-    </module>
     <!-- https://checkstyle.org/config_filters.html#SuppressionXpathFilter -->
     <module name="SuppressionXpathFilter">
       <property name="file" value="${org.checkstyle.google.suppressionxpathfilter.config}"
