@@ -274,7 +274,6 @@ public class SubsonicRESTController {
      */
     @RequestMapping("/getLicense")
     public void getLicense(HttpServletRequest req, HttpServletResponse response) {
-        HttpServletRequest request = wrapRequest(req);
         License license = new License();
 
         license.setEmail("airsonic@github.com");
@@ -287,6 +286,7 @@ public class SubsonicRESTController {
 
         Response res = createResponse();
         res.setLicense(license);
+        HttpServletRequest request = wrapRequest(req);
         jaxbWriter.writeResponse(request, response, res);
     }
 
@@ -350,11 +350,11 @@ public class SubsonicRESTController {
             for (MusicIndex.SortableArtistWithMediaFiles artist : entry.getValue()) {
                 for (MediaFile mediaFile : artist.getMediaFiles()) {
                     if (mediaFile.isDirectory()) {
-                        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
                         org.subsonic.restapi.Artist a = new org.subsonic.restapi.Artist();
                         index.getArtist().add(a);
                         a.setId(String.valueOf(mediaFile.getId()));
                         a.setName(artist.getName());
+                        Date starredDate = mediaFileDao.getMediaFileStarredDate(mediaFile.getId(), username);
                         a.setStarred(jaxbWriter.convertDate(starredDate));
 
                         if (mediaFile.isAlbum()) {
@@ -781,30 +781,28 @@ public class SubsonicRESTController {
     @RequestMapping("/search")
     public void search(HttpServletRequest req, HttpServletResponse response) throws Exception {
         HttpServletRequest request = wrapRequest(req);
-        Player player = playerService.getPlayer(request, response);
-        String username = securityService.getCurrentUsername(request);
-
-        String any = request.getParameter(Attributes.Request.ANY.value());
-        String artist = request.getParameter(Attributes.Request.ARTIST.value());
-        String album = request.getParameter(Attributes.Request.ALBUM.value());
-        String title = request.getParameter(Attributes.Request.TITLE.value());
 
         StringBuilder query = new StringBuilder();
+        String any = request.getParameter(Attributes.Request.ANY.value());
         if (any != null) {
             query.append(any).append(' ');
         }
+        String artist = request.getParameter(Attributes.Request.ARTIST.value());
         if (artist != null) {
             query.append(artist).append(' ');
         }
+        String album = request.getParameter(Attributes.Request.ALBUM.value());
         if (album != null) {
             query.append(album).append(' ');
         }
+        String title = request.getParameter(Attributes.Request.TITLE.value());
         if (title != null) {
             query.append(title);
         }
 
         int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         int count = getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        String username = securityService.getCurrentUsername(request);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
@@ -816,6 +814,7 @@ public class SubsonicRESTController {
         searchResult.setOffset(result.getOffset());
         searchResult.setTotalHits(result.getTotalHits());
 
+        Player player = playerService.getPlayer(request, response);
         for (MediaFile mediaFile : result.getMediaFiles()) {
             searchResult.getMatch().add(createJaxbChild(player, mediaFile, username));
         }
@@ -2472,13 +2471,13 @@ public class SubsonicRESTController {
 
     @RequestMapping("/getScanStatus")
     public void getScanStatus(HttpServletRequest req, HttpServletResponse response) {
-        HttpServletRequest request = wrapRequest(req);
         ScanStatus scanStatus = new ScanStatus();
         scanStatus.setScanning(this.mediaScannerService.isScanning());
         scanStatus.setCount((long) this.mediaScannerService.getScanCount());
 
         Response res = createResponse();
         res.setScanStatus(scanStatus);
+        HttpServletRequest request = wrapRequest(req);
         this.jaxbWriter.writeResponse(request, response, res);
     }
 

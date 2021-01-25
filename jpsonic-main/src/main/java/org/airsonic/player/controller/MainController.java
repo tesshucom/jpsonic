@@ -121,7 +121,6 @@ public class MainController {
         int userPaginationPreference = userSettings.getPaginationSize();
 
         boolean isShowAll = userPaginationPreference <= 0 ? true : null == showAll ? false : showAll;
-        boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         boolean thereIsMoreSAlbums = false;
 
         mediaFileService.populateStarredDate(dir, username);
@@ -175,6 +174,7 @@ public class MainController {
         } catch (SecurityException x) {
             // Happens if Podcast directory is outside music folder.
         }
+        boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         map.put("thereIsMore", (thereIsMoreSubDirs || thereIsMoreSAlbums) && !isShowAll);
 
         Integer userRating = ratingService.getRatingForUser(username, dir);

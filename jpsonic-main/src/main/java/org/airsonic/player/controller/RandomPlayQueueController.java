@@ -113,7 +113,6 @@ public class RandomPlayQueueController {
 
         Integer size = sizeParam;
         String genre = genreParam;
-        String format = formatParam;
 
         if (size == null) {
             size = 24;
@@ -237,6 +236,7 @@ public class RandomPlayQueueController {
         }
 
         // Handle the format filter
+        String format = formatParam;
         if (StringUtils.equalsIgnoreCase(format, REQUEST_VALUE_ANY)) {
             format = null;
         }

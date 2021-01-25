@@ -51,7 +51,6 @@ public class SonosServiceRegistration {
     public void setEnabled(String airsonicBaseUrl, String sonosControllerIp, boolean enabled, String sonosServiceName,
             int sonosServiceId) throws IOException {
         String localUrl = airsonicBaseUrl + "ws/Sonos";
-        String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
 
         if (LOG.isInfoEnabled()) {
             LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP "
@@ -79,6 +78,7 @@ public class SonosServiceRegistration {
             params.add(Pair.of("stringsUri", airsonicBaseUrl + "sonos/strings.xml"));
         }
 
+        String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
         String result = execute(controllerUrl, params);
         if (LOG.isInfoEnabled()) {
             LOG.info("Sonos controller returned: " + result);

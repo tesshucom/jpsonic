@@ -122,8 +122,6 @@ public class PlaylistService {
 
     public int createPlaylistForPlayQueue() throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
-        Player player = playerService.getPlayer(request, response);
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
@@ -134,8 +132,10 @@ public class PlaylistService {
         playlist.setChanged(now);
         playlist.setShared(false);
         playlist.setName(dateFormat.format(now));
-
         deligate.createPlaylist(playlist);
+
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+        Player player = playerService.getPlayer(request, response);
         deligate.setFilesInPlaylist(playlist.getId(), player.getPlayQueue().getFiles());
 
         return playlist.getId();

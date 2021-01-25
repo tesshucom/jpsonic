@@ -412,13 +412,13 @@ public class PlayQueue {
      */
     public void undo() {
         synchronized (SEQUENCE_LOCK) {
-            List<MediaFile> filesTmp = new ArrayList<>(files);
             int indexTmp = index;
 
             index = indexBackup;
             files = filesBackup;
-
             indexBackup = indexTmp;
+
+            List<MediaFile> filesTmp = new ArrayList<>(files);
             filesBackup = filesTmp;
         }
     }

@@ -157,10 +157,6 @@ public class DLNASettingsController {
         boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request,
                 Attributes.Request.DLNA_GUEST_PUBLISH.value(), false);
 
-        boolean isEnabledStateChange = !(settingsService.isDlnaEnabled() == dlnaEnabled && !isEmpty(dlnaServerName)
-                && dlnaServerName.equals(settingsService.getDlnaServerName()) && !isEmpty(dlnaBaseLANURL)
-                && dlnaBaseLANURL.equals(settingsService.getDlnaBaseLANURL()));
-
         settingsService.setDlnaEnabled(dlnaEnabled);
         settingsService.setDlnaServerName(dlnaServerName);
         settingsService.setDlnaBaseLANURL(dlnaBaseLANURL);
@@ -187,6 +183,9 @@ public class DLNASettingsController {
 
         settingsService.save();
 
+        boolean isEnabledStateChange = !(settingsService.isDlnaEnabled() == dlnaEnabled && !isEmpty(dlnaServerName)
+                && dlnaServerName.equals(settingsService.getDlnaServerName()) && !isEmpty(dlnaBaseLANURL)
+                && dlnaBaseLANURL.equals(settingsService.getDlnaBaseLANURL()));
         if (isEnabledStateChange) {
             upnpService.setMediaServerEnabled(dlnaEnabled);
         }

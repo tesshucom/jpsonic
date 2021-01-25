@@ -231,8 +231,6 @@ public class TranscodingService {
         TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(mb));
         mb = transcodeScheme.getMaxBitRate();
 
-        boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
-        Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
         Integer bitRate = mediaFile.getBitRate();
         if (bitRate == null) {
             // Assume unlimited bitrate
@@ -258,6 +256,8 @@ public class TranscodingService {
             mb = bitRate;
         }
 
+        boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
+        Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
         if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
                 || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
             parameters.setTranscoding(transcoding);

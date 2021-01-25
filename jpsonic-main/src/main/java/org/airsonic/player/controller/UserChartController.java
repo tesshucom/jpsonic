@@ -114,10 +114,6 @@ public class UserChartController extends AbstractChartController {
 
     private JFreeChart createChart(CategoryDataset dataset, HttpServletRequest request) {
 
-        Color bgColor = getBackground(request);
-        Color fgColor = getForeground(request);
-        Color stColor = getStroke(request);
-
         JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false,
                 false, false);
         StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
@@ -128,16 +124,19 @@ public class UserChartController extends AbstractChartController {
         theme.setSmallFont(font);
         theme.apply(chart);
 
+        Color bgColor = getBackground(request);
         chart.setBackgroundPaint(bgColor);
 
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint(bgColor);
+        Color fgColor = getForeground(request);
         plot.setOutlinePaint(fgColor);
         plot.setRangeGridlinePaint(fgColor);
         plot.setRangeGridlineStroke(new BasicStroke(0.2f));
         plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
 
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        Color stColor = getStroke(request);
         renderer.setBarPainter(new BarPainter() {
             @Override
             public void paintBarShadow(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,

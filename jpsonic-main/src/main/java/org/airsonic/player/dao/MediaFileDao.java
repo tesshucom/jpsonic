@@ -538,15 +538,6 @@ public class MediaFileDao extends AbstractDao {
             return Collections.emptyList();
         }
 
-        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(criteria.getMusicFolders()),
-                "username", username, "fromYear", criteria.getFromYear(), "toYear", criteria.getToYear(), "genres",
-                criteria.getGenres(), // TODO to be revert
-                "minLastPlayed", criteria.getMinLastPlayedDate(), "maxLastPlayed", criteria.getMaxLastPlayedDate(),
-                "minAlbumRating", criteria.getMinAlbumRating(), "maxAlbumRating", criteria.getMaxAlbumRating(),
-                "minPlayCount", criteria.getMinPlayCount(), "maxPlayCount", criteria.getMaxPlayCount(), "starred",
-                criteria.isShowStarredSongs(), "unstarred", criteria.isShowUnstarredSongs(), "format",
-                criteria.getFormat());
-
         boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
         boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
 
@@ -632,6 +623,15 @@ public class MediaFileDao extends AbstractDao {
         }
 
         query.append(" order by rand() limit ").append(criteria.getCount());
+
+        Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(criteria.getMusicFolders()),
+                "username", username, "fromYear", criteria.getFromYear(), "toYear", criteria.getToYear(), "genres",
+                criteria.getGenres(), // TODO to be revert
+                "minLastPlayed", criteria.getMinLastPlayedDate(), "maxLastPlayed", criteria.getMaxLastPlayedDate(),
+                "minAlbumRating", criteria.getMinAlbumRating(), "maxAlbumRating", criteria.getMaxAlbumRating(),
+                "minPlayCount", criteria.getMinPlayCount(), "maxPlayCount", criteria.getMaxPlayCount(), "starred",
+                criteria.isShowStarredSongs(), "unstarred", criteria.isShowUnstarredSongs(), "format",
+                criteria.getFormat());
 
         return namedQuery(query.toString(), rowMapper, args);
     }

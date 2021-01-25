@@ -187,14 +187,7 @@ public class UPnPService {
      */
     private LocalDevice createMediaServerDevice() throws Exception {
 
-        String serverName = settingsService.getDlnaServerName();
-        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
-        DeviceType type = new UDADeviceType("MediaServer", 1);
-
         // TODO: DLNACaps
-
-        DeviceDetails details = new DeviceDetails(serverName, new ManufacturerDetails(serverName),
-                new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
 
         @SuppressWarnings("unchecked")
         LocalService<CustomContentDirectory> directoryservice = new AnnotationLocalServiceBinder()
@@ -237,6 +230,12 @@ public class UPnPService {
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
         }
+
+        String serverName = settingsService.getDlnaServerName();
+        DeviceDetails details = new DeviceDetails(serverName, new ManufacturerDetails(serverName),
+                new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
+        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
+        DeviceType type = new UDADeviceType("MediaServer", 1);
         return new LocalDevice(identity, type, details, new Icon[] { icon },
                 new LocalService[] { directoryservice, connetionManagerService, receiverService });
     }

@@ -431,7 +431,6 @@ public class PlayQueueService {
     public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre, String decade)
             throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         String username = securityService.getCurrentUsername(request);
 
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
@@ -469,6 +468,7 @@ public class PlayQueueService {
         Collections.shuffle(songs);
         songs = songs.subList(0, Math.min(40, songs.size()));
 
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
         return doPlay(request, player, songs).setStartPlayerAt(0);
     }
@@ -584,14 +584,13 @@ public class PlayQueueService {
      */
     public PlayQueue resetPlayQueue(PlayQueue playQueue, int[] ids, boolean removeVideoFiles) {
         MediaFile currentFile = playQueue.getCurrentFile();
-        PlayQueue.Status status = playQueue.getStatus();
 
         playQueue.clear();
         addMediaFilesToPlayQueue(playQueue, ids, null, removeVideoFiles);
 
         int index = currentFile == null ? -1 : playQueue.getFiles().indexOf(currentFile);
         playQueue.setIndex(index);
-        playQueue.setStatus(status);
+        playQueue.setStatus(playQueue.getStatus());
         return playQueue;
     }
 

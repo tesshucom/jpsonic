@@ -333,13 +333,13 @@ public class StreamController {
         // Enabled SHOUTcast, if requested.
         boolean isShoutCastRequested = "1".equals(request.getHeader("icy-metadata"));
         if (isShoutCastRequested && !isSingleFile) {
-            OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
             response.setHeader("icy-metaint", Integer.toString(ShoutCastOutputStream.META_DATA_INTERVAL));
             response.setHeader("icy-notice1", "This stream is served using Airsonic");
             response.setHeader("icy-notice2", "Airsonic - Free media streamer");
             response.setHeader("icy-name", "Airsonic");
             response.setHeader("icy-genre", "Mixed");
             response.setHeader("icy-url", "https://airsonic.github.io/");
+            OutputStream out = RangeOutputStream.wrap(response.getOutputStream(), range);
             return new ShoutCastOutputStream(out, player.getPlayQueue(), settingsService);
         }
         return RangeOutputStream.wrap(response.getOutputStream(), range);

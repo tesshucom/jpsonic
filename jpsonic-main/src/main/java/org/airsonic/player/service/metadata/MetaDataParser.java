@@ -47,20 +47,20 @@ public abstract class MetaDataParser {
     public MetaData getMetaData(File file) {
 
         MetaData metaData = getRawMetaData(file);
-        String artist = metaData.getArtist();
-        String albumArtist = metaData.getAlbumArtist();
-        String album = metaData.getAlbumName();
-        String title = metaData.getTitle();
 
+        String artist = metaData.getArtist();
         if (artist == null) {
             artist = guessArtist(file);
         }
+        String albumArtist = metaData.getAlbumArtist();
         if (albumArtist == null) {
             albumArtist = guessArtist(file);
         }
+        String album = metaData.getAlbumName();
         if (album == null) {
             album = guessAlbum(file, artist);
         }
+        String title = metaData.getTitle();
         if (title == null) {
             title = guessTitle(file);
         }

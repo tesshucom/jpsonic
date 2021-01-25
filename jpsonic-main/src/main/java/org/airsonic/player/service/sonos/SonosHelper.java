@@ -231,12 +231,13 @@ public class SonosHelper {
 
     public List<AbstractMedia> forMusicFolder(MusicFolder musicFolder, String username, HttpServletRequest request) {
         try {
-            List<AbstractMedia> result = new ArrayList<>();
 
             MediaMetadata shuffle = new MediaMetadata();
             shuffle.setItemType(ItemType.PROGRAM);
             shuffle.setId(SonosService.ID_SHUFFLE_MUSICFOLDER_PREFIX + musicFolder.getId());
             shuffle.setTitle("Shuffle Play");
+
+            List<AbstractMedia> result = new ArrayList<>();
             result.add(shuffle);
 
             for (MediaFile shortcut : musicIndexService.getShortcuts(Arrays.asList(musicFolder))) {
@@ -638,13 +639,13 @@ public class SonosHelper {
     }
 
     public MediaMetadata forSong(MediaFile song, String username, HttpServletRequest request) {
-        Player player = createPlayerIfNecessary(username);
-        String suffix = transcodingService.getSuffix(player, song, null);
         mediaFileService.populateStarredDate(song, username);
 
         MediaMetadata result = new MediaMetadata();
         result.setId(String.valueOf(song.getId()));
         result.setItemType(ItemType.TRACK);
+        Player player = createPlayerIfNecessary(username);
+        String suffix = transcodingService.getSuffix(player, song, null);
         result.setMimeType(StringUtil.getMimeType(suffix, true));
         result.setTitle(song.getTitle());
         result.setGenre(song.getGenre());

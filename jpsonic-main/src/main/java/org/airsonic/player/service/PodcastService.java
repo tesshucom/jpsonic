@@ -746,8 +746,6 @@ public class PodcastService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private File getFile(PodcastChannel channel, PodcastEpisode episode) {
 
-        File channelDir = getChannelDirectory(channel);
-
         String episodeDate = String.format("%tF", episode.getPublishDate());
         String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
                 + episode.getTitle();
@@ -760,6 +758,7 @@ public class PodcastService {
             extension = "mp3";
         }
 
+        File channelDir = getChannelDirectory(channel);
         File file = new File(channelDir, filename + "." + extension);
         for (int i = 0; file.exists(); i++) {
             file = new File(channelDir, filename + i + "." + extension);

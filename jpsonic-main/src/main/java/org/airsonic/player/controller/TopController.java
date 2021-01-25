@@ -86,8 +86,6 @@ public class TopController {
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
             @RequestParam("mainView") Optional<String> mainView) throws Exception {
 
-        boolean musicFolderChanged = saveSelectedMusicFolder(request);
-
         Map<String, Object> map = LegacyMap.of();
 
         User user = securityService.getCurrentUser(request);
@@ -123,7 +121,6 @@ public class TopController {
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
         List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
                 : Collections.singletonList(selectedMusicFolder);
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
 
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
@@ -133,6 +130,7 @@ public class TopController {
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
         map.put("organizeByFolderStructure", settingsService.isOrganizeByFolderStructure());
+        boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
 
         if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
@@ -145,6 +143,7 @@ public class TopController {
         }
         map.put("brand", settingsService.getBrand());
 
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());

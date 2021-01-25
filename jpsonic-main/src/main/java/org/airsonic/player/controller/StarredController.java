@@ -72,7 +72,6 @@ public class StarredController {
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
-        UserSettings userSettings = settingsService.getUserSettings(username);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         List<MediaFile> artists = mediaFileDao.getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders);
@@ -88,6 +87,7 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
+        UserSettings userSettings = settingsService.getUserSettings(username);
         return new ModelAndView("starred", "model",
                 LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
                         userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),

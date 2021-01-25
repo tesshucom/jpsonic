@@ -143,10 +143,6 @@ public class StatusChartController extends AbstractChartController {
         TimeSeriesCollection dataset = new TimeSeriesCollection();
         dataset.addSeries(series);
 
-        Color bgColor = getBackground(request);
-        Color fgColor = getForeground(request);
-        Color stColor = getStroke(request);
-
         JFreeChart chart = ChartFactory.createTimeSeriesChart(null, null, null, dataset, false, false, false);
         StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
         Font font = fontLoader.getFont(12F);
@@ -156,10 +152,12 @@ public class StatusChartController extends AbstractChartController {
         theme.setSmallFont(font);
         theme.apply(chart);
 
+        Color bgColor = getBackground(request);
         chart.setBackgroundPaint(bgColor);
-
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(bgColor);
+
+        Color fgColor = getForeground(request);
         plot.setOutlinePaint(fgColor);
         plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
 
@@ -169,6 +167,7 @@ public class StatusChartController extends AbstractChartController {
         plot.setDomainGridlineStroke(new BasicStroke(0.2f));
 
         XYItemRenderer renderer = plot.getRendererForDataset(dataset);
+        Color stColor = getStroke(request);
         renderer.setSeriesPaint(0, stColor);
         renderer.setSeriesStroke(0, new BasicStroke(4.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_MITER));
 
