@@ -211,8 +211,36 @@ public class SettingsService {
 
     // Default values.
     private static final String DEFAULT_JWT_KEY = null;
-    private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2) \u3044(\u30A4) \u3046(\u30A6) \u3048(\u30A8) \u304A(\u30AA) \u304B(\u304B(\u30AB) \u304D(\u30AD) \u304F(\u30AF) \u3051(\u30B1) \u3053(\u30B3) \u3055(\u30B5) \u3057(\u30B7) \u3059(\u30B9) \u305B(\u30BB) \u305D(\u30BD) \u305F(\u30BF) \u3061(\u30C1) \u3064(\u30C4) \u3066(\u30C6) \u3068(\u30C8) \u306A(\u30CA) \u306B(\u30CB) \u306C(\u30CC) \u306D(\u30CD) \u306E(\u30CE) \u306F(\u30CF) \u3072(\u30D2) \u3075(\u30D5) \u3078(\u30D8) \u307B(\u30DB) \u307E(\u30DE) \u307F(\u30DF) \u3080(\u30E0) \u3081(\u30E1) \u3082(\u30E2) \u3084(\u30E4) \u3086(\u30E6) \u3088(\u30E8) \u3089(\u30E9) \u308A(\u30EA) \u308B(\u30EB) \u308C(\u30EC) \u308D(\u30ED) \u308F(\u30EF) \u3092(\u30F2) \u3093(\u30F3)";
-    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) \u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) \u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) \u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) \u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) \u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) \u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) \u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) \u3084(\u30E4\u30E6\u30E8) \u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) \u308F(\u30EF\u30F2\u30F3)";
+
+    /*
+     * It's EN and JP(syllabary)
+     */
+    private static final String DEFAULT_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
+            + "\u3042(\u30A2) \u3044(\u30A4) \u3046(\u30A6) \u3048(\u30A8) \u304A(\u30AA) " // Jp(a)
+            + "\u304B(\u30AB) \u304D(\u30AD) \u304F(\u30AF) \u3051(\u30B1) \u3053(\u30B3) " // Jp(ka)
+            + "\u3055(\u30B5) \u3057(\u30B7) \u3059(\u30B9) \u305B(\u30BB) \u305D(\u30BD) " // Jp(sa)
+            + "\u305F(\u30BF) \u3061(\u30C1) \u3064(\u30C4) \u3066(\u30C6) \u3068(\u30C8) " // Jp(ta)
+            + "\u306A(\u30CA) \u306B(\u30CB) \u306C(\u30CC) \u306D(\u30CD) \u306E(\u30CE) " // Jp(na)
+            + "\u306F(\u30CF) \u3072(\u30D2) \u3075(\u30D5) \u3078(\u30D8) \u307B(\u30DB) " // Jp(ha)
+            + "\u307E(\u30DE) \u307F(\u30DF) \u3080(\u30E0) \u3081(\u30E1) \u3082(\u30E2) " // Jp(ma)
+            + "\u3084(\u30E4) \u3086(\u30E6) \u3088(\u30E8) " // Jp(ya)
+            + "\u3089(\u30E9) \u308A(\u30EA) \u308B(\u30EB) \u308C(\u30EC) \u308D(\u30ED) " // Jp(ra)
+            + "\u308F(\u30EF) \u3092(\u30F2) \u3093(\u30F3)"; // Jp(wa)
+    /*
+     * It's EN and JP(consonant)
+     */
+    private static final String SIMPLE_INDEX_STRING = "A B C D E F G H I J K L M N O P Q R S T U V W X-Z(XYZ) " // En
+            + "\u3042(\u30A2\u30A4\u30A6\u30A8\u30AA) " // Jp(a)
+            + "\u304B(\u30AB\u30AD\u30AF\u30B1\u30B3) " // Jp(ka)
+            + "\u3055(\u30B5\u30B7\u30B9\u30BB\u30BD) " // Jp(sa)
+            + "\u305F(\u30BF\u30C1\u30C4\u30C6\u30C8) " // Jp(ta)
+            + "\u306A(\u30CA\u30CB\u30CC\u30CD\u30CE) " // Jp(na)
+            + "\u306F(\u30CF\u30D2\u30D5\u30D8\u30DB) " // Jp(ha)
+            + "\u307E(\u30DE\u30DF\u30E0\u30E1\u30E2) " // Jp(ma)
+            + "\u3084(\u30E4\u30E6\u30E8) " // Jp(ya)
+            + "\u3089(\u30E9\u30EA\u30EB\u30EC\u30ED) " // Jp(ra)
+            + "\u308F(\u30EF\u30F2\u30F3)"; // Jp(wa)
+
     private static final String DEFAULT_IGNORED_ARTICLES = "The El La Las Le Les";
     private static final String DEFAULT_SHORTCUTS = "New Incoming Podcast";
     private static final String DEFAULT_PLAYLIST_FOLDER = PlayerUtils.getDefaultPlaylistFolder();
@@ -220,7 +248,7 @@ public class SettingsService {
     private static final String DEFAULT_VIDEO_FILE_TYPES = "flv avi mpg mpeg mp4 m4v mkv mov wmv ogv divx m2ts webm";
     private static final String DEFAULT_COVER_ART_FILE_TYPES = "cover.jpg cover.png cover.gif folder.jpg jpg jpeg gif png";
     private static final int DEFAULT_COVER_ART_CONCURRENCY = 4;
-    private static final String DEFAULT_WELCOME_TITLE = "\u30db\u30fc\u30e0";
+    private static final String DEFAULT_WELCOME_TITLE = "\u30db\u30fc\u30e0"; // "Home" in Japanese
     private static final String DEFAULT_WELCOME_SUBTITLE = null;
     private static final String DEFAULT_WELCOME_MESSAGE = null;
     private static final String DEFAULT_LOGIN_MESSAGE = null;
