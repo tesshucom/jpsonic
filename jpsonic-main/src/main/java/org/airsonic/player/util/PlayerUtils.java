@@ -125,6 +125,7 @@ public final class PlayerUtils {
     }
 
     private static ObjectMapper objectMapper = new ObjectMapper();
+
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
@@ -209,6 +210,7 @@ public final class PlayerUtils {
     }
 
     private static Validator validator;
+
     static {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         validator = factory.getValidator();

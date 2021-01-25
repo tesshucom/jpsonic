@@ -159,6 +159,7 @@ public class TopController {
 
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
+
     static {
         LAST_COMPATIBILITY_TIME.set(2012, Calendar.MARCH, 6, 0, 0, 0);
         LAST_COMPATIBILITY_TIME.set(Calendar.MILLISECOND, 0);
