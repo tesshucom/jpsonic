@@ -40,7 +40,7 @@ public class JukeboxJavaService {
     private TransferStatus status;
     private Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new ConcurrentHashMap<>();
     private Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer = new ConcurrentHashMap<>();
-    private final static String DEFAULT_MIXER_ENTRY_KEY = "_default";
+    private static final String DEFAULT_MIXER_ENTRY_KEY = "_default";
 
     public JukeboxJavaService(AudioScrobblerService audioScrobblerService, StatusService statusService,
             SecurityService securityService, MediaFileService mediaFileService, JavaPlayerFactory javaPlayerFactory) {

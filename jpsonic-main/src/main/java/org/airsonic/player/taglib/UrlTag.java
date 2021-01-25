@@ -145,7 +145,7 @@ public class UrlTag extends BodyTagSupport {
         return DEFAULT_ENCODING.equals(encoding);
     }
 
-    static private boolean isAsciiAlphaNumeric(String s) {
+    private static boolean isAsciiAlphaNumeric(String s) {
         if (s == null) {
             return true;
         }

@@ -42,7 +42,7 @@ public class NetworkService {
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 
-    private final static Logger LOG = LoggerFactory.getLogger(NetworkService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkService.class);
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {

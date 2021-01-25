@@ -116,9 +116,9 @@ public class CoverArtController implements LastModified {
     @Autowired
     private FontLoader fontLoader;
 
-    private final static Object DIRS_LOCK = new Object();
+    private static final Object DIRS_LOCK = new Object();
 
-    private final static Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
+    private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
@@ -677,7 +677,7 @@ public class CoverArtController implements LastModified {
 
     static class AutoCover {
 
-        private final static int[] COLORS = { 0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444 };
+        private static final int[] COLORS = { 0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444 };
         private final Graphics2D graphics;
         private final String artist;
         private final String album;

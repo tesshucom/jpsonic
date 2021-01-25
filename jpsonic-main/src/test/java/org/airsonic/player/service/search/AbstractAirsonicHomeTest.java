@@ -63,7 +63,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     // Above.
     private static AtomicBoolean dataBaseReady = new AtomicBoolean();
 
-    protected final static Function<String, String> resolveBaseMediaPath = (childPath) -> {
+    protected static final Function<String, String> resolveBaseMediaPath = (childPath) -> {
         return MusicFolderTestData.resolveBaseMediaPath().concat(childPath);
     };
 

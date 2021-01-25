@@ -308,7 +308,7 @@ public class JpsonicComparatorsTestUtils {
      * order to arrange correctly in Japanese, a function to convert to Japanese reading and support for sort tags are
      * required.
      */
-    final static List<String> jPSonicNaturalList = unmodifiableList(Arrays.asList("10", // Enter year in year field
+    static final List<String> jPSonicNaturalList = unmodifiableList(Arrays.asList("10", // Enter year in year field
             "20", "50", "60", "70", "98", // Enter year in year field
             "99", // Enter year in year field
             "abcde", // Enter Japanese in the sort field
@@ -322,7 +322,7 @@ public class JpsonicComparatorsTestUtils {
      * Expected sequence number. Whether serial number processing has been performed can be determined by some elements
      * included in jPSonicNaturalList. Use this list if need to do a full pattern test.
      */
-    private final static List<String> alphaNumList = unmodifiableList(
+    private static final List<String> alphaNumList = unmodifiableList(
             Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime", "30X Radonius",
                     "40X Radonius", "200X Radonius", "1000X Radonius Maximus", "Allegia 6R Clasteron",
                     "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron", "Allegia 500 Clasteron",

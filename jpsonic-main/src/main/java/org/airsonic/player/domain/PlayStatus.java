@@ -34,7 +34,7 @@ public class PlayStatus {
     private final Player player;
     private final Date time;
 
-    private final static long TTL_MILLIS = 6L * 60L * 60L * 1000L; // 6 hours
+    private static final long TTL_MILLIS = 6L * 60L * 60L * 1000L; // 6 hours
 
     public PlayStatus(MediaFile mediaFile, Player player, Date time) {
         this.mediaFile = mediaFile;

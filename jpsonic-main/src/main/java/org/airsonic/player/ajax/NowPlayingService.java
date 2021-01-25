@@ -67,7 +67,7 @@ public class NowPlayingService {
     @Autowired
     private MediaScannerService mediaScannerService;
 
-    private final static int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+    private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     /**
      * Returns details about what the current player is playing.

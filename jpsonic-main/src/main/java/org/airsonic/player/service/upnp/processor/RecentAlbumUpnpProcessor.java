@@ -40,7 +40,7 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final JMediaFileService mediaFileService;
 
-    private final static int RECENT_COUNT = 50;
+    private static final int RECENT_COUNT = 50;
 
     public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             PlayerService p) {

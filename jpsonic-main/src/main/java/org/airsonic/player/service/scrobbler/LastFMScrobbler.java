@@ -116,7 +116,7 @@ public class LastFMScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    final static void scrobble(RegistrationData registrationData)
+    static final void scrobble(RegistrationData registrationData)
             throws URISyntaxException, ClientProtocolException, IOException {
         if (registrationData == null) {
             return;

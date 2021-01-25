@@ -278,7 +278,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    final static String decrypt(String s) {
+    static final String decrypt(String s) {
         if (s == null) {
             return null;
         }

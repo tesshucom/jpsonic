@@ -42,7 +42,7 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final JAlbumDao albumDao;
 
-    private final static int RECENT_COUNT = 51;
+    private static final int RECENT_COUNT = 51;
 
     public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             JAlbumDao a, CoverArtLogic c) {

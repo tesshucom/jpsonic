@@ -64,7 +64,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
     private static List<MusicFolder> musicFolders;
 
-    private final static List<String> indexList = unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn over by
+    private static final List<String> indexList = unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn over by
             // reading
             "abc亜伊鵜絵尾", // Turn over by reading
             "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ",

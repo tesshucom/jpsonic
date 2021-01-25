@@ -175,7 +175,7 @@ public class PlayerDao extends AbstractDao {
                 player.getClientId(), player.getJavaJukeboxMixer(), player.getId());
     }
 
-    final static void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
+    static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
             PlayerDaoPlayQueueFactory factory) {
         PlayQueue playQueue = playlistMap.get(player.getId());
         if (playQueue == null) {

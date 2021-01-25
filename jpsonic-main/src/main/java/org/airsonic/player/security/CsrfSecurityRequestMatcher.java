@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
-    static private List<String> allowedMethods = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
+    private static List<String> allowedMethods = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
     private List<RegexRequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {

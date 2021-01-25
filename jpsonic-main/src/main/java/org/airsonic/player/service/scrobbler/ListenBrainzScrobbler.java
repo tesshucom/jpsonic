@@ -106,7 +106,7 @@ public class ListenBrainzScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    final static void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
+    static final void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
         if (registrationData == null || registrationData.getToken() == null) {
             return;
         }
