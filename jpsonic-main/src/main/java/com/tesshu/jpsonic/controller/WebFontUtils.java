@@ -52,7 +52,7 @@ public final class WebFontUtils {
         String escaped = raw;
         escaped = escaped.replace("\\", "").replace("\b", "").replace("\f", "").replace("\n", "").replace("\r", "")
                 .replace("\t", "");
-        String fonts[] = escaped.split(",");
+        String[] fonts = escaped.split(",");
         escaped = "";
         for (String font : fonts) {
             String fontEscaped = font.trim().replaceAll("\"", "");
