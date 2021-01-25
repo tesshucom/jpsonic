@@ -190,10 +190,7 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     public List<MediaFile> getRandomSongsForAlbumArtist(int limit, String albumArtist, List<MusicFolder> musicFolders,
-            BiFunction< /** range */
-                    Integer, /** limit */
-                    Integer, List<Integer>> randomCallback) {
-
+            BiFunction<Integer, Integer, List<Integer>> randomCallback) {
         String type = MediaFile.MediaType.MUSIC.name();
 
         /* Run the query twice. */
