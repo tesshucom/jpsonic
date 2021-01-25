@@ -17,11 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.filter;
 
-import org.airsonic.player.service.SettingsService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -32,9 +33,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import org.airsonic.player.service.SettingsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This filter is executed very early in the filter chain. It verifies that the Airsonic home directory (c:\airsonic or

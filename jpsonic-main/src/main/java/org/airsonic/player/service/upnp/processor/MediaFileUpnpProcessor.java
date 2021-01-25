@@ -17,7 +17,17 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -45,15 +55,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {

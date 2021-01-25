@@ -1,4 +1,15 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Date;
+import java.util.List;
 
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -7,11 +18,6 @@ import org.airsonic.player.domain.TranscodeScheme;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit test of {@link PlayerDao}.

@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.AvatarScheme;
@@ -39,12 +46,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR

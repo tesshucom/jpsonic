@@ -1,4 +1,10 @@
+
 package org.airsonic.player;
+
+import java.lang.reflect.Method;
+
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
@@ -32,11 +38,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Profiles;
 import org.springframework.util.ReflectionUtils;
-
-import javax.servlet.Filter;
-import javax.servlet.Servlet;
-
-import java.lang.reflect.Method;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,

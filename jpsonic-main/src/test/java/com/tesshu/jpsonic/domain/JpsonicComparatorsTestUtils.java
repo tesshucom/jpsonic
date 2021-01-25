@@ -16,7 +16,21 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static java.util.Collections.reverse;
+import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.junit.Assert.assertEquals;
+
+import java.lang.annotation.Documented;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -28,19 +42,6 @@ import org.airsonic.player.domain.MusicIndex.SortableArtistWithMediaFiles;
 import org.airsonic.player.domain.Playlist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.lang.annotation.Documented;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static java.util.Collections.reverse;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.junit.Assert.assertEquals;
 
 @Component
 public class JpsonicComparatorsTestUtils {

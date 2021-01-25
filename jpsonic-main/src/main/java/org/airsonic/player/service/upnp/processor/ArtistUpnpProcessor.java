@@ -17,7 +17,14 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JArtistDao;
@@ -35,12 +42,6 @@ import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 
 @Service
 public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {

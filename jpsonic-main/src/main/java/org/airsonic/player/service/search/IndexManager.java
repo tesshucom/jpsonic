@@ -20,6 +20,23 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.AlbumDao;
@@ -55,23 +72,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Function class that is strongly linked to the lucene index implementation. Legacy has an implementation in

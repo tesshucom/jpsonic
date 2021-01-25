@@ -1,16 +1,16 @@
 
 package org.airsonic.player.service.metadata;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
 

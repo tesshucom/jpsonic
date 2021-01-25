@@ -17,7 +17,12 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
@@ -30,10 +35,6 @@ import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.GenreContainer;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.util.List;
 
 @Service
 public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaFile> {

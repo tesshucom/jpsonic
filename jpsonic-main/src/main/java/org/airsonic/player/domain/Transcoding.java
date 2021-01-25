@@ -17,11 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
-import org.airsonic.player.util.StringUtil;
-
 import java.util.Objects;
+
+import org.airsonic.player.util.StringUtil;
 
 /**
  * Contains the configuration for a transcoding, i.e., a specification of how a given media format should be converted

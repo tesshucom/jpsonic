@@ -17,7 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import java.io.File;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.LastFmCoverArt;
@@ -35,15 +45,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Provides AJAX-enabled services for changing cover art images.

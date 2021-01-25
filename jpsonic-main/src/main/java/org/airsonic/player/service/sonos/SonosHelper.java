@@ -19,6 +19,18 @@
 
 package org.airsonic.player.service.sonos;
 
+import static org.airsonic.player.service.NetworkService.getBaseUrl;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletionException;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.AbstractMedia;
@@ -65,18 +77,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CompletionException;
-
-import static org.airsonic.player.service.NetworkService.getBaseUrl;
 
 /**
  * @author Sindre Mehus

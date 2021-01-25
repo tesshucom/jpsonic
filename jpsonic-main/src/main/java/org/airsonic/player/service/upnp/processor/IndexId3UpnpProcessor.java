@@ -16,7 +16,26 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static java.util.stream.Collectors.toList;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
+import static org.airsonic.player.util.PlayerUtils.subList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -42,24 +61,6 @@ import org.springframework.stereotype.Service;
 import org.subsonic.restapi.ArtistID3;
 import org.subsonic.restapi.ArtistsID3;
 import org.subsonic.restapi.IndexID3;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
-import static org.airsonic.player.util.PlayerUtils.subList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3Wrapper> {

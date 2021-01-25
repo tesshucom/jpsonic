@@ -17,17 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.Date;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test of {@link MusicFolderDao}.

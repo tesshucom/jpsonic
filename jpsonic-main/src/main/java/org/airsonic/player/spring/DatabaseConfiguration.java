@@ -1,4 +1,10 @@
+
 package org.airsonic.player.spring;
+
+import java.io.File;
+import java.util.Map;
+
+import javax.sql.DataSource;
 
 import liquibase.integration.spring.SpringLiquibase;
 import org.airsonic.player.dao.DaoHelper;
@@ -17,11 +23,6 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import javax.sql.DataSource;
-
-import java.io.File;
-import java.util.Map;
 
 @Configuration
 @EnableTransactionManagement

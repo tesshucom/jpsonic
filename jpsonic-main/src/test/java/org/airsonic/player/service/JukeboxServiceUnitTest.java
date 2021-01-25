@@ -1,4 +1,9 @@
+
 package org.airsonic.player.service;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -7,10 +12,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JukeboxServiceUnitTest {

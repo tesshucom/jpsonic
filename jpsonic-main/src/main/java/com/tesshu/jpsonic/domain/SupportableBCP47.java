@@ -16,6 +16,7 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
 
 import java.util.Locale;

@@ -1,12 +1,15 @@
+
 package org.airsonic.player.util;
 
-import org.airsonic.player.domain.MediaLibraryStatistics;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Date;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.airsonic.player.domain.MediaLibraryStatistics;
+import org.junit.Test;
 
 public class UtilTest {
 

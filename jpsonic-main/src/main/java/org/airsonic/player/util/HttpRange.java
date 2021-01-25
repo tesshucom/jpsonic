@@ -17,12 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.util;
 
-import org.apache.commons.lang.StringUtils;
+package org.airsonic.player.util;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Sindre Mehus

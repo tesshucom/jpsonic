@@ -17,14 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
+
+import java.util.List;
 
 import org.airsonic.player.controller.UserSettingsController;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
-
-import java.util.List;
 
 /**
  * Command used in {@link UserSettingsController}.

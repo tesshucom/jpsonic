@@ -17,11 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2014 (C) Sindre Mehus
  */
+
 package org.airsonic.player.io;
 
-import org.airsonic.player.util.HttpRange;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -29,7 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.airsonic.player.util.HttpRange;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author Sindre Mehus

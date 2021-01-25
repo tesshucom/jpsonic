@@ -17,16 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit test of {@link MetaDataParser}.

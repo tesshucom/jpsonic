@@ -16,7 +16,10 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import java.util.List;
 
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.PlaylistDao;
@@ -24,8 +27,6 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository("jplaylistDao")
 @DependsOn({ "playlistDao" })

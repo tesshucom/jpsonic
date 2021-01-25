@@ -1,3 +1,4 @@
+
 package org.airsonic.player.spring;
 
 import liquibase.exception.DatabaseException;

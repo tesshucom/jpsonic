@@ -16,7 +16,20 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
@@ -32,18 +45,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * If two or more SORTs exist in one name, unify them into one SORT.

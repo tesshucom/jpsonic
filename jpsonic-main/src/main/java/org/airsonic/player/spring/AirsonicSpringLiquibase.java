@@ -1,4 +1,8 @@
+
 package org.airsonic.player.spring;
+
+import java.sql.Connection;
+import java.util.List;
 
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -11,9 +15,6 @@ import liquibase.resource.ResourceAccessor;
 import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
-import java.util.List;
 
 public class AirsonicSpringLiquibase extends liquibase.integration.spring.SpringLiquibase {
 

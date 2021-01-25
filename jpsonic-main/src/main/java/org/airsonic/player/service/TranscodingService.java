@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.airsonic.player.controller.VideoPlayerController;
 import org.airsonic.player.dao.TranscodingDao;
@@ -39,17 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
 
 /**
  * Provides services for transcoding media. Transcoding is the process of converting a media file/stream to a different

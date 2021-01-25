@@ -17,7 +17,16 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static java.util.stream.Collectors.toList;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -35,14 +44,6 @@ import org.fourthline.cling.support.model.container.MusicArtist;
 import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST;
 
 @Service
 public class RandomSongByFolderArtistUpnpProcessor

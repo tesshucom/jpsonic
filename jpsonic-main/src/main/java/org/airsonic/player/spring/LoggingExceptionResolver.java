@@ -1,4 +1,8 @@
+
 package org.airsonic.player.spring;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.util.PlayerUtils;
 import org.slf4j.Logger;
@@ -7,9 +11,6 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class LoggingExceptionResolver implements HandlerExceptionResolver, Ordered {

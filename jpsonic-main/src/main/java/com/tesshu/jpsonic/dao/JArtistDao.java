@@ -16,7 +16,15 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
@@ -26,13 +34,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jartistDao")
 @DependsOn({ "artistDao" })

@@ -17,14 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.util;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player.util;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Miscellaneous file utility methods.

@@ -16,7 +16,18 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Genre;
@@ -31,16 +42,6 @@ import org.fourthline.cling.support.model.container.GenreContainer;
 import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {

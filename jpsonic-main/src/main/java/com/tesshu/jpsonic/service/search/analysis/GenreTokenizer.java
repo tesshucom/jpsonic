@@ -1,3 +1,4 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
 
 import org.apache.lucene.analysis.util.CharTokenizer;

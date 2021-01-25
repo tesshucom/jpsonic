@@ -16,14 +16,10 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
 
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,7 +28,12 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 

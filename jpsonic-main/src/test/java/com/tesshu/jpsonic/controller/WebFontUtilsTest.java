@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
@@ -26,13 +34,6 @@ import org.apache.catalina.connector.Request;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class WebFontUtilsTest {

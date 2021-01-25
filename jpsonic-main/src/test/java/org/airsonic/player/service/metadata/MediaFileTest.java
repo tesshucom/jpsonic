@@ -17,13 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import static org.junit.Assert.assertEquals;
 
 import org.airsonic.player.domain.MediaFile;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test of {@link MediaFile}.

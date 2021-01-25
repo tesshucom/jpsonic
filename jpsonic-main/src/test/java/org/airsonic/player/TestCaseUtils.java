@@ -1,11 +1,5 @@
-package org.airsonic.player;
 
-import org.airsonic.player.controller.JAXBWriter;
-import org.airsonic.player.dao.DaoHelper;
-import org.airsonic.player.service.MediaScannerService;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +7,13 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.airsonic.player.controller.JAXBWriter;
+import org.airsonic.player.dao.DaoHelper;
+import org.airsonic.player.service.MediaScannerService;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
 public class TestCaseUtils {

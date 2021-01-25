@@ -17,25 +17,26 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.jukebox;
 
-import org.airsonic.player.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.CLOSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.EOM;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PAUSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.CLOSED;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.EOM;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.PAUSED;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
+import org.airsonic.player.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple wrapper for playing sound from an input stream.

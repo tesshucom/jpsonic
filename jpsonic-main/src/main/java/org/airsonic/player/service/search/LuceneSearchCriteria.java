@@ -1,3 +1,4 @@
+
 package org.airsonic.player.service.search;
 
 import org.apache.lucene.search.Query;

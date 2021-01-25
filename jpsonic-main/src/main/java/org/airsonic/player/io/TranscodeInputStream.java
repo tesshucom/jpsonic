@@ -17,17 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.io;
 
-import org.airsonic.player.util.FileUtil;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player.io;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+
+import org.airsonic.player.util.FileUtil;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Subclass of {@link InputStream} which provides on-the-fly transcoding. Instances of <code>TranscodeInputStream</code>

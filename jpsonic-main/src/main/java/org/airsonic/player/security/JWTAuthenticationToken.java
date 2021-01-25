@@ -1,9 +1,10 @@
+
 package org.airsonic.player.security;
+
+import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 @SuppressWarnings("serial")
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {

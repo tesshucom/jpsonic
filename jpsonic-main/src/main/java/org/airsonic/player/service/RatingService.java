@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.airsonic.player.dao.RatingDao;
 import org.airsonic.player.domain.MediaFile;
@@ -25,10 +30,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides services for user ratings.

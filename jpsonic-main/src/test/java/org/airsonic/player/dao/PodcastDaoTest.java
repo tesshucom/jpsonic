@@ -1,4 +1,13 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+
+import java.util.Date;
+import java.util.List;
 
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
@@ -6,11 +15,6 @@ import org.airsonic.player.domain.PodcastStatus;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit test of {@link PodcastDao}.

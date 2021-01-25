@@ -20,6 +20,15 @@
 
 package org.airsonic.player.service.search;
 
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -41,15 +50,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-
-import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * A factory that generates the documents to be stored in the index.

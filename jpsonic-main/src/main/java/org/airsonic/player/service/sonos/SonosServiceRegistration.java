@@ -19,6 +19,10 @@
 
 package org.airsonic.player.service.sonos;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -34,10 +38,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Sindre Mehus

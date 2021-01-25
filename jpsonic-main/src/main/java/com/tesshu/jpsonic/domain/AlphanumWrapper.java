@@ -17,13 +17,14 @@
  Copyright 2019 (C) tesshu.com
  Based upon Alphanum Algorithm, Copyright 2007-2017 David Koelle
  */
-package com.tesshu.jpsonic.domain;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+package com.tesshu.jpsonic.domain;
 
 import java.text.CollationKey;
 import java.text.Collator;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Class to perform Collaror sort considering serial number.

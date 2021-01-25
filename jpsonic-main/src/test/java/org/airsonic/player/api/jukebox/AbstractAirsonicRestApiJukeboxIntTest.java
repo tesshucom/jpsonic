@@ -1,17 +1,47 @@
+
 package org.airsonic.player.api.jukebox;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.SubsonicRESTController;
-import org.airsonic.player.dao.*;
-import org.airsonic.player.domain.*;
+import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.ArtistDao;
+import org.airsonic.player.dao.DaoHelper;
+import org.airsonic.player.dao.MediaFileDao;
+import org.airsonic.player.dao.MusicFolderDao;
+import org.airsonic.player.dao.PlayerDao;
+import org.airsonic.player.dao.PlayerDaoPlayQueueFactory;
+import org.airsonic.player.domain.Album;
+import org.airsonic.player.domain.Artist;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
 import org.airsonic.player.util.MusicFolderTestData;
 import org.airsonic.player.util.StringUtil;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -26,17 +56,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = AbstractAirsonicRestApiJukeboxIntTest.Config.class)

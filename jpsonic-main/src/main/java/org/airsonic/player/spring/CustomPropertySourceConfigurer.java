@@ -1,4 +1,7 @@
+
 package org.airsonic.player.spring;
+
+import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.airsonic.player.service.ApacheCommonsConfigurationService;
@@ -7,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.core.env.PropertySource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
-
-import java.util.List;
 
 public class CustomPropertySourceConfigurer
         implements ApplicationContextInitializer<ConfigurableWebApplicationContext> {

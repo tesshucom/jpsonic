@@ -17,7 +17,24 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -52,22 +69,6 @@ import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.support.RequestContextUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
-
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
 
 /**
  * Provides AJAX-enabled services for manipulating the play queue of a player. This class is used by the DWR framework

@@ -20,6 +20,19 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.dao.AlbumDao;
@@ -40,19 +53,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Termination used by SearchService.

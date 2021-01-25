@@ -16,7 +16,19 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaLexer;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaListener;
@@ -72,17 +84,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiConsumer;
-
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Director class for use Lucene's QueryBuilder at the same time as UPnP message parsing.

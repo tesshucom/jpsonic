@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.util.Date;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
@@ -25,8 +28,6 @@ import org.airsonic.player.service.scrobbler.LastFMScrobbler;
 import org.airsonic.player.service.scrobbler.ListenBrainzScrobbler;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * Provides services for "audioscrobbling", which is the process of registering what songs are played at website.

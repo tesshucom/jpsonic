@@ -1,4 +1,10 @@
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.net.URI;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.MusicFolderDao;
@@ -15,11 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.seamless.util.MimeType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Component
 public class UpnpProcessorUtil {

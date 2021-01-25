@@ -16,7 +16,29 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlbumOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlphanumArtistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.lang.annotation.Documented;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -40,27 +62,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.lang.annotation.Documented;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlbumOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlphanumArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the

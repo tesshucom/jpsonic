@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Share;
@@ -25,12 +32,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides database services for shared media.

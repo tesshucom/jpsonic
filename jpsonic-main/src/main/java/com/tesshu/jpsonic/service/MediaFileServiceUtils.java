@@ -16,6 +16,7 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;

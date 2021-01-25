@@ -16,15 +16,16 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import java.io.IOException;
+import java.util.List;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.List;
 
 @Component
 @DependsOn({ "queryFactory", "settingsService" })

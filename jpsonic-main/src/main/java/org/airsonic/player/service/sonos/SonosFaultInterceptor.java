@@ -19,6 +19,8 @@
 
 package org.airsonic.player.service.sonos;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
@@ -29,8 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
-import javax.xml.namespace.QName;
 
 /**
  * Intercepts all SonosSoapFault exceptions and builds a SOAP Fault.

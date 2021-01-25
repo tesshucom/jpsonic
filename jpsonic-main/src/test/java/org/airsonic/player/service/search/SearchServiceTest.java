@@ -1,6 +1,14 @@
 
 package org.airsonic.player.service.search;
 
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
@@ -21,14 +29,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
 
 public class SearchServiceTest extends AbstractAirsonicHomeTest {
 
@@ -127,14 +127,14 @@ public class SearchServiceTest extends AbstractAirsonicHomeTest {
         result = searchService.search(searchCriteria);
 
         Assert.assertEquals("(11) Specify album '" + searchCriteria.getQuery() + "' as query, total Hits is", 0, // XXX
-                                                                                                                 // Legacy
-                                                                                                                 // ->
-                                                                                                                 // Phrase
-                                                                                                                 // Fix
-                                                                                                                 // for
-                                                                                                                 // missing
-                                                                                                                 // cases
-                                                                                                                 // (#491)
+                // Legacy
+                // ->
+                // Phrase
+                // Fix
+                // for
+                // missing
+                // cases
+                // (#491)
                 result.getTotalHits());
         Assert.assertEquals("(12) Specify album '" + searchCriteria.getQuery() + "', and get a song. Artist SIZE is", 0,
                 result.getArtists().size());
@@ -232,10 +232,10 @@ public class SearchServiceTest extends AbstractAirsonicHomeTest {
                 IndexType.ARTIST_ID3);
         result = searchService.search(searchCriteria);
         Assert.assertEquals("(29) Specify '" + searchCriteria.getQuery() + "', total Hits is", 3, // XXX Legacy(4) ->
-                                                                                                  // Phrase(3) Accuracy
-                                                                                                  // was improved by
-                                                                                                  // considering the
-                                                                                                  // word order
+                // Phrase(3) Accuracy
+                // was improved by
+                // considering the
+                // word order
                 result.getTotalHits());
         Assert.assertEquals("(30) Specify '" + searchCriteria.getQuery() + "', and get an artists. Artist SIZE is ", 3, // XXX
                                                                                                                         // Legacy(4)

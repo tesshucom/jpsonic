@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import java.io.File;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 /**
  * Parses meta data by guessing artist, album and song title based on the path of the file.

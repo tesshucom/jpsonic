@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+
+import java.util.function.BiFunction;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
@@ -25,13 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.util.function.BiFunction;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })

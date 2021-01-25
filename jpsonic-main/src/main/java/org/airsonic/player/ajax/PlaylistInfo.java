@@ -17,11 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.domain.Playlist;
-
 import java.util.List;
+
+import org.airsonic.player.domain.Playlist;
 
 /**
  * The playlist of a player.

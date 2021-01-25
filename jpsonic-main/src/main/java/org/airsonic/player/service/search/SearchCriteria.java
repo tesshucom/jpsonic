@@ -16,11 +16,12 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.domain.MusicFolder;
-
 import java.util.List;
+
+import org.airsonic.player.domain.MusicFolder;
 
 public class SearchCriteria extends LuceneSearchCriteria {
 

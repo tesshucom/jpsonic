@@ -1,13 +1,8 @@
+
 package org.airsonic.player.service;
 
-import org.airsonic.player.domain.InternetRadio;
-import org.airsonic.player.domain.InternetRadioSource;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -16,7 +11,15 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import org.airsonic.player.domain.InternetRadio;
+import org.airsonic.player.domain.InternetRadioSource;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternetRadioServiceTest {

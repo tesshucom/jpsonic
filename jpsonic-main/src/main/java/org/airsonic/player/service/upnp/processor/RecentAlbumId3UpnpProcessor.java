@@ -17,7 +17,12 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -29,10 +34,6 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.util.List;
 
 @Service
 public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {

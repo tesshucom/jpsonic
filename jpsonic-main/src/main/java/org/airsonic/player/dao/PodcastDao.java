@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
@@ -25,10 +30,6 @@ import org.airsonic.player.domain.PodcastStatus;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Provides database services for Podcast channels and episodes.

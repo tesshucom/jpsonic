@@ -1,13 +1,5 @@
-package org.airsonic.player.util;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.spring.AirsonicHsqlDatabase;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
+package org.airsonic.player.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,6 +18,15 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
+
+import com.tesshu.jpsonic.SuppressFBWarnings;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.spring.AirsonicHsqlDatabase;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 public class LegacyHsqlUtil {
 

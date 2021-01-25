@@ -1,3 +1,4 @@
+
 package org.airsonic.player.spring.webxmldomain;
 
 import javax.xml.bind.annotation.XmlAccessType;

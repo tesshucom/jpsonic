@@ -1,4 +1,9 @@
+
 package org.airsonic.player.security;
+
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Map;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.service.JWTSecurityService;
@@ -26,10 +31,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.Map;
 
 @Configuration
 @SuppressWarnings("PMD.AvoidReassigningParameters")

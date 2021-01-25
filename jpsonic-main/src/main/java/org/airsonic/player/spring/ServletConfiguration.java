@@ -1,4 +1,7 @@
+
 package org.airsonic.player.spring;
+
+import java.util.Properties;
 
 import org.airsonic.player.controller.PodcastController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
-
-import java.util.Properties;
 
 @Configuration
 public class ServletConfiguration implements WebMvcConfigurer {

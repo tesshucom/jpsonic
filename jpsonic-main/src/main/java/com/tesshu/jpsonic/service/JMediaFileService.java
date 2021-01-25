@@ -16,7 +16,11 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import java.io.File;
+import java.util.List;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.MediaFile;
@@ -24,9 +28,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.MediaFileService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Extended service of MediaFileService. The purpose is a paging extension, mainly used in UpnP.

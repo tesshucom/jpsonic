@@ -16,6 +16,7 @@
  *
  *  Copyright 2015 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
 /**

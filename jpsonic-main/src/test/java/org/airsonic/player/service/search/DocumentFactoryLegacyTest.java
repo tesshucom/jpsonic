@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
+
+import java.io.File;
+import java.util.Date;
 
 import org.airsonic.player.dao.MusicFolderTestData;
 import org.airsonic.player.domain.Album;
@@ -38,13 +46,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-
-import java.io.File;
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)

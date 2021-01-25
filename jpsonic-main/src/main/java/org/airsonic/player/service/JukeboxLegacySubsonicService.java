@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static java.lang.Float.floatToIntBits;
+import static java.lang.Float.intBitsToFloat;
+
+import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -34,12 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.lang.Float.floatToIntBits;
-import static java.lang.Float.intBitsToFloat;
 
 /**
  * Plays music on the local audio device.

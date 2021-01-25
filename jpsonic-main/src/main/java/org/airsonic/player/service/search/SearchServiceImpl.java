@@ -20,6 +20,21 @@
 
 package org.airsonic.player.service.search;
 
+import static org.airsonic.player.service.search.IndexType.ALBUM;
+import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
+import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
+import static org.airsonic.player.service.search.IndexType.SONG;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -42,21 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static org.airsonic.player.service.search.IndexType.ALBUM;
-import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
-import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
-import static org.airsonic.player.service.search.IndexType.SONG;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class SearchServiceImpl implements SearchService {

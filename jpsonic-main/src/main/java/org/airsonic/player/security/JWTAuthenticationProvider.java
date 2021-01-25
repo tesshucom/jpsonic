@@ -1,4 +1,9 @@
+
 package org.airsonic.player.security;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -16,10 +21,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
 public class JWTAuthenticationProvider implements AuthenticationProvider {
 

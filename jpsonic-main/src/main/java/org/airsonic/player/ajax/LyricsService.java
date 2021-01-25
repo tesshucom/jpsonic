@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.SocketException;
+import java.util.Objects;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
@@ -38,13 +46,6 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.SocketException;
-import java.util.Objects;
-
-import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 
 /**
  * Provides AJAX-enabled services for retrieving song lyrics from chartlyrics.com.

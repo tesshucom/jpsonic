@@ -16,7 +16,16 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
@@ -27,14 +36,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public class RecentAlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 

@@ -1,4 +1,17 @@
+
 package org.airsonic.player.security;
+
+import java.io.IOException;
+import java.util.Optional;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.service.JWTSecurityService;
 import org.slf4j.Logger;
@@ -13,18 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.util.StringUtils;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.util.Optional;
 
 public class JWTRequestParameterProcessingFilter implements Filter {
     private static final Logger LOG = LoggerFactory.getLogger(JWTRequestParameterProcessingFilter.class);

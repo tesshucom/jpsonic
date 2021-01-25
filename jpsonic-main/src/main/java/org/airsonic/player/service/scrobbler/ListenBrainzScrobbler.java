@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.scrobbler;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -31,10 +39,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Provides services for "audioscrobbling" at listenbrainz.org. <br/>

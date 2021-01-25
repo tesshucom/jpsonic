@@ -1,13 +1,14 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
+
+import static com.tesshu.jpsonic.domain.JapaneseReadingUtils.isPunctuation;
+
+import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.util.StemmerUtil;
-
-import java.io.IOException;
-
-import static com.tesshu.jpsonic.domain.JapaneseReadingUtils.isPunctuation;
 
 public class PunctuationStemFilter extends TokenFilter {
 

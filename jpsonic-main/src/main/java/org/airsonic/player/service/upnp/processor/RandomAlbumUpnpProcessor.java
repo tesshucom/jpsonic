@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -30,10 +35,6 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.util.List;
 
 @Service
 public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {

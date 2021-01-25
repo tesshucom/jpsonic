@@ -1,3 +1,4 @@
+
 package org.airsonic.player.spring;
 
 import org.apache.commons.configuration2.ImmutableConfiguration;

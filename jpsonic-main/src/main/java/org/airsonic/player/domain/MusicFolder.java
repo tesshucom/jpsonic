@@ -17,16 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+package org.airsonic.player.domain;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 
 /**
  * Represents a top level directory in which music or other media is stored.

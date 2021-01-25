@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import java.io.IOException;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Escapes the characters in a <code>String</code> using JavaScript String rules.

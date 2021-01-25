@@ -16,16 +16,14 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.filter;
 
-import com.tesshu.jpsonic.controller.ViewName;
-import com.tesshu.jpsonic.controller.WebFontUtils;
-import org.airsonic.player.domain.User;
-import org.airsonic.player.domain.UserSettings;
-import org.airsonic.player.service.SecurityService;
-import org.airsonic.player.service.SettingsService;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -35,11 +33,14 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+import com.tesshu.jpsonic.controller.ViewName;
+import com.tesshu.jpsonic.controller.WebFontUtils;
+import org.airsonic.player.domain.User;
+import org.airsonic.player.domain.UserSettings;
+import org.airsonic.player.service.SecurityService;
+import org.airsonic.player.service.SettingsService;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 @DependsOn({ "settingsService", "securityService" })
 public class FontSchemeFilter implements Filter {

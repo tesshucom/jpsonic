@@ -17,18 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.util;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Arrays;
-import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.Locale;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link StringUtil}.

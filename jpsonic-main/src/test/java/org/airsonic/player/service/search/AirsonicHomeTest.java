@@ -1,10 +1,11 @@
-package org.airsonic.player.service.search;
 
-import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.MusicFolderTestData;
+package org.airsonic.player.service.search;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.airsonic.player.domain.MusicFolder;
+import org.airsonic.player.util.MusicFolderTestData;
 
 /**
  * Test case interface for scanning MusicFolder.

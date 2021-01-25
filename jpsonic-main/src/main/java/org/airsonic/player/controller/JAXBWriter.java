@@ -17,7 +17,26 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
+import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.CompletionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.util.StringUtil;
@@ -31,24 +50,6 @@ import org.subsonic.restapi.Error;
 import org.subsonic.restapi.ObjectFactory;
 import org.subsonic.restapi.Response;
 import org.subsonic.restapi.ResponseStatus;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.concurrent.CompletionException;
-
-import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
 /**
  * @author Sindre Mehus

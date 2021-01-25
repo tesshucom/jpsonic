@@ -1,4 +1,8 @@
+
 package org.airsonic.player.api.jukebox;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.github.biconou.AudioPlayer.JavaPlayer;
 import org.airsonic.player.domain.Player;
@@ -6,9 +10,6 @@ import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.service.jukebox.JavaPlayerFactory;
 import org.junit.Before;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class AirsonicRestApiJukeboxIntTest extends AbstractAirsonicRestApiJukeboxIntTest {
 

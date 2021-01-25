@@ -1,4 +1,7 @@
+
 package org.airsonic.player.spring;
+
+import java.util.Collections;
 
 import org.airsonic.player.service.SettingsService;
 import org.springframework.boot.context.event.ApplicationEnvironmentPreparedEvent;
@@ -8,8 +11,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.PropertySource;
-
-import java.util.Collections;
 
 public class LoggingFileOverrideListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 

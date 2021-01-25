@@ -17,7 +17,40 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import static org.airsonic.player.security.RESTRequestParameterProcessingFilter.decrypt;
+import static org.springframework.web.bind.ServletRequestUtils.getBooleanParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getIntParameters;
+import static org.springframework.web.bind.ServletRequestUtils.getLongParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getLongParameters;
+import static org.springframework.web.bind.ServletRequestUtils.getRequiredFloatParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameters;
+import static org.springframework.web.bind.ServletRequestUtils.getRequiredLongParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getRequiredStringParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.ajax.LyricsInfo;
@@ -124,38 +157,6 @@ import org.subsonic.restapi.Starred2;
 import org.subsonic.restapi.TopSongs;
 import org.subsonic.restapi.Users;
 import org.subsonic.restapi.Videos;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.ExecutionException;
-
-import static org.airsonic.player.security.RESTRequestParameterProcessingFilter.decrypt;
-import static org.springframework.web.bind.ServletRequestUtils.getBooleanParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getIntParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getLongParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getLongParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredFloatParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredLongParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredStringParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
 /**
  * Multi-controller used for the REST API.

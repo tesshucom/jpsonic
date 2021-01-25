@@ -17,14 +17,8 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.filter;
 
-import org.airsonic.player.controller.JAXBWriter;
-import org.airsonic.player.controller.SubsonicRESTController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.util.NestedServletException;
+package org.airsonic.player.filter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,6 +27,13 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.airsonic.player.controller.JAXBWriter;
+import org.airsonic.player.controller.SubsonicRESTController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.util.NestedServletException;
 
 /**
  * Intercepts exceptions thrown by RESTController.

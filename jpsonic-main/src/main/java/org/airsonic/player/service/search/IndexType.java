@@ -20,13 +20,14 @@
 
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.util.LegacyMap;
-
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+
+import org.airsonic.player.util.LegacyMap;
+import org.apache.lucene.search.BoostQuery;
 
 /**
  * Enum that symbolizes the each lucene index entity. This class is a division of what was once part of SearchService

@@ -20,6 +20,14 @@
 
 package org.airsonic.player.service.search;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.io.Reader;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilter.Mode;
 import com.tesshu.jpsonic.service.search.analysis.ComplementaryFilterFactory;
@@ -58,14 +66,6 @@ import org.apache.lucene.analysis.standard.StandardTokenizer;
 import org.apache.lucene.util.IOUtils;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.util.HashSet;
-import java.util.Set;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Analyzer provider. This class is a division of what was once part of SearchService and added functionality. This

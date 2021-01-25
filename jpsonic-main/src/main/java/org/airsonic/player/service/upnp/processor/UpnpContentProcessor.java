@@ -17,7 +17,10 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
 
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
@@ -26,8 +29,6 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-
-import java.util.List;
 
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 

@@ -18,15 +18,16 @@
  Based upon Airsonic, Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package com.tesshu.jpsonic.domain;
 
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.MediaFileComparator;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.text.Collator;
 import java.util.Comparator;
 
-import static org.apache.commons.lang.StringUtils.isEmpty;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.MediaFileComparator;
 
 /**
  * Comparator for sorting media files.

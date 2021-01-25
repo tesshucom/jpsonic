@@ -20,6 +20,8 @@
 
 package org.airsonic.player.service;
 
+import java.util.List;
+
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
@@ -30,8 +32,6 @@ import org.airsonic.player.domain.RandomSearchCriteria;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.UPnPSearchCriteria;
-
-import java.util.List;
 
 /**
  * Performs Lucene-based searching.

@@ -1,4 +1,7 @@
+
 package org.airsonic.player.service;
+
+import java.io.File;
 
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.util.HomeRule;
@@ -13,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-
-import java.io.File;
 
 @SpringBootTest
 public class LegacyDatabaseStartupTest {

@@ -17,17 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
-
-import java.io.File;
-import java.util.Date;
-import java.util.List;
 
 /**
  * A media file (audio, video or directory) with an assortment of its meta data.

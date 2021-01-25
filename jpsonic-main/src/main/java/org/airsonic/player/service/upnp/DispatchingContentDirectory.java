@@ -17,7 +17,10 @@
   Copyright 2016 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -55,8 +58,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 @DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })

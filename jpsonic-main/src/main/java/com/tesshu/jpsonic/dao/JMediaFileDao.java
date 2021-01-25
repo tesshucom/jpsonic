@@ -16,7 +16,23 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import static java.util.stream.Collectors.toList;
+import static org.airsonic.player.dao.MediaFileDao.getGenreColoms;
+import static org.airsonic.player.dao.MediaFileDao.getQueryColoms;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
@@ -28,16 +44,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.function.BiFunction;
-
-import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.dao.MediaFileDao.getGenreColoms;
-import static org.airsonic.player.dao.MediaFileDao.getQueryColoms;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jmediaFileDao")
 @DependsOn({ "mediaFileDao" })

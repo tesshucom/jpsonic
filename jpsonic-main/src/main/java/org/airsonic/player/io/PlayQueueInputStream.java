@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.io;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -32,10 +37,6 @@ import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * Implementation of {@link InputStream} which reads from a {@link PlayQueue}.
@@ -150,7 +151,7 @@ public class PlayQueueInputStream extends InputStream {
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (currentInputStream, currentFile) Intentional allocation to encourage
-                                            // garbage collection.
+    // garbage collection.
     @Override
     public void close() throws IOException {
         try {

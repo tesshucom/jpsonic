@@ -1,13 +1,14 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
+
+import static org.apache.lucene.analysis.standard.StandardTokenizer.MAX_TOKEN_LENGTH_LIMIT;
+
+import java.util.Map;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.analysis.util.TokenizerFactory;
 import org.apache.lucene.util.AttributeFactory;
-
-import java.util.Map;
-
-import static org.apache.lucene.analysis.standard.StandardTokenizer.MAX_TOKEN_LENGTH_LIMIT;
 
 public class Id3ArtistTokenizerFactory extends TokenizerFactory {
 

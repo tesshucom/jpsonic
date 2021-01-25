@@ -20,6 +20,14 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
@@ -40,14 +48,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * Factory class of Lucene Query. This class is an extract of the functionality that was once part of SearchService. It
@@ -101,7 +101,7 @@ public class QueryFactory {
      * corrections later when changing the query to improve search accuracy.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery,
-                                                              // BooleanQuery) Not reusable
+    // BooleanQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {

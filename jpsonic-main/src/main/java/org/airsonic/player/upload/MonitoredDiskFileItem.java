@@ -17,13 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.upload;
 
-import org.apache.commons.fileupload.disk.DiskFileItem;
+package org.airsonic.player.upload;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.apache.commons.fileupload.disk.DiskFileItem;
 
 /**
  * Extension of Commons FileUpload for monitoring the upload progress.

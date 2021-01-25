@@ -1,13 +1,14 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.Date;
 
 import org.airsonic.player.domain.InternetRadio;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.Date;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test of {@link InternetRadioDao}.

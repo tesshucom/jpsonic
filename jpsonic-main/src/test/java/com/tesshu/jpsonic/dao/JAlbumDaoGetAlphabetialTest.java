@@ -16,7 +16,14 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
 import org.airsonic.player.dao.AlbumDao;
@@ -29,12 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })

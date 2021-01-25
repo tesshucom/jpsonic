@@ -1,16 +1,19 @@
+
 package org.airsonic.player.service.jukebox;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.*;
-
-import java.awt.*;
+import java.awt.FlowLayout;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.concurrent.CompletionException;
+
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JSlider;
+
+import com.tesshu.jpsonic.SuppressFBWarnings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Sindre Mehus

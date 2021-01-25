@@ -1,8 +1,7 @@
+
 package org.airsonic.player.filter;
 
-import com.tesshu.jpsonic.controller.ViewName;
-import org.airsonic.player.monitor.MetricsManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,7 +11,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
+import com.tesshu.jpsonic.controller.ViewName;
+import org.airsonic.player.monitor.MetricsManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by remi on 12/01/17.

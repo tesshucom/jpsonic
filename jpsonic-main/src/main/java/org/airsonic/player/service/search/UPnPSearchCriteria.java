@@ -16,6 +16,7 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
 
 /**

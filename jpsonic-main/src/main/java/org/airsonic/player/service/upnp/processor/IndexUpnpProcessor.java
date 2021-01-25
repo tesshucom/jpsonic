@@ -16,7 +16,22 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.airsonic.player.util.PlayerUtils.subList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import net.sf.ehcache.Ehcache;
@@ -36,20 +51,6 @@ import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.airsonic.player.util.PlayerUtils.subList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {

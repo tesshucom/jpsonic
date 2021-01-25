@@ -17,16 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import java.io.File;
+import java.util.List;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * Parses meta data from media files.

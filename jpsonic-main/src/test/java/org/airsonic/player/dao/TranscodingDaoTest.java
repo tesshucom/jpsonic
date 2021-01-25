@@ -1,14 +1,15 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Transcoding;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * Unit test of {@link TranscodingDao}.

@@ -1,6 +1,14 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
@@ -9,14 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /*
  * Test cases related to #1142.

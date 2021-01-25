@@ -1,4 +1,12 @@
+
 package org.airsonic.player.service.playlist;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.xspf.Location;
@@ -11,13 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class XspfPlaylistImportHandler implements PlaylistImportHandler {

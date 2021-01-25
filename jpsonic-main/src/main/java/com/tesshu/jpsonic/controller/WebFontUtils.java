@@ -16,17 +16,18 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import static org.springframework.util.StringUtils.hasLength;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.UserSettings;
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static org.springframework.util.StringUtils.hasLength;
 
 public final class WebFontUtils {
 
@@ -80,7 +81,7 @@ public final class WebFontUtils {
             return;
         }
         String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm
-                                                                                      // [java/dereferenced-value-may-be-null]
+                // [java/dereferenced-value-may-be-null]
                 ? new StringBuilder("@font-face ").append('{').append("font-family: \"").append(JP_FONT_NAME)
                         .append("\";").append("src: ").append("url(\"").append(to.getContextPath())
                         .append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")

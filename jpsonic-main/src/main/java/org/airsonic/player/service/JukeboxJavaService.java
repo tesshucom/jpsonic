@@ -1,4 +1,11 @@
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.github.biconou.AudioPlayer.api.PlayList;
 import com.github.biconou.AudioPlayer.api.PlayerListener;
@@ -13,12 +20,6 @@ import org.airsonic.player.util.FileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Rémi Cocula

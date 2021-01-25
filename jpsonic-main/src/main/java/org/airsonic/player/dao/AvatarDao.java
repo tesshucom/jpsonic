@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.dao;
 
-import org.airsonic.player.domain.Avatar;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Repository;
+package org.airsonic.player.dao;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+
+import org.airsonic.player.domain.Avatar;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
 
 /**
  * Provides database services for avatars.

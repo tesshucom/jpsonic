@@ -1,4 +1,7 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
+
+import java.io.IOException;
 
 import com.ibm.icu.text.Replaceable;
 import com.ibm.icu.text.Transliterator;
@@ -7,8 +10,6 @@ import com.ibm.icu.text.UnicodeSet;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
-import java.io.IOException;
 
 public final class ToHiraganaFilter extends TokenFilter {
 

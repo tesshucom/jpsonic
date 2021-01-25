@@ -17,17 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,13 +37,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.AfterClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Unit test of {@link PlayQueue}.

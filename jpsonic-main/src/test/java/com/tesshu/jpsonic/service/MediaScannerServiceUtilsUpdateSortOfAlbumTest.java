@@ -16,7 +16,17 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
@@ -30,15 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
-import static org.junit.Assert.assertEquals;
 
 @SpringBootTest
 public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirsonicHomeTest {

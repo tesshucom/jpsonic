@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
@@ -32,10 +37,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Utility class for injecting into legacy MediaScannerService.

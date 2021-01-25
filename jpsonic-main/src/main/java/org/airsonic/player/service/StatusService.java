@@ -17,14 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
 
-import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.PlayStatus;
-import org.airsonic.player.domain.Player;
-import org.airsonic.player.domain.TransferStatus;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.stereotype.Service;
+import static java.util.Collections.unmodifiableList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -36,7 +32,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static java.util.Collections.unmodifiableList;
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayStatus;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.TransferStatus;
+import org.springframework.context.annotation.DependsOn;
+import org.springframework.stereotype.Service;
 
 /**
  * Provides services for maintaining the list of stream, download and upload statuses.

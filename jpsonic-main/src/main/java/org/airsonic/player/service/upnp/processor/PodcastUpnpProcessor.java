@@ -16,7 +16,20 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -39,18 +52,6 @@ import org.fourthline.cling.support.model.item.MusicTrack;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {

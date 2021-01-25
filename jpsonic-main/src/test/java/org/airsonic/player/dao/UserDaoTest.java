@@ -1,4 +1,18 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.Locale;
 
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.TranscodeScheme;
@@ -9,13 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.Locale;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit test of {@link UserDao}.

@@ -16,16 +16,17 @@
  *
  *  Copyright 2015 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.airsonic.player.domain.SavedPlayQueue;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Provides database services for play queues

@@ -17,13 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.io;
 
-import org.airsonic.player.util.HttpRange;
+package org.airsonic.player.io;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.airsonic.player.util.HttpRange;
 
 /**
  * Special output stream for grabbing only part of a passed stream.

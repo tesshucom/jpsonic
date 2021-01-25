@@ -17,7 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.UserDao;
@@ -36,15 +46,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Provides security-related services for authentication and authorization.

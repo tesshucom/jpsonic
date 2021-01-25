@@ -16,7 +16,14 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.text.Collator;
+import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -30,12 +37,6 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.text.Collator;
-import java.util.Comparator;
-import java.util.regex.Pattern;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 /**
  * This class provides Comparator for domain objects.

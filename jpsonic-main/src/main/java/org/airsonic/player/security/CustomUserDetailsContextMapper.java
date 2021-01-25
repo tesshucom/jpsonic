@@ -16,6 +16,9 @@
 
 package org.airsonic.player.security;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -32,9 +35,6 @@ import org.springframework.security.ldap.ppolicy.PasswordPolicyResponseControl;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.stereotype.Component;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 
 @Component
 public class CustomUserDetailsContextMapper implements UserDetailsContextMapper {
