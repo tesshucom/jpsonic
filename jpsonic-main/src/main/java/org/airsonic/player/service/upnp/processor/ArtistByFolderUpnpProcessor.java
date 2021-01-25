@@ -267,26 +267,26 @@ public class ArtistByFolderUpnpProcessor
         @Override
         public String getId() {
             return id;
-        };
+        }
 
         @Override
         public String getName() {
             return name;
-        };
+        }
 
         @Override
         public MediaFile getSong() {
             return song;
-        };
+        }
 
         @Override
         public boolean isAlbum() {
             return null != album;
-        };
+        }
 
         @Override
         public boolean isArtist() {
             return null != artist;
-        };
+        }
     }
 }

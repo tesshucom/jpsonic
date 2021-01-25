@@ -217,27 +217,26 @@ public class RandomSongByFolderArtistUpnpProcessor
         @Override
         public MusicFolder getFolder() {
             return folder;
-        };
+        }
 
         @Override
         public String getId() {
             return id;
-        };
+        }
 
         @Override
         public String getName() {
             return name;
-        };
+        }
 
         @Override
         public MediaFile getSong() {
             return song;
-        };
+        }
 
         @Override
         public boolean isArtist() {
             return null != artist;
-        };
-
+        }
     }
 }

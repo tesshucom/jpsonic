@@ -148,7 +148,7 @@ public class QueryFactory {
 
         return mainQuery.build();
 
-    };
+    }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
@@ -183,7 +183,7 @@ public class QueryFactory {
         }
         return fieldQuerys.build();
 
-    };
+    }
 
     /*
      * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.

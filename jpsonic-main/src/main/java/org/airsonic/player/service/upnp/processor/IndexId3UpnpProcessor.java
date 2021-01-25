@@ -285,7 +285,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private final int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
-    };
+    }
 
     private static final String TYPE_PREFIX_ARTIST = "artist:";
     private static final String TYPE_PREFIX_ALBUM = "album:";
