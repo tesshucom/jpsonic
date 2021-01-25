@@ -58,9 +58,9 @@ public class UserDao extends AbstractDao {
             + "transcode_scheme, show_now_playing, selected_music_folder_id, "
             + "party_mode_enabled, now_playing_allowed, avatar_scheme, system_avatar_id, changed, show_artist_info, auto_hide_play_queue, "
             + "view_as_list, default_album_list, queue_following_songs, show_side_bar, list_reload_delay, "
-            + "keyboard_shortcuts_enabled, pagination_size, " +
+            + "keyboard_shortcuts_enabled, pagination_size, "
             // JP >>>>
-            "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, "
+            + "main_composer, playlist_composer, close_drawer, close_play_queue, alternative_drawer, assign_accesskey_to_number, "
             + "open_detail_index, open_detail_setting, open_detail_star, show_index, "
             + "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, "
             + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "

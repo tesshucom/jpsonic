@@ -43,9 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class ArtistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, "
-            +
             // JP >>>>
-            "sort, reading, artist_order";
+            + "sort, reading, artist_order";
     // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -105,11 +104,11 @@ public class ArtistDao extends AbstractDao {
     @Transactional
     public void createOrUpdateArtist(Artist artist) {
         String sql = "update artist set " + "cover_art_path=?," + "album_count=?," + "last_scanned=?," + "present=?,"
-                + "folder_id=?," +
+                + "folder_id=?,"
                 // JP >>>>
-                "sort=?, " + "reading=?," + "artist_order=? " +
+                + "sort=?, " + "reading=?," + "artist_order=? "
                 // <<<< JP
-                "where name=?";
+                + "where name=?";
 
         int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(),

@@ -54,9 +54,9 @@ public class MediaFileDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, "
             + "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, "
             + "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, "
-            + "version, mb_release_id, mb_recording_id" +
+            + "version, mb_release_id, mb_recording_id"
             // JP >>>>
-            ", " + "composer, artist_sort, album_sort, title_sort, album_artist_sort, composer_sort, "
+            + ", " + "composer, artist_sort, album_sort, title_sort, album_artist_sort, composer_sort, "
             + "artist_reading, album_reading, album_artist_reading, "
             + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " + "media_file_order";
     // <<<< JP
@@ -157,14 +157,14 @@ public class MediaFileDao extends AbstractDao {
                 + "bit_rate=?," + "variable_bit_rate=?," + "duration_seconds=?," + "file_size=?," + "width=?,"
                 + "height=?," + "cover_art_path=?," + "parent_path=?," + "play_count=?," + "last_played=?,"
                 + "comment=?," + "changed=?," + "last_scanned=?," + "children_last_updated=?," + "present=?, "
-                + "version=?, " + "mb_release_id=?, " + "mb_recording_id=? " +
+                + "version=?, " + "mb_release_id=?, " + "mb_recording_id=? "
                 // JP >>>>
-                ", " + "composer=?, " + "artist_sort=?, " + "album_sort=?, " + "title_sort=?, "
+                + ", " + "composer=?, " + "artist_sort=?, " + "album_sort=?, " + "title_sort=?, "
                 + "album_artist_sort=?, " + "composer_sort=?, " + "artist_reading=?, " + "album_reading=?, "
                 + "album_artist_reading=?, " + "artist_sort_raw=?, " + "album_sort_raw=?, "
-                + "album_artist_sort_raw=?, " + "composer_sort_raw=?, " + "media_file_order=? " +
+                + "album_artist_sort_raw=?, " + "composer_sort_raw=?, " + "media_file_order=? "
                 // <<<< JP
-                "where path=?";
+                + "where path=?";
 
         LOG.trace("Updating media file {}", PlayerUtils.debugObject(file));
 

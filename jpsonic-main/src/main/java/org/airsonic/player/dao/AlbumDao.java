@@ -48,9 +48,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class AlbumDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, "
             + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
-            + "folder_id, mb_release_id, " +
+            + "folder_id, mb_release_id, "
             // JP >>>>
-            "artist_sort, name_sort, artist_reading, name_reading, album_order";
+            + "artist_sort, name_sort, artist_reading, name_reading, album_order";
     // <<<< JP
 
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
@@ -131,11 +131,11 @@ public class AlbumDao extends AbstractDao {
     public void createOrUpdateAlbum(Album album) {
         String sql = "update album set " + "path=?," + "song_count=?," + "duration_seconds=?," + "cover_art_path=?,"
                 + "year=?," + "genre=?," + "play_count=?," + "last_played=?," + "comment=?," + "created=?,"
-                + "last_scanned=?," + "present=?, " + "folder_id=?, " + "mb_release_id=?, " +
+                + "last_scanned=?," + "present=?, " + "folder_id=?, " + "mb_release_id=?, "
                 // JP >>>>
-                "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? " +
+                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? "
                 // <<<< JP
-                "where artist=? and name=?";
+                + "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(),
                 album.getYear(), album.getGenre(), album.getPlayCount(), album.getLastPlayed(), album.getComment(),
