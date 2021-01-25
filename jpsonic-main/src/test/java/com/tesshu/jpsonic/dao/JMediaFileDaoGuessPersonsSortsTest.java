@@ -49,7 +49,7 @@ import static org.junit.Assert.fail;
 public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest {
 
     @Documented
-    private @interface ComparatorsDecisions { // @formatter:off
+    private @interface ComparatorsDecisions {
         @interface Actions {
             @interface getDuplicateSort {}
         }
@@ -69,7 +69,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
                 @interface NoMatch {}
             }
         }
-    } // @formatter:on
+    }
 
     private static List<MusicFolder> musicFolders;
 

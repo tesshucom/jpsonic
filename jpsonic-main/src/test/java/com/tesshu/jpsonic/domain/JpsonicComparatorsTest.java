@@ -84,7 +84,7 @@ public class JpsonicComparatorsTest {
 
     @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
-    private @interface ComparatorsDecisions { // @formatter:off
+    private @interface ComparatorsDecisions {
         @interface Conditions {
             @interface isProhibitSortVarious {} // GlobalOption
             @interface isSortAlbumsByYear {} // GlobalOption
@@ -127,7 +127,7 @@ public class JpsonicComparatorsTest {
             @interface genreOrderByAlpha {}
             @interface sortableArtistOrder{}
         }
-    } // @formatter:on
+    }
 
     /*
      * Quoted and modified from SortableArtistTest

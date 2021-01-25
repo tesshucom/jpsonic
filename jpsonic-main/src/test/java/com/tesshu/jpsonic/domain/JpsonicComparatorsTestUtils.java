@@ -49,7 +49,7 @@ public class JpsonicComparatorsTestUtils {
     private JpsonicComparators comparators;
 
     @Documented
-    private @interface ComparatorsDecisions { // @formatter:off
+    private @interface ComparatorsDecisions {
         @interface Conditions {
             @interface name {
                 @interface isAlpha {}
@@ -77,7 +77,7 @@ public class JpsonicComparatorsTestUtils {
                 @interface isFirstWithEnAndContainsJp {}
             }
         }
-    } // @formatter:on
+    }
 
     @ComparatorsDecisions.Conditions.name.isNum
     @ComparatorsDecisions.Conditions.name.isHalfWidth
@@ -276,7 +276,7 @@ public class JpsonicComparatorsTestUtils {
      * Therefore, in order to arrange correctly in Japanese,
      * a function to convert to Japanese reading and support for sort tags are required.
      */
-    final static List<String> jPSonicNaturalList = // @formatter:off
+    final static List<String> jPSonicNaturalList =
             unmodifiableList(Arrays.asList(
                     "10", // Enter year in year field
                     "20",
@@ -309,7 +309,7 @@ public class JpsonicComparatorsTestUtils {
                     "馬力",
                     "張り切る",
                     "はるなつあきふゆ",
-                    "♂くんつ")); // @formatter:on
+                    "♂くんつ"));
 
     /*
      * Expected sequence number.
@@ -317,7 +317,7 @@ public class JpsonicComparatorsTestUtils {
      * by some elements included in jPSonicNaturalList.
      * Use this list if need to do a full pattern test.
      */
-    private final static List<String> alphaNumList = // @formatter:off
+    private final static List<String> alphaNumList =
             unmodifiableList(Arrays.asList(
                     "09X Radonius",
                     "10X Radonius",
@@ -354,7 +354,7 @@ public class JpsonicComparatorsTestUtils {
                     "Xiph Xlater 500",
                     "Xiph Xlater 2000",
                     "Xiph Xlater 5000",
-                    "Xiph Xlater 10000")); // @formatter:on
+                    "Xiph Xlater 10000"));
 
     static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
         assertEquals(jPSonicNaturalList.size(), albums.size());

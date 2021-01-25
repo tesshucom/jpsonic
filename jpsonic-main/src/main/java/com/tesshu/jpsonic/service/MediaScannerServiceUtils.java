@@ -37,7 +37,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-//@formatter:off
 /**
  * Utility class for injecting into legacy MediaScannerService.
  * 
@@ -68,7 +67,6 @@ import java.util.Set;
  *
  * This class has a great influence on the accuracy of sorting and searching.
  */
-// @formatter:on
 @Component
 @DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
 public class MediaScannerServiceUtils {
@@ -81,7 +79,7 @@ public class MediaScannerServiceUtils {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public MediaScannerServiceUtils(// @formatter:off
+    public MediaScannerServiceUtils(
             SettingsService settingsService,
             JMediaFileDao mediaFileDao,
             JArtistDao artistDao,
@@ -97,7 +95,7 @@ public class MediaScannerServiceUtils {
         this.utils = utils;
         this.indexManager = indexManager;
         this.comparators = jpsonicComparator;
-    } // @formatter:on
+    }
 
     /**
      * Update the order of all mediaFile records.

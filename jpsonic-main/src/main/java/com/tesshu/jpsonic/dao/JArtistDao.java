@@ -71,10 +71,10 @@ public class JArtistDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt(// @formatter:off
+        return namedQueryForInt(
                 "select count(id) from artist " +
                 "where present and folder_id in (:folders)", 0, args);
-    } // @formatter:on
+    }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
@@ -83,22 +83,22 @@ public class JArtistDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select id from artist " +
                 "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
             (rs, rowNum) -> {
                 return rs.getInt(1);
             }, args);
-    } // @formatter:on
+    }
 
     public void updateArtistSort(SortCandidate candidate) {
-        update(// @formatter:off
+        update(
                 "update artist set reading = ?, sort = ? " +
                 "where present and name = ? and (sort <> ? or sort is null)",
                 candidate.getReading(),
                 candidate.getSort(),
                 candidate.getName(),
                 candidate.getSort());
-    } // @formatter:on
+    }
 
 }

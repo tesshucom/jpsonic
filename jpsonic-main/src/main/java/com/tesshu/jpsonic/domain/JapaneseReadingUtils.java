@@ -132,7 +132,6 @@ public class JapaneseReadingUtils {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            // @formatter:off
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             if (Character.UnicodeBlock.HIRAGANA.equals(b)
                     || Character.UnicodeBlock.KATAKANA.equals(b)
@@ -141,7 +140,7 @@ public class JapaneseReadingUtils {
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
                     || Character.UnicodeBlock.GREEK.equals(b)) {
                 return true;
-            } // @formatter:on
+            }
             return false;
         });
     }
@@ -228,7 +227,6 @@ public class JapaneseReadingUtils {
         }
         List<Token> tokens = tokenizer.tokenize(normalize(s));
 
-        // @formatter:off
         final Collector<String, StringBuilder, String> join =
                 Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
 
@@ -240,7 +238,6 @@ public class JapaneseReadingUtils {
             }
             return token.getReading();
         };
-        // @formatter:on
 
         String reading = createIgnoredArticles(tokens.stream().map(readingAnalysis).collect(join));
         readingMap.put(s, reading);
@@ -268,7 +265,6 @@ public class JapaneseReadingUtils {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            // @formatter:off
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
             if (Character.UnicodeBlock.HIRAGANA.equals(b)
                     || Character.UnicodeBlock.KATAKANA.equals(b)
@@ -276,7 +272,7 @@ public class JapaneseReadingUtils {
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                             && s.chars().anyMatch(c -> 65382 <= c && c <= 65437)) {
                 return true;
-            } // @formatter:on
+            }
             return false;
         });
     }

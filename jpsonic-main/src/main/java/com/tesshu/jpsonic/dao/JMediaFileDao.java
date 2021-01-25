@@ -80,11 +80,11 @@ public class JMediaFileDao extends AbstractDao {
                 "folders", MusicFolder.toPathList(musicFolders),
                 "count", count,
                 "offset", offset);
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select " + getQueryColoms() + " from media_file " +
                 "where type = :type and folder in (:folders) and present and genre in (:genres) " +
                 "order by media_file_order limit :count offset :offset", rowMapper, args);
-    } // @formatter:on
+    }
 
     public List<MediaFile> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, final List<MusicFolder> musicFolders) {
         return deligate.getAlphabeticalAlbums(offset, count, byArtist, musicFolders);
@@ -97,10 +97,10 @@ public class JMediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "type", MediaFile.MediaType.DIRECTORY.name(),
                 "folders", MusicFolder.toPathList(musicFolders));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select " + getQueryColoms() + " from media_file " +
                 "where type = :type and folder in (:folders) and present and artist is not null",
-                rowMapper, args); // @formatter:on
+                rowMapper, args);
     }
 
     /**
@@ -109,27 +109,27 @@ public class JMediaFileDao extends AbstractDao {
      * @param path The path.
      * @return The list of children.
      */
-    public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) { // @formatter:off
+    public List<MediaFile> getChildrenOf(final long offset, final long count, String path, boolean byYear) {
         String order = byYear ? "year" : "media_file_order";
         return query("select " + getQueryColoms() + " from media_file " +
                 "where parent_path=? and present " +
                 "order by " + order + " limit ? offset ?", rowMapper, path, count, offset);
-    } // @formatter:on
+    }
 
     public int getChildSizeOf(String path) {
         return queryForInt("select count(id) from media_file where parent_path=? and present", 0, path);
     }
 
-    public List<SortCandidate> getCopyableSortForAlbums() { // @formatter:off
+    public List<SortCandidate> getCopyableSortForAlbums() {
         return query(
                 "select known.name , known.sort from ( " +
                         "    select distinct album as name from media_file where present and type = 'ALBUM' and (album is not null and album_sort is null)) unknown " +
                         "   join (select distinct album as name, album_sort as sort from media_file where type = 'ALBUM' and album is not null and album_sort is not null and present) known " +
                         "   on known.name = unknown.name ",
-                sortCandidateMapper); // @formatter:on
+                sortCandidateMapper);
     }
 
-    public List<SortCandidate> getCopyableSortForPersons() { // @formatter:off
+    public List<SortCandidate> getCopyableSortForPersons() {
         return query(
                 "select known.name , known.sort from ( " +
                 "    select distinct artist as name from media_file where present and type in ('DIRECTORY', 'ALBUM') and (artist is not null and artist_sort is null)  " +
@@ -142,13 +142,13 @@ public class JMediaFileDao extends AbstractDao {
                 "        union select distinct composer as name, composer_sort as sort from media_file where type = 'MUSIC' and composer is not null and composer_sort is not null and present) person_union " +
                 "    ) known " +
                 "on known.name = unknown.name ",
-                sortCandidateMapper); // @formatter:on
+                sortCandidateMapper);
     }
 
-    public int getCountInPlaylist(int playlistId) { // @formatter:off
+    public int getCountInPlaylist(int playlistId) {
         return queryForInt("select count(*) from playlist_file, media_file " +
                 "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present ", 0, playlistId);
-    } // @formatter:on
+    }
 
     /*
      * Returns records where Sort does not match for the specified name and Sort.
@@ -158,7 +158,6 @@ public class JMediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "name", candidates.getName(),
                 "sort", candidates.getSort());
-        // @formatter:off
         return namedQuery(
                 "select " + getQueryColoms() + " from media_file " +
                 "where " +
@@ -166,7 +165,6 @@ public class JMediaFileDao extends AbstractDao {
                 "    (album_artist = :name and (album_artist_sort <> :sort or album_artist_sort is null )) or " +
                 "    (composer = :name and (composer_sort <> :sort or composer_sort is null )) ",
                 rowMapper, args);
-        // @formatter:on
     }
 
     public List<MediaFile> getFilesInPlaylist(int playlistId) {
@@ -174,18 +172,18 @@ public class JMediaFileDao extends AbstractDao {
 
     }
 
-    public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) { // @formatter:off
+    public List<MediaFile> getFilesInPlaylist(int playlistId, long offset, long count) {
         return query("select " + prefix(getQueryColoms(), "media_file") + " from playlist_file, media_file " +
                      "where media_file.id = playlist_file.media_file_id and playlist_file.playlist_id = ? and present " +
                      "order by playlist_file.id limit ? offset ?", rowMapper, playlistId, count, offset);
-    } // @formatter:on
+    }
 
     public List<Genre> getGenres(boolean sortByAlbum, long offset, long count) {
         String orderBy = sortByAlbum ? "album_count" : "song_count";
-        return query(// @formatter:off
+        return query(
                 "select " + getGenreColoms() + " from genre " +
                 "order by " + orderBy + " desc limit ? offset ?", genreRowMapper, count, offset);
-    } // @formatter:on
+    }
 
     public int getGenresCount() {
         return queryForInt("select count(*) from genre", 0);
@@ -199,7 +197,7 @@ public class JMediaFileDao extends AbstractDao {
         return deligate.getMediaFile(path);
     }
 
-    public List<MediaFile> getRandomSongsForAlbumArtist(// @formatter:off
+    public List<MediaFile> getRandomSongsForAlbumArtist(
             int limit, String albumArtist, List<MusicFolder> musicFolders,
             BiFunction< /** range */ Integer, /** limit */ Integer,
             List<Integer>> randomCallback) {
@@ -267,7 +265,7 @@ public class JMediaFileDao extends AbstractDao {
         });
 
         return Collections.unmodifiableList(result);
-    } // @formatter:on
+    }
 
     public List<MediaFile> getSongsByGenre(final List<String> genres, final int offset, final int count, final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty() || genres.isEmpty()) {
@@ -279,7 +277,6 @@ public class JMediaFileDao extends AbstractDao {
                 "count", count,
                 "offset", offset,
                 "folders", MusicFolder.toPathList(musicFolders));
-        // @formatter:off
         return namedQuery("select " + prefix(getQueryColoms(), "s") + " from media_file s " +
                           "join media_file al on s.parent_path = al.path " + 
                           "join media_file ar on al.parent_path = ar.path " +
@@ -287,52 +284,52 @@ public class JMediaFileDao extends AbstractDao {
                           "and s.present and s.folder in (:folders) " +
                           "order by ar.media_file_order, al.media_file_order, s.track_number " +
                           "limit :count offset :offset ", rowMapper, args);
-    } // @formatter:on
+    }
 
-    public int getSongsCountForAlbum(String artist, String album) { // @formatter:off
+    public int getSongsCountForAlbum(String artist, String album) {
         return queryForInt(
                 "select count(id) from media_file " +
                 "where album_artist=? and album=? and present and type in (?,?,?)", 0,
                      artist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(), MediaFile.MediaType.PODCAST.name());
-    } // @formatter:on
+    }
 
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) { // @formatter:off
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
         return query(
                 "select " + getQueryColoms() + " from media_file " +
                 "where parent_path=? and present and type in (?,?,?) order by track_number limit ? offset ?",
                 rowMapper, album.getPath(), MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
-                MediaFile.MediaType.PODCAST.name(), count, offset); // @formatter:on
+                MediaFile.MediaType.PODCAST.name(), count, offset);
     }
 
-    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) { // @formatter:off
+    public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {
         return query(
                 "select " + getQueryColoms() + " from media_file " +
                 "where album_artist=? and album=? and present and type in (?,?,?) order by track_number limit ? offset ?",
                 rowMapper, albumArtist, album, MediaFile.MediaType.MUSIC.name(), MediaFile.MediaType.AUDIOBOOK.name(),
                 MediaFile.MediaType.PODCAST.name(), count, offset);
-    } // @formatter:on
+    }
 
-    public List<SortCandidate> getSortForPersonWithoutSorts() { // @formatter:off
+    public List<SortCandidate> getSortForPersonWithoutSorts() {
         return query(
                 "select name, null as sort from( " +
                         "   select distinct artist as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (artist is not null and artist_sort is null)  " +
                         "   union select distinct album_artist as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (album_artist is not null and album_artist_sort is null)  " +
                         "   union select distinct composer as name from media_file where present and type not in ('DIRECTORY', 'ALBUM') and (composer is not null and composer_sort is null)  " +
                         "   ) no_sorts ",
-                sortCandidateMapper); // @formatter:on
+                sortCandidateMapper);
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
         Map<String, Object> args = LegacyMap.of(
                 "names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select distinct id from media_file " +
                 "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  " +
                 "order by id ", (rs, rowNum) -> {
                 return rs.getInt(1);
             }, args);
-    } // @formatter:on
+    }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
@@ -341,7 +338,7 @@ public class JMediaFileDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select distinct id " +
                 "from (select id " +
                 "   from media_file " +
@@ -368,15 +365,15 @@ public class JMediaFileDao extends AbstractDao {
                 "order by id", (rs, rowNum) -> {
                 return rs.getInt(1);
             }, args);
-    } // @formatter:on
-
-    public List<SortCandidate> getSortForAlbumWithoutSorts() { // @formatter:off
-        return query(
-                "select distinct album as name, null as sort from media_file where present and type  = 'ALBUM' and (album is not null and album_sort is null) ",
-                sortCandidateMapper); // @formatter:on
     }
 
-    public List<SortCandidate> guessAlbumSorts() { // @formatter:off
+    public List<SortCandidate> getSortForAlbumWithoutSorts() {
+        return query(
+                "select distinct album as name, null as sort from media_file where present and type  = 'ALBUM' and (album is not null and album_sort is null) ",
+                sortCandidateMapper);
+    }
+
+    public List<SortCandidate> guessAlbumSorts() {
         List<SortCandidate> candidates = query(
                 "select name, sort, duplicate_persons_with_changed.changed from ( " +
                 "       select distinct album as name, album_sort as sort, changed " +
@@ -393,7 +390,7 @@ public class JMediaFileDao extends AbstractDao {
                 "   join media_file m on type = 'ALBUM' and name in(album)  " +
                 "   group by name, sort, duplicate_persons_with_changed.changed " +
                 "   having max(m.changed) = duplicate_persons_with_changed.changed ",
-                sortCandidateMapper); // @formatter:on
+                sortCandidateMapper);
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
@@ -426,7 +423,7 @@ public class JMediaFileDao extends AbstractDao {
      * This is because the priorities are easy to recursively reflect the user's
      * intentions.
      */
-    public List<SortCandidate> guessPersonsSorts() { // @formatter:off
+    public List<SortCandidate> guessPersonsSorts() {
         List<SortCandidate> candidates = query(
                 "select name, sort, source, duplicate_persons_with_priority.changed from " +
                         "   (select distinct name, sort, source, changed " +
@@ -452,7 +449,7 @@ public class JMediaFileDao extends AbstractDao {
                         "   group by name, sort, source, duplicate_persons_with_priority.changed " +
                         "   having max(m.changed) = duplicate_persons_with_priority.changed " +
                         "order by name, changed desc, source ",
-            sortCandidateMapper); // @formatter:on
+            sortCandidateMapper);
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
@@ -472,14 +469,14 @@ public class JMediaFileDao extends AbstractDao {
         deligate.markPresent(path, lastScanned);
     }
 
-    public void updateAlbumSort(SortCandidate candidate) { // @formatter:off
+    public void updateAlbumSort(SortCandidate candidate) {
         update("update media_file set album_reading = ?, album_sort = ? " +
                 "where present and album = ? and (album_sort is null or album_sort <> ?)",
                 candidate.getReading(), candidate.getSort(),
-                candidate.getName(), candidate.getSort()); // @formatter:on
+                candidate.getName(), candidate.getSort());
     }
 
-    public void updateArtistSort(SortCandidate candidate) { // @formatter:off
+    public void updateArtistSort(SortCandidate candidate) {
         update("update media_file set artist_reading = ?, artist_sort = ? " +
                 "where present and artist = ? and (artist_sort is null or artist_sort <> ?)",
                 candidate.getReading(), candidate.getSort(),
@@ -491,7 +488,7 @@ public class JMediaFileDao extends AbstractDao {
         update("update media_file set composer_sort = ? " +
                 "where present and type not in ('DIERECTORY', 'ALBUM') and composer = ? and (composer_sort is null or composer_sort <> ?)",
                 candidate.getSort(),
-                candidate.getName(), candidate.getSort()); // @formatter:on
+                candidate.getName(), candidate.getSort());
     }
 
     public void updateGenres(List<Genre> genres) {

@@ -87,7 +87,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final UPnPSearchCriteriaDirector director;
     private final SearchService searchService;
 
-    public DispatchingContentDirectory(// @formatter:off
+    public DispatchingContentDirectory(
             RootUpnpProcessor rp,
             @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp,
             @Lazy PlaylistUpnpProcessor playp,
@@ -106,7 +106,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             @Lazy RandomSongByArtistUpnpProcessor randomsbap,
             @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
             UPnPSearchCriteriaDirector cd,
-            SearchService ss) { // @formatter:on
+            SearchService ss) {
         super();
         rootProcessor = rp;
         mediaFileProcessor = mfp;

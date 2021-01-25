@@ -48,7 +48,7 @@ import static org.junit.Assert.assertTrue;
 public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTest {
 
     @Documented
-    private @interface DirectorDecisions { // @formatter:off
+    private @interface DirectorDecisions {
         @interface Conditions {
             @interface Params {
                 @interface upnpSearchQuery {
@@ -135,7 +135,7 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
             }
             @interface IllegalArgument {}
         }
-    } // @formatter:on
+    }
 
     @ClassRule
     public static final SpringClassRule classRule = new SpringClassRule() {

@@ -67,10 +67,9 @@ public class JAlbumDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt(// @formatter:off
+        return namedQueryForInt(
                 "select count(id) from album " +
                 "where artist = :artist and present and folder_id in (:folders)", 0, args);
-        // @formatter:on
     }
 
     public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear, final List<MusicFolder> musicFolders) {
@@ -82,12 +81,11 @@ public class JAlbumDao extends AbstractDao {
                 "folders", MusicFolder.toIdList(musicFolders),
                 "offset", offset,
                 "count", count);
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select " + deligate.getQueryColoms() + " from album " +
                 "where artist = :artist and present and folder_id in (:folders) " +
                 "    order by " + (byYear ? "year" : "album_order") + ", name limit :count offset :offset",
                 deligate.getAlbumMapper(), args);
-        // @formatter:on
     }
 
     public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
@@ -105,14 +103,14 @@ public class JAlbumDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select id from album " +
                 "where present and name in (:names) " +
                     "and (name_sort is null or name_sort not in(:sotes)) order by id",
             (rs, rowNum) -> {
                 return rs.getInt(1);
             }, args);
-    } // @formatter:on
+    }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
@@ -121,33 +119,33 @@ public class JAlbumDao extends AbstractDao {
         Map<String, Object> args = LegacyMap.of(
                 "names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
+        return namedQuery(
                 "select id from album " +
                 "where present and artist in (:names) " +
                 "    and (artist_sort is null or artist_sort not in(:sotes)) order by id",
             (rs, rowNum) -> {
                 return rs.getInt(1);
             }, args);
-    } // @formatter:on
+    }
 
     public void updateAlbumSort(SortCandidate candidate) {
-        update(// @formatter:off
+        update(
                 "update album set name_reading = ?, name_sort = ? " +
                 "where present and name = ? and (name_sort <> ? or name_sort is null)",
                 candidate.getReading(),
                 candidate.getSort(),
                 candidate.getName(),
                 candidate.getSort());
-    } // @formatter:on
+    }
 
     public void updateArtistSort(SortCandidate candidate) {
-        update(// @formatter:off
+        update(
                 "update album set artist_reading = ?, artist_sort = ? " +
                 "where present and artist = ? and (artist_sort <> ? or artist_sort is null)",
                 candidate.getReading(),
                 candidate.getSort(),
                 candidate.getName(),
                 candidate.getSort());
-    } // @formatter:on
+    }
 
 }

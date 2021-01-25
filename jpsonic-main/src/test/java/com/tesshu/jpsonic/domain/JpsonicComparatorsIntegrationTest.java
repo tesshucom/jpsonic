@@ -64,7 +64,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
 
     private static List<MusicFolder> musicFolders;
 
-    private final static List<String> indexList = // @formatter:off
+    private final static List<String> indexList =
             unmodifiableList(Arrays.asList(
                     "abcde",
                     "abcいうえおあ", // Turn over by reading
@@ -98,7 +98,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
                     "ｪｫｧｨｩ", // # SmallKana
                     "ぉぁぃぅぇ", // # SmallKana
                     "♂くんつ") // # Symbol
-                    ); // @formatter:on
+                    );
 
     public static boolean validateIndexList(List<String> l) {
         return indexList.equals(l);
@@ -231,7 +231,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
      * @throws IOException
      */
     @Test
-    public void testGetIndexedArtists() throws Exception { // @formatter:off
+    public void testGetIndexedArtists() throws Exception {
         List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
         SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m =
                 musicIndexService.getIndexedArtists(musicFoldersToUse, true);
@@ -241,7 +241,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
                 .map(file -> file.getName())
                 .collect(Collectors.toList());
         assertTrue(validateIndexList(artists));
-    } // @formatter:on
+    }
 
     /**
      * {@link PlayQueue#sort(java.util.Comparator)}
