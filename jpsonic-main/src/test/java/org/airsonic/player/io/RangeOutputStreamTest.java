@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @SpringBootTest
@@ -74,7 +75,8 @@ public class RangeOutputStreamTest {
     private void doTestWrap(int first, Integer last, int sourceSize, int bufferSize) throws Exception {
         byte[] source = createSource(sourceSize);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        OutputStream rangeOut = RangeOutputStream.wrap(out, new HttpRange(first, last == null ? null : last.longValue()));
+        OutputStream rangeOut = RangeOutputStream.wrap(out,
+                new HttpRange(first, last == null ? null : last.longValue()));
         copy(source, rangeOut, bufferSize);
         verify(out.toByteArray(), first, last, sourceSize);
     }

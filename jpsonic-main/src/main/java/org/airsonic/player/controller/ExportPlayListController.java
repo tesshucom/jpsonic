@@ -38,11 +38,11 @@ public class ExportPlayListController {
 
         }
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
+        response.setHeader("Content-Disposition",
+                "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
 
         playlistService.exportPlaylist(id, response.getOutputStream());
         return null;
     }
-
 
 }

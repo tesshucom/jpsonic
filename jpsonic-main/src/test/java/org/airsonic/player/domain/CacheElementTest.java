@@ -35,16 +35,18 @@ public class CacheElementTest {
     @Test
     public void testCreateId() {
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") ==
-                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") == CacheElement
+                .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") !=
-                CacheElement.createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
+                .createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(237462763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") !=
-                CacheElement.createId(28374922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(
+                CacheElement.createId(237462763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
+                        .createId(28374922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla") !=
-                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(
+                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla") != CacheElement
+                        .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
     }
 }

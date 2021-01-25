@@ -32,7 +32,8 @@ public class LegacyDatabaseStartupTest {
                 TestCaseUtils.cleanJpsonicHomeForTest();
                 File dbDirectory = new File(homeParent, "/db");
                 FileUtils.forceMkdir(dbDirectory);
-                org.airsonic.player.util.FileUtils.copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));
+                org.airsonic.player.util.FileUtils
+                        .copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));
             }
         };
 
@@ -49,7 +50,7 @@ public class LegacyDatabaseStartupTest {
     @Test
     public void testStartup() {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Successful startup");            
+            LOG.info("Successful startup");
         }
     }
 

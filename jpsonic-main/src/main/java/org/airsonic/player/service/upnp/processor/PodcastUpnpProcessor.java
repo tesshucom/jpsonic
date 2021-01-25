@@ -53,7 +53,7 @@ import java.util.Locale;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
-public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, PodcastEpisode> {
+public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {
 
     private final UpnpProcessorUtil util;
 
@@ -65,7 +65,8 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
-    public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m, PodcastService p, CoverArtLogic c) {
+    public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
+            PodcastService p, CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -81,7 +82,8 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         List<PodcastChannel> channels = getItems(firstResult, maxResults);
         for (PodcastChannel channel : channels) {
@@ -128,7 +130,8 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
         if (episode.getStatus() == PodcastStatus.COMPLETED) {
             if (!isEmpty(episode.getMediaFileId())) {
                 MediaFile mediaFile = mediaFileService.getMediaFile(episode.getMediaFileId());
-                item.setResources(Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
+                item.setResources(
+                        Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
             }
         }
 
@@ -157,7 +160,8 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
 
     @Override
     public List<PodcastEpisode> getChildren(PodcastChannel channel, long offset, long maxResults) {
-        return org.airsonic.player.util.PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset, maxResults);
+        return org.airsonic.player.util.PlayerUtils.subList(podcastService.getEpisodes(channel.getId()), offset,
+                maxResults);
     }
 
     @Override
@@ -166,9 +170,9 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor <PodcastChannel, 
     }
 
     private URI createPodcastChannelURI(PodcastChannel channel) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(channel))
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(UriComponentsBuilder
+                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                .queryParam("id", coverArtLogic.createKey(channel)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
 }

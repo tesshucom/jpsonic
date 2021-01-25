@@ -40,8 +40,7 @@ public class AllmusicController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
         ModelAndView result = new ModelAndView();
-        result.addObject(Attributes.Request.ALBUM.value(),
-                request.getParameter(Attributes.Request.ALBUM.value()));
+        result.addObject(Attributes.Request.ALBUM.value(), request.getParameter(Attributes.Request.ALBUM.value()));
         return result;
     }
 }

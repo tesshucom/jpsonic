@@ -83,7 +83,8 @@ public class NetworkService {
             }
 
             if (!isValidXForwardedHost(xForardedHost)) {
-                throw new IllegalArgumentException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
+                throw new IllegalArgumentException(
+                        "Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
             }
         }
 
@@ -102,7 +103,8 @@ public class NetworkService {
         return StringUtils.isNotBlank(xForardedHost) && !StringUtils.equals("null", xForardedHost);
     }
 
-    private static URI calculateNonProxyUri(HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+    private static URI calculateNonProxyUri(HttpServletRequest request)
+            throws MalformedURLException, URISyntaxException {
         URL url = new URL(request.getRequestURL().toString());
         String host = url.getHost();
         String scheme = url.getProtocol();

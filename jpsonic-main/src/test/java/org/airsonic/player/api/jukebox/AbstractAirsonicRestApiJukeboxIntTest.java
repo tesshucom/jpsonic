@@ -105,9 +105,9 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
      * Populate test datas in the database only once.
      *
      * <ul>
-     *     <li>Creates 2 music folder</li>
-     *     <li>Scans the music folders</li>
-     *     <li>Creates a test jukebox player</li>
+     * <li>Creates 2 music folder</li>
+     * <li>Scans the music folders</li>
+     * <li>Creates a test jukebox player</li>
      * </ul>
      */
     private void populateDatabase() {
@@ -171,21 +171,28 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].parent").value(parent.getId()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].isDir").value(mediaFile.isDirectory()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].title").value(mediaFile.getTitle()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].album").value(mediaFile.getAlbumName()).match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].album").value(mediaFile.getAlbumName())
+                    .match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].artist").value(mediaFile.getArtist()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].coverArt").value(parent.getId()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].size").value(mediaFile.getFileSize()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].contentType").value(StringUtil.getMimeType(mediaFile.getFormat())).match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].contentType")
+                    .value(StringUtil.getMimeType(mediaFile.getFormat())).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].suffix").value(mediaFile.getFormat()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].duration").value(mediaFile.getDurationSeconds()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].bitRate").value(mediaFile.getBitRate()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].path").value(SubsonicRESTController.getRelativePath(mediaFile, settingsService)).match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].duration").value(mediaFile.getDurationSeconds())
+                    .match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].bitRate").value(mediaFile.getBitRate())
+                    .match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].path")
+                    .value(SubsonicRESTController.getRelativePath(mediaFile, settingsService)).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].isVideo").value(mediaFile.isVideo()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].playCount").isNumber().match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].created").value(convertDateToString(mediaFile.getCreated())).match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].created")
+                    .value(convertDateToString(mediaFile.getCreated())).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].albumId").value(album.getId()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].artistId").value(artist.getId()).match(result);
-            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].type").value(mediaFile.getMediaType().name().toLowerCase()).match(result);
+            jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].type")
+                    .value(mediaFile.getMediaType().name().toLowerCase()).match(result);
         };
     }
 
@@ -197,15 +204,13 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
         // When and Then
         performStartAction();
         performStatusAction("true");
-        performGetAction()
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.currentIndex").value("0"))
+        performGetAction().andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.currentIndex").value("0"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.playing").value("true"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.gain").value("0.75"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.position").value("0"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry").isArray())
                 .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry.length()").value(2))
-                .andExpect(playListItem1isCorrect())
-                .andDo(print());
+                .andExpect(playListItem1isCorrect()).andDo(print());
 
         verify(testJukeboxPlayer.getPlayQueue(), times(2)).setStatus(PlayQueue.Status.PLAYING);
         assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
@@ -230,13 +235,9 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private void performStatusAction(String expectedPlayingValue) throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("f", EXPECTED_FORMAT)
-                .param("action", "status")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
+                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "status")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value(expectedPlayingValue))
@@ -244,24 +245,17 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private ResultActions performGetAction() throws Exception {
-        return mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("f", EXPECTED_FORMAT)
-                .param("action", "get")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"));
+        return mvc
+                .perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
+                        .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "get")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"));
     }
 
     private void performStopAction() throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("f", EXPECTED_FORMAT)
-                .param("action", "stop")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
+                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "stop")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("false"))
@@ -269,13 +263,9 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private void performStartAction() throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value())
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("f", EXPECTED_FORMAT)
-                .param("action", "start")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
+                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "start")
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
                 .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("true"))

@@ -28,6 +28,7 @@ import java.util.Objects;
  * Contains media libaray statistics, including the number of artists, albums and songs.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2005/11/17 18:29:03 $
  */
 public class MediaLibraryStatistics {
@@ -111,15 +112,16 @@ public class MediaLibraryStatistics {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         MediaLibraryStatistics that = (MediaLibraryStatistics) o;
-        return Objects.equals(artistCount, that.artistCount) &&
-                Objects.equals(albumCount, that.albumCount) &&
-                Objects.equals(songCount, that.songCount) &&
-                Objects.equals(totalLengthInBytes, that.totalLengthInBytes) &&
-                Objects.equals(totalDurationInSeconds, that.totalDurationInSeconds) &&
-                Objects.equals(scanDate, that.scanDate);
+        return Objects.equals(artistCount, that.artistCount) && Objects.equals(albumCount, that.albumCount)
+                && Objects.equals(songCount, that.songCount)
+                && Objects.equals(totalLengthInBytes, that.totalLengthInBytes)
+                && Objects.equals(totalDurationInSeconds, that.totalDurationInSeconds)
+                && Objects.equals(scanDate, that.scanDate);
     }
 
     @Override

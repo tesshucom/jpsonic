@@ -22,10 +22,10 @@ public class AccessDeniedController {
     @GetMapping
     public ModelAndView accessDenied(HttpServletRequest request, HttpServletResponse response) {
         if (LOG.isInfoEnabled()) {
-            LOG.info("The IP {} tried to access the forbidden url {}.", request.getRemoteAddr(), request.getRequestURL());
+            LOG.info("The IP {} tried to access the forbidden url {}.", request.getRemoteAddr(),
+                    request.getRequestURL());
         }
         return new ModelAndView("accessDenied");
     }
-
 
 }

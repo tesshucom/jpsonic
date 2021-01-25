@@ -31,6 +31,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id: StreamControllerTestCase.java 3307 2013-01-04 13:48:49Z sindre_mehus $
  */
 @SpringBootTest
@@ -40,7 +41,7 @@ public class HLSControllerTest {
     public void testParseBitRate() {
         HLSController controller = new HLSController();
 
-        Pair<Integer,Dimension> pair = controller.parseBitRate("1000");
+        Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
         assertEquals(1000, pair.getLeft().intValue());
         assertNull(pair.getRight());
 

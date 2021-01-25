@@ -54,9 +54,8 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     };
 
     /*
-     * Currently, Maven is executing test classes in series,
-     * so this class can hold the state.
-     * When executing in parallel, subclasses should override this.
+     * Currently, Maven is executing test classes in series, so this class can hold the state. When executing in
+     * parallel, subclasses should override this.
      */
     private static AtomicBoolean dataBasePopulated = new AtomicBoolean();
 
@@ -148,13 +147,8 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                 LOG.debug("--- Report of records count per table ---");
             }
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-            records.keySet().stream().filter(s ->
-                    s.equals("MEDIA_FILE")
-                    | s.equals("ARTIST")
-                    | s.equals("MUSIC_FOLDER")
-                    | s.equals("ALBUM")
-                    | s.equals("GENRE"))
-                    .forEach(tableName -> {
+            records.keySet().stream().filter(s -> s.equals("MEDIA_FILE") | s.equals("ARTIST") | s.equals("MUSIC_FOLDER")
+                    | s.equals("ALBUM") | s.equals("GENRE")).forEach(tableName -> {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
                         }

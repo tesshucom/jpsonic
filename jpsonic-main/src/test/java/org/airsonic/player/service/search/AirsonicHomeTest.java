@@ -23,22 +23,19 @@ public interface AirsonicHomeTest {
     /**
      * Whether the data input has been completed.
      *
-     * @return Static AtomicBoolean indicating whether the data injection has been
-     *         completed
+     * @return Static AtomicBoolean indicating whether the data injection has been completed
      */
     abstract AtomicBoolean dataBasePopulated();
 
     /**
      * Whether the data input has been completed.
      *
-     * @return Static AtomicBoolean indicating whether the data injection has been
-     *         completed
+     * @return Static AtomicBoolean indicating whether the data injection has been completed
      */
     abstract AtomicBoolean dataBaseReady();
 
     /**
-     * Populate the database only once.
-     * It is called in the @Before granted method.
+     * Populate the database only once. It is called in the @Before granted method.
      */
     void populateDatabaseOnlyOnce();
 

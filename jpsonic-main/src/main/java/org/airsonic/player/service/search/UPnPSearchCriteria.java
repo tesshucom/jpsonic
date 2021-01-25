@@ -19,11 +19,11 @@
 package org.airsonic.player.service.search;
 
 /**
- * Criteria that abstracts field search of UPnP. 
+ * Criteria that abstracts field search of UPnP.
  *
- * A UPnP query structure analysis is always required for a UPnP search. 
- * Instances of this class are created by Builders that have UPnP message analysis capabilities.
- * The UPnP query for field search including complex compound statements can be obtained with lucene query.
+ * A UPnP query structure analysis is always required for a UPnP search. Instances of this class are created by Builders
+ * that have UPnP message analysis capabilities. The UPnP query for field search including complex compound statements
+ * can be obtained with lucene query.
  */
 public class UPnPSearchCriteria extends LuceneSearchCriteria {
 
@@ -34,8 +34,8 @@ public class UPnPSearchCriteria extends LuceneSearchCriteria {
     }
 
     /**
-     * Returns a class that represents the search target and return value.
-     * For UPnP searches, this value can only be determined after parsing UPnP.
+     * Returns a class that represents the search target and return value. For UPnP searches, this value can only be
+     * determined after parsing UPnP.
      * 
      * @return T that represents search target and return value
      */

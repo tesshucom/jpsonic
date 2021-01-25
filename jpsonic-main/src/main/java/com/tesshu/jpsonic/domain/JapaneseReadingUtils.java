@@ -61,25 +61,25 @@ public class JapaneseReadingUtils {
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
-            case Character.SPACE_SEPARATOR:
-            case Character.LINE_SEPARATOR:
-            case Character.PARAGRAPH_SEPARATOR:
-            case Character.CONTROL:
-            case Character.FORMAT:
-            case Character.DASH_PUNCTUATION:
-            case Character.START_PUNCTUATION:
-            case Character.END_PUNCTUATION:
-            case Character.CONNECTOR_PUNCTUATION:
-            case Character.OTHER_PUNCTUATION:
-            case Character.MATH_SYMBOL:
-            case Character.CURRENCY_SYMBOL:
-            case Character.MODIFIER_SYMBOL:
-            case Character.OTHER_SYMBOL:
-            case Character.INITIAL_QUOTE_PUNCTUATION:
-            case Character.FINAL_QUOTE_PUNCTUATION:
-                return true;
-            default:
-                return false;
+        case Character.SPACE_SEPARATOR:
+        case Character.LINE_SEPARATOR:
+        case Character.PARAGRAPH_SEPARATOR:
+        case Character.CONTROL:
+        case Character.FORMAT:
+        case Character.DASH_PUNCTUATION:
+        case Character.START_PUNCTUATION:
+        case Character.END_PUNCTUATION:
+        case Character.CONNECTOR_PUNCTUATION:
+        case Character.OTHER_PUNCTUATION:
+        case Character.MATH_SYMBOL:
+        case Character.CURRENCY_SYMBOL:
+        case Character.MODIFIER_SYMBOL:
+        case Character.OTHER_SYMBOL:
+        case Character.INITIAL_QUOTE_PUNCTUATION:
+        case Character.FINAL_QUOTE_PUNCTUATION:
+            return true;
+        default:
+            return false;
         }
     }
 
@@ -133,8 +133,7 @@ public class JapaneseReadingUtils {
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b)
-                    || Character.UnicodeBlock.KATAKANA.equals(b)
+            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
@@ -200,10 +199,11 @@ public class JapaneseReadingUtils {
     }
 
     /**
-     * This method returns the normalized Artist name that can also be used to
-     * create the index prefix.
+     * This method returns the normalized Artist name that can also be used to create the index prefix.
      * 
-     * @param sort artist's sort string
+     * @param sort
+     *            artist's sort string
+     * 
      * @return indexable Name
      */
     private String createIndexableName(String sort) {
@@ -227,13 +227,12 @@ public class JapaneseReadingUtils {
         }
         List<Token> tokens = tokenizer.tokenize(normalize(s));
 
-        final Collector<String, StringBuilder, String> join =
-                Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+        final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new, StringBuilder::append,
+                StringBuilder::append, StringBuilder::toString);
 
         final Function<Token, String> readingAnalysis = token -> {
-            if (KATAKANA.matcher(token.getSurface()).matches() 
-                   || ALPHA.matcher(token.getSurface()).matches()
-                   || ASTER.equals(token.getReading())) {
+            if (KATAKANA.matcher(token.getSurface()).matches() || ALPHA.matcher(token.getSurface()).matches()
+                    || ASTER.equals(token.getReading())) {
                 return token.getSurface();
             }
             return token.getReading();
@@ -266,8 +265,7 @@ public class JapaneseReadingUtils {
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b)
-                    || Character.UnicodeBlock.KATAKANA.equals(b)
+            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                             && s.chars().anyMatch(c -> 65382 <= c && c <= 65437)) {
@@ -286,10 +284,11 @@ public class JapaneseReadingUtils {
     }
 
     /**
-     * There is no easy way to normalize Japanese words. Uses relatively natural
-     * NFKC, eliminates over-processing and adds under-processing.
+     * There is no easy way to normalize Japanese words. Uses relatively natural NFKC, eliminates over-processing and
+     * adds under-processing.
      *
      * @param s
+     * 
      * @return
      */
     final String normalize(@Nullable String s) {
@@ -320,9 +319,11 @@ public class JapaneseReadingUtils {
     }
 
     /**
-     * Delete a specific Punctuation.
-     * This result value is not persisted in DB.
-     * @param japaneseReading string after analysis
+     * Delete a specific Punctuation. This result value is not persisted in DB.
+     * 
+     * @param japaneseReading
+     *            string after analysis
+     * 
      * @return
      */
     public String removePunctuationFromJapaneseReading(String japaneseReading) {

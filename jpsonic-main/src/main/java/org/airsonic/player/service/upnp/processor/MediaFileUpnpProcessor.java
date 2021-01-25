@@ -56,7 +56,7 @@ import java.util.List;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 @Service
-public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
+public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -65,8 +65,9 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     private final PlayerService playerService;
 
     public static final int SINGLE_MUSIC_FOLDER = 1;
-    
-    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
+
+    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            PlayerService p) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -90,7 +91,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     private void applyId(MediaFile item, Container container) {
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
+                + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
         if (!mediaFileService.isRoot(item)) {
@@ -248,21 +250,20 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public final URI createArtistArtURI(MediaFile artist) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", artist.getId())
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(
+                UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                        .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final URI createAlbumArtURI(MediaFile album) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", album.getId())
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(
+                UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                        .queryParam("id", album.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     private String createStreamURI(MediaFile song, Player player) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(util.getBaseUrl() + "/ext/stream")
-                .queryParam("id", song.getId())
-                .queryParam("player", player.getId());
+                .queryParam("id", song.getId()).queryParam("player", player.getId());
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }

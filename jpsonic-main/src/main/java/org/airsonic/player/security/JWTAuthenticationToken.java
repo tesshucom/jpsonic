@@ -13,7 +13,8 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
     public static final String USERNAME_ANONYMOUS = "anonymous";
 
-    public JWTAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String token, String requestedPath) {
+    public JWTAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String token,
+            String requestedPath) {
         super(authorities);
         this.token = token;
         this.requestedPath = requestedPath;

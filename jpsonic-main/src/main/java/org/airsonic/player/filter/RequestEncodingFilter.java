@@ -30,11 +30,11 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * Configurable filter for setting the character encoding to use for the HTTP request.
- * Typically used to set UTF-8 encoding when reading request parameters with non-Latin
- * content.
+ * Configurable filter for setting the character encoding to use for the HTTP request. Typically used to set UTF-8
+ * encoding when reading request parameters with non-Latin content.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2006/03/01 16:58:08 $
  */
 public class RequestEncodingFilter implements Filter {

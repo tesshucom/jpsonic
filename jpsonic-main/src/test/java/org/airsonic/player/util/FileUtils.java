@@ -15,12 +15,12 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 public class FileUtils {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
-    
+
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
-            InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
+                InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
             return FileUtils.copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying file.", e);
@@ -28,9 +28,7 @@ public class FileUtils {
         return false;
     }
 
-    private static boolean copyFilesRecusively(
-            final File toCopy, final File destDir
-    ) {
+    private static boolean copyFilesRecusively(final File toCopy, final File destDir) {
         assert destDir.isDirectory();
 
         if (!toCopy.isDirectory()) {
@@ -50,9 +48,8 @@ public class FileUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public static boolean copyJarResourcesRecursively(
-            final File destDir, final JarURLConnection jarConnection
-    ) throws IOException {
+    public static boolean copyJarResourcesRecursively(final File destDir, final JarURLConnection jarConnection)
+            throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                 final JarEntry entry = e.nextElement();

@@ -13,7 +13,8 @@ public class TomcatApplicationHelper {
         tomcatFactory.addContextCustomizers(context -> {
 
             StandardJarScanFilter standardJarScanFilter = new StandardJarScanFilter();
-            standardJarScanFilter.setTldScan("dwr-*.jar,jstl-*.jar,spring-security-taglibs-*.jar,spring-web-*.jar,spring-webmvc-*.jar,string-*.jar,taglibs-standard-impl-*.jar,tomcat-annotations-api-*.jar,tomcat-embed-jasper-*.jar");
+            standardJarScanFilter.setTldScan(
+                    "dwr-*.jar,jstl-*.jar,spring-security-taglibs-*.jar,spring-web-*.jar,spring-webmvc-*.jar,string-*.jar,taglibs-standard-impl-*.jar,tomcat-annotations-api-*.jar,tomcat-embed-jasper-*.jar");
             standardJarScanFilter.setTldSkip("*");
             context.getJarScanner().setJarScanFilter(standardJarScanFilter);
 
@@ -29,7 +30,7 @@ public class TomcatApplicationHelper {
             } else {
                 resources.setCacheMaxSize(100000);
                 resources.setCacheObjectMaxSize(4000);
-                resources.setCacheTtl(24 * 3600 * 1000);  // 1 day, in milliseconds
+                resources.setCacheTtl(24 * 3600 * 1000); // 1 day, in milliseconds
             }
             context.setResources(resources);
 

@@ -197,7 +197,8 @@ public class StringUtilTest {
         assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/foo.mp3"));
         assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3"));
         assertEquals("Error in getUrlFile().", "foo", StringUtil.getUrlFile("http://www.asdf.com/bar/foo"));
-        assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"));
+        assertEquals("Error in getUrlFile().", "foo.mp3",
+                StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("not a url"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com/"));

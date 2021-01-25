@@ -62,6 +62,7 @@ public class SetRatingController {
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         String username = securityService.getCurrentUsername(request);
         ratingService.setRatingForUser(username, mediaFile, rating);
-        return new ModelAndView(new RedirectView(ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id));
+        return new ModelAndView(
+                new RedirectView(ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id));
     }
 }

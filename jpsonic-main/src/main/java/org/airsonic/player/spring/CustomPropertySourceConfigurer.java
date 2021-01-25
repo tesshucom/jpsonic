@@ -10,8 +10,8 @@ import org.springframework.web.context.ConfigurableWebApplicationContext;
 
 import java.util.List;
 
-public class CustomPropertySourceConfigurer implements
-        ApplicationContextInitializer<ConfigurableWebApplicationContext> {
+public class CustomPropertySourceConfigurer
+        implements ApplicationContextInitializer<ConfigurableWebApplicationContext> {
 
     public static final String DATASOURCE_CONFIG_TYPE = "DatabaseConfigType";
 

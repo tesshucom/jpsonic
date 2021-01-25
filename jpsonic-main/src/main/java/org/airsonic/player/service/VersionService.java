@@ -46,8 +46,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Provides version-related services, including functionality for determining whether a newer
- * version of Jpsonic is available.
+ * Provides version-related services, including functionality for determining whether a newer version of Jpsonic is
+ * available.
  *
  * @author Sindre Mehus
  */
@@ -106,8 +106,8 @@ public class VersionService {
     /**
      * Returns the version number for the latest available Jpsonic final version.
      *
-     * @return The version number for the latest available Jpsonic final version, or <code>null</code>
-     *         if the version number can't be resolved.
+     * @return The version number for the latest available Jpsonic final version, or <code>null</code> if the version
+     *         number can't be resolved.
      */
     public Version getLatestFinalVersion() {
         refreshLatestVersion();
@@ -117,8 +117,8 @@ public class VersionService {
     /**
      * Returns the version number for the latest available Jpsonic beta version.
      *
-     * @return The version number for the latest available Jpsonic beta version, or <code>null</code>
-     *         if the version number can't be resolved.
+     * @return The version number for the latest available Jpsonic beta version, or <code>null</code> if the version
+     *         number can't be resolved.
      */
     public Version getLatestBetaVersion() {
         refreshLatestVersion();
@@ -128,8 +128,8 @@ public class VersionService {
     /**
      * Returns the build date for the locally installed Jpsonic version.
      *
-     * @return The build date for the locally installed Jpsonic version, or <code>null</code>
-     *         if the build date can't be resolved.
+     * @return The build date for the locally installed Jpsonic version, or <code>null</code> if the build date can't be
+     *         resolved.
      */
     public Date getLocalBuildDate() {
         synchronized (LOCAL_BUILD_DATE) {
@@ -152,8 +152,8 @@ public class VersionService {
     /**
      * Returns the build number for the locally installed Jpsonic version.
      *
-     * @return The build number for the locally installed Jpsonic version, or <code>null</code>
-     *         if the build number can't be resolved.
+     * @return The build number for the locally installed Jpsonic version, or <code>null</code> if the build number
+     *         can't be resolved.
      */
     public String getLocalBuildNumber() {
         synchronized (LOCAL_BUILD_NUMBER_LOCK) {
@@ -205,7 +205,9 @@ public class VersionService {
     /**
      * Reads the first line from the resource with the given name.
      *
-     * @param resourceName The resource name.
+     * @param resourceName
+     *            The resource name.
+     * 
      * @return The first line of the resource.
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
@@ -255,9 +257,7 @@ public class VersionService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(10000)
-                    .setSocketTimeout(10000)
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000).setSocketTimeout(10000)
                     .build();
             HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
             method.setConfig(requestConfig);
@@ -272,8 +272,8 @@ public class VersionService {
                 return;
             }
 
-            List<String>unsortedTags = new LinkedList<>();
-            for (JsonNode item: new ObjectMapper().readTree(content)) {
+            List<String> unsortedTags = new LinkedList<>();
+            for (JsonNode item : new ObjectMapper().readTree(content)) {
                 unsortedTags.add(item.path("tag_name").asText());
             }
 
@@ -288,7 +288,8 @@ public class VersionService {
             Predicate<Version> finalVersionPredicate = version -> !version.isPreview();
 
             Optional<Version> betaV = unsortedTags.stream().map(convertToVersion).max(Comparator.naturalOrder());
-            Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder()).filter(finalVersionPredicate).findFirst();
+            Optional<Version> finalV = unsortedTags.stream().map(convertToVersion).sorted(Comparator.reverseOrder())
+                    .filter(finalVersionPredicate).findFirst();
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Got {} for beta version", betaV);
                 LOG.debug("Got {} for final version", finalV);

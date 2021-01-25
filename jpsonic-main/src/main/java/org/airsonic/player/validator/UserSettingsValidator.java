@@ -46,7 +46,8 @@ public class UserSettingsValidator implements Validator {
     private static final String REJECTED_FIELD_DELETEUSER = "deleteUser";
     private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
 
-    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService, HttpServletRequest request) {
+    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService,
+            HttpServletRequest request) {
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.request = request;

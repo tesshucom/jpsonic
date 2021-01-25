@@ -68,7 +68,7 @@ public class ExternalPlayerController {
 
     private static final String MAX_BIT_RATE_VALUE = "1200";
     private static final String MAX_SIZE_VALUE = "500";
-    
+
     @Autowired
     private SettingsService settingsService;
     @Autowired
@@ -82,7 +82,8 @@ public class ExternalPlayerController {
 
     @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         String shareName = ControllerUtils.extractMatched(request);
         if (LOG.isDebugEnabled()) {
@@ -114,9 +115,8 @@ public class ExternalPlayerController {
 
         Player player = playerService.getGuestPlayer(request);
 
-        return new ModelAndView("externalPlayer", "model", LegacyMap.of(
-                "share", share,
-                "songs", getSongs(request, share, player)));
+        return new ModelAndView("externalPlayer", "model",
+                LegacyMap.of("share", share, "songs", getSongs(request, share, player)));
     }
 
     private List<MediaFileWithUrlInfo> getSongs(HttpServletRequest request, Share share, Player player) {
@@ -137,7 +137,8 @@ public class ExternalPlayerController {
                 if (file.getFile().exists()) {
                     if (file.isDirectory()) {
                         List<MediaFile> childrenOf = mediaFileService.getChildrenOf(file, true, false, true);
-                        result.addAll(childrenOf.stream().map(mf -> addUrlInfo(request, player, mf, finalExpires)).collect(Collectors.toList()));
+                        result.addAll(childrenOf.stream().map(mf -> addUrlInfo(request, player, mf, finalExpires))
+                                .collect(Collectors.toList()));
                     } else {
                         result.add(addUrlInfo(request, player, file, finalExpires));
                     }
@@ -147,26 +148,20 @@ public class ExternalPlayerController {
         return result;
     }
 
-    public MediaFileWithUrlInfo addUrlInfo(HttpServletRequest request, Player player, MediaFile mediaFile, Date expires) {
+    public MediaFileWithUrlInfo addUrlInfo(HttpServletRequest request, Player player, MediaFile mediaFile,
+            Date expires) {
         String prefix = "ext";
-        String streamUrl = jwtSecurityService.addJWTToken(
-                UriComponentsBuilder
-                        .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/stream")
+        String streamUrl = jwtSecurityService
+                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/stream")
                         .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                         .queryParam(Attributes.Request.PLAYER.value(), player.getId())
-                        .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE),
-                expires)
-                .build()
-                .toUriString();
+                        .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE), expires)
+                .build().toUriString();
 
-        String coverArtUrl = jwtSecurityService.addJWTToken(
-                UriComponentsBuilder
-                        .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
-                        .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
-                        .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE),
-                expires)
-                .build()
-                .toUriString();
+        String coverArtUrl = jwtSecurityService.addJWTToken(UriComponentsBuilder
+                .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
+                .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
+                .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires).build().toUriString();
         return new MediaFileWithUrlInfo(mediaFile, coverArtUrl, streamUrl);
     }
 }

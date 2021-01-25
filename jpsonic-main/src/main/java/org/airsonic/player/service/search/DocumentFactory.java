@@ -65,7 +65,7 @@ public class DocumentFactory {
     private static final FieldType TYPE_KEY;
 
     private final SettingsService settingsService;
-    
+
     private final JapaneseReadingUtils readingUtils;
 
     static {
@@ -115,14 +115,15 @@ public class DocumentFactory {
         doc.add(new StoredField(field, value, TYPE_KEY));
     };
 
-    private BiConsumer<@NonNull Document, @NonNull String> fieldMediatype = (doc, value) ->
-        fieldKey.accept(doc, FieldNamesConstants.MEDIA_TYPE, value);
+    private BiConsumer<@NonNull Document, @NonNull String> fieldMediatype = (doc, value) -> fieldKey.accept(doc,
+            FieldNamesConstants.MEDIA_TYPE, value);
 
-    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) ->
-        fieldKey.accept(doc, FieldNamesConstants.FOLDER, value);
+    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> fieldKey.accept(doc,
+            FieldNamesConstants.FOLDER, value);
 
-    public BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName, value) ->
-        Arrays.asList(new TextField(fieldName, value, Store.NO), new SortedDocValuesField(fieldName, new BytesRef(value)));
+    public BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName, value) -> Arrays
+            .asList(new TextField(fieldName, value, Store.NO),
+                    new SortedDocValuesField(fieldName, new BytesRef(value)));
 
     private Consumer<@NonNull Document, @NonNull String, @Nullable String> fieldWords = (doc, fieldName, value) -> {
         if (isEmpty(value)) {
@@ -149,7 +150,6 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
-
     public final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
@@ -169,8 +169,11 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile target of document
+     * @param mediaFile
+     *            target of document
+     * 
      * @return document
+     * 
      * @since legacy
      */
     public Document createAlbumDocument(MediaFile mediaFile) {
@@ -188,8 +191,11 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile target of document
+     * @param mediaFile
+     *            target of document
+     * 
      * @return document
+     * 
      * @since legacy
      */
     public Document createArtistDocument(MediaFile mediaFile) {
@@ -204,8 +210,11 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param album target of document
+     * @param album
+     *            target of document
+     * 
      * @return document
+     * 
      * @since legacy
      */
     public Document createAlbumId3Document(Album album) {
@@ -223,21 +232,22 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param artist target of document
-     * @param musicFolder target folder exists
+     * @param artist
+     *            target of document
+     * @param musicFolder
+     *            target folder exists
+     * 
      * @return document
+     * 
      * @since legacy
      */
     /*
-     *  XXX 3.x -> 8.x :
-     *  Only null check specification of createArtistId3Document is different from legacy.
-     *  (The reason is only to simplify the function.)
+     * XXX 3.x -> 8.x : Only null check specification of createArtistId3Document is different from legacy. (The reason
+     * is only to simplify the function.)
      *
-     *  Since the field of domain object Album is nonnull,
-     *  null check was not performed.
+     * Since the field of domain object Album is nonnull, null check was not performed.
      *
-     *  In implementation ARTIST and ALBUM became nullable,
-     *  but null is not input at this point in data flow.
+     * In implementation ARTIST and ALBUM became nullable, but null is not input at this point in data flow.
      */
     public Document createArtistId3Document(Artist artist, MusicFolder musicFolder) {
         Document doc = new Document();
@@ -251,8 +261,11 @@ public class DocumentFactory {
     /**
      * Create a document.
      *
-     * @param mediaFile target of document
+     * @param mediaFile
+     *            target of document
+     * 
      * @return document
+     * 
      * @since legacy
      */
     public Document createSongDocument(MediaFile mediaFile) {
@@ -281,10 +294,8 @@ public class DocumentFactory {
     private void acceptArtistReading(Document doc, String artist, String sort, String reading) {
         String result = defaultIfEmpty(sort, reading);
         if (!isEmpty(artist) && !artist.equals(result)) {
-            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING,
-                    settingsService.isSearchMethodLegacy()
-                        ? result
-                        : readingUtils.removePunctuationFromJapaneseReading(result));
+            fieldWords.accept(doc, FieldNamesConstants.ARTIST_READING, settingsService.isSearchMethodLegacy() ? result
+                    : readingUtils.removePunctuationFromJapaneseReading(result));
         }
         fieldWords.accept(doc, FieldNamesConstants.ARTIST_EX, artist);
     }

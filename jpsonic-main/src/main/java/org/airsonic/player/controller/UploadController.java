@@ -82,9 +82,7 @@ public class UploadController {
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
-     * [AvoidInstantiatingObjectsInLoops]
-     * (File, GeneralSecurityException) Not reusable
-     * [UseLocaleWithCaseConversions]
+     * [AvoidInstantiatingObjectsInLoops] (File, GeneralSecurityException) Not reusable [UseLocaleWithCaseConversions]
      * The locale doesn't matter, as only comparing the extension literal.
      */
     @PostMapping
@@ -140,7 +138,8 @@ public class UploadController {
                         File targetFile = new File(dir, new File(item.getName()).getName());
 
                         if (!securityService.isUploadAllowed(targetFile)) {
-                            throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                            throw new ExecutionException(new GeneralSecurityException(
+                                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
                         }
 
                         if (!dir.exists()) {
@@ -179,11 +178,12 @@ public class UploadController {
         map.put("uploadedFiles", uploadedFiles);
         map.put("unzippedFiles", unzippedFiles);
 
-        return new ModelAndView("upload","model",map);
+        return new ModelAndView("upload", "model", map);
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") //  (File, IOException, GeneralSecurityException, byte[]) Not reusable
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException, GeneralSecurityException, byte[])
+                                                              // Not reusable
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
@@ -197,13 +197,15 @@ public class UploadController {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 File entryFile = new File(file.getParentFile(), entry.getName());
                 if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
-                    throw new ExecutionException(new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                    throw new ExecutionException(
+                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                 }
 
                 if (!entry.isDirectory()) {
 
                     if (!securityService.isUploadAllowed(entryFile)) {
-                        throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                        throw new ExecutionException(new GeneralSecurityException(
+                                "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                     }
 
                     if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
@@ -211,10 +213,8 @@ public class UploadController {
                                 entryFile.getParentFile().getAbsolutePath());
                     }
 
-                    try (
-                            OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
-                            InputStream inputStream = zipFile.getInputStream(entry)
-                    ) {
+                    try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
+                            InputStream inputStream = zipFile.getInputStream(entry)) {
                         byte[] buf = new byte[8192];
                         while (true) {
                             int n = inputStream.read(buf);
@@ -237,10 +237,6 @@ public class UploadController {
             }
         }
     }
-
-
-
-
 
     /**
      * Receives callbacks as the file upload progresses.

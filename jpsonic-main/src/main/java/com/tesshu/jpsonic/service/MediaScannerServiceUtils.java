@@ -42,33 +42,26 @@ import java.util.Set;
  * 
  * Supplement processing that is lacking in legacy services.
  * 
- *  - Unify Sort tags for names.
- *  - Determines the order of all media from the sort key.
+ * - Unify Sort tags for names. - Determines the order of all media from the sort key.
  *
  * There are three steps to integrating sort-tags:
  *
- * [merge]
- * If multiple Sort tags exist for one name, unify them in order of priority.
+ * [merge] If multiple Sort tags exist for one name, unify them in order of priority.
  *
- * [copy]
- * Copy if null-tag exists and can be resolved with the merged tag.
+ * [copy] Copy if null-tag exists and can be resolved with the merged tag.
  *
- * [compensation]
- * If null-tag is cannot be resolved by merge/copy, generate it from the name.
- * If it is Japanese, it is converted from notation to phoneme.
+ * [compensation] If null-tag is cannot be resolved by merge/copy, generate it from the name. If it is Japanese, it is
+ * converted from notation to phoneme.
  *
- * - Eliminate inconsistencies and dropouts in search results
- * - Compress index size by unifying data
- * - Perform a perfect sort
- * - In particular, in the case of Japanese, a sort search considering phonemes is realized.
- *   Prevent dropouts when searching by voice.
- * - Perform a perfect sort
- * - Realize high-speed paging with WEB/REST/UPnP
+ * - Eliminate inconsistencies and dropouts in search results - Compress index size by unifying data - Perform a perfect
+ * sort - In particular, in the case of Japanese, a sort search considering phonemes is realized. Prevent dropouts when
+ * searching by voice. - Perform a perfect sort - Realize high-speed paging with WEB/REST/UPnP
  *
  * This class has a great influence on the accuracy of sorting and searching.
  */
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
+@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
+        "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
     private final SettingsService settingsService;
@@ -79,13 +72,8 @@ public class MediaScannerServiceUtils {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public MediaScannerServiceUtils(
-            SettingsService settingsService,
-            JMediaFileDao mediaFileDao,
-            JArtistDao artistDao,
-            JAlbumDao albumDao,
-            JapaneseReadingUtils utils,
-            IndexManager indexManager,
+    public MediaScannerServiceUtils(SettingsService settingsService, JMediaFileDao mediaFileDao, JArtistDao artistDao,
+            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
         this.settingsService = settingsService;

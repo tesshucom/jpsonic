@@ -66,4 +66,3 @@ public class SecurityServiceTest extends AbstractAirsonicHomeTest {
         assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
     }
 }
-

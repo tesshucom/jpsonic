@@ -40,17 +40,16 @@ public class LoginController {
         if (username != null && password != null) {
             username = StringUtil.urlEncode(username);
             password = StringUtil.urlEncode(password);
-            return new ModelAndView(new RedirectView("/login?" +
-                    UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username + "&" +
-                    UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
+            return new ModelAndView(new RedirectView("/login?"
+                    + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_USERNAME_KEY + "=" + username + "&"
+                    + UsernamePasswordAuthenticationFilter.SPRING_SECURITY_FORM_PASSWORD_KEY + "=" + password));
         }
 
-        Map<String, Object> map = LegacyMap.of(
-                "logout", request.getParameter(Attributes.Request.LOGOUT.value()) != null,
-                "error", request.getParameter(Attributes.Request.ERROR.value()) != null,
-                "brand", settingsService.getBrand(),
-                "loginMessage", settingsService.getLoginMessage(),
-                "showRememberMe", settingsService.isShowRememberMe());
+        Map<String, Object> map = LegacyMap.of("logout",
+                request.getParameter(Attributes.Request.LOGOUT.value()) != null, "error",
+                request.getParameter(Attributes.Request.ERROR.value()) != null, "brand", settingsService.getBrand(),
+                "loginMessage", settingsService.getLoginMessage(), "showRememberMe",
+                settingsService.isShowRememberMe());
 
         User admin = securityService.getUserByName("admin");
         if (admin != null) {

@@ -62,7 +62,8 @@ public class SearchServiceStartWithStopwardsLegacyTest extends AbstractAirsonicH
         boolean includeComposer = false;
         List<MusicFolder> folders = getMusicFolders();
 
-        SearchCriteria criteria = director.construct("will", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct("will", offset, count, includeComposer, folders,
+                IndexType.ARTIST_ID3);
         SearchResult result = searchService.search(criteria);
         // Will hit because Airsonic's stopword is defined(#1235)
         Assert.assertEquals("Williams hit by \"will\" ", 1, result.getTotalHits());

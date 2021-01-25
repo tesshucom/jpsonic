@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class XspfPlaylistImportHandler implements PlaylistImportHandler {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(XspfPlaylistImportHandler.class);
 
     @Autowired
@@ -53,7 +53,8 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
                         try {
                             File file = new File(sc.getText());
                             mediaFile = mediaFileService.getMediaFile(file);
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             }
@@ -62,7 +63,8 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
             } else {
                 StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
                 try {
-                    errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText).collect(Collectors.joining(",")));
+                    errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
+                            .collect(Collectors.joining(",")));
                 } catch (Exception e) {
                     LOG.error(errorMsg.toString(), e);
                 }

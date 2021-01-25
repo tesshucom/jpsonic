@@ -62,8 +62,7 @@ class AlphanumWrapper extends Collator {
                     }
                 }
             } else {
-                result = null == deligate
-                        ? thisChunk.compareToIgnoreCase(thatChunk)
+                result = null == deligate ? thisChunk.compareToIgnoreCase(thatChunk)
                         : deligate.compare(thisChunk, thatChunk);
             }
             if (result != 0)
@@ -123,6 +122,5 @@ class AlphanumWrapper extends Collator {
         AlphanumWrapper that = (AlphanumWrapper) o;
         return new EqualsBuilder().appendSuper(super.equals(that)).append(that, that.deligate).isEquals();
     }
-
 
 }

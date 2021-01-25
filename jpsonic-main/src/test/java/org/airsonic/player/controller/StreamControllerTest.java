@@ -29,6 +29,7 @@ import static org.junit.Assert.assertNull;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @SpringBootTest
@@ -119,7 +120,8 @@ public class StreamControllerTest {
         doTestGetSuitableVideoSize(464, 853, 1500, 464, 854);
     }
 
-    private void doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate, int expectedWidth, int expectedHeight) {
+    private void doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
+            int expectedWidth, int expectedHeight) {
         StreamController controller = new StreamController();
         Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals("Wrong width.", expectedWidth, dimension.width);

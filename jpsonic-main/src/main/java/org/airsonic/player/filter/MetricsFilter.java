@@ -28,12 +28,14 @@ public class MetricsFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest)request;
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         String timerName = httpServletRequest.getRequestURI();
         // Add a metric that measures the time spent for each http request for the /ViewName.MAIN.value() url.
-        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains(ViewName.MAIN.value())).timer(this,timerName)) {
+        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains(ViewName.MAIN.value())).timer(this,
+                timerName)) {
             chain.doFilter(request, response);
         }
     }

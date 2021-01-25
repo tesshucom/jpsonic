@@ -23,6 +23,7 @@ package org.airsonic.player.domain;
  * A Podcast channel. Each channel contain several episodes.
  *
  * @author Sindre Mehus
+ * 
  * @see PodcastEpisode
  */
 public class PodcastChannel {
@@ -37,7 +38,7 @@ public class PodcastChannel {
     private Integer mediaFileId;
 
     public PodcastChannel(Integer id, String url, String title, String description, String imageUrl,
-                          PodcastStatus status, String errorMessage) {
+            PodcastStatus status, String errorMessage) {
         this.id = id;
         this.url = url;
         this.title = title;

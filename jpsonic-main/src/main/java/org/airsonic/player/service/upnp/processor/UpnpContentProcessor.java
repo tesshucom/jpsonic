@@ -67,7 +67,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses the top-level content of a type.
      */
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         List<T> selectedItems = getItems(firstResult, maxResults);
         for (T item : selectedItems) {
@@ -89,7 +90,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses a child of the container.
      */
-    public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults,
+            SortCriterion... orderBy) throws Exception {
         T item = getItemById(id);
         List<U> selectedChildren = getChildren(item, firstResult, maxResults);
         DIDLContent didl = new DIDLContent();
@@ -154,4 +156,3 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     }
 
 }
-

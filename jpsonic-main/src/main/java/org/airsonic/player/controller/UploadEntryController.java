@@ -46,7 +46,8 @@ public class UploadEntryController {
     private SecurityService securityService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User user = securityService.getCurrentUser(request);
 
@@ -57,10 +58,8 @@ public class UploadEntryController {
         }
 
         ModelAndView result = new ModelAndView();
-        result.addObject("model", LegacyMap.of(
-                "user", user,
-                "uploadDirectory", uploadDirectory,
-                "musicFolders", musicFolders));
+        result.addObject("model",
+                LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "musicFolders", musicFolders));
         return result;
     }
 }

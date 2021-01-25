@@ -97,30 +97,30 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
         files.forEach(m -> {
             switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertNull(m.getComposerSort());
-                    break;
-    
-                default:
-                    fail();
-                    break;
+            case "file1":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("近衛秀麿", m.getArtist());
+                assertNull(m.getArtistSort());
+                break;
+            case "file2":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("中山晋平", m.getArtist());
+                assertNull(m.getArtistSort());
+                break;
+            case "file3":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("ARTIST", m.getArtist());
+                assertNull(m.getArtistSort());
+                assertEquals("世阿弥", m.getComposer());
+                assertNull(m.getComposerSort());
+                break;
+
+            default:
+                fail();
+                break;
             }
         });
 
@@ -135,13 +135,13 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {
-                case "近衛秀麿":
-                case "山田耕筰":
-                    assertNull(a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "近衛秀麿":
+            case "山田耕筰":
+                assertNull(a.getSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 
@@ -154,30 +154,30 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
         files.forEach(m -> {
             switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertEquals("コノエヒデマロ", m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertEquals("ナカヤマシンペイ", m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertEquals("ARTIST", m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertEquals("ゼアミ", m.getComposerSort());
-                    break;
-    
-                default:
-                    fail();
-                    break;
+            case "file1":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("近衛秀麿", m.getArtist());
+                assertEquals("コノエヒデマロ", m.getArtistSort());
+                break;
+            case "file2":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("中山晋平", m.getArtist());
+                assertEquals("ナカヤマシンペイ", m.getArtistSort());
+                break;
+            case "file3":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("ARTIST", m.getArtist());
+                assertEquals("ARTIST", m.getArtistSort());
+                assertEquals("世阿弥", m.getComposer());
+                assertEquals("ゼアミ", m.getComposerSort());
+                break;
+
+            default:
+                fail();
+                break;
             }
         });
 
@@ -185,15 +185,15 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {
-                case "近衛秀麿":
-                    assertEquals("コノエヒデマロ", a.getSort());
-                    break;
-                case "山田耕筰":
-                    assertEquals("ヤマダコウサク", a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "近衛秀麿":
+                assertEquals("コノエヒデマロ", a.getSort());
+                break;
+            case "山田耕筰":
+                assertEquals("ヤマダコウサク", a.getSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 

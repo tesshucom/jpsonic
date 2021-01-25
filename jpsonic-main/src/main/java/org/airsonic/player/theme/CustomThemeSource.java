@@ -30,8 +30,8 @@ import org.springframework.ui.context.support.ResourceBundleThemeSource;
 import org.springframework.ui.context.support.UiApplicationContextUtils;
 
 /**
- * Theme source implementation which uses two resource bundles: the
- * theme specific (e.g., barents.properties), and the default (default.properties).
+ * Theme source implementation which uses two resource bundles: the theme specific (e.g., barents.properties), and the
+ * default (default.properties).
  *
  * @author Sindre Mehus
  */

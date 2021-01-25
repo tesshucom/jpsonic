@@ -36,6 +36,7 @@ import javax.xml.namespace.QName;
  * Intercepts all SonosSoapFault exceptions and builds a SOAP Fault.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @Component
@@ -44,7 +45,7 @@ public class SonosFaultInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LoggerFactory.getLogger(SonosFaultInterceptor.class);
 
     /**
-     * Constructor, setting the phase to Marshal.  This happens before the default Fault Interceptor
+     * Constructor, setting the phase to Marshal. This happens before the default Fault Interceptor
      */
     public SonosFaultInterceptor() {
         super(Phase.MARSHAL);

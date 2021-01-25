@@ -43,7 +43,9 @@ public class MetaDataParserFactory {
     /**
      * Returns a meta-data parser for the given file.
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return An applicable parser, or <code>null</code> if no parser is found.
      */
     public MetaDataParser getParser(File file) {

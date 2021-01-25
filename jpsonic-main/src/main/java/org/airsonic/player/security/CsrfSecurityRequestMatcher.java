@@ -23,16 +23,14 @@ public class CsrfSecurityRequestMatcher implements RequestMatcher {
     private List<RegexRequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {
-        this.whiteListedMatchers = Arrays.asList(
-            new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
-            new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
-            new RegexRequestMatcher("/search(?:\\.view)?", "POST")
-        );
+        this.whiteListedMatchers = Arrays.asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
+                new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
+                new RegexRequestMatcher("/search(?:\\.view)?", "POST"));
     }
 
     @Override
     public boolean matches(HttpServletRequest request) {
-        return !(allowedMethods.contains(request.getMethod()) ||
-                whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
+        return !(allowedMethods.contains(request.getMethod())
+                || whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
     }
 }

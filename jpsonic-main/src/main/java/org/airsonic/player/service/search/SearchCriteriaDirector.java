@@ -33,15 +33,17 @@ public class SearchCriteriaDirector {
     private final QueryFactory queryFactory;
 
     private final SettingsService settingsService;
-    
+
     public SearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService) {
         super();
         this.queryFactory = queryFactory;
         this.settingsService = settingsService;
     }
 
-    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders, indexType);
+    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
+            List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
+        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
+                indexType);
         if (settingsService.isSearchMethodLegacy()) {
             criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
         } else {

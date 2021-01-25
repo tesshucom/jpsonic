@@ -21,6 +21,7 @@ package org.airsonic.player.service.metadata;
 
 /**
  * Contains meta-data (song title, artist, album etc) for a music file.
+ * 
  * @author Sindre Mehus
  */
 public class MetaData {

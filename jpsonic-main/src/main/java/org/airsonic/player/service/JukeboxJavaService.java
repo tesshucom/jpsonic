@@ -36,18 +36,13 @@ public class JukeboxJavaService {
     private MediaFileService mediaFileService;
     private JavaPlayerFactory javaPlayerFactory;
 
-
     private TransferStatus status;
     private Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new ConcurrentHashMap<>();
     private Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer = new ConcurrentHashMap<>();
     private final static String DEFAULT_MIXER_ENTRY_KEY = "_default";
 
-
-    public JukeboxJavaService(AudioScrobblerService audioScrobblerService,
-                              StatusService statusService,
-                              SecurityService securityService,
-                              MediaFileService mediaFileService,
-                              JavaPlayerFactory javaPlayerFactory) {
+    public JukeboxJavaService(AudioScrobblerService audioScrobblerService, StatusService statusService,
+            SecurityService securityService, MediaFileService mediaFileService, JavaPlayerFactory javaPlayerFactory) {
         this.audioScrobblerService = audioScrobblerService;
         this.statusService = statusService;
         this.securityService = securityService;
@@ -56,11 +51,12 @@ public class JukeboxJavaService {
     }
 
     /**
-     * Finds the corresponding active audio player for a given airsonic player.
-     * If no player exists we create one.
-     * The JukeboxJavaService references all active audio players in a map indexed by airsonic player id.
+     * Finds the corresponding active audio player for a given airsonic player. If no player exists we create one. The
+     * JukeboxJavaService references all active audio players in a map indexed by airsonic player id.
      *
-     * @param airsonicPlayer a given airsonic player.
+     * @param airsonicPlayer
+     *            a given airsonic player.
+     * 
      * @return the corresponding active audio player.
      */
     private com.github.biconou.AudioPlayer.api.Player retrieveAudioPlayerForAirsonicPlayer(Player airsonicPlayer) {
@@ -73,7 +69,8 @@ public class JukeboxJavaService {
                 if (StringUtils.isBlank(mixer)) {
                     mixer = DEFAULT_MIXER_ENTRY_KEY;
                 }
-                List<com.github.biconou.AudioPlayer.api.Player> playersForMixer = activeAudioPlayersPerMixer.computeIfAbsent(mixer, k -> new ArrayList<>());
+                List<com.github.biconou.AudioPlayer.api.Player> playersForMixer = activeAudioPlayersPerMixer
+                        .computeIfAbsent(mixer, k -> new ArrayList<>());
                 playersForMixer.add(newPlayer);
                 foundPlayer = newPlayer;
             }
@@ -137,7 +134,6 @@ public class JukeboxJavaService {
         return audioPlayer;
     }
 
-
     public int getPosition(final Player player) {
 
         if (!player.getTechnology().equals(PlayerTechnology.JAVA_JUKEBOX)) {
@@ -172,10 +168,10 @@ public class JukeboxJavaService {
         audioPlayer.setGain(gain);
     }
 
-
     final void onSongStart(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
-        LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
+        LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(),
+                FileUtil.getShortPath(file.getFile()));
         if (status != null) {
             statusService.removeStreamStatus(status);
         }
@@ -189,7 +185,8 @@ public class JukeboxJavaService {
     @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
     final void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
-        LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(), FileUtil.getShortPath(file.getFile()));
+        LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(),
+                FileUtil.getShortPath(file.getFile()));
         if (status != null) {
             statusService.removeStreamStatus(status);
             status = null;
@@ -198,7 +195,7 @@ public class JukeboxJavaService {
     }
 
     private void scrobble(Player player, MediaFile file, boolean submission) {
-        if (player.getClientId() == null) {  // Don't scrobble REST players.
+        if (player.getClientId() == null) { // Don't scrobble REST players.
             audioScrobblerService.register(file, player.getUsername(), submission, null);
         }
     }
@@ -253,7 +250,8 @@ public class JukeboxJavaService {
                 if (StringUtils.isBlank(mixer)) {
                     mixer = DEFAULT_MIXER_ENTRY_KEY;
                 }
-                List<com.github.biconou.AudioPlayer.api.Player> playersForSameMixer = activeAudioPlayersPerMixer.get(mixer);
+                List<com.github.biconou.AudioPlayer.api.Player> playersForSameMixer = activeAudioPlayersPerMixer
+                        .get(mixer);
                 playersForSameMixer.forEach(player -> {
                     if (player != audioPlayer) {
                         player.close();

@@ -52,6 +52,7 @@ import static org.springframework.web.bind.ServletRequestUtils.getStringParamete
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class JAXBWriter {
@@ -169,7 +170,7 @@ public class JAXBWriter {
     }
 
     public void writeErrorResponse(HttpServletRequest request, HttpServletResponse response,
-                                   SubsonicRESTController.ErrorCode code, String message) {
+            SubsonicRESTController.ErrorCode code, String message) {
         Response res = createResponse(false);
         Error error = new Error();
         res.setError(error);
@@ -193,6 +194,6 @@ public class JAXBWriter {
             return null;
         }
 
-        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar)calendar).normalize();
+        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar).normalize();
     }
 }

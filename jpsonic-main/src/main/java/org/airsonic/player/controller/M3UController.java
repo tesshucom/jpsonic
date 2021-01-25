@@ -90,8 +90,8 @@ public class M3UController {
             }
             out.println("#EXTINF:" + duration + "," + mediaFile.getArtist() + " - " + mediaFile.getTitle());
 
-            String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=." +
-                    transcodingService.getSuffix(player, mediaFile, null);
+            String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=."
+                    + transcodingService.getSuffix(player, mediaFile, null);
             String urlWithAuth = jwtSecurityService.addJWTToken(urlNoAuth);
             out.println(urlWithAuth);
         }
@@ -106,10 +106,7 @@ public class M3UController {
         // Get suffix of current file, e.g., ".mp3".
         String suffix = getSuffix(player);
         if (suffix != null) {
-            url = new StringBuilder(url)
-                    .append('&')
-                    .append(Attributes.Request.SUFFIX.value())
-                    .append("=.")
+            url = new StringBuilder(url).append('&').append(Attributes.Request.SUFFIX.value()).append("=.")
                     .append(suffix).toString();
         }
 

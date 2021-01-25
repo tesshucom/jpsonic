@@ -77,7 +77,6 @@ public class ShareManagementController {
             }
         }
 
-
         Share share = shareService.createShare(request, files);
         String description = getDescription(request);
         if (description != null) {
@@ -85,10 +84,8 @@ public class ShareManagementController {
             shareService.updateShare(share);
         }
 
-        return new ModelAndView("createShare", "model", LegacyMap.of(
-                "dir", dir,
-                "user", securityService.getCurrentUser(request),
-                "playUrl", shareService.getShareUrl(request, share)));
+        return new ModelAndView("createShare", "model", LegacyMap.of("dir", dir, "user",
+                securityService.getCurrentUser(request), "playUrl", shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {

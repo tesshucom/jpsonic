@@ -33,6 +33,7 @@ import java.nio.charset.StandardCharsets;
  * Utility class which reads everything from an input stream and optionally logs it.
  *
  * @see TranscodeInputStream
+ * 
  * @author Sindre Mehus
  */
 public class InputStreamReaderThread extends Thread {

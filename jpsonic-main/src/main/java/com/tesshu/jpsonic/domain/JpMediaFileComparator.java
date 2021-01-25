@@ -73,14 +73,14 @@ class JpMediaFileComparator implements MediaFileComparator {
             int n;
             if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
                 n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
-            } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading()) && !isEmpty(b.getArtistReading())) {
+            } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading())
+                    && !isEmpty(b.getArtistReading())) {
                 n = comparator.compare(a.getArtistReading(), b.getArtistReading());
             } else {
                 n = comparator.compare(a.getName(), b.getName());
             }
-            return n == 0
-                    ? comparator.compare(a.getPath(), b.getPath())
-                    : n; // To make it consistent to MediaFile.equals()
+            return n == 0 ? comparator.compare(a.getPath(), b.getPath()) : n; // To make it consistent to
+                                                                              // MediaFile.equals()
         }
 
         // Compare by disc and track numbers, if present.

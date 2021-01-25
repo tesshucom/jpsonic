@@ -68,7 +68,8 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("     ", utils.createReading("　　　　　"));
         assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
         assertEquals("Best ～first things～", utils.createReading("Best ～first things～"));
-        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
+                utils.createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertEquals("Dvořák: Symphonies #7-9", utils.createReading("Dvořák: Symphonies #7-9"));
         assertEquals("フクヤママサハル", utils.createReading("福山雅治"));// Readable case
         assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃"));// Unreadable case
@@ -105,7 +106,8 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("     ", utils.normalize("　　　　　"));
         assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
         assertEquals("Best ～first things～", utils.normalize("Best ～first things～"));
-        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.normalize("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
+                utils.normalize("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertEquals("Dvořák: Symphonies #7-9", utils.normalize("Dvořák: Symphonies #7-9"));
         assertEquals("福山雅治", utils.normalize("福山雅治"));
         assertEquals("サシハラ莉乃", utils.normalize("サシハラ莉乃"));
@@ -365,7 +367,7 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("オクダタミオ", candidate.getSort());
 
     }
-    
+
     @Test
     public void testIsJapaneseReadable() {
         assertTrue(utils.isJapaneseReadable("あいうえお"));
@@ -401,10 +403,9 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertTrue(utils.isJapaneseReadable("サシハラ莉乃"));
         assertTrue(utils.isJapaneseReadable("倖田來未"));
         assertTrue(utils.isJapaneseReadable("奥田民生"));
-        
+
         /*
-         * Some words are misjudged, but need not be complete.
-         * No problem if reading is generated correctly.
+         * Some words are misjudged, but need not be complete. No problem if reading is generated correctly.
          */
         assertEquals("ABCDE", utils.createReading("ＡＢＣＤＥ"));
         assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
@@ -429,7 +430,8 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("     ", utils.removePunctuationFromJapaneseReading("     "));
         assertEquals("[Disc 3]", utils.removePunctuationFromJapaneseReading("[Disc 3]"));
         assertEquals("Best ～first things～", utils.removePunctuationFromJapaneseReading("Best ～first things～"));
-        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-", utils.removePunctuationFromJapaneseReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
+                utils.removePunctuationFromJapaneseReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertEquals("Dvořák: Symphonies #7-9", utils.removePunctuationFromJapaneseReading("Dvořák: Symphonies #7-9"));
         assertEquals("フクヤママサハル", utils.removePunctuationFromJapaneseReading("フクヤママサハル"));
         assertEquals("サシハラ莉乃", utils.removePunctuationFromJapaneseReading("サシハラ莉乃"));

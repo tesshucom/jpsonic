@@ -32,6 +32,7 @@ import java.io.File;
  * Initializes Ehcache and creates caches.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class CacheFactory implements InitializingBean {

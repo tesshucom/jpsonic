@@ -33,47 +33,47 @@ public class JukeboxService {
     private JukeboxJavaService jukeboxJavaService;
 
     public JukeboxService(JukeboxLegacySubsonicService jukeboxLegacySubsonicService,
-                          JukeboxJavaService jukeboxJavaService) {
+            JukeboxJavaService jukeboxJavaService) {
         this.jukeboxLegacySubsonicService = jukeboxLegacySubsonicService;
         this.jukeboxJavaService = jukeboxJavaService;
     }
 
     public void setGain(Player airsonicPlayer, float gain) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                jukeboxLegacySubsonicService.setGain(gain);
-                break;
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.setGain(airsonicPlayer,gain);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            jukeboxLegacySubsonicService.setGain(gain);
+            break;
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.setGain(airsonicPlayer, gain);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
     public void setPosition(Player airsonicPlayer, int positionInSeconds) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                throw new UnsupportedOperationException();
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.setPosition(airsonicPlayer,positionInSeconds);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            throw new UnsupportedOperationException();
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.setPosition(airsonicPlayer, positionInSeconds);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
     public float getGain(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                return jukeboxLegacySubsonicService.getGain();
-            case JAVA_JUKEBOX:
-                return jukeboxJavaService.getGain(airsonicPlayer);
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            return jukeboxLegacySubsonicService.getGain();
+        case JAVA_JUKEBOX:
+            return jukeboxJavaService.getGain(airsonicPlayer);
+        default:
+            // do nothing
+            break;
         }
         return 0;
     }
@@ -84,19 +84,19 @@ public class JukeboxService {
     @Deprecated
     public void updateJukebox(Player airsonicPlayer, int offset) {
         if (airsonicPlayer.getTechnology().equals(PlayerTechnology.JUKEBOX)) {
-            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer,offset);
+            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer, offset);
         }
     }
 
     public int getPosition(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                return jukeboxLegacySubsonicService.getPosition();
-            case JAVA_JUKEBOX:
-                return jukeboxJavaService.getPosition(airsonicPlayer);
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            return jukeboxLegacySubsonicService.getPosition();
+        case JAVA_JUKEBOX:
+            return jukeboxJavaService.getPosition(airsonicPlayer);
+        default:
+            // do nothing
+            break;
         }
         return 0;
     }
@@ -106,78 +106,78 @@ public class JukeboxService {
      */
     public void play(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer,0);
-                break;
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.play(airsonicPlayer);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer, 0);
+            break;
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.play(airsonicPlayer);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
     public void start(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer,0);
-                break;
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.start(airsonicPlayer);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer, 0);
+            break;
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.start(airsonicPlayer);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
     public void stop(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer,0);
-                break;
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.stop(airsonicPlayer);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer, 0);
+            break;
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.stop(airsonicPlayer);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
-    public void skip(Player airsonicPlayer,int index,int offset) {
+    public void skip(Player airsonicPlayer, int index, int offset) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer,offset);
-                break;
-            case JAVA_JUKEBOX:
-                jukeboxJavaService.skip(airsonicPlayer,index,offset);
-                break;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            jukeboxLegacySubsonicService.updateJukebox(airsonicPlayer, offset);
+            break;
+        case JAVA_JUKEBOX:
+            jukeboxJavaService.skip(airsonicPlayer, index, offset);
+            break;
+        default:
+            // do nothing
+            break;
         }
     }
 
     /**
-     * This method is only here due to legacy considerations and should be removed
-     * if the jukeboxLegacySubsonicService is removed.
+     * This method is only here due to legacy considerations and should be removed if the jukeboxLegacySubsonicService
+     * is removed.
      */
     @Deprecated
     public boolean canControl(Player airsonicPlayer) {
         switch (airsonicPlayer.getTechnology()) {
-            case JUKEBOX:
-                if (jukeboxLegacySubsonicService.getPlayer() == null) {
-                    return false;
-                } else {
-                    return jukeboxLegacySubsonicService.getPlayer().getId().equals(airsonicPlayer.getId());
-                }
-            case JAVA_JUKEBOX:
-                return true;
-            default:
-                // do nothing
-                break;
+        case JUKEBOX:
+            if (jukeboxLegacySubsonicService.getPlayer() == null) {
+                return false;
+            } else {
+                return jukeboxLegacySubsonicService.getPlayer().getId().equals(airsonicPlayer.getId());
+            }
+        case JAVA_JUKEBOX:
+            return true;
+        default:
+            // do nothing
+            break;
         }
         return false;
     }

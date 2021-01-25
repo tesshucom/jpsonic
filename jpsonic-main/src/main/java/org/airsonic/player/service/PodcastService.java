@@ -76,11 +76,13 @@ import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 public class PodcastService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodcastService.class);
-    private static final DateFormat[] RSS_DATE_FORMATS = {new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
-        new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US)};
+    private static final DateFormat[] RSS_DATE_FORMATS = {
+            new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
+            new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US) };
 
-    private static final Namespace[] ITUNES_NAMESPACES = {Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
-        Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd")};
+    private static final Namespace[] ITUNES_NAMESPACES = {
+            Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
+            Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
 
     private static final Object EPISODES_LOCK = new Object();
     private static final Object FILE_LOCK = new Object();
@@ -125,7 +127,8 @@ public class PodcastService {
                         if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
                             deleteEpisode(episode.getId(), false);
                             if (LOG.isInfoEnabled()) {
-                                LOG.info("Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
+                                LOG.info("Deleted Podcast episode '" + episode.getTitle()
+                                        + "' since download was interrupted.");
                             }
                         }
                     }
@@ -165,10 +168,12 @@ public class PodcastService {
             };
             long periodMillis = hoursBetween * 60L * 60L * 1000L;
             long initialDelayMillis = 5L * 60L * 1000L;
-            scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis, TimeUnit.MILLISECONDS);
+            scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis,
+                    TimeUnit.MILLISECONDS);
             Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
             if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at " + firstTime);
+                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at "
+                        + firstTime);
             }
         }
     }
@@ -176,7 +181,8 @@ public class PodcastService {
     /**
      * Creates a new Podcast channel.
      *
-     * @param url The URL of the Podcast channel.
+     * @param url
+     *            The URL of the Podcast channel.
      */
     public void createChannel(final String url) {
         PodcastChannel channel = new PodcastChannel(sanitizeUrl(url));
@@ -222,9 +228,11 @@ public class PodcastService {
     /**
      * Returns all Podcast episodes for a given channel.
      *
-     * @param channelId      The Podcast channel ID.
-     * @return Possibly empty list of all Podcast episodes for the given channel, sorted in
-     *         reverse chronological order (newest episode first).
+     * @param channelId
+     *            The Podcast channel ID.
+     * 
+     * @return Possibly empty list of all Podcast episodes for the given channel, sorted in reverse chronological order
+     *         (newest episode first).
      */
     public List<PodcastEpisode> getEpisodes(int channelId) {
         List<PodcastEpisode> episodes = filterAllowed(podcastDao.getEpisodes(channelId));
@@ -234,8 +242,8 @@ public class PodcastService {
     /**
      * Returns the N newest episodes.
      *
-     * @return Possibly empty list of the newest Podcast episodes, sorted in
-     *         reverse chronological order (newest episode first).
+     * @return Possibly empty list of the newest Podcast episodes, sorted in reverse chronological order (newest episode
+     *         first).
      */
     public List<PodcastEpisode> getNewestEpisodes(int count) {
         List<PodcastEpisode> episodes = addMediaFileIdToEpisodes(podcastDao.getNewestEpisodes(count));
@@ -301,7 +309,8 @@ public class PodcastService {
                 }
             } catch (Exception x) {
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x, x);
+                    LOG.warn("Failed to resolve media file ID for podcast channel '" + channel.getTitle() + "': " + x,
+                            x);
                 }
             }
         }
@@ -330,8 +339,7 @@ public class PodcastService {
             channel.setStatus(PodcastStatus.DOWNLOADING);
             channel.setErrorMessage(null);
             podcastDao.updateChannel(channel);
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(2 * 60 * 1000) // 2 minutes
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
                     .setSocketTimeout(10 * 60 * 1000) // 10 minutes
                     .build();
             HttpGet method = new HttpGet(channel.getUrl());
@@ -390,7 +398,8 @@ public class PodcastService {
             File dir = getChannelDirectory(channel);
             MediaFile channelMediaFile = mediaFileService.getMediaFile(dir);
             File existingCoverArt = mediaFileService.getCoverArt(channelMediaFile);
-            boolean imageFileExists = existingCoverArt != null && mediaFileService.getMediaFile(existingCoverArt) == null;
+            boolean imageFileExists = existingCoverArt != null
+                    && mediaFileService.getMediaFile(existingCoverArt) == null;
             if (imageFileExists) {
                 return;
             }
@@ -528,7 +537,8 @@ public class PodcastService {
     }
 
     private String formatDuration(String duration) {
-        if (duration == null) return null;
+        if (duration == null)
+            return null;
         if (duration.matches("^\\d+$")) {
             long seconds = Long.parseLong(duration);
             if (seconds >= DURATION_FORMAT_THRESHOLD)
@@ -577,20 +587,19 @@ public class PodcastService {
             }
 
             try (CloseableHttpClient client = HttpClients.createDefault()) {
-    
+
                 PodcastChannel channel = getChannel(episode.getChannelId());
-                RequestConfig requestConfig = RequestConfig.custom()
-                        .setConnectTimeout(2 * 60 * 1000) // 2 minutes
+                RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2 * 60 * 1000) // 2 minutes
                         .setSocketTimeout(10 * 60 * 1000) // 10 minutes
                         // Workaround HttpClient circular redirects, which some feeds use (with query parameters)
                         .setCircularRedirectsAllowed(true)
                         // Workaround HttpClient not understanding latest RFC-compliant cookie 'expires' attributes
-                        .setCookieSpec(CookieSpecs.STANDARD)
-                        .build();
+                        .setCookieSpec(CookieSpecs.STANDARD).build();
                 HttpGet method = new HttpGet(episode.getUrl());
                 method.setConfig(requestConfig);
 
-                try (CloseableHttpResponse response = client.execute(method);InputStream in = response.getEntity().getContent()) {
+                try (CloseableHttpResponse response = client.execute(method);
+                        InputStream in = response.getEntity().getContent()) {
 
                     synchronized (FILE_LOCK) {
 
@@ -609,11 +618,11 @@ public class PodcastService {
                             for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
                                 out.write(buffer, 0, n);
                                 bytesDownloaded += n;
-    
+
                                 if (bytesDownloaded > nextLogCount) {
                                     episode.setBytesDownloaded(bytesDownloaded);
                                     nextLogCount += 30000L;
-    
+
                                     // Abort download if episode was deleted by user.
                                     if (isEpisodeDeleted(episode)) {
                                         break;
@@ -726,7 +735,8 @@ public class PodcastService {
         File channelDir = getChannelDirectory(channel);
 
         String episodeDate = String.format("%tF", episode.getPublishDate());
-        String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - " + episode.getTitle();
+        String filename = channel.getTitle() + " - " + episodeDate + " - " + episode.getId() + " - "
+                + episode.getTitle();
         filename = filename.substring(0, Math.min(filename.length(), 146));
 
         filename = StringUtil.fileSystemSafe(filename);
@@ -770,7 +780,8 @@ public class PodcastService {
     /**
      * Deletes the Podcast channel with the given ID.
      *
-     * @param channelId The Podcast channel ID.
+     * @param channelId
+     *            The Podcast channel ID.
      */
     public void deleteChannel(int channelId) {
         // Delete all associated episodes (in case they have files that need to be deleted).
@@ -784,9 +795,10 @@ public class PodcastService {
     /**
      * Deletes the Podcast episode with the given ID.
      *
-     * @param episodeId     The Podcast episode ID.
-     * @param logicalDelete Whether to perform a logical delete by setting the
-     *                      episode status to {@link PodcastStatus#DELETED}.
+     * @param episodeId
+     *            The Podcast episode ID.
+     * @param logicalDelete
+     *            Whether to perform a logical delete by setting the episode status to {@link PodcastStatus#DELETED}.
      */
     public void deleteEpisode(int episodeId, boolean logicalDelete) {
         PodcastEpisode episode = podcastDao.getEpisode(episodeId);

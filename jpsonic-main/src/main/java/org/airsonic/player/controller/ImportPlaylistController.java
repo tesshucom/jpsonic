@@ -53,7 +53,6 @@ public class ImportPlaylistController {
 
     private static final String FIELD_NAME_FILE = "file";
     private static final long MAX_PLAYLIST_SIZE_MB = 5L;
-    
 
     @Autowired
     private SecurityService securityService;
@@ -62,9 +61,7 @@ public class ImportPlaylistController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IOException) Not reusable
     @PostMapping
-    protected String handlePost(RedirectAttributes redirectAttributes,
-                                HttpServletRequest request
-    ) {
+    protected String handlePost(RedirectAttributes redirectAttributes, HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         try {
@@ -78,7 +75,9 @@ public class ImportPlaylistController {
 
                     if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
                         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
-                            throw new ExecutionException(new IOException("The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
+                            throw new ExecutionException(
+                                    new IOException("The playlist file is too large. Max file size is "
+                                            + MAX_PLAYLIST_SIZE_MB + " MB."));
                         }
                         String playlistName = FilenameUtils.getBaseName(item.getName());
                         String fileName = FilenameUtils.getName(item.getName());

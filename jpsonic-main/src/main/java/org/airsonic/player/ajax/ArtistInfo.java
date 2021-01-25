@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class ArtistInfo {

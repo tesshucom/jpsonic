@@ -72,7 +72,7 @@ import java.util.regex.Pattern;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping({"/stream/**", "/ext/stream/**"})
+@RequestMapping({ "/stream/**", "/ext/stream/**" })
 public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
@@ -156,8 +156,8 @@ public class StreamController {
 
             if (isSingleFile) {
 
-                if (!(authentication instanceof JWTAuthenticationToken) && !securityService.isFolderAccessAllowed(file,
-                        user.getUsername())) {
+                if (!(authentication instanceof JWTAuthenticationToken)
+                        && !securityService.isFolderAccessAllowed(file, user.getUsername())) {
                     response.sendError(HttpServletResponse.SC_FORBIDDEN,
                             "Access to file " + file.getId() + " is forbidden for user " + user.getUsername());
                     return;
@@ -184,7 +184,7 @@ public class StreamController {
                 // Wrangle response length and ranges.
                 //
                 // Support ranges as long as we're not transcoding blindly; video is always assumed to transcode
-                if (file.isVideo() || ! parameters.isRangeAllowed()) {
+                if (file.isVideo() || !parameters.isRangeAllowed()) {
                     // Use chunked transfer; do not accept range requests
                     response.setStatus(HttpServletResponse.SC_OK);
                     response.setHeader("Accept-Ranges", "none");
@@ -236,7 +236,8 @@ public class StreamController {
 
             if (fileLengthExpected != null) {
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
+                    LOG.info("Streaming request for [{}] with range [{}]", file.getPath(),
+                            response.getHeader("Content-Range"));
                 }
             }
 
@@ -251,11 +252,11 @@ public class StreamController {
 
             status = statusService.createStreamStatus(player);
 
-            try (
-                PlayQueueInputStream in = new PlayQueueInputStream(player, status, maxBitRate, preferredTargetFormat, videoTranscodingSettings,
-                        transcodingService, audioScrobblerService, mediaFileService, searchService);
-                OutputStream out = makeOutputStream(request, response, range, isSingleFile, player, settingsService)
-            ) {
+            try (PlayQueueInputStream in = new PlayQueueInputStream(player, status, maxBitRate, preferredTargetFormat,
+                    videoTranscodingSettings, transcodingService, audioScrobblerService, mediaFileService,
+                    searchService);
+                    OutputStream out = makeOutputStream(request, response, range, isSingleFile, player,
+                            settingsService)) {
                 byte[] buf = new byte[BUFFER_SIZE];
                 long bytesWritten = 0;
 
@@ -281,11 +282,11 @@ public class StreamController {
                             }
                         } else {
                             if (fileLengthExpected != null && bytesWritten <= fileLengthExpected
-                                && bytesWritten + n > fileLengthExpected) {
+                                    && bytesWritten + n > fileLengthExpected) {
                                 if (LOG.isWarnEnabled()) {
                                     LOG.warn("Stream output exceeded expected length of {}. It is likely that "
-                                        + "the transcoder is not adhering to the bitrate limit or the media "
-                                        + "source is corrupted or has grown larger", fileLengthExpected);
+                                            + "the transcoder is not adhering to the bitrate limit or the media "
+                                            + "source is corrupted or has grown larger", fileLengthExpected);
                                 }
                             }
                             out.write(buf, 0, n);
@@ -299,13 +300,12 @@ public class StreamController {
             // This happens often and outside of the control of the server, so
             // we catch Tomcat/Jetty "connection aborted by client" exceptions
             // and display a short error message.
-            boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e, "org.apache.catalina.connector.ClientAbortException");
+            boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e,
+                    "org.apache.catalina.connector.ClientAbortException");
             if (shouldCatch) {
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("{}: Client unexpectedly closed connection while loading {} ({})",
-                            request.getRemoteAddr(),
-                            PlayerUtils.getAnonymizedURLForRequest(request),
-                            e.getCause().toString());
+                    LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(),
+                            PlayerUtils.getAnonymizedURLForRequest(request), e.getCause().toString());
                 }
                 return;
             }
@@ -410,9 +410,10 @@ public class StreamController {
         Integer existingHeight = file.getHeight();
         Integer maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value());
         int timeOffset = ServletRequestUtils.getIntParameter(request, Attributes.Request.TIME_OFFSET.value(), 0);
-        int defaultDuration = file.getDurationSeconds() == null ? Integer.MAX_VALUE :
-                file.getDurationSeconds() - timeOffset;
-        int duration = ServletRequestUtils.getIntParameter(request, Attributes.Request.DURATION.value(), defaultDuration);
+        int defaultDuration = file.getDurationSeconds() == null ? Integer.MAX_VALUE
+                : file.getDurationSeconds() - timeOffset;
+        int duration = ServletRequestUtils.getIntParameter(request, Attributes.Request.DURATION.value(),
+                defaultDuration);
         boolean hls = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.HLS.value(), false);
 
         Dimension dim = getRequestedVideoSize(request.getParameter(Attributes.Request.SIZE.value()));

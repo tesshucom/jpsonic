@@ -80,15 +80,12 @@ public class StatusController {
         for (int i = 0; i < uploadStatuses.size(); i++) {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
-        return new ModelAndView("status", "model", LegacyMap.of(
-                "brand", settingsService.getBrand(),
-                "admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()),
-                "showStatus", settingsService.isShowStatus(),
-                "transferStatuses", transferStatuses,
-                "chartWidth", StatusChartController.IMAGE_WIDTH,
-                "chartHeight", StatusChartController.IMAGE_HEIGHT));
+        return new ModelAndView("status", "model",
+                LegacyMap.of("brand", settingsService.getBrand(), "admin",
+                        securityService.isAdmin(securityService.getCurrentUser(request).getUsername()), "showStatus",
+                        settingsService.isShowStatus(), "transferStatuses", transferStatuses, "chartWidth",
+                        StatusChartController.IMAGE_WIDTH, "chartHeight", StatusChartController.IMAGE_HEIGHT));
     }
-
 
     public static class TransferStatusHolder {
         private TransferStatus transferStatus;
@@ -99,7 +96,7 @@ public class StatusController {
         private Locale locale;
 
         TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
-                             int index, Locale locale) {
+                int index, Locale locale) {
             this.transferStatus = transferStatus;
             this.stream = isStream;
             this.download = isDownload;

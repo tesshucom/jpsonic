@@ -66,11 +66,9 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        model.addAttribute("model", LegacyMap.of(
-                "shareInfos", getShareInfos(request),
-                "user", securityService.getCurrentUser(request),
-                "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos()));
+        model.addAttribute("model",
+                LegacyMap.of("shareInfos", getShareInfos(request), "user", securityService.getCurrentUser(request),
+                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos()));
         return "shareSettings";
     }
 
@@ -101,7 +99,8 @@ public class ShareSettingsController {
             }
         }
 
-        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DELETE_EXPIRED.value(), false);
+        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
             Date now = new Date();
             for (Share share : shareService.getSharesForUser(user)) {
@@ -123,14 +122,12 @@ public class ShareSettingsController {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);
             if (!files.isEmpty()) {
                 MediaFile file = files.get(0);
-                result.add(new ShareInfo(shareService.getShareUrl(request, share), share, file.isDirectory() ? file :
-                        mediaFileService
-                        .getParentOf(file)));
+                result.add(new ShareInfo(shareService.getShareUrl(request, share), share,
+                        file.isDirectory() ? file : mediaFileService.getParentOf(file)));
             }
         }
         return result;
     }
-
 
     private String getParameter(HttpServletRequest request, String name, int id) {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));

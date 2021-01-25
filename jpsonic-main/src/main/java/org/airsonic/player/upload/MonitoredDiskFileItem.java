@@ -34,8 +34,8 @@ public class MonitoredDiskFileItem extends DiskFileItem {
     private MonitoredOutputStream mos;
     private UploadListener listener;
 
-    public MonitoredDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName, int sizeThreshold,
-                                 File repository, UploadListener listener) {
+    public MonitoredDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName,
+            int sizeThreshold, File repository, UploadListener listener) {
         super(fieldName, contentType, isFormField, fileName, sizeThreshold, repository);
         this.listener = listener;
         if (fileName != null) {

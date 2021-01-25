@@ -98,7 +98,8 @@ public class InternetRadioSettingsController {
                 if (streamUrl == null) {
                     return "internetradiosettings.nourl";
                 }
-                settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
+                settingsService
+                        .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
             }
         }
 

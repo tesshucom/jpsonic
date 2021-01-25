@@ -33,8 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * Provides AJAX-enabled services for editing tags in music files.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for editing tags in music files. This class is used by the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -51,17 +51,26 @@ public class TagService {
     /**
      * Updated tags for a given music file.
      *
-     * @param id     The ID of the music file.
-     * @param trackStr  The track number.
-     * @param artistStr The artist name.
-     * @param albumStr  The album name.
-     * @param titleStr  The song title.
-     * @param yearStr   The release year.
-     * @param genreStr  The musical genre.
-     * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary.
-     *         Otherwise the error message is returned.
+     * @param id
+     *            The ID of the music file.
+     * @param trackStr
+     *            The track number.
+     * @param artistStr
+     *            The artist name.
+     * @param albumStr
+     *            The album name.
+     * @param titleStr
+     *            The song title.
+     * @param yearStr
+     *            The release year.
+     * @param genreStr
+     *            The musical genre.
+     * 
+     * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary. Otherwise the error message
+     *         is returned.
      */
-    public String setTags(int id, String trackStr, String artistStr, String albumStr, String titleStr, String yearStr, String genreStr) {
+    public String setTags(int id, String trackStr, String artistStr, String albumStr, String titleStr, String yearStr,
+            String genreStr) {
 
         String track = StringUtils.trimToNull(trackStr);
         String artist = StringUtils.trimToNull(artistStr);
@@ -101,12 +110,10 @@ public class TagService {
                 return "Tag editing of " + FilenameUtils.getExtension(file.getPath()) + " files is not supported.";
             }
 
-            if (StringUtils.equals(artist, file.getArtist()) &&
-                    StringUtils.equals(album, file.getAlbumName()) &&
-                    StringUtils.equals(title, file.getTitle()) &&
-                    ObjectUtils.equals(yearNumber, file.getYear()) &&
-                    StringUtils.equals(genre, file.getGenre()) &&
-                    ObjectUtils.equals(trackNumber, file.getTrackNumber())) {
+            if (StringUtils.equals(artist, file.getArtist()) && StringUtils.equals(album, file.getAlbumName())
+                    && StringUtils.equals(title, file.getTitle()) && ObjectUtils.equals(yearNumber, file.getYear())
+                    && StringUtils.equals(genre, file.getGenre())
+                    && ObjectUtils.equals(trackNumber, file.getTrackNumber())) {
                 return "SKIPPED";
             }
 

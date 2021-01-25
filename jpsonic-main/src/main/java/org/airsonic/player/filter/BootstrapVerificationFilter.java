@@ -37,13 +37,11 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * This filter is executed very early in the filter chain. It verifies that
- * the Airsonic home directory (c:\airsonic or /var/airsonic) exists and
- * is writable. If not, a proper error message is given to the user.
+ * This filter is executed very early in the filter chain. It verifies that the Airsonic home directory (c:\airsonic or
+ * /var/airsonic) exists and is writable. If not, a proper error message is given to the user.
  * <p/>
- * (The Airsonic home directory is usually created automatically, but a common
- * problem on Linux is that the Tomcat user does not have the necessary
- * privileges).
+ * (The Airsonic home directory is usually created automatically, but a common problem on Linux is that the Tomcat user
+ * does not have the necessary privileges).
  *
  * @author Sindre Mehus
  */
@@ -65,16 +63,18 @@ public class BootstrapVerificationFilter implements Filter {
 
         File home = SettingsService.getJpsonicHome();
         if (!directoryExists(home)) {
-            writeError(res, "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, " +
-                       "then restart the servlet container.</p>" +
-                       "<p>(You can override the directory location by specifying -Dairsonic.home=... when " +
-                       "starting the servlet container.)</p>");
+            writeError(res,
+                    "<p>The directory <b>" + home + "</b> does not exist. Please create it and make it writable, "
+                            + "then restart the servlet container.</p>"
+                            + "<p>(You can override the directory location by specifying -Dairsonic.home=... when "
+                            + "starting the servlet container.)</p>");
 
         } else if (!directoryWritable(home)) {
-            writeError(res, "<p>The directory <b>" + home + "</b> is not writable. Please change file permissions, " +
-                       "then restart the servlet container.</p>" +
-                       "<p>(You can override the directory location by specifying -Dairsonic.home=... when " +
-                       "starting the servlet container.)</p>");
+            writeError(res,
+                    "<p>The directory <b>" + home + "</b> is not writable. Please change file permissions, "
+                            + "then restart the servlet container.</p>"
+                            + "<p>(You can override the directory location by specifying -Dairsonic.home=... when "
+                            + "starting the servlet container.)</p>");
 
         } else {
             jpsonicHomeVerified = true;
@@ -111,13 +111,8 @@ public class BootstrapVerificationFilter implements Filter {
      */
     private void writeError(ServletResponse res, String error) throws IOException {
         ServletOutputStream out = res.getOutputStream();
-        out.println("<html>" +
-                    "<head><title>Airsonic Error</title></head>" +
-                    "<body>" +
-                    "<h2>Airsonic Error</h2>" +
-                    error +
-                    "</body>" +
-                    "</html>");
+        out.println("<html>" + "<head><title>Airsonic Error</title></head>" + "<body>" + "<h2>Airsonic Error</h2>"
+                + error + "</body>" + "</html>");
     }
 
     @Override

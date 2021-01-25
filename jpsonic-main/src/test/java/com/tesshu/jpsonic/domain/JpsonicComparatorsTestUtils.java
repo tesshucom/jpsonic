@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 
 @Component
 public class JpsonicComparatorsTestUtils {
-    
+
     @Autowired
     private JpsonicComparators comparators;
 
@@ -52,29 +52,66 @@ public class JpsonicComparatorsTestUtils {
     private @interface ComparatorsDecisions {
         @interface Conditions {
             @interface name {
-                @interface isAlpha {}
-                @interface isNum {}
-                @interface isAlphaNum {}
-                @interface isFullWidth {}
-                @interface isHalfWidth {}
-                @interface isUpper {}
-                @interface isLigature {}
-                @interface isChiChar {}
-                @interface isHira {}
-                @interface isKata {}
-                @interface isSmallKana {}
-                @interface isDullness {}
-                @interface isPsound {}
-                @interface isSymbol {}
-                @interface isWithArticle {}
-                @interface isRequireJapaneseReadingAnalysis {}
+                @interface isAlpha {
+                }
+
+                @interface isNum {
+                }
+
+                @interface isAlphaNum {
+                }
+
+                @interface isFullWidth {
+                }
+
+                @interface isHalfWidth {
+                }
+
+                @interface isUpper {
+                }
+
+                @interface isLigature {
+                }
+
+                @interface isChiChar {
+                }
+
+                @interface isHira {
+                }
+
+                @interface isKata {
+                }
+
+                @interface isSmallKana {
+                }
+
+                @interface isDullness {
+                }
+
+                @interface isPsound {
+                }
+
+                @interface isSymbol {
+                }
+
+                @interface isWithArticle {
+                }
+
+                @interface isRequireJapaneseReadingAnalysis {
+                }
             }
+
             @interface year {
-                @interface isSpecified {}
+                @interface isSpecified {
+                }
             }
+
             @interface reading {
-                @interface isJapaneseAll {}
-                @interface isFirstWithEnAndContainsJp {}
+                @interface isJapaneseAll {
+                }
+
+                @interface isFirstWithEnAndContainsJp {
+                }
             }
         }
     }
@@ -155,7 +192,7 @@ public class JpsonicComparatorsTestUtils {
     @ComparatorsDecisions.Conditions.name.isAlpha
     @ComparatorsDecisions.Conditions.name.isHalfWidth
     @ComparatorsDecisions.Conditions.name.isWithArticle
-    
+
     private void dtheeabcd() {
     }
 
@@ -259,102 +296,40 @@ public class JpsonicComparatorsTestUtils {
     /*
      * Dictionary order that Japanese feel natural.
      * 
-     *  - Generally, it is divided into "Eng/Num" and Japanese.
-     *  - In general, ligatures are read in English
-     *    (unless ligatures are intentionally separated in a dictionary).
-     *  - Frequently used symbols are read in Japanese.
-     *  - "Eng/Num" is arranged based on the notation.
-     *    However, Japanese is arranged based on the readings.
-     *  - Popular English words are given Japanese readings and are treated in much the
-     *    same way as Japanese. However,
-     *    the japanese distinguish between alphabetic and Japanese notation.
+     * - Generally, it is divided into "Eng/Num" and Japanese. - In general, ligatures are read in English (unless
+     * ligatures are intentionally separated in a dictionary). - Frequently used symbols are read in Japanese. -
+     * "Eng/Num" is arranged based on the notation. However, Japanese is arranged based on the readings. - Popular
+     * English words are given Japanese readings and are treated in much the same way as Japanese. However, the japanese
+     * distinguish between alphabetic and Japanese notation.
      * 
-     * If arranged in code order simply,
-     * it will be difficult for the Japanese people to identify the order.
-     * Especially in the case of UNICODE,
-     * chinese characters is managed using a common table in multiple countries.
-     * Therefore, in order to arrange correctly in Japanese,
-     * a function to convert to Japanese reading and support for sort tags are required.
+     * If arranged in code order simply, it will be difficult for the Japanese people to identify the order. Especially
+     * in the case of UNICODE, chinese characters is managed using a common table in multiple countries. Therefore, in
+     * order to arrange correctly in Japanese, a function to convert to Japanese reading and support for sort tags are
+     * required.
      */
-    final static List<String> jPSonicNaturalList =
-            unmodifiableList(Arrays.asList(
-                    "10", // Enter year in year field
-                    "20",
-                    "50",
-                    "60",
-                    "70",
-                    "98", // Enter year in year field
-                    "99", // Enter year in year field
-                    "abcde", // Enter Japanese in the sort field
-                    "abcいうえおあ", // Turn over by reading
-                    "abc亜伊鵜絵尾", // Turn over by reading (Register by replacing "reading" intentionally)
-                    "ＢＣＤＥＡ", // Enter Japanese in the sort field
-                    "ĆḊÉÁḂ",
-                    "DEABC",
-                    "the eabcd",
-                    "episode 1",
-                    "episode 2",
-                    "episode 19",
-                    "亜伊鵜絵尾",
-                    "αβγ",
-                    "いうえおあ",
-                    "ゥェォァィ",
-                    "ｴｵｱｲｳ",
-                    "ｪｫｧｨｩ",
-                    "ぉぁぃぅぇ",
-                    "オアイウエ",
-                    "春夏秋冬",
-                    "貼られる",
-                    "パラレル",
-                    "馬力",
-                    "張り切る",
-                    "はるなつあきふゆ",
-                    "♂くんつ"));
+    final static List<String> jPSonicNaturalList = unmodifiableList(Arrays.asList("10", // Enter year in year field
+            "20", "50", "60", "70", "98", // Enter year in year field
+            "99", // Enter year in year field
+            "abcde", // Enter Japanese in the sort field
+            "abcいうえおあ", // Turn over by reading
+            "abc亜伊鵜絵尾", // Turn over by reading (Register by replacing "reading" intentionally)
+            "ＢＣＤＥＡ", // Enter Japanese in the sort field
+            "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ",
+            "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
 
     /*
-     * Expected sequence number.
-     * Whether serial number processing has been performed can be determined
-     * by some elements included in jPSonicNaturalList.
-     * Use this list if need to do a full pattern test.
+     * Expected sequence number. Whether serial number processing has been performed can be determined by some elements
+     * included in jPSonicNaturalList. Use this list if need to do a full pattern test.
      */
-    private final static List<String> alphaNumList =
-            unmodifiableList(Arrays.asList(
-                    "09X Radonius",
-                    "10X Radonius",
-                    "20X Radonius",
-                    "20X Radonius Prime",
-                    "30X Radonius",
-                    "40X Radonius",
-                    "200X Radonius",
-                    "1000X Radonius Maximus",
-                    "Allegia 6R Clasteron",
-                    "Allegia 50B Clasteron",
-                    "Allegia 50 Clasteron",
-                    "Allegia 51 Clasteron",
-                    "Allegia 500 Clasteron",
-                    "Alpha 2",
-                    "Alpha 2A",
-                    "Alpha 2A-900",
-                    "Alpha 2A-8000",
-                    "Alpha 100",
-                    "Alpha 200",
-                    "Callisto Morphamax",
-                    "Callisto Morphamax 500",
-                    "Callisto Morphamax 600",
-                    "Callisto Morphamax 700",
-                    "Callisto Morphamax 5000",
-                    "Callisto Morphamax 6000 SE",
-                    "Callisto Morphamax 6000 SE2",
-                    "Callisto Morphamax 7000",
-                    "Xiph Xlater 5",
-                    "Xiph Xlater 40",
-                    "Xiph Xlater 50",
-                    "Xiph Xlater 58",
-                    "Xiph Xlater 300",
-                    "Xiph Xlater 500",
-                    "Xiph Xlater 2000",
-                    "Xiph Xlater 5000",
-                    "Xiph Xlater 10000"));
+    private final static List<String> alphaNumList = unmodifiableList(
+            Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime", "30X Radonius",
+                    "40X Radonius", "200X Radonius", "1000X Radonius Maximus", "Allegia 6R Clasteron",
+                    "Allegia 50B Clasteron", "Allegia 50 Clasteron", "Allegia 51 Clasteron", "Allegia 500 Clasteron",
+                    "Alpha 2", "Alpha 2A", "Alpha 2A-900", "Alpha 2A-8000", "Alpha 100", "Alpha 200",
+                    "Callisto Morphamax", "Callisto Morphamax 500", "Callisto Morphamax 600", "Callisto Morphamax 700",
+                    "Callisto Morphamax 5000", "Callisto Morphamax 6000 SE", "Callisto Morphamax 6000 SE2",
+                    "Callisto Morphamax 7000", "Xiph Xlater 5", "Xiph Xlater 40", "Xiph Xlater 50", "Xiph Xlater 58",
+                    "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000"));
 
     static void assertAlbumOrder(List<Album> albums, Integer... ignores) {
         assertEquals(jPSonicNaturalList.size(), albums.size());
@@ -471,9 +446,6 @@ public class JpsonicComparatorsTestUtils {
         return playlist;
     };
 
-    
-    
-    
     private final Function<String, Artist> toArtist = (name) -> {
         MediaFile file = toMediaArtist.apply(name);
         Artist artist = new Artist();
@@ -486,7 +458,8 @@ public class JpsonicComparatorsTestUtils {
 
     private final Function<String, SortableArtist> toSortableArtist = (name) -> {
         MediaFile file = toMediaArtist.apply(name);
-        return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(), comparators.sortableArtistOrder());
+        return new SortableArtistWithMediaFiles(file.getArtist(), file.getArtistReading(),
+                comparators.sortableArtistOrder());
     };
 
     private final BiFunction<String, Integer, MediaFile> toMediaSong = (name, trackNumber) -> {
@@ -521,7 +494,6 @@ public class JpsonicComparatorsTestUtils {
         return file;
     };
 
-    
     private final Function<String, MediaFile> toMediaAlbum = (name) -> {
 
         MediaFile file = new MediaFile();
@@ -646,7 +618,6 @@ public class JpsonicComparatorsTestUtils {
         return artists;
     }
 
-    
     MediaFile createVariousMedifile() {
         MediaFile file = new MediaFile();
         file.setArtist("various");

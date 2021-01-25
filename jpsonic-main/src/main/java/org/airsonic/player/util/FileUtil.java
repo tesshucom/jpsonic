@@ -91,8 +91,8 @@ public final class FileUtil {
     }
 
     /**
-     * Similar to {@link File#listFiles()}, but never returns null.
-     * Instead a warning is logged, and an empty array is returned.
+     * Similar to {@link File#listFiles()}, but never returns null. Instead a warning is logged, and an empty array is
+     * returned.
      */
     public static File[] listFiles(final File dir) {
         File[] files = timed(new FileTask<File[]>("listFiles", dir) {
@@ -112,8 +112,8 @@ public final class FileUtil {
     }
 
     /**
-     * Returns a short path for the given file.  The path consists of the name
-     * of the parent directory and the given file.
+     * Returns a short path for the given file. The path consists of the name of the parent directory and the given
+     * file.
      */
     public static String getShortPath(File file) {
         if (file == null) {
@@ -129,7 +129,9 @@ public final class FileUtil {
     /**
      * Closes the "closable", ignoring any excepetions.
      *
-     * @param closeable The Closable to close, may be {@code null}.
+     * @param closeable
+     *            The Closable to close, may be {@code null}.
+     * 
      * @deprecated Deprecated in current Java
      */
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824

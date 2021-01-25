@@ -53,7 +53,7 @@ import java.util.regex.Pattern;
  * @author Sindre Mehus
  */
 @Controller("hlsController")
-@RequestMapping({"/hls/**", "/ext/hls/**"})
+@RequestMapping({ "/hls/**", "/ext/hls/**" })
 public class HLSController {
 
     private static final int SEGMENT_DURATION = 10;
@@ -69,7 +69,7 @@ public class HLSController {
     private JWTSecurityService jwtSecurityService;
 
     private static final int SINGLE_ELEMENT = 1;
-    
+
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -104,9 +104,8 @@ public class HLSController {
             if (bitRates.size() > SINGLE_ELEMENT) {
                 generateVariantPlaylist(request, id, player, bitRates, writer);
             } else {
-                generateNormalPlaylist(request, id, player,
-                        bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null,
-                                duration, writer);
+                generateNormalPlaylist(request, id, player, bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null,
+                        duration, writer);
             }
         }
     }
@@ -141,10 +140,11 @@ public class HLSController {
         }
     }
 
-    private void generateVariantPlaylist(HttpServletRequest request, int id, Player player, List<Pair<Integer, Dimension>> bitRates, PrintWriter writer) {
+    private void generateVariantPlaylist(HttpServletRequest request, int id, Player player,
+            List<Pair<Integer, Dimension>> bitRates, PrintWriter writer) {
         writer.println("#EXTM3U");
         writer.println("#EXT-X-VERSION:1");
-//        writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
+        // writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
 
         String contextPath = getContextPath(request);
         for (Pair<Integer, Dimension> bitRate : bitRates) {
@@ -162,10 +162,11 @@ public class HLSController {
             }
             writer.println();
         }
-//        writer.println("#EXT-X-ENDLIST");
+        // writer.println("#EXT-X-ENDLIST");
     }
 
-    private void generateNormalPlaylist(HttpServletRequest request, int id, Player player, Pair<Integer, Dimension> bitRate, int totalDuration, PrintWriter writer) {
+    private void generateNormalPlaylist(HttpServletRequest request, int id, Player player,
+            Pair<Integer, Dimension> bitRate, int totalDuration, PrintWriter writer) {
         writer.println("#EXTM3U");
         writer.println("#EXT-X-VERSION:1");
         writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
@@ -185,8 +186,10 @@ public class HLSController {
         writer.println("#EXT-X-ENDLIST");
     }
 
-    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration, Pair<Integer, Dimension> bitRate) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getContextPath(request) + "ext/stream/stream.ts");
+    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration,
+            Pair<Integer, Dimension> bitRate) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromUriString(getContextPath(request) + "ext/stream/stream.ts");
         builder.queryParam(Attributes.Request.ID.value(), id);
         builder.queryParam(Attributes.Request.HLS.value(), "true");
         builder.queryParam(Attributes.Request.TIME_OFFSET.value(), offset);

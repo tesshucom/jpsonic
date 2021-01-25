@@ -36,7 +36,7 @@ public class DatabaseConfiguration {
         private ProfileNameConstants() {
         }
     }
-    
+
     @Bean
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
@@ -70,9 +70,8 @@ public class DatabaseConfiguration {
     @Bean
     @Profile(ProfileNameConstants.EMBED)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,
-                                           @Value("${DatabaseConfigEmbedUrl}") String url,
-                                           @Value("${DatabaseConfigEmbedUsername}") String username,
-                                           @Value("${DatabaseConfigEmbedPassword}") String password) {
+            @Value("${DatabaseConfigEmbedUrl}") String url, @Value("${DatabaseConfigEmbedUsername}") String username,
+            @Value("${DatabaseConfigEmbedPassword}") String password) {
         BasicDataSource basicDataSource = new BasicDataSource();
         basicDataSource.setDriverClassName(driver);
         basicDataSource.setUrl(url);
@@ -100,17 +99,13 @@ public class DatabaseConfiguration {
 
     @Bean
     public SpringLiquibase liquibase(DataSource dataSource,
-                                     @Value("${DatabaseMysqlMaxlength:512}")
-                                     String mysqlVarcharLimit,
-                                     String userTableQuote) {
+            @Value("${DatabaseMysqlMaxlength:512}") String mysqlVarcharLimit, String userTableQuote) {
         SpringLiquibase springLiquibase = new AirsonicSpringLiquibase();
         springLiquibase.setDataSource(dataSource);
         springLiquibase.setChangeLog("classpath:liquibase/db-changelog.xml");
         springLiquibase.setRollbackFile(rollbackFile());
-        Map<String, String> parameters = LegacyMap.of(
-            "defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(),
-            "mysqlVarcharLimit", mysqlVarcharLimit,
-            "userTableQuote", userTableQuote);
+        Map<String, String> parameters = LegacyMap.of("defaultMusicFolder", PlayerUtils.getDefaultMusicFolder(),
+                "mysqlVarcharLimit", mysqlVarcharLimit, "userTableQuote", userTableQuote);
         springLiquibase.setChangeLogParameters(parameters);
         return springLiquibase;
     }

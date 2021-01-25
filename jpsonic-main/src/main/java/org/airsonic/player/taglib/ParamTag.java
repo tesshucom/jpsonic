@@ -26,6 +26,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * A tag representing an URL query parameter.
  *
  * @see ParamTag
+ * 
  * @author Sindre Mehus
  */
 @SuppressWarnings("serial")

@@ -41,9 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Servlet filter which decodes HTTP request parameters.  If a parameter name ends with
- * "Utf8Hex" ({@link #PARAM_SUFFIX}) , the corresponding parameter value is assumed to be the
- * hexadecimal representation of the UTF-8 bytes of the value.
+ * Servlet filter which decodes HTTP request parameters. If a parameter name ends with "Utf8Hex" ({@link #PARAM_SUFFIX})
+ * , the corresponding parameter value is assumed to be the hexadecimal representation of the UTF-8 bytes of the value.
  * <p/>
  * Used to support request parameter values of any character encoding.
  *

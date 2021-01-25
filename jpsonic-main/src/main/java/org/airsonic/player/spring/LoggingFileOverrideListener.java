@@ -11,7 +11,6 @@ import org.springframework.core.env.PropertySource;
 
 import java.util.Collections;
 
-
 public class LoggingFileOverrideListener implements ApplicationListener<ApplicationEnvironmentPreparedEvent>, Ordered {
 
     @Override

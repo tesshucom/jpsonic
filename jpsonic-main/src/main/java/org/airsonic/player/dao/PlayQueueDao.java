@@ -41,11 +41,13 @@ public class PlayQueueDao extends AbstractDao {
 
     @Transactional
     public SavedPlayQueue getPlayQueue(String username) {
-        SavedPlayQueue playQueue = queryOne("select " + QUERY_COLUMNS + " from play_queue where username=?", rowMapper, username);
+        SavedPlayQueue playQueue = queryOne("select " + QUERY_COLUMNS + " from play_queue where username=?", rowMapper,
+                username);
         if (playQueue == null) {
             return null;
         }
-        List<Integer> mediaFileIds = queryForInts("select media_file_id from play_queue_file where play_queue_id = ?", playQueue.getId());
+        List<Integer> mediaFileIds = queryForInts("select media_file_id from play_queue_file where play_queue_id = ?",
+                playQueue.getId());
         playQueue.setMediaFileIds(mediaFileIds);
         return playQueue;
     }
@@ -54,8 +56,8 @@ public class PlayQueueDao extends AbstractDao {
     public void savePlayQueue(SavedPlayQueue playQueue) {
         update("delete from play_queue where username=?", playQueue.getUsername());
         update("insert into play_queue(" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-               playQueue.getUsername(), playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
-               playQueue.getChanged(), playQueue.getChangedBy());
+                playQueue.getUsername(), playQueue.getCurrentMediaFileId(), playQueue.getPositionMillis(),
+                playQueue.getChanged(), playQueue.getChangedBy());
         int id = queryForInt("select max(id) from play_queue", 0);
         playQueue.setId(id);
 
@@ -67,13 +69,8 @@ public class PlayQueueDao extends AbstractDao {
     private static class PlayQueueMapper implements RowMapper<SavedPlayQueue> {
         @Override
         public SavedPlayQueue mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new SavedPlayQueue(rs.getInt(1),
-                                      rs.getString(2),
-                                      null,
-                                      rs.getInt(3),
-                                      rs.getLong(4),
-                                      rs.getTimestamp(5),
-                                      rs.getString(6));
+            return new SavedPlayQueue(rs.getInt(1), rs.getString(2), null, rs.getInt(3), rs.getLong(4),
+                    rs.getTimestamp(5), rs.getString(6));
         }
     }
 }

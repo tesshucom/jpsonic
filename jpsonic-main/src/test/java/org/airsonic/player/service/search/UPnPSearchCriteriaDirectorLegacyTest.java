@@ -54,86 +54,187 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
                 @interface upnpSearchQuery {
                     @interface Class {
                         @interface derivedFrom {
-                            @interface objectContainerPerson {}
-                            @interface objectContainerPersonMusicArtist {}
-                            @interface objectContainerAlbum {}
-                            @interface objectContainerAlbumMusicAlbum {}
-                            @interface objectItemAudioItem {}
-                            @interface objectItemVideoItem {}
-                            @interface objectContainerAlbumPhotoAlbum {}
-                            @interface objectContainerPlaylistContainer {}
-                            @interface objectContainerGenre {}
-                            @interface objectContainerGenreMusicGenre {}
-                            @interface objectContainerGenreMovieGenre {}
-                            @interface objectContainerStorageSystem {}
-                            @interface objectContainerStorageVolume {}
-                            @interface objectContainerStorageFolder {}
+                            @interface objectContainerPerson {
+                            }
+
+                            @interface objectContainerPersonMusicArtist {
+                            }
+
+                            @interface objectContainerAlbum {
+                            }
+
+                            @interface objectContainerAlbumMusicAlbum {
+                            }
+
+                            @interface objectItemAudioItem {
+                            }
+
+                            @interface objectItemVideoItem {
+                            }
+
+                            @interface objectContainerAlbumPhotoAlbum {
+                            }
+
+                            @interface objectContainerPlaylistContainer {
+                            }
+
+                            @interface objectContainerGenre {
+                            }
+
+                            @interface objectContainerGenreMusicGenre {
+                            }
+
+                            @interface objectContainerGenreMovieGenre {
+                            }
+
+                            @interface objectContainerStorageSystem {
+                            }
+
+                            @interface objectContainerStorageVolume {
+                            }
+
+                            @interface objectContainerStorageFolder {
+                            }
                         }
+
                         @interface equal {
-                            @interface objectContainerPersonMusicArtist {}
-                            @interface objectContainerAlbumMusicAlbum {}
-                            @interface objectItemAudioItemMusicTrack {}
-                            @interface objectItemAudioItemAudioBroadcast {}
-                            @interface objectItemAudioItemAudioBook {}
-                            @interface objectItemVideoItemMovie {}
-                            @interface objectItemVideoItemVideoBroadcast {}
-                            @interface objectItemVideoItemMusicVideoClip {}
-                            @interface objectContainerAlbumPhotoAlbum {}
-                            @interface objectContainerPlaylistContainer {}
-                            @interface objectContainerGenre {}
-                            @interface objectContainerGenreMusicGenre {}
-                            @interface objectContainerGenreMovieGenre {}
-                            @interface objectContainerStorageSystem {}
-                            @interface objectContainerStorageVolume {}
-                            @interface objectContainerStorageFolder {}
-                            @interface objectContainerAlbum {}
-                            @interface objectItemAudioItem {}
-                            @interface objectItemVideoItem {}
+                            @interface objectContainerPersonMusicArtist {
+                            }
+
+                            @interface objectContainerAlbumMusicAlbum {
+                            }
+
+                            @interface objectItemAudioItemMusicTrack {
+                            }
+
+                            @interface objectItemAudioItemAudioBroadcast {
+                            }
+
+                            @interface objectItemAudioItemAudioBook {
+                            }
+
+                            @interface objectItemVideoItemMovie {
+                            }
+
+                            @interface objectItemVideoItemVideoBroadcast {
+                            }
+
+                            @interface objectItemVideoItemMusicVideoClip {
+                            }
+
+                            @interface objectContainerAlbumPhotoAlbum {
+                            }
+
+                            @interface objectContainerPlaylistContainer {
+                            }
+
+                            @interface objectContainerGenre {
+                            }
+
+                            @interface objectContainerGenreMusicGenre {
+                            }
+
+                            @interface objectContainerGenreMovieGenre {
+                            }
+
+                            @interface objectContainerStorageSystem {
+                            }
+
+                            @interface objectContainerStorageVolume {
+                            }
+
+                            @interface objectContainerStorageFolder {
+                            }
+
+                            @interface objectContainerAlbum {
+                            }
+
+                            @interface objectItemAudioItem {
+                            }
+
+                            @interface objectItemVideoItem {
+                            }
                         }
                     }
-                    @interface creator {}
+
+                    @interface creator {
+                    }
                 }
+
                 @SuppressWarnings("unused")
-                @interface offset {}
+                @interface offset {
+                }
+
                 @SuppressWarnings("unused")
-                @interface count {}
+                @interface count {
+                }
             }
+
             @interface Settings {
                 @interface searchComposer {
-                    @interface FALSE {}
-                    @interface TRUE {}
+                    @interface FALSE {
+                    }
+
+                    @interface TRUE {
+                    }
                 }
+
                 @SuppressWarnings("unused")
                 @interface musicFolders {
-                    @interface SINGLE_FOLDERS {}
-                    @interface MULTI_FOLDERS {}
+                    @interface SINGLE_FOLDERS {
+                    }
+
+                    @interface MULTI_FOLDERS {
+                    }
                 }
             }
         }
+
         @interface Actions {
-            @interface construct {}
+            @interface construct {
+            }
         }
+
         @interface Result {
             @interface Criteria {
                 @interface AssignableClass {
-                    @interface MediaFile {}
-                    @interface Artist {}
-                    @interface Album {}
-                }
-                @interface ParsedQuery {
-                    @interface MediaType {
-                        @interface MUSIC {}
-                        @interface PODCAST {}
-                        @interface AUDIOBOOK {}
-                        @interface VIDEO {}
+                    @interface MediaFile {
+                    }
+
+                    @interface Artist {
+                    }
+
+                    @interface Album {
                     }
                 }
+
+                @interface ParsedQuery {
+                    @interface MediaType {
+                        @interface MUSIC {
+                        }
+
+                        @interface PODCAST {
+                        }
+
+                        @interface AUDIOBOOK {
+                        }
+
+                        @interface VIDEO {
+                        }
+                    }
+                }
+
                 @interface includeComposer {
-                    @interface FALSE {}
-                    @interface TRUE {}
+                    @interface FALSE {
+                    }
+
+                    @interface TRUE {
+                    }
                 }
             }
-            @interface IllegalArgument {}
+
+            @interface IllegalArgument {
+            }
         }
     }
 
@@ -187,7 +288,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Artist
     @Test
     public void h01() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.person\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
         assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -197,7 +299,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Artist
     @Test
     public void h02() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.person.musicArtist\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
         assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -207,7 +310,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Album
     @Test
     public void h03() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.album\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
         assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -217,7 +321,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Album
     @Test
     public void h04() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
         assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -230,9 +335,11 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
     @Test
     public void h05() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.item.audioItem\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
-        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -241,7 +348,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
     @Test
     public void h06() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.item.videoItem\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -253,8 +361,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e01() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.album.photoAlbum");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.album.photoAlbum");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPlaylistContainer
@@ -263,8 +373,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e02() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.playlistContainer");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.playlistContainer");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.playlistContainer\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenre
@@ -273,7 +385,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e03() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre");
         director.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre\" and dc:title contains \"test\")");
     }
 
@@ -283,8 +396,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e04() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.musicGenre");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.musicGenre");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenreMovieGenre
@@ -293,8 +408,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e05() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.movieGenre");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.movieGenre");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageSystem
@@ -303,8 +420,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e06() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageSystem");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageSystem\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageSystem");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.storageSystem\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageVolume
@@ -313,8 +432,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e07() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageVolume");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageVolume\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageVolume");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.storageVolume\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageFolder
@@ -323,8 +444,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e08() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageFolder");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.storageFolder\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageFolder");
+        director.construct(0, 50,
+                "(upnp:class derivedfrom \"object.container.storageFolder\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -332,7 +455,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Artist
     @Test
     public void h07() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.container.person.musicArtist\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Artist.class, criteria.getAssignableClass());
         assertEquals("+((((artR:test*)^1.1 art:test*))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -342,7 +466,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.AssignableClass.Album
     @Test
     public void h08() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.container.album.musicAlbum\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.Album.class, criteria.getAssignableClass());
         assertEquals("+((((alb:test*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
     }
@@ -353,7 +478,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.MUSIC
     @Test
     public void h09() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.audioItem.musicTrack\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(m:MUSIC) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -364,7 +490,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.PODCAST
     @Test
     public void h10() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.audioItem.audioBroadcast\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(m:PODCAST) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -375,7 +502,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.AUDIOBOOK
     @Test
     public void h11() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.audioItem.audioBook\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -386,7 +514,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
     @Test
     public void h12() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.videoItem.movie\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -397,7 +526,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
     @Test
     public void h13() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.videoItem.videoBroadcast\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -408,7 +538,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @DirectorDecisions.Result.Criteria.ParsedQuery.MediaType.VIDEO
     @Test
     public void h14() {
-        UPnPSearchCriteria criteria = director.construct(0, 50, "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
+        UPnPSearchCriteria criteria = director.construct(0, 50,
+                "(upnp:class = \"object.item.videoItem.musicVideoClip\" and dc:title contains \"test\")");
         assertEquals(org.airsonic.player.domain.MediaFile.class, criteria.getAssignableClass());
         assertEquals("+((((tit:test*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
     }
@@ -419,8 +550,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e09() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.album.photoAlbum");
-        director.construct(0, 50, "(upnp:class = \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.album.photoAlbum");
+        director.construct(0, 50,
+                "(upnp:class = \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPlaylistContainer
@@ -429,8 +562,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e10() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.playlistContainer");
-        director.construct(0, 50, "(upnp:class = \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.playlistContainer");
+        director.construct(0, 50,
+                "(upnp:class = \"object.container.playlistContainer\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenre
@@ -439,7 +574,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e11() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.genre");
         director.construct(0, 50, "(upnp:class = \"object.container.genre\" and dc:title contains \"test\")");
     }
 
@@ -449,8 +585,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e12() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre.musicGenre");
-        director.construct(0, 50, "(upnp:class = \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.genre.musicGenre");
+        director.construct(0, 50,
+                "(upnp:class = \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenreMovieGenre
@@ -459,8 +597,10 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e13() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.genre.movieGenre");
-        director.construct(0, 50, "(upnp:class = \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.genre.movieGenre");
+        director.construct(0, 50,
+                "(upnp:class = \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageSystem
@@ -469,7 +609,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e14() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageSystem");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.storageSystem");
         director.construct(0, 50, "(upnp:class = \"object.container.storageSystem\" and dc:title contains \"test\")");
     }
 
@@ -479,7 +620,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e15() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
         director.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
     }
 
@@ -489,7 +631,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void e16() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
+        exceptionCase.expectMessage(
+                "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
         director.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
     }
 
@@ -500,7 +643,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void a01() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.container.album");
+        exceptionCase.expectMessage(
+                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.container.album");
         director.construct(0, 50, "(upnp:class = \"object.container.album\" and dc:title contains \"test\")");
     }
 
@@ -510,7 +654,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void a02() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.audioItem");
+        exceptionCase.expectMessage(
+                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.audioItem");
         director.construct(0, 50, "(upnp:class = \"object.item.audioItem\" and dc:title contains \"test\")");
     }
 
@@ -520,7 +665,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
     @Test
     public void a03() {
         exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.videoItem");
+        exceptionCase.expectMessage(
+                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.videoItem");
         director.construct(0, 50, "(upnp:class = \"object.item.videoItem\" and dc:title contains \"test\")");
     }
 
@@ -539,7 +685,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(50, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery1, criteria.getQuery());
-        assertEquals("+((((albEX:にほんごはむずかしい*)^2.3 (alb:ほん*)^2.3) ((alb:ご*)^2.3) ((alb:むずかしい*)^2.3))) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((albEX:にほんごはむずかしい*)^2.3 (alb:ほん*)^2.3) ((alb:ご*)^2.3) ((alb:むずかしい*)^2.3))) +(" + fid + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -555,7 +702,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(51, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery2, criteria.getQuery());
-        assertEquals("+((((artR:いきものがかり*)^1.1 art:いき*) (art:もの*) (art:かり*))) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:いきものがかり*)^1.1 art:いき*) (art:もの*) (art:かり*))) +(" + fid + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerAlbumMusicAlbum
@@ -571,7 +719,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(52, criteria.getCount());
         assertFalse(criteria.isIncludeComposer()); // MediaFile.class only
         assertEquals(searchQuery3, criteria.getQuery());
-        assertEquals("+((((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(" + fid + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((artR:日本語てすと*)^1.1 art:日本語*) (art:テスト*))) +(" + fid + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -591,7 +740,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(53, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery4, criteria.getQuery());
-        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((titEX:なくもんか*)^2.3 (tit:もん*)^2.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")",
+                criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemAudioItem
@@ -612,7 +762,9 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(54, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+((((cmpR:日本語てすと*)^1.1 cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")",
+        assertEquals(
+                "+((((cmpR:日本語てすと*)^1.1 cmp:日本語*) (cmp:テスト*)) (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+                        + path + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -635,7 +787,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(54, criteria.getCount());
         assertFalse(criteria.isIncludeComposer());
         assertEquals(searchQuery5, criteria.getQuery());
-        assertEquals("+(() (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+(() (((artR:日本語てすと*)^1.4 (art:日本語*)^1.2) ((art:テスト*)^1.2))) +(m:MUSIC m:PODCAST m:AUDIOBOOK) +("
+                + path + ")", criteria.getParsedQuery().toString());
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectItemVideoItem
@@ -652,7 +805,8 @@ public class UPnPSearchCriteriaDirectorLegacyTest extends AbstractAirsonicHomeTe
         assertEquals(55, criteria.getCount());
         assertTrue(criteria.isIncludeComposer());
         assertEquals(searchQuery6, criteria.getQuery());
-        assertEquals("+((((tit:日本語*)^2.2) ((tit:テスト*)^2.2))) +(+m:VIDEO) +(" + path + ")", criteria.getParsedQuery().toString());
+        assertEquals("+((((tit:日本語*)^2.2) ((tit:テスト*)^2.2))) +(+m:VIDEO) +(" + path + ")",
+                criteria.getParsedQuery().toString());
     }
 
 }

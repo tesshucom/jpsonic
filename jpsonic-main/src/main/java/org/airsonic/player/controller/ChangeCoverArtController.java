@@ -57,7 +57,8 @@ public class ChangeCoverArtController {
     private SettingsService settingsService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         String artist = request.getParameter(Attributes.Request.ARTIST.value());
@@ -73,14 +74,10 @@ public class ChangeCoverArtController {
 
         String username = securityService.getCurrentUsername(request);
         UserSettings userSettings = settingsService.getUserSettings(username);
-        return new ModelAndView("changeCoverArt", "model", LegacyMap.of(
-                "id", id,
-                "artist", artist,
-                "album", album,
-                "ancestors", getAncestors(dir),
-                "breadcrumbIndex", userSettings.isBreadcrumbIndex(),
-                "dir", dir,
-                "selectedMusicFolder", settingsService.getSelectedMusicFolder(username)));
+        return new ModelAndView("changeCoverArt", "model",
+                LegacyMap.of("id", id, "artist", artist, "album", album, "ancestors", getAncestors(dir),
+                        "breadcrumbIndex", userSettings.isBreadcrumbIndex(), "dir", dir, "selectedMusicFolder",
+                        settingsService.getSelectedMusicFolder(username)));
     }
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824

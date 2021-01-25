@@ -47,8 +47,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides AJAX-enabled services for retrieving the currently playing file and directory.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR
+ * framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -67,7 +67,7 @@ public class NowPlayingService {
     private MediaScannerService mediaScannerService;
 
     private final static int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
-    
+
     /**
      * Returns details about what the current player is playing.
      *
@@ -75,7 +75,8 @@ public class NowPlayingService {
      */
     public NowPlayingInfo getNowPlayingForCurrentPlayer() throws Exception {
         WebContext webContext = WebContextFactory.get();
-        Player player = playerService.getPlayer(webContext.getHttpServletRequest(), webContext.getHttpServletResponse());
+        Player player = playerService.getPlayer(webContext.getHttpServletRequest(),
+                webContext.getHttpServletResponse());
 
         for (NowPlayingInfo info : getNowPlaying()) {
             if (player.getId().equals(info.getPlayerId())) {
@@ -133,15 +134,16 @@ public class NowPlayingService {
             String albumUrl = url + ViewName.MAIN.value() + "?id=" + mediaFile.getId();
             String lyricsUrl = null;
             if (!mediaFile.isVideo()) {
-                lyricsUrl = url + ViewName.LYRICS.value() + "?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist) +
-                                                        "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
+                lyricsUrl = url + ViewName.LYRICS.value() + "?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist)
+                        + "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
             }
             String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
 
             String avatarUrl = null;
             if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
                 avatarUrl = url + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
-            } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM && settingsService.getCustomAvatar(username) != null) {
+            } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
+                    && settingsService.getCustomAvatar(username) != null) {
                 avatarUrl = url + ViewName.AVATAR.value() + "?usernameUtf8Hex=" + StringUtil.utf8HexEncode(username);
             }
 
@@ -158,8 +160,8 @@ public class NowPlayingService {
             long minutesAgo = status.getMinutesAgo();
 
             if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
-                result.add(new NowPlayingInfo(player.getId(),username, artist, title, tooltip, streamUrl, albumUrl, lyricsUrl,
-                                              coverArtUrl, avatarUrl, (int) minutesAgo));
+                result.add(new NowPlayingInfo(player.getId(), username, artist, title, tooltip, streamUrl, albumUrl,
+                        lyricsUrl, coverArtUrl, avatarUrl, (int) minutesAgo));
             }
         }
         return result;

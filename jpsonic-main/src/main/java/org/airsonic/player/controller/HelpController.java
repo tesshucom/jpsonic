@@ -83,9 +83,8 @@ public class HelpController {
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
 
-        String serverInfo = request.getSession().getServletContext().getServerInfo() +
-                            ", java " + System.getProperty("java.version") +
-                            ", " + System.getProperty("os.name");
+        String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
+                + System.getProperty("java.version") + ", " + System.getProperty("os.name");
         User user = securityService.getCurrentUser(request);
         map.put("user", user);
         map.put("admin", securityService.isAdmin(user.getUsername()));
@@ -125,6 +124,5 @@ public class HelpController {
             return null;
         }
     }
-
 
 }

@@ -46,8 +46,8 @@ public class PlayQueue {
     private static final Object SEQUENCE_LOCK = new Object();
 
     /**
-     * The index of the current song, or -1 is the end of the playlist is reached.
-     * Note that both the index and the playlist size can be zero.
+     * The index of the current song, or -1 is the end of the playlist is reached. Note that both the index and the
+     * playlist size can be zero.
      */
     private int index;
 
@@ -69,7 +69,8 @@ public class PlayQueue {
     /**
      * Sets the user-defined name of the playlist.
      *
-     * @param name The name of the playlist.
+     * @param name
+     *            The name of the playlist.
      */
     public void setName(String name) {
         this.name = name;
@@ -116,9 +117,13 @@ public class PlayQueue {
     /**
      * Returns the music file at the given index.
      *
-     * @param index The index.
+     * @param index
+     *            The index.
+     * 
      * @return The music file at the given index.
-     * @throws IndexOutOfBoundsException If the index is out of range.
+     * 
+     * @throws IndexOutOfBoundsException
+     *             If the index is out of range.
      */
     public MediaFile getFile(int index) {
         synchronized (SEQUENCE_LOCK) {
@@ -176,7 +181,8 @@ public class PlayQueue {
     /**
      * Sets the index of the current song.
      *
-     * @param index The index of the current song.
+     * @param index
+     *            The index of the current song.
      */
     public void setIndex(int index) {
         synchronized (STATUS_LOCK) {
@@ -191,8 +197,10 @@ public class PlayQueue {
     /**
      * Adds one or more music file to the playlist.
      *
-     * @param mediaFiles The music files to add.
-     * @param index Where to add them.
+     * @param mediaFiles
+     *            The music files to add.
+     * @param index
+     *            Where to add them.
      */
     public void addFilesAt(Iterable<MediaFile> mediaFiles, final int index) {
         synchronized (STATUS_LOCK) {
@@ -208,8 +216,10 @@ public class PlayQueue {
     /**
      * Adds one or more music file to the playlist.
      *
-     * @param append     Whether existing songs in the playlist should be kept.
-     * @param mediaFiles The music files to add.
+     * @param append
+     *            Whether existing songs in the playlist should be kept.
+     * @param mediaFiles
+     *            The music files to add.
      */
     public void addFiles(boolean append, Iterable<MediaFile> mediaFiles) {
         synchronized (STATUS_LOCK) {
@@ -239,7 +249,8 @@ public class PlayQueue {
     /**
      * Removes the music file at the given index.
      *
-     * @param index The playlist index.
+     * @param index
+     *            The playlist index.
      */
     public void removeFileAt(final int index) {
         synchronized (SEQUENCE_LOCK) {
@@ -329,7 +340,8 @@ public class PlayQueue {
     /**
      * Moves the song at the given index one step up.
      *
-     * @param index The playlist index.
+     * @param index
+     *            The playlist index.
      */
     public void moveUp(int index) {
         moveDown(index - 1);
@@ -338,7 +350,8 @@ public class PlayQueue {
     /**
      * Moves the song at the given index one step down.
      *
-     * @param index The playlist index.
+     * @param index
+     *            The playlist index.
      */
     public void moveDown(int index) {
         synchronized (SEQUENCE_LOCK) {
@@ -368,7 +381,8 @@ public class PlayQueue {
     /**
      * Sets whether the playlist is repeating.
      *
-     * @param repeatEnabled Whether the playlist is repeating.
+     * @param repeatEnabled
+     *            Whether the playlist is repeating.
      */
     public void setRepeatEnabled(boolean repeatEnabled) {
         this.repeatEnabled.set(repeatEnabled);
@@ -422,7 +436,8 @@ public class PlayQueue {
     /**
      * Sets the playlist status.
      *
-     * @param status The playlist status.
+     * @param status
+     *            The playlist status.
      */
     public void setStatus(Status status) {
         synchronized (STATUS_LOCK) {
@@ -438,7 +453,8 @@ public class PlayQueue {
     /**
      * Sets the current internet radio
      *
-     * @param internetRadio An internet radio, or <code>null</code> if this is not an internet radio playlist
+     * @param internetRadio
+     *            An internet radio, or <code>null</code> if this is not an internet radio playlist
      */
     public void setInternetRadio(InternetRadio internetRadio) {
         this.internetRadio = internetRadio;
@@ -465,7 +481,8 @@ public class PlayQueue {
     /**
      * Sets the criteria used to generate this random playlist
      *
-     * @param randomSearchCriteria The search criteria, or <code>null</code> if this is not a random playlist.
+     * @param randomSearchCriteria
+     *            The search criteria, or <code>null</code> if this is not a random playlist.
      */
     public void setRandomSearchCriteria(RandomSearchCriteria randomSearchCriteria) {
         this.randomSearchCriteria = randomSearchCriteria;
@@ -493,16 +510,13 @@ public class PlayQueue {
      * Playlist status.
      */
     public enum Status {
-        PLAYING,
-        STOPPED
+        PLAYING, STOPPED
     }
 
     /**
      * Playlist sort order.
      */
     public enum SortOrder {
-        TRACK,
-        ARTIST,
-        ALBUM
+        TRACK, ARTIST, ALBUM
     }
 }

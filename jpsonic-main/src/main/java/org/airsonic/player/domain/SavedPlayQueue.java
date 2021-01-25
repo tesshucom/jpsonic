@@ -25,10 +25,11 @@ import java.util.List;
 /**
  * Used to save the play queue state for a user.
  * <p/>
- * Can be used to share the play queue (including currently playing track and position within
- * that track) across client apps.
+ * Can be used to share the play queue (including currently playing track and position within that track) across client
+ * apps.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class SavedPlayQueue {
@@ -42,7 +43,7 @@ public class SavedPlayQueue {
     private String changedBy;
 
     public SavedPlayQueue(Integer id, String username, List<Integer> mediaFileIds, Integer currentMediaFileId,
-                          Long positionMillis, Date changed, String changedBy) {
+            Long positionMillis, Date changed, String changedBy) {
         this.id = id;
         this.username = username;
         this.mediaFileIds = mediaFileIds;

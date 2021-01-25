@@ -67,8 +67,7 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(
-            HttpServletRequest request, Model model,
+    protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
@@ -142,7 +141,8 @@ public class GeneralSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
@@ -154,8 +154,7 @@ public class GeneralSettingsController {
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale)
+                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
                 || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
         if (!isReload) {
@@ -175,7 +174,8 @@ public class GeneralSettingsController {
         settingsService.setSortStrict(command.isSortStrict());
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
-        settingsService.setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
+        settingsService
+                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
         settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());

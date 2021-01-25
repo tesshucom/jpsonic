@@ -88,7 +88,7 @@ public class MultiService {
         mediaFileService.populateStarredDate(files, username);
         for (MediaFile file : files) {
             result.add(new TopSong(file.getId(), file.getTitle(), file.getArtist(), file.getAlbumName(),
-                                   file.getDurationString(), file.getStarredDate() != null));
+                    file.getDurationString(), file.getStarredDate() != null));
         }
         return result;
     }

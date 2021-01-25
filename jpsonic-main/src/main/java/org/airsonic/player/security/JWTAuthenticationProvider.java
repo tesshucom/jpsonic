@@ -47,8 +47,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         if (StringUtils.contains(authentication.getRequestedPath(), "/WEB-INF/jsp/")) {
             LOG.warn("BYPASSING AUTH FOR WEB-INF page");
         } else if (!roughlyEqual(path.asString(), authentication.getRequestedPath())) {
-            throw new InsufficientAuthenticationException("Credentials not valid for path " + authentication
-                    .getRequestedPath() + ". They are valid for " + path.asString());
+            throw new InsufficientAuthenticationException("Credentials not valid for path "
+                    + authentication.getRequestedPath() + ". They are valid for " + path.asString());
         }
 
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -73,8 +73,8 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
             if (!Objects.equals(expected.getPath(), requested.getPath())) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("False: expected path [{}] does not match requested path [{}]",
-                            expected.getPath(), requested.getPath());
+                    LOG.debug("False: expected path [{}] does not match requested path [{}]", expected.getPath(),
+                            requested.getPath());
                 }
                 return false;
             }
@@ -82,12 +82,12 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
             MapDifference<String, List<String>> difference = Maps.difference(expected.getQueryParams(),
                     requested.getQueryParams());
 
-            if (!difference.entriesDiffering().isEmpty() ||
-                    !difference.entriesOnlyOnLeft().isEmpty() ||
-                    difference.entriesOnlyOnRight().size() != 1 ||
-                    difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
+            if (!difference.entriesDiffering().isEmpty() || !difference.entriesOnlyOnLeft().isEmpty()
+                    || difference.entriesOnlyOnRight().size() != 1
+                    || difference.entriesOnlyOnRight().get(JWTSecurityService.JWT_PARAM_NAME) == null) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("False: expected query params [{}] do not match requested query params [{}]", expected.getQueryParams(), requested.getQueryParams());
+                    LOG.debug("False: expected query params [{}] do not match requested query params [{}]",
+                            expected.getQueryParams(), requested.getQueryParams());
                 }
                 return false;
             }

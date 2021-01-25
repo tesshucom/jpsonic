@@ -31,10 +31,10 @@ import org.fourthline.cling.transport.spi.StreamServer;
 import java.util.concurrent.Executors;
 
 /**
- * UPnP configuration which uses Apache HttpComponents.  Needed to make UPnP work
- * when deploying on Tomcat.
+ * UPnP configuration which uses Apache HttpComponents. Needed to make UPnP work when deploying on Tomcat.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class ApacheUpnpServiceConfiguration extends DefaultUpnpServiceConfiguration {

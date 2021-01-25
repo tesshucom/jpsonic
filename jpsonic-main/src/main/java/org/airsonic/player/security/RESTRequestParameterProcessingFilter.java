@@ -54,11 +54,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Performs authentication based on credentials being present in the HTTP request parameters. Also checks
- * API versions and license information.
+ * Performs authentication based on credentials being present in the HTTP request parameters. Also checks API versions
+ * and license information.
  * <p/>
- * The username should be set in parameter "u", and the password should be set in parameter "p".
- * The REST protocol version should be set in parameter "v".
+ * The username should be set in parameter "u", and the password should be set in parameter "p". The REST protocol
+ * version should be set in parameter "v".
  * <p/>
  * The password can either be in plain text or be UTF-8 hexencoded preceded by "enc:".
  *
@@ -74,15 +74,15 @@ public class RESTRequestParameterProcessingFilter implements Filter {
     private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private ApplicationEventPublisher eventPublisher;
 
-    private static RequestMatcher requiresAuthenticationRequestMatcher = new RegexRequestMatcher("/rest/.+",null);
+    private static RequestMatcher requiresAuthenticationRequestMatcher = new RegexRequestMatcher("/rest/.+", null);
 
-    protected boolean requiresAuthentication(HttpServletRequest request,
-                                             HttpServletResponse response) {
+    protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
         return requiresAuthenticationRequestMatcher.matches(request);
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         if (!(request instanceof HttpServletRequest)) {
             throw new ServletException("Can only process HttpServletRequest");
         }
@@ -98,7 +98,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
 
             return;
         }
-
 
         String username = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.U.value()));
         String password = decrypt(StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.P.value())));
@@ -148,7 +147,8 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         return null;
     }
 
-    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username, final String password, String salt, String token, Authentication previousAuth) {
+    private SubsonicRESTController.ErrorCode authenticate(HttpServletRequest httpRequest, String username,
+            final String password, String salt, String token, Authentication previousAuth) {
 
         // Previously authenticated and username not overridden?
         if (username == null && previousAuth != null) {
@@ -200,7 +200,8 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         }
     }
 
-    private void sendErrorXml(HttpServletRequest request, HttpServletResponse response, SubsonicRESTController.ErrorCode errorCode) {
+    private void sendErrorXml(HttpServletRequest request, HttpServletResponse response,
+            SubsonicRESTController.ErrorCode errorCode) {
         try {
             jaxbWriter.writeErrorResponse(request, response, errorCode, errorCode.getMessage());
         } catch (Exception e) {
@@ -219,7 +220,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
     public void destroy() {
         // Don't remove this method.
     }
-
 
     public void setAuthenticationManager(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;

@@ -21,6 +21,7 @@ package org.airsonic.player.service.sonos;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @SuppressWarnings("serial")

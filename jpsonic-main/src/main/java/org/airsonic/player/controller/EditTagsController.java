@@ -64,7 +64,8 @@ public class EditTagsController {
     private SettingsService settingsService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
@@ -93,7 +94,7 @@ public class EditTagsController {
         map.put("dir", dir);
         map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
 
-        return new ModelAndView("editTags","model",map);
+        return new ModelAndView("editTags", "model", map);
     }
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
@@ -129,7 +130,6 @@ public class EditTagsController {
         song.setGenre(file.getGenre());
         return song;
     }
-
 
     /**
      * Contains information about a single song.

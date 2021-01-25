@@ -54,7 +54,8 @@ public class SetMusicFileInfoController {
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
 
         if ("comment".equals(action)) {
-            mediaFile.setComment(StringEscapeUtils.escapeHtml(request.getParameter(Attributes.Request.COMMENT.value())));
+            mediaFile
+                    .setComment(StringEscapeUtils.escapeHtml(request.getParameter(Attributes.Request.COMMENT.value())));
             mediaFileService.updateMediaFile(mediaFile);
         }
 

@@ -46,7 +46,8 @@ import static java.util.stream.Collectors.toList;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_ARTIST_BY_FOLDER_PREFIX;
 
 @Service
-public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArtistAlbumWrapper, FolderArtistAlbumWrapper> {
+public class ArtistByFolderUpnpProcessor
+        extends UpnpContentProcessor<FolderArtistAlbumWrapper, FolderArtistAlbumWrapper> {
 
     private static final String TYPE_PREFIX_MUSIC_FOLDER = "mf:";
     private static final String TYPE_PREFIX_ARTIST = "ar:";
@@ -57,7 +58,8 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
     private final MusicFolderDao musicFolderDao;
     private final JMediaFileService mediaFileService;
 
-    public ArtistByFolderUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicFolderDao md, JArtistDao a, JAlbumDao al) {
+    public ArtistByFolderUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            MusicFolderDao md, JArtistDao a, JAlbumDao al) {
         super(d, u);
         util = u;
         mediaFileService = m;
@@ -101,14 +103,16 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
             container.setTitle(item.getName());
             container.setChildCount(item.getArtist().getAlbumCount());
             if (item.getArtist().getCoverArtPath() != null) {
-                container.setProperties(Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(item.getArtist()))));
+                container.setProperties(Arrays.asList(
+                        new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(item.getArtist()))));
             }
             return container;
         } else if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
             container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
             if (item.getAlbum().getCoverArtPath() != null) {
-                container.setAlbumArtURIs(new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(item.getAlbum()) });
+                container.setAlbumArtURIs(
+                        new URI[] { getDispatcher().getAlbumProcessor().createAlbumArtURI(item.getAlbum()) });
             }
             container.setDescription(item.getAlbum().getComment());
             container.setParentID(getRootId());
@@ -138,16 +142,17 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
     @Override
     public List<FolderArtistAlbumWrapper> getChildren(FolderArtistAlbumWrapper item, long first, long maxResults) {
         if (item.isArtist()) {
-            return getDispatcher().getAlbumProcessor()
-                    .getAlbumsForArtist(item.getName(), first, maxResults, util.isSortAlbumsByYear(item.getName()), util.getAllMusicFolders()).stream()
-                    .map(Leaf::new)
-                    .collect(toList());
+            return getDispatcher()
+                    .getAlbumProcessor().getAlbumsForArtist(item.getName(), first, maxResults,
+                            util.isSortAlbumsByYear(item.getName()), util.getAllMusicFolders())
+                    .stream().map(Leaf::new).collect(toList());
         } else if (item.isAlbum()) {
-            return mediaFileService.getSongsForAlbum(first, maxResults, item.getAlbum().getArtist(), item.getAlbum().getName())
-                    .stream()
-                    .map(Leaf::new).collect(toList());
+            return mediaFileService
+                    .getSongsForAlbum(first, maxResults, item.getAlbum().getArtist(), item.getAlbum().getName())
+                    .stream().map(Leaf::new).collect(toList());
         } else {
-            return artistDao.getAlphabetialArtists((int) first, (int) maxResults, Arrays.asList(item.getFolder())).stream().map(Leaf::new).collect(toList());
+            return artistDao.getAlphabetialArtists((int) first, (int) maxResults, Arrays.asList(item.getFolder()))
+                    .stream().map(Leaf::new).collect(toList());
         }
     }
 
@@ -164,7 +169,8 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
         } else if (isAlbumId(ids)) {
             return new Leaf(albumDao.getAlbum(id));
         } else if (isMusicFolderId(ids)) {
-            return new Leaf(musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
+            return new Leaf(
+                    musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
         }
         return new Leaf(mediaFileService.getMediaFile(id));
     }
@@ -177,7 +183,8 @@ public class ArtistByFolderUpnpProcessor extends UpnpContentProcessor<FolderArti
     @Override
     public List<FolderArtistAlbumWrapper> getItems(long offset, long maxResults) {
         List<MusicFolder> folders = util.getAllMusicFolders();
-        return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream().map(Leaf::new).collect(toList());
+        return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
+                .map(Leaf::new).collect(toList());
     }
 
     @PostConstruct

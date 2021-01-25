@@ -19,12 +19,10 @@ public class PunctuationStemFilter extends TokenFilter {
 
     @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
     /*
-     * It's a complicated way of writing, but it has been confirmed to work.
-     * This rule can be operated as a normal rule by ruleset.xml.
-     * <property name="forReassign" value="skip" />
-     * However, it is rarely used unless performance is required,
-     * so use annotation suppression to pay attention.
-     * If new code is added that issues this warning, it should be scrutinized.
+     * It's a complicated way of writing, but it has been confirmed to work. This rule can be operated as a normal rule
+     * by ruleset.xml. <property name="forReassign" value="skip" /> However, it is rarely used unless performance is
+     * required, so use annotation suppression to pay attention. If new code is added that issues this warning, it
+     * should be scrutinized.
      */
     @Override
     public final boolean incrementToken() throws IOException {

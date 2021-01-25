@@ -53,7 +53,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-
 /**
  * Controller for the main page.
  *
@@ -80,10 +79,10 @@ public class MainController {
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request,
-                                                 HttpServletResponse response,
-                                                 @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll) throws Exception {
-        
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
+            throws Exception {
+
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {
             return new ModelAndView(new RedirectView(ViewName.NOTFOUND.value()));
@@ -106,10 +105,8 @@ public class MainController {
 
         UserSettings userSettings = settingsService.getUserSettings(username);
 
-        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir,
-                true,
-                true,
-                true) : getMultiFolderChildren(mediaFiles);
+        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
+                : getMultiFolderChildren(mediaFiles);
         List<MediaFile> files = new ArrayList<>();
         List<MediaFile> subDirs = new ArrayList<>();
         for (MediaFile child : children) {
@@ -310,7 +307,8 @@ public class MainController {
         MediaFile parent = mediaFileService.getParentOf(dir);
         if (!mediaFileService.isRoot(parent)) {
             List<MediaFile> siblings = mediaFileService.getChildrenOf(parent, false, true, true);
-            result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir)).collect(Collectors.toList()));
+            result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir))
+                    .collect(Collectors.toList()));
         }
         return result;
     }

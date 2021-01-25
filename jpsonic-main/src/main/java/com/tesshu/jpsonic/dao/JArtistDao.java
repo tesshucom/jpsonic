@@ -71,34 +71,27 @@ public class JArtistDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt(
-                "select count(id) from artist " +
-                "where present and folder_id in (:folders)", 0, args);
+        return namedQueryForInt("select count(id) from artist " + "where present and folder_id in (:folders)", 0, args);
     }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of(
-                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
         return namedQuery(
-                "select id from artist " +
-                "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
-            (rs, rowNum) -> {
-                return rs.getInt(1);
-            }, args);
+                "select id from artist "
+                        + "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
+                (rs, rowNum) -> {
+                    return rs.getInt(1);
+                }, args);
     }
 
     public void updateArtistSort(SortCandidate candidate) {
-        update(
-                "update artist set reading = ?, sort = ? " +
-                "where present and name = ? and (sort <> ? or sort is null)",
-                candidate.getReading(),
-                candidate.getSort(),
-                candidate.getName(),
-                candidate.getSort());
+        update("update artist set reading = ?, sort = ? "
+                + "where present and name = ? and (sort <> ? or sort is null)", candidate.getReading(),
+                candidate.getSort(), candidate.getName(), candidate.getSort());
     }
 
 }

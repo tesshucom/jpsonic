@@ -65,7 +65,7 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItems() {
-        
+
         settingsService.setSortAlbumsByYear(false);
 
         List<Album> items = albumUpnpProcessor.getItems(0, 10);

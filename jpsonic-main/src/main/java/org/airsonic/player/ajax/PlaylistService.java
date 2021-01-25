@@ -41,8 +41,8 @@ import java.text.DateFormat;
 import java.util.*;
 
 /**
- * Provides AJAX-enabled services for manipulating playlists.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for manipulating playlists. This class is used by the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -174,8 +174,9 @@ public class PlaylistService {
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
         List<PlaylistInfo.Entry> result = new ArrayList<>();
         for (MediaFile file : files) {
-            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(), file.getAlbumName(),
-                    file.getGenre(), file.getDurationString(), file.getStarredDate() != null, file.isPresent()));
+            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(),
+                    file.getAlbumName(), file.getGenre(), file.getDurationString(), file.getStarredDate() != null,
+                    file.isPresent()));
         }
 
         return result;

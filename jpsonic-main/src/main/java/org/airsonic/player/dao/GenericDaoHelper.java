@@ -13,9 +13,7 @@ public class GenericDaoHelper implements DaoHelper {
 
     final DataSource dataSource;
 
-    public GenericDaoHelper(
-            DataSource dataSource
-    ) {
+    public GenericDaoHelper(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);

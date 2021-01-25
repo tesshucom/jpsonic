@@ -59,8 +59,7 @@ public class PodcastChannelsController {
     @GetMapping
     @SuppressWarnings("PMD.UseConcurrentHashMap")
     /*
-     * LinkedHashMap used in Legacy code.
-     * Should be triaged in #831.
+     * LinkedHashMap used in Legacy code. Should be triaged in #831.
      */
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -72,19 +71,14 @@ public class PodcastChannelsController {
         }
 
         User user = securityService.getCurrentUser(request);
-        Map<String, Object> map = LegacyMap.of(
-                "user", securityService.getCurrentUser(request),
-                "channels", channels,
-                "channelMap", channelMap,
-                "newestEpisodes", podcastService.getNewestEpisodes(10),
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                "coverArtSize", CoverArtScheme.MEDIUM.getSize());
+        Map<String, Object> map = LegacyMap.of("user", securityService.getCurrentUser(request), "channels", channels,
+                "channelMap", channelMap, "newestEpisodes", podcastService.getNewestEpisodes(10), "viewAsList",
+                viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
+                CoverArtScheme.MEDIUM.getSize());
 
         ModelAndView result = new ModelAndView();
         result.addObject("model", map);
         return result;
     }
-
-
 
 }

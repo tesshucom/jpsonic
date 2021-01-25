@@ -28,6 +28,7 @@ import java.util.List;
  * The outcome of a search.
  *
  * @author Sindre Mehus
+ * 
  * @see SearchService#search
  */
 public class SearchResult {

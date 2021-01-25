@@ -77,24 +77,25 @@ public class DatabaseSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
+    protected ModelAndView onSubmit(
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
-                case EMBED:
-                    settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
-                    settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
-                    settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
-                    settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
-                    break;
-                case JNDI:
-                    settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
-                    break;
-                case LEGACY:
-                default:
-                    break;
+            case EMBED:
+                settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
+                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
+                settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
+                settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
+                break;
+            case JNDI:
+                settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
+                break;
+            case LEGACY:
+            default:
+                break;
             }
             if (command.getConfigType() != DataSourceConfigType.LEGACY) {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());

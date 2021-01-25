@@ -32,10 +32,8 @@ public class MetricsManager {
             metricsActivatedByConfiguration.set(true);
 
             // Start a Metrics JMX reporter
-            reporter = JmxReporter.forRegistry(METRICS)
-                    .convertRatesTo(TimeUnit.SECONDS)
-                    .convertDurationsTo(TimeUnit.MILLISECONDS)
-                    .build();
+            reporter = JmxReporter.forRegistry(METRICS).convertRatesTo(TimeUnit.SECONDS)
+                    .convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start();
         } else {
             metricsActivatedByConfiguration.set(false);
@@ -54,8 +52,7 @@ public class MetricsManager {
     }
 
     /**
-     * Creates a {@link Timer} whose name is based on a class name and a
-     * qualified name.
+     * Creates a {@link Timer} whose name is based on a class name and a qualified name.
      */
     public Timer timer(Class<?> clazz, String name) {
         if (isMetricsActivatedByConfiguration()) {
@@ -66,17 +63,15 @@ public class MetricsManager {
     }
 
     /**
-     * Creates a {@link Timer} whose name is based on an object's class name and a
-     * qualified name.
+     * Creates a {@link Timer} whose name is based on an object's class name and a qualified name.
      */
     public Timer timer(Object ref, String name) {
-        return timer(ref.getClass(),name);
+        return timer(ref.getClass(), name);
     }
 
     /**
-     * Initiate a {@link TimerBuilder} using a condition.
-     * If the condition is false, a void {@link Timer} will finally be built thus
-     * no timer will be registered in the Metrics registry.
+     * Initiate a {@link TimerBuilder} using a condition. If the condition is false, a void {@link Timer} will finally
+     * be built thus no timer will be registered in the Metrics registry.
      */
     public TimerBuilder condition(boolean ifTrue) {
         if (isMetricsActivatedByConfiguration()) {
@@ -99,20 +94,20 @@ public class MetricsManager {
     public static class TimerBuilder {
 
         public Timer timer(Class<?> clazz, String name) {
-            com.codahale.metrics.Timer t = METRICS.timer(MetricRegistry.name(clazz,name));
+            com.codahale.metrics.Timer t = METRICS.timer(MetricRegistry.name(clazz, name));
             com.codahale.metrics.Timer.Context tContext = t.time();
             return new Timer(tContext);
         }
 
         public Timer timer(Object ref, String name) {
-            return timer(ref.getClass(),name);
+            return timer(ref.getClass(), name);
         }
 
     }
 
     /**
-     * A class that holds a Metrics timer context implementing {@link AutoCloseable}
-     * thus it can be used in a try-with-resources statement.
+     * A class that holds a Metrics timer context implementing {@link AutoCloseable} thus it can be used in a
+     * try-with-resources statement.
      */
     public static class Timer implements AutoCloseable {
 
@@ -128,7 +123,6 @@ public class MetricsManager {
         }
 
     }
-
 
     // -----------------------------------------------------------------
     // Convenient singletons to avoid creating useless objects instances

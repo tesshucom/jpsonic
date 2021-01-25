@@ -65,25 +65,25 @@ public class PlayerDaoTest extends DaoTestBase {
         Player player = new Player();
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer)1, player.getId());
+        assertEquals("Wrong ID", (Integer) 1, player.getId());
         assertEquals("Wrong number of players.", 1, playerDao.getAllPlayers().size());
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer)2, player.getId());
+        assertEquals("Wrong ID", (Integer) 2, player.getId());
         assertEquals("Wrong number of players.", 2, playerDao.getAllPlayers().size());
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer)3, player.getId());
+        assertEquals("Wrong ID", (Integer) 3, player.getId());
         assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
 
         playerDao.deletePlayer(3);
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer)3, player.getId());
+        assertEquals("Wrong ID", (Integer) 3, player.getId());
         assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
 
         playerDao.deletePlayer(2);
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer)4, player.getId());
+        assertEquals("Wrong ID", (Integer) 4, player.getId());
         assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
     }
 
@@ -109,7 +109,8 @@ public class PlayerDaoTest extends DaoTestBase {
         List<Player> players = playerDao.getPlayersForUserAndClientId("sindre", null);
         assertFalse("Error in getPlayersForUserAndClientId().", players.isEmpty());
         assertPlayerEquals(player, players.get(0));
-        assertTrue("Error in getPlayersForUserAndClientId().", playerDao.getPlayersForUserAndClientId("sindre", "foo").isEmpty());
+        assertTrue("Error in getPlayersForUserAndClientId().",
+                playerDao.getPlayersForUserAndClientId("sindre", "foo").isEmpty());
 
         player.setClientId("foo");
         playerDao.updatePlayer(player);

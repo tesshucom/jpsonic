@@ -43,6 +43,7 @@ import java.util.List;
  * Provides services for sharing media.
  *
  * @author Sindre Mehus
+ * 
  * @see Share
  */
 @Service
@@ -130,7 +131,8 @@ public class ShareService {
 
     public String getShareUrl(HttpServletRequest request, Share share) {
         String shareUrl = NetworkService.getBaseUrl(request) + "ext/share/" + share.getName();
-        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(shareUrl), share.getExpires()).build().toUriString();
+        return jwtSecurityService.addJWTToken(UriComponentsBuilder.fromUriString(shareUrl), share.getExpires()).build()
+                .toUriString();
     }
 
     public void setSecurityService(SecurityService securityService) {

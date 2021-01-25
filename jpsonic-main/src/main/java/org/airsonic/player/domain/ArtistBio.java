@@ -21,6 +21,7 @@ package org.airsonic.player.domain;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class ArtistBio {
@@ -33,7 +34,7 @@ public class ArtistBio {
     private final String largeImageUrl;
 
     public ArtistBio(String biography, String musicBrainzId, String lastFmUrl, String smallImageUrl,
-                     String mediumImageUrl, String largeImageUrl) {
+            String mediumImageUrl, String largeImageUrl) {
         this.biography = biography;
         this.musicBrainzId = musicBrainzId;
         this.lastFmUrl = lastFmUrl;

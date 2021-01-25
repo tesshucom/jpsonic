@@ -36,7 +36,7 @@ public class FontLoader {
     private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
 
     private final Ehcache fontCache;
-    
+
     public FontLoader(Ehcache fontCache) {
         this.fontCache = fontCache;
     }

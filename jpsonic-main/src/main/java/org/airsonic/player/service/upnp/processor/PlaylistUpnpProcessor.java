@@ -41,7 +41,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, MediaFile> {
+public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -49,7 +49,8 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
 
     private final CoverArtLogic coverArtLogic;
 
-    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p, CoverArtLogic c) {
+    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p,
+            CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.playlistService = p;
@@ -108,9 +109,10 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     private URI getArtURI(Playlist playlist) {
-        return util.addJWTToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(playlist))
-                .queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
+        return util.addJWTToken(UriComponentsBuilder
+                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                .queryParam("id", coverArtLogic.createKey(playlist)).queryParam("size", CoverArtScheme.LARGE.getSize()))
+                .build().encode().toUri();
     }
 
 }

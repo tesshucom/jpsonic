@@ -633,10 +633,8 @@ public class PersonalSettingsCommand {
     }
 
     public void setFontSchemes(FontScheme... fontSchemes) {
-        fontSchemeHolders = Arrays.stream(fontSchemes)
-            .map(s -> new EnumHolder(s.name(), s.toString()))
-            .collect(Collectors.toList())
-            .toArray(new EnumHolder[fontSchemes.length]);
+        fontSchemeHolders = Arrays.stream(fontSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
+                .collect(Collectors.toList()).toArray(new EnumHolder[fontSchemes.length]);
     }
 
     public String getFontSchemeName() {
@@ -684,10 +682,8 @@ public class PersonalSettingsCommand {
     }
 
     public void setSpeechLangSchemes(SpeechToTextLangScheme... speechLangSchemes) {
-        speechLangSchemeHolders = Arrays.stream(speechLangSchemes)
-            .map(s -> new EnumHolder(s.name(), s.toString()))
-            .collect(Collectors.toList())
-            .toArray(new EnumHolder[speechLangSchemes.length]);
+        speechLangSchemeHolders = Arrays.stream(speechLangSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
+                .collect(Collectors.toList()).toArray(new EnumHolder[speechLangSchemes.length]);
     }
 
     public String getSpeechLangSchemeName() {

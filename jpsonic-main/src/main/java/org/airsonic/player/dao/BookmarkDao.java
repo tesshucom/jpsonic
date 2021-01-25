@@ -62,18 +62,21 @@ public class BookmarkDao extends AbstractDao {
     }
 
     /**
-     * Creates or updates a bookmark.  If created, the ID of the bookmark will be set by this method.
+     * Creates or updates a bookmark. If created, the ID of the bookmark will be set by this method.
      */
     @Transactional
     public void createOrUpdateBookmark(Bookmark bookmark) {
-        int n = update("update bookmark set position_millis=?, comment=?, changed=? where media_file_id=? and username=?",
-                bookmark.getPositionMillis(), bookmark.getComment(), bookmark.getChanged(), bookmark.getMediaFileId(), bookmark.getUsername());
+        int n = update(
+                "update bookmark set position_millis=?, comment=?, changed=? where media_file_id=? and username=?",
+                bookmark.getPositionMillis(), bookmark.getComment(), bookmark.getChanged(), bookmark.getMediaFileId(),
+                bookmark.getUsername());
 
         if (n == 0) {
             update("insert into bookmark (" + INSERT_COLUMNS + ") values (" + questionMarks(INSERT_COLUMNS) + ")",
-                   bookmark.getMediaFileId(), bookmark.getPositionMillis(), bookmark.getUsername(), bookmark.getComment(),
-                   bookmark.getCreated(), bookmark.getChanged());
-            int id = queryForInt("select id from bookmark where media_file_id=? and username=?", 0, bookmark.getMediaFileId(), bookmark.getUsername());
+                    bookmark.getMediaFileId(), bookmark.getPositionMillis(), bookmark.getUsername(),
+                    bookmark.getComment(), bookmark.getCreated(), bookmark.getChanged());
+            int id = queryForInt("select id from bookmark where media_file_id=? and username=?", 0,
+                    bookmark.getMediaFileId(), bookmark.getUsername());
             bookmark.setId(id);
         }
     }
@@ -89,8 +92,8 @@ public class BookmarkDao extends AbstractDao {
     private static class BookmarkRowMapper implements RowMapper<Bookmark> {
         @Override
         public Bookmark mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Bookmark(rs.getInt(1), rs.getInt(2), rs.getLong(3), rs.getString(4),
-                    rs.getString(5), rs.getTimestamp(6), rs.getTimestamp(7));
+            return new Bookmark(rs.getInt(1), rs.getInt(2), rs.getLong(3), rs.getString(4), rs.getString(5),
+                    rs.getTimestamp(6), rs.getTimestamp(7));
         }
     }
 }

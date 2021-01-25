@@ -113,7 +113,8 @@ public class UserChartController extends AbstractChartController {
         Color fgColor = getForeground(request);
         Color stColor = getStroke(request);
 
-        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false, false, false);
+        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false,
+                false, false);
         StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
         Font font = fontLoader.getFont(12F);
         theme.setExtraLargeFont(font);
@@ -121,7 +122,7 @@ public class UserChartController extends AbstractChartController {
         theme.setRegularFont(font);
         theme.setSmallFont(font);
         theme.apply(chart);
-        
+
         chart.setBackgroundPaint(bgColor);
 
         CategoryPlot plot = chart.getCategoryPlot();
@@ -138,13 +139,15 @@ public class UserChartController extends AbstractChartController {
                     RectangleEdge base, boolean pegShadow) {
                 // to be none
             }
+
             @Override
             public void paintBar(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,
                     RectangleEdge base) {
                 int barMaxHeight = 15;
                 double radius = 10.0;
                 double barX = shape.getX() - radius;
-                double barY = barMaxHeight < shape.getHeight() ? shape.getY() + (shape.getHeight() - barMaxHeight) / 2 : shape.getY();
+                double barY = barMaxHeight < shape.getHeight() ? shape.getY() + (shape.getHeight() - barMaxHeight) / 2
+                        : shape.getY();
                 double barHeight = barMaxHeight < shape.getHeight() ? barMaxHeight : shape.getHeight();
                 double barWidth = shape.getWidth() + radius;
                 RoundRectangle2D rec = new RoundRectangle2D.Double(barX, barY, barWidth, barHeight, radius, radius);

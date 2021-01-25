@@ -37,10 +37,10 @@ public class JukeboxJavaServiceUnitTest {
     @Mock
     private MediaFile mediaFile;
 
-
     @Before
     public void setup() {
-        service = new JukeboxJavaService(audioScrobblerService, statusService, securityService, mediaFileService, javaPlayerFactory);
+        service = new JukeboxJavaService(audioScrobblerService, statusService, securityService, mediaFileService,
+                javaPlayerFactory);
         when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.JAVA_JUKEBOX);
         when(airsonicPlayer.getUsername()).thenReturn(USER_NAME);
         when(javaPlayerFactory.createJavaPlayer()).thenReturn(player);

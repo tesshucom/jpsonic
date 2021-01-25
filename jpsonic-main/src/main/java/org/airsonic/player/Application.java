@@ -38,15 +38,12 @@ import javax.servlet.Servlet;
 
 import java.lang.reflect.Method;
 
-@SpringBootApplication(exclude = {
-        JmxAutoConfiguration.class,
-        JdbcTemplateAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
+@SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
+        DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
         MultipartAutoConfiguration.class, // TODO: update to use spring boot builtin multipart support
-        LiquibaseAutoConfiguration.class},
-        scanBasePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-public class Application extends SpringBootServletInitializer implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+        LiquibaseAutoConfiguration.class }, scanBasePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+public class Application extends SpringBootServletInitializer
+        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
@@ -58,7 +55,7 @@ public class Application extends SpringBootServletInitializer implements WebServ
     @Bean
     public ServletRegistrationBean<Servlet> dwrServletRegistrationBean() {
         ServletRegistrationBean<Servlet> servlet = new ServletRegistrationBean<>(new DwrServlet(), "/dwr/*");
-        servlet.addInitParameter("crossDomainSessionSecurity","false");
+        servlet.addInitParameter("crossDomainSessionSecurity", "false");
         return servlet;
     }
 
@@ -132,14 +129,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     public FilterRegistrationBean<Filter> cacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(cacheFilter());
-        registration.addUrlPatterns(
-                "/icons/*",
-                "/style/*",
-                "/script/*",
-                "/dwr/*",
-                "/icons/*",
-                "/" + ViewName.COVER_ART.value(),
-                "/" + ViewName.AVATAR.value());
+        registration.addUrlPatterns("/icons/*", "/style/*", "/script/*", "/dwr/*", "/icons/*",
+                "/" + ViewName.COVER_ART.value(), "/" + ViewName.AVATAR.value());
         registration.addInitParameter("Cache-Control", "max-age=36000");
         registration.setName("CacheFilter");
         registration.setOrder(5);
@@ -155,14 +146,9 @@ public class Application extends SpringBootServletInitializer implements WebServ
     public FilterRegistrationBean<Filter> noCacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(noCacheFilter());
-        registration.addUrlPatterns(
-                "/" + ViewName.STATUS_CHART.value(),
-                "/" + ViewName.USER_CHART.value(),
-                "/" + ViewName.PLAY_QUEUE.value(),
-                "/" + ViewName.PODCAST_CHANNELS.value(),
-                "/" + ViewName.PODCAST_CHANNEL.value(),
-                "/" + ViewName.HELP.value(),
-                "/" + ViewName.TOP.value(),
+        registration.addUrlPatterns("/" + ViewName.STATUS_CHART.value(), "/" + ViewName.USER_CHART.value(),
+                "/" + ViewName.PLAY_QUEUE.value(), "/" + ViewName.PODCAST_CHANNELS.value(),
+                "/" + ViewName.PODCAST_CHANNEL.value(), "/" + ViewName.HELP.value(), "/" + ViewName.TOP.value(),
                 "/" + ViewName.HOME.value());
         registration.addInitParameter("Cache-Control", "no-cache, post-check=0, pre-check=0");
         registration.addInitParameter("Pragma", "no-cache");
@@ -202,7 +188,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
         // Handle HSQLDB database upgrades from 1.8 to 2.x before any beans are started.
         application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
-            if (event.getApplicationContext().getEnvironment().acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
+            if (event.getApplicationContext().getEnvironment()
+                    .acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
                 LegacyHsqlUtil.upgradeHsqldbDatabaseSafely();
             }
         });
@@ -227,7 +214,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
         // ensure this class does not have any direct dependencies on any Tomcat
         // specific classes.
         try {
-            Class<?> tomcatESCF = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
+            Class<?> tomcatESCF = Class
+                    .forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
             if (tomcatESCF.isInstance(container)) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Detected Tomcat web server");

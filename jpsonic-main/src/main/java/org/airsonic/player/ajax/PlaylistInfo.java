@@ -57,7 +57,8 @@ public class PlaylistInfo {
         private final boolean starred;
         private final boolean present;
 
-        public Entry(int id, String title, String artist, String composer, String album, String genre, String durationAsString, boolean starred, boolean present) {
+        public Entry(int id, String title, String artist, String composer, String album, String genre,
+                String durationAsString, boolean starred, boolean present) {
             this.id = id;
             this.title = title;
             this.artist = artist;

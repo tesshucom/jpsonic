@@ -39,17 +39,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Creates a URL with optional query parameters. Similar to 'c:url', but
- * you may specify which character encoding to use for the URL query
- * parameters. If no encoding is specified, the following steps are performed:
+ * Creates a URL with optional query parameters. Similar to 'c:url', but you may specify which character encoding to use
+ * for the URL query parameters. If no encoding is specified, the following steps are performed:
  * <ul>
  * <li>Parameter values are encoded as the hexadecimal representation of the UTF-8 bytes of the original string.</li>
  * <li>Parameter names are prepended with the suffix "Utf8Hex"</li>
- * <li>Note: Nothing is done with the parameter name or value if the value only contains ASCII alphanumeric characters.</li>
+ * <li>Note: Nothing is done with the parameter name or value if the value only contains ASCII alphanumeric
+ * characters.</li>
  * </ul>
  * <p/>
- * (The problem with c:url is that is uses the same encoding as the http response,
- * but most(?) servlet container assumes that ISO-8859-1 is used.)
+ * (The problem with c:url is that is uses the same encoding as the http response, but most(?) servlet container assumes
+ * that ISO-8859-1 is used.)
  *
  * @author Sindre Mehus
  */

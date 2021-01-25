@@ -72,12 +72,8 @@ public class PlaylistServiceImportTest {
 
     @Before
     public void setup() {
-        playlistService = new PlaylistService(
-                new JMediaFileDao(mediaFileDao),
-                new JPlaylistDao(playlistDao),
-                securityService,
-                settingsService,
-                Collections.emptyList(),
+        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao), new JPlaylistDao(playlistDao),
+                securityService, settingsService, Collections.emptyList(),
                 Lists.newArrayList(defaultPlaylistImportHandler));
 
     }
@@ -94,9 +90,8 @@ public class PlaylistServiceImportTest {
         FileUtils.touch(mf2);
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
-        builder.append(mf1.getAbsolutePath()).append('\n')
-            .append(mf2.getAbsolutePath()).append('\n')
-            .append(mf3.getAbsolutePath()).append('\n');
+        builder.append(mf1.getAbsolutePath()).append('\n').append(mf2.getAbsolutePath()).append('\n')
+                .append(mf3.getAbsolutePath()).append('\n');
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
@@ -111,7 +106,10 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
-        assertTrue("\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n" + ToStringBuilder.reflectionToString(expected), EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+        assertTrue(
+                "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
+                        + ToStringBuilder.reflectionToString(expected),
+                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }
@@ -128,9 +126,8 @@ public class PlaylistServiceImportTest {
         FileUtils.touch(mf2);
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
-        builder.append("File1=").append(mf1.getAbsolutePath()).append('\n')
-            .append("File2=").append(mf2.getAbsolutePath()).append('\n')
-            .append("File3=").append(mf3.getAbsolutePath()).append('\n');
+        builder.append("File1=").append(mf1.getAbsolutePath()).append('\n').append("File2=")
+                .append(mf2.getAbsolutePath()).append('\n').append("File3=").append(mf3.getAbsolutePath()).append('\n');
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
@@ -145,7 +142,10 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
-        assertTrue("\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n" + ToStringBuilder.reflectionToString(expected), EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+        assertTrue(
+                "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
+                        + ToStringBuilder.reflectionToString(expected),
+                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }
@@ -156,8 +156,7 @@ public class PlaylistServiceImportTest {
         String playlistName = "test-playlist";
         StringBuilder builder = new StringBuilder(300);
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-                       + "<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n"
-                       + "    <trackList>\n");
+                + "<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n" + "    <trackList>\n");
         File mf1 = folder.newFile();
         FileUtils.touch(mf1);
         File mf2 = folder.newFile();
@@ -165,9 +164,9 @@ public class PlaylistServiceImportTest {
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
         builder.append("<track><location>file://").append(mf1.getAbsolutePath()).append("</location></track>\n")
-            .append("<track><location>file://").append(mf2.getAbsolutePath()).append("</location></track>\n")
-            .append("<track><location>file://").append(mf3.getAbsolutePath()).append("</location></track>\n")
-            .append("    </trackList>\n" + "</playlist>\n");
+                .append("<track><location>file://").append(mf2.getAbsolutePath()).append("</location></track>\n")
+                .append("<track><location>file://").append(mf3.getAbsolutePath()).append("</location></track>\n")
+                .append("    </trackList>\n" + "</playlist>\n");
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
@@ -182,13 +181,17 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
-        assertTrue("\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n" + ToStringBuilder.reflectionToString(expected), EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+        assertTrue(
+                "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
+                        + ToStringBuilder.reflectionToString(expected),
+                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }
 
     private static class PersistPlayList implements Answer {
         private final int id;
+
         public PersistPlayList(int id) {
             this.id = id;
         }

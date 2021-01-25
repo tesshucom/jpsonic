@@ -50,7 +50,8 @@ public class PodcastReceiverAdminController {
     private PodcastService podcastService;
 
     @RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         if (request.getParameter(Attributes.Request.ADD.value()) != null) {
             String url = StringUtils.trim(request.getParameter(Attributes.Request.ADD.value()));
@@ -61,22 +62,26 @@ public class PodcastReceiverAdminController {
         Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.CHANNEL_ID.value());
         if (request.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value()) != null && channelId != null) {
             download(StringUtil.parseInts(request.getParameter(Attributes.Request.DOWNLOAD_EPISODE.value())));
-            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
+            return new ModelAndView(new RedirectView(
+                    ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
         }
         if (request.getParameter(Attributes.Request.DELETE_CHANNEL.value()) != null && channelId != null) {
             podcastService.deleteChannel(channelId);
             return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
         }
         if (request.getParameter(Attributes.Request.DELETE_EPISODE.value()) != null) {
-            for (int episodeId : StringUtil.parseInts(request.getParameter(Attributes.Request.DELETE_EPISODE.value()))) {
+            for (int episodeId : StringUtil
+                    .parseInts(request.getParameter(Attributes.Request.DELETE_EPISODE.value()))) {
                 podcastService.deleteEpisode(episodeId, true);
             }
-            return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
+            return new ModelAndView(new RedirectView(
+                    ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
         }
         if (request.getParameter(Attributes.Request.REFRESH.value()) != null) {
             if (channelId != null) {
                 podcastService.refreshChannel(channelId, true);
-                return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
+                return new ModelAndView(new RedirectView(
+                        ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
             } else {
                 podcastService.refreshAllChannels(true);
                 return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
@@ -88,10 +93,8 @@ public class PodcastReceiverAdminController {
     private void download(int... episodeIds) {
         for (int episodeId : episodeIds) {
             PodcastEpisode episode = podcastService.getEpisode(episodeId, false);
-            if (episode != null && episode.getUrl() != null &&
-                (episode.getStatus() == PodcastStatus.NEW ||
-                 episode.getStatus() == PodcastStatus.ERROR ||
-                 episode.getStatus() == PodcastStatus.SKIPPED)) {
+            if (episode != null && episode.getUrl() != null && (episode.getStatus() == PodcastStatus.NEW
+                    || episode.getStatus() == PodcastStatus.ERROR || episode.getStatus() == PodcastStatus.SKIPPED)) {
 
                 podcastService.downloadEpisode(episode);
             }

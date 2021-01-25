@@ -31,8 +31,7 @@ import java.io.IOException;
 import java.util.Locale;
 
 /**
- * Converts a byte-count to a formatted string suitable for display to the user, with respect
- * to the current locale.
+ * Converts a byte-count to a formatted string suitable for display to the user, with respect to the current locale.
  * <p/>
  * For instance:
  * <ul>

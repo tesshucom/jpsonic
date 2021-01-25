@@ -43,7 +43,8 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p, SearchService s, SettingsService ss) {
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            PlayerService p, SearchService s, SettingsService ss) {
         super(d, u, m, p);
         this.util = u;
         this.searchService = s;
@@ -58,7 +59,8 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

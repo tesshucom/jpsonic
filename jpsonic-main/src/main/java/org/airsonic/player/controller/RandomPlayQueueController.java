@@ -64,7 +64,7 @@ import java.util.Map;
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
-    
+
     private static final String REQUEST_VALUE_ANY = "any";
 
     @Autowired
@@ -80,14 +80,11 @@ public class RandomPlayQueueController {
 
     @SuppressWarnings("PMD.NullAssignment")
     /*
-     * (genre, lastPlayed, format)
-     * Intentional assignment in the case of receiving a param indicating no condition value.
+     * (genre, lastPlayed, format) Intentional assignment in the case of receiving a param indicating no condition
+     * value.
      */
     @PostMapping
-    protected String handleRandomPlayQueue(
-            ModelMap model,
-            HttpServletRequest request,
-            HttpServletResponse response,
+    protected String handleRandomPlayQueue(ModelMap model, HttpServletRequest request, HttpServletResponse response,
             @RequestParam(Attributes.Request.NameConstants.SIZE) final Integer sizeParam,
             @RequestParam(value = Attributes.Request.NameConstants.GENRE, required = false) final String genreParam,
             @RequestParam(value = Attributes.Request.NameConstants.YEAR, required = false) String year,
@@ -99,8 +96,8 @@ public class RandomPlayQueueController {
             @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_VALUE, required = false) Integer playCountValue,
             @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_COMP, required = false) String playCountComp,
             @RequestParam(value = Attributes.Request.NameConstants.FORMAT, required = false) final String formatParam,
-            @RequestParam(value = Attributes.Request.NameConstants.AUTO_RANDOM, required = false) String autoRandom
-    ) throws Exception {
+            @RequestParam(value = Attributes.Request.NameConstants.AUTO_RANDOM, required = false) String autoRandom)
+            throws Exception {
 
         Integer fromYear = null;
         Integer toYear = null;
@@ -116,7 +113,7 @@ public class RandomPlayQueueController {
         Integer size = sizeParam;
         String genre = genreParam;
         String format = formatParam;
-        
+
         if (size == null) {
             size = 24;
         }
@@ -149,92 +146,92 @@ public class RandomPlayQueueController {
         Calendar lastPlayed = Calendar.getInstance();
         lastPlayed.setTime(new Date());
         switch (lastPlayedValue) { // nullable
-            case REQUEST_VALUE_ANY:
-                lastPlayed = null;
+        case REQUEST_VALUE_ANY:
+            lastPlayed = null;
+            break;
+        case "1day":
+            lastPlayed.add(Calendar.DAY_OF_YEAR, -1);
+            break;
+        case "1week":
+            lastPlayed.add(Calendar.WEEK_OF_YEAR, -1);
+            break;
+        case "1month":
+            lastPlayed.add(Calendar.MONTH, -1);
+            break;
+        case "3months":
+            lastPlayed.add(Calendar.MONTH, -3);
+            break;
+        case "6months":
+            lastPlayed.add(Calendar.MONTH, -6);
+            break;
+        case "1year":
+            lastPlayed.add(Calendar.YEAR, -1);
+            break;
+        default:
+            // none
+            break;
+        }
+        if (lastPlayed != null) {
+            switch (lastPlayedComp) { // nullable
+            case "lt":
+                maxLastPlayedDate = lastPlayed.getTime();
                 break;
-            case "1day":
-                lastPlayed.add(Calendar.DAY_OF_YEAR, -1);
-                break;
-            case "1week":
-                lastPlayed.add(Calendar.WEEK_OF_YEAR, -1);
-                break;
-            case "1month":
-                lastPlayed.add(Calendar.MONTH, -1);
-                break;
-            case "3months":
-                lastPlayed.add(Calendar.MONTH, -3);
-                break;
-            case "6months":
-                lastPlayed.add(Calendar.MONTH, -6);
-                break;
-            case "1year":
-                lastPlayed.add(Calendar.YEAR, -1);
+            case "gt":
+                minLastPlayedDate = lastPlayed.getTime();
                 break;
             default:
                 // none
                 break;
-        }
-        if (lastPlayed != null) {
-            switch (lastPlayedComp) { // nullable
-                case "lt":
-                    maxLastPlayedDate = lastPlayed.getTime();
-                    break;
-                case "gt":
-                    minLastPlayedDate = lastPlayed.getTime();
-                    break;
-                default:
-                    // none
-                    break;
             }
         }
 
         // Handle the album rating filter
         if (albumRatingValue != null) {
             switch (albumRatingComp) { // nullable
-                case "lt":
-                    maxAlbumRating = albumRatingValue - 1;
-                    break;
-                case "gt":
-                    minAlbumRating = albumRatingValue + 1;
-                    break;
-                case "le":
-                    maxAlbumRating = albumRatingValue;
-                    break;
-                case "ge":
-                    minAlbumRating = albumRatingValue;
-                    break;
-                case "eq":
-                    minAlbumRating = albumRatingValue;
-                    maxAlbumRating = albumRatingValue;
-                    break;
-                default:
-                    // none
-                    break;
+            case "lt":
+                maxAlbumRating = albumRatingValue - 1;
+                break;
+            case "gt":
+                minAlbumRating = albumRatingValue + 1;
+                break;
+            case "le":
+                maxAlbumRating = albumRatingValue;
+                break;
+            case "ge":
+                minAlbumRating = albumRatingValue;
+                break;
+            case "eq":
+                minAlbumRating = albumRatingValue;
+                maxAlbumRating = albumRatingValue;
+                break;
+            default:
+                // none
+                break;
             }
         }
 
         // Handle the play count filter
         if (playCountValue != null) {
             switch (playCountComp) { // nullable
-                case "lt":
-                    maxPlayCount = playCountValue - 1;
-                    break;
-                case "gt":
-                    minPlayCount = playCountValue + 1;
-                    break;
-                case "le":
-                    maxPlayCount = playCountValue;
-                    break;
-                case "ge":
-                    minPlayCount = playCountValue;
-                    break;
-                case "eq":
-                    minPlayCount = playCountValue;
-                    maxPlayCount = playCountValue;
-                    break;
-                default:
-                    // none
-                    break;
+            case "lt":
+                maxPlayCount = playCountValue - 1;
+                break;
+            case "gt":
+                minPlayCount = playCountValue + 1;
+                break;
+            case "le":
+                maxPlayCount = playCountValue;
+                break;
+            case "ge":
+                minPlayCount = playCountValue;
+                break;
+            case "eq":
+                minPlayCount = playCountValue;
+                maxPlayCount = playCountValue;
+                break;
+            default:
+                // none
+                break;
             }
         }
 
@@ -257,28 +254,16 @@ public class RandomPlayQueueController {
             } else {
                 // #267 Invalid search for genre containing specific string
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                    LOG.warn(
+                            "Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
                 }
             }
         }
 
         // Search the database using these criteria
-        RandomSearchCriteria criteria = new RandomSearchCriteria(
-                size,
-                genres,
-                fromYear,
-                toYear,
-                musicFolders,
-                minLastPlayedDate,
-                maxLastPlayedDate,
-                minAlbumRating,
-                maxAlbumRating,
-                minPlayCount,
-                maxPlayCount,
-                doesShowStarredSongs,
-                doesShowUnstarredSongs,
-                format
-        );
+        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders,
+                minLastPlayedDate, maxLastPlayedDate, minAlbumRating, maxAlbumRating, minPlayCount, maxPlayCount,
+                doesShowStarredSongs, doesShowUnstarredSongs, format);
         User user = securityService.getCurrentUser(request);
         Player player = playerService.getPlayer(request, response);
         PlayQueue playQueue = player.getPlayQueue();
@@ -298,10 +283,12 @@ public class RandomPlayQueueController {
         return "reload";
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the case of receiving a param indicating no condition value.
+    @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the case of receiving a
+                                            // param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request) throws ServletRequestBindingException {
         String username = securityService.getCurrentUsername(request);
-        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         if (selectedMusicFolderId == -1) {
             selectedMusicFolderId = null;
         }

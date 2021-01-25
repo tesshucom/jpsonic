@@ -22,17 +22,16 @@ package com.tesshu.jpsonic.domain;
  * Enumeration of font specification method used on web pages.
  */
 public enum FontScheme {
-    
+
     /**
-     * A method that uses fonts that are commonly used in Japan and can display a
-     * mixture of Japanese and English characters.
+     * A method that uses fonts that are commonly used in Japan and can display a mixture of Japanese and English
+     * characters.
      */
     DEFAULT,
 
     /**
-     * A method that uses the server's built-in Japanese fonts in addition to the
-     * default fonts. It is intended to support users who watch Japanese music on
-     * clients that do not have Japanese fonts.
+     * A method that uses the server's built-in Japanese fonts in addition to the default fonts. It is intended to
+     * support users who watch Japanese music on clients that do not have Japanese fonts.
      */
     JP_EMBED,
 

@@ -131,7 +131,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         assertEquals("は", items.get(2).getName());
         assertEquals("#", items.get(3).getName());
         assertEquals("single1", items.get(4).getName());
-        
+
         items = indexUpnpProcessor.getItems(0, 9);
         assertEquals(9, items.size());
         assertEquals("A", items.get(0).getName());
@@ -144,7 +144,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         items = indexUpnpProcessor.getItems(9, 1);
         assertEquals(1, items.size());
         assertEquals("single1", items.get(0).getName());
-        
+
         items = indexUpnpProcessor.getItems(30, 1);
         assertEquals(1, items.size());
         assertEquals("single22", items.get(0).getName());
@@ -172,8 +172,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
     public void testgetChildren() {
 
         List<String> artistNames = indexUpnpProcessor.getItems(0, 100).stream()
-                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream())
-                .map(m -> m.getName())
+                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(m -> m.getName())
                 .collect(Collectors.toList());
         assertEquals(indexList, artistNames);
 
@@ -274,15 +273,15 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
     @Test
     public void testSongs() {
 
-        List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100)
-                .stream().filter(a -> "#".equals(a.getName())).collect(Collectors.toList());
+        List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100).stream().filter(a -> "#".equals(a.getName()))
+                .collect(Collectors.toList());
         assertEquals(1, indexes.size());
-        
+
         MediaFile index = indexes.get(0);
         assertEquals("#", index.getName());
 
-        List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE)
-                .stream().filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+        List<MediaFile> artists = indexUpnpProcessor.getChildren(index, 0, Integer.MAX_VALUE).stream()
+                .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
 
         MediaFile artist = artists.get(0);

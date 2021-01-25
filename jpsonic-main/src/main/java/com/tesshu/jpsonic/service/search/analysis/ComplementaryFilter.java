@@ -36,13 +36,11 @@ public final class ComplementaryFilter extends TokenFilter {
     private CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
     private String stopwards;
-    
+
     private Mode mode;
 
     public static enum Mode {
-        STOP_WORDS_ONLY("swo"),
-        STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"),
-        HIRA_KATA_ONLY("hko");
+        STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");
 
         private String value;
 

@@ -49,29 +49,54 @@ public class SearchCriteriaDirectorLegacyTest {
     private @interface DirectorDecisions {
         @interface Conditions {
             @SuppressWarnings("unused")
-            @interface searchInput {}
+            @interface searchInput {
+            }
+
             @SuppressWarnings("unused")
-            @interface offset {}
+            @interface offset {
+            }
+
             @SuppressWarnings("unused")
-            @interface count {}
+            @interface count {
+            }
+
             @interface includeComposer {
-                @interface FALSE {}
-                @interface TRUE {}
+                @interface FALSE {
+                }
+
+                @interface TRUE {
+                }
             }
+
             @interface musicFolders {
-                @interface SINGLE_FOLDERS {}
-                @interface MULTI_FOLDERS {}
+                @interface SINGLE_FOLDERS {
+                }
+
+                @interface MULTI_FOLDERS {
+                }
             }
+
             @interface indexType {
-                @interface ARTIST {}
-                @interface ALBUM {}
-                @interface SONG {}
-                @interface ARTIST_ID3 {}
-                @interface ALBUM_ID3 {}
+                @interface ARTIST {
+                }
+
+                @interface ALBUM {
+                }
+
+                @interface SONG {
+                }
+
+                @interface ARTIST_ID3 {
+                }
+
+                @interface ALBUM_ID3 {
+                }
             }
         }
+
         @interface Actions {
-            @interface construct {}
+            @interface construct {
+            }
         }
     }
 
@@ -118,8 +143,10 @@ public class SearchCriteriaDirectorLegacyTest {
     private final int FID1 = 10;
     private final int FID2 = 20;
 
-    private final MusicFolder MUSIC_FOLDER1 = new MusicFolder(Integer.valueOf(FID1), new File(PATH1), "music1", true, new java.util.Date());
-    private final MusicFolder MUSIC_FOLDER2 = new MusicFolder(Integer.valueOf(FID2), new File(PATH2), "music2", true, new java.util.Date());
+    private final MusicFolder MUSIC_FOLDER1 = new MusicFolder(Integer.valueOf(FID1), new File(PATH1), "music1", true,
+            new java.util.Date());
+    private final MusicFolder MUSIC_FOLDER2 = new MusicFolder(Integer.valueOf(FID2), new File(PATH2), "music2", true,
+            new java.util.Date());
 
     List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
     List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
@@ -134,7 +161,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c01() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ARTIST);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
                 criteria.getParsedQuery().toString());
@@ -146,7 +174,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c02() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ARTIST);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true,
+                SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
                 criteria.getParsedQuery().toString());
@@ -158,7 +187,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c03() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ARTIST);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                MULTI_FOLDERS, IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
@@ -170,9 +200,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c04() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ALBUM);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                SINGLE_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1
+                        + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -182,9 +214,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c05() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ALBUM);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true,
+                SINGLE_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1
+                        + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -194,9 +228,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c06() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ALBUM);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1
+                        + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -206,9 +242,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c07() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.SONG);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                SINGLE_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + ")",
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:"
+                        + PATH1 + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -218,9 +256,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c08() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.SONG);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true,
+                SINGLE_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2 (cmpR:abc*)^1.1 cmp:abc*) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2 (cmpR:123*)^1.1 cmp:123*)) +(f:" + PATH1 + ")",
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2 (cmpR:abc*)^1.1 cmp:abc*) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2 (cmpR:123*)^1.1 cmp:123*)) +(f:"
+                        + PATH1 + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -230,12 +270,13 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c09() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.SONG);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                MULTI_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
     }
-    
 
     @DirectorDecisions.Conditions.includeComposer.FALSE
     @DirectorDecisions.Conditions.musicFolders.SINGLE_FOLDERS
@@ -243,7 +284,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c10() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                SINGLE_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
                 criteria.getParsedQuery().toString());
@@ -255,7 +297,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c11() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true,
+                SINGLE_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
                 criteria.getParsedQuery().toString());
@@ -267,7 +310,8 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c12() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                MULTI_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
@@ -279,9 +323,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c13() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, SINGLE_FOLDERS, IndexType.ALBUM_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                SINGLE_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1
+                        + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -291,9 +337,11 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c14() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true, SINGLE_FOLDERS, IndexType.ALBUM_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, true,
+                SINGLE_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1
+                        + ")",
                 criteria.getParsedQuery().toString());
     }
 
@@ -303,77 +351,104 @@ public class SearchCriteriaDirectorLegacyTest {
     @DirectorDecisions.Actions.construct
     @Test
     public void c15() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false, MULTI_FOLDERS, IndexType.ALBUM_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, false,
+                MULTI_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1
+                        + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
     }
 
     @Test
     public void testSearchAlbum() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer,
+                MULTI_FOLDERS, IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
-                "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")", criteria.getParsedQuery().toString());
+                "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(f:" + PATH1
+                        + " f:" + PATH2 + ")",
+                criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM);
+        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(f:" + PATH1
+                        + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM);
+        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM);
         assertEquals(QUERY_PATTERN_HIRAGANA_ONLY,
-                "+(((albEX:ねこいぬ*)^2.3 (alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((albEX:ねこいぬ*)^2.3 (alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM);
-        assertEquals(QUERY_PATTERN_OTHERS, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM);
+        assertEquals(QUERY_PATTERN_OTHERS,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1
+                        + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
     }
 
     @Test
     public void testSearchAlbumId3() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer,
+                MULTI_FOLDERS, IndexType.ALBUM_ID3);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
-                "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+                "+(((alb:ネコ*)^2.3 (artR:ねこ*)^1.1 art:ネコ*) ((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*)) +(fId:" + FID1
+                        + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM_ID3);
+        assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:123*)^2.3 (artR:123*)^1.1 art:123*)) +(fId:" + FID1
+                        + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM_ID3);
+        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM_ID3);
         assertEquals(QUERY_PATTERN_HIRAGANA_ONLY,
-                "+(((albEX:ねこいぬ*)^2.3 (alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+                "+(((albEX:ねこいぬ*)^2.3 (alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*) ((alb:いぬ*)^2.3 (artR:いぬ*)^1.1 art:いぬ*)) +(fId:"
+                        + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ALBUM_ID3);
-        assertEquals(QUERY_PATTERN_OTHERS, "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
+        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ALBUM_ID3);
+        assertEquals(QUERY_PATTERN_OTHERS,
+                "+(((alb:abc*)^2.3 (artR:abc*)^1.1 art:abc*) ((alb:ねこ*)^2.3 (artR:ねこ*)^1.1 art:ねこ*)) +(fId:" + FID1
+                        + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
     }
 
     @Test
     public void testSearchArtist() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, SINGLE_FOLDERS, IndexType.ARTIST);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer,
+                SINGLE_FOLDERS, IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
                 "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST);
+        criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
                 "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST);
+        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST);
+        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_HIRAGANA_ONLY,
                 "+(((artR:ねこ*)^1.1 art:ねこ*) ((artR:いぬ*)^1.1 art:いぬ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST);
+        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST);
         assertEquals(QUERY_PATTERN_OTHERS,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:ねこ*)^1.1 art:ねこ*)) +(f:" + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
@@ -381,22 +456,26 @@ public class SearchCriteriaDirectorLegacyTest {
 
     @Test
     public void testSearchArtistId3() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer,
+                MULTI_FOLDERS, IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
                 "+(((artR:ねこ*)^1.1 art:ネコ*) ((artR:abc*)^1.1 art:abc*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:123*)^1.1 art:123*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_HIRAGANA_ONLY,
                 "+(((artR:ねこ*)^1.1 art:ねこ*) ((artR:いぬ*)^1.1 art:いぬ*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS, IndexType.ARTIST_ID3);
+        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.ARTIST_ID3);
         assertEquals(QUERY_PATTERN_OTHERS,
                 "+(((artR:abc*)^1.1 art:abc*) ((artR:ねこ*)^1.1 art:ねこ*)) +(fId:" + FID1 + " fId:" + FID2 + ")",
                 criteria.getParsedQuery().toString());
@@ -404,24 +483,32 @@ public class SearchCriteriaDirectorLegacyTest {
 
     @Test
     public void testSearchSong() throws IOException {
-        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer, MULTI_FOLDERS, IndexType.SONG);
+        SearchCriteria criteria = director.construct(QUERY_PATTERN_INCLUDING_KATAKANA, offset, count, includeComposer,
+                MULTI_FOLDERS, IndexType.SONG);
         assertEquals(QUERY_PATTERN_INCLUDING_KATAKANA,
-                "+(((tit:ネコ*)^2.2 (artR:ねこ*)^1.4 (art:ネコ*)^1.2) ((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((tit:ネコ*)^2.2 (artR:ねこ*)^1.4 (art:ネコ*)^1.2) ((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.SONG);
+        criteria = director.construct(QUERY_PATTERN_ALPHANUMERIC_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.SONG);
         assertEquals(QUERY_PATTERN_ALPHANUMERIC_ONLY,
-                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:123*)^2.2 (artR:123*)^1.4 (art:123*)^1.2)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS, IndexType.SONG);
+        criteria = director.construct(QUERY_PATTERN_HIRAGANA_ONLY, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.SONG);
         assertEquals(QUERY_PATTERN_HIRAGANA_ONLY,
-                "+(((titEX:ねこいぬ*)^2.3 (tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2) ((tit:いぬ*)^2.2 (artR:いぬ*)^1.4 (art:いぬ*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((titEX:ねこいぬ*)^2.3 (tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2) ((tit:いぬ*)^2.2 (artR:いぬ*)^1.4 (art:いぬ*)^1.2)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
 
-        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS, IndexType.SONG);
+        criteria = director.construct(QUERY_PATTERN_OTHERS, offset, count, includeComposer, MULTI_FOLDERS,
+                IndexType.SONG);
         assertEquals(QUERY_PATTERN_OTHERS,
-                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2)) +(f:" + PATH1 + " f:" + PATH2 + ")",
+                "+(((tit:abc*)^2.2 (artR:abc*)^1.4 (art:abc*)^1.2) ((tit:ねこ*)^2.2 (artR:ねこ*)^1.4 (art:ねこ*)^1.2)) +(f:"
+                        + PATH1 + " f:" + PATH2 + ")",
                 criteria.getParsedQuery().toString());
     }
 

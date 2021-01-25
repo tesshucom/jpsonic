@@ -14,6 +14,7 @@ import java.util.concurrent.CompletionException;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class PlayerTest implements AudioPlayer.Listener {
@@ -79,4 +80,3 @@ public class PlayerTest implements AudioPlayer.Listener {
         }
     }
 }
-

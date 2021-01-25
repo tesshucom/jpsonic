@@ -80,11 +80,11 @@ import static org.airsonic.player.service.NetworkService.getBaseUrl;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @Service
 public class SonosHelper {
-
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosHelper.class);
 
@@ -163,7 +163,8 @@ public class SonosHelper {
         return forShuffleMusicFolder(settingsService.getMusicFoldersForUser(username, id), count, username, request);
     }
 
-    private List<AbstractMedia> forShuffleMusicFolder(List<MusicFolder> musicFolders, int count, String username, HttpServletRequest request) {
+    private List<AbstractMedia> forShuffleMusicFolder(List<MusicFolder> musicFolders, int count, String username,
+            HttpServletRequest request) {
         List<MediaFile> albums = searchService.getRandomAlbums(40, musicFolders);
         List<MediaFile> songs = new ArrayList<>();
         for (MediaFile album : albums) {
@@ -174,7 +175,8 @@ public class SonosHelper {
         return forMediaFiles(songs, username, request);
     }
 
-    public List<AbstractMedia> forShuffleArtist(int mediaFileId, int count, String username, HttpServletRequest request) {
+    public List<AbstractMedia> forShuffleArtist(int mediaFileId, int count, String username,
+            HttpServletRequest request) {
         MediaFile artist = mediaFileService.getMediaFile(mediaFileId);
         List<MediaFile> songs = filterMusic(mediaFileService.getDescendantsOf(artist, false));
         Collections.shuffle(songs);
@@ -182,7 +184,8 @@ public class SonosHelper {
         return forMediaFiles(songs, username, request);
     }
 
-    public List<AbstractMedia> forShuffleAlbumList(AlbumListType albumListType, int count, String username, HttpServletRequest request) {
+    public List<AbstractMedia> forShuffleAlbumList(AlbumListType albumListType, int count, String username,
+            HttpServletRequest request) {
         AlbumList albumList = createAlbumList(albumListType, 0, 40, username);
 
         List<MediaFile> songs = new ArrayList<>();
@@ -240,8 +243,10 @@ public class SonosHelper {
                 result.add(forDirectory(shortcut, request, username));
             }
 
-            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(Arrays.asList(musicFolder), false);
-            for (List<MusicIndex.SortableArtistWithMediaFiles> artists : musicFolderContent.getIndexedArtists().values()) {
+            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(Arrays.asList(musicFolder),
+                    false);
+            for (List<MusicIndex.SortableArtistWithMediaFiles> artists : musicFolderContent.getIndexedArtists()
+                    .values()) {
                 for (MusicIndex.SortableArtistWithMediaFiles artist : artists) {
                     for (MediaFile artistMediaFile : artist.getMediaFiles()) {
                         result.add(forDirectory(artistMediaFile, request, username));
@@ -263,7 +268,8 @@ public class SonosHelper {
     public List<AbstractMedia> forDirectoryContent(int mediaFileId, String username, HttpServletRequest request) {
         List<AbstractMedia> result = new ArrayList<>();
         MediaFile dir = mediaFileService.getMediaFile(mediaFileId);
-        List<MediaFile> children = dir.isFile() ? Arrays.asList(dir) : mediaFileService.getChildrenOf(dir, true, true, true);
+        List<MediaFile> children = dir.isFile() ? Arrays.asList(dir)
+                : mediaFileService.getChildrenOf(dir, true, true, true);
         boolean isArtist = true;
         for (MediaFile child : children) {
             if (child.isDirectory()) {
@@ -377,7 +383,8 @@ public class SonosHelper {
         return result;
     }
 
-    public MediaList forAlbumList(AlbumListType albumListType, int offset, final int count, String username, HttpServletRequest request) {
+    public MediaList forAlbumList(AlbumListType albumListType, int offset, final int count, String username,
+            HttpServletRequest request) {
         if (albumListType == AlbumListType.DECADE) {
             return forDecades(offset, count);
         }
@@ -414,37 +421,38 @@ public class SonosHelper {
         List<MediaFile> albums = Collections.emptyList();
         int total = 0;
         switch (albumListType) {
-            case RANDOM:
-                albums = searchService.getRandomAlbums(count, musicFolders);
-                total = mediaFileService.getAlbumCount(musicFolders);
-                break;
-            case NEWEST:
-                albums = mediaFileService.getNewestAlbums(offset, count, musicFolders);
-                total = mediaFileService.getAlbumCount(musicFolders);
-                break;
-            case STARRED:
-                albums = mediaFileService.getStarredAlbums(offset, count, username, musicFolders);
-                total = mediaFileService.getStarredAlbumCount(username, musicFolders);
-                break;
-            case HIGHEST:
-                albums = ratingService.getHighestRatedAlbums(offset, count, musicFolders);
-                total = ratingService.getRatedAlbumCount(username, musicFolders);
-                break;
-            case FREQUENT:
-                albums = mediaFileService.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
-                total = mediaFileService.getPlayedAlbumCount(musicFolders);
-                break;
-            case RECENT:
-                albums = mediaFileService.getMostRecentlyPlayedAlbums(offset, count, musicFolders);
-                total = mediaFileService.getPlayedAlbumCount(musicFolders);
-                break;
-            case ALPHABETICAL:
-                albums = mediaFileService.getAlphabeticalAlbums(offset, count, true, musicFolders);
-                total = mediaFileService.getAlbumCount(musicFolders);
-                break;
-            default:
-                LOG.error("", new AssertionError(String.format("Unreachable code(%s=%s).", "AlbumListType", albumListType)));
-                break;
+        case RANDOM:
+            albums = searchService.getRandomAlbums(count, musicFolders);
+            total = mediaFileService.getAlbumCount(musicFolders);
+            break;
+        case NEWEST:
+            albums = mediaFileService.getNewestAlbums(offset, count, musicFolders);
+            total = mediaFileService.getAlbumCount(musicFolders);
+            break;
+        case STARRED:
+            albums = mediaFileService.getStarredAlbums(offset, count, username, musicFolders);
+            total = mediaFileService.getStarredAlbumCount(username, musicFolders);
+            break;
+        case HIGHEST:
+            albums = ratingService.getHighestRatedAlbums(offset, count, musicFolders);
+            total = ratingService.getRatedAlbumCount(username, musicFolders);
+            break;
+        case FREQUENT:
+            albums = mediaFileService.getMostFrequentlyPlayedAlbums(offset, count, musicFolders);
+            total = mediaFileService.getPlayedAlbumCount(musicFolders);
+            break;
+        case RECENT:
+            albums = mediaFileService.getMostRecentlyPlayedAlbums(offset, count, musicFolders);
+            total = mediaFileService.getPlayedAlbumCount(musicFolders);
+            break;
+        case ALPHABETICAL:
+            albums = mediaFileService.getAlphabeticalAlbums(offset, count, true, musicFolders);
+            total = mediaFileService.getAlbumCount(musicFolders);
+            break;
+        default:
+            LOG.error("",
+                    new AssertionError(String.format("Unreachable code(%s=%s).", "AlbumListType", albumListType)));
+            break;
         }
         return new AlbumList(albums, total);
     }
@@ -484,7 +492,8 @@ public class SonosHelper {
     public List<MediaCollection> forDecade(int decade, String username, HttpServletRequest request) {
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaCollection> result = new ArrayList<>();
-        for (MediaFile album : mediaFileService.getAlbumsByYear(0, Integer.MAX_VALUE, decade, decade + 9, musicFolders)) {
+        for (MediaFile album : mediaFileService.getAlbumsByYear(0, Integer.MAX_VALUE, decade, decade + 9,
+                musicFolders)) {
             result.add(forDirectory(album, request, username));
         }
         return result;
@@ -582,7 +591,8 @@ public class SonosHelper {
         return Arrays.asList(artists, albums, songs);
     }
 
-    public MediaList forSearch(String query, int offset, int count, IndexType indexType, String username, HttpServletRequest request) {
+    public MediaList forSearch(String query, int offset, int count, IndexType indexType, String username,
+            HttpServletRequest request) {
 
         MediaList result = new MediaList();
 
@@ -590,7 +600,8 @@ public class SonosHelper {
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         try {
-            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders, indexType);
+            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
+                    indexType);
             SearchResult searchResult = searchService.search(criteria);
             result.setTotal(searchResult.getTotalHits());
             result.setIndex(offset);
@@ -638,7 +649,7 @@ public class SonosHelper {
         result.setTitle(song.getTitle());
         result.setGenre(song.getGenre());
         result.setIsFavorite(song.getStarredDate() != null);
-//        result.setDynamic();// TODO: For starred songs
+        // result.setDynamic();// TODO: For starred songs
 
         AlbumArtUrl albumArtURI = new AlbumArtUrl();
         albumArtURI.setValue(getCoverArtUrl(String.valueOf(song.getId()), request));
@@ -669,7 +680,8 @@ public class SonosHelper {
     }
 
     private String getCoverArtUrl(String id, HttpServletRequest request) {
-        return getBaseUrl(request) + ViewName.COVER_ART.value() + "?id=" + id + "&size=" + CoverArtScheme.LARGE.getSize();
+        return getBaseUrl(request) + ViewName.COVER_ART.value() + "?id=" + id + "&size="
+                + CoverArtScheme.LARGE.getSize();
     }
 
     public static MediaList createSubList(int index, int count, List<? extends AbstractMedia> mediaCollections) {

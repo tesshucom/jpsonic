@@ -66,7 +66,8 @@ public class StarredController {
     private ViewAsListSelector viewSelector;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
@@ -86,19 +87,13 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        return new ModelAndView("starred", "model", LegacyMap.of(
-                "user", user,
-                "partyModeEnabled", userSettings.isPartyModeEnabled(),
-                "visibility", userSettings.getMainVisibility(),
-                "player", playerService.getPlayer(request, response),
-                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
-                "artists", artists,
-                "albums", albums,
-                "songs", songs,
-                "videos", videos,
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                "openDetailStar", userSettings.isOpenDetailStar(),
-                "simpleDisplay", userSettings.isSimpleDisplay()));
+        return new ModelAndView("starred", "model",
+                LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
+                        userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),
+                        "coverArtSize", CoverArtScheme.MEDIUM.getSize(), "artists", artists, "albums", albums, "songs",
+                        songs, "videos", videos, "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                        "openDetailStar", userSettings.isOpenDetailStar(), "simpleDisplay",
+                        userSettings.isSimpleDisplay()));
     }
 
 }

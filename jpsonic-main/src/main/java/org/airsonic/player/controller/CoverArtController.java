@@ -87,7 +87,7 @@ import java.util.concurrent.Semaphore;
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping({"/coverArt", "/ext/coverArt"})
+@RequestMapping({ "/coverArt", "/ext/coverArt" })
 @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
 public class CoverArtController implements LastModified {
 
@@ -259,7 +259,8 @@ public class CoverArtController implements LastModified {
 
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
-        File cachedImage = new File(getImageCacheDirectory(size), DigestUtils.md5Hex(request.getKey()) + "." + encoding);
+        File cachedImage = new File(getImageCacheDirectory(size),
+                DigestUtils.md5Hex(request.getKey()) + "." + encoding);
         String lockKey = cachedImage.getPath();
 
         Object lock = new Object();
@@ -294,22 +295,21 @@ public class CoverArtController implements LastModified {
     }
 
     /**
-     * Returns an input stream to the image in the given file.  If the file is an audio file,
-     * the embedded album art is returned.
+     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
+     * returned.
      */
     private InputStream getImageInputStream(File file) throws IOException {
         return getImageInputStreamWithType(file).getLeft();
     }
 
     /**
-     * Returns an input stream to the image in the given file.  If the file is an audio file,
-     * the embedded album art is returned. In addition returns the mime type
+     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
+     * returned. In addition returns the mime type
      */
     @SuppressWarnings("PMD.CloseResource")
     /*
-     * False positive.
-     * This method is an intermediate function used internally by createImage, sendUnscaled.
-     * The methods calling this method auto-closes the resource after this method completes.
+     * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
+     * calling this method auto-closes the resource after this method completes.
      */
     private Pair<InputStream, String> getImageInputStreamWithType(File file) throws IOException {
         InputStream is;
@@ -336,7 +336,8 @@ public class CoverArtController implements LastModified {
         return Pair.of(is, mimeType);
     }
 
-    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) throws Exception {
+    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset)
+            throws Exception {
         VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
         TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
         String command = settingsService.getVideoImageCommand();
@@ -382,8 +383,7 @@ public class CoverArtController implements LastModified {
 
             BufferedImage temp = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = temp.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2.drawImage(thumb, 0, 0, temp.getWidth(), temp.getHeight(), null);
             g2.dispose();
 
@@ -429,7 +429,8 @@ public class CoverArtController implements LastModified {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
             float fontSize = (height - height * 0.02f) * 0.1f;
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, fontLoader.getFont(fontSize));
+            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height,
+                    fontLoader.getFont(fontSize));
             autoCover.paintCover();
             graphics.dispose();
             return image;
@@ -675,7 +676,7 @@ public class CoverArtController implements LastModified {
 
     static class AutoCover {
 
-        private final static int[] COLORS = {0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444};
+        private final static int[] COLORS = { 0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444 };
         private final Graphics2D graphics;
         private final String artist;
         private final String album;

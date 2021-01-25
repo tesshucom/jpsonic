@@ -34,7 +34,7 @@ public class InternetRadioService {
     /**
      * The maximum size, in bytes, for a remote playlist response.
      */
-    private static final long PLAYLIST_REMOTE_MAX_BYTE_SIZE = 100 * 1024;  // 100 kB
+    private static final long PLAYLIST_REMOTE_MAX_BYTE_SIZE = 100 * 1024; // 100 kB
 
     /**
      * The maximum number of redirects for a remote playlist response.
@@ -99,7 +99,9 @@ public class InternetRadioService {
 
     /**
      * Clear the radio source cache for the given radio id
-     * @param internetRadioId a radio id
+     * 
+     * @param internetRadioId
+     *            a radio id
      */
     public void clearInternetRadioSourceCache(Integer internetRadioId) {
         if (internetRadioId != null) {
@@ -110,10 +112,12 @@ public class InternetRadioService {
     /**
      * Retrieve a list of sources for the given internet radio.
      *
-     * This method caches the sources using the InternetRadio.getId
-     * method as a key, until clearInternetRadioSourceCache is called.
+     * This method caches the sources using the InternetRadio.getId method as a key, until clearInternetRadioSourceCache
+     * is called.
      *
-     * @param radio an internet radio
+     * @param radio
+     *            an internet radio
+     * 
      * @return a list of internet radio sources
      */
     public List<InternetRadioSource> getInternetRadioSources(InternetRadio radio) {
@@ -135,7 +139,8 @@ public class InternetRadioService {
                     }
                 } else {
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(), sources.size());
+                        LOG.info("Retrieved playlist for internet radio {}, got {} sources.", radio.getStreamUrl(),
+                                sources.size());
                     }
                 }
             } catch (Exception e) {
@@ -152,28 +157,32 @@ public class InternetRadioService {
      *
      * This method uses a default maximum limit of PLAYLIST_REMOTE_MAX_LENGTH sources.
      *
-     * @param radio an internet radio
+     * @param radio
+     *            an internet radio
+     * 
      * @return a list of internet radio sources
      */
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws Exception {
-        return retrieveInternetRadioSources(
-            radio,
-            PLAYLIST_REMOTE_MAX_LENGTH,
-            PLAYLIST_REMOTE_MAX_BYTE_SIZE,
-            PLAYLIST_REMOTE_MAX_REDIRECTS
-        );
+        return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
+                PLAYLIST_REMOTE_MAX_REDIRECTS);
     }
 
     /**
      * Retrieve a list of sources from the given internet radio.
      *
-     * @param radio an internet radio
-     * @param maxCount the maximum number of items to read from the remote playlist, or 0 if unlimited
-     * @param maxByteSize maximum size of the response, in bytes, or 0 if unlimited
-     * @param maxRedirects maximum number of redirects, or 0 if unlimited
+     * @param radio
+     *            an internet radio
+     * @param maxCount
+     *            the maximum number of items to read from the remote playlist, or 0 if unlimited
+     * @param maxByteSize
+     *            maximum size of the response, in bytes, or 0 if unlimited
+     * @param maxRedirects
+     *            maximum number of redirects, or 0 if unlimited
+     * 
      * @return a list of internet radio sources
      */
-    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize, int maxRedirects) throws Exception {
+    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,
+            int maxRedirects) throws Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
         if (LOG.isDebugEnabled()) {
@@ -262,12 +271,17 @@ public class InternetRadioService {
     /**
      * Retrieve playlist data from a given URL.
      *
-     * @param url URL to the remote playlist
-     * @param maxByteSize maximum size of the response, in bytes, or 0 if unlimited
-     * @param maxRedirects maximum number of redirects, or 0 if unlimited
+     * @param url
+     *            URL to the remote playlist
+     * @param maxByteSize
+     *            maximum size of the response, in bytes, or 0 if unlimited
+     * @param maxRedirects
+     *            maximum number of redirects, or 0 if unlimited
+     * 
      * @return the remote playlist data
      */
-    protected SpecificPlaylist retrievePlaylist(URL url, long maxByteSize, int maxRedirects) throws IOException, PlaylistException {
+    protected SpecificPlaylist retrievePlaylist(URL url, long maxByteSize, int maxRedirects)
+            throws IOException, PlaylistException {
 
         SpecificPlaylist playlist;
         HttpURLConnection urlConnection = connectToURLWithRedirects(url, maxRedirects);
@@ -292,12 +306,16 @@ public class InternetRadioService {
     /**
      * Start a new connection to a remote URL, and follow redirects.
      *
-     * @param url the remote URL
-     * @param maxRedirects maximum number of redirects, or 0 if unlimited
+     * @param url
+     *            the remote URL
+     * @param maxRedirects
+     *            maximum number of redirects, or 0 if unlimited
+     * 
      * @return an open connection
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (URL) Not reusable
-    protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects) throws IOException, PlaylistException {
+    protected HttpURLConnection connectToURLWithRedirects(URL url, int maxRedirects)
+            throws IOException, PlaylistException {
 
         int redirectCount = 0;
         URL currentURL = url;
@@ -313,7 +331,8 @@ public class InternetRadioService {
             redirectCount += 1;
             if (maxRedirects > 0 && redirectCount > maxRedirects) {
                 connection.disconnect();
-                throw new PlaylistHasTooManyRedirects(String.format("Too many redirects (%d) for URL %s", redirectCount, url));
+                throw new PlaylistHasTooManyRedirects(
+                        String.format("Too many redirects (%d) for URL %s", redirectCount, url));
             }
 
             // Reconnect to the new URL.
@@ -329,7 +348,9 @@ public class InternetRadioService {
     /**
      * Start a new connection to a remote URL.
      *
-     * @param url the remote URL
+     * @param url
+     *            the remote URL
+     * 
      * @return an open connection
      */
     protected HttpURLConnection connectToURL(URL url) throws IOException {

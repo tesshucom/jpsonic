@@ -15,6 +15,6 @@ interface FolderArtistWrapper {
     String getName();
 
     MediaFile getSong();
-    
+
     boolean isArtist();
 }

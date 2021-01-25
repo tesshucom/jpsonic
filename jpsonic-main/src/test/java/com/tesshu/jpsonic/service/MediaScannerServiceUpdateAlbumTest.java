@@ -50,20 +50,19 @@ public class MediaScannerServiceUpdateAlbumTest extends AbstractAirsonicHomeTest
     }
 
     /*
-     * File structured albums are only affected by the first child of the system
-     * file path. FIFO. Only the last registration is valid if the same name exists
-     * in the case of Id3 album. LIFO. Depending on the data pattern, different
-     * album data of Genre can be created in File structure / Id3.
+     * File structured albums are only affected by the first child of the system file path. FIFO. Only the last
+     * registration is valid if the same name exists in the case of Id3 album. LIFO. Depending on the data pattern,
+     * different album data of Genre can be created in File structure / Id3.
      * 
-     * Jpsonic changes DB registration logic of Id3 album to eliminate data
-     * inconsistency.
+     * Jpsonic changes DB registration logic of Id3 album to eliminate data inconsistency.
      * 
      */
     @Test
     public void testUpdateAlbum() {
 
         // LIFO
-        List<MusicFolder> folder = musicFolders.stream().filter(f -> "alphaBeticalProps".equals(f.getName())).collect(Collectors.toList());
+        List<MusicFolder> folder = musicFolders.stream().filter(f -> "alphaBeticalProps".equals(f.getName()))
+                .collect(Collectors.toList());
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
         assertEquals(1, albums.size());
         MediaFile album = albums.get(0);
@@ -124,7 +123,8 @@ public class MediaScannerServiceUpdateAlbumTest extends AbstractAirsonicHomeTest
         assertNull(albumId3.getMusicBrainzReleaseId());
 
         // Reverse
-        folder = musicFolders.stream().filter(f -> "fileAndPropsNameInReverse".equals(f.getName())).collect(Collectors.toList());
+        folder = musicFolders.stream().filter(f -> "fileAndPropsNameInReverse".equals(f.getName()))
+                .collect(Collectors.toList());
         albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, folder);
         assertEquals(1, albums.size());
         album = albums.get(0);

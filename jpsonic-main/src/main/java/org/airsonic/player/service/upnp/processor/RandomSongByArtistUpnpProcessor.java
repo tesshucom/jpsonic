@@ -40,14 +40,15 @@ import java.util.List;
 import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_ARTIST;
 
 @Service
-public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artist, MediaFile> {
+public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final JArtistDao artistDao;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a, SearchService s, SettingsService ss) {
+    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a,
+            SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         artistDao = a;
@@ -70,7 +71,8 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         container.setTitle(artist.getName());
         container.setChildCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
-            container.setProperties(Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
+            container.setProperties(
+                    Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
         }
         return container;
     }
@@ -100,7 +102,8 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax, util.getAllMusicFolders());
+        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax,
+                util.getAllMusicFolders());
     }
 
     @Override

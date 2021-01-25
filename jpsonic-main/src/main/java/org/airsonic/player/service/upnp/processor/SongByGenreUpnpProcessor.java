@@ -36,7 +36,7 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
-public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, MediaFile> {
+public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaFile> {
 
     private SearchService searchService;
 
@@ -59,7 +59,8 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
      * Browses the top-level content of a type.
      */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         // we have to override this to do an index-based id.
         DIDLContent didl = new DIDLContent();
         List<Genre> selectedItems = getItems(firstResult, maxResults);
@@ -80,7 +81,8 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
         GenreContainer container = new GenreContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
         container.setParentID(getRootId());
-        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
+        container.setTitle(util.isDlnaGenreCountVisible()
+                ? item.getName().concat(" ").concat(Integer.toString(item.getSongCount())) : item.getName());
         container.setChildCount(item.getSongCount());
         return container;
     }
@@ -112,7 +114,8 @@ public class SongByGenreUpnpProcessor extends UpnpContentProcessor <Genre, Media
 
     @Override
     public List<MediaFile> getChildren(Genre item, long offset, long maxResults) {
-        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults, util.getAllMusicFolders());
+        return searchService.getSongsByGenres(item.getName(), (int) offset, (int) maxResults,
+                util.getAllMusicFolders());
     }
 
     @Override

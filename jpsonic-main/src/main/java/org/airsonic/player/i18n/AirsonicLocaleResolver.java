@@ -49,11 +49,13 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     private static final Object LOCK = new Object();
 
     /**
-    * Resolve the current locale via the given request.
-    *
-    * @param request Request to be used for resolution.
-    * @return The current locale.
-    */
+     * Resolve the current locale via the given request.
+     *
+     * @param request
+     *            Request to be used for resolution.
+     * 
+     * @return The current locale.
+     */
     @Override
     public Locale resolveLocale(HttpServletRequest request) {
         Locale locale = (Locale) request.getAttribute("airsonic.locale");
@@ -91,14 +93,16 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
 
     /**
      * Returns whether the given locale exists.
-     * @param locale The locale.
+     * 
+     * @param locale
+     *            The locale.
+     * 
      * @return Whether the locale exists.
      */
     private boolean localeExists(Locale locale) {
         synchronized (LOCK) {
             if (locales == null) {
-                locales = Arrays.asList(settingsService.getAvailableLocales()).stream()
-                        .collect(Collectors.toSet());
+                locales = Arrays.asList(settingsService.getAvailableLocales()).stream().collect(Collectors.toSet());
             }
         }
         return locales.contains(locale);

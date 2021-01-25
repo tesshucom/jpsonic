@@ -54,11 +54,10 @@ public class SonosSettingsController {
 
     @GetMapping
     public String doGet(Model model) {
-        model.addAttribute("model", LegacyMap.of(
-                "sonosEnabled", settingsService.isSonosEnabled(),
-                "sonosServiceName", settingsService.getSonosServiceName(),
-                "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos()));
+        model.addAttribute("model",
+                LegacyMap.of("sonosEnabled", settingsService.isSonosEnabled(), "sonosServiceName",
+                        settingsService.getSonosServiceName(), "useRadio", settingsService.isUseRadio(), "useSonos",
+                        settingsService.isUseSonos()));
         return "sonosSettings";
     }
 
@@ -70,8 +69,10 @@ public class SonosSettingsController {
     }
 
     private void handleParameters(HttpServletRequest request) {
-        boolean sonosEnabled = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SONOS_ENABLED.value(), false);
-        String sonosServiceName = StringUtils.trimToNull(request.getParameter(Attributes.Request.SONOS_SERVICE_NAME.value()));
+        boolean sonosEnabled = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.SONOS_ENABLED.value(), false);
+        String sonosServiceName = StringUtils
+                .trimToNull(request.getParameter(Attributes.Request.SONOS_SERVICE_NAME.value()));
         if (sonosServiceName == null) {
             sonosServiceName = "Jpsonic";
         }

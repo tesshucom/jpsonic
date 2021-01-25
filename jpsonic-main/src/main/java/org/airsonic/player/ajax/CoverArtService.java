@@ -71,8 +71,11 @@ public class CoverArtService {
     /**
      * Downloads and saves the cover art at the given URL.
      *
-     * @param albumId ID of the album in question.
-     * @param url  The image URL.
+     * @param albumId
+     *            ID of the album in question.
+     * @param url
+     *            The image URL.
+     * 
      * @return The error string if something goes wrong, <code>null</code> otherwise.
      */
     public String setCoverArtImage(int albumId, String url) {
@@ -91,10 +94,8 @@ public class CoverArtService {
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
-     * [AvoidInstantiatingObjectsInLoops]
-     * (File) Not reusable
-     * [UseLocaleWithCaseConversions]
-     * The locale doesn't matter, as only comparing the extension literal.
+     * [AvoidInstantiatingObjectsInLoops] (File) Not reusable [UseLocaleWithCaseConversions] The locale doesn't matter,
+     * as only comparing the extension literal.
      */
     private void saveCoverArt(String path, String url) throws Exception {
 
@@ -117,10 +118,7 @@ public class CoverArtService {
         backup(newCoverFile, new File(path, "cover." + suffix + ".backup"));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            RequestConfig requestConfig = RequestConfig.custom()
-                    .setConnectTimeout(2000)
-                    .setSocketTimeout(2000)
-                    .build();
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(2000).setSocketTimeout(2000).build();
             HttpGet method = new HttpGet(url);
             method.setConfig(requestConfig);
 

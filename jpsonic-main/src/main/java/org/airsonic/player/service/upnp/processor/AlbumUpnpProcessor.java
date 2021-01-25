@@ -46,7 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> {
+public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -60,7 +60,8 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     public static final String ALL_RECENT_ID3 = "allRecentId3";
 
-    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c) {
+    public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a,
+            CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -79,9 +80,11 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
      * Browses the top-level content of a type.
      */
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
-        List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true, util.getAllMusicFolders());
+        List<Album> selectedItems = albumDao.getAlphabeticalAlbums((int) firstResult, (int) maxResults, false, true,
+                util.getAllMusicFolders());
         for (Album item : selectedItems) {
             addItem(didl, item);
         }
@@ -139,12 +142,14 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
 
     @Override
     public List<MediaFile> getChildren(Album album, long offset, long maxResults) {
-        List<MediaFile> children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName());
+        List<MediaFile> children = mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(),
+                album.getName());
         if (album.getId() == -1) {
             List<Album> albums;
             if (album.getComment().startsWith(ALL_BY_ARTIST)) {
                 ArtistUpnpProcessor ap = getDispatcher().getArtistProcessor();
-                albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset, maxResults);
+                albums = ap.getChildren(ap.getItemById(album.getComment().replaceAll(ALL_BY_ARTIST + "_", "")), offset,
+                        maxResults);
             } else if (album.getComment().equalsIgnoreCase(ALL_RECENT_ID3)) {
                 albums = getDispatcher().getRecentAlbumId3Processor().getItems(offset, maxResults);
             } else {
@@ -152,7 +157,8 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
             }
             for (Album a : albums) {
                 if (a.getId() != -1) {
-                    children.addAll(mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName()));
+                    children.addAll(
+                            mediaFileService.getSongsForAlbum(offset, maxResults, album.getArtist(), album.getName()));
                 }
             }
         } else {
@@ -165,7 +171,8 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
         return albumDao.getAlbumsCountForArtist(artist, musicFolders);
     }
 
-    public List<Album> getAlbumsForArtist(final String artist, long offset, long maxResults, boolean byYear, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlbumsForArtist(final String artist, long offset, long maxResults, boolean byYear,
+            final List<MusicFolder> musicFolders) {
         return albumDao.getAlbumsForArtist(offset, maxResults, artist, byYear, musicFolders);
     }
 
@@ -179,9 +186,9 @@ public class AlbumUpnpProcessor extends UpnpContentProcessor <Album, MediaFile> 
     }
 
     public URI createAlbumArtURI(Album album) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
-                .queryParam("id", coverArtLogic.createKey(album))
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(UriComponentsBuilder
+                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                .queryParam("id", coverArtLogic.createKey(album)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Album> result) {

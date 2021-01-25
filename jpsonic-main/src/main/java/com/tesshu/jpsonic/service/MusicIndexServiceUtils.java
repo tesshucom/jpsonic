@@ -40,17 +40,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * Utility class for injecting into legacy MusicIndexService. Supplement
- * processing that is lacking in legacy services.
+ * Utility class for injecting into legacy MusicIndexService. Supplement processing that is lacking in legacy services.
  * 
- * Delegate the entire method, because the processing difference from the legacy
- * code is large. The legacy index sort is a "private", basic specification and
- * cannot be changed. In practice, there is an inconsistency in the sorting
- * process, which makes people in languages ​​that are sensitive to sorting feel
- * uncomfortable.
+ * Delegate the entire method, because the processing difference from the legacy code is large. The legacy index sort is
+ * a "private", basic specification and cannot be changed. In practice, there is an inconsistency in the sorting
+ * process, which makes people in languages ​​that are sensitive to sorting feel uncomfortable.
  * 
- * Jpsonic will change these and make the processing as common as possible so
- * that they can be used naturally.
+ * Jpsonic will change these and make the processing as common as possible so that they can be used naturally.
  */
 @Component
 @DependsOn({ "settingsService", "mediaFileService", "japaneseReadingUtils", "jpsonicComparators" })
@@ -61,7 +57,8 @@ public class MusicIndexServiceUtils {
     private final JapaneseReadingUtils utils;
     private final JpsonicComparators comparators;
 
-    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, JapaneseReadingUtils utils, JpsonicComparators comp) {
+    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, JapaneseReadingUtils utils,
+            JpsonicComparators comp) {
         super();
         this.settingsService = s;
         this.mediaFileService = m;
@@ -82,7 +79,8 @@ public class MusicIndexServiceUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
-    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
+    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
+            boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();

@@ -76,7 +76,8 @@ public class PodcastController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ExecutionException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws ExecutionException {
 
         if (!settingsService.isPublishPodcast()) {
             throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));
@@ -111,11 +112,10 @@ public class PodcastController {
             podcasts.add(new Podcast(playlist.getName(), publishDate, enclosureUrl, length, type));
         }
 
-        return new ModelAndView("podcast", "model", LegacyMap.of(
-                "url", url,
-                "lang", lang,
-                "logo", url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png",
-                "podcasts", podcasts));
+        return new ModelAndView("podcast", "model",
+                LegacyMap.of("url", url, "lang", lang, "logo",
+                        url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png", "podcasts",
+                        podcasts));
     }
 
     /**

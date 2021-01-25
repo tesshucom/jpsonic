@@ -44,7 +44,8 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
+    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
         super(d, u, m, a, c);
         this.util = u;
         this.searchService = s;
@@ -59,7 +60,8 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

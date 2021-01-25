@@ -93,5 +93,4 @@ public class MusicFolderDaoTest extends DaoTestBase {
         assertEquals("Wrong changed date.", expected.getChanged(), actual.getChanged());
     }
 
-
 }

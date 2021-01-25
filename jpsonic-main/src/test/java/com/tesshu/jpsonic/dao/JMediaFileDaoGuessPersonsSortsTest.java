@@ -51,22 +51,39 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
     @Documented
     private @interface ComparatorsDecisions {
         @interface Actions {
-            @interface getDuplicateSort {}
+            @interface getDuplicateSort {
+            }
         }
+
         @interface DataConditions {
             @interface FieldToSetDifferentSortValue {
-                @interface AlbumArtist {}
-                @interface Artist {}
-                @interface Composer {}
+                @interface AlbumArtist {
+                }
+
+                @interface Artist {
+                }
+
+                @interface Composer {
+                }
             }
+
             @interface NumberOfFiles {
-                @interface Multi {}
-                @interface Single {}
+                @interface Multi {
+                }
+
+                @interface Single {
+                }
             }
-            @interface SetChangeDate {}
+
+            @interface SetChangeDate {
+            }
+
             @interface TagArtistAndDirectoryArtist {
-                @interface Match {}
-                @interface NoMatch {}
+                @interface Match {
+                }
+
+                @interface NoMatch {
+                }
             }
         }
     }
@@ -78,7 +95,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
         File musicDir = new File(resolveBaseMediaPath.apply("Sort/Cleansing/ArtistSort/Merge"));
         musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
-    
+
     @Autowired
     private JMediaFileDao mediaFileDao;
 
@@ -242,7 +259,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             fail();
         }
     }
-    
+
     @ComparatorsDecisions.DataConditions.TagArtistAndDirectoryArtist.Match
     @ComparatorsDecisions.DataConditions.NumberOfFiles.Single
     @ComparatorsDecisions.DataConditions.FieldToSetDifferentSortValue.Artist
@@ -289,15 +306,11 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
             albums.forEach(a -> {
                 List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
-                files.stream()
-                    .filter(m -> "file10".equals(m.getName())
-                            || "file12".equals(m.getName())
-                            || "file14".equals(m.getName())
-                            || "file17".equals(m.getName()))
-                    .forEach(m -> {
-                        m.setChanged(now);
-                        mediaFileDao.createOrUpdateMediaFile(m);
-                    });
+                files.stream().filter(m -> "file10".equals(m.getName()) || "file12".equals(m.getName())
+                        || "file14".equals(m.getName()) || "file17".equals(m.getName())).forEach(m -> {
+                            m.setChanged(now);
+                            mediaFileDao.createOrUpdateMediaFile(m);
+                        });
             });
             return true;
         });
@@ -312,7 +325,8 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
 
         assertEquals(11, candidates.size());
 
-        List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> mediaFileDao.getDirtySorts(c).stream()).collect(Collectors.toList());
+        List<MediaFile> dirtySortsAll = candidates.stream().flatMap(c -> mediaFileDao.getDirtySorts(c).stream())
+                .collect(Collectors.toList());
         assertEquals(22, dirtySortsAll.size());
         assertEquals(2, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.DIRECTORY).count());
         assertEquals(5, dirtySortsAll.stream().filter(m -> m.getMediaType() == MediaType.ALBUM).count());
@@ -323,106 +337,106 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             dirtySortsFiles.forEach(m -> {
                 final String name = m.getName();
                 switch (name) {
-                    case "file1":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertTrue(c.getSort().equals(m.getArtistSort()));
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertFalse(c.getSort().equals(m.getComposerSort()));
-                        break;
-                    case "file2":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        assertTrue(c.getName().equals(m.getAlbumArtist()));
-                        assertTrue(c.getSort().equals(m.getAlbumArtistSort()));
-                        break;
-                    case "file3":
-                        assertTrue(c.getName().equals(m.getAlbumArtist()));
-                        assertTrue(c.getSort().equals(m.getAlbumArtistSort()));
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertFalse(c.getSort().equals(m.getComposerSort()));
-                        break;
-                    case "file4":
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertFalse(c.getSort().equals(m.getComposerSort()));
-                        break;
-                    case "file5":
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertNull(m.getComposerSort());
-                        break;
-                    case "file6":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "file8":
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertFalse(c.getSort().equals(m.getComposerSort()));
-                        break;
-                    case "file11":
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertNull(m.getComposerSort());
-                        break;
-                    case "file12":
-                        assertTrue(c.getName().equals(m.getAlbumArtist()));
-                        assertNull(m.getAlbumArtistSort());
-                        break;
-                    case "file13":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "file14":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "file15":
-                        assertTrue(c.getName().equals(m.getAlbumArtist()));
-                        assertFalse(c.getSort().equals(m.getAlbumArtistSort()));
-                        break;
-                    case "file16":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "file17":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        assertTrue(c.getName().equals(m.getComposer()));
-                        assertTrue(c.getSort().equals(m.getComposerSort()));
-                        break;
-                    case "file18":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "case10":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "case11":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertFalse(c.getSort().equals(m.getArtistSort()));
-                        break;
-                    case "ALBUM5":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM6":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM8":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM9":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
-                    case "ALBUM11":
-                        assertTrue(c.getName().equals(m.getArtist()));
-                        assertNull(m.getArtistSort());
-                        break;
+                case "file1":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertTrue(c.getSort().equals(m.getArtistSort()));
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertFalse(c.getSort().equals(m.getComposerSort()));
+                    break;
+                case "file2":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    assertTrue(c.getName().equals(m.getAlbumArtist()));
+                    assertTrue(c.getSort().equals(m.getAlbumArtistSort()));
+                    break;
+                case "file3":
+                    assertTrue(c.getName().equals(m.getAlbumArtist()));
+                    assertTrue(c.getSort().equals(m.getAlbumArtistSort()));
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertFalse(c.getSort().equals(m.getComposerSort()));
+                    break;
+                case "file4":
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertFalse(c.getSort().equals(m.getComposerSort()));
+                    break;
+                case "file5":
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertNull(m.getComposerSort());
+                    break;
+                case "file6":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "file8":
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertFalse(c.getSort().equals(m.getComposerSort()));
+                    break;
+                case "file11":
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertNull(m.getComposerSort());
+                    break;
+                case "file12":
+                    assertTrue(c.getName().equals(m.getAlbumArtist()));
+                    assertNull(m.getAlbumArtistSort());
+                    break;
+                case "file13":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "file14":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
+                case "file15":
+                    assertTrue(c.getName().equals(m.getAlbumArtist()));
+                    assertFalse(c.getSort().equals(m.getAlbumArtistSort()));
+                    break;
+                case "file16":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "file17":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    assertTrue(c.getName().equals(m.getComposer()));
+                    assertTrue(c.getSort().equals(m.getComposerSort()));
+                    break;
+                case "file18":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "case10":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "case11":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertFalse(c.getSort().equals(m.getArtistSort()));
+                    break;
+                case "ALBUM5":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
+                case "ALBUM6":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
+                case "ALBUM8":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
+                case "ALBUM9":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
+                case "ALBUM11":
+                    assertTrue(c.getName().equals(m.getArtist()));
+                    assertNull(m.getArtistSort());
+                    break;
 
-                    default:
-                        fail();
-                        break;
+                default:
+                    fail();
+                    break;
                 }
 
             });

@@ -188,7 +188,6 @@ public class JukeboxServiceUnitTest {
         verify(jukeboxLegacySubsonicService).updateJukebox(legacyJukeboxPlayer, 0);
     }
 
-
     @Test
     public void skipWithJukeboxPlayer() {
         // When

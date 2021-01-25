@@ -50,10 +50,7 @@ public class JWTSecurityService {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Creating token with claim " + claim);
         }
-        return JWT.create()
-                .withClaim(CLAIM_PATH, claim)
-                .withExpiresAt(expireDate)
-                .sign(getAlgorithm(jwtKey));
+        return JWT.create().withClaim(CLAIM_PATH, claim).withExpiresAt(expireDate).sign(getAlgorithm(jwtKey));
     }
 
     public String addJWTToken(String uri) {
@@ -65,10 +62,7 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Date expires) {
-        String token = JWTSecurityService.createToken(
-                settingsService.getJWTKey(),
-                builder.toUriString(),
-                expires);
+        String token = JWTSecurityService.createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
         builder.queryParam(JWTSecurityService.JWT_PARAM_NAME, token);
         return builder;
     }

@@ -26,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class Id3ArtistTokenizerTest {
 
     private Id3ArtistTokenizer tokenizer = new Id3ArtistTokenizer();
-    
+
     @Test
     public void testIsTokenChar() {
 

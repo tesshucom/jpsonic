@@ -49,16 +49,16 @@ public class PodcastChannelController {
     private SecurityService securityService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         ModelAndView result = new ModelAndView();
 
         int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        result.addObject("model", LegacyMap.of(
-                "user", securityService.getCurrentUser(request),
-                "channel", podcastService.getChannel(channelId),
-                "episodes", podcastService.getEpisodes(channelId),
-                "coverArtSize", CoverArtScheme.LARGE.getSize()));
+        result.addObject("model",
+                LegacyMap.of("user", securityService.getCurrentUser(request), "channel",
+                        podcastService.getChannel(channelId), "episodes", podcastService.getEpisodes(channelId),
+                        "coverArtSize", CoverArtScheme.LARGE.getSize()));
 
         return result;
     }

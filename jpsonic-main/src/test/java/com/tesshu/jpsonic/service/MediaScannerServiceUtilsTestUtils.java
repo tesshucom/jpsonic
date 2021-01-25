@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 class MediaScannerServiceUtilsTestUtils {
-    
+
     private MediaScannerServiceUtilsTestUtils() {
     }
 

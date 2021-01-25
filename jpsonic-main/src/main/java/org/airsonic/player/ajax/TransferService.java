@@ -27,8 +27,8 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpSession;
 
 /**
- * Provides AJAX-enabled services for retrieving the status of ongoing transfers.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the status of ongoing transfers. This class is used by the DWR
+ * framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -37,6 +37,7 @@ public class TransferService {
 
     /**
      * Returns info about any ongoing upload within the current session.
+     * 
      * @return Info about ongoing upload.
      */
     public UploadInfo getUploadInfo() {

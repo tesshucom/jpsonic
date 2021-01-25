@@ -48,8 +48,8 @@ public class User {
     private boolean jukeboxRole;
     private boolean shareRole;
 
-    public User(String username, String password, String email, boolean ldapAuthenticated,
-                long bytesStreamed, long bytesDownloaded, long bytesUploaded) {
+    public User(String username, String password, String email, boolean ldapAuthenticated, long bytesStreamed,
+            long bytesDownloaded, long bytesUploaded) {
         this.username = username;
         this.password = password;
         this.email = email;

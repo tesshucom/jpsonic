@@ -72,9 +72,7 @@ public class PersonalSettingsController {
     private OutlineHelpSelector outlineHelpSelector;
 
     @ModelAttribute
-    protected void formBackingObject(
-            HttpServletRequest request,
-            Model model,
+    protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
@@ -86,7 +84,8 @@ public class PersonalSettingsController {
         command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
         command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
-        command.setFontFamilyJpEmbedDefault(WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
+        command.setFontFamilyJpEmbedDefault(
+                WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
         command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
         command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
         command.setLocaleIndex("-1");
@@ -197,7 +196,9 @@ public class PersonalSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) PersonalSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
@@ -304,8 +305,7 @@ public class PersonalSettingsController {
 
     private Integer getSystemAvatarId(PersonalSettingsCommand command) {
         int avatarId = command.getAvatarId();
-        if (avatarId == AvatarScheme.NONE.getCode() ||
-            avatarId == AvatarScheme.CUSTOM.getCode()) {
+        if (avatarId == AvatarScheme.NONE.getCode() || avatarId == AvatarScheme.CUSTOM.getCode()) {
             return null;
         }
         return avatarId;

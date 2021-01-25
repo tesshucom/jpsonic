@@ -33,6 +33,7 @@ import java.util.List;
  * A media file (audio, video or directory) with an assortment of its meta data.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class MediaFile {
@@ -77,17 +78,15 @@ public class MediaFile {
     private String composer;
 
     /*
-     * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that
-     * holds a value to be passed to Lucene.
+     * Sort corresponds to the sort of ID3 tag, and mainly functions as a field that holds a value to be passed to
+     * Lucene.
      * 
-     * Unlike the original value, cleansing is performed. If the original tag does
-     * not exist, the value is generated using a Japanese parsing engine. After
-     * these processes, merging is performed if there are multiple sort-values for
-     * one word. These process are necessary to remove dirty data, prevent search
-     * dropouts, and reduce the size of the search index.
+     * Unlike the original value, cleansing is performed. If the original tag does not exist, the value is generated
+     * using a Japanese parsing engine. After these processes, merging is performed if there are multiple sort-values
+     * for one word. These process are necessary to remove dirty data, prevent search dropouts, and reduce the size of
+     * the search index.
      * 
-     * This field will be the input to Lucene, but will not be used in normal SQL
-     * searches.
+     * This field will be the input to Lucene, but will not be used in normal SQL searches.
      */
     private String artistSort;
     private String albumSort;
@@ -97,19 +96,17 @@ public class MediaFile {
 
     /*
      * A sort key created using either Sort/Name. The Japanese sorting rule is
-     * "English depends on notation, Japanese depends on phonemes". Therefore, it is
-     * impossible to sort by referring to only one existing field. Based on this
-     * rule, sort keys are created from mixed English-Japanese words, English words
-     * and Japanese words.
+     * "English depends on notation, Japanese depends on phonemes". Therefore, it is impossible to sort by referring to
+     * only one existing field. Based on this rule, sort keys are created from mixed English-Japanese words, English
+     * words and Japanese words.
      */
     private String artistReading;
     private String albumReading;
     private String albumArtistReading;
-    
+
     /*
-     * In the case of DB, string of the reading comparison depends on its sorting
-     * implementation . To do it strictly, do it in Java. This field holds the
-     * result of Java sorting and reproduces the same sort in all DBs. It also
+     * In the case of DB, string of the reading comparison depends on its sorting implementation . To do it strictly, do
+     * it in Java. This field holds the result of Java sorting and reproduces the same sort in all DBs. It also
      * contributes to speeding up.
      */
     private int order;
@@ -129,27 +126,17 @@ public class MediaFile {
     // <<<< JP
 
     public MediaFile(int id, String path, String folder, MediaType mediaType, String format, String title,
-                     String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year, String genre, Integer bitRate,
-                     boolean variableBitRate, Integer durationSeconds, Long fileSize, Integer width, Integer height, String coverArtPath,
-                     String parentPath, int playCount, Date lastPlayed, String comment, Date created, Date changed, Date lastScanned,
-                     Date childrenLastUpdated, boolean present, int version, String musicBrainzReleaseId, String musicBrainzRecordingId,
-                     // JP >>>>
-                     String composer,
-                     String artistSort,
-                     String albumSort,
-                     String titleSort,
-                     String albumArtistSort,
-                     String composerSort,
-                     String artistReading,
-                     String albumReading,
-                     String albumArtistReading,
-                     String artistSortRaw,
-                     String albumSortRaw,
-                     String albumArtistSortRaw,
-                     String composerSortRaw,
-                     int order
-                     // <<<< JP
-                     ) {
+            String albumName, String artist, String albumArtist, Integer discNumber, Integer trackNumber, Integer year,
+            String genre, Integer bitRate, boolean variableBitRate, Integer durationSeconds, Long fileSize,
+            Integer width, Integer height, String coverArtPath, String parentPath, int playCount, Date lastPlayed,
+            String comment, Date created, Date changed, Date lastScanned, Date childrenLastUpdated, boolean present,
+            int version, String musicBrainzReleaseId, String musicBrainzRecordingId,
+            // JP >>>>
+            String composer, String artistSort, String albumSort, String titleSort, String albumArtistSort,
+            String composerSort, String artistReading, String albumReading, String albumArtistReading,
+            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order
+    // <<<< JP
+    ) {
         this.id = id;
         this.path = path;
         this.folder = folder;
@@ -407,7 +394,6 @@ public class MediaFile {
     public void setCoverArtPath(String coverArtPath) {
         this.coverArtPath = coverArtPath;
     }
-
 
     public String getParentPath() {
         return parentPath;
@@ -669,11 +655,6 @@ public class MediaFile {
     }
 
     public static enum MediaType {
-        MUSIC,
-        PODCAST,
-        AUDIOBOOK,
-        VIDEO,
-        DIRECTORY,
-        ALBUM
+        MUSIC, PODCAST, AUDIOBOOK, VIDEO, DIRECTORY, ALBUM
     }
 }

@@ -55,7 +55,8 @@ public class ServletConfiguration implements WebMvcConfigurer {
     // Starting from Spring Boot 2.0, this feature is not enabled by default anymore,
     // so we must enable it manually.
     //
-    // See: https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#spring-mvc-path-matching-default-behavior-change
+    // See:
+    // https://github.com/spring-projects/spring-boot/wiki/Spring-Boot-2.0-Migration-Guide#spring-mvc-path-matching-default-behavior-change
 
     @Override
     public void configurePathMatch(PathMatchConfigurer configurer) {

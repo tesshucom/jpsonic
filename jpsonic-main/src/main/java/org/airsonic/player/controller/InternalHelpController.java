@@ -220,9 +220,8 @@ public class InternalHelpController {
         long totalMemory = Runtime.getRuntime().totalMemory();
         long freeMemory = Runtime.getRuntime().freeMemory();
 
-        String serverInfo = request.getSession().getServletContext().getServerInfo() +
-                            ", java " + System.getProperty("java.version") +
-                            ", " + System.getProperty("os.name");
+        String serverInfo = request.getSession().getServletContext().getServerInfo() + ", java "
+                + System.getProperty("java.version") + ", " + System.getProperty("os.name");
 
         map.put("user", securityService.getCurrentUser(request));
         map.put("brand", settingsService.getBrand());
@@ -245,7 +244,7 @@ public class InternalHelpController {
         gatherTranscodingInfo(map);
         gatherLocaleInfo(map);
 
-        return new ModelAndView("internalhelp","model",map);
+        return new ModelAndView("internalhelp", "model", map);
     }
 
     private void gatherScanInfo(Map<String, Object> map) {
@@ -263,12 +262,10 @@ public class InternalHelpController {
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings({ "PMD.CloseResource", "PMD.AvoidInstantiatingObjectsInLoops" })
-    /* [CloseResource]
-     * False positive. SearcherManager inherits Closeable but ensures each searcher
-     * is closed only once all threads have finished using it. Use release instead
-     * of close for reuse. No explicit close is done here.
-     * [AvoidInstantiatingObjectsInLoops]
-     * (IndexStatistics) Not reusable
+    /*
+     * [CloseResource] False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once
+     * all threads have finished using it. Use release instead of close for reuse. No explicit close is done here.
+     * [AvoidInstantiatingObjectsInLoops] (IndexStatistics) Not reusable
      */
     private void gatherIndexInfo(Map<String, Object> map) {
         SortedMap<String, IndexStatistics> indexStats = new TreeMap<>();
@@ -301,8 +298,8 @@ public class InternalHelpController {
     /**
      * Returns true if a locale string (e.g. en_US.UTF-8) appears to support UTF-8 correctly.
      *
-     * Some systems use non-standard locales (e.g. en_US.utf8 instead of en_US.UTF-8)
-     * to specify Unicode support, which are usually supported by the Glibc.
+     * Some systems use non-standard locales (e.g. en_US.utf8 instead of en_US.UTF-8) to specify Unicode support, which
+     * are usually supported by the Glibc.
      *
      * See: https://superuser.com/questions/999133/differences-between-en-us-utf8-and-en-us-utf-8
      */
@@ -391,22 +388,35 @@ public class InternalHelpController {
             map.put("dbIsLegacy", false);
         }
 
-        map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryNonPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumNonPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file wheRE NOT present AND type = 'ALBUM'", Long.class));
+        map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
+        map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'PODCAST'", Long.class));
+        map.put("dbMediaFileDirectoryNonPresentCount", daoHelper.getJdbcTemplate().queryForObject(
+                "SELECT count(*) FROM media_file WHERE NOT present AND type = 'DIRECTORY'", Long.class));
+        map.put("dbMediaFileAlbumNonPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file wheRE NOT present AND type = 'ALBUM'", Long.class));
 
-        map.put("dbMediaFileMusicPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'MUSIC'", Long.class));
-        map.put("dbMediaFilePodcastPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'PODCAST'", Long.class));
-        map.put("dbMediaFileDirectoryPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'DIRECTORY'", Long.class));
-        map.put("dbMediaFileAlbumPresentCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'ALBUM'", Long.class));
+        map.put("dbMediaFileMusicPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'MUSIC'", Long.class));
+        map.put("dbMediaFilePodcastPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'PODCAST'", Long.class));
+        map.put("dbMediaFileDirectoryPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'DIRECTORY'", Long.class));
+        map.put("dbMediaFileAlbumPresentCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(*) FROM media_file WHERE present AND type = 'ALBUM'", Long.class));
 
-        map.put("dbMediaFileDistinctAlbumCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(DISTINCT album) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctArtistCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(DISTINCT artist) FROM media_file WHERE present", Long.class));
-        map.put("dbMediaFileDistinctAlbumArtistCount", daoHelper.getJdbcTemplate().queryForObject("SELECT count(DISTINCT album_artist) FROM media_file WHERE present", Long.class));
+        map.put("dbMediaFileDistinctAlbumCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(DISTINCT album) FROM media_file WHERE present", Long.class));
+        map.put("dbMediaFileDistinctArtistCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(DISTINCT artist) FROM media_file WHERE present", Long.class));
+        map.put("dbMediaFileDistinctAlbumArtistCount", daoHelper.getJdbcTemplate()
+                .queryForObject("SELECT count(DISTINCT album_artist) FROM media_file WHERE present", Long.class));
 
-        map.put("dbMediaFilesInNonPresentMusicFoldersCount", mediaFileDao.getFilesInNonPresentMusicFoldersCount(Arrays.asList(settingsService.getPodcastFolder())));
-        map.put("dbMediaFilesInNonPresentMusicFoldersSample", mediaFileDao.getFilesInNonPresentMusicFolders(10, Arrays.asList(settingsService.getPodcastFolder())));
+        map.put("dbMediaFilesInNonPresentMusicFoldersCount",
+                mediaFileDao.getFilesInNonPresentMusicFoldersCount(Arrays.asList(settingsService.getPodcastFolder())));
+        map.put("dbMediaFilesInNonPresentMusicFoldersSample",
+                mediaFileDao.getFilesInNonPresentMusicFolders(10, Arrays.asList(settingsService.getPodcastFolder())));
 
         map.put("dbMediaFilesWithMusicFolderMismatchCount", mediaFileDao.getFilesWithMusicFolderMismatchCount());
         map.put("dbMediaFilesWithMusicFolderMismatchSample", mediaFileDao.getFilesWithMusicFolderMismatch(10));
@@ -415,13 +425,13 @@ public class InternalHelpController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (FileStatistics) Not reusable
     private void gatherFilesystemInfo(Map<String, Object> map) {
         map.put("fsHomeDirectorySizeBytes", FileUtils.sizeOfDirectory(SettingsService.getJpsonicHome()));
-        map.put("fsHomeDirectorySize", FileUtils.byteCountToDisplaySize((long)map.get("fsHomeDirectorySizeBytes")));
+        map.put("fsHomeDirectorySize", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeDirectorySizeBytes")));
         map.put("fsHomeTotalSpaceBytes", SettingsService.getJpsonicHome().getTotalSpace());
-        map.put("fsHomeTotalSpace", FileUtils.byteCountToDisplaySize((long)map.get("fsHomeTotalSpaceBytes")));
+        map.put("fsHomeTotalSpace", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeTotalSpaceBytes")));
         map.put("fsHomeUsableSpaceBytes", SettingsService.getJpsonicHome().getUsableSpace());
-        map.put("fsHomeUsableSpace", FileUtils.byteCountToDisplaySize((long)map.get("fsHomeUsableSpaceBytes")));
+        map.put("fsHomeUsableSpace", FileUtils.byteCountToDisplaySize((long) map.get("fsHomeUsableSpaceBytes")));
         SortedMap<String, FileStatistics> fsMusicFolderStatistics = new TreeMap<>();
-        for (MusicFolder folder: musicFolderDao.getAllMusicFolders()) {
+        for (MusicFolder folder : musicFolderDao.getAllMusicFolders()) {
             FileStatistics stat = new FileStatistics();
             stat.setFromFile(folder.getPath());
             stat.setName(folder.getName());

@@ -36,6 +36,7 @@ public class UploadInfo {
 
     /**
      * Returns the number of bytes uploaded.
+     * 
      * @return The number of bytes uploaded.
      */
     public long getBytesUploaded() {
@@ -43,9 +44,10 @@ public class UploadInfo {
     }
 
     /**
-    * Returns the total number of bytes.
-    * @return The total number of bytes.
-    */
+     * Returns the total number of bytes.
+     * 
+     * @return The total number of bytes.
+     */
     public long getBytesTotal() {
         return bytesTotal;
     }

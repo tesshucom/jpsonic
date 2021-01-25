@@ -58,7 +58,8 @@ public class SettingsServiceTest {
 
     @Test
     public void testJpsonicHome() {
-        assertEquals("Wrong Jpsonic home.", TestCaseUtils.jpsonicHomePathForTest(), SettingsService.getJpsonicHome().getAbsolutePath());
+        assertEquals("Wrong Jpsonic home.", TestCaseUtils.jpsonicHomePathForTest(),
+                SettingsService.getJpsonicHome().getAbsolutePath());
     }
 
     @Test
@@ -68,15 +69,19 @@ public class SettingsServiceTest {
         assertEquals("Wrong default index creation hour.", 3, settingsService.getIndexCreationHour());
         assertTrue("Wrong default playlist folder.", settingsService.getPlaylistFolder().endsWith("playlists"));
         assertEquals("Wrong default theme.", "jpsonic", settingsService.getThemeId());
-        assertEquals("Wrong default Podcast episode retention count.", 10, settingsService.getPodcastEpisodeRetentionCount());
-        assertEquals("Wrong default Podcast episode download count.", 1, settingsService.getPodcastEpisodeDownloadCount());
+        assertEquals("Wrong default Podcast episode retention count.", 10,
+                settingsService.getPodcastEpisodeRetentionCount());
+        assertEquals("Wrong default Podcast episode download count.", 1,
+                settingsService.getPodcastEpisodeDownloadCount());
         assertTrue("Wrong default Podcast folder.", settingsService.getPodcastFolder().endsWith("Podcast"));
         assertEquals("Wrong default Podcast update interval.", 24, settingsService.getPodcastUpdateInterval());
         assertEquals("Wrong default LDAP enabled.", false, settingsService.isLdapEnabled());
-        assertEquals("Wrong default LDAP URL.", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com", settingsService.getLdapUrl());
+        assertEquals("Wrong default LDAP URL.", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com",
+                settingsService.getLdapUrl());
         assertNull("Wrong default LDAP manager DN.", settingsService.getLdapManagerDn());
         assertNull("Wrong default LDAP manager password.", settingsService.getLdapManagerPassword());
-        assertEquals("Wrong default LDAP search filter.", "(sAMAccountName={0})", settingsService.getLdapSearchFilter());
+        assertEquals("Wrong default LDAP search filter.", "(sAMAccountName={0})",
+                settingsService.getLdapSearchFilter());
         assertEquals("Wrong default LDAP auto-shadowing.", false, settingsService.isLdapAutoShadowing());
     }
 
@@ -117,13 +122,17 @@ public class SettingsServiceTest {
         assertEquals("Wrong index string.", "indexString", ss.getIndexString());
         assertEquals("Wrong ignored articles.", "a the foo bar", ss.getIgnoredArticles());
         assertEquals("Wrong shortcuts.", "new incoming \"rock 'n' roll\"", ss.getShortcuts());
-        assertTrue("Wrong ignored articles array.", Arrays.equals(new String[] {"a", "the", "foo", "bar"}, ss.getIgnoredArticlesAsArray()));
-        assertTrue("Wrong shortcut array.", Arrays.equals(new String[] {"new", "incoming", "rock 'n' roll"}, ss.getShortcutsAsArray()));
+        assertTrue("Wrong ignored articles array.",
+                Arrays.equals(new String[] { "a", "the", "foo", "bar" }, ss.getIgnoredArticlesAsArray()));
+        assertTrue("Wrong shortcut array.",
+                Arrays.equals(new String[] { "new", "incoming", "rock 'n' roll" }, ss.getShortcutsAsArray()));
         assertEquals("Wrong playlist folder.", "playlistFolder", ss.getPlaylistFolder());
         assertEquals("Wrong music mask.", "mp3 ogg  aac", ss.getMusicFileTypes());
-        assertTrue("Wrong music mask array.", Arrays.equals(new String[] {"mp3", "ogg", "aac"}, ss.getMusicFileTypesAsArray()));
+        assertTrue("Wrong music mask array.",
+                Arrays.equals(new String[] { "mp3", "ogg", "aac" }, ss.getMusicFileTypesAsArray()));
         assertEquals("Wrong cover art mask.", "jpeg gif  png", ss.getCoverArtFileTypes());
-        assertTrue("Wrong cover art mask array.", Arrays.equals(new String[] {"jpeg", "gif", "png"}, ss.getCoverArtFileTypesAsArray()));
+        assertTrue("Wrong cover art mask array.",
+                Arrays.equals(new String[] { "jpeg", "gif", "png" }, ss.getCoverArtFileTypesAsArray()));
         assertEquals("Wrong welcome message.", "welcomeMessage", ss.getWelcomeMessage());
         assertEquals("Wrong login message.", "loginMessage", ss.getLoginMessage());
         assertEquals("Wrong locale.", Locale.CANADA_FRENCH, ss.getLocale());

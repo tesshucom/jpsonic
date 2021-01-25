@@ -75,13 +75,14 @@ public final class PlayerUtils {
     }
 
     /**
-     * Similar to {@link ServletResponse#setContentLength(int)}, but this
-     * method supports lengths bigger than 2GB.
+     * Similar to {@link ServletResponse#setContentLength(int)}, but this method supports lengths bigger than 2GB.
      * <p/>
      * See http://blogger.ziesemer.com/2008/03/suns-version-of-640k-2gb.html
      *
-     * @param response The HTTP response.
-     * @param length   The content length.
+     * @param response
+     *            The HTTP response.
+     * @param length
+     *            The content length.
      */
     public static void setContentLength(HttpServletResponse response, long length) {
         if (length <= Integer.MAX_VALUE) {
@@ -132,10 +133,11 @@ public final class PlayerUtils {
     }
 
     /**
-     * Return a complete URL for the given HTTP request,
-     * including the query string.
+     * Return a complete URL for the given HTTP request, including the query string.
      *
-     * @param request An HTTP request instance
+     * @param request
+     *            An HTTP request instance
+     * 
      * @return The associated URL
      */
     public static String getURLForRequest(HttpServletRequest request) {
@@ -150,7 +152,9 @@ public final class PlayerUtils {
     /**
      * Return an URL for the given HTTP request, with anonymized sensitive parameters.
      *
-     * @param request An HTTP request instance
+     * @param request
+     *            An HTTP request instance
+     * 
      * @return The associated anonymized URL
      */
     public static String getAnonymizedURLForRequest(HttpServletRequest request) {
@@ -160,17 +164,21 @@ public final class PlayerUtils {
         MultiValueMap<String, String> components = builder.build().getQueryParams();
 
         // Subsonic REST API authentication (see RESTRequestParameterProcessingFilter)
-        if (components.containsKey("p")) builder.replaceQueryParam("p", URL_SENSITIVE_REPLACEMENT_STRING);  // Cleartext password
-        if (components.containsKey("t")) builder.replaceQueryParam("t", URL_SENSITIVE_REPLACEMENT_STRING);  // Token
-        if (components.containsKey("s")) builder.replaceQueryParam("s", URL_SENSITIVE_REPLACEMENT_STRING);  // Salt
-        if (components.containsKey("u")) builder.replaceQueryParam("u", URL_SENSITIVE_REPLACEMENT_STRING);  // Username
+        if (components.containsKey("p"))
+            builder.replaceQueryParam("p", URL_SENSITIVE_REPLACEMENT_STRING); // Cleartext password
+        if (components.containsKey("t"))
+            builder.replaceQueryParam("t", URL_SENSITIVE_REPLACEMENT_STRING); // Token
+        if (components.containsKey("s"))
+            builder.replaceQueryParam("s", URL_SENSITIVE_REPLACEMENT_STRING); // Salt
+        if (components.containsKey("u"))
+            builder.replaceQueryParam("u", URL_SENSITIVE_REPLACEMENT_STRING); // Username
 
         return builder.build().toUriString();
     }
 
     /**
-     * Return true if the given object is an instance of the class name in argument.
-     * If the class doesn't exist, returns false.
+     * Return true if the given object is an instance of the class name in argument. If the class doesn't exist, returns
+     * false.
      */
     public static boolean isInstanceOfClassName(Object o, String className) {
         try {
@@ -181,7 +189,8 @@ public final class PlayerUtils {
     }
 
     public static Map<String, String> objectToStringMap(Object object) {
-        TypeReference<HashMap<String, String>> typeReference = new TypeReference<HashMap<String, String>>() {};
+        TypeReference<HashMap<String, String>> typeReference = new TypeReference<HashMap<String, String>>() {
+        };
         return objectMapper.convertValue(object, typeReference);
     }
 

@@ -18,7 +18,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,16 +43,9 @@ public class AirsonicRestApiIntTest {
 
     @Test
     public void pingTest() throws Exception {
-        mvc.perform(get("/rest/ping")
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("u", AIRSONIC_USER)
-                .param("p", AIRSONIC_PASSWORD)
-                .param("f", EXPECTED_FORMAT)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.version").value(AIRSONIC_API_VERSION))
-                .andDo(print());
+        mvc.perform(get("/rest/ping").param("v", AIRSONIC_API_VERSION).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)
+                .param("p", AIRSONIC_PASSWORD).param("f", EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                .andExpect(jsonPath("$.subsonic-response.version").value(AIRSONIC_API_VERSION)).andDo(print());
     }
 }

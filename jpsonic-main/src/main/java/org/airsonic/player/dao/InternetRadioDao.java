@@ -45,7 +45,9 @@ public class InternetRadioDao extends AbstractDao {
     /**
      * Returns the internet radio station with the given ID.
      *
-     * @param id The unique internet radio station ID.
+     * @param id
+     *            The unique internet radio station ID.
+     * 
      * @return The internet radio station with the given ID, or <code>null</code> if no such internet radio exists.
      */
     public InternetRadio getInternetRadioById(int id) {
@@ -66,11 +68,13 @@ public class InternetRadioDao extends AbstractDao {
     /**
      * Creates a new internet radio station.
      *
-     * @param radio The internet radio station to create.
+     * @param radio
+     *            The internet radio station to create.
      */
     public void createInternetRadio(InternetRadio radio) {
         String sql = "insert into internet_radio (" + INSERT_COLUMNS + ") values (?, ?, ?, ?, ?)";
-        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(), radio.getChanged());
+        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
+                radio.getChanged());
         if (LOG.isInfoEnabled()) {
             LOG.info("Created internet radio station " + radio.getName());
         }
@@ -79,7 +83,8 @@ public class InternetRadioDao extends AbstractDao {
     /**
      * Deletes the internet radio station with the given ID.
      *
-     * @param id The internet radio station ID.
+     * @param id
+     *            The internet radio station ID.
      */
     public void deleteInternetRadio(Integer id) {
         String sql = "delete from internet_radio where id=?";
@@ -92,17 +97,20 @@ public class InternetRadioDao extends AbstractDao {
     /**
      * Updates the given internet radio station.
      *
-     * @param radio The internet radio station to update.
+     * @param radio
+     *            The internet radio station to update.
      */
     public void updateInternetRadio(InternetRadio radio) {
         String sql = "update internet_radio set name=?, stream_url=?, homepage_url=?, enabled=?, changed=? where id=?";
-        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(), radio.getChanged(), radio.getId());
+        update(sql, radio.getName(), radio.getStreamUrl(), radio.getHomepageUrl(), radio.isEnabled(),
+                radio.getChanged(), radio.getId());
     }
 
     private static class InternetRadioRowMapper implements RowMapper<InternetRadio> {
         @Override
         public InternetRadio mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new InternetRadio(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getBoolean(5), rs.getTimestamp(6));
+            return new InternetRadio(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getBoolean(5),
+                    rs.getTimestamp(6));
         }
     }
 

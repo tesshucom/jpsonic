@@ -44,12 +44,12 @@ import static java.util.Collections.unmodifiableList;
  * Note that for stream statuses, the last inactive status is also stored.
  *
  * @author Sindre Mehus
+ * 
  * @see TransferStatus
  */
 @SuppressWarnings("PMD.UseConcurrentHashMap")
 /*
- * LinkedHashMap used in Legacy code.
- * Should be triaged in #831.
+ * LinkedHashMap used in Legacy code. Should be triaged in #831.
  */
 @Service
 @DependsOn("mediaFileService")

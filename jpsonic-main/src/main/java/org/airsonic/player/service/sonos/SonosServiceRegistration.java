@@ -41,19 +41,21 @@ import java.util.List;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class SonosServiceRegistration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosServiceRegistration.class);
 
-    public void setEnabled(String airsonicBaseUrl, String sonosControllerIp, boolean enabled, String sonosServiceName, int sonosServiceId) throws IOException {
+    public void setEnabled(String airsonicBaseUrl, String sonosControllerIp, boolean enabled, String sonosServiceName,
+            int sonosServiceId) throws IOException {
         String localUrl = airsonicBaseUrl + "ws/Sonos";
         String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
 
         if (LOG.isInfoEnabled()) {
-            LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP " + sonosControllerIp +
-                     ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
+            LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP "
+                    + sonosControllerIp + ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
         }
 
         List<Pair<String, String>> params = new ArrayList<>();
@@ -89,8 +91,7 @@ public class SonosServiceRegistration {
         for (Pair<String, String> parameter : parameters) {
             params.add(new BasicNameValuePair(parameter.getLeft(), parameter.getRight()));
         }
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(20 * 1000) // 20 seconds
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(20 * 1000) // 20 seconds
                 .setSocketTimeout(20 * 1000) // 20 seconds
                 .build();
         HttpPost request = new HttpPost(url);

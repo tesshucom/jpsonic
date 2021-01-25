@@ -30,9 +30,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
     }
 
     @Override
-    public Pair<List<MediaFile>, List<String>> handle(
-            SpecificPlaylist inputSpecificPlaylist
-    ) {
+    public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         try {

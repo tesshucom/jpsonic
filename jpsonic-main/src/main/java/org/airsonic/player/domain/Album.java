@@ -23,6 +23,7 @@ import java.util.Date;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class Album {
@@ -63,12 +64,12 @@ public class Album {
     public Album() {
     }
 
-    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds, String coverArtPath,
-            Integer year, String genre, int playCount, Date lastPlayed, String comment, Date created, Date lastScanned,
-            boolean present, Integer folderId, String musicBrainzReleaseId,
+    public Album(int id, String path, String name, String artist, int songCount, int durationSeconds,
+            String coverArtPath, Integer year, String genre, int playCount, Date lastPlayed, String comment,
+            Date created, Date lastScanned, boolean present, Integer folderId, String musicBrainzReleaseId,
             // JP >>>>
             String artistSort, String nameSort, String artistReading, String nameReading, int order
-            // <<<< JP
+    // <<<< JP
     ) {
         this.id = id;
         this.path = path;

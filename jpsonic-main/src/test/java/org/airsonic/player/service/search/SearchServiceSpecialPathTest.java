@@ -66,22 +66,19 @@ public class SearchServiceSpecialPathTest extends AbstractAirsonicHomeTest {
         Assert.assertEquals("ALL Albums ", 3, randomAlbums.size());
 
         // dir - accessible
-        List<MusicFolder> folder01 = folders.stream()
-                .filter(m -> "accessible".equals(m.getName()))
+        List<MusicFolder> folder01 = folders.stream().filter(m -> "accessible".equals(m.getName()))
                 .collect(Collectors.toList());
         randomAlbums = searchService.getRandomAlbums(Integer.MAX_VALUE, folder01);
         Assert.assertEquals("Albums in \"accessible\" ", 1, randomAlbums.size());
 
         // dir - accessible's
-        List<MusicFolder> folder02 = folders.stream()
-                .filter(m -> "accessible's".equals(m.getName()))
+        List<MusicFolder> folder02 = folders.stream().filter(m -> "accessible's".equals(m.getName()))
                 .collect(Collectors.toList());
         randomAlbums = searchService.getRandomAlbums(Integer.MAX_VALUE, folder02);
         Assert.assertEquals("Albums in \"accessible's\" ", 1, randomAlbums.size());
 
         // dir - accessible+s
-        List<MusicFolder> folder03 = folders.stream()
-                .filter(m -> "accessible+s".equals(m.getName()))
+        List<MusicFolder> folder03 = folders.stream().filter(m -> "accessible+s".equals(m.getName()))
                 .collect(Collectors.toList());
         randomAlbums = searchService.getRandomAlbums(Integer.MAX_VALUE, folder03);
         Assert.assertEquals("Albums in \"accessible+s\" ", 1, folder03.size());

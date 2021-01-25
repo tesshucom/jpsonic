@@ -45,8 +45,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Parses meta data from audio files using the Jaudiotagger library
- * (http://www.jthink.net/jaudiotagger/)
+ * Parses meta data from audio files using the Jaudiotagger library (http://www.jthink.net/jaudiotagger/)
  *
  * @author Sindre Mehus
  */
@@ -78,7 +77,9 @@ public class JaudiotaggerParser extends MetaDataParser {
     /**
      * Parses meta data for the given music file. No guessing or reformatting is done.
      *
-     * @param file The music file to parse.
+     * @param file
+     *            The music file to parse.
+     * 
      * @return Meta data for the file.
      */
     @Override
@@ -131,7 +132,6 @@ public class JaudiotaggerParser extends MetaDataParser {
                 metaData.setDurationSeconds(audioHeader.getTrackLength());
             }
 
-
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Error when parsing tags in " + file, x);
@@ -158,8 +158,8 @@ public class JaudiotaggerParser extends MetaDataParser {
     }
 
     /**
-     * Sometimes the genre is returned as "(17)" or "(17)Rock", instead of "Rock".  This method
-     * maps the genre ID to the corresponding text.
+     * Sometimes the genre is returned as "(17)" or "(17)Rock", instead of "Rock". This method maps the genre ID to the
+     * corresponding text.
      */
     private static String mapGenre(String genre) {
         if (genre == null) {
@@ -211,8 +211,10 @@ public class JaudiotaggerParser extends MetaDataParser {
     /**
      * Updates the given file with the given meta data.
      *
-     * @param file     The music file to update.
-     * @param metaData The new meta data.
+     * @param file
+     *            The music file to update.
+     * @param metaData
+     *            The new meta data.
      */
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Override
@@ -274,13 +276,14 @@ public class JaudiotaggerParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file The music file in question.
+     * @param file
+     *            The music file in question.
+     * 
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     /*
-     * [UseLocaleWithCaseConversions]
-     * The locale doesn't matter, as only comparing the extension literal.
+     * [UseLocaleWithCaseConversions] The locale doesn't matter, as only comparing the extension literal.
      */
     @Override
     public boolean isApplicable(File file) {
@@ -290,17 +293,9 @@ public class JaudiotaggerParser extends MetaDataParser {
 
         String format = FilenameUtils.getExtension(file.getName()).toLowerCase();
 
-        return "mp3".equals(format) ||
-               "m4a".equals(format) ||
-               "m4b".equals(format) ||
-               "aac".equals(format) ||
-               "ogg".equals(format) ||
-               "flac".equals(format) ||
-               "wav".equals(format) ||
-               "mpc".equals(format) ||
-               "mp+".equals(format) ||
-               "ape".equals(format) ||
-               "wma".equals(format);
+        return "mp3".equals(format) || "m4a".equals(format) || "m4b".equals(format) || "aac".equals(format)
+                || "ogg".equals(format) || "flac".equals(format) || "wav".equals(format) || "mpc".equals(format)
+                || "mp+".equals(format) || "ape".equals(format) || "wma".equals(format);
     }
 
     public static Artwork getArtwork(MediaFile file) {

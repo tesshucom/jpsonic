@@ -92,7 +92,8 @@ public class DocumentFactoryTest {
         assertEquals("FieldNamesConstants.ALBUM_EX", "name", document.get(FieldNamesConstants.ALBUM_EX));
         assertEquals("FieldNamesConstants.ARTIST", "artist", document.get(FieldNamesConstants.ARTIST));
         assertEquals("FieldNamesConstants.ARTIST_EX", "artist", document.get(FieldNamesConstants.ARTIST_EX));
-        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort",
+                document.get(FieldNamesConstants.ARTIST_READING));
         assertEquals("FieldNamesConstants.GENRE", "genre", document.get(FieldNamesConstants.GENRE));
         assertEquals("FieldNamesConstants.FOLDER_ID", "10", document.get(FieldNamesConstants.FOLDER_ID));
     }
@@ -138,7 +139,8 @@ public class DocumentFactoryTest {
         assertEquals("FieldNamesConstants.ALBUM_EX", "albumName", document.get(FieldNamesConstants.ALBUM_EX));
         assertEquals("FieldNamesConstants.ARTIST", "artist", document.get(FieldNamesConstants.ARTIST));
         assertEquals("FieldNamesConstants.ARTIST_EX", "artist", document.get(FieldNamesConstants.ARTIST_EX));
-        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort",
+                document.get(FieldNamesConstants.ARTIST_READING));
         assertEquals("FieldNamesConstants.GENRE", "genre", document.get(FieldNamesConstants.GENRE));
         assertEquals("FieldNamesConstants.FOLDER", "folder", document.get(FieldNamesConstants.FOLDER));
     }
@@ -155,7 +157,8 @@ public class DocumentFactoryTest {
         assertEquals("FieldNamesConstants.ID", "1", document.get(FieldNamesConstants.ID));
         assertEquals("FieldNamesConstants.ARTIST", "artist", document.get(FieldNamesConstants.ARTIST));
         assertEquals("FieldNamesConstants.ARTIST_EX", "artist", document.get(FieldNamesConstants.ARTIST_EX));
-        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort",
+                document.get(FieldNamesConstants.ARTIST_READING));
         assertEquals("FieldNamesConstants.FOLDER", "folder", document.get(FieldNamesConstants.FOLDER));
     }
 
@@ -176,7 +179,8 @@ public class DocumentFactoryTest {
         assertEquals("FieldNamesConstants.ID", "1", document.get(FieldNamesConstants.ID));
         assertEquals("FieldNamesConstants.ARTIST", "artist", document.get(FieldNamesConstants.ARTIST));
         assertEquals("FieldNamesConstants.ARTIST_EX", "artist", document.get(FieldNamesConstants.ARTIST_EX));
-        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort", document.get(FieldNamesConstants.ARTIST_READING));
+        assertEquals("FieldNamesConstants.ARTIST_READING", "artistSort",
+                document.get(FieldNamesConstants.ARTIST_READING));
         assertEquals("FieldNamesConstants.TITLE", "title", document.get(FieldNamesConstants.TITLE));
         assertEquals("FieldNamesConstants.TITLE_EX", "title", document.get(FieldNamesConstants.TITLE_EX));
         assertEquals("FieldNamesConstants.MEDIA_TYPE", "MUSIC", document.get(FieldNamesConstants.MEDIA_TYPE));
@@ -201,7 +205,8 @@ public class DocumentFactoryTest {
     public void testCreateNullAlbum() {
         Document document = documentFactory.createAlbumId3Document(new Album());
         assertEquals("fields.size", 1, document.getFields().size());
-        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is int type
+        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is
+                                                                                           // int type
         assertNull("FieldNamesConstants.ALBUM", document.get(FieldNamesConstants.ALBUM));
         assertNull("FieldNamesConstants.ALBUM_EX", document.get(FieldNamesConstants.ALBUM_EX));
         assertNull("FieldNamesConstants.ARTIST", document.get(FieldNamesConstants.ARTIST));
@@ -217,7 +222,8 @@ public class DocumentFactoryTest {
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(new Artist(), musicFolder);
         assertEquals("fields.size", 2, document.getFields().size());
-        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is int type
+        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is
+                                                                                           // int type
         assertNull("FieldNamesConstants.ARTIST", document.get(FieldNamesConstants.ARTIST));
         assertNull("FieldNamesConstants.ARTIST_EX", document.get(FieldNamesConstants.ARTIST_EX));
         assertNull("FieldNamesConstants.ARTIST_READING", document.get(FieldNamesConstants.ARTIST_READING));
@@ -232,7 +238,8 @@ public class DocumentFactoryTest {
         mediaFile.setFolder("folder");
         Document document = documentFactory.createAlbumDocument(mediaFile);
         assertEquals("fields.size", 2, document.getFields().size());
-        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is int type
+        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is
+                                                                                           // int type
         assertNull("FieldNamesConstants.ALBUM", document.get(FieldNamesConstants.ALBUM));
         assertNull("FieldNamesConstants.ALBUM_EX", document.get(FieldNamesConstants.ALBUM_EX));
         assertNull("FieldNamesConstants.ARTIST", document.get(FieldNamesConstants.ARTIST));
@@ -248,7 +255,8 @@ public class DocumentFactoryTest {
         mediaFile.setFolder("folder");
         Document document = documentFactory.createArtistDocument(mediaFile);
         assertEquals("fields.size", 2, document.getFields().size());
-        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is int type
+        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is
+                                                                                           // int type
         assertNull("FieldNamesConstants.ARTIST", document.get(FieldNamesConstants.ARTIST));
         assertNull("FieldNamesConstants.ARTIST_EX", document.get(FieldNamesConstants.ARTIST_EX));
         assertNull("FieldNamesConstants.ARTIST_READING", document.get(FieldNamesConstants.ARTIST_READING));
@@ -290,7 +298,8 @@ public class DocumentFactoryTest {
         song.setFolder("folder");
         Document document = documentFactory.createSongDocument(song);
         assertEquals("fields.size", 3, document.getFields().size());
-        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is int type
+        assertEquals("FieldNamesConstants.ID", "0", document.get(FieldNamesConstants.ID)); // Because domain getter is
+                                                                                           // int type
         assertNull("FieldNamesConstants.ARTIST", document.get(FieldNamesConstants.ARTIST));
         assertNull("FieldNamesConstants.ARTIST_EX", document.get(FieldNamesConstants.ARTIST_EX));
         assertNull("FieldNamesConstants.ARTIST_READING", document.get(FieldNamesConstants.ARTIST_READING));

@@ -65,7 +65,6 @@ import java.util.regex.Pattern;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-
 /**
  * Provides persistent storage of application settings and preferences.
  *
@@ -322,12 +321,12 @@ public class SettingsService {
 
     private static final int DEFAULT_UPNP_PORT = -1;
 
-    // Array of obsolete keys.  Used to clean property file.
-    private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort", "PortForwardingLocalPort",
-            "DownsamplingCommand", "DownsamplingCommand2", "DownsamplingCommand3", "DownsamplingCommand4",
-            "AutoCoverBatch", "MusicMask", "VideoMask", "CoverArtMask, HlsCommand", "HlsCommand2", "JukeboxCommand",
-            "CoverArtFileTypes", "UrlRedirectCustomHost", "CoverArtLimit", "StreamPort",
-            "PortForwardingEnabled", "RewriteUrl", "UrlRedirectCustomUrl", "UrlRedirectContextPath",
+    // Array of obsolete keys. Used to clean property file.
+    private static final List<String> OBSOLETE_KEYS = Arrays.asList("PortForwardingPublicPort",
+            "PortForwardingLocalPort", "DownsamplingCommand", "DownsamplingCommand2", "DownsamplingCommand3",
+            "DownsamplingCommand4", "AutoCoverBatch", "MusicMask", "VideoMask", "CoverArtMask, HlsCommand",
+            "HlsCommand2", "JukeboxCommand", "CoverArtFileTypes", "UrlRedirectCustomHost", "CoverArtLimit",
+            "StreamPort", "PortForwardingEnabled", "RewriteUrl", "UrlRedirectCustomUrl", "UrlRedirectContextPath",
             "UrlRedirectFrom", "UrlRedirectionEnabled", "UrlRedirectType", "Port", "HttpsPort",
             // Database settings renamed
             "database.varchar.maxlength", "database.config.type", "database.config.embed.driver",
@@ -362,7 +361,7 @@ public class SettingsService {
     private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
 
     private Pattern excludePattern;
-    
+
     private Locale locale;
 
     private void removeObsoleteProperties() {
@@ -380,8 +379,7 @@ public class SettingsService {
 
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     /*
-     * [UseLocaleWithCaseConversions]
-     * The locale doesn't matter, as only comparing the OS names.
+     * [UseLocaleWithCaseConversions] The locale doesn't matter, as only comparing the OS names.
      */
     public static File getJpsonicHome() {
         File home;
@@ -402,7 +400,8 @@ public class SettingsService {
     }
 
     public static boolean isScanOnBoot() {
-        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s)).orElse(DEFAULT_SCAN_ON_BOOT);
+        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s))
+                .orElse(DEFAULT_SCAN_ON_BOOT);
     }
 
     private static String getFileSystemAppName() {
@@ -435,7 +434,8 @@ public class SettingsService {
     }
 
     public static int getDefaultUPnPPort() {
-        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x)).orElse(DEFAULT_UPNP_PORT);
+        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x))
+                .orElse(DEFAULT_UPNP_PORT);
     }
 
     public static File getLogFile() {
@@ -443,10 +443,9 @@ public class SettingsService {
         return new File(jpsonicHome, getFileSystemAppName() + ".log");
     }
 
-
     /**
-     * Register in service locator so that non-Spring objects can access me.
-     * This method is invoked automatically by Spring.
+     * Register in service locator so that non-Spring objects can access me. This method is invoked automatically by
+     * Spring.
      */
     @PostConstruct
     public void init() {
@@ -455,8 +454,7 @@ public class SettingsService {
 
     private void logServerInfo() {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Java: " + System.getProperty("java.version") +
-                     ", OS: " + System.getProperty("os.name"));
+            LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
         }
     }
 
@@ -477,9 +475,9 @@ public class SettingsService {
         if (!home.exists() || !home.isDirectory()) {
             boolean success = home.mkdirs();
             if (!success) {
-                String message = "The directory " + home + " does not exist. Please create it and make it writable. " +
-                        "(You can override the directory location by specifying -Djpsonic.home=... when " +
-                        "starting the servlet container.)";
+                String message = "The directory " + home + " does not exist. Please create it and make it writable. "
+                        + "(You can override the directory location by specifying -Djpsonic.home=... when "
+                        + "starting the servlet container.)";
                 throw new IllegalStateException(message);
             }
         }
@@ -680,16 +678,14 @@ public class SettingsService {
     }
 
     /**
-     * Returns the number of days between automatic index creation, of -1 if automatic index
-     * creation is disabled.
+     * Returns the number of days between automatic index creation, of -1 if automatic index creation is disabled.
      */
     public int getIndexCreationInterval() {
         return getInt(KEY_INDEX_CREATION_INTERVAL, DEFAULT_INDEX_CREATION_INTERVAL);
     }
 
     /**
-     * Sets the number of days between automatic index creation, of -1 if automatic index
-     * creation is disabled.
+     * Sets the number of days between automatic index creation, of -1 if automatic index creation is disabled.
      */
     public void setIndexCreationInterval(int days) {
         setInt(KEY_INDEX_CREATION_INTERVAL, days);
@@ -726,16 +722,14 @@ public class SettingsService {
     }
 
     /**
-     * Returns the number of hours between Podcast updates, of -1 if automatic updates
-     * are disabled.
+     * Returns the number of hours between Podcast updates, of -1 if automatic updates are disabled.
      */
     public int getPodcastUpdateInterval() {
         return getInt(KEY_PODCAST_UPDATE_INTERVAL, DEFAULT_PODCAST_UPDATE_INTERVAL);
     }
 
     /**
-     * Sets the number of hours between Podcast updates, of -1 if automatic updates
-     * are disabled.
+     * Sets the number of hours between Podcast updates, of -1 if automatic updates are disabled.
      */
     public void setPodcastUpdateInterval(int hours) {
         setInt(KEY_PODCAST_UPDATE_INTERVAL, hours);
@@ -791,7 +785,8 @@ public class SettingsService {
     }
 
     /**
-     * @param limit The download bitrate limit in Kbit/s. Zero if unlimited.
+     * @param limit
+     *            The download bitrate limit in Kbit/s. Zero if unlimited.
      */
     public void setDownloadBitrateLimit(long limit) {
         setProperty(KEY_DOWNLOAD_BITRATE_LIMIT, String.valueOf(limit));
@@ -805,7 +800,8 @@ public class SettingsService {
     }
 
     /**
-     * @param limit The upload bitrate limit in Kbit/s. Zero if unlimited.
+     * @param limit
+     *            The upload bitrate limit in Kbit/s. Zero if unlimited.
      */
     public void setUploadBitrateLimit(long limit) {
         setLong(KEY_UPLOAD_BITRATE_LIMIT, limit);
@@ -822,6 +818,7 @@ public class SettingsService {
     String getJukeboxCommand() {
         return getProperty(KEY_JUKEBOX_COMMAND, DEFAULT_JUKEBOX_COMMAND);
     }
+
     public String getVideoImageCommand() {
         return getProperty(KEY_VIDEO_IMAGE_COMMAND, DEFAULT_VIDEO_IMAGE_COMMAND);
     }
@@ -1039,8 +1036,10 @@ public class SettingsService {
      */
     public String getRememberMeKey() {
         String key = null;
-        if (StringUtils.isBlank(key)) key = getString(KEY_REMEMBER_ME_KEY, null);
-        if (StringUtils.isBlank(key)) key = System.getProperty("airsonic.rememberMeKey");
+        if (StringUtils.isBlank(key))
+            key = getString(KEY_REMEMBER_ME_KEY, null);
+        if (StringUtils.isBlank(key))
+            key = System.getProperty("airsonic.rememberMeKey");
         return key;
     }
 
@@ -1062,7 +1061,8 @@ public class SettingsService {
     /**
      * Sets the locale (for language, date format etc.)
      *
-     * @param locale The locale.
+     * @param locale
+     *            The locale.
      */
     @SuppressWarnings("PMD.NullAssignment") // (locale) Intentional allocation to clear cache
     public void setLocale(Locale locale) {
@@ -1084,7 +1084,8 @@ public class SettingsService {
     /**
      * Sets the ID of the theme to use.
      *
-     * @param themeId The theme ID
+     * @param themeId
+     *            The theme ID
      */
     public void setThemeId(String themeId) {
         setProperty(KEY_THEME_ID, themeId);
@@ -1175,8 +1176,11 @@ public class SettingsService {
     /**
      * Returns all music folders.
      *
-     * @param includeDisabled Whether to include disabled folders.
-     * @param includeNonExisting Whether to include non-existing folders.
+     * @param includeDisabled
+     *            Whether to include disabled folders.
+     * @param includeNonExisting
+     *            Whether to include non-existing folders.
+     * 
      * @return Possibly empty list of all music folders.
      */
     public List<MusicFolder> getAllMusicFolders(boolean includeDisabled, boolean includeNonExisting) {
@@ -1211,8 +1215,10 @@ public class SettingsService {
     /**
      * Returns all music folders a user have access to. Non-existing and disabled folders are not included.
      *
-     * @param selectedMusicFolderId If non-null and included in the list of allowed music folders, this methods returns
-     *                              a list of only this music folder.
+     * @param selectedMusicFolderId
+     *            If non-null and included in the list of allowed music folders, this methods returns a list of only
+     *            this music folder.
+     * 
      * @return Possibly empty list of music folders.
      */
     public List<MusicFolder> getMusicFoldersForUser(String username, Integer selectedMusicFolderId) {
@@ -1245,7 +1251,9 @@ public class SettingsService {
     /**
      * Returns the music folder with the given ID.
      *
-     * @param id The ID.
+     * @param id
+     *            The ID.
+     * 
      * @return The music folder with the given ID, or <code>null</code> if not found.
      */
     public MusicFolder getMusicFolderById(Integer id) {
@@ -1261,7 +1269,8 @@ public class SettingsService {
     /**
      * Creates a new music folder.
      *
-     * @param musicFolder The music folder to create.
+     * @param musicFolder
+     *            The music folder to create.
      */
     public void createMusicFolder(MusicFolder musicFolder) {
         musicFolderDao.createMusicFolder(musicFolder);
@@ -1271,7 +1280,8 @@ public class SettingsService {
     /**
      * Deletes the music folder with the given ID.
      *
-     * @param id The ID of the music folder to delete.
+     * @param id
+     *            The ID of the music folder to delete.
      */
     public void deleteMusicFolder(Integer id) {
         musicFolderDao.deleteMusicFolder(id);
@@ -1281,7 +1291,8 @@ public class SettingsService {
     /**
      * Updates the given music folder.
      *
-     * @param musicFolder The music folder to update.
+     * @param musicFolder
+     *            The music folder to update.
      */
     public void updateMusicFolder(MusicFolder musicFolder) {
         musicFolderDao.updateMusicFolder(musicFolder);
@@ -1307,7 +1318,9 @@ public class SettingsService {
     /**
      * Returns all internet radio stations.
      *
-     * @param includeAll Whether disabled stations should be included.
+     * @param includeAll
+     *            Whether disabled stations should be included.
+     * 
      * @return Possibly empty list of all internet radio stations.
      */
     public List<InternetRadio> getAllInternetRadios(boolean includeAll) {
@@ -1324,7 +1337,8 @@ public class SettingsService {
     /**
      * Creates a new internet radio station.
      *
-     * @param radio The internet radio station to create.
+     * @param radio
+     *            The internet radio station to create.
      */
     public void createInternetRadio(InternetRadio radio) {
         internetRadioDao.createInternetRadio(radio);
@@ -1333,7 +1347,8 @@ public class SettingsService {
     /**
      * Deletes the internet radio station with the given ID.
      *
-     * @param id The internet radio station ID.
+     * @param id
+     *            The internet radio station ID.
      */
     public void deleteInternetRadio(Integer id) {
         internetRadioDao.deleteInternetRadio(id);
@@ -1342,7 +1357,8 @@ public class SettingsService {
     /**
      * Updates the given internet radio station.
      *
-     * @param radio The internet radio station to update.
+     * @param radio
+     *            The internet radio station to update.
      */
     public void updateInternetRadio(InternetRadio radio) {
         internetRadioDao.updateInternetRadio(radio);
@@ -1351,7 +1367,9 @@ public class SettingsService {
     /**
      * Returns settings for the given user.
      *
-     * @param username The username.
+     * @param username
+     *            The username.
+     * 
      * @return User-specific settings. Never <code>null</code>.
      */
     public UserSettings getUserSettings(String username) {
@@ -1429,7 +1447,8 @@ public class SettingsService {
     /**
      * Updates settings for the given username.
      *
-     * @param settings The user-specific settings.
+     * @param settings
+     *            The user-specific settings.
      */
     public void updateUserSettings(UserSettings settings) {
         userDao.updateUserSettings(settings);
@@ -1447,7 +1466,9 @@ public class SettingsService {
     /**
      * Returns the system avatar with the given ID.
      *
-     * @param id The system avatar ID.
+     * @param id
+     *            The system avatar ID.
+     * 
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getSystemAvatar(int id) {
@@ -1457,7 +1478,9 @@ public class SettingsService {
     /**
      * Returns the custom avatar for the given user.
      *
-     * @param username The username.
+     * @param username
+     *            The username.
+     * 
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getCustomAvatar(String username) {
@@ -1467,8 +1490,10 @@ public class SettingsService {
     /**
      * Sets the custom avatar for the given user.
      *
-     * @param avatar   The avatar, or <code>null</code> to remove the avatar.
-     * @param username The username.
+     * @param avatar
+     *            The avatar, or <code>null</code> to remove the avatar.
+     * @param username
+     *            The username.
      */
     public void setCustomAvatar(Avatar avatar, String username) {
         avatarDao.setCustomAvatar(avatar, username);
@@ -1627,7 +1652,8 @@ public class SettingsService {
     }
 
     public boolean isDlnaRandomSongByFolderArtistVisible() {
-        return getBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE, DEFAULT_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE);
+        return getBoolean(KEY_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE,
+                DEFAULT_DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE);
     }
 
     public void setDlnaRandomSongByFolderArtistVisible(boolean b) {

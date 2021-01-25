@@ -4,16 +4,12 @@ import org.apache.lucene.analysis.util.CharTokenizer;
 import org.apache.lucene.util.AttributeFactory;
 
 /**
- * A tokenizer that divides artist text at devide characters defined by id3, or
- * whitespace and comma.
+ * A tokenizer that divides artist text at devide characters defined by id3, or whitespace and comma.
  */
 public class Id3ArtistTokenizer extends CharTokenizer {
 
     /*
-     * see http://id3.org/
-     * ; v2.2 
-     * / v2.3
-     * \0 v2.4 (Required for security)
+     * see http://id3.org/ ; v2.2 / v2.3 \0 v2.4 (Required for security)
      */
     private static final int ID3_DELIM = ';' | '/' | '\0';
 
@@ -26,24 +22,26 @@ public class Id3ArtistTokenizer extends CharTokenizer {
     }
 
     /**
-     * Construct a new Id3ArtistTokenizer using a given
-     * {@link org.apache.lucene.util.AttributeFactory}.
+     * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
      *
-     * @param factory the attribute factory to use for this {@link Tokenizer}
+     * @param factory
+     *            the attribute factory to use for this {@link Tokenizer}
      */
     public Id3ArtistTokenizer(AttributeFactory factory) {
         super(factory);
     }
 
     /**
-     * Construct a new Id3ArtistTokenizer using a given
-     * {@link org.apache.lucene.util.AttributeFactory}.
+     * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
      *
-     * @param factory     the attribute factory to use for this {@link Tokenizer}
-     * @param maxTokenLen maximum token length the tokenizer will emit. Must be
-     *                    greater than 0 and less than MAX_TOKEN_LENGTH_LIMIT
-     *                    (1024*1024)
-     * @throws IllegalArgumentException if maxTokenLen is invalid.
+     * @param factory
+     *            the attribute factory to use for this {@link Tokenizer}
+     * @param maxTokenLen
+     *            maximum token length the tokenizer will emit. Must be greater than 0 and less than
+     *            MAX_TOKEN_LENGTH_LIMIT (1024*1024)
+     * 
+     * @throws IllegalArgumentException
+     *             if maxTokenLen is invalid.
      */
     public Id3ArtistTokenizer(AttributeFactory factory, int maxTokenLen) {
         super(factory, maxTokenLen);

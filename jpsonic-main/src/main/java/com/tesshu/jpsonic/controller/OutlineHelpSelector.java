@@ -36,7 +36,8 @@ public class OutlineHelpSelector {
 
     public boolean isShowOutlineHelp(HttpServletRequest request, String username) {
         UserSettings userSettings = settingsService.getUserSettings(username);
-        boolean showOutlineHelp = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHOW_OUTLINE_HELP.value(), userSettings.isShowOutlineHelp());
+        boolean showOutlineHelp = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.SHOW_OUTLINE_HELP.value(), userSettings.isShowOutlineHelp());
         if (showOutlineHelp != userSettings.isShowOutlineHelp()) {
             userSettings.setShowOutlineHelp(showOutlineHelp);
             userSettings.setChanged(new Date());

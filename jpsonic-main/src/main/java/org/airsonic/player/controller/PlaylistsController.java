@@ -61,11 +61,10 @@ public class PlaylistsController {
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUser(request);
         List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
-        model.addAttribute("model", LegacyMap.of(
-                "playlists", playlists,
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
-                "publishPodcast", settingsService.isPublishPodcast()));
+        model.addAttribute("model",
+                LegacyMap.of("playlists", playlists, "viewAsList",
+                        viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
+                        CoverArtScheme.MEDIUM.getSize(), "publishPodcast", settingsService.isPublishPodcast()));
         return "playlists";
     }
 }

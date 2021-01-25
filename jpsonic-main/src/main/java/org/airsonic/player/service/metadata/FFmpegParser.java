@@ -49,9 +49,8 @@ public class FFmpegParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final String[] FFPROBE_OPTIONS = {
-        "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"
-    };
+    private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
+            "-show_streams" };
 
     @Autowired
     private TranscodingService transcodingService;
@@ -62,7 +61,9 @@ public class FFmpegParser extends MetaDataParser {
      * Parses meta data for the given music file. No guessing or reformatting is done.
      *
      *
-     * @param file The music file to parse.
+     * @param file
+     *            The music file to parse.
+     * 
      * @return Meta data for the file.
      */
     @Override
@@ -141,7 +142,9 @@ public class FFmpegParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")

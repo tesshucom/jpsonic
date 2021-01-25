@@ -77,17 +77,13 @@ public class TopController {
     @Autowired
     private AirsonicLocaleResolver localeResolver;
 
-    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(
-            ViewName.MUSIC_FOLDER_SETTINGS.value(),
-            ViewName.GENERAL_SETTINGS.value(),
-            ViewName.PERSONAL_SETTINGS.value(),
-            ViewName.USER_SETTINGS.value(),
-            ViewName.PLAYER_SETTINGS.value(),
-            ViewName.INTERNET_RADIO_SETTINGS.value(),
-            ViewName.MORE.value());
+    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(ViewName.MUSIC_FOLDER_SETTINGS.value(),
+            ViewName.GENERAL_SETTINGS.value(), ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
+            ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response, @RequestParam("mainView") Optional<String> mainView) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam("mainView") Optional<String> mainView) throws Exception {
 
         boolean musicFolderChanged = saveSelectedMusicFolder(request);
 
@@ -124,7 +120,8 @@ public class TopController {
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
-        List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders : Collections.singletonList(selectedMusicFolder);
+        List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
+                : Collections.singletonList(selectedMusicFolder);
         MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
 
         map.put("scanning", mediaScannerService.isScanning());
@@ -171,8 +168,8 @@ public class TopController {
     }
 
     /**
-     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified
-     * as we don't need browser-side caching of left.jsp.  This method is only used by RESTController.
+     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified as we don't
+     * need browser-side caching of left.jsp. This method is only used by RESTController.
      */
     long getLastModified(HttpServletRequest request) throws Exception {
         saveSelectedMusicFolder(request);
@@ -218,7 +215,8 @@ public class TopController {
     }
 
     private boolean saveSelectedMusicFolder(HttpServletRequest request) throws Exception {
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {
             return false;
         }

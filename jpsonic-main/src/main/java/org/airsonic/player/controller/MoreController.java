@@ -59,7 +59,8 @@ public class MoreController {
     private SearchService searchService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User user = securityService.getCurrentUser(request);
 
@@ -71,14 +72,11 @@ public class MoreController {
 
         Player player = playerService.getPlayer(request, response);
         ModelAndView result = new ModelAndView();
-        result.addObject("model", LegacyMap.of(
-                "user", user,
-                "uploadDirectory", uploadDirectory,
-                "genres", searchService.getGenres(false),
-                "currentYear", Calendar.getInstance().get(Calendar.YEAR),
-                "musicFolders", musicFolders,
-                "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(),
-                "brand", settingsService.getBrand()));
+        result.addObject("model",
+                LegacyMap.of("user", user, "uploadDirectory", uploadDirectory, "genres", searchService.getGenres(false),
+                        "currentYear", Calendar.getInstance().get(Calendar.YEAR), "musicFolders", musicFolders,
+                        "clientSidePlaylist", player.isExternalWithPlaylist() || player.isWeb(), "brand",
+                        settingsService.getBrand()));
         return result;
     }
 }

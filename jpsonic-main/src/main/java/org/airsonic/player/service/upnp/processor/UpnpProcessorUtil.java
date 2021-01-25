@@ -31,7 +31,7 @@ public class UpnpProcessorUtil {
     private final SettingsService settingsService;
 
     private final TranscodingService transcodingService;
-    
+
     private final MusicFolderDao musicFolderDao;
 
     private static ResourceBundle resourceBundle;
@@ -40,7 +40,8 @@ public class UpnpProcessorUtil {
 
     private static Object lock = new Object();
 
-    public UpnpProcessorUtil(JpsonicComparators c, JWTSecurityService jwt, SettingsService ss, TranscodingService ts, MusicFolderDao md) {
+    public UpnpProcessorUtil(JpsonicComparators c, JWTSecurityService jwt, SettingsService ss, TranscodingService ts,
+            MusicFolderDao md) {
         settingsService = ss;
         securityService = jwt;
         comparators = c;
@@ -76,7 +77,8 @@ public class UpnpProcessorUtil {
     }
 
     public MimeType getMimeType(MediaFile song, Player player) {
-        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath()) : transcodingService.getSuffix(player, song, null);
+        String suffix = song.isVideo() ? FilenameUtils.getExtension(song.getPath())
+                : transcodingService.getSuffix(player, song, null);
         String mimeTypeString = StringUtil.getMimeType(suffix);
         return mimeTypeString == null ? null : MimeType.valueOf(mimeTypeString);
     }

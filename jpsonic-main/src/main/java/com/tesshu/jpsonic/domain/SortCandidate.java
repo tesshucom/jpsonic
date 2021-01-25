@@ -26,8 +26,8 @@ import org.checkerframework.checker.nullness.qual.NonNull;
 public class SortCandidate {
 
     /**
-     * The value set in the name tag corresponding to be modified sort tag.
-     * The element value of artist, album artist, composer, etc.
+     * The value set in the name tag corresponding to be modified sort tag. The element value of artist, album artist,
+     * composer, etc.
      */
     private String name;
 

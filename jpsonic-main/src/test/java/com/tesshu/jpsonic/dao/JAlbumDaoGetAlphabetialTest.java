@@ -67,7 +67,8 @@ public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
     @Test
     public void testGetAlphabeticalAlbums() {
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
-        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName()).collect(Collectors.toList());
+        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName())
+                .collect(Collectors.toList());
         JpsonicComparatorsTestUtils.validateNaturalList(names);
     }
 

@@ -79,15 +79,14 @@ public final class WebFontUtils {
             to.setAttribute(FONT_FAMILY_KEY, DEFAULT_FONT_FAMILY);
             return;
         }
-        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm [java/dereferenced-value-may-be-null]
-                ? new StringBuilder("@font-face ")
-                    .append('{')
-                    .append("font-family: \"").append(JP_FONT_NAME).append("\";")
-                    .append("src: ")
-                    .append("url(\"").append(to.getContextPath()).append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")
-                    .append("url(\"").append(to.getContextPath()).append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")").append(';')
-                    .append('}')
-                    .toString()
+        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm
+                                                                                      // [java/dereferenced-value-may-be-null]
+                ? new StringBuilder("@font-face ").append('{').append("font-family: \"").append(JP_FONT_NAME)
+                        .append("\";").append("src: ").append("url(\"").append(to.getContextPath())
+                        .append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")
+                        .append("url(\"").append(to.getContextPath())
+                        .append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")").append(';').append('}')
+                        .toString()
                 : "";
         to.setAttribute(FONT_FACE_KEY, fontFace);
         to.setAttribute(FONT_SIZE_KEY, from.getFontSize());

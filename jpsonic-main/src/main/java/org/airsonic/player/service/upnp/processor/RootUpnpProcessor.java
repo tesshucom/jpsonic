@@ -38,7 +38,8 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     private SettingsService settingsService;
 
-    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
+            SettingsService settingsService) {
         super(dispatcher, util);
         this.settingsService = settingsService;
     }

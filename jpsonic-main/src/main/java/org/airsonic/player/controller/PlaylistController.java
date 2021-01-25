@@ -60,7 +60,8 @@ public class PlaylistController {
     private PlayerService playerService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
@@ -73,15 +74,12 @@ public class PlaylistController {
         UserSettings userSettings = settingsService.getUserSettings(username);
         Player player = playerService.getPlayer(request, response);
 
-        return new ModelAndView("playlist", "model", LegacyMap.of(
-                "playlist", playlist,
-                "user", user,
-                "visibility", userSettings.getMainVisibility(),
-                "player", player,
-                "editAllowed", username.equals(playlist.getUsername()) || securityService.isAdmin(username),
-                "coverArtSize", CoverArtScheme.LARGE.getSize(),
-                "partyMode", userSettings.isPartyModeEnabled(),
-                "simpleDisplay", userSettings.isSimpleDisplay()));
+        return new ModelAndView("playlist", "model",
+                LegacyMap.of("playlist", playlist, "user", user, "visibility", userSettings.getMainVisibility(),
+                        "player", player, "editAllowed",
+                        username.equals(playlist.getUsername()) || securityService.isAdmin(username), "coverArtSize",
+                        CoverArtScheme.LARGE.getSize(), "partyMode", userSettings.isPartyModeEnabled(), "simpleDisplay",
+                        userSettings.isSimpleDisplay()));
     }
 
 }

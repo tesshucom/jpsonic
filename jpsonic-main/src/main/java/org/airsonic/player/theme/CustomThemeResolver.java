@@ -47,11 +47,13 @@ public class CustomThemeResolver implements ThemeResolver {
     private static final Object LOCK = new Object();
 
     /**
-    * Resolve the current theme name via the given request.
-    *
-    * @param request Request to be used for resolution
-    * @return The current theme name
-    */
+     * Resolve the current theme name via the given request.
+     *
+     * @param request
+     *            Request to be used for resolution
+     * 
+     * @return The current theme name
+     */
     @Override
     public String resolveThemeName(HttpServletRequest request) {
         String themeId = (String) request.getAttribute("airsonic.theme");
@@ -89,14 +91,16 @@ public class CustomThemeResolver implements ThemeResolver {
 
     /**
      * Returns whether the theme with the given ID exists.
-     * @param themeId The theme ID.
+     * 
+     * @param themeId
+     *            The theme ID.
+     * 
      * @return Whether the theme with the given ID exists.
      */
     private boolean themeExists(String themeId) {
         synchronized (LOCK) {
             if (themeIds == null) {
-                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream()
-                        .map(t -> t.getId())
+                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream().map(t -> t.getId())
                         .collect(Collectors.toSet());
             }
         }
@@ -106,11 +110,15 @@ public class CustomThemeResolver implements ThemeResolver {
     /**
      * Set the current theme name to the given one. This method is not supported.
      *
-     * @param request   Request to be used for theme name modification
-     * @param response  Response to be used for theme name modification
-     * @param themeName The new theme name
-     * @throws UnsupportedOperationException If the ThemeResolver implementation
-     *                                       does not support dynamic changing of the theme
+     * @param request
+     *            Request to be used for theme name modification
+     * @param response
+     *            Response to be used for theme name modification
+     * @param themeName
+     *            The new theme name
+     * 
+     * @throws UnsupportedOperationException
+     *             If the ThemeResolver implementation does not support dynamic changing of the theme
      */
     @Override
     public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {

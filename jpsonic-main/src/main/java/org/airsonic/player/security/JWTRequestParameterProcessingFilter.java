@@ -36,7 +36,8 @@ public class JWTRequestParameterProcessingFilter implements Filter {
         failureHandler = new SimpleUrlAuthenticationFailureHandler(failureUrl);
     }
 
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
         Optional<JWTAuthenticationToken> token = findToken(request);
         if (token.isPresent()) {
             return authenticationManager.authenticate(token.get());
@@ -47,7 +48,8 @@ public class JWTRequestParameterProcessingFilter implements Filter {
     private static Optional<JWTAuthenticationToken> findToken(HttpServletRequest request) {
         String token = request.getParameter(JWTSecurityService.JWT_PARAM_NAME);
         if (!StringUtils.isEmpty(token)) {
-            return Optional.of(new JWTAuthenticationToken(AuthorityUtils.NO_AUTHORITIES, token, request.getRequestURI() + "?" + request.getQueryString()));
+            return Optional.of(new JWTAuthenticationToken(AuthorityUtils.NO_AUTHORITIES, token,
+                    request.getRequestURI() + "?" + request.getQueryString()));
         }
         return Optional.empty();
     }
@@ -58,8 +60,8 @@ public class JWTRequestParameterProcessingFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain) throws IOException,
-            ServletException {
+    public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
+            throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
         if (!findToken(request).isPresent()) {
             chain.doFilter(req, resp);
@@ -80,9 +82,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
                 return;
             }
         } catch (InternalAuthenticationServiceException failed) {
-            LOG.error(
-                    "An internal error occurred while trying to authenticate the user.",
-                    failed);
+            LOG.error("An internal error occurred while trying to authenticate the user.", failed);
             unsuccessfulAuthentication(request, response, failed);
 
             return;
@@ -92,8 +92,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("Authentication success. Updating SecurityContextHolder to contain: "
-                    + authResult);
+            LOG.debug("Authentication success. Updating SecurityContextHolder to contain: " + authResult);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authResult);
@@ -101,9 +100,8 @@ public class JWTRequestParameterProcessingFilter implements Filter {
         chain.doFilter(request, response);
     }
 
-    protected void unsuccessfulAuthentication(HttpServletRequest request,
-                                              HttpServletResponse response, AuthenticationException failed)
-            throws IOException, ServletException {
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+            AuthenticationException failed) throws IOException, ServletException {
         SecurityContextHolder.clearContext();
 
         if (LOG.isDebugEnabled()) {

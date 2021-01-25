@@ -31,10 +31,11 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
- * Based on {@link FileSystemCache}, but properly closes files and enforces
- * time-to-live (by ignoring HTTP header directives).
+ * Based on {@link FileSystemCache}, but properly closes files and enforces time-to-live (by ignoring HTTP header
+ * directives).
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class LastFmCache extends Cache {

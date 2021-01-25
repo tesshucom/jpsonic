@@ -29,6 +29,7 @@ import org.fourthline.cling.support.model.SortCriterion;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id: TagBasedContentDirectory.java 3739 2013-12-03 11:55:01Z sindre_mehus $
  */
 public abstract class CustomContentDirectory extends AbstractContentDirectoryService {
@@ -42,10 +43,8 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
     }
 
     @Override
-    public BrowseResult search(String containerId,
-                               String searchCriteria, String filter,
-                               long firstResult, long maxResults,
-                               SortCriterion[] orderBy) throws ContentDirectoryException {
+    public BrowseResult search(String containerId, String searchCriteria, String filter, long firstResult,
+            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
         // You can override this method to implement searching!
         return super.search(containerId, searchCriteria, filter, firstResult, maxResults, orderBy);
     }

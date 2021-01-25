@@ -44,10 +44,8 @@ public class TransferStatus {
     private boolean active = true;
 
     /*
-     * History-only locking is sufficient on this class of legacy design.
-     * If have problems with synchronization restrictions,
-     * the constructor design should be reviewed.
-     * Signed-off-by: tesshucom <webmaster@tesshu.com>
+     * History-only locking is sufficient on this class of legacy design. If have problems with synchronization
+     * restrictions, the constructor design should be reviewed. Signed-off-by: tesshucom <webmaster@tesshu.com>
      */
     private static final Object HISTORY_LOCK = new Object();
 
@@ -63,7 +61,8 @@ public class TransferStatus {
     /**
      * Adds the given byte count to the total number of bytes transferred.
      *
-     * @param byteCount The byte count.
+     * @param byteCount
+     *            The byte count.
      */
     public void addBytesTransfered(long byteCount) {
         setBytesTransfered(bytesTransfered.addAndGet(byteCount));
@@ -72,7 +71,8 @@ public class TransferStatus {
     /**
      * Sets the number of bytes transferred.
      *
-     * @param bytesTransfered The number of bytes transferred.
+     * @param bytesTransfered
+     *            The number of bytes transferred.
      */
     public void setBytesTransfered(long bytesTransfered) {
         synchronized (HISTORY_LOCK) {
@@ -120,15 +120,15 @@ public class TransferStatus {
     /**
      * Sets the total number of bytes, or 0 if unknown.
      *
-     * @param bytesTotal The total number of bytes, or 0 if unknown.
+     * @param bytesTotal
+     *            The total number of bytes, or 0 if unknown.
      */
     public void setBytesTotal(long bytesTotal) {
         this.bytesTotal.set(bytesTotal);
     }
 
     /**
-     * Returns the number of bytes that has been skipped (for instance when
-     * resuming downloads).
+     * Returns the number of bytes that has been skipped (for instance when resuming downloads).
      *
      * @return The number of skipped bytes.
      */
@@ -137,10 +137,10 @@ public class TransferStatus {
     }
 
     /**
-     * Sets the number of bytes that has been skipped (for instance when
-     * resuming downloads).
+     * Sets the number of bytes that has been skipped (for instance when resuming downloads).
      *
-     * @param bytesSkipped The number of skipped bytes.
+     * @param bytesSkipped
+     *            The number of skipped bytes.
      */
     public void setBytesSkipped(long bytesSkipped) {
         this.bytesSkipped.set(bytesSkipped);
@@ -149,7 +149,8 @@ public class TransferStatus {
     /**
      * Adds the given byte count to the total number of bytes skipped.
      *
-     * @param byteCount The byte count.
+     * @param byteCount
+     *            The byte count.
      */
     public void addBytesSkipped(long byteCount) {
         bytesSkipped.addAndGet(byteCount);
@@ -167,7 +168,8 @@ public class TransferStatus {
     /**
      * Sets the file that is currently being transferred.
      *
-     * @param file The file that is currently being transferred.
+     * @param file
+     *            The file that is currently being transferred.
      */
     public void setFile(File file) {
         this.file = file;
@@ -185,7 +187,8 @@ public class TransferStatus {
     /**
      * Sets the remote player for the stream.
      *
-     * @param player The remote player for the stream.
+     * @param player
+     *            The remote player for the stream.
      */
     public void setPlayer(Player player) {
         this.player = player;
@@ -219,8 +222,8 @@ public class TransferStatus {
     }
 
     /**
-     * Returns whether this stream has been terminated.
-     * Not that the <em>terminated status</em> is cleared by this method.
+     * Returns whether this stream has been terminated. Not that the <em>terminated status</em> is cleared by this
+     * method.
      *
      * @return Whether this stream has been terminated.
      */
@@ -242,7 +245,8 @@ public class TransferStatus {
     /**
      * Sets whether this transfer is active, i.e., if the connection is still established.
      *
-     * @param active Whether this transfer is active.
+     * @param active
+     *            Whether this transfer is active.
      */
     public void setActive(boolean active) {
         synchronized (HISTORY_LOCK) {
@@ -267,8 +271,10 @@ public class TransferStatus {
         /**
          * Creates a new sample.
          *
-         * @param bytesTransfered The total number of bytes transferred.
-         * @param timestamp       A point in time, in milliseconds.
+         * @param bytesTransfered
+         *            The total number of bytes transferred.
+         * @param timestamp
+         *            A point in time, in milliseconds.
          */
         public Sample(long bytesTransfered, long timestamp) {
             this.bytesTransfered = bytesTransfered;
@@ -296,8 +302,8 @@ public class TransferStatus {
 
     @Override
     public String toString() {
-        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", file: " +
-                file + ", terminated: " + terminated + ", active: " + active + "]";
+        return "TransferStatus-" + hashCode() + " [player: " + player.getId() + ", file: " + file + ", terminated: "
+                + terminated + ", active: " + active + "]";
     }
 
     /**

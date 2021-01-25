@@ -25,6 +25,7 @@ import java.util.Date;
  * A bookmark within a media file, for a given user.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class Bookmark {
@@ -37,7 +38,8 @@ public class Bookmark {
     private Date created;
     private Date changed;
 
-    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Date created, Date changed) {
+    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Date created,
+            Date changed) {
         this.id = id;
         this.mediaFileId = mediaFileId;
         this.positionMillis = positionMillis;

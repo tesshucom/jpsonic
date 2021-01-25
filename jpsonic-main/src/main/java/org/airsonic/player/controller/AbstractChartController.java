@@ -35,7 +35,7 @@ import java.util.Locale;
  * @author Sindre Mehus
  */
 public abstract class AbstractChartController {
-    
+
     public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception;
 
@@ -46,7 +46,9 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart background color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart background color.
      */
     protected Color getBackground(HttpServletRequest request) {
@@ -56,7 +58,9 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart foreground color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart foreground color.
      */
     protected Color getForeground(HttpServletRequest request) {
@@ -66,7 +70,9 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart stroke color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart stroke color.
      */
     protected Color getStroke(HttpServletRequest request) {

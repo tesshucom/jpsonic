@@ -12,7 +12,7 @@ import javax.xml.ws.Endpoint;
 import java.util.Collections;
 
 @Configuration
-@ImportResource({"classpath:META-INF/cxf/cxf.xml", "classpath:META-INF/cxf/cxf-servlet.xml"})
+@ImportResource({ "classpath:META-INF/cxf/cxf.xml", "classpath:META-INF/cxf/cxf-servlet.xml" })
 public class SonosConfiguration {
 
     @Bean

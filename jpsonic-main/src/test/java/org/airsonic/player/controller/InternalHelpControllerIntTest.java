@@ -24,18 +24,14 @@ public class InternalHelpControllerIntTest extends AbstractAirsonicHomeTest {
     }
 
     @Test
-    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
+    @WithMockUser(username = "admin", roles = { "USER", "ADMIN" })
     public void testOkForAdmins() throws Exception {
-        mvc.perform(get("/internalhelp")
-                .contentType(MediaType.TEXT_HTML))
-                .andExpect(status().isOk());
+        mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isOk());
     }
 
     @Test
-    @WithMockUser(username = "user", roles = {"USER"})
+    @WithMockUser(username = "user", roles = { "USER" })
     public void testNotOkForUsers() throws Exception {
-        mvc.perform(get("/internalhelp")
-                .contentType(MediaType.TEXT_HTML))
-                .andExpect(status().isForbidden());
+        mvc.perform(get("/internalhelp").contentType(MediaType.TEXT_HTML)).andExpect(status().isForbidden());
     }
 }

@@ -113,14 +113,14 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
         assertEquals(2, files.size());
         files.forEach(f -> {
             switch (f.getName()) {
-                case "file1":
-                case "file2":
-                    assertEquals("case1", f.getArtist());
-                    assertEquals("artistA", f.getArtistSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "file1":
+            case "file2":
+                assertEquals("case1", f.getArtist());
+                assertEquals("artistA", f.getArtistSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 

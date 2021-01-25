@@ -31,10 +31,11 @@ import java.io.IOException;
 import java.util.Enumeration;
 
 /**
- * Configurable filter for setting HTTP response headers. Can be used, for instance, to
- * set cache control directives for certain resources.
+ * Configurable filter for setting HTTP response headers. Can be used, for instance, to set cache control directives for
+ * certain resources.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2005/08/14 13:14:47 $
  */
 public class ResponseHeaderFilter implements Filter {

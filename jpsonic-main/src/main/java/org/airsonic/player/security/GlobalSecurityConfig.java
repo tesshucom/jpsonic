@@ -34,8 +34,7 @@ import java.util.Map;
 @Configuration
 @SuppressWarnings("PMD.AvoidReassigningParameters")
 /*
- * Spring manners. Usually not desirable.
- * Code that issues this warning in the future needs scrutiny.
+ * Spring manners. Usually not desirable. Code that issues this warning in the future needs scrutiny.
  */
 @Order(SecurityProperties.BASIC_AUTH_ORDER - 2)
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = true)
@@ -59,12 +58,8 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         if (settingsService.isLdapEnabled()) {
-            auth.ldapAuthentication()
-                    .contextSource()
-                        .managerDn(settingsService.getLdapManagerDn())
-                        .managerPassword(settingsService.getLdapManagerPassword())
-                        .url(settingsService.getLdapUrl())
-                    .and()
+            auth.ldapAuthentication().contextSource().managerDn(settingsService.getLdapManagerDn())
+                    .managerPassword(settingsService.getLdapManagerPassword()).url(settingsService.getLdapUrl()).and()
                     .userSearchFilter(settingsService.getLdapSearchFilter())
                     .userDetailsContextMapper(customUserDetailsContextMapper);
         }
@@ -128,19 +123,12 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             http = http.addFilter(new WebAsyncManagerIntegrationFilter());
             http = http.addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
-            http
-                    .antMatcher("/ext/**")
-                    .csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and()
-                    .headers().frameOptions().sameOrigin().and()
-                    .authorizeRequests()
+            http.antMatcher("/ext/**").csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and().headers()
+                    .frameOptions().sameOrigin().and().authorizeRequests()
                     .antMatchers("/ext/stream/**", "/ext/coverArt*", "/ext/share/**", "/ext/hls/**")
-                    .hasAnyRole("TEMP", "USER").and()
-                    .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                    .exceptionHandling().and()
-                    .securityContext().and()
-                    .requestCache().and()
-                    .anonymous().and()
-                    .servletApi();
+                    .hasAnyRole("TEMP", "USER").and().sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().exceptionHandling().and()
+                    .securityContext().and().requestCache().and().anonymous().and().servletApi();
         }
     }
 
@@ -209,51 +197,29 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
                 }
             }
 
-            http
-                    .csrf()
-                    .requireCsrfProtectionMatcher(csrfSecurityRequestMatcher)
-                    .and().headers()
-                    .frameOptions()
-                    .sameOrigin()
-                    .and().authorizeRequests()
-                    .antMatchers("/recover*", "/accessDenied*",
-                            "/style/**", "/icons/**", "/flash/**", "/script/**",
+            http.csrf().requireCsrfProtectionMatcher(csrfSecurityRequestMatcher).and().headers().frameOptions()
+                    .sameOrigin().and().authorizeRequests()
+                    .antMatchers("/recover*", "/accessDenied*", "/style/**", "/icons/**", "/flash/**", "/script/**",
                             "/sonos/**", "/login", "/error")
                     .permitAll()
-                    .antMatchers("/personalSettings*", "/passwordSettings*",
-                            "/playerSettings*", "/shareSettings*", "/passwordSettings*")
+                    .antMatchers("/personalSettings*", "/passwordSettings*", "/playerSettings*", "/shareSettings*",
+                            "/passwordSettings*")
                     .hasRole("SETTINGS")
                     .antMatchers("/generalSettings*", "/advancedSettings*", "/userSettings*", "/internalhelp*",
                             "/musicFolderSettings*", "/databaseSettings*", "/transcodeSettings*", "/rest/startScan*")
-                    .hasRole("ADMIN")
-                    .antMatchers("/deletePlaylist*", "/savePlaylist*")
-                    .hasRole("PLAYLIST")
-                    .antMatchers("/download*")
-                    .hasRole("DOWNLOAD")
-                    .antMatchers("/upload*")
-                    .hasRole("UPLOAD")
-                    .antMatchers("/createShare*")
-                    .hasRole("SHARE")
-                    .antMatchers("/changeCoverArt*", "/editTags*")
-                    .hasRole("COVERART")
-                    .antMatchers("/setMusicFileInfo*")
-                    .hasRole("COMMENT")
-                    .antMatchers("/podcastReceiverAdmin*")
-                    .hasRole("PODCAST")
-                    .antMatchers("/**")
-                    .hasRole("USER")
-                    .anyRequest().authenticated()
-                    .and().formLogin()
-                    .loginPage("/login")
-                    .permitAll()
-                    .defaultSuccessUrl("/index", true)
-                    .failureUrl(FAILURE_URL)
+                    .hasRole("ADMIN").antMatchers("/deletePlaylist*", "/savePlaylist*").hasRole("PLAYLIST")
+                    .antMatchers("/download*").hasRole("DOWNLOAD").antMatchers("/upload*").hasRole("UPLOAD")
+                    .antMatchers("/createShare*").hasRole("SHARE").antMatchers("/changeCoverArt*", "/editTags*")
+                    .hasRole("COVERART").antMatchers("/setMusicFileInfo*").hasRole("COMMENT")
+                    .antMatchers("/podcastReceiverAdmin*").hasRole("PODCAST").antMatchers("/**").hasRole("USER")
+                    .anyRequest().authenticated().and().formLogin().loginPage("/login").permitAll()
+                    .defaultSuccessUrl("/index", true).failureUrl(FAILURE_URL)
                     .usernameParameter(Attributes.Request.J_USERNAME.value())
                     .passwordParameter(Attributes.Request.J_PASSWORD.value())
-                    // see http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
-                    .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET")).logoutSuccessUrl(
-                    "/login?logout")
-                    .and().rememberMe().key(rememberMeKey);
+                    // see
+                    // http://docs.spring.io/spring-security/site/docs/3.2.4.RELEASE/reference/htmlsingle/#csrf-logout
+                    .and().logout().logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
+                    .logoutSuccessUrl("/login?logout").and().rememberMe().key(rememberMeKey);
         }
 
     }

@@ -63,13 +63,9 @@ public class PlaylistServiceExportTest {
 
     @Before
     public void setup() {
-        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao),
-                                              new JPlaylistDao(playlistDao),
-                                              securityService,
-                                              settingsService,
-                                              Lists.newArrayList(
-                                                      defaultPlaylistExportHandler),
-                                              Collections.emptyList());
+        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao), new JPlaylistDao(playlistDao),
+                securityService, settingsService, Lists.newArrayList(defaultPlaylistExportHandler),
+                Collections.emptyList());
     }
 
     @Test

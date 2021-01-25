@@ -89,7 +89,7 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
         });
         mediaScannerService.setJpsonicCleansingProcess(true);
     }
-    
+
     @Test
     public void testUpdateSortOfAlbum() throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException, NoSuchMethodException, SecurityException {

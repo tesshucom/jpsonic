@@ -27,13 +27,7 @@ public class TranscodingServiceIntTest {
     @Test
     public void createTranscodingTest() {
         // Given
-        Transcoding transcoding = new Transcoding(null,
-                "test-transcoding",
-                "mp3",
-                "wav",
-                "step1",
-                "step2",
-                "step3",
+        Transcoding transcoding = new Transcoding(null, "test-transcoding", "mp3", "wav", "step1", "step2", "step3",
                 true);
 
         transcodingService.createTranscoding(transcoding);

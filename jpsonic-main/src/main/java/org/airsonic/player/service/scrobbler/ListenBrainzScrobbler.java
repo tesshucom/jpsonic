@@ -37,8 +37,7 @@ import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Provides services for "audioscrobbling" at listenbrainz.org.
- * <br/>
+ * Provides services for "audioscrobbling" at listenbrainz.org. <br/>
  * See https://listenbrainz.readthedocs.io/
  */
 public class ListenBrainzScrobbler {
@@ -48,21 +47,25 @@ public class ListenBrainzScrobbler {
 
     private RegistrationThread thread;
     private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
-    //    private final RequestConfig requestConfig = RequestConfig.custom()
-    //            .setConnectTimeout(15000)
-    //            .setSocketTimeout(15000)
-    //            .build();
+    // private final RequestConfig requestConfig = RequestConfig.custom()
+    // .setConnectTimeout(15000)
+    // .setSocketTimeout(15000)
+    // .build();
 
     private static final Object REGISTRATION_LOCK = new Object();
 
     /**
-     * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is done
-     * by a separate thread.
+     * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is
+     * done by a separate thread.
      *
-     * @param mediaFile  The media file to register.
-     * @param token      The token to authentication user on ListenBrainz.
-     * @param submission Whether this is a submission or a now playing notification.
-     * @param time       Event time, or {@code null} to use current time.
+     * @param mediaFile
+     *            The media file to register.
+     * @param token
+     *            The token to authentication user on ListenBrainz.
+     * @param submission
+     *            Whether this is a submission or a now playing notification.
+     * @param time
+     *            Event time, or {@code null} to use current time.
      */
     public void register(MediaFile mediaFile, String token, boolean submission, Date time) {
 
@@ -93,9 +96,11 @@ public class ListenBrainzScrobbler {
     }
 
     /**
-     * Scrobbles the given song data at listenbrainz.org, using the protocol defined at https://listenbrainz.readthedocs.io/en/latest/dev/api.html.
+     * Scrobbles the given song data at listenbrainz.org, using the protocol defined at
+     * https://listenbrainz.readthedocs.io/en/latest/dev/api.html.
      *
-     * @param registrationData Registration data for the song.
+     * @param registrationData
+     *            Registration data for the song.
      */
     final static void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
         if (registrationData == null || registrationData.getToken() == null) {
@@ -114,6 +119,7 @@ public class ListenBrainzScrobbler {
             }
         }
     }
+
     /**
      * Returns if submission succeeds.
      */
@@ -214,19 +220,22 @@ public class ListenBrainzScrobbler {
             try {
                 queue.put(registrationData);
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("ListenBrainz registration for '" + registrationData.getTitle() +
-                             "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                    LOG.info("ListenBrainz registration for '" + registrationData.getTitle()
+                            + "' encountered network error: " + errorMessage + ".  Will try again later. In queue: "
+                            + queue.size());
                 }
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to reschedule ListenBrainz registration for '" + registrationData.getTitle() + "': " + x.toString());
+                    LOG.error("Failed to reschedule ListenBrainz registration for '" + registrationData.getTitle()
+                            + "': " + x.toString());
                 }
             }
             try {
-                sleep(60L * 1000L);  // Wait 60 seconds.
+                sleep(60L * 1000L); // Wait 60 seconds.
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to sleep after ListenBrainz registration failure for '" + registrationData.getTitle() + "': " + x.toString());
+                    LOG.error("Failed to sleep after ListenBrainz registration failure for '"
+                            + registrationData.getTitle() + "': " + x.toString());
                 }
             }
         }

@@ -63,16 +63,19 @@ public class LyricsService {
     /**
      * Returns lyrics for the given song and artist.
      *
-     * @param artist The artist.
-     * @param song   The song.
+     * @param artist
+     *            The artist.
+     * @param song
+     *            The song.
+     * 
      * @return The lyrics, never <code>null</code> .
      */
     public LyricsInfo getLyrics(final String artist, final String song) {
         LyricsInfo lyrics = new LyricsInfo();
         try {
 
-            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist=" +
-                    StringUtil.urlEncode(artist) + "&song=" + StringUtil.urlEncode(song);
+            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist="
+                    + StringUtil.urlEncode(artist) + "&song=" + StringUtil.urlEncode(song);
             String xml = executeGetRequest(url);
             lyrics = parseSearchResult(xml);
 
@@ -112,10 +115,7 @@ public class LyricsService {
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeGetRequest(String url) throws IOException {
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(15000)
-                .setSocketTimeout(15000)
-                .build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000).setSocketTimeout(15000).build();
         HttpGet method = new HttpGet(url);
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {

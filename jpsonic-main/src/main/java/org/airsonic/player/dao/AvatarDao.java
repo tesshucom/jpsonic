@@ -52,7 +52,9 @@ public class AvatarDao extends AbstractDao {
     /**
      * Returns the system avatar with the given ID.
      *
-     * @param id The system avatar ID.
+     * @param id
+     *            The system avatar ID.
+     * 
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getSystemAvatar(int id) {
@@ -63,7 +65,9 @@ public class AvatarDao extends AbstractDao {
     /**
      * Returns the custom avatar for the given user.
      *
-     * @param username The username.
+     * @param username
+     *            The username.
+     * 
      * @return The avatar or <code>null</code> if not found.
      */
     public Avatar getCustomAvatar(String username) {
@@ -74,26 +78,27 @@ public class AvatarDao extends AbstractDao {
     /**
      * Sets the custom avatar for the given user.
      *
-     * @param avatar   The avatar, or <code>null</code> to remove the avatar.
-     * @param username The username.
+     * @param avatar
+     *            The avatar, or <code>null</code> to remove the avatar.
+     * @param username
+     *            The username.
      */
     public void setCustomAvatar(Avatar avatar, String username) {
         String sql = "delete from custom_avatar where username=?";
         update(sql, username);
 
         if (avatar != null) {
-            update("insert into custom_avatar(" + INSERT_COLUMNS
-                   + ", username) values(" + questionMarks(INSERT_COLUMNS) + ", ?)",
-                   avatar.getName(), avatar.getCreatedDate(), avatar.getMimeType(),
-                   avatar.getWidth(), avatar.getHeight(), avatar.getData(), username);
+            update("insert into custom_avatar(" + INSERT_COLUMNS + ", username) values(" + questionMarks(INSERT_COLUMNS)
+                    + ", ?)", avatar.getName(), avatar.getCreatedDate(), avatar.getMimeType(), avatar.getWidth(),
+                    avatar.getHeight(), avatar.getData(), username);
         }
     }
 
     private static class AvatarRowMapper implements RowMapper<Avatar> {
         @Override
         public Avatar mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new Avatar(rs.getInt(1), rs.getString(2), rs.getTimestamp(3), rs.getString(4),
-                              rs.getInt(5), rs.getInt(6), rs.getBytes(7));
+            return new Avatar(rs.getInt(1), rs.getString(2), rs.getTimestamp(3), rs.getString(4), rs.getInt(5),
+                    rs.getInt(6), rs.getBytes(7));
         }
     }
 

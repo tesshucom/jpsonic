@@ -97,9 +97,11 @@ public class SearchController {
 
             int offset = 0;
             int count = MATCH_COUNT;
-            boolean includeComposer = settingsService.isSearchComposer() || userSettings.getMainVisibility().isComposerVisible();
+            boolean includeComposer = settingsService.isSearchComposer()
+                    || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
+            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
+                    IndexType.ARTIST);
             SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());
 
