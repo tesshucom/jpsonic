@@ -122,8 +122,9 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private UPnPSearchCriteria result;
 
     BiConsumer<Boolean, String> notice = (b, message) -> {
-        if (b)
+        if (b) {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
+        }
     };
 
     private static final List<String> UNSUPPORTED_CLASS = Arrays.asList("object.container.album.photoAlbum",

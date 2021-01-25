@@ -170,14 +170,18 @@ public final class PlayerUtils {
         MultiValueMap<String, String> components = builder.build().getQueryParams();
 
         // Subsonic REST API authentication (see RESTRequestParameterProcessingFilter)
-        if (components.containsKey("p"))
+        if (components.containsKey("p")) {
             builder.replaceQueryParam("p", URL_SENSITIVE_REPLACEMENT_STRING); // Cleartext password
-        if (components.containsKey("t"))
+        }
+        if (components.containsKey("t")) {
             builder.replaceQueryParam("t", URL_SENSITIVE_REPLACEMENT_STRING); // Token
-        if (components.containsKey("s"))
+        }
+        if (components.containsKey("s")) {
             builder.replaceQueryParam("s", URL_SENSITIVE_REPLACEMENT_STRING); // Salt
-        if (components.containsKey("u"))
+        }
+        if (components.containsKey("u")) {
             builder.replaceQueryParam("u", URL_SENSITIVE_REPLACEMENT_STRING); // Username
+        }
 
         return builder.build().toUriString();
     }

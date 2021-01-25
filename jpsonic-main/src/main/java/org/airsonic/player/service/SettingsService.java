@@ -1037,10 +1037,12 @@ public class SettingsService {
      */
     public String getRememberMeKey() {
         String key = null;
-        if (StringUtils.isBlank(key))
+        if (StringUtils.isBlank(key)) {
             key = getString(KEY_REMEMBER_ME_KEY, null);
-        if (StringUtils.isBlank(key))
+        }
+        if (StringUtils.isBlank(key)) {
             key = System.getProperty("airsonic.rememberMeKey");
+        }
         return key;
     }
 

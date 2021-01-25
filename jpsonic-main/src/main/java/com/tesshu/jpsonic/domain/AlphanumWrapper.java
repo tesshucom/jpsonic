@@ -66,8 +66,9 @@ class AlphanumWrapper extends Collator {
                 result = null == deligate ? thisChunk.compareToIgnoreCase(thatChunk)
                         : deligate.compare(thisChunk, thatChunk);
             }
-            if (result != 0)
+            if (result != 0) {
                 return result;
+            }
         }
         return s1Length - s2Length;
     }
@@ -81,16 +82,18 @@ class AlphanumWrapper extends Collator {
         if (isDigit(c)) {
             while (cursol < slength) {
                 c = s.charAt(cursol);
-                if (!isDigit(c))
+                if (!isDigit(c)) {
                     break;
+                }
                 chunk.append(c);
                 cursol++;
             }
         } else {
             while (cursol < slength) {
                 c = s.charAt(cursol);
-                if (isDigit(c))
+                if (isDigit(c)) {
                     break;
+                }
                 chunk.append(c);
                 cursol++;
             }

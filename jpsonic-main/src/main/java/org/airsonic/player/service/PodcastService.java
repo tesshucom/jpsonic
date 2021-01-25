@@ -211,8 +211,9 @@ public class PodcastService {
      */
     public PodcastChannel getChannel(int channelId) {
         PodcastChannel channel = podcastDao.getChannel(channelId);
-        if (channel.getTitle() != null)
+        if (channel.getTitle() != null) {
             addMediaFileIdToChannels(Arrays.asList(channel));
+        }
         return channel;
     }
 
@@ -548,14 +549,16 @@ public class PodcastService {
     }
 
     private String formatDuration(String duration) {
-        if (duration == null)
+        if (duration == null) {
             return null;
+        }
         if (duration.matches("^\\d+$")) {
             long seconds = Long.parseLong(duration);
-            if (seconds >= DURATION_FORMAT_THRESHOLD)
+            if (seconds >= DURATION_FORMAT_THRESHOLD) {
                 return String.format("%02d:%02d:%02d", seconds / 3600, seconds / 60, seconds % 60);
-            else
+            } else {
                 return String.format("%02d:%02d", seconds / 60, seconds % 60);
+            }
         } else {
             return duration;
         }

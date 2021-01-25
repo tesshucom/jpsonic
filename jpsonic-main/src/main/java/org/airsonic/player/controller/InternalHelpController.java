@@ -360,11 +360,13 @@ public class InternalHelpController {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Got database table {}, schema {}, type {}", tableName, tableSchema, tableType);
                     }
-                    if (!TABLE_TYPE_TABLE.equalsIgnoreCase(tableType))
+                    if (!TABLE_TYPE_TABLE.equalsIgnoreCase(tableType)) {
                         continue; // Table type
+                    }
                     // MariaDB has "null" schemas, while other databases use "public".
-                    if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema))
+                    if (tableSchema != null && !"public".equalsIgnoreCase(tableSchema)) {
                         continue; // Table schema
+                    }
                     try {
                         Long tableCount = daoHelper.getJdbcTemplate()
                                 .queryForObject(String.format("SELECT count(*) FROM %s", tableName), Long.class);

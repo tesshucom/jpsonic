@@ -80,10 +80,12 @@ public final class ToHiraganaFilter extends TokenFilter {
         private int shiftForReplace(int start, int limit, int charsLen) {
             final int replacementLength = limit - start;
             final int newLength = unitLength - replacementLength + charsLen;
-            if (newLength > unitLength)
+            if (newLength > unitLength) {
                 buffer = token.resizeBuffer(newLength);
-            if (replacementLength != charsLen && limit < unitLength)
+            }
+            if (replacementLength != charsLen && limit < unitLength) {
                 System.arraycopy(buffer, limit, buffer, start + charsLen, unitLength - limit);
+            }
             return newLength;
         }
     }
@@ -108,8 +110,9 @@ public final class ToHiraganaFilter extends TokenFilter {
         this.transform = Transliterator.getInstance("Katakana-Hiragana");
         if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
             final UnicodeSet sourceSet = transform.getSourceSet();
-            if (sourceSet != null && !sourceSet.isEmpty())
+            if (sourceSet != null && !sourceSet.isEmpty()) {
                 transform.setFilter(sourceSet);
+            }
         }
     }
 

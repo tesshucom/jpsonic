@@ -129,8 +129,9 @@ public class MediaScannerService {
             int hour = settingsService.getIndexCreationHour();
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-            if (now.compareTo(nextRun) > 0)
+            if (now.compareTo(nextRun) > 0) {
                 nextRun = nextRun.plusDays(1);
+            }
 
             long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
 

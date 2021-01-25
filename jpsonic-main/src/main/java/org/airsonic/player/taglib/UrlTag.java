@@ -78,9 +78,9 @@ public class UrlTag extends BodyTagSupport {
         String result = formatUrl();
 
         // Store or print the output
-        if (var != null)
+        if (var != null) {
             pageContext.setAttribute(var, result, PageContext.PAGE_SCOPE);
-        else {
+        } else {
             try {
                 pageContext.getOut().print(result);
             } catch (IOException x) {

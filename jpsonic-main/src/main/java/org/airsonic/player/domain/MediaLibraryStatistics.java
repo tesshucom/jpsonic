@@ -113,10 +113,12 @@ public class MediaLibraryStatistics {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (o == null || getClass() != o.getClass())
+        }
+        if (o == null || getClass() != o.getClass()) {
             return false;
+        }
         MediaLibraryStatistics that = (MediaLibraryStatistics) o;
         return Objects.equals(artistCount, that.artistCount) && Objects.equals(albumCount, that.albumCount)
                 && Objects.equals(songCount, that.songCount)

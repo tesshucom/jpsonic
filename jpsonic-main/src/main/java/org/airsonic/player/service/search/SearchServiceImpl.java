@@ -86,8 +86,9 @@ public class SearchServiceImpl implements SearchService {
         int count = criteria.getCount();
         result.setOffset(offset);
 
-        if (count <= 0)
+        if (count <= 0) {
             return result;
+        }
 
         IndexSearcher searcher = indexManager.getSearcher(criteria.getIndexType());
         if (isEmpty(searcher)) {
