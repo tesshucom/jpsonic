@@ -74,7 +74,7 @@ public enum ViewName {
         public static final String PODCAST_CHANNEL = "podcastChannel.view";
         public static final String PODCAST_CHANNELS = "podcastChannels.view";
         public static final String PODCAST_SETTINGS = "podcastSettings.view";
-        public static final String RANDOM_PLAYQUEUE = "randomPlayQueue.view";// Used from annotation
+        public static final String RANDOM_PLAYQUEUE = "randomPlayQueue.view"; // Used from annotation
         public static final String SHARE_SETTINGS = "shareSettings.view";
         public static final String SONOS_SETTINGS = "sonosSettings.view";
         public static final String STATUS_CHART = "statusChart.view";

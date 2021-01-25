@@ -48,7 +48,7 @@ public class JAlbumDao extends AbstractDao {
 
     public void clearOrder() {
         update("update album set album_order = -1");
-        update("delete from album where name_reading is null or artist_reading is null ");// #311
+        update("delete from album where name_reading is null or artist_reading is null "); // #311
     }
 
     public void createOrUpdateAlbum(Album album) {

@@ -314,8 +314,8 @@ public class JapaneseReadingUtils {
 
         // Convert certain strings additionally
         String expanded = excluded.toString();
-        expanded = expanded.replaceAll("\u300c", "\uff62");// Japanese braces
-        expanded = expanded.replaceAll("\u300d", "\uff63");// Japanese braces
+        expanded = expanded.replaceAll("\u300c", "\uff62"); // Japanese braces
+        expanded = expanded.replaceAll("\u300d", "\uff63"); // Japanese braces
         return expanded;
     }
 
