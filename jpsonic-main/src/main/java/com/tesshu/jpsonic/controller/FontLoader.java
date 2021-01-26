@@ -16,7 +16,13 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.io.IOException;
+import java.io.InputStream;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -25,18 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.io.IOException;
-import java.io.InputStream;
-
 @Component
 public class FontLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
 
     private final Ehcache fontCache;
-    
+
     public FontLoader(Ehcache fontCache) {
         this.fontCache = fontCache;
     }

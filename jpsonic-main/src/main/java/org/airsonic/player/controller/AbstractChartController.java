@@ -17,17 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
-import org.springframework.ui.context.Theme;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.support.RequestContextUtils;
+import java.awt.Color;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import java.awt.*;
-import java.util.Locale;
+import org.springframework.ui.context.Theme;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
  * Abstract super class for controllers which generate charts.
@@ -35,18 +36,20 @@ import java.util.Locale;
  * @author Sindre Mehus
  */
 public abstract class AbstractChartController {
-    
+
     public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
             throws Exception;
 
-    private final static String KEY_BACKGROUND_COLOR = "backgroundColor";
-    private final static String KEY_STROKE_COLOR = "strokeColor";
-    private final static String KEY_TEXT_COLOR = "textColor";
+    private static final String KEY_BACKGROUND_COLOR = "backgroundColor";
+    private static final String KEY_STROKE_COLOR = "strokeColor";
+    private static final String KEY_TEXT_COLOR = "textColor";
 
     /**
      * Returns the chart background color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart background color.
      */
     protected Color getBackground(HttpServletRequest request) {
@@ -56,7 +59,9 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart foreground color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart foreground color.
      */
     protected Color getForeground(HttpServletRequest request) {
@@ -66,7 +71,9 @@ public abstract class AbstractChartController {
     /**
      * Returns the chart stroke color for the current theme.
      * 
-     * @param request The servlet request.
+     * @param request
+     *            The servlet request.
+     * 
      * @return The chart stroke color.
      */
     protected Color getStroke(HttpServletRequest request) {

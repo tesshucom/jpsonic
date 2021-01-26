@@ -17,7 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,11 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Parses meta data from video files using FFmpeg (http://ffmpeg.org/).
@@ -49,9 +50,8 @@ public class FFmpegParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private static final String[] FFPROBE_OPTIONS = {
-        "-v", "quiet", "-print_format", "json", "-show_format", "-show_streams"
-    };
+    private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
+            "-show_streams" };
 
     @Autowired
     private TranscodingService transcodingService;
@@ -62,7 +62,9 @@ public class FFmpegParser extends MetaDataParser {
      * Parses meta data for the given music file. No guessing or reformatting is done.
      *
      *
-     * @param file The music file to parse.
+     * @param file
+     *            The music file to parse.
+     * 
      * @return Meta data for the file.
      */
     @Override
@@ -141,7 +143,9 @@ public class FFmpegParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return Whether this parser is applicable to the given file.
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")

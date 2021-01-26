@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 /**
@@ -37,8 +38,8 @@ public enum PlayerTechnology {
     EXTERNAL,
 
     /**
-     * Same as above, but the playlist is managed by the player, rather than the Airsonic server.
-     * In this mode, skipping within songs is possible.
+     * Same as above, but the playlist is managed by the player, rather than the Airsonic server. In this mode, skipping
+     * within songs is possible.
      */
     EXTERNAL_WITH_PLAYLIST,
 

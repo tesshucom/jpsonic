@@ -19,12 +19,13 @@
 
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.domain.ArtistBio;
-
 import java.util.List;
+
+import org.airsonic.player.domain.ArtistBio;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class ArtistInfo {

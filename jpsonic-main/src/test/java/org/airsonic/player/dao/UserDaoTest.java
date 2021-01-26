@@ -1,4 +1,18 @@
+
 package org.airsonic.player.dao;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Date;
+import java.util.Locale;
 
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.TranscodeScheme;
@@ -9,13 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Date;
-import java.util.Locale;
-
-import static org.junit.Assert.*;
 
 /**
  * Unit test of {@link UserDao}.
@@ -252,12 +259,13 @@ public class UserDaoTest extends DaoTestBase {
         assertEquals("Error in getUserSettings().", true, userSettings.getMainVisibility().isGenreVisible());
         assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isComposerVisible());
         assertEquals("Error in getUserSettings().", true, userSettings.getPlaylistVisibility().isGenreVisible());
-        
+
         assertEquals("Error in getUserSettings().", true, userSettings.isLastFmEnabled());
         assertEquals("Error in getUserSettings().", "last_user", userSettings.getLastFmUsername());
         assertEquals("Error in getUserSettings().", "last_pass", userSettings.getLastFmPassword());
         assertEquals("Error in getUserSettings().", true, userSettings.isListenBrainzEnabled());
-        assertEquals("Error in getUserSettings().", "01234567-89ab-cdef-0123-456789abcdef", userSettings.getListenBrainzToken());
+        assertEquals("Error in getUserSettings().", "01234567-89ab-cdef-0123-456789abcdef",
+                userSettings.getListenBrainzToken());
         assertSame("Error in getUserSettings().", TranscodeScheme.MAX_192, userSettings.getTranscodeScheme());
         assertFalse("Error in getUserSettings().", userSettings.isShowNowPlayingEnabled());
         assertEquals("Error in getUserSettings().", 3, userSettings.getSelectedMusicFolderId());

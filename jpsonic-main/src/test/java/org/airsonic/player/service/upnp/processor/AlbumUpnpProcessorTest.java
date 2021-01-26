@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MediaFile;
@@ -25,13 +33,6 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
 
 public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
@@ -65,7 +66,7 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetItems() {
-        
+
         settingsService.setSortAlbumsByYear(false);
 
         List<Album> items = albumUpnpProcessor.getItems(0, 10);

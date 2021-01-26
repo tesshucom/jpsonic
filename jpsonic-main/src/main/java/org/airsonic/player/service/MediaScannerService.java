@@ -17,7 +17,24 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
 import net.sf.ehcache.Ehcache;
@@ -37,22 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.io.File;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Provides services for scanning the music library.
@@ -128,16 +129,19 @@ public class MediaScannerService {
             int hour = settingsService.getIndexCreationHour();
             LocalDateTime now = LocalDateTime.now();
             LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-            if (now.compareTo(nextRun) > 0)
+            if (now.compareTo(nextRun) > 0) {
                 nextRun = nextRun.plusDays(1);
+            }
 
             long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
 
             scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween), TimeUnit.MILLISECONDS);
+            scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
+                    TimeUnit.MILLISECONDS);
 
             if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}", daysBetween, nextRun);
+                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}",
+                        daysBetween, nextRun);
             }
 
             // In addition, create index immediately if it doesn't exist on disk.
@@ -169,8 +173,7 @@ public class MediaScannerService {
     }
 
     /**
-     * Scans the media library.
-     * The scanning is done asynchronously, i.e., this method returns immediately.
+     * Scans the media library. The scanning is done asynchronously, i.e., this method returns immediately.
      */
     @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
@@ -201,8 +204,7 @@ public class MediaScannerService {
         if (LOG.isInfoEnabled()) {
             LOG.info("Starting to scan media library.");
         }
-        MediaLibraryStatistics statistics = new MediaLibraryStatistics(
-                DateUtils.truncate(new Date(), Calendar.SECOND));
+        MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
         }
@@ -233,7 +235,7 @@ public class MediaScannerService {
             File podcastFolder = new File(settingsService.getPodcastFolder());
             if (podcastFolder.exists()) {
                 scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                         statistics, albumCount, genres, true);
+                        statistics, albumCount, genres, true);
             }
 
             if (LOG.isInfoEnabled()) {
@@ -272,12 +274,14 @@ public class MediaScannerService {
 
                 if (settingsService.isSortStrict()) {
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                        LOG.info(
+                                "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
                     }
                     utils.updateOrderOfAll();
                 } else {
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+                        LOG.info(
+                                "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
                     }
                 }
                 if (LOG.isInfoEnabled()) {
@@ -295,13 +299,13 @@ public class MediaScannerService {
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);
-            IS_SCANNING .set(false);
+            IS_SCANNING.set(false);
             utils.clearMemoryCache();
         }
     }
 
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
-                          Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
+            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
         scanCount++;
         if (scanCount % 250 == 0) {
             if (LOG.isInfoEnabled()) {
@@ -358,7 +362,8 @@ public class MediaScannerService {
         }
     }
 
-    private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
+    private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned,
+            Map<String, Integer> albumCount) {
         String artist;
         String reading;
         String sort;
@@ -434,7 +439,8 @@ public class MediaScannerService {
         }
     }
 
-    private void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned, Map<String, Integer> albumCount) {
+    private void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned,
+            Map<String, Integer> albumCount) {
         if (file.getAlbumArtist() == null || !file.isAudio()) {
             return;
         }

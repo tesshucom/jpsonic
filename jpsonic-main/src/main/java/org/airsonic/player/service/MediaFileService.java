@@ -17,7 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.tesshu.jpsonic.service.MediaFileServiceUtils;
 import net.sf.ehcache.Ehcache;
@@ -40,16 +51,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Provides services for instantiating and caching media files and cover art.
@@ -80,22 +81,30 @@ public class MediaFileService {
     private MediaFileServiceUtils utils;
 
     /**
-     * Returns a media file instance for the given file.  If possible, a cached value is returned.
+     * Returns a media file instance for the given file. If possible, a cached value is returned.
      *
-     * @param file A file on the local file system.
+     * @param file
+     *            A file on the local file system.
+     * 
      * @return A media file instance, or null if not found.
-     * @throws SecurityException If access is denied to the given file.
+     * 
+     * @throws SecurityException
+     *             If access is denied to the given file.
      */
     public MediaFile getMediaFile(File file) {
         return getMediaFile(file, settingsService.isFastCacheEnabled());
     }
 
     /**
-     * Returns a media file instance for the given file.  If possible, a cached value is returned.
+     * Returns a media file instance for the given file. If possible, a cached value is returned.
      *
-     * @param file A file on the local file system.
+     * @param file
+     *            A file on the local file system.
+     * 
      * @return A media file instance, or null if not found.
-     * @throws SecurityException If access is denied to the given file.
+     * 
+     * @throws SecurityException
+     *             If access is denied to the given file.
      */
     public MediaFile getMediaFile(File file, boolean useFastCache) {
 
@@ -133,9 +142,13 @@ public class MediaFileService {
     /**
      * Returns a media file instance for the given path name. If possible, a cached value is returned.
      *
-     * @param pathName A path name for a file on the local file system.
+     * @param pathName
+     *            A path name for a file on the local file system.
+     * 
      * @return A media file instance.
-     * @throws SecurityException If access is denied to the given file.
+     * 
+     * @throws SecurityException
+     *             If access is denied to the given file.
      */
     public MediaFile getMediaFile(String pathName) {
         if (!securityService.isNoTraversal(pathName)) {
@@ -166,8 +179,7 @@ public class MediaFileService {
     }
 
     private MediaFile checkLastModified(final MediaFile mediaFile, boolean useFastCache) {
-        if (useFastCache || mediaFile.getVersion() >= MediaFileDao.VERSION
-                && !settingsService.isIgnoreFileTimestamps()
+        if (useFastCache || mediaFile.getVersion() >= MediaFileDao.VERSION && !settingsService.isIgnoreFileTimestamps()
                 && mediaFile.getChanged().getTime() >= FileUtil.lastModified(mediaFile.getFile())) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Detected unmodified file (id {}, path {})", mediaFile.getId(), mediaFile.getPath());
@@ -185,24 +197,34 @@ public class MediaFileService {
     /**
      * Returns all media files that are children of a given media file.
      *
-     * @param includeFiles       Whether files should be included in the result.
-     * @param includeDirectories Whether directories should be included in the result.
-     * @param sort               Whether to sort files in the same directory.
+     * @param includeFiles
+     *            Whether files should be included in the result.
+     * @param includeDirectories
+     *            Whether directories should be included in the result.
+     * @param sort
+     *            Whether to sort files in the same directory.
+     * 
      * @return All children media files.
      */
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
+            boolean sort) {
         return getChildrenOf(parent, includeFiles, includeDirectories, sort, settingsService.isFastCacheEnabled());
     }
 
     /**
      * Returns all media files that are children of a given media file.
      *
-     * @param includeFiles       Whether files should be included in the result.
-     * @param includeDirectories Whether directories should be included in the result.
-     * @param sort               Whether to sort files in the same directory.
+     * @param includeFiles
+     *            Whether files should be included in the result.
+     * @param includeDirectories
+     *            Whether directories should be included in the result.
+     * @param sort
+     *            Whether to sort files in the same directory.
+     * 
      * @return All children media files.
      */
-    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories, boolean sort, boolean useFastCache) {
+    public List<MediaFile> getChildrenOf(MediaFile parent, boolean includeFiles, boolean includeDirectories,
+            boolean sort, boolean useFastCache) {
 
         if (!parent.isDirectory()) {
             return Collections.emptyList();
@@ -248,8 +270,11 @@ public class MediaFileService {
     /**
      * Returns all genres in the music collection.
      *
-     * @param sortByAlbum Whether to sort by album count, rather than song count.
+     * @param sortByAlbum
+     *            Whether to sort by album count, rather than song count.
+     * 
      * @return Sorted list of genres.
+     * 
      * @Deprecated Use {@link SearchService}{@link #getGenres(boolean)}.
      */
     @Deprecated
@@ -260,9 +285,13 @@ public class MediaFileService {
     /**
      * Returns the most frequently played albums.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return The most frequently played albums.
      */
     public List<MediaFile> getMostFrequentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -272,9 +301,13 @@ public class MediaFileService {
     /**
      * Returns the most recently played albums.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return The most recently played albums.
      */
     public List<MediaFile> getMostRecentlyPlayedAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -284,9 +317,13 @@ public class MediaFileService {
     /**
      * Returns the most recently added albums.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return The most recently added albums.
      */
     public List<MediaFile> getNewestAlbums(int offset, int count, List<MusicFolder> musicFolders) {
@@ -296,10 +333,15 @@ public class MediaFileService {
     /**
      * Returns the most recently starred albums.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param username     Returns albums starred by this user.
-     * @param musicFolders Only return albums from these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param username
+     *            Returns albums starred by this user.
+     * @param musicFolders
+     *            Only return albums from these folders.
+     * 
      * @return The most recently starred albums for this user.
      */
     public List<MediaFile> getStarredAlbums(int offset, int count, String username, List<MusicFolder> musicFolders) {
@@ -309,38 +351,57 @@ public class MediaFileService {
     /**
      * Returns albums in alphabetical order.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param byArtist     Whether to sort by artist name
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param byArtist
+     *            Whether to sort by artist name
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return Albums in alphabetical order.
      */
-    public List<MediaFile> getAlphabeticalAlbums(int offset, int count, boolean byArtist, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getAlphabeticalAlbums(int offset, int count, boolean byArtist,
+            List<MusicFolder> musicFolders) {
         return mediaFileDao.getAlphabeticalAlbums(offset, count, byArtist, musicFolders);
     }
 
     /**
      * Returns albums within a year range.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param fromYear     The first year in the range.
-     * @param toYear       The last year in the range.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param fromYear
+     *            The first year in the range.
+     * @param toYear
+     *            The last year in the range.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return Albums in the year range.
      */
-    public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getAlbumsByYear(int offset, int count, int fromYear, int toYear,
+            List<MusicFolder> musicFolders) {
         return mediaFileDao.getAlbumsByYear(offset, count, fromYear, toYear, musicFolders);
     }
 
     /**
      * Returns albums in a genre.
      *
-     * @param offset       Number of albums to skip.
-     * @param count        Maximum number of albums to return.
-     * @param genre        The genre name.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param genre
+     *            The genre name.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return Albums in the genre.
+     * 
      * @Deprecated Use {@link SearchService}{@link #getAlbumsByGenre(int, int, String, List)}
      */
     @Deprecated
@@ -351,8 +412,11 @@ public class MediaFileService {
     /**
      * Returns random songs for the given parent.
      *
-     * @param parent The parent.
-     * @param count  Max number of songs to return.
+     * @param parent
+     *            The parent.
+     * @param count
+     *            Max number of songs to return.
+     * 
      * @return Random songs.
      */
     public List<MediaFile> getRandomSongsForParent(MediaFile parent, int count) {
@@ -474,7 +538,9 @@ public class MediaFileService {
     /**
      * Returns whether the given file is excluded.
      *
-     * @param file The child file in question.
+     * @param file
+     *            The child file in question.
+     * 
      * @return Whether the child file is excluded.
      */
     private boolean isExcluded(File file) {
@@ -487,7 +553,8 @@ public class MediaFileService {
         String name = file.getName();
         if (settingsService.getExcludePattern() != null && settingsService.getExcludePattern().matcher(name).find()) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString() + ": " + file.toPath());
+                LOG.info("excluding file which matches exclude pattern " + settingsService.getExcludePatternString()
+                        + ": " + file.toPath());
             }
             return true;
         }
@@ -548,7 +615,8 @@ public class MediaFileService {
                 mediaFile.setComposerSortRaw(metaData.getComposerSort());
                 utils.analyze(mediaFile);
             }
-            String format = StringUtils.trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
+            String format = StringUtils
+                    .trimToNull(StringUtils.lowerCase(FilenameUtils.getExtension(mediaFile.getPath())));
             mediaFile.setFormat(format);
             mediaFile.setFileSize(FileUtil.length(file));
             mediaFile.setMediaType(getMediaType(mediaFile));
@@ -609,7 +677,8 @@ public class MediaFileService {
         if (path.contains("podcast") || genre.contains("podcast")) {
             return MediaFile.MediaType.PODCAST;
         }
-        if (path.contains("audiobook") || genre.contains("audiobook") || path.contains("audio book") || genre.contains("audio book")) {
+        if (path.contains("audiobook") || genre.contains("audiobook") || path.contains("audio book")
+                || genre.contains("audio book")) {
             return MediaFile.MediaType.AUDIOBOOK;
         }
         return MediaFile.MediaType.MUSIC;
@@ -696,10 +765,12 @@ public class MediaFileService {
     }
 
     /**
-     * Returns all media files that are children, grand-children etc of a given media file.
-     * Directories are not included in the result.
+     * Returns all media files that are children, grand-children etc of a given media file. Directories are not included
+     * in the result.
      *
-     * @param sort Whether to sort files in the same directory.
+     * @param sort
+     *            Whether to sort files in the same directory.
+     * 
      * @return All descendant music files.
      */
     public List<MediaFile> getDescendantsOf(MediaFile ancestor, boolean sort) {
@@ -729,8 +800,7 @@ public class MediaFileService {
     }
 
     /**
-     * Increments the play count and last played date for the given media file and its
-     * directory and album.
+     * Increments the play count and last played date for the given media file and its directory and album.
      */
     public void incrementPlayCount(MediaFile file) {
         Date now = new Date();

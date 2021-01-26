@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.theme;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
@@ -25,13 +33,6 @@ import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ThemeResolver;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Theme resolver implementation which returns the theme selected in the settings.
@@ -47,11 +48,13 @@ public class CustomThemeResolver implements ThemeResolver {
     private static final Object LOCK = new Object();
 
     /**
-    * Resolve the current theme name via the given request.
-    *
-    * @param request Request to be used for resolution
-    * @return The current theme name
-    */
+     * Resolve the current theme name via the given request.
+     *
+     * @param request
+     *            Request to be used for resolution
+     * 
+     * @return The current theme name
+     */
     @Override
     public String resolveThemeName(HttpServletRequest request) {
         String themeId = (String) request.getAttribute("airsonic.theme");
@@ -89,14 +92,16 @@ public class CustomThemeResolver implements ThemeResolver {
 
     /**
      * Returns whether the theme with the given ID exists.
-     * @param themeId The theme ID.
+     * 
+     * @param themeId
+     *            The theme ID.
+     * 
      * @return Whether the theme with the given ID exists.
      */
     private boolean themeExists(String themeId) {
         synchronized (LOCK) {
             if (themeIds == null) {
-                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream()
-                        .map(t -> t.getId())
+                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream().map(t -> t.getId())
                         .collect(Collectors.toSet());
             }
         }
@@ -106,11 +111,15 @@ public class CustomThemeResolver implements ThemeResolver {
     /**
      * Set the current theme name to the given one. This method is not supported.
      *
-     * @param request   Request to be used for theme name modification
-     * @param response  Response to be used for theme name modification
-     * @param themeName The new theme name
-     * @throws UnsupportedOperationException If the ThemeResolver implementation
-     *                                       does not support dynamic changing of the theme
+     * @param request
+     *            Request to be used for theme name modification
+     * @param response
+     *            Response to be used for theme name modification
+     * @param themeName
+     *            The new theme name
+     * 
+     * @throws UnsupportedOperationException
+     *             If the ThemeResolver implementation does not support dynamic changing of the theme
      */
     @Override
     public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {

@@ -16,7 +16,24 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static java.util.Collections.unmodifiableList;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.airsonic.player.controller.MainController;
 import org.airsonic.player.dao.PlaylistDao;
@@ -39,66 +56,30 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static java.util.Collections.unmodifiableList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
- * Integration test where JpsonicComparators are used. This is where legacy
- * sorting behavior changes for some data.
+ * Integration test where JpsonicComparators are used. This is where legacy sorting behavior changes for some data.
  */
 @SpringBootTest
 public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;
 
-    private final static List<String> indexList = // @formatter:off
-            unmodifiableList(Arrays.asList(
-                    "abcde",
-                    "abcいうえおあ", // Turn over by reading
-                    "abc亜伊鵜絵尾", // Turn over by reading
-                    "ＢＣＤＥＡ",
-                    "ĆḊÉÁḂ",
-                    "DEABC",
-                    "the eabcd",
-                    "episode 1",
-                    "episode 2",
-                    "episode 19",
-                    "亜伊鵜絵尾",
-                    "αβγ",
-                    "いうえおあ",
-                    "ｴｵｱｲｳ",
-                    "オアイウエ",
-                    "春夏秋冬",
-                    "貼られる",
-                    "パラレル",
-                    "馬力",
-                    "張り切る",
-                    "はるなつあきふゆ",
-                    "10", // # Num
-                    "20", // # Num
-                    "50", // # Num
-                    "60", // # Num
-                    "70", // # Num
-                    "98", // # Num
-                    "99", // # Num
-                    "ゥェォァィ", // # SmallKana　(Not used at the beginning of a word/Generally prohibited characters in index)
-                    "ｪｫｧｨｩ", // # SmallKana
-                    "ぉぁぃぅぇ", // # SmallKana
-                    "♂くんつ") // # Symbol
-                    ); // @formatter:on
+    private static final List<String> indexList = unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn over by
+            // reading
+            "abc亜伊鵜絵尾", // Turn over by reading
+            "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ",
+            "ｴｵｱｲｳ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "10", // # Num
+            "20", // # Num
+            "50", // # Num
+            "60", // # Num
+            "70", // # Num
+            "98", // # Num
+            "99", // # Num
+            "ゥェォァィ", // # SmallKana (Not used at the beginning of a word/Generally prohibited characters in index)
+            "ｪｫｧｨｩ", // # SmallKana
+            "ぉぁぃぅぇ", // # SmallKana
+            "♂くんつ") // # Symbol
+    );
 
     public static boolean validateIndexList(List<String> l) {
         return indexList.equals(l);
@@ -204,8 +185,8 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
         List<String> names = all.stream().map(p -> p.getName()).collect(Collectors.toList());
         JpsonicComparatorsTestUtils.validateNaturalList(names, 8, 9);
         /*
-         * Since the reading of playlist name cannot be registered, it is sorted
-         * according to the reading analysis of the server.
+         * Since the reading of playlist name cannot be registered, it is sorted according to the reading analysis of
+         * the server.
          */
         assertEquals("abc亜伊鵜絵尾", names.get(8));
         assertEquals("abcいうえおあ", names.get(9));
@@ -231,25 +212,25 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
      * @throws IOException
      */
     @Test
-    public void testGetIndexedArtists() throws Exception { // @formatter:off
+    public void testGetIndexedArtists() throws Exception {
         List<MusicFolder> musicFoldersToUse = Arrays.asList(musicFolders.get(0));
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m =
-                musicIndexService.getIndexedArtists(musicFoldersToUse, true);
-        List<String> artists = m.values().stream()
-                .flatMap(files -> files.stream())
-                .flatMap(files -> files.getMediaFiles().stream())
-                .map(file -> file.getName())
+        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
+                .getIndexedArtists(musicFoldersToUse, true);
+        List<String> artists = m.values().stream().flatMap(files -> files.stream())
+                .flatMap(files -> files.getMediaFiles().stream()).map(file -> file.getName())
                 .collect(Collectors.toList());
         assertTrue(validateIndexList(artists));
-    } // @formatter:on
+    }
 
     /**
      * {@link PlayQueue#sort(java.util.Comparator)}
-     * @throws IOException 
+     * 
+     * @throws IOException
      */
     @Test
     public void testPlayQueueSort() throws IOException {
-        SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, musicFolders, IndexType.SONG);
+        SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, musicFolders,
+                IndexType.SONG);
         SearchResult result = searchService.search(criteria);
         PlayQueue playQueue = new PlayQueue();
         playQueue.addFiles(true, result.getMediaFiles());

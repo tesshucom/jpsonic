@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
 import com.tesshu.jpsonic.controller.Attributes;
@@ -63,7 +64,8 @@ public class PodcastSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute PodcastSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute PodcastSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
         settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
         settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
         settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));

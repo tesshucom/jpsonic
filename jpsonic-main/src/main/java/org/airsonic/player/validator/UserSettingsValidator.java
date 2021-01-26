@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.validator;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.command.UserSettingsCommand;
 import org.airsonic.player.controller.UserSettingsController;
@@ -26,8 +29,6 @@ import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Validator for {@link UserSettingsController}.
@@ -46,7 +47,8 @@ public class UserSettingsValidator implements Validator {
     private static final String REJECTED_FIELD_DELETEUSER = "deleteUser";
     private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
 
-    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService, HttpServletRequest request) {
+    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService,
+            HttpServletRequest request) {
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.request = request;

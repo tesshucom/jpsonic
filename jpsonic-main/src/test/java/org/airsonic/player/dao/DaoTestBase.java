@@ -1,3 +1,4 @@
+
 package org.airsonic.player.dao;
 
 import org.airsonic.player.util.HomeRule;
@@ -16,6 +17,7 @@ public class DaoTestBase {
     @ClassRule
     public static final SpringClassRule CLASSRULE = new SpringClassRule() {
         HomeRule airsonicRule = new HomeRule();
+
         @Override
         public Statement apply(Statement base, Description description) {
             Statement newBase = airsonicRule.apply(base, description);

@@ -17,7 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.Locale;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
@@ -39,11 +45,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Locale;
-import java.util.Optional;
 
 /**
  * Controller for the page used to administrate general settings.
@@ -67,8 +68,7 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(
-            HttpServletRequest request, Model model,
+    protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
@@ -142,7 +142,8 @@ public class GeneralSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
@@ -154,8 +155,7 @@ public class GeneralSettingsController {
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale)
+                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
                 || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
         if (!isReload) {
@@ -175,7 +175,8 @@ public class GeneralSettingsController {
         settingsService.setSortStrict(command.isSortStrict());
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
-        settingsService.setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
+        settingsService
+                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
         settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());

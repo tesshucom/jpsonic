@@ -17,11 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 /**
- * Enumeration of statuses for {@link PodcastChannel} and
- * {@link PodcastEpisode}.
+ * Enumeration of statuses for {@link PodcastChannel} and {@link PodcastEpisode}.
  *
  * @author Sindre Mehus
  */

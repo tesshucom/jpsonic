@@ -16,7 +16,18 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.Genre;
@@ -32,18 +43,8 @@ import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 @Service
-public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
+public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -51,7 +52,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
 
     private final JMediaFileService mediaFileService;
 
-    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, SearchService s) {
+    public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            SearchService s) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -66,7 +68,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         List<MediaFile> selectedItems = getItems(firstResult, maxResults);
         for (int i = 0; i < selectedItems.size(); i++) {
@@ -84,7 +87,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
             container.setArtists(getDispatcher().getAlbumProcessor().getAlbumArtists(item.getArtist()));
         }
         container.setDescription(item.getComment());
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
+                + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
         if (!mediaFileService.isRoot(item)) {
@@ -102,7 +106,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
         GenreContainer container = new GenreContainer();
         container.setParentID(getRootId());
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
-        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment()) : item.getName());
+        container.setTitle(util.isDlnaGenreCountVisible() ? item.getName().concat(SPACE).concat(item.getComment())
+                : item.getName());
         container.setChildCount(isEmpty(item.getComment()) ? 0 : Integer.parseInt(item.getComment()));
         return container;
     }
@@ -146,7 +151,8 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor <MediaFile, 
     @Override
     public List<MediaFile> getChildren(MediaFile item, long offset, long maxResults) {
         if (-1 == item.getId()) {
-            return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults, util.getAllMusicFolders());
+            return searchService.getAlbumsByGenres(item.getGenre(), (int) offset, (int) maxResults,
+                    util.getAllMusicFolders());
         }
         return mediaFileService.getSongsForAlbum(offset, maxResults, item);
     }

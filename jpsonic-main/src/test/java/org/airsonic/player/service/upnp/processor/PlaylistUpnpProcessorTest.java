@@ -16,7 +16,19 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
@@ -29,17 +41,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
 
 /*
  * Test to correct sort inconsistencies.
@@ -56,10 +57,10 @@ public class PlaylistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Autowired
     private PlaylistUpnpProcessor playlistUpnpProcessor;
-    
+
     @Autowired
     private AlbumUpnpProcessor albumUpnpProcessor;
-    
+
     @Autowired
     private MediaFileDao mediaFileDao;
 
@@ -73,12 +74,11 @@ public class PlaylistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Before
     public void setup() throws Exception {
-        
+
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
         populateDatabaseOnlyOnce();
-        
 
         Function<String, Playlist> toPlaylist = (title) -> {
             Date now = new Date();
@@ -100,7 +100,9 @@ public class PlaylistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<Album> albums = albumUpnpProcessor.getItems(0, 100);
         assertEquals(61, albums.size());
-        List<MediaFile> files = albums.stream().map(a -> mediaFileDao.getSongsForAlbum(a.getArtist(), a.getName()).get(0)).collect(Collectors.toList());
+        List<MediaFile> files = albums.stream()
+                .map(a -> mediaFileDao.getSongsForAlbum(a.getArtist(), a.getName()).get(0))
+                .collect(Collectors.toList());
         assertEquals(61, files.size());
         playlistDao.setFilesInPlaylist(playlistUpnpProcessor.getItems(0, 1).get(0).getId(), files);
 

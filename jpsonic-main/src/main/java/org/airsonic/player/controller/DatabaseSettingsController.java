@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
@@ -39,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/databaseSettings")
@@ -77,24 +78,25 @@ public class DatabaseSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
+    protected ModelAndView onSubmit(
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
-                case EMBED:
-                    settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
-                    settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
-                    settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
-                    settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
-                    break;
-                case JNDI:
-                    settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
-                    break;
-                case LEGACY:
-                default:
-                    break;
+            case EMBED:
+                settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
+                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
+                settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
+                settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
+                break;
+            case JNDI:
+                settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
+                break;
+            case LEGACY:
+            default:
+                break;
             }
             if (command.getConfigType() != DataSourceConfigType.LEGACY) {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());

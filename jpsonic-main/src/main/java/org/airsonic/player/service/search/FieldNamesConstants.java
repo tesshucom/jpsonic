@@ -21,8 +21,8 @@
 package org.airsonic.player.service.search;
 
 /**
- * Enum that symbolizes the field name used for lucene index.
- * This class is a division of what was once part of SearchService and added functionality.
+ * Enum that symbolizes the field name used for lucene index. This class is a division of what was once part of
+ * SearchService and added functionality.
  */
 public final class FieldNamesConstants {
 
@@ -93,33 +93,28 @@ public final class FieldNamesConstants {
     public static final String TITLE = "tit";
 
     /**
-     * Jpsonic specific reading field.
-     * Parse rules are expected to correspond to breaks according to id3
-     * and also to customary multi artists.
+     * Jpsonic specific reading field. Parse rules are expected to correspond to breaks according to id3 and also to
+     * customary multi artists.
      */
     public static final String ARTIST_READING = "artR";
 
     /**
-     * Jpsonic specific assistance field.
-     * Deal with rare cases consisting only of stop-word.
+     * Jpsonic specific assistance field. Deal with rare cases consisting only of stop-word.
      */
     public static final String ARTIST_EX = "artEX";
 
     /**
-     * Jpsonic specific assistance field.
-     * Deal with rare cases consisting only of stop-word or full text Hiragana.
+     * Jpsonic specific assistance field. Deal with rare cases consisting only of stop-word or full text Hiragana.
      */
     public static final String ALBUM_EX = "albEX";
 
     /**
-     * Jpsonic specific assistance field.
-     * Deal with rare cases consisting only of stop-word or full text Hiragana.
+     * Jpsonic specific assistance field. Deal with rare cases consisting only of stop-word or full text Hiragana.
      */
     public static final String TITLE_EX = "titEX";
 
     /**
-     * Jpsonic specific assistance field.
-     * Key field that holds the normalized string.
+     * Jpsonic specific assistance field. Key field that holds the normalized string.
      */
     public static final String GENRE_KEY = "gk";
 

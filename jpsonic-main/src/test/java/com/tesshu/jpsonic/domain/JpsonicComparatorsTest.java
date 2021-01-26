@@ -16,7 +16,29 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlbumOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlphanumArtistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
+import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.lang.annotation.Documented;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -41,31 +63,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.lang.annotation.Documented;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlbumOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlphanumArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 /**
- * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy
- * test specifications. This is because the range not defined in the legacy test
- * specification has been expanded.
+ * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the
+ * range not defined in the legacy test specification has been expanded.
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -84,57 +84,103 @@ public class JpsonicComparatorsTest {
 
     @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
-    private @interface ComparatorsDecisions { // @formatter:off
+    private @interface ComparatorsDecisions {
         @interface Conditions {
-            @interface isProhibitSortVarious {} // GlobalOption
-            @interface isSortAlbumsByYear {} // GlobalOption
-            @interface isSortAlphanum {} // GlobalOption
+            @interface isProhibitSortVarious {
+            } // GlobalOption
+
+            @interface isSortAlbumsByYear {
+            } // GlobalOption
+
+            @interface isSortAlphanum {
+            } // GlobalOption
+
             @interface Target {
-                @interface Artist {}
-                @interface Album {}
+                @interface Artist {
+                }
+
+                @interface Album {
+                }
+
                 @interface MediaFile {
                     @interface mediaType {
-                        @interface ARTIST {}
-                        @interface ALBUM {}
+                        @interface ARTIST {
+                        }
+
+                        @interface ALBUM {
+                        }
+
                         @interface Ignore {
                             @interface FieldOrderBy {
-                                @interface Artist {}
-                                @interface Album {}
-                                @interface Track {}
+                                @interface Artist {
+                                }
+
+                                @interface Album {
+                                }
+
+                                @interface Track {
+                                }
                             }
                         }
                     }
+
                     @interface parent {
-                        @interface isEmpty {}
-                        @interface isVariablePrefix {}
+                        @interface isEmpty {
+                        }
+
+                        @interface isVariablePrefix {
+                        }
                     }
                 }
-                @interface Playlist {}
-                @interface Genre {
-                    @interface isSortByAlbum {}
+
+                @interface Playlist {
                 }
-                @interface SortableArtist {}
+
+                @interface Genre {
+                    @interface isSortByAlbum {
+                    }
+                }
+
+                @interface SortableArtist {
+                }
             }
         }
+
         @interface Actions {
-            @interface artistOrderByAlpha {}
-            @interface albumOrderByAlpha {}
-            @interface mediaFileOrder {}
-            @interface mediaFileOrderBy {}
-            @interface mediaFileOrderByAlpha {}
-            @interface playlistOrder {}
-            @interface genreOrder {}
-            @interface genreOrderByAlpha {}
-            @interface sortableArtistOrder{}
+            @interface artistOrderByAlpha {
+            }
+
+            @interface albumOrderByAlpha {
+            }
+
+            @interface mediaFileOrder {
+            }
+
+            @interface mediaFileOrderBy {
+            }
+
+            @interface mediaFileOrderByAlpha {
+            }
+
+            @interface playlistOrder {
+            }
+
+            @interface genreOrder {
+            }
+
+            @interface genreOrderByAlpha {
+            }
+
+            @interface sortableArtistOrder {
+            }
         }
-    } // @formatter:on
+    }
 
     /*
      * Quoted and modified from SortableArtistTest
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
     private class TestSortableArtist extends MusicIndex.SortableArtist {
 
@@ -908,9 +954,8 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Full pattern test for serial numbers.
-     * Whether serial number processing has been performed can be determined
-     * by some elements included in jPSonicNaturalList.
+     * Full pattern test for serial numbers. Whether serial number processing has been performed can be determined by
+     * some elements included in jPSonicNaturalList.
      */
     @Test
     public void testAlphanum() {
@@ -923,38 +968,34 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTest
-     * Jpsonic does not change the behavior of legacy test specifications.
+     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
     @Test
     public void testCollation() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
-        artists.add(new TestSortableArtist("p\u00e9ch\u00e9"));
+        artists.add(new TestSortableArtist("p\u00e9ch\u00e9")); // péché
         artists.add(new TestSortableArtist("peach"));
-        artists.add(new TestSortableArtist("p\u00eache"));
+        artists.add(new TestSortableArtist("p\u00eache")); // pêche
 
         Collections.sort(artists);
-        assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString());
+        assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString()); // péché, pêche
     }
-    
+
     /*
-     * Quoted from MediaFileComparatorTest
-     * Jpsonic does not change the behavior of legacy test specifications.
+     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
     @Test
     public void testCompareAlbums() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
-        MediaFileComparator comparator = comparators.mediaFileOrder(null);
+        final MediaFileComparator comparator = comparators.mediaFileOrder(null);
 
         MediaFile albumA2012 = new MediaFile();
         albumA2012.setMediaType(MediaFile.MediaType.ALBUM);
@@ -991,18 +1032,15 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from MediaFileComparatorTest
-     * Jpsonic does not change the behavior of legacy test specifications.
+     * Quoted from MediaFileComparatorTest Jpsonic does not change the behavior of legacy test specifications.
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
     @Test
     public void testCompareDiscNumbers() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
-        MediaFileComparator comparator = comparators.mediaFileOrder(null);
 
         MediaFile discXtrack1 = new MediaFile();
         discXtrack1.setMediaType(MediaFile.MediaType.MUSIC);
@@ -1038,6 +1076,7 @@ public class JpsonicComparatorsTest {
         disc6track2.setDiscNumber(6);
         disc6track2.setTrackNumber(2);
 
+        MediaFileComparator comparator = comparators.mediaFileOrder(null);
         assertEquals(0, comparator.compare(discXtrack1, discXtrack1));
         assertEquals(0, comparator.compare(disc5track1, disc5track1));
 
@@ -1061,12 +1100,10 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTest
-     * Jpsonic does not change the behavior of legacy test specifications.
+     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
     @Test
     public void testSorting() {
@@ -1086,21 +1123,19 @@ public class JpsonicComparatorsTest {
     }
 
     /*
-     * Quoted from SortableArtistTest
-     * Jpsonic does not change the behavior of legacy test specifications.
+     * Quoted from SortableArtistTest Jpsonic does not change the behavior of legacy test specifications.
      *
-     * Copyright 2020 (C) tesshu.com
-     * Based upon Airsonic, Copyright 2016 (C) Airsonic Authors 
-     * Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+     * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
+     * Copyright 2009 (C) Sindre Mehus
      */
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     @Test
     public void testSortingWithAccents() {
-        List<TestSortableArtist> artists = new ArrayList<>();
 
         TestSortableArtist a1 = new TestSortableArtist("Sea");
         TestSortableArtist a2 = new TestSortableArtist("SEB");
         TestSortableArtist a3 = new TestSortableArtist("Seb");
-        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b");
+        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b"); // Séb
         TestSortableArtist a5 = new TestSortableArtist("Sed");
         TestSortableArtist a6 = new TestSortableArtist("See");
 
@@ -1124,6 +1159,7 @@ public class JpsonicComparatorsTest {
         assertTrue(a4.compareTo(a5) < 0);
         assertTrue(a4.compareTo(a6) < 0);
 
+        List<TestSortableArtist> artists = new ArrayList<>();
         artists.add(a1);
         artists.add(a2);
         artists.add(a3);
@@ -1133,7 +1169,7 @@ public class JpsonicComparatorsTest {
 
         Collections.shuffle(artists);
         Collections.sort(artists);
-        assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString());
+        assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString()); // Séb
     }
 
     private class ThreadRule implements MethodRule {

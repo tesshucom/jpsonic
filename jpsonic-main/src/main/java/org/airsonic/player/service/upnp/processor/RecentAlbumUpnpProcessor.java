@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.MediaFile;
@@ -28,10 +33,6 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.List;
-
 @Service
 public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
@@ -39,9 +40,10 @@ public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final JMediaFileService mediaFileService;
 
-    private final static int RECENT_COUNT = 50;
+    private static final int RECENT_COUNT = 50;
 
-    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
+    public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            PlayerService p) {
         super(d, u, m, p);
         this.util = u;
         this.mediaFileService = m;

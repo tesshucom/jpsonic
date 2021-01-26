@@ -17,7 +17,10 @@
   Copyright 2016 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -56,8 +59,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 @Service
 @DependsOn({ "rootUpnpProcessor", "mediaFileUpnpProcessor" })
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
@@ -87,26 +88,18 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final UPnPSearchCriteriaDirector director;
     private final SearchService searchService;
 
-    public DispatchingContentDirectory(// @formatter:off
-            RootUpnpProcessor rp,
-            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp,
-            @Lazy PlaylistUpnpProcessor playp,
+    public DispatchingContentDirectory(RootUpnpProcessor rp,
+            @Qualifier("mediaFileUpnpProcessor") MediaFileUpnpProcessor mfp, @Lazy PlaylistUpnpProcessor playp,
             @Lazy @Qualifier("albumUpnpProcessor") AlbumUpnpProcessor ap,
             @Lazy @Qualifier("recentAlbumUpnpProcessor") RecentAlbumUpnpProcessor rap,
             @Lazy @Qualifier("recentAlbumId3UpnpProcessor") RecentAlbumId3UpnpProcessor raip,
-            @Lazy ArtistUpnpProcessor arP,
-            @Lazy ArtistByFolderUpnpProcessor abfP,
-            @Lazy AlbumByGenreUpnpProcessor abgp,
-            @Lazy SongByGenreUpnpProcessor sbgp,
-            @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip,
-            @Lazy IndexId3UpnpProcessor iip,
-            @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp,
+            @Lazy ArtistUpnpProcessor arP, @Lazy ArtistByFolderUpnpProcessor abfP, @Lazy AlbumByGenreUpnpProcessor abgp,
+            @Lazy SongByGenreUpnpProcessor sbgp, @Lazy @Qualifier("indexUpnpProcessor") IndexUpnpProcessor ip,
+            @Lazy IndexId3UpnpProcessor iip, @Lazy @Qualifier("podcastUpnpProcessor") PodcastUpnpProcessor podp,
             @Lazy @Qualifier("randomAlbumUpnpProcessor") RandomAlbumUpnpProcessor randomap,
             @Lazy @Qualifier("randomSongUpnpProcessor") RandomSongUpnpProcessor randomsp,
-            @Lazy RandomSongByArtistUpnpProcessor randomsbap,
-            @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
-            UPnPSearchCriteriaDirector cd,
-            SearchService ss) { // @formatter:on
+            @Lazy RandomSongByArtistUpnpProcessor randomsbap, @Lazy RandomSongByFolderArtistUpnpProcessor randomsbfap,
+            UPnPSearchCriteriaDirector cd, SearchService ss) {
         super();
         rootProcessor = rp;
         mediaFileProcessor = mfp;
@@ -130,10 +123,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public BrowseResult browse(String objectId, BrowseFlag browseFlag,
-                               String filter, long firstResult,
-                               final long maxResults, SortCriterion[] orderBy)
-        throws ContentDirectoryException {
+    public BrowseResult browse(String objectId, BrowseFlag browseFlag, String filter, long firstResult,
+            final long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
 
         if (isEmpty(objectId)) {
             throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS, "objectId is null");
@@ -158,9 +149,11 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             }
 
             if (isEmpty(itemId)) {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata() : processor.browseRoot(filter, firstResult, max, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseRootMetadata()
+                        : processor.browseRoot(filter, firstResult, max, orderBy);
             } else {
-                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId) : processor.browseObject(itemId, filter, firstResult, max, orderBy);
+                returnValue = browseFlag == BrowseFlag.METADATA ? processor.browseObjectMetadata(itemId)
+                        : processor.browseObject(itemId, filter, firstResult, max, orderBy);
             }
             return returnValue;
         } catch (Throwable t) {
@@ -175,10 +168,8 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     }
 
     @Override
-    public BrowseResult search(String containerId,
-                               String upnpSearchQuery, String filter,
-                               long firstResult, long maxResults,
-                               SortCriterion[] orderBy) throws ContentDirectoryException {
+    public BrowseResult search(String containerId, String upnpSearchQuery, String filter, long firstResult,
+            long maxResults, SortCriterion[] orderBy) throws ContentDirectoryException {
 
         int offset = (int) firstResult;
         int count = (int) maxResults;

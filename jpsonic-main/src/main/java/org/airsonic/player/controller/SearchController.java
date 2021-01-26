@@ -17,7 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.command.SearchCommand;
@@ -40,11 +46,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.List;
 
 /**
  * Controller for the search page.
@@ -97,9 +98,11 @@ public class SearchController {
 
             int offset = 0;
             int count = MATCH_COUNT;
-            boolean includeComposer = settingsService.isSearchComposer() || userSettings.getMainVisibility().isComposerVisible();
+            boolean includeComposer = settingsService.isSearchComposer()
+                    || userSettings.getMainVisibility().isComposerVisible();
 
-            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders, IndexType.ARTIST);
+            SearchCriteria criteria = director.construct(query, offset, count, includeComposer, musicFolders,
+                    IndexType.ARTIST);
             SearchResult artists = searchService.search(criteria);
             command.setArtists(artists.getMediaFiles());
 

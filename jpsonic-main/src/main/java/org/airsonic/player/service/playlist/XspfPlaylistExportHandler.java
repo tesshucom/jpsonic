@@ -1,4 +1,8 @@
+
 package org.airsonic.player.service.playlist;
+
+import java.util.Date;
+import java.util.List;
 
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistProvider;
@@ -11,9 +15,6 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.Date;
-import java.util.List;
 
 @Component
 public class XspfPlaylistExportHandler implements PlaylistExportHandler {

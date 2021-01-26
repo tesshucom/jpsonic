@@ -17,7 +17,27 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.zip.CRC32;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
@@ -47,29 +67,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.LastModified;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.zip.CRC32;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 /**
- * A controller used for downloading files to a remote client. If the requested path refers to a file, the
- * given file is downloaded.  If the requested path refers to a directory, the entire directory (including
- * sub-directories) are downloaded as an uncompressed zip-file.
+ * A controller used for downloading files to a remote client. If the requested path refers to a file, the given file is
+ * downloaded. If the requested path refers to a directory, the entire directory (including sub-directories) are
+ * downloaded as an uncompressed zip-file.
  *
  * @author Sindre Mehus
  */
@@ -120,7 +121,8 @@ public class DownloadController implements LastModified {
 
             Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
             Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
-            int[] indexes = request.getParameter(Attributes.Request.I.value()) == null ? null : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
+            int[] indexes = request.getParameter(Attributes.Request.I.value()) == null ? null
+                    : ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());
 
             if (mediaFile != null) {
                 response.setIntHeader("ETag", mediaFile.getId());
@@ -185,13 +187,20 @@ public class DownloadController implements LastModified {
     /**
      * Downloads a single file.
      *
-     * @param response The HTTP response.
-     * @param status   The download status.
-     * @param file     The file to download.
-     * @param range    The byte range, may be <code>null</code>.
-     * @throws IOException If an I/O error occurs.
+     * @param response
+     *            The HTTP response.
+     * @param status
+     *            The download status.
+     * @param file
+     *            The file to download.
+     * @param range
+     *            The byte range, may be <code>null</code>.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
-    private void downloadFile(HttpServletResponse response, TransferStatus status, File file, HttpRange range) throws IOException {
+    private void downloadFile(HttpServletResponse response, TransferStatus status, File file, HttpRange range)
+            throws IOException {
         writeLog("Starting to download", FileUtil.getShortPath(file), status.getPlayer());
         status.setFile(file);
 
@@ -207,8 +216,11 @@ public class DownloadController implements LastModified {
 
     private String encodeAsRFC5987(String string) {
         byte[] stringAsByteArray = string.getBytes(StandardCharsets.UTF_8);
-        char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-        byte[] attrChar = {'!', '#', '$', '&', '+', '-', '.', '^', '_', '`', '|', '~', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+        char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
+        byte[] attrChar = { '!', '#', '$', '&', '+', '-', '.', '^', '_', '`', '|', '~', '0', '1', '2', '3', '4', '5',
+                '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+                'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
         StringBuilder sb = new StringBuilder();
         for (byte b : stringAsByteArray) {
             if (Arrays.binarySearch(attrChar, b) >= 0) {
@@ -223,18 +235,25 @@ public class DownloadController implements LastModified {
     }
 
     /**
-     * Downloads the given files.  The files are packed together in an
-     * uncompressed zip-file.
+     * Downloads the given files. The files are packed together in an uncompressed zip-file.
      *
-     * @param response     The HTTP response.
-     * @param status       The download status.
-     * @param files        The files to download.
-     * @param indexes      Only download songs at these indexes. May be <code>null</code>.
-     * @param coverArtFile The cover art file to include, may be {@code null}.
-     * @param range        The byte range, may be <code>null</code>.
-     * @param zipFileName  The name of the resulting zip file.   @throws IOException If an I/O error occurs.
+     * @param response
+     *            The HTTP response.
+     * @param status
+     *            The download status.
+     * @param files
+     *            The files to download.
+     * @param indexes
+     *            Only download songs at these indexes. May be <code>null</code>.
+     * @param coverArtFile
+     *            The cover art file to include, may be {@code null}.
+     * @param range
+     *            The byte range, may be <code>null</code>.
+     * @param zipFileName
+     *            The name of the resulting zip file. @throws IOException If an I/O error occurs.
      */
-    private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files, int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
+    private void downloadFiles(HttpServletResponse response, TransferStatus status, List<MediaFile> files,
+            int[] indexes, File coverArtFile, HttpRange range, String zipFileName) throws IOException {
         if (indexes != null && indexes.length == 1) {
             downloadFile(response, status, files.get(indexes[0]).getFile(), range);
             return;
@@ -284,13 +303,20 @@ public class DownloadController implements LastModified {
     /**
      * Utility method for writing the content of a given file to a given output stream.
      *
-     * @param file   The file to copy.
-     * @param out    The output stream to write to.
-     * @param status The download status.
-     * @param range  The byte range, may be <code>null</code>.
-     * @throws IOException If an I/O error occurs.
+     * @param file
+     *            The file to copy.
+     * @param out
+     *            The output stream to write to.
+     * @param status
+     *            The download status.
+     * @param range
+     *            The byte range, may be <code>null</code>.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
-    private void copyFileToStream(File file, OutputStream out, TransferStatus status, HttpRange range) throws IOException {
+    private void copyFileToStream(File file, OutputStream out, TransferStatus status, HttpRange range)
+            throws IOException {
         writeLog("Downloading", FileUtil.getShortPath(file), status.getPlayer());
 
         final int bufferSize = 16 * 1024; // 16 Kbit
@@ -319,8 +345,8 @@ public class DownloadController implements LastModified {
 
                 // Calculate bitrate limit every 5 seconds.
                 if (after - lastLimitCheck > BITRATE_LIMIT_UPDATE_INTERVAL) {
-                    bitrateLimit = 1024L * settingsService.getDownloadBitrateLimit() /
-                            Math.max(1, statusService.getAllDownloadStatuses().size());
+                    bitrateLimit = 1024L * settingsService.getDownloadBitrateLimit()
+                            / Math.max(1, statusService.getAllDownloadStatuses().size());
                     lastLimitCheck = after;
                 }
 
@@ -342,17 +368,25 @@ public class DownloadController implements LastModified {
     }
 
     /**
-     * Writes a file or a directory structure to a zip output stream. File entries in the zip file are relative
-     * to the given root.
+     * Writes a file or a directory structure to a zip output stream. File entries in the zip file are relative to the
+     * given root.
      *
-     * @param out    The zip output stream.
-     * @param root   The root of the directory structure.  Used to create path information in the zip file.
-     * @param file   The file or directory to zip.
-     * @param status The download status.
-     * @param range  The byte range, may be <code>null</code>.
-     * @throws IOException If an I/O error occurs.
+     * @param out
+     *            The zip output stream.
+     * @param root
+     *            The root of the directory structure. Used to create path information in the zip file.
+     * @param file
+     *            The file or directory to zip.
+     * @param status
+     *            The download status.
+     * @param range
+     *            The byte range, may be <code>null</code>.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
-    private void zip(ZipOutputStream out, File root, File file, TransferStatus status, HttpRange range) throws IOException {
+    private void zip(ZipOutputStream out, File root, File file, TransferStatus status, HttpRange range)
+            throws IOException {
 
         // Exclude all hidden files starting with a "."
         if (!file.getName().isEmpty() && file.getName().charAt(0) == '.') {
@@ -392,9 +426,13 @@ public class DownloadController implements LastModified {
     /**
      * Computes the CRC checksum for the given file.
      *
-     * @param file The file to compute checksum for.
+     * @param file
+     *            The file to compute checksum for.
+     * 
      * @return A CRC32 checksum.
-     * @throws IOException If an I/O error occurs.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
     private long computeCrc(File file) throws IOException {
         CRC32 crc = new CRC32();

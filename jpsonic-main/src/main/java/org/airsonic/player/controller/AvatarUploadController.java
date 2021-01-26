@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.Avatar;
 import org.airsonic.player.service.SecurityService;
@@ -38,17 +50,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Controller which receives uploaded avatar images.
@@ -101,7 +102,7 @@ public class AvatarUploadController {
 
         map.put("username", username);
         map.put("avatar", settingsService.getCustomAvatar(username));
-        return new ModelAndView("avatarUploadResult","model",map);
+        return new ModelAndView("avatarUploadResult", "model", map);
     }
 
     private void createAvatar(FileItem fileItem, String username, Map<String, Object> map) {
@@ -110,7 +111,8 @@ public class AvatarUploadController {
         try {
             image = ImageIO.read(new ByteArrayInputStream(IOUtils.toByteArray(fileItem.getInputStream())));
             if (image == null) {
-                throw new IOException("Failed to decode incoming image: " + fileName + " (" + fileItem.getSize() + " bytes).");
+                throw new IOException(
+                        "Failed to decode incoming image: " + fileName + " (" + fileItem.getSize() + " bytes).");
             }
             int width = image.getWidth();
             int height = image.getHeight();
@@ -119,7 +121,7 @@ public class AvatarUploadController {
             byte[] imageData = new byte[0];
             // Scale down image if necessary.
             if (width > MAX_AVATAR_SIZE || height > MAX_AVATAR_SIZE) {
-                double scaleFactor = MAX_AVATAR_SIZE / (double)Math.max(width, height);
+                double scaleFactor = MAX_AVATAR_SIZE / (double) Math.max(width, height);
                 height = (int) (height * scaleFactor);
                 width = (int) (width * scaleFactor);
                 image = CoverArtController.scale(image, width, height);
@@ -141,6 +143,5 @@ public class AvatarUploadController {
             map.put("error", x);
         }
     }
-
 
 }

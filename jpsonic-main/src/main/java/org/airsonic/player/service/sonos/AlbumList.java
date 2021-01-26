@@ -19,12 +19,13 @@
 
 package org.airsonic.player.service.sonos;
 
-import org.airsonic.player.domain.MediaFile;
-
 import java.util.List;
+
+import org.airsonic.player.domain.MediaFile;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 class AlbumList {

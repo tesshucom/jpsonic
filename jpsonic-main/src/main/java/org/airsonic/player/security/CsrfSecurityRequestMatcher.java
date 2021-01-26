@@ -1,13 +1,14 @@
+
 package org.airsonic.player.security;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * See
@@ -19,20 +20,18 @@ import java.util.List;
  */
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
-    static private List<String> allowedMethods = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
+    private static List<String> allowedMethods = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
     private List<RegexRequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {
-        this.whiteListedMatchers = Arrays.asList(
-            new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
-            new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
-            new RegexRequestMatcher("/search(?:\\.view)?", "POST")
-        );
+        this.whiteListedMatchers = Arrays.asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
+                new RegexRequestMatcher("/rest/.*\\.view(\\?.*)?", "POST"),
+                new RegexRequestMatcher("/search(?:\\.view)?", "POST"));
     }
 
     @Override
     public boolean matches(HttpServletRequest request) {
-        return !(allowedMethods.contains(request.getMethod()) ||
-                whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
+        return !(allowedMethods.contains(request.getMethod())
+                || whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
     }
 }

@@ -16,15 +16,16 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import java.io.IOException;
+import java.util.List;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.List;
 
 @Component
 @DependsOn({ "queryFactory", "settingsService" })
@@ -33,15 +34,17 @@ public class SearchCriteriaDirector {
     private final QueryFactory queryFactory;
 
     private final SettingsService settingsService;
-    
+
     public SearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService) {
         super();
         this.queryFactory = queryFactory;
         this.settingsService = settingsService;
     }
 
-    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
-        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders, indexType);
+    public SearchCriteria construct(String searchInput, int offset, int count, boolean includeComposer,
+            List<MusicFolder> musicFolders, IndexType indexType) throws IOException {
+        SearchCriteria criteria = new SearchCriteria(searchInput, offset, count, includeComposer, musicFolders,
+                indexType);
         if (settingsService.isSearchMethodLegacy()) {
             criteria.setParsedQuery(queryFactory.search(searchInput, includeComposer, musicFolders, indexType));
         } else {

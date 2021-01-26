@@ -17,12 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.filter;
 
-import org.airsonic.player.util.LegacyMap;
-import org.airsonic.player.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,17 +36,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import org.airsonic.player.util.LegacyMap;
+import org.airsonic.player.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Servlet filter which decodes HTTP request parameters.  If a parameter name ends with
- * "Utf8Hex" ({@link #PARAM_SUFFIX}) , the corresponding parameter value is assumed to be the
- * hexadecimal representation of the UTF-8 bytes of the value.
+ * Servlet filter which decodes HTTP request parameters. If a parameter name ends with "Utf8Hex" ({@link #PARAM_SUFFIX})
+ * , the corresponding parameter value is assumed to be the hexadecimal representation of the UTF-8 bytes of the value.
  * <p/>
  * Used to support request parameter values of any character encoding.
  *

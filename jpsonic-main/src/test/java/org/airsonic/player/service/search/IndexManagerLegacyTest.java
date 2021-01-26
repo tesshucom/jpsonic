@@ -17,7 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.search;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -33,16 +44,6 @@ import org.junit.rules.TemporaryFolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
 
     private List<MusicFolder> musicFolders;
@@ -52,7 +53,7 @@ public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
 
     @Autowired
     private IndexManager indexManager;
-    
+
     @Autowired
     private SearchCriteriaDirector director;
 
@@ -97,11 +98,16 @@ public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
         int count = Integer.MAX_VALUE;
         boolean includeComposer = false;
 
-        SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, includeComposer, musicFolders, IndexType.ARTIST);
-        SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, includeComposer, musicFolders, IndexType.ALBUM);
-        SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, includeComposer, musicFolders, IndexType.SONG);
-        SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, includeComposer, musicFolders, IndexType.ARTIST_ID3);
-        SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, includeComposer, musicFolders, IndexType.ALBUM_ID3);
+        final SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, includeComposer,
+                musicFolders, IndexType.ARTIST);
+        final SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, includeComposer,
+                musicFolders, IndexType.ALBUM);
+        final SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, includeComposer, musicFolders,
+                IndexType.SONG);
+        final SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, includeComposer,
+                musicFolders, IndexType.ARTIST_ID3);
+        final SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count,
+                includeComposer, musicFolders, IndexType.ALBUM_ID3);
 
         /* Delete DB record. */
 

@@ -17,17 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
-import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.AfterClass;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
-import org.springframework.beans.factory.annotation.Autowired;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -38,13 +37,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import com.tesshu.jpsonic.domain.JpsonicComparators;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.AfterClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.MethodRule;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Unit test of {@link PlayQueue}.
@@ -222,13 +223,13 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
     public void testAddFilesAt() {
         PlayQueue playQueue = createPlaylist(0);
 
-        playQueue.addFilesAt(Arrays.<MediaFile>asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
         assertPlaylistEquals(playQueue, 0, "A", "B", "C");
 
-        playQueue.addFilesAt(Arrays.<MediaFile>asList(new TestMediaFile("D"), new TestMediaFile("E")), 1);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("D"), new TestMediaFile("E")), 1);
         assertPlaylistEquals(playQueue, 0, "A", "D", "E", "B", "C");
 
-        playQueue.addFilesAt(Arrays.<MediaFile>asList(new TestMediaFile("F")), 0);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("F")), 0);
         assertPlaylistEquals(playQueue, 0, "F", "A", "D", "E", "B", "C");
 
     }
@@ -274,7 +275,7 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         if (jpsonicComparators == null) {
             System.err.println("null!");
         }
-        
+
         // Order by track.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(TRACK));
         assertEquals("Error in sort().", null, playQueue.getFile(0).getTrackNumber());

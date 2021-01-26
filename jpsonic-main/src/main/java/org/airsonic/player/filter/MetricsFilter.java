@@ -1,8 +1,7 @@
+
 package org.airsonic.player.filter;
 
-import com.tesshu.jpsonic.controller.ViewName;
-import org.airsonic.player.monitor.MetricsManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,7 +11,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
+import com.tesshu.jpsonic.controller.ViewName;
+import org.airsonic.player.monitor.MetricsManager;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Created by remi on 12/01/17.
@@ -28,12 +29,14 @@ public class MetricsFilter implements Filter {
     }
 
     @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest)request;
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
+        HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 
         String timerName = httpServletRequest.getRequestURI();
         // Add a metric that measures the time spent for each http request for the /ViewName.MAIN.value() url.
-        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains(ViewName.MAIN.value())).timer(this,timerName)) {
+        try (MetricsManager.Timer t = metricsManager.condition(timerName.contains(ViewName.MAIN.value())).timer(this,
+                timerName)) {
             chain.doFilter(request, response);
         }
     }

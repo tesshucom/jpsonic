@@ -16,17 +16,18 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import java.util.Date;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Date;
 
 @Component
 public class ViewAsListSelector {
@@ -36,7 +37,8 @@ public class ViewAsListSelector {
 
     public boolean isViewAsList(HttpServletRequest request, String username) {
         UserSettings userSettings = settingsService.getUserSettings(username);
-        boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(), userSettings.isViewAsList());
+        boolean viewAsList = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.VIEW_AS_LIST.value(),
+                userSettings.isViewAsList());
         if (viewAsList != userSettings.isViewAsList()) {
             userSettings.setViewAsList(viewAsList);
             userSettings.setChanged(new Date());

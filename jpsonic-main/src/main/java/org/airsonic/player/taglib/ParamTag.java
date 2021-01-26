@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
 
 import javax.servlet.jsp.JspTagException;
@@ -26,6 +27,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * A tag representing an URL query parameter.
  *
  * @see ParamTag
+ * 
  * @author Sindre Mehus
  */
 @SuppressWarnings("serial")

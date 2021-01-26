@@ -17,7 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.scrobbler;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile;
@@ -39,16 +50,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
-
 /**
- * Provides services for "audioscrobbling" at www.last.fm.
- * <br/>
+ * Provides services for "audioscrobbling" at www.last.fm. <br/>
  * See https://www.last.fm/api/submissions
  */
 public class LastFMScrobbler {
@@ -58,10 +61,8 @@ public class LastFMScrobbler {
 
     private RegistrationThread thread;
     private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom()
-            .setConnectTimeout(15000)
-            .setSocketTimeout(15000)
-            .build();
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15000)
+            .setSocketTimeout(15000).build();
 
     private static final Object REGISTRATION_LOCK = new Object();
 
@@ -71,11 +72,16 @@ public class LastFMScrobbler {
      * Registers the given media file at www.last.fm. This method returns immediately, the actual registration is done
      * by a separate thread.
      *
-     * @param mediaFile  The media file to register.
-     * @param username   last.fm username.
-     * @param password   last.fm password.
-     * @param submission Whether this is a submission or a now playing notification.
-     * @param time       Event time, or {@code null} to use current time.
+     * @param mediaFile
+     *            The media file to register.
+     * @param username
+     *            last.fm username.
+     * @param password
+     *            last.fm password.
+     * @param submission
+     *            Whether this is a submission or a now playing notification.
+     * @param time
+     *            Event time, or {@code null} to use current time.
      */
     public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
 
@@ -107,9 +113,11 @@ public class LastFMScrobbler {
     /**
      * Scrobbles the given song data at last.fm, using the protocol defined at http://www.last.fm/api/submissions.
      *
-     * @param registrationData Registration data for the song.
+     * @param registrationData
+     *            Registration data for the song.
      */
-    final static void scrobble(RegistrationData registrationData) throws URISyntaxException, ClientProtocolException, IOException {
+    static final void scrobble(RegistrationData registrationData)
+            throws URISyntaxException, ClientProtocolException, IOException {
         if (registrationData == null) {
             return;
         }
@@ -139,8 +147,9 @@ public class LastFMScrobbler {
             }
         } else if (lines[0].startsWith("OK")) {
             if (LOG.isInfoEnabled()) {
-                LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing") +
-                          " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername() + " at Last.fm: " + registrationData.getTime());
+                LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
+                        + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
+                        + " at Last.fm: " + registrationData.getTime());
             }
         }
     }
@@ -148,25 +157,22 @@ public class LastFMScrobbler {
     /**
      * Returns the following lines if authentication succeeds:
      * <p/>
-     * Line 0: Always "OK"
-     * Line 1: Session ID, e.g., "17E61E13454CDD8B68E8D7DEEEDF6170"
-     * Line 2: URL to use for now playing, e.g., "http://post.audioscrobbler.com:80/np_1.2"
-     * Line 3: URL to use for submissions, e.g., "http://post2.audioscrobbler.com:80/protocol_1.2"
+     * Line 0: Always "OK" Line 1: Session ID, e.g., "17E61E13454CDD8B68E8D7DEEEDF6170" Line 2: URL to use for now
+     * playing, e.g., "http://post.audioscrobbler.com:80/np_1.2" Line 3: URL to use for submissions, e.g.,
+     * "http://post2.audioscrobbler.com:80/protocol_1.2"
      * <p/>
      * If authentication fails, <code>null</code> is returned.
      */
-    private static String[] authenticate(RegistrationData registrationData) throws URISyntaxException, ClientProtocolException, IOException {
+    private static String[] authenticate(RegistrationData registrationData)
+            throws URISyntaxException, ClientProtocolException, IOException {
         String clientId = "sub";
         String clientVersion = "0.1";
         long timestamp = System.currentTimeMillis() / 1000L;
         String authToken = calculateAuthenticationToken(registrationData.getPassword(), timestamp);
         // NOTE: HTTPS support DOES NOT WORK on the AudioScrobbler v1 API.
-        URI uri = new URI("http",
-                /* userInfo= */ null, "post.audioscrobbler.com", -1,
-                "/",
-                String.format("hs=true&p=1.2.1&c=%s&v=%s&u=%s&t=%s&a=%s",
-                        clientId, clientVersion, registrationData.getUsername(),
-                        timestamp, authToken),
+        URI uri = new URI("http", /* userInfo= */ null, "post.audioscrobbler.com", -1, "/",
+                String.format("hs=true&p=1.2.1&c=%s&v=%s&u=%s&t=%s&a=%s", clientId, clientVersion,
+                        registrationData.getUsername(), timestamp, authToken),
                 /* fragment= */ null);
 
         String[] lines = executeGetRequest(uri);
@@ -187,7 +193,8 @@ public class LastFMScrobbler {
 
         if (lines[0].startsWith("BADTIME")) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Bad timestamp, please check local clock.");
+                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle()
+                        + "' at Last.fm. Bad timestamp, please check local clock.");
             }
             return null;
         }
@@ -201,7 +208,8 @@ public class LastFMScrobbler {
 
         if (!lines[0].startsWith("OK")) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: " + lines[0]);
+                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: "
+                        + lines[0]);
             }
             return null;
         }
@@ -209,7 +217,8 @@ public class LastFMScrobbler {
         return lines;
     }
 
-    private static String[] registerSubmission(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
+    private static String[] registerSubmission(RegistrationData registrationData, String sessionId, String url)
+            throws UnsupportedEncodingException, ClientProtocolException, IOException {
         Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a[0]", registrationData.getArtist());
@@ -224,7 +233,8 @@ public class LastFMScrobbler {
         return executePostRequest(url, params);
     }
 
-    private static String[] registerNowPlaying(RegistrationData registrationData, String sessionId, String url) throws UnsupportedEncodingException, ClientProtocolException, IOException {
+    private static String[] registerNowPlaying(RegistrationData registrationData, String sessionId, String url)
+            throws UnsupportedEncodingException, ClientProtocolException, IOException {
         Map<String, String> params = LegacyMap.of();
         params.put("s", sessionId);
         params.put("a", registrationData.getArtist());
@@ -247,7 +257,8 @@ public class LastFMScrobbler {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BasicNameValuePair) Not reusable
-    private static String[] executePostRequest(String url, Map<String, String> parameters) throws UnsupportedEncodingException, ClientProtocolException, IOException {
+    private static String[] executePostRequest(String url, Map<String, String> parameters)
+            throws UnsupportedEncodingException, ClientProtocolException, IOException {
         List<NameValuePair> params = new ArrayList<>();
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             params.add(new BasicNameValuePair(entry.getKey(), entry.getValue()));
@@ -303,19 +314,22 @@ public class LastFMScrobbler {
             try {
                 queue.put(registrationData);
                 if (LOG.isInfoEnabled()) {
-                    LOG.info("Last.fm registration for '" + registrationData.getTitle() +
-                             "' encountered network error: " + errorMessage + ".  Will try again later. In queue: " + queue.size());
+                    LOG.info(
+                            "Last.fm registration for '" + registrationData.getTitle() + "' encountered network error: "
+                                    + errorMessage + ".  Will try again later. In queue: " + queue.size());
                 }
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to reschedule Last.fm registration for '" + registrationData.getTitle() + "': " + x.toString());
+                    LOG.error("Failed to reschedule Last.fm registration for '" + registrationData.getTitle() + "': "
+                            + x.toString());
                 }
             }
             try {
-                sleep(60L * 1000L);  // Wait 60 seconds.
+                sleep(60L * 1000L); // Wait 60 seconds.
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to sleep after Last.fm registration failure for '" + registrationData.getTitle() + "': " + x.toString());
+                    LOG.error("Failed to sleep after Last.fm registration failure for '" + registrationData.getTitle()
+                            + "': " + x.toString());
                 }
             }
         }

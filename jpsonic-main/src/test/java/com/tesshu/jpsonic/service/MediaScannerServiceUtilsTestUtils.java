@@ -1,10 +1,11 @@
+
 package com.tesshu.jpsonic.service;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 class MediaScannerServiceUtilsTestUtils {
-    
+
     private MediaScannerServiceUtilsTestUtils() {
     }
 

@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static java.lang.Float.floatToIntBits;
+import static java.lang.Float.intBitsToFloat;
+
+import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -34,12 +41,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
-
-import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.lang.Float.floatToIntBits;
-import static java.lang.Float.intBitsToFloat;
 
 /**
  * Plays music on the local audio device.
@@ -85,8 +86,10 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     /**
      * Updates the jukebox by starting or pausing playback on the local audio device.
      *
-     * @param player The player in question.
-     * @param offset Start playing after this many seconds into the track.
+     * @param player
+     *            The player in question.
+     * @param offset
+     *            Start playing after this many seconds into the track.
      */
     public void updateJukebox(Player player, int offset) {
         User user = securityService.getUserByName(player.getUsername());
@@ -115,9 +118,8 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
     @SuppressWarnings("PMD.CloseResource")
     /*
-     * This class opens the resource, but due to the nature of the media
-     * manipulation logic, the close is done at a different location / timing. See
-     * AudioPlayer#close. Do not explicitly close it in this class.
+     * This class opens the resource, but due to the nature of the media manipulation logic, the close is done at a
+     * different location / timing. See AudioPlayer#close. Do not explicitly close it in this class.
      */
     private void play(MediaFile file, int offset) {
         InputStream in = null;
@@ -139,7 +141,8 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
                     if (file != null) {
                         int duration = file.getDurationSeconds() == null ? 0 : file.getDurationSeconds() - offset;
-                        TranscodingService.Parameters parameters = new TranscodingService.Parameters(file, new VideoTranscodingSettings(0, 0, offset, duration, false));
+                        TranscodingService.Parameters parameters = new TranscodingService.Parameters(file,
+                                new VideoTranscodingSettings(0, 0, offset, duration, false));
                         String command = settingsService.getJukeboxCommand();
                         parameters.setTranscoding(new Transcoding(null, null, null, null, command, null, null, false));
                         in = transcodingService.getTranscodedInputStream(parameters);
@@ -218,7 +221,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     }
 
     private void scrobble(MediaFile file, boolean submission) {
-        if (player.getClientId() == null) {  // Don't scrobble REST players.
+        if (player.getClientId() == null) { // Don't scrobble REST players.
             audioScrobblerService.register(file, player.getUsername(), submission, null);
         }
     }

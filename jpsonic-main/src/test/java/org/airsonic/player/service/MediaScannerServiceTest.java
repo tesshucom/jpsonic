@@ -1,10 +1,28 @@
+
 package org.airsonic.player.service;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.io.File;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import org.airsonic.player.TestCaseUtils;
-import org.airsonic.player.dao.*;
+import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.ArtistDao;
+import org.airsonic.player.dao.DaoHelper;
+import org.airsonic.player.dao.MediaFileDao;
+import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -27,30 +45,17 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-import java.io.File;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 /**
  * A unit test class to test the MediaScannerService.
  * <p>
  * This class uses the Spring application context configuration present in the
  * /org/airsonic/player/service/mediaScannerServiceTestCase/ directory.
  * <p>
- * The media library is found in the /MEDIAS directory.
- * It is composed of 2 musicFolders (Music and Music2) and several little weight audio files.
+ * The media library is found in the /MEDIAS directory. It is composed of 2 musicFolders (Music and Music2) and several
+ * little weight audio files.
  * <p>
- * At runtime, the subsonic_home dir is set to target/test-classes/org/airsonic/player/service/mediaScannerServiceTestCase.
- * An empty database is created on the fly.
+ * At runtime, the subsonic_home dir is set to
+ * target/test-classes/org/airsonic/player/service/mediaScannerServiceTestCase. An empty database is created on the fly.
  */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -101,13 +106,13 @@ public class MediaScannerServiceTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-
     /**
      * Tests the MediaScannerService by scanning the test media library into an empty database.
      */
     @Test
     public void testScanLibrary() {
-        musicFolderDao.getAllMusicFolders().forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
+        musicFolderDao.getAllMusicFolders()
+                .forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
         MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
         settingsService.clearMusicFolderCache();
 
@@ -132,10 +137,12 @@ public class MediaScannerServiceTest {
         }
 
         // Music Folder Music must have 3 children
-        List<MediaFile> listeMusicChildren = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
+        List<MediaFile> listeMusicChildren = mediaFileDao
+                .getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
         Assert.assertEquals(3, listeMusicChildren.size());
         // Music Folder Music2 must have 1 children
-        List<MediaFile> listeMusic2Children = mediaFileDao.getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
+        List<MediaFile> listeMusic2Children = mediaFileDao
+                .getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
         Assert.assertEquals(1, listeMusic2Children.size());
 
         if (LOG.isInfoEnabled()) {
@@ -143,7 +150,8 @@ public class MediaScannerServiceTest {
             LOG.info("artistName#albumCount");
         }
 
-        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolderDao.getAllMusicFolders());
+        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
+                musicFolderDao.getAllMusicFolders());
         allArtists.forEach(artist -> {
             if (LOG.isInfoEnabled()) {
                 LOG.info(artist.getName() + "#" + artist.getAlbumCount());
@@ -156,7 +164,8 @@ public class MediaScannerServiceTest {
             LOG.info("name#artist");
         }
 
-        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, musicFolderDao.getAllMusicFolders());
+        List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true,
+                musicFolderDao.getAllMusicFolders());
         allAlbums.forEach(album -> {
             if (LOG.isInfoEnabled()) {
                 LOG.info(album.getName() + "#" + album.getArtist());
@@ -168,14 +177,13 @@ public class MediaScannerServiceTest {
             LOG.info("--- *********************** ---");
         }
 
-        List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental", 0, 0, musicFolderDao.getAllMusicFolders());
+        List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental", 0, 0,
+                musicFolderDao.getAllMusicFolders());
         Assert.assertEquals(2, listeSongs.size());
 
         // display out metrics report
-        ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS)
-                .build();
+        ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS).build();
         reporter.report();
 
         if (LOG.isInfoEnabled()) {
@@ -186,12 +194,10 @@ public class MediaScannerServiceTest {
 
     @Test
     public void testSpecialCharactersInFilename() throws Exception {
-        InputStream resource = MediaScannerServiceTest.class
-                .getClassLoader()
-                .getResourceAsStream("MEDIAS/piano.mp3");
+        InputStream resource = MediaScannerServiceTest.class.getClassLoader().getResourceAsStream("MEDIAS/piano.mp3");
         assert resource != null;
-        String directoryName = "Muff1nman\u2019s \uFF0FMusic";
-        String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3";
+        String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
+        String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
         File artistDir = temporaryFolder.newFolder(directoryName);
         File musicFile = artistDir.toPath().resolve(fileName).toFile();
         IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
@@ -257,8 +263,8 @@ public class MediaScannerServiceTest {
         Assert.assertEquals("TestAlbum", file.getAlbumName());
         Assert.assertEquals("TestArtist", file.getArtist());
         Assert.assertEquals("TestArtist", file.getAlbumArtist());
-        Assert.assertEquals(1, (long)file.getTrackNumber());
-        Assert.assertEquals(2001, (long)file.getYear());
+        Assert.assertEquals(1, (long) file.getTrackNumber());
+        Assert.assertEquals(2001, (long) file.getYear());
         Assert.assertEquals(album.getPath(), file.getParentPath());
         Assert.assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPath());
         Assert.assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());

@@ -17,11 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.util.StringUtil;
-
 import java.util.List;
+
+import org.airsonic.player.util.StringUtil;
 
 /**
  * The playlist of a player.
@@ -40,7 +41,8 @@ public class PlayQueueInfo {
     private int startPlayerAt = -1;
     private long startPlayerAtPosition; // millis
 
-    public PlayQueueInfo(List<Entry> entries, boolean stopEnabled, boolean repeatEnabled, boolean shuffleRadioEnabled, boolean internetRadioEnabled, boolean sendM3U, float gain) {
+    public PlayQueueInfo(List<Entry> entries, boolean stopEnabled, boolean repeatEnabled, boolean shuffleRadioEnabled,
+            boolean internetRadioEnabled, boolean sendM3U, float gain) {
         this.entries = entries;
         this.stopEnabled = stopEnabled;
         this.repeatEnabled = repeatEnabled;
@@ -128,27 +130,10 @@ public class PlayQueueInfo {
         private final String coverArtUrl;
         private final String remoteCoverArtUrl;
 
-        public Entry(
-                int id,
-                Integer trackNumber,
-                String title,
-                String artist,
-                String composer,
-                String album,
-                String genre,
-                Integer year,
-                String bitRate,
-                Integer duration,
-                String durationAsString,
-                String format,
-                String contentType,
-                String fileSize,
-                boolean starred,
-                String albumUrl,
-                String streamUrl,
-                String remoteStreamUrl,
-                String coverArtUrl,
-                String remoteCoverArtUrl) {
+        public Entry(int id, Integer trackNumber, String title, String artist, String composer, String album,
+                String genre, Integer year, String bitRate, Integer duration, String durationAsString, String format,
+                String contentType, String fileSize, boolean starred, String albumUrl, String streamUrl,
+                String remoteStreamUrl, String coverArtUrl, String remoteCoverArtUrl) {
 
             this.id = id;
             this.trackNumber = trackNumber;

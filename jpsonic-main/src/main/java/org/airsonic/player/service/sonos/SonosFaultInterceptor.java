@@ -19,6 +19,8 @@
 
 package org.airsonic.player.service.sonos;
 
+import javax.xml.namespace.QName;
+
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.binding.soap.interceptor.AbstractSoapInterceptor;
 import org.apache.cxf.helpers.DOMUtils;
@@ -30,12 +32,11 @@ import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import javax.xml.namespace.QName;
-
 /**
  * Intercepts all SonosSoapFault exceptions and builds a SOAP Fault.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @Component
@@ -44,7 +45,7 @@ public class SonosFaultInterceptor extends AbstractSoapInterceptor {
     private static final Logger LOG = LoggerFactory.getLogger(SonosFaultInterceptor.class);
 
     /**
-     * Constructor, setting the phase to Marshal.  This happens before the default Fault Interceptor
+     * Constructor, setting the phase to Marshal. This happens before the default Fault Interceptor
      */
     public SonosFaultInterceptor() {
         super(Phase.MARSHAL);

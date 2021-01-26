@@ -1,3 +1,4 @@
+
 package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.Artist;
@@ -15,6 +16,6 @@ interface FolderArtistWrapper {
     String getName();
 
     MediaFile getSong();
-    
+
     boolean isArtist();
 }

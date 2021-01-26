@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.airsonic.player.dao.RatingDao;
 import org.airsonic.player.domain.MediaFile;
@@ -25,10 +30,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Provides services for user ratings.
@@ -48,9 +49,13 @@ public class RatingService {
     /**
      * Returns the highest rated albums.
      *
-     * @param offset      Number of albums to skip.
-     * @param count       Maximum number of albums to return.
-     * @param musicFolders Only return albums in these folders.
+     * @param offset
+     *            Number of albums to skip.
+     * @param count
+     *            Maximum number of albums to return.
+     * @param musicFolders
+     *            Only return albums in these folders.
+     * 
      * @return The highest rated albums.
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
@@ -69,9 +74,12 @@ public class RatingService {
     /**
      * Sets the rating for a music file and a given user.
      *
-     * @param username  The user name.
-     * @param mediaFile The music file.
-     * @param rating    The rating between 1 and 5, or <code>null</code> to remove the rating.
+     * @param username
+     *            The user name.
+     * @param mediaFile
+     *            The music file.
+     * @param rating
+     *            The rating between 1 and 5, or <code>null</code> to remove the rating.
      */
     public void setRatingForUser(String username, MediaFile mediaFile, Integer rating) {
         ratingDao.setRatingForUser(username, mediaFile, rating);
@@ -80,7 +88,9 @@ public class RatingService {
     /**
      * Returns the average rating for the given music file.
      *
-     * @param mediaFile The music file.
+     * @param mediaFile
+     *            The music file.
+     * 
      * @return The average rating, or <code>null</code> if no ratings are set.
      */
     public Double getAverageRating(MediaFile mediaFile) {
@@ -90,8 +100,11 @@ public class RatingService {
     /**
      * Returns the rating for the given user and music file.
      *
-     * @param username  The user name.
-     * @param mediaFile The music file.
+     * @param username
+     *            The user name.
+     * @param mediaFile
+     *            The music file.
+     * 
      * @return The rating, or <code>null</code> if no rating is set.
      */
     public Integer getRatingForUser(String username, MediaFile mediaFile) {

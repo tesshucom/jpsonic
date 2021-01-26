@@ -1,4 +1,9 @@
+
 package org.airsonic.player.service;
+
+import java.math.BigInteger;
+import java.security.SecureRandom;
+import java.util.Date;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
@@ -12,10 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
-
-import java.math.BigInteger;
-import java.security.SecureRandom;
-import java.util.Date;
 
 @Service("jwtSecurityService")
 public class JWTSecurityService {
@@ -50,10 +51,7 @@ public class JWTSecurityService {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Creating token with claim " + claim);
         }
-        return JWT.create()
-                .withClaim(CLAIM_PATH, claim)
-                .withExpiresAt(expireDate)
-                .sign(getAlgorithm(jwtKey));
+        return JWT.create().withClaim(CLAIM_PATH, claim).withExpiresAt(expireDate).sign(getAlgorithm(jwtKey));
     }
 
     public String addJWTToken(String uri) {
@@ -65,10 +63,7 @@ public class JWTSecurityService {
     }
 
     public UriComponentsBuilder addJWTToken(UriComponentsBuilder builder, Date expires) {
-        String token = JWTSecurityService.createToken(
-                settingsService.getJWTKey(),
-                builder.toUriString(),
-                expires);
+        String token = JWTSecurityService.createToken(settingsService.getJWTKey(), builder.toUriString(), expires);
         builder.queryParam(JWTSecurityService.JWT_PARAM_NAME, token);
         return builder;
     }

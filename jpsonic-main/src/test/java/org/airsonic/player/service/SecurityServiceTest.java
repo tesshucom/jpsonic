@@ -17,14 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test of {@link SecurityService}.
@@ -66,4 +67,3 @@ public class SecurityServiceTest extends AbstractAirsonicHomeTest {
         assertFalse(service.isFileInFolder("/music/..\\bar/../foo", "/music"));
     }
 }
-

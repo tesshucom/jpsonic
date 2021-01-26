@@ -1,4 +1,10 @@
+
 package org.airsonic.player.service.playlist;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import chameleon.playlist.Media;
 import chameleon.playlist.Parallel;
@@ -13,11 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
@@ -30,9 +31,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
     }
 
     @Override
-    public Pair<List<MediaFile>, List<String>> handle(
-            SpecificPlaylist inputSpecificPlaylist
-    ) {
+    public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         try {

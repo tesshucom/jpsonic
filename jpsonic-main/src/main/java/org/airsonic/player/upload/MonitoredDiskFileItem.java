@@ -17,13 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.upload;
 
-import org.apache.commons.fileupload.disk.DiskFileItem;
+package org.airsonic.player.upload;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import org.apache.commons.fileupload.disk.DiskFileItem;
 
 /**
  * Extension of Commons FileUpload for monitoring the upload progress.
@@ -34,8 +35,8 @@ public class MonitoredDiskFileItem extends DiskFileItem {
     private MonitoredOutputStream mos;
     private UploadListener listener;
 
-    public MonitoredDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName, int sizeThreshold,
-                                 File repository, UploadListener listener) {
+    public MonitoredDiskFileItem(String fieldName, String contentType, boolean isFormField, String fileName,
+            int sizeThreshold, File repository, UploadListener listener) {
         super(fieldName, contentType, isFormField, fileName, sizeThreshold, repository);
         this.listener = listener;
         if (fileName != null) {

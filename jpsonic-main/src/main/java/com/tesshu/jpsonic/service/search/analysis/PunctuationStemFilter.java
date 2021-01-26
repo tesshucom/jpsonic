@@ -1,13 +1,14 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
+
+import static com.tesshu.jpsonic.domain.JapaneseReadingUtils.isPunctuation;
+
+import java.io.IOException;
 
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.util.StemmerUtil;
-
-import java.io.IOException;
-
-import static com.tesshu.jpsonic.domain.JapaneseReadingUtils.isPunctuation;
 
 public class PunctuationStemFilter extends TokenFilter {
 
@@ -19,17 +20,15 @@ public class PunctuationStemFilter extends TokenFilter {
 
     @SuppressWarnings("PMD.AvoidReassigningLoopVariables")
     /*
-     * It's a complicated way of writing, but it has been confirmed to work.
-     * This rule can be operated as a normal rule by ruleset.xml.
-     * <property name="forReassign" value="skip" />
-     * However, it is rarely used unless performance is required,
-     * so use annotation suppression to pay attention.
-     * If new code is added that issues this warning, it should be scrutinized.
+     * It's a complicated way of writing, but it has been confirmed to work. This rule can be operated as a normal rule
+     * by ruleset.xml. <property name="forReassign" value="skip" /> However, it is rarely used unless performance is
+     * required, so use annotation suppression to pay attention. If new code is added that issues this warning, it
+     * should be scrutinized.
      */
     @Override
     public final boolean incrementToken() throws IOException {
         if (input.incrementToken()) {
-            char buffer[] = termAtt.buffer();
+            char[] buffer = termAtt.buffer();
             int length = termAtt.length();
             for (int i = 0; i < length; i++) {
                 final char ch = buffer[i];

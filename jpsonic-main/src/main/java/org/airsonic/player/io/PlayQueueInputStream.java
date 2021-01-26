@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.io;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -32,10 +37,6 @@ import org.airsonic.player.service.sonos.SonosHelper;
 import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
 
 /**
  * Implementation of {@link InputStream} which reads from a {@link PlayQueue}.
@@ -59,8 +60,9 @@ public class PlayQueueInputStream extends InputStream {
     private SearchService searchService;
 
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
-                                VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
-                                AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService, SearchService searchService) {
+            VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
+            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
+            SearchService searchService) {
         this.player = player;
         this.status = status;
         this.maxBitRate = maxBitRate;
@@ -122,7 +124,8 @@ public class PlayQueueInputStream extends InputStream {
         } else if (!file.equals(currentFile)) {
             close();
             if (LOG.isInfoEnabled()) {
-                LOG.info("{}: {} listening to {}", player.getIpAddress(), player.getUsername(), FileUtil.getShortPath(file.getFile()));
+                LOG.info("{}: {} listening to {}", player.getIpAddress(), player.getUsername(),
+                        FileUtil.getShortPath(file.getFile()));
             }
             mediaFileService.incrementPlayCount(file);
 
@@ -131,7 +134,8 @@ public class PlayQueueInputStream extends InputStream {
                 audioScrobblerService.register(file, player.getUsername(), false, null);
             }
 
-            TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate, preferredTargetFormat, videoTranscodingSettings);
+            TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
+                    preferredTargetFormat, videoTranscodingSettings);
             currentInputStream = transcodingService.getTranscodedInputStream(parameters);
             currentFile = file;
             status.setFile(currentFile.getFile());
@@ -146,7 +150,8 @@ public class PlayQueueInputStream extends InputStream {
         }
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (currentInputStream, currentFile) Intentional allocation to encourage garbage collection.
+    @SuppressWarnings("PMD.NullAssignment") // (currentInputStream, currentFile) Intentional allocation to encourage
+    // garbage collection.
     @Override
     public void close() throws IOException {
         try {

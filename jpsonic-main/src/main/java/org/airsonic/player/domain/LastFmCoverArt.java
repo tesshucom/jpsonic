@@ -21,6 +21,7 @@ package org.airsonic.player.domain;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class LastFmCoverArt {
@@ -47,4 +48,3 @@ public class LastFmCoverArt {
         return album;
     }
 }
-

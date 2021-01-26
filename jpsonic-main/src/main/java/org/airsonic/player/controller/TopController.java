@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -44,17 +56,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 /**
  * Controller for the top frame.
  *
@@ -77,19 +78,13 @@ public class TopController {
     @Autowired
     private AirsonicLocaleResolver localeResolver;
 
-    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(
-            ViewName.MUSIC_FOLDER_SETTINGS.value(),
-            ViewName.GENERAL_SETTINGS.value(),
-            ViewName.PERSONAL_SETTINGS.value(),
-            ViewName.USER_SETTINGS.value(),
-            ViewName.PLAYER_SETTINGS.value(),
-            ViewName.INTERNET_RADIO_SETTINGS.value(),
-            ViewName.MORE.value());
+    private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(ViewName.MUSIC_FOLDER_SETTINGS.value(),
+            ViewName.GENERAL_SETTINGS.value(), ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
+            ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response, @RequestParam("mainView") Optional<String> mainView) throws Exception {
-
-        boolean musicFolderChanged = saveSelectedMusicFolder(request);
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam("mainView") Optional<String> mainView) throws Exception {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -124,8 +119,8 @@ public class TopController {
         String username = securityService.getCurrentUsername(request);
         List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
-        List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders : Collections.singletonList(selectedMusicFolder);
-        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
+        List<MusicFolder> musicFoldersToUse = selectedMusicFolder == null ? allMusicFolders
+                : Collections.singletonList(selectedMusicFolder);
 
         map.put("scanning", mediaScannerService.isScanning());
         map.put("musicFolders", allMusicFolders);
@@ -135,6 +130,7 @@ public class TopController {
         map.put("partyMode", userSettings.isPartyModeEnabled());
         map.put("alternativeDrawer", userSettings.isAlternativeDrawer());
         map.put("organizeByFolderStructure", settingsService.isOrganizeByFolderStructure());
+        boolean musicFolderChanged = saveSelectedMusicFolder(request);
         map.put("musicFolderChanged", musicFolderChanged);
 
         if (userSettings.isFinalVersionNotificationEnabled() && versionService.isNewFinalVersionAvailable()) {
@@ -147,6 +143,7 @@ public class TopController {
         }
         map.put("brand", settingsService.getBrand());
 
+        MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFoldersToUse, refresh);
         map.put("indexedArtists", musicFolderContent.getIndexedArtists());
         map.put("singleSongs", musicFolderContent.getSingleSongs());
         map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
@@ -161,6 +158,7 @@ public class TopController {
 
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
+
     static {
         LAST_COMPATIBILITY_TIME.set(2012, Calendar.MARCH, 6, 0, 0, 0);
         LAST_COMPATIBILITY_TIME.set(Calendar.MILLISECOND, 0);
@@ -171,8 +169,8 @@ public class TopController {
     }
 
     /**
-     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified
-     * as we don't need browser-side caching of left.jsp.  This method is only used by RESTController.
+     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified as we don't
+     * need browser-side caching of left.jsp. This method is only used by RESTController.
      */
     long getLastModified(HttpServletRequest request) throws Exception {
         saveSelectedMusicFolder(request);
@@ -218,7 +216,8 @@ public class TopController {
     }
 
     private boolean saveSelectedMusicFolder(HttpServletRequest request) throws Exception {
-        Integer musicFolderId = ServletRequestUtils.getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {
             return false;
         }

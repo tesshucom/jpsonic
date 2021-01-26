@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -50,13 +58,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Controller for the page used to administrate users.
  *
@@ -79,9 +80,7 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(
-            HttpServletRequest request,
-            Model model,
+    protected String displayForm(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
         if (!model.containsAttribute(Attributes.Model.Command.VALUE)) {
@@ -94,7 +93,8 @@ public class UserSettingsController {
                 UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
                 command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
-                command.setCurrentUser(securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
+                command.setCurrentUser(
+                        securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
             } else {
                 command.setNewUser(true);
                 command.setStreamRole(true);
@@ -130,9 +130,8 @@ public class UserSettingsController {
 
     private List<Integer> getAllowedMusicFolderIds(User user) {
         List<Integer> result = new ArrayList<>();
-        List<MusicFolder> allowedMusicFolders = user == null
-                                                ? settingsService.getAllMusicFolders()
-                                                : settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> allowedMusicFolders = user == null ? settingsService.getAllMusicFolders()
+                : settingsService.getMusicFoldersForUser(user.getUsername());
 
         for (MusicFolder musicFolder : allowedMusicFolders) {
             result.add(musicFolder.getId());

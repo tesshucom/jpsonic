@@ -17,7 +17,11 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
@@ -28,9 +32,6 @@ import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
@@ -38,7 +39,8 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
 
     private SettingsService settingsService;
 
-    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
+            SettingsService settingsService) {
         super(dispatcher, util);
         this.settingsService = settingsService;
     }

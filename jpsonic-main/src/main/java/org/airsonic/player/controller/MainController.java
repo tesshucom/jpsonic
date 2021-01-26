@@ -17,7 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
@@ -40,19 +53,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.stream.Collectors;
-
 
 /**
  * Controller for the main page.
@@ -80,10 +80,10 @@ public class MainController {
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request,
-                                                 HttpServletResponse response,
-                                                 @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll) throws Exception {
-        
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
+            throws Exception {
+
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {
             return new ModelAndView(new RedirectView(ViewName.NOTFOUND.value()));
@@ -106,10 +106,8 @@ public class MainController {
 
         UserSettings userSettings = settingsService.getUserSettings(username);
 
-        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir,
-                true,
-                true,
-                true) : getMultiFolderChildren(mediaFiles);
+        List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
+                : getMultiFolderChildren(mediaFiles);
         List<MediaFile> files = new ArrayList<>();
         List<MediaFile> subDirs = new ArrayList<>();
         for (MediaFile child : children) {
@@ -123,7 +121,6 @@ public class MainController {
         int userPaginationPreference = userSettings.getPaginationSize();
 
         boolean isShowAll = userPaginationPreference <= 0 ? true : null == showAll ? false : showAll;
-        boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         boolean thereIsMoreSAlbums = false;
 
         mediaFileService.populateStarredDate(dir, username);
@@ -177,6 +174,7 @@ public class MainController {
         } catch (SecurityException x) {
             // Happens if Podcast directory is outside music folder.
         }
+        boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
         map.put("thereIsMore", (thereIsMoreSubDirs || thereIsMoreSAlbums) && !isShowAll);
 
         Integer userRating = ratingService.getRatingForUser(username, dir);
@@ -310,7 +308,8 @@ public class MainController {
         MediaFile parent = mediaFileService.getParentOf(dir);
         if (!mediaFileService.isRoot(parent)) {
             List<MediaFile> siblings = mediaFileService.getChildrenOf(parent, false, true, true);
-            result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir)).collect(Collectors.toList()));
+            result.addAll(siblings.stream().filter(sibling -> sibling.isAlbum() && !sibling.equals(dir))
+                    .collect(Collectors.toList()));
         }
         return result;
     }

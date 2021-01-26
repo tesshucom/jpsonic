@@ -17,20 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.awt.Dimension;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.awt.Dimension;
+
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id: StreamControllerTestCase.java 3307 2013-01-04 13:48:49Z sindre_mehus $
  */
 @SpringBootTest
@@ -40,7 +42,7 @@ public class HLSControllerTest {
     public void testParseBitRate() {
         HLSController controller = new HLSController();
 
-        Pair<Integer,Dimension> pair = controller.parseBitRate("1000");
+        Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
         assertEquals(1000, pair.getLeft().intValue());
         assertNull(pair.getRight());
 

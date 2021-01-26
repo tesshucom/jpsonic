@@ -17,17 +17,19 @@
   Copyright 2016 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
-package org.airsonic.player.domain;
 
-import org.airsonic.player.service.SearchService;
+package org.airsonic.player.domain;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.airsonic.player.service.SearchService;
 
 /**
  * The outcome of a search.
  *
  * @author Sindre Mehus
+ * 
  * @see SearchService#search
  */
 public class ParamSearchResult<T> {

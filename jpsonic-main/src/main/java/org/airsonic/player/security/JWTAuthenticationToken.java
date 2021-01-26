@@ -1,9 +1,10 @@
+
 package org.airsonic.player.security;
+
+import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-
-import java.util.Collection;
 
 @SuppressWarnings("serial")
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
@@ -13,7 +14,8 @@ public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
     public static final String USERNAME_ANONYMOUS = "anonymous";
 
-    public JWTAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String token, String requestedPath) {
+    public JWTAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String token,
+            String requestedPath) {
         super(authorities);
         this.token = token;
         this.requestedPath = requestedPath;

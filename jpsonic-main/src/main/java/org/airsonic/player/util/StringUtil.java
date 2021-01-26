@@ -17,24 +17,35 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.util;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
-import org.apache.commons.lang.StringUtils;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.*;
-import java.util.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.CompletionException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Miscellaneous string utility methods.
@@ -53,45 +64,21 @@ public final class StringUtil {
 
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
-    private static final String[][] MIME_TYPES = {
-            {"mp3", "audio/mpeg"},
-            {"ogg", "audio/ogg"},
-            {"oga", "audio/ogg"},
-            {"opus", "audio/ogg"},
-            {"ogx", "application/ogg"},
-            {"aac", MP4},
-            {"m4a", MP4},
-            {"m4b", MP4},
-            {"flac", "audio/flac"},
-            {"wav", "audio/x-wav"},
-            {"wma", "audio/x-ms-wma"},
-            {"ape", "audio/x-monkeys-audio"},
-            {"mpc", "audio/x-musepack"},
-            {"shn", "audio/x-shn"},
+    private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
+            { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" }, { "aac", MP4 },
+            { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" }, { "wav", "audio/x-wav" },
+            { "wma", "audio/x-ms-wma" }, { "ape", "audio/x-monkeys-audio" }, { "mpc", "audio/x-musepack" },
+            { "shn", "audio/x-shn" },
 
-            {"flv", "video/x-flv"},
-            {"avi", "video/avi"},
-            {"mpg", "video/mpeg"},
-            {"mpeg", "video/mpeg"},
-            {"mp4", "video/mp4"},
-            {"m4v", "video/x-m4v"},
-            {"mkv", "video/x-matroska"},
-            {"mov", "video/quicktime"},
-            {"wmv", "video/x-ms-wmv"},
-            {"ogv", "video/ogg"},
-            {"divx", "video/divx"},
-            {"m2ts", "video/MP2T"},
-            {"ts", "video/MP2T"},
-            {"webm", "video/webm"},
+            { "flv", "video/x-flv" }, { "avi", "video/avi" }, { "mpg", "video/mpeg" }, { "mpeg", "video/mpeg" },
+            { "mp4", "video/mp4" }, { "m4v", "video/x-m4v" }, { "mkv", "video/x-matroska" },
+            { "mov", "video/quicktime" }, { "wmv", "video/x-ms-wmv" }, { "ogv", "video/ogg" }, { "divx", "video/divx" },
+            { "m2ts", "video/MP2T" }, { "ts", "video/MP2T" }, { "webm", "video/webm" },
 
-            {"gif", "image/gif"},
-            {"jpg", "image/jpeg"},
-            {"jpeg", "image/jpeg"},
-            {"png", "image/png"},
-            {"bmp", "image/bmp"},
-    };
+            { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" }, { "png", "image/png" },
+            { "bmp", "image/bmp" }, };
 
-    private static final String[] FILE_SYSTEM_UNSAFE = {"/", "\\", "..", ":", "\"", "?", "*", "|"};
+    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*", "|" };
 
     public static final Object FORMAT_LOCK = new Object();
 
@@ -104,7 +91,9 @@ public final class StringUtil {
     /**
      * Returns the proper MIME type for the given suffix.
      *
-     * @param suffix The suffix, e.g., "mp3" or ".mp3".
+     * @param suffix
+     *            The suffix, e.g., "mp3" or ".mp3".
+     * 
      * @return The corresponding MIME type, e.g., "audio/mpeg". If no MIME type is found,
      *         <code>application/octet-stream</code> is returned.
      */
@@ -141,8 +130,7 @@ public final class StringUtil {
     }
 
     /**
-     * Converts a byte-count to a formatted string suitable for display to the user.
-     * For instance:
+     * Converts a byte-count to a formatted string suitable for display to the user. For instance:
      * <ul>
      * <li><code>format(918)</code> returns <em>"918 B"</em>.</li>
      * <li><code>format(98765)</code> returns <em>"96 KB"</em>.</li>
@@ -150,8 +138,11 @@ public final class StringUtil {
      * </ul>
      * This method assumes that 1 KB is 1024 bytes.
      *
-     * @param byteCount The number of bytes.
-     * @param locale    The locale used for formatting.
+     * @param byteCount
+     *            The number of bytes.
+     * @param locale
+     *            The locale used for formatting.
+     * 
      * @return The formatted string.
      */
     public static String formatBytes(long byteCount, Locale locale) {
@@ -215,12 +206,14 @@ public final class StringUtil {
     }
 
     /**
-     * Splits the input string. White space is interpreted as separator token. Double quotes
-     * are interpreted as grouping operator. <br/>
-     * For instance, the input <code>"u2 rem "greatest hits""</code> will return an array with
-     * three elements: <code>{"u2", "rem", "greatest hits"}</code>
+     * Splits the input string. White space is interpreted as separator token. Double quotes are interpreted as grouping
+     * operator. <br/>
+     * For instance, the input <code>"u2 rem "greatest hits""</code> will return an array with three elements:
+     * <code>{"u2", "rem", "greatest hits"}</code>
      *
-     * @param input The input string.
+     * @param input
+     *            The input string.
+     * 
      * @return Array of elements.
      */
     public static String[] split(String input) {
@@ -242,12 +235,16 @@ public final class StringUtil {
     }
 
     /**
-     * Reads lines from the given input stream. All lines are trimmed. Empty lines and lines starting
-     * with "#" are skipped. The input stream is always closed by this method.
+     * Reads lines from the given input stream. All lines are trimmed. Empty lines and lines starting with "#" are
+     * skipped. The input stream is always closed by this method.
      *
-     * @param in The input stream to read from.
+     * @param in
+     *            The input stream to read from.
+     * 
      * @return Array of lines.
-     * @throws IOException If an I/O error occurs.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
     @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
     public static String[] readLines(InputStream in) throws IOException {
@@ -269,24 +266,28 @@ public final class StringUtil {
     /**
      * Converts the given string of whitespace-separated integers to an <code>int</code> array.
      *
-     * @param s String consisting of integers separated by whitespace.
+     * @param s
+     *            String consisting of integers separated by whitespace.
+     * 
      * @return The corresponding array of ints.
-     * @throws NumberFormatException If string contains non-parseable text.
+     * 
+     * @throws NumberFormatException
+     *             If string contains non-parseable text.
      */
     public static int[] parseInts(String s) {
         if (s == null) {
             return new int[0];
         }
 
-        return Stream.of(StringUtils.split(s))
-                .mapToInt(Integer::parseInt)
-                .toArray();
+        return Stream.of(StringUtils.split(s)).mapToInt(Integer::parseInt).toArray();
     }
 
     /**
      * Parses a locale from the given string.
      *
-     * @param s The locale string. Should be formatted as per the documentation in {@link Locale#toString()}.
+     * @param s
+     *            The locale string. Should be formatted as per the documentation in {@link Locale#toString()}.
+     * 
      * @return The locale.
      */
     public static Locale parseLocale(String s) {
@@ -324,11 +325,13 @@ public final class StringUtil {
     }
 
     /**
-    * Encodes the given string by using the hexadecimal representation of its UTF-8 bytes.
-    *
-    * @param s The string to encode.
-    * @return The encoded string.
-    */
+     * Encodes the given string by using the hexadecimal representation of its UTF-8 bytes.
+     *
+     * @param s
+     *            The string to encode.
+     * 
+     * @return The encoded string.
+     */
     public static String utf8HexEncode(String s) {
         if (s == null) {
             return null;
@@ -341,9 +344,13 @@ public final class StringUtil {
     /**
      * Decodes the given string by using the hexadecimal representation of its UTF-8 bytes.
      *
-     * @param s The string to decode.
+     * @param s
+     *            The string to decode.
+     * 
      * @return The decoded string.
-     * @throws DecoderException If an error occurs.
+     * 
+     * @throws DecoderException
+     *             If an error occurs.
      */
     public static String utf8HexDecode(String s) throws DecoderException {
         if (s == null) {
@@ -361,7 +368,9 @@ public final class StringUtil {
      * <p/>
      * will return "url-primer.html".
      *
-     * @param url The URL in question.
+     * @param url
+     *            The URL in question.
+     * 
      * @return The file part, or <code>null</code> if no file can be resolved.
      */
     public static String getUrlFile(String url) {
@@ -384,10 +393,11 @@ public final class StringUtil {
     }
 
     /**
-     * Makes a given filename safe by replacing special characters like slashes ("/" and "\")
-     * with dashes ("-").
+     * Makes a given filename safe by replacing special characters like slashes ("/" and "\") with dashes ("-").
      *
-     * @param filename The filename in question.
+     * @param filename
+     *            The filename in question.
+     * 
      * @return The filename with special characters replaced by underscores.
      */
     public static String fileSystemSafe(final String filename) {

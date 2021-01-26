@@ -17,7 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
+import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -43,18 +56,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
 /**
  * Controller for the home page.
@@ -90,7 +91,8 @@ public class HomeController {
             return new ModelAndView(new RedirectView(ViewName.GETTING_STARTED.value()));
         }
         int listOffset = getIntParameter(request, Attributes.Request.LIST_OFFSET.value(), 0);
-        AlbumListType listType = AlbumListType.fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
+        AlbumListType listType = AlbumListType
+                .fromId(getStringParameter(request, Attributes.Request.LIST_TYPE.value()));
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         if (listType == null) {
             listType = userSettings.getDefaultAlbumList();
@@ -98,58 +100,58 @@ public class HomeController {
 
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(user.getUsername());
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(user.getUsername(),
-                                                                                selectedMusicFolder == null ? null : selectedMusicFolder.getId());
+                selectedMusicFolder == null ? null : selectedMusicFolder.getId());
 
         Map<String, Object> map = LegacyMap.of();
         List<Album> albums = Collections.emptyList();
         switch (listType) {
-            case HIGHEST:
-                albums = getHighestRated(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case FREQUENT:
-                albums = getMostFrequent(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case RECENT:
-                albums = getMostRecent(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case NEWEST:
-                albums = getNewest(listOffset, LIST_SIZE, musicFolders);
-                break;
-            case STARRED:
-                albums = getStarred(listOffset, LIST_SIZE, user.getUsername(), musicFolders);
-                break;
-            case RANDOM:
-                albums = getRandom(LIST_SIZE, musicFolders);
-                break;
-            case ALPHABETICAL:
-                albums = getAlphabetical(listOffset, LIST_SIZE, true, musicFolders);
-                break;
-            case DECADE:
-                List<Integer> decades = createDecades();
-                map.put("decades", decades);
-                int decade = getIntParameter(request, Attributes.Request.DECADE.value(), decades.get(0));
-                map.put("decade", decade);
-                albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
-                break;
-            case GENRE:
-                List<Genre> genres = searchService.getGenres(true);
-                map.put("genres", genres);
-                if (!genres.isEmpty()) {
-                    String genre = getStringParameter(request, Attributes.Request.GENRE.value(), genres.get(0).getName());
-                    map.put("genre", genre);
-                    albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
-                }
-                break;
-            case INDEX:
-                MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
-                map.put("indexedArtists", musicFolderContent.getIndexedArtists());
-                map.put("singleSongs", musicFolderContent.getSingleSongs());
-                map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
-                map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
-                map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
-                break;
-            default:
-                break;
+        case HIGHEST:
+            albums = getHighestRated(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case FREQUENT:
+            albums = getMostFrequent(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case RECENT:
+            albums = getMostRecent(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case NEWEST:
+            albums = getNewest(listOffset, LIST_SIZE, musicFolders);
+            break;
+        case STARRED:
+            albums = getStarred(listOffset, LIST_SIZE, user.getUsername(), musicFolders);
+            break;
+        case RANDOM:
+            albums = getRandom(LIST_SIZE, musicFolders);
+            break;
+        case ALPHABETICAL:
+            albums = getAlphabetical(listOffset, LIST_SIZE, true, musicFolders);
+            break;
+        case DECADE:
+            List<Integer> decades = createDecades();
+            map.put("decades", decades);
+            int decade = getIntParameter(request, Attributes.Request.DECADE.value(), decades.get(0));
+            map.put("decade", decade);
+            albums = getByYear(listOffset, LIST_SIZE, decade, decade + 9, musicFolders);
+            break;
+        case GENRE:
+            List<Genre> genres = searchService.getGenres(true);
+            map.put("genres", genres);
+            if (!genres.isEmpty()) {
+                String genre = getStringParameter(request, Attributes.Request.GENRE.value(), genres.get(0).getName());
+                map.put("genre", genre);
+                albums = getByGenre(listOffset, LIST_SIZE, genre, musicFolders);
+            }
+            break;
+        case INDEX:
+            MusicFolderContent musicFolderContent = musicIndexService.getMusicFolderContent(musicFolders, false);
+            map.put("indexedArtists", musicFolderContent.getIndexedArtists());
+            map.put("singleSongs", musicFolderContent.getSingleSongs());
+            map.put("indexes", musicFolderContent.getIndexedArtists().keySet());
+            map.put("isOpenDetailIndex", userSettings.isOpenDetailIndex());
+            map.put("assignAccesskeyToNumber", userSettings.isAssignAccesskeyToNumber());
+            break;
+        default:
+            break;
         }
 
         map.put("user", user);
@@ -169,7 +171,7 @@ public class HomeController {
         map.put("listOffset", listOffset);
         map.put("musicFolder", selectedMusicFolder);
         map.put("showRate", userSettings.isShowRate());
-        return new ModelAndView("home","model",map);
+        return new ModelAndView("home", "model", map);
     }
 
     private List<Album> getHighestRated(int offset, int count, List<MusicFolder> musicFolders) {

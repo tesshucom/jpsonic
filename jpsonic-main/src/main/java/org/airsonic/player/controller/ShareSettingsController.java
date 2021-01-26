@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -42,10 +50,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.*;
-
 /**
  * Controller for the page used to administrate the set of shared media.
  *
@@ -66,11 +70,9 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        model.addAttribute("model", LegacyMap.of(
-                "shareInfos", getShareInfos(request),
-                "user", securityService.getCurrentUser(request),
-                "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos()));
+        model.addAttribute("model",
+                LegacyMap.of("shareInfos", getShareInfos(request), "user", securityService.getCurrentUser(request),
+                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos()));
         return "shareSettings";
     }
 
@@ -101,7 +103,8 @@ public class ShareSettingsController {
             }
         }
 
-        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DELETE_EXPIRED.value(), false);
+        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
             Date now = new Date();
             for (Share share : shareService.getSharesForUser(user)) {
@@ -123,14 +126,12 @@ public class ShareSettingsController {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);
             if (!files.isEmpty()) {
                 MediaFile file = files.get(0);
-                result.add(new ShareInfo(shareService.getShareUrl(request, share), share, file.isDirectory() ? file :
-                        mediaFileService
-                        .getParentOf(file)));
+                result.add(new ShareInfo(shareService.getShareUrl(request, share), share,
+                        file.isDirectory() ? file : mediaFileService.getParentOf(file)));
             }
         }
         return result;
     }
-
 
     private String getParameter(HttpServletRequest request, String name, int id) {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));

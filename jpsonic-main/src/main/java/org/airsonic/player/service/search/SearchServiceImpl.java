@@ -20,6 +20,21 @@
 
 package org.airsonic.player.service.search;
 
+import static org.airsonic.player.service.search.IndexType.ALBUM;
+import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
+import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
+import static org.airsonic.player.service.search.IndexType.SONG;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -42,21 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static org.airsonic.player.service.search.IndexType.ALBUM;
-import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
-import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
-import static org.airsonic.player.service.search.IndexType.SONG;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class SearchServiceImpl implements SearchService {
@@ -86,8 +86,9 @@ public class SearchServiceImpl implements SearchService {
         int count = criteria.getCount();
         result.setOffset(offset);
 
-        if (count <= 0)
+        if (count <= 0) {
             return result;
+        }
 
         IndexSearcher searcher = indexManager.getSearcher(criteria.getIndexType());
         if (isEmpty(searcher)) {
@@ -107,7 +108,8 @@ public class SearchServiceImpl implements SearchService {
             }
 
             if (settingsService.isOutputSearchQuery()) {
-                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.getIndexType(), criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+                LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.getIndexType(),
+                        criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
 
         } catch (IOException e) {
@@ -151,7 +153,8 @@ public class SearchServiceImpl implements SearchService {
         }
 
         if (settingsService.isOutputSearchQuery()) {
-            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType, criteria.getQuery(), criteria.getOffset(), criteria.getCount());
+            LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
+                    criteria.getQuery(), criteria.getOffset(), criteria.getCount());
         }
 
         try {
@@ -191,22 +194,21 @@ public class SearchServiceImpl implements SearchService {
             indexManager.release(indexType, searcher);
         }
         return result;
-        
+
     }
 
     /**
      * Common processing of random method.
      * 
-     * @param count Number of albums to return.
-     * @param id2ListCallBack Callback to get D from id and store it in List
+     * @param count
+     *            Number of albums to return.
+     * @param id2ListCallBack
+     *            Callback to get D from id and store it in List
      */
-    private final <D> List<D> createRandomDocsList(
-            int count, IndexSearcher searcher, Query query, BiConsumer<List<D>, Integer> id2ListCallBack)
-            throws IOException {
+    private final <D> List<D> createRandomDocsList(int count, IndexSearcher searcher, Query query,
+            BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException {
 
-        List<Integer> docs = Arrays
-                .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
-                .map(sd -> sd.doc)
+        List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs).map(sd -> sd.doc)
                 .collect(Collectors.toList());
 
         List<D> result = new ArrayList<>();
@@ -233,7 +235,7 @@ public class SearchServiceImpl implements SearchService {
 
             Query query = queryFactory.getRandomSongs(criteria);
             return createRandomDocsList(criteria.getCount(), searcher, query,
-                (dist, id) -> util.addIgnoreNull(dist, SONG, id));
+                    (dist, id) -> util.addIgnoreNull(dist, SONG, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search or random songs.", e);
@@ -247,8 +249,8 @@ public class SearchServiceImpl implements SearchService {
     public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) ->
-            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids
+                .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
                 .forEach(id -> util.addIgnoreNull(result, SONG, id));
         util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
@@ -264,9 +266,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            List<Integer> docs = Arrays
-                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
-                    .map(sd -> sd.doc)
+            List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs).map(sd -> sd.doc)
                     .collect(Collectors.toList());
 
             List<Integer> ids = new ArrayList<>();
@@ -297,9 +297,10 @@ public class SearchServiceImpl implements SearchService {
         }
         return min;
     }
-    
+
     @Override
-    public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
+    public List<MediaFile> getRandomSongsByArtist(Artist artist, int count, int offset, int casheMax,
+            List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (files) -> {
@@ -307,21 +308,23 @@ public class SearchServiceImpl implements SearchService {
             result.addAll(sub);
         };
 
-        util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName()).ifPresent(addSubToResult);
+        util.getCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, artist.getName())
+                .ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
-        List<MediaFile> songs = mediaFileDao.getRandomSongsForAlbumArtist(casheMax, artist.getName(), musicFolders, (range, limit) -> {
-            List<Integer> randoms = new ArrayList<>();
-            while (randoms.size() < Math.min(limit, range)) {
-                Integer random = util.nextInt.apply(range);
-                if (!randoms.contains(random)) {
-                    randoms.add(random);
-                }
-            }
-            return randoms;
-        });
+        List<MediaFile> songs = mediaFileDao.getRandomSongsForAlbumArtist(casheMax, artist.getName(), musicFolders,
+                (range, limit) -> {
+                    List<Integer> randoms = new ArrayList<>();
+                    while (randoms.size() < Math.min(limit, range)) {
+                        Integer random = util.nextInt.apply(range);
+                        if (!randoms.contains(random)) {
+                            randoms.add(random);
+                        }
+                    }
+                    return randoms;
+                });
 
         util.putCache(RandomCacheKey.SONG_BY_ARTIST, casheMax, musicFolders, songs, artist.getName());
 
@@ -343,8 +346,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            return createRandomDocsList(count, searcher, query,
-                (dist, id) -> util.addIgnoreNull(dist, ALBUM, id));
+            return createRandomDocsList(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, ALBUM, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
@@ -366,8 +368,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            return createRandomDocsList(count, searcher, query,
-                (dist, id) -> util.addIgnoreNull(dist, ALBUM_ID3, id));
+            return createRandomDocsList(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, ALBUM_ID3, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
@@ -381,8 +382,8 @@ public class SearchServiceImpl implements SearchService {
     public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<Album> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) ->
-            ids.subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids
+                .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
                 .forEach(id -> util.addIgnoreNull(result, ALBUM_ID3, id));
         util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
@@ -398,9 +399,7 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            List<Integer> docs = Arrays
-                    .stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs)
-                    .map(sd -> sd.doc)
+            List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs).map(sd -> sd.doc)
                     .collect(Collectors.toList());
 
             List<Integer> ids = new ArrayList<>();
@@ -447,15 +446,16 @@ public class SearchServiceImpl implements SearchService {
         }
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
-            result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
+                .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
         util.getCache(genres, musicFolders, ALBUM).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
-        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList, musicFolders);
+        final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList,
+                musicFolders);
         util.putCache(genres, musicFolders, ALBUM, cache);
         addSubToResult.accept(cache);
         return result;
@@ -476,8 +476,7 @@ public class SearchServiceImpl implements SearchService {
         List<Album> result = new ArrayList<>();
         try {
             SortField[] sortFields = Arrays.stream(ALBUM_ID3.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING))
-                    .toArray(i -> new SortField[i]);
+                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(i -> new SortField[i]);
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
             TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
 
@@ -506,15 +505,16 @@ public class SearchServiceImpl implements SearchService {
         }
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) ->
-            result.addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+        Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
+                .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
         util.getCache(genres, musicFolders, SONG).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
-        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE, musicFolders);
+        final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE,
+                musicFolders);
         util.putCache(genres, musicFolders, SONG, cache);
         addSubToResult.accept(cache);
         return result;

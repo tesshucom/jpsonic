@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
@@ -27,10 +32,6 @@ import org.airsonic.player.domain.Avatar;
 import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Command used in {@link PersonalSettingsController}.
@@ -633,10 +634,8 @@ public class PersonalSettingsCommand {
     }
 
     public void setFontSchemes(FontScheme... fontSchemes) {
-        fontSchemeHolders = Arrays.stream(fontSchemes)
-            .map(s -> new EnumHolder(s.name(), s.toString()))
-            .collect(Collectors.toList())
-            .toArray(new EnumHolder[fontSchemes.length]);
+        fontSchemeHolders = Arrays.stream(fontSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
+                .collect(Collectors.toList()).toArray(new EnumHolder[fontSchemes.length]);
     }
 
     public String getFontSchemeName() {
@@ -684,10 +683,8 @@ public class PersonalSettingsCommand {
     }
 
     public void setSpeechLangSchemes(SpeechToTextLangScheme... speechLangSchemes) {
-        speechLangSchemeHolders = Arrays.stream(speechLangSchemes)
-            .map(s -> new EnumHolder(s.name(), s.toString()))
-            .collect(Collectors.toList())
-            .toArray(new EnumHolder[speechLangSchemes.length]);
+        speechLangSchemeHolders = Arrays.stream(speechLangSchemes).map(s -> new EnumHolder(s.name(), s.toString()))
+                .collect(Collectors.toList()).toArray(new EnumHolder[speechLangSchemes.length]);
     }
 
     public String getSpeechLangSchemeName() {

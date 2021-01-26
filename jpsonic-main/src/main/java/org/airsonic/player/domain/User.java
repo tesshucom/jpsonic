@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 /**
@@ -48,8 +49,8 @@ public class User {
     private boolean jukeboxRole;
     private boolean shareRole;
 
-    public User(String username, String password, String email, boolean ldapAuthenticated,
-                long bytesStreamed, long bytesDownloaded, long bytesUploaded) {
+    public User(String username, String password, String email, boolean ldapAuthenticated, long bytesStreamed,
+            long bytesDownloaded, long bytesUploaded) {
         this.username = username;
         this.password = password;
         this.email = email;

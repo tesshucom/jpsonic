@@ -17,21 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.web.util.UrlPathHelper;
-
-import javax.servlet.http.HttpServletRequest;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.concurrent.CompletionException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.util.UrlPathHelper;
 
 @Service
 public class NetworkService {
@@ -41,7 +42,7 @@ public class NetworkService {
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 
-    private final static Logger LOG = LoggerFactory.getLogger(NetworkService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkService.class);
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {
@@ -83,7 +84,8 @@ public class NetworkService {
             }
 
             if (!isValidXForwardedHost(xForardedHost)) {
-                throw new IllegalArgumentException("Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
+                throw new IllegalArgumentException(
+                        "Cannot calculate proxy uri without HTTP header " + X_FORWARDED_HOST);
             }
         }
 
@@ -102,7 +104,8 @@ public class NetworkService {
         return StringUtils.isNotBlank(xForardedHost) && !StringUtils.equals("null", xForardedHost);
     }
 
-    private static URI calculateNonProxyUri(HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+    private static URI calculateNonProxyUri(HttpServletRequest request)
+            throws MalformedURLException, URISyntaxException {
         URL url = new URL(request.getRequestURL().toString());
         String host = url.getHost();
         String scheme = url.getProtocol();

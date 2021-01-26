@@ -1,4 +1,8 @@
+
 package org.airsonic.player.validator;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.airsonic.player.command.PasswordSettingsCommand;
 import org.junit.Before;
@@ -6,9 +10,6 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.Errors;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 @SpringBootTest
 public class PasswordSettingsValidatorTest {

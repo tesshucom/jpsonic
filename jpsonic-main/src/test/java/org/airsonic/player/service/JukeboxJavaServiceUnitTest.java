@@ -1,14 +1,22 @@
+
 package org.airsonic.player.service;
 
-import org.airsonic.player.domain.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import org.airsonic.player.domain.MediaFile;
+import org.airsonic.player.domain.PlayQueue;
+import org.airsonic.player.domain.Player;
+import org.airsonic.player.domain.PlayerTechnology;
+import org.airsonic.player.domain.User;
 import org.airsonic.player.service.jukebox.JavaPlayerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JukeboxJavaServiceUnitTest {
@@ -37,10 +45,10 @@ public class JukeboxJavaServiceUnitTest {
     @Mock
     private MediaFile mediaFile;
 
-
     @Before
     public void setup() {
-        service = new JukeboxJavaService(audioScrobblerService, statusService, securityService, mediaFileService, javaPlayerFactory);
+        service = new JukeboxJavaService(audioScrobblerService, statusService, securityService, mediaFileService,
+                javaPlayerFactory);
         when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.JAVA_JUKEBOX);
         when(airsonicPlayer.getUsername()).thenReturn(USER_NAME);
         when(javaPlayerFactory.createJavaPlayer()).thenReturn(player);

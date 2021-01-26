@@ -16,7 +16,17 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.junit.Assert.assertEquals;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -27,15 +37,6 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
 
 /*
  * Test to correct sort inconsistencies.
@@ -52,10 +53,9 @@ public class ArtistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Autowired
     private ArtistUpnpProcessor artistUpnpProcessor;
-    
+
     @Autowired
     private SettingsService settingsService;
-
 
     @Override
     public List<MusicFolder> getMusicFolders() {
@@ -135,7 +135,7 @@ public class ArtistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetChildrenByYear() {
-        
+
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
         List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.jPSonicNaturalList);
@@ -169,7 +169,8 @@ public class ArtistUpnpProcessorTest extends AbstractAirsonicHomeTest {
     @Test
     public void testSongs() {
 
-        List<Artist> artists = artistUpnpProcessor.getItems(0, Integer.MAX_VALUE).stream().filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
+        List<Artist> artists = artistUpnpProcessor.getItems(0, Integer.MAX_VALUE).stream()
+                .filter(a -> "20".equals(a.getName())).collect(Collectors.toList());
         assertEquals(1, artists.size());
 
         Artist artist = artists.get(0);
@@ -179,9 +180,10 @@ public class ArtistUpnpProcessorTest extends AbstractAirsonicHomeTest {
         assertEquals(1, albums.size());
 
         Album album = albums.get(0);
-        assertEquals("AlBum!", album.getName());// the case where album name is different between file and id3
+        assertEquals("AlBum!", album.getName()); // the case where album name is different between file and id3
 
-        List<MediaFile> songs = artistUpnpProcessor.getDispatcher().getAlbumProcessor().getChildren(album, 0, Integer.MAX_VALUE);
+        List<MediaFile> songs = artistUpnpProcessor.getDispatcher().getAlbumProcessor().getChildren(album, 0,
+                Integer.MAX_VALUE);
         assertEquals(1, songs.size());
 
         MediaFile song = songs.get(0);

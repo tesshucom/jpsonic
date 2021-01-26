@@ -16,7 +16,14 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
 import org.airsonic.player.dao.AlbumDao;
@@ -29,12 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
@@ -67,7 +68,8 @@ public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
     @Test
     public void testGetAlphabeticalAlbums() {
         List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
-        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName()).collect(Collectors.toList());
+        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName())
+                .collect(Collectors.toList());
         JpsonicComparatorsTestUtils.validateNaturalList(names);
     }
 

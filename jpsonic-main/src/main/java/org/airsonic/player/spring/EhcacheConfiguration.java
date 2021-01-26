@@ -1,12 +1,13 @@
+
 package org.airsonic.player.spring;
+
+import javax.servlet.ServletContextListener;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.airsonic.player.cache.CacheFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import javax.servlet.ServletContextListener;
 
 @Configuration
 public class EhcacheConfiguration {

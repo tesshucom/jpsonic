@@ -17,7 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -46,16 +57,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Controller for the page used to administrate the set of music folders.
@@ -139,12 +140,11 @@ public class MusicFolderSettingsController {
         MediaLibraryStatistics statistics = indexManager.getStatistics();
 
         /*
-         * indexManager#expunge depends on DB delete flag.
-         * For consistency, clean of DB and Lucene must run in one block.
+         * indexManager#expunge depends on DB delete flag. For consistency, clean of DB and Lucene must run in one
+         * block.
          *
-         * Lucene's writing is exclusive.
-         * This process cannot be performed
-         * while during scan or scan has never been performed.
+         * Lucene's writing is exclusive. This process cannot be performed while during scan or scan has never been
+         * performed.
          */
         if (statistics != null && !mediaScannerService.isScanning()) {
 
@@ -179,7 +179,8 @@ public class MusicFolderSettingsController {
             mediaFileDao.checkpoint();
 
         } else {
-            LOG.warn("Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
+            LOG.warn(
+                    "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
 
         isExpunging.set(false);
@@ -187,7 +188,8 @@ public class MusicFolderSettingsController {
     }
 
     private List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        return musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new).collect(Collectors.toCollection(ArrayList::new));
+        return musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @PostMapping

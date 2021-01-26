@@ -1,4 +1,7 @@
+
 package org.airsonic.player.service;
+
+import java.io.File;
 
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.util.HomeRule;
@@ -13,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-
-import java.io.File;
 
 @SpringBootTest
 public class LegacyDatabaseStartupTest {
@@ -32,7 +33,8 @@ public class LegacyDatabaseStartupTest {
                 TestCaseUtils.cleanJpsonicHomeForTest();
                 File dbDirectory = new File(homeParent, "/db");
                 FileUtils.forceMkdir(dbDirectory);
-                org.airsonic.player.util.FileUtils.copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));
+                org.airsonic.player.util.FileUtils
+                        .copyResourcesRecursively(getClass().getResource("/db/pre-liquibase/db"), new File(homeParent));
             }
         };
 
@@ -49,7 +51,7 @@ public class LegacyDatabaseStartupTest {
     @Test
     public void testStartup() {
         if (LOG.isInfoEnabled()) {
-            LOG.info("Successful startup");            
+            LOG.info("Successful startup");
         }
     }
 

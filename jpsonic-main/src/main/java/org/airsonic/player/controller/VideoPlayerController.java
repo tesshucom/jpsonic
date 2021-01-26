@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -39,12 +46,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * Controller for the page used to play videos.
  *
@@ -55,7 +56,7 @@ import java.util.Map;
 public class VideoPlayerController {
 
     public static final int DEFAULT_BIT_RATE = 2000;
-    private static final int[] BIT_RATES = {200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000};
+    private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
 
     @Autowired
     private MediaFileService mediaFileService;
@@ -68,7 +69,8 @@ public class VideoPlayerController {
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile file = mediaFileService.getMediaFile(id);
@@ -115,8 +117,7 @@ public class VideoPlayerController {
 
     @SuppressWarnings("PMD.UseConcurrentHashMap")
     /*
-     * LinkedHashMap used in Legacy code.
-     * Should be triaged in #831.
+     * LinkedHashMap used in Legacy code. Should be triaged in #831.
      */
     public static Map<String, Integer> createSkipOffsets(int durationSeconds) {
         LinkedHashMap<String, Integer> result = new LinkedHashMap<>();

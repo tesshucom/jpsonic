@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+package org.airsonic.player.domain;
 
 import static org.airsonic.player.domain.TranscodeScheme.MAX_32;
 import static org.airsonic.player.domain.TranscodeScheme.MAX_64;
 import static org.airsonic.player.domain.TranscodeScheme.OFF;
 import static org.junit.Assert.assertSame;
+
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link TranscodeScheme}.

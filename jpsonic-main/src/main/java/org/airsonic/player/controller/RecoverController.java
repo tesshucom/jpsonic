@@ -1,4 +1,19 @@
+
 package org.airsonic.player.controller;
+
+import java.security.SecureRandom;
+import java.util.Date;
+import java.util.Map;
+import java.util.Properties;
+
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
@@ -16,27 +31,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.Map;
-import java.util.Properties;
-
 /**
  * Spring MVC Controller that serves the login page.
  */
 @Controller
 @RequestMapping("/recover")
 public class RecoverController {
-
 
     private static final Logger LOG = LoggerFactory.getLogger(RecoverController.class);
 
@@ -46,18 +46,18 @@ public class RecoverController {
 
     private static final String SESSION_KEY_MAIL_PREF = "mail.";
     private static final String SESSION_VALUE_TRUE = "true";
-    
-    
+
     @Autowired
     private SettingsService settingsService;
     @Autowired
     private SecurityService securityService;
 
-    @RequestMapping(method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, Object> map = LegacyMap.of();
-        String usernameOrEmail = StringUtils.trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
+        String usernameOrEmail = StringUtils
+                .trimToNull(request.getParameter(Attributes.Request.USERNAME_OR_EMAIL.value()));
 
         if (usernameOrEmail != null) {
 
@@ -117,8 +117,8 @@ public class RecoverController {
     }
 
     /*
-    * e-mail user new password via configured Smtp server
-    */
+     * e-mail user new password via configured Smtp server
+     */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private boolean emailPassword(String password, String username, String email) {
         /* Default to protocol smtp when SmtpEncryption is set to "None" */
@@ -151,17 +151,15 @@ public class RecoverController {
             message.setFrom(new InternetAddress(settingsService.getSmtpFrom()));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             message.setSubject("Jpsonic Password");
-            message.setText("Hi there!\n\n" +
-                    "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n" +
-                    "Username: " + username + "\n" +
-                    "Password: " + password + "\n\n" +
-                    "--\n" +
-                    "Your Jpsonic server\n" +
-                    "tesshu.com/");
+            message.setText("Hi there!\n\n"
+                    + "You have requested to reset your Jpsonic password.  Please find your new login details below.\n\n"
+                    + "Username: " + username + "\n" + "Password: " + password + "\n\n" + "--\n"
+                    + "Your Jpsonic server\n" + "tesshu.com/");
             message.setSentDate(new Date());
 
             try (Transport trans = session.getTransport(prot)) {
-                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
+                if (props.get(SESSION_KEY_MAIL_PREF + prot + ".auth") != null
+                        && props.get(SESSION_KEY_MAIL_PREF + prot + ".auth").equals(SESSION_VALUE_TRUE)) {
                     trans.connect(settingsService.getSmtpServer(), settingsService.getSmtpUser(),
                             settingsService.getSmtpPassword());
                 } else {

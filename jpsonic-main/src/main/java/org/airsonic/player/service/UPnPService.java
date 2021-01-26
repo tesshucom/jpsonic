@@ -17,7 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.PostConstruct;
 
 import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
@@ -51,16 +60,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
-
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @Service
@@ -180,20 +182,12 @@ public class UPnPService {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    /* [PMD.AvoidInstantiatingObjectsInLoops]
-     * (DLNAProtocolInfo, AssertionError) Not reusable
+    /*
+     * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
      */
     private LocalDevice createMediaServerDevice() throws Exception {
 
-        String serverName = settingsService.getDlnaServerName();
-        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
-        DeviceType type = new UDADeviceType("MediaServer", 1);
-
         // TODO: DLNACaps
-
-        DeviceDetails details = new DeviceDetails(serverName, new ManufacturerDetails(serverName),
-                new ModelDetails(serverName),
-                new DLNADoc[]{new DLNADoc("DMS", DLNADoc.Version.V1_5)}, null);
 
         @SuppressWarnings("unchecked")
         LocalService<CustomContentDirectory> directoryservice = new AnnotationLocalServiceBinder()
@@ -210,37 +204,47 @@ public class UPnPService {
                 protocols.add(new DLNAProtocolInfo(dlnaProfile));
             } catch (Exception e) {
                 if (LOG.isTraceEnabled()) {
-                    LOG.trace("Error in adding dlna protocols.",
-                            new AssertionError("Errors with unclear cases.", e));
+                    LOG.trace("Error in adding dlna protocols.", new AssertionError("Errors with unclear cases.", e));
                 }
             }
         }
 
         @SuppressWarnings("unchecked")
-        LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder().read(ConnectionManagerService.class);
-        connetionManagerService.setManager(new DefaultServiceManager<ConnectionManagerService>(connetionManagerService) {
-            @Override
-            protected ConnectionManagerService createServiceInstance() {
-                return new ConnectionManagerService(protocols, null);
-            }
-        });
+        LocalService<ConnectionManagerService> connetionManagerService = new AnnotationLocalServiceBinder()
+                .read(ConnectionManagerService.class);
+        connetionManagerService
+                .setManager(new DefaultServiceManager<ConnectionManagerService>(connetionManagerService) {
+                    @Override
+                    protected ConnectionManagerService createServiceInstance() {
+                        return new ConnectionManagerService(protocols, null);
+                    }
+                });
 
         // For compatibility with Microsoft
         @SuppressWarnings("unchecked")
-        LocalService<MSMediaReceiverRegistrarService> receiverService = new AnnotationLocalServiceBinder().read(MSMediaReceiverRegistrarService.class);
+        LocalService<MSMediaReceiverRegistrarService> receiverService = new AnnotationLocalServiceBinder()
+                .read(MSMediaReceiverRegistrarService.class);
         receiverService.setManager(new DefaultServiceManager<>(receiverService, MSMediaReceiverRegistrarService.class));
 
         Icon icon;
         try (InputStream in = getClass().getResourceAsStream("logo-512.png")) {
             icon = new Icon("image/png", 512, 512, 32, "logo-512", in);
         }
-        return new LocalDevice(identity, type, details, new Icon[]{icon}, new LocalService[]{directoryservice, connetionManagerService, receiverService});
+
+        String serverName = settingsService.getDlnaServerName();
+        DeviceDetails details = new DeviceDetails(serverName, new ManufacturerDetails(serverName),
+                new ModelDetails(serverName), new DLNADoc[] { new DLNADoc("DMS", DLNADoc.Version.V1_5) }, null);
+        DeviceIdentity identity = new DeviceIdentity(UDN.uniqueSystemIdentifier(serverName));
+        DeviceType type = new UDADeviceType("MediaServer", 1);
+        return new LocalDevice(identity, type, details, new Icon[] { icon },
+                new LocalService[] { directoryservice, connetionManagerService, receiverService });
     }
 
     public List<String> getSonosControllerHosts() {
         ensureServiceStarted();
         List<String> result = new ArrayList<>();
-        for (Device<?, ?, ?> device : deligate.getRegistry().getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
+        for (Device<?, ?, ?> device : deligate.getRegistry()
+                .getDevices(new DeviceType("schemas-upnp-org", "ZonePlayer"))) {
             if (device instanceof RemoteDevice) {
                 URL descriptorURL = ((RemoteDevice) device).getIdentity().getDescriptorURL();
                 if (descriptorURL != null) {

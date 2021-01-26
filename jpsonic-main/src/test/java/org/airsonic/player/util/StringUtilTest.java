@@ -17,18 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.util;
-
-import org.apache.commons.lang.StringEscapeUtils;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.Arrays;
-import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.Locale;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link StringUtil}.
@@ -197,7 +198,8 @@ public class StringUtilTest {
         assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/foo.mp3"));
         assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3"));
         assertEquals("Error in getUrlFile().", "foo", StringUtil.getUrlFile("http://www.asdf.com/bar/foo"));
-        assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"));
+        assertEquals("Error in getUrlFile().", "foo.mp3",
+                StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("not a url"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com"));
         assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com/"));

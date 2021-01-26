@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
@@ -37,13 +45,6 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Controller for sharing music on Twitter, Facebook etc.
@@ -77,7 +78,6 @@ public class ShareManagementController {
             }
         }
 
-
         Share share = shareService.createShare(request, files);
         String description = getDescription(request);
         if (description != null) {
@@ -85,10 +85,8 @@ public class ShareManagementController {
             shareService.updateShare(share);
         }
 
-        return new ModelAndView("createShare", "model", LegacyMap.of(
-                "dir", dir,
-                "user", securityService.getCurrentUser(request),
-                "playUrl", shareService.getShareUrl(request, share)));
+        return new ModelAndView("createShare", "model", LegacyMap.of("dir", dir, "user",
+                securityService.getCurrentUser(request), "playUrl", shareService.getShareUrl(request, share)));
     }
 
     private String getDescription(HttpServletRequest request) throws ServletRequestBindingException {

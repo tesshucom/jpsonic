@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.security.GeneralSecurityException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
@@ -32,15 +44,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
 
 /**
  * Controller for the page used to generate the Podcast XML file.
@@ -76,7 +79,8 @@ public class PodcastController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws ExecutionException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws ExecutionException {
 
         if (!settingsService.isPublishPodcast()) {
             throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));
@@ -111,11 +115,10 @@ public class PodcastController {
             podcasts.add(new Podcast(playlist.getName(), publishDate, enclosureUrl, length, type));
         }
 
-        return new ModelAndView("podcast", "model", LegacyMap.of(
-                "url", url,
-                "lang", lang,
-                "logo", url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png",
-                "podcasts", podcasts));
+        return new ModelAndView("podcast", "model",
+                LegacyMap.of("url", url, "lang", lang, "logo",
+                        url.replaceAll("podcast/" + ViewName.PODCAST.value() + "$", "") + "/icons/logo.png", "podcasts",
+                        podcasts));
     }
 
     /**

@@ -1,16 +1,16 @@
 
 package org.airsonic.player.service.metadata;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 
 import java.io.File;
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
 
@@ -174,7 +174,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals("MusicCenter-Composer", metaData.getComposer());
         assertNull(metaData.getComposerSort());
-        assertNull(metaData.getTrackNumber());// If track is not input, output 1.0.
+        assertNull(metaData.getTrackNumber()); // If track is not input, output 1.0.
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
         assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
         assertEquals(Integer.valueOf(320), metaData.getBitRate());

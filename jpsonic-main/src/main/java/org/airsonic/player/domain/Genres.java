@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Represents a list of genres.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.2 $ $Date: 2005/12/25 13:48:46 $
  */
 public class Genres {

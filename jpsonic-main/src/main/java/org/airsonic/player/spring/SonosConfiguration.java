@@ -1,4 +1,9 @@
+
 package org.airsonic.player.spring;
+
+import java.util.Collections;
+
+import javax.xml.ws.Endpoint;
 
 import org.airsonic.player.service.SonosService;
 import org.airsonic.player.service.sonos.SonosFaultInterceptor;
@@ -7,12 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-import javax.xml.ws.Endpoint;
-
-import java.util.Collections;
-
 @Configuration
-@ImportResource({"classpath:META-INF/cxf/cxf.xml", "classpath:META-INF/cxf/cxf-servlet.xml"})
+@ImportResource({ "classpath:META-INF/cxf/cxf.xml", "classpath:META-INF/cxf/cxf-servlet.xml" })
 public class SonosConfiguration {
 
     @Bean

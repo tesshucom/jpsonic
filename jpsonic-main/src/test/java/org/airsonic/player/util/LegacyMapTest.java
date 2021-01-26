@@ -1,11 +1,12 @@
+
 package org.airsonic.player.util;
-
-import org.junit.Test;
-
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import java.util.Map;
+
+import org.junit.Test;
 
 public class LegacyMapTest {
 

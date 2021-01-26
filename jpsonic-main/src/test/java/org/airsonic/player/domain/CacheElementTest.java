@@ -17,12 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
+
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Unit test of {@link CacheElement}.
@@ -35,16 +36,18 @@ public class CacheElementTest {
     @Test
     public void testCreateId() {
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") ==
-                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") == CacheElement
+                .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") !=
-                CacheElement.createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
+                .createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(237462763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") !=
-                CacheElement.createId(28374922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(
+                CacheElement.createId(237462763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
+                        .createId(28374922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla") !=
-                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        assertTrue(
+                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla") != CacheElement
+                        .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
     }
 }

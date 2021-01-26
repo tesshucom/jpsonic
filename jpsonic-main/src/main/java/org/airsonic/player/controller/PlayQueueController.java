@@ -17,7 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.Player;
@@ -32,9 +36,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller for the playlist frame.
@@ -53,27 +54,21 @@ public class PlayQueueController {
     private SettingsService settingsService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         Player player = playerService.getPlayer(request, response);
 
-        return new ModelAndView("playQueue", "model", LegacyMap.of(
-                "user", user,
-                "player", player,
-                "players", playerService.getPlayersForUserAndClientId(user.getUsername(), null),
-                "visibility", userSettings.getPlaylistVisibility(),
-                "closePlayQueue", userSettings.isClosePlayQueue(),
-                "partyMode", userSettings.isPartyModeEnabled(),
-                "notify", userSettings.isSongNotificationEnabled(),
-                "autoHide", userSettings.isAutoHidePlayQueue(),
-                "coverArtSize", CoverArtScheme.SMALL.getSize(),
-                "showDownload", userSettings.isShowDownload(),
-                "showShare", userSettings.isShowShare(),
-                "alternativeDrawer", userSettings.isAlternativeDrawer(),
-                "showAlbumActions", userSettings.isShowAlbumActions(),
-                "simpleDisplay", userSettings.isSimpleDisplay(),
-                "playqueueQuickOpen", userSettings.isAutoHidePlayQueue()));
+        return new ModelAndView("playQueue", "model", LegacyMap.of("user", user, "player", player, "players",
+                playerService.getPlayersForUserAndClientId(user.getUsername(), null), "visibility",
+                userSettings.getPlaylistVisibility(), "closePlayQueue", userSettings.isClosePlayQueue(), "partyMode",
+                userSettings.isPartyModeEnabled(), "notify", userSettings.isSongNotificationEnabled(), "autoHide",
+                userSettings.isAutoHidePlayQueue(), "coverArtSize", CoverArtScheme.SMALL.getSize(), "showDownload",
+                userSettings.isShowDownload(), "showShare", userSettings.isShowShare(), "alternativeDrawer",
+                userSettings.isAlternativeDrawer(), "showAlbumActions", userSettings.isShowAlbumActions(),
+                "simpleDisplay", userSettings.isSimpleDisplay(), "playqueueQuickOpen",
+                userSettings.isAutoHidePlayQueue()));
     }
 }

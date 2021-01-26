@@ -16,7 +16,12 @@
  *
  *  Copyright 2014 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -31,10 +36,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.List;
 
 /**
  * Controller for the playlists page.
@@ -61,11 +62,10 @@ public class PlaylistsController {
     public String doGet(HttpServletRequest request, Model model) {
         User user = securityService.getCurrentUser(request);
         List<Playlist> playlists = playlistService.getReadablePlaylistsForUser(user.getUsername());
-        model.addAttribute("model", LegacyMap.of(
-                "playlists", playlists,
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
-                "publishPodcast", settingsService.isPublishPodcast()));
+        model.addAttribute("model",
+                LegacyMap.of("playlists", playlists, "viewAsList",
+                        viewSelector.isViewAsList(request, user.getUsername()), "coverArtSize",
+                        CoverArtScheme.MEDIUM.getSize(), "publishPodcast", settingsService.isPublishPodcast()));
         return "playlists";
     }
 }

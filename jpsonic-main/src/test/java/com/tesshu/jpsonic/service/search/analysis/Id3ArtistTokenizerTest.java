@@ -16,17 +16,18 @@
 
  Copyright 2020 (C) tesshu.com
  */
-package com.tesshu.jpsonic.service.search.analysis;
 
-import org.junit.Test;
+package com.tesshu.jpsonic.service.search.analysis;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Test;
+
 public class Id3ArtistTokenizerTest {
 
     private Id3ArtistTokenizer tokenizer = new Id3ArtistTokenizer();
-    
+
     @Test
     public void testIsTokenChar() {
 

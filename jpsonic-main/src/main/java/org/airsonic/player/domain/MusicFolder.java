@@ -17,21 +17,23 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import com.google.common.base.Function;
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
+package org.airsonic.player.domain;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
+import com.google.common.base.Function;
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+
 /**
  * Represents a top level directory in which music or other media is stored.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2005/11/27 14:32:05 $
  */
 @SuppressWarnings("serial")
@@ -46,11 +48,16 @@ public class MusicFolder implements Serializable {
     /**
      * Creates a new music folder.
      *
-     * @param id      The system-generated ID.
-     * @param path    The path of the music folder.
-     * @param name    The user-defined name.
-     * @param enabled Whether the folder is enabled.
-     * @param changed When the corresponding database entry was last changed.
+     * @param id
+     *            The system-generated ID.
+     * @param path
+     *            The path of the music folder.
+     * @param name
+     *            The user-defined name.
+     * @param enabled
+     *            Whether the folder is enabled.
+     * @param changed
+     *            When the corresponding database entry was last changed.
      */
     public MusicFolder(Integer id, File path, String name, boolean enabled, Date changed) {
         this.id = id;
@@ -63,10 +70,14 @@ public class MusicFolder implements Serializable {
     /**
      * Creates a new music folder.
      *
-     * @param path    The path of the music folder.
-     * @param name    The user-defined name.
-     * @param enabled Whether the folder is enabled.
-     * @param changed When the corresponding database entry was last changed.
+     * @param path
+     *            The path of the music folder.
+     * @param name
+     *            The user-defined name.
+     * @param enabled
+     *            Whether the folder is enabled.
+     * @param changed
+     *            When the corresponding database entry was last changed.
      */
     public MusicFolder(File path, String name, boolean enabled, Date changed) {
         this(null, path, name, enabled, changed);
@@ -93,7 +104,8 @@ public class MusicFolder implements Serializable {
     /**
      * Sets the path of the music folder.
      *
-     * @param path The path of the music folder.
+     * @param path
+     *            The path of the music folder.
      */
     public void setPath(File path) {
         this.path = path;
@@ -111,7 +123,8 @@ public class MusicFolder implements Serializable {
     /**
      * Sets the user-defined name.
      *
-     * @param name The user-defined name.
+     * @param name
+     *            The user-defined name.
      */
     public void setName(String name) {
         this.name = name;
@@ -129,7 +142,8 @@ public class MusicFolder implements Serializable {
     /**
      * Sets whether the folder is enabled.
      *
-     * @param enabled Whether the folder is enabled.
+     * @param enabled
+     *            Whether the folder is enabled.
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -147,7 +161,8 @@ public class MusicFolder implements Serializable {
     /**
      * Sets when the corresponding database entry was last changed.
      *
-     * @param changed When the corresponding database entry was last changed.
+     * @param changed
+     *            When the corresponding database entry was last changed.
      */
     public void setChanged(Date changed) {
         this.changed = changed;
@@ -168,7 +183,6 @@ public class MusicFolder implements Serializable {
     public int hashCode() {
         return Objects.hashCode(id);
     }
-
 
     public static List<Integer> toIdList(List<MusicFolder> from) {
         return Lists.transform(from, toId());

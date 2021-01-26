@@ -1,4 +1,8 @@
+
 package org.airsonic.player.spring;
+
+import java.sql.Connection;
+import java.util.List;
 
 import liquibase.database.Database;
 import liquibase.database.DatabaseConnection;
@@ -11,9 +15,6 @@ import liquibase.resource.ResourceAccessor;
 import liquibase.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.sql.Connection;
-import java.util.List;
 
 public class AirsonicSpringLiquibase extends liquibase.integration.spring.SpringLiquibase {
 
@@ -38,9 +39,7 @@ public class AirsonicSpringLiquibase extends liquibase.integration.spring.Spring
     }
 
     @Override
-    protected Database createDatabase(
-            Connection c, ResourceAccessor resourceAccessor
-    ) throws DatabaseException {
+    protected Database createDatabase(Connection c, ResourceAccessor resourceAccessor) throws DatabaseException {
         DatabaseConnection liquibaseConnection;
         if (c == null) {
             log.warning("Null connection returned by liquibase datasource. Using offline unknown database");

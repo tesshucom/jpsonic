@@ -17,7 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.Avatar;
@@ -30,9 +34,6 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.LastModified;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller which produces avatar images.
@@ -84,7 +85,8 @@ public class AvatarController implements LastModified {
             return null;
         }
 
-        boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(), false);
+        boolean forceCustom = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.FORCE_CUSTOM.value(),
+                false);
         UserSettings userSettings = settingsService.getUserSettings(username);
         if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM || forceCustom) {
             return settingsService.getCustomAvatar(username);

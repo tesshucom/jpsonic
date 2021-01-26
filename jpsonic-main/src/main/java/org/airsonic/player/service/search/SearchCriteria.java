@@ -16,11 +16,12 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.domain.MusicFolder;
-
 import java.util.List;
+
+import org.airsonic.player.domain.MusicFolder;
 
 public class SearchCriteria extends LuceneSearchCriteria {
 
@@ -28,7 +29,8 @@ public class SearchCriteria extends LuceneSearchCriteria {
 
     private final IndexType indexType;
 
-    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders, IndexType indexType) {
+    SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders,
+            IndexType indexType) {
         super(searchInput, offset, count, includeComposer);
         this.musicFolders = musicFolders;
         this.indexType = indexType;

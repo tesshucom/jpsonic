@@ -17,18 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
-
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-
-import java.awt.Dimension;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
+import java.awt.Dimension;
+
+import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 @SpringBootTest
@@ -119,7 +121,8 @@ public class StreamControllerTest {
         doTestGetSuitableVideoSize(464, 853, 1500, 464, 854);
     }
 
-    private void doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate, int expectedWidth, int expectedHeight) {
+    private void doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
+            int expectedWidth, int expectedHeight) {
         StreamController controller = new StreamController();
         Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals("Wrong width.", expectedWidth, dimension.width);

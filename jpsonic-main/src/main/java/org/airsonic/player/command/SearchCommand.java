@@ -17,14 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
+
+import java.util.List;
 
 import org.airsonic.player.controller.SearchController;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.User;
-
-import java.util.List;
 
 /**
  * Command used in {@link SearchController}.

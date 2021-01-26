@@ -19,6 +19,9 @@
 
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.service.PodcastService;
@@ -30,9 +33,6 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Controller for the "Podcast channel" page.
@@ -49,16 +49,16 @@ public class PodcastChannelController {
     private SecurityService securityService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         ModelAndView result = new ModelAndView();
 
         int channelId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
-        result.addObject("model", LegacyMap.of(
-                "user", securityService.getCurrentUser(request),
-                "channel", podcastService.getChannel(channelId),
-                "episodes", podcastService.getEpisodes(channelId),
-                "coverArtSize", CoverArtScheme.LARGE.getSize()));
+        result.addObject("model",
+                LegacyMap.of("user", securityService.getCurrentUser(request), "channel",
+                        podcastService.getChannel(channelId), "episodes", podcastService.getEpisodes(channelId),
+                        "coverArtSize", CoverArtScheme.LARGE.getSize()));
 
         return result;
     }

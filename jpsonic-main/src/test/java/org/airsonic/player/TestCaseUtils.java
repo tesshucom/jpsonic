@@ -1,11 +1,5 @@
-package org.airsonic.player;
 
-import org.airsonic.player.controller.JAXBWriter;
-import org.airsonic.player.dao.DaoHelper;
-import org.airsonic.player.service.MediaScannerService;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +7,13 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.airsonic.player.controller.JAXBWriter;
+import org.airsonic.player.dao.DaoHelper;
+import org.airsonic.player.service.MediaScannerService;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
 public class TestCaseUtils {
@@ -22,11 +23,12 @@ public class TestCaseUtils {
     private static File jpsonicHomeDirForTest;
 
     /**
-     * Returns the path of the JPSONIC_HOME directory to use for tests. This will
-     * create a temporary directory.
+     * Returns the path of the JPSONIC_HOME directory to use for tests. This will create a temporary directory.
      *
      * @return JPSONIC_HOME directory path.
-     * @throws RuntimeException if it fails to create the temp directory.
+     * 
+     * @throws RuntimeException
+     *             if it fails to create the temp directory.
      */
     public static String jpsonicHomePathForTest() {
 
@@ -74,29 +76,28 @@ public class TestCaseUtils {
     /**
      * Constructs a map of records count per table.
      *
-     * @param daoHelper DaoHelper object
+     * @param daoHelper
+     *            DaoHelper object
+     * 
      * @return Map table name -> records count
      */
     public static Map<String, Integer> recordsInAllTables(DaoHelper daoHelper) {
         List<String> tableNames = daoHelper.getJdbcTemplate().queryForList(
-                      "select table_name " +
-                      "from information_schema.system_tables " +
-                      "where table_type <> 'SYSTEM TABLE'"
-              , String.class);
+                "select table_name " + "from information_schema.system_tables " + "where table_type <> 'SYSTEM TABLE'",
+                String.class);
 
-        return tableNames.stream()
-                .collect(Collectors.toMap(table -> table, table -> recordsInTable(table,daoHelper)));
+        return tableNames.stream().collect(Collectors.toMap(table -> table, table -> recordsInTable(table, daoHelper)));
     }
 
     /**
      * Counts records in a table.
      */
     public static Integer recordsInTable(String tableName, DaoHelper daoHelper) {
-        return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName,Integer.class);
+        return daoHelper.getJdbcTemplate().queryForObject("select count(1) from " + tableName, Integer.class);
     }
 
     /**
-     * Scans the music library   * @param mediaScannerService
+     * Scans the music library * @param mediaScannerService
      */
     public static void execScan(MediaScannerService mediaScannerService) {
         // TODO create a synchronous scan

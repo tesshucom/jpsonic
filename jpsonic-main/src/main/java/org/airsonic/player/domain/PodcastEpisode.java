@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.Date;
@@ -25,6 +26,7 @@ import java.util.Date;
  * A Podcast episode belonging to a channel.
  *
  * @author Sindre Mehus
+ * 
  * @see PodcastChannel
  */
 public class PodcastEpisode {
@@ -43,9 +45,9 @@ public class PodcastEpisode {
     private PodcastStatus status;
     private String errorMessage;
 
-    public PodcastEpisode(Integer id, Integer channelId, String url, String path, String title,
-                          String description, Date publishDate, String duration, Long length, Long bytesDownloaded,
-                          PodcastStatus status, String errorMessage) {
+    public PodcastEpisode(Integer id, Integer channelId, String url, String path, String title, String description,
+            Date publishDate, String duration, Long length, Long bytesDownloaded, PodcastStatus status,
+            String errorMessage) {
         this.id = id;
         this.channelId = channelId;
         this.url = url;

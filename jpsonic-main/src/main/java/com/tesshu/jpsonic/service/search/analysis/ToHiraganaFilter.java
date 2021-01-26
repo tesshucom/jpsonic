@@ -1,4 +1,7 @@
+
 package com.tesshu.jpsonic.service.search.analysis;
+
+import java.io.IOException;
 
 import com.ibm.icu.text.Replaceable;
 import com.ibm.icu.text.Transliterator;
@@ -8,15 +11,13 @@ import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
-import java.io.IOException;
-
 public final class ToHiraganaFilter extends TokenFilter {
 
     /**
      * Wrap a {@link CharTermAttribute} with the Replaceable API.
      */
     static final class ReplaceableTermAttribute implements Replaceable {
-        private char buffer[];
+        private char[] buffer;
         private int unitLength;
         private CharTermAttribute token;
 
@@ -32,7 +33,7 @@ public final class ToHiraganaFilter extends TokenFilter {
 
         @Override
         public void copy(int start, int limit, int dest) {
-            char text[] = new char[limit - start];
+            char[] text = new char[limit - start];
             getChars(start, limit, text, 0);
             replace(dest, dest, text, 0, limit - start);
         }
@@ -79,10 +80,12 @@ public final class ToHiraganaFilter extends TokenFilter {
         private int shiftForReplace(int start, int limit, int charsLen) {
             final int replacementLength = limit - start;
             final int newLength = unitLength - replacementLength + charsLen;
-            if (newLength > unitLength)
+            if (newLength > unitLength) {
                 buffer = token.resizeBuffer(newLength);
-            if (replacementLength != charsLen && limit < unitLength)
+            }
+            if (replacementLength != charsLen && limit < unitLength) {
                 System.arraycopy(buffer, limit, buffer, start + charsLen, unitLength - limit);
+            }
             return newLength;
         }
     }
@@ -98,7 +101,8 @@ public final class ToHiraganaFilter extends TokenFilter {
     /**
      * Create a Filter that transforms text on the given stream.
      * 
-     * @param input {@link TokenStream} to filter.
+     * @param input
+     *            {@link TokenStream} to filter.
      */
     @SuppressWarnings("deprecation")
     public ToHiraganaFilter(TokenStream input) {
@@ -106,8 +110,9 @@ public final class ToHiraganaFilter extends TokenFilter {
         this.transform = Transliterator.getInstance("Katakana-Hiragana");
         if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
             final UnicodeSet sourceSet = transform.getSourceSet();
-            if (sourceSet != null && !sourceSet.isEmpty())
+            if (sourceSet != null && !sourceSet.isEmpty()) {
                 transform.setFilter(sourceSet);
+            }
         }
     }
 

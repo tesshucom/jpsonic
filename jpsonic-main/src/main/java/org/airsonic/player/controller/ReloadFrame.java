@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
 /**
@@ -27,7 +28,8 @@ public class ReloadFrame {
     private String frame;
     private String view;
 
-    public ReloadFrame() {}
+    public ReloadFrame() {
+    }
 
     public ReloadFrame(String frame, String view) {
         this.frame = frame;

@@ -1,10 +1,11 @@
+
 package org.airsonic.player.service.upnp.processor;
 
 import org.airsonic.player.domain.MediaFile;
 import org.subsonic.restapi.IndexID3;
 
 public interface Id3Wrapper {
-    
+
     boolean isIndex();
 
     boolean isAlbum();

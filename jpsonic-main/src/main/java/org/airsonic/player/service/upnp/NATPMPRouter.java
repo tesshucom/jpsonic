@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.upnp;
 
 import com.hoodcomputing.natpmp.MapRequestMessage;
@@ -24,6 +25,7 @@ import com.hoodcomputing.natpmp.NatPmpDevice;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public final class NATPMPRouter implements Router {

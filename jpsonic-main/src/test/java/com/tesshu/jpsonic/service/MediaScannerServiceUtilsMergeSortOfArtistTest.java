@@ -16,7 +16,20 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
@@ -32,18 +45,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * If two or more SORTs exist in one name, unify them into one SORT.
@@ -89,7 +90,8 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
             albums.forEach(a -> {
                 List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
                 files.stream().forEach(m -> {
-                    if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName()) || "file17".equals(m.getName())) {
+                    if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
+                            || "file17".equals(m.getName())) {
                         m.setChanged(now);
                         mediaFileDao.createOrUpdateMediaFile(m);
                     }
@@ -113,22 +115,22 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
 
         artists.forEach(m -> {
             switch (m.getName()) {
-                case "case10":
-                    assertEquals("case10", m.getArtistReading());
-                    assertEquals("artistT", m.getArtistSort());
-                    break;
-                case "case11":
-                    assertEquals("case11", m.getArtistReading());
-                    assertEquals("artistU", m.getArtistSort());
-                    break;
-                case "ARTIST":
-                    assertEquals("ARTIST", m.getArtistReading());
-                    assertNull(m.getArtistSort());
-                    break;
-    
-                default:
-                    fail();
-                    break;
+            case "case10":
+                assertEquals("case10", m.getArtistReading());
+                assertEquals("artistT", m.getArtistSort());
+                break;
+            case "case11":
+                assertEquals("case11", m.getArtistReading());
+                assertEquals("artistU", m.getArtistSort());
+                break;
+            case "ARTIST":
+                assertEquals("ARTIST", m.getArtistReading());
+                assertNull(m.getArtistSort());
+                break;
+
+            default:
+                fail();
+                break;
             }
         });
 
@@ -192,220 +194,222 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
 
             albums.forEach(album -> {
                 switch (album.getName()) {
-                    case "ALBUM1":
-                        assertEquals("case01", album.getArtist());
-                        assertEquals("case01", album.getArtistReading());
-                        assertEquals("artistA", album.getArtistSort());
-                        break;
-                    case "ALBUM2":
-                        assertEquals("case02", album.getArtist());
-                        assertEquals("case02", album.getArtistReading());
-                        assertEquals("artistD", album.getArtistSort());
-                        break;
-                    case "ALBUM3":
-                        assertEquals("case03", album.getArtist());
-                        assertEquals("case03", album.getArtistReading());
-                        assertEquals("artistE", album.getArtistSort());
-                        break;
-                    case "ALBUM4":
-                        assertEquals("ARTIST", album.getArtist());
-                        assertEquals("ARTIST", album.getArtistReading());
-                        assertNull(album.getArtistSort());
-                        break;
-                    case "ALBUM5":
-                        assertEquals("case05", album.getArtist());
-                        assertEquals("case05", album.getArtistReading());
-                        assertEquals("artistJ", album.getArtistSort());
-                        break;
-                    case "ALBUM6":
-                        assertEquals("case06", album.getArtist());
-                        assertEquals("case06", album.getArtistReading());
-                        assertEquals("artistL", album.getArtistSort());
-                        break;
-                    case "ALBUM7":
-                        assertEquals("ARTIST", album.getArtist());
-                        assertEquals("ARTIST", album.getArtistReading());
-                        assertNull(album.getArtistSort());
-                        break;
-                    case "ALBUM8":
-                        assertEquals("case08", album.getArtist());
-                        assertEquals("case08", album.getArtistReading());
-                        assertEquals("artistO", album.getArtistSort());
-                        break;
-                    case "ALBUM9":
-                        assertEquals("case09", album.getArtist());
-                        assertEquals("case09", album.getArtistReading());
-                        assertEquals("artistQ", album.getArtistSort());
-                        break;
-    
-                    default:
-                        fail();
-                        break;
+                case "ALBUM1":
+                    assertEquals("case01", album.getArtist());
+                    assertEquals("case01", album.getArtistReading());
+                    assertEquals("artistA", album.getArtistSort());
+                    break;
+                case "ALBUM2":
+                    assertEquals("case02", album.getArtist());
+                    assertEquals("case02", album.getArtistReading());
+                    assertEquals("artistD", album.getArtistSort());
+                    break;
+                case "ALBUM3":
+                    assertEquals("case03", album.getArtist());
+                    assertEquals("case03", album.getArtistReading());
+                    assertEquals("artistE", album.getArtistSort());
+                    break;
+                case "ALBUM4":
+                    assertEquals("ARTIST", album.getArtist());
+                    assertEquals("ARTIST", album.getArtistReading());
+                    assertNull(album.getArtistSort());
+                    break;
+                case "ALBUM5":
+                    assertEquals("case05", album.getArtist());
+                    assertEquals("case05", album.getArtistReading());
+                    assertEquals("artistJ", album.getArtistSort());
+                    break;
+                case "ALBUM6":
+                    assertEquals("case06", album.getArtist());
+                    assertEquals("case06", album.getArtistReading());
+                    assertEquals("artistL", album.getArtistSort());
+                    break;
+                case "ALBUM7":
+                    assertEquals("ARTIST", album.getArtist());
+                    assertEquals("ARTIST", album.getArtistReading());
+                    assertNull(album.getArtistSort());
+                    break;
+                case "ALBUM8":
+                    assertEquals("case08", album.getArtist());
+                    assertEquals("case08", album.getArtistReading());
+                    assertEquals("artistO", album.getArtistSort());
+                    break;
+                case "ALBUM9":
+                    assertEquals("case09", album.getArtist());
+                    assertEquals("case09", album.getArtistReading());
+                    assertEquals("artistQ", album.getArtistSort());
+                    break;
+
+                default:
+                    fail();
+                    break;
                 }
 
             });
 
-            List<MediaFile> songs = albums.stream().flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPath(), false).stream()).collect(Collectors.toList());
+            List<MediaFile> songs = albums.stream()
+                    .flatMap(al -> mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, al.getPath(), false).stream())
+                    .collect(Collectors.toList());
             assertEquals(15, songs.size());
 
             songs.forEach(s -> {
 
                 switch (s.getName()) {
 
-                    case "file1":
-                        assertEquals("case01", s.getArtist());
-                        assertEquals("case01", s.getArtistReading());
-                        assertEquals("artistA", s.getArtistSort());
-                        assertEquals("case01", s.getAlbumArtist());
-                        assertEquals("case01", s.getAlbumArtistReading());
-                        assertEquals("artistA", s.getAlbumArtistSort());
-                        assertEquals("case01", s.getComposer());
-                        assertEquals("artistA", s.getComposerSort());
-                        break;
-                    case "file2":
-                        assertEquals("case02", s.getArtist());
-                        assertEquals("case02", s.getArtistReading());
-                        assertEquals("artistD", s.getArtistSort());
-                        assertEquals("case02", s.getAlbumArtist());
-                        assertEquals("case02", s.getAlbumArtistReading());
-                        assertEquals("artistD", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file3":
-                        assertEquals("case03", s.getArtist());
-                        assertEquals("case03", s.getArtistReading());
-                        assertEquals("artistE", s.getArtistSort());
-                        assertEquals("case03", s.getAlbumArtist());
-                        assertEquals("case03", s.getAlbumArtistReading());
-                        assertEquals("artistE", s.getAlbumArtistSort());
-                        assertEquals("case03", s.getComposer());
-                        assertEquals("artistE", s.getComposerSort());
-                        break;
-                    case "file4":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file5":
-                        assertEquals("case04", s.getArtist());
-                        assertEquals("case04", s.getArtistReading());
-                        assertEquals("artistH", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case04", s.getComposer());
-                        assertEquals("artistH", s.getComposerSort());
-                        break;
-                    case "file6":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file7":
-                        assertEquals("case05", s.getArtist());
-                        assertEquals("case05", s.getArtistReading());
-                        assertEquals("artistJ", s.getArtistSort());
-                        assertEquals("case05", s.getAlbumArtist());
-                        assertEquals("case05", s.getAlbumArtistReading());
-                        assertEquals("artistJ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file8":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertEquals("case06", s.getComposer());
-                        assertEquals("artistL", s.getComposerSort());
-                        break;
-                    case "file9":
-                        assertEquals("case06", s.getArtist());
-                        assertEquals("case06", s.getArtistReading());
-                        assertEquals("artistL", s.getArtistSort());
-                        assertEquals("case06", s.getAlbumArtist());
-                        assertEquals("case06", s.getAlbumArtistReading());
-                        assertEquals("artistL", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file10":
-                        assertEquals("ARTIST", s.getArtist());
-                        assertEquals("ARTIST", s.getArtistReading());
-                        assertNull(s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file11":
-                        assertEquals("case07", s.getArtist());
-                        assertEquals("case07", s.getArtistReading());
-                        assertEquals("artistM", s.getArtistSort());
-                        assertEquals("ARTIST", s.getAlbumArtist());
-                        assertEquals("ARTIST", s.getAlbumArtistReading());
-                        assertNull(s.getAlbumArtistSort());
-                        assertEquals("case07", s.getComposer());
-                        assertEquals("artistM", s.getComposerSort());
-                        break;
-                    case "file12":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file13":
-                        assertEquals("case08", s.getArtist());
-                        assertEquals("case08", s.getArtistReading());
-                        assertEquals("artistO", s.getArtistSort());
-                        assertEquals("case08", s.getAlbumArtist());
-                        assertEquals("case08", s.getAlbumArtistReading());
-                        assertEquals("artistO", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-                    case "file14":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertEquals("case09", s.getComposer());
-                        assertEquals("artistQ", s.getComposerSort());
-                        break;
-                    case "file15":
-                        assertEquals("case09", s.getArtist());
-                        assertEquals("case09", s.getArtistReading());
-                        assertEquals("artistQ", s.getArtistSort());
-                        assertEquals("case09", s.getAlbumArtist());
-                        assertEquals("case09", s.getAlbumArtistReading());
-                        assertEquals("artistQ", s.getAlbumArtistSort());
-                        assertNull(s.getComposer());
-                        assertNull(s.getComposerSort());
-                        break;
-    
-                    default:
-                        fail();
-                        break;
+                case "file1":
+                    assertEquals("case01", s.getArtist());
+                    assertEquals("case01", s.getArtistReading());
+                    assertEquals("artistA", s.getArtistSort());
+                    assertEquals("case01", s.getAlbumArtist());
+                    assertEquals("case01", s.getAlbumArtistReading());
+                    assertEquals("artistA", s.getAlbumArtistSort());
+                    assertEquals("case01", s.getComposer());
+                    assertEquals("artistA", s.getComposerSort());
+                    break;
+                case "file2":
+                    assertEquals("case02", s.getArtist());
+                    assertEquals("case02", s.getArtistReading());
+                    assertEquals("artistD", s.getArtistSort());
+                    assertEquals("case02", s.getAlbumArtist());
+                    assertEquals("case02", s.getAlbumArtistReading());
+                    assertEquals("artistD", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file3":
+                    assertEquals("case03", s.getArtist());
+                    assertEquals("case03", s.getArtistReading());
+                    assertEquals("artistE", s.getArtistSort());
+                    assertEquals("case03", s.getAlbumArtist());
+                    assertEquals("case03", s.getAlbumArtistReading());
+                    assertEquals("artistE", s.getAlbumArtistSort());
+                    assertEquals("case03", s.getComposer());
+                    assertEquals("artistE", s.getComposerSort());
+                    break;
+                case "file4":
+                    assertEquals("ARTIST", s.getArtist());
+                    assertEquals("ARTIST", s.getArtistReading());
+                    assertNull(s.getArtistSort());
+                    assertEquals("ARTIST", s.getAlbumArtist());
+                    assertEquals("ARTIST", s.getAlbumArtistReading());
+                    assertNull(s.getAlbumArtistSort());
+                    assertEquals("case04", s.getComposer());
+                    assertEquals("artistH", s.getComposerSort());
+                    break;
+                case "file5":
+                    assertEquals("case04", s.getArtist());
+                    assertEquals("case04", s.getArtistReading());
+                    assertEquals("artistH", s.getArtistSort());
+                    assertEquals("ARTIST", s.getAlbumArtist());
+                    assertEquals("ARTIST", s.getAlbumArtistReading());
+                    assertNull(s.getAlbumArtistSort());
+                    assertEquals("case04", s.getComposer());
+                    assertEquals("artistH", s.getComposerSort());
+                    break;
+                case "file6":
+                    assertEquals("case05", s.getArtist());
+                    assertEquals("case05", s.getArtistReading());
+                    assertEquals("artistJ", s.getArtistSort());
+                    assertEquals("case05", s.getAlbumArtist());
+                    assertEquals("case05", s.getAlbumArtistReading());
+                    assertEquals("artistJ", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file7":
+                    assertEquals("case05", s.getArtist());
+                    assertEquals("case05", s.getArtistReading());
+                    assertEquals("artistJ", s.getArtistSort());
+                    assertEquals("case05", s.getAlbumArtist());
+                    assertEquals("case05", s.getAlbumArtistReading());
+                    assertEquals("artistJ", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file8":
+                    assertEquals("case06", s.getArtist());
+                    assertEquals("case06", s.getArtistReading());
+                    assertEquals("artistL", s.getArtistSort());
+                    assertEquals("case06", s.getAlbumArtist());
+                    assertEquals("case06", s.getAlbumArtistReading());
+                    assertEquals("artistL", s.getAlbumArtistSort());
+                    assertEquals("case06", s.getComposer());
+                    assertEquals("artistL", s.getComposerSort());
+                    break;
+                case "file9":
+                    assertEquals("case06", s.getArtist());
+                    assertEquals("case06", s.getArtistReading());
+                    assertEquals("artistL", s.getArtistSort());
+                    assertEquals("case06", s.getAlbumArtist());
+                    assertEquals("case06", s.getAlbumArtistReading());
+                    assertEquals("artistL", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file10":
+                    assertEquals("ARTIST", s.getArtist());
+                    assertEquals("ARTIST", s.getArtistReading());
+                    assertNull(s.getArtistSort());
+                    assertEquals("ARTIST", s.getAlbumArtist());
+                    assertEquals("ARTIST", s.getAlbumArtistReading());
+                    assertNull(s.getAlbumArtistSort());
+                    assertEquals("case07", s.getComposer());
+                    assertEquals("artistM", s.getComposerSort());
+                    break;
+                case "file11":
+                    assertEquals("case07", s.getArtist());
+                    assertEquals("case07", s.getArtistReading());
+                    assertEquals("artistM", s.getArtistSort());
+                    assertEquals("ARTIST", s.getAlbumArtist());
+                    assertEquals("ARTIST", s.getAlbumArtistReading());
+                    assertNull(s.getAlbumArtistSort());
+                    assertEquals("case07", s.getComposer());
+                    assertEquals("artistM", s.getComposerSort());
+                    break;
+                case "file12":
+                    assertEquals("case08", s.getArtist());
+                    assertEquals("case08", s.getArtistReading());
+                    assertEquals("artistO", s.getArtistSort());
+                    assertEquals("case08", s.getAlbumArtist());
+                    assertEquals("case08", s.getAlbumArtistReading());
+                    assertEquals("artistO", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file13":
+                    assertEquals("case08", s.getArtist());
+                    assertEquals("case08", s.getArtistReading());
+                    assertEquals("artistO", s.getArtistSort());
+                    assertEquals("case08", s.getAlbumArtist());
+                    assertEquals("case08", s.getAlbumArtistReading());
+                    assertEquals("artistO", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+                case "file14":
+                    assertEquals("case09", s.getArtist());
+                    assertEquals("case09", s.getArtistReading());
+                    assertEquals("artistQ", s.getArtistSort());
+                    assertEquals("case09", s.getAlbumArtist());
+                    assertEquals("case09", s.getAlbumArtistReading());
+                    assertEquals("artistQ", s.getAlbumArtistSort());
+                    assertEquals("case09", s.getComposer());
+                    assertEquals("artistQ", s.getComposerSort());
+                    break;
+                case "file15":
+                    assertEquals("case09", s.getArtist());
+                    assertEquals("case09", s.getArtistReading());
+                    assertEquals("artistQ", s.getArtistSort());
+                    assertEquals("case09", s.getAlbumArtist());
+                    assertEquals("case09", s.getAlbumArtistReading());
+                    assertEquals("artistQ", s.getAlbumArtistSort());
+                    assertNull(s.getComposer());
+                    assertNull(s.getComposerSort());
+                    break;
+
+                default:
+                    fail();
+                    break;
                 }
             });
 

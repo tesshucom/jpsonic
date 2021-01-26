@@ -17,7 +17,16 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static java.util.stream.Collectors.toList;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -36,16 +45,9 @@ import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST;
-
 @Service
-public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<FolderArtistWrapper, FolderArtistWrapper> {
+public class RandomSongByFolderArtistUpnpProcessor
+        extends UpnpContentProcessor<FolderArtistWrapper, FolderArtistWrapper> {
 
     private static final String TYPE_PREFIX_MUSIC_FOLDER = "MusicFolder:";
     private static final String TYPE_PREFIX_ARTIST = "artist:";
@@ -56,7 +58,8 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicFolderDao md, JArtistDao a, SearchService s, SettingsService ss) {
+    public RandomSongByFolderArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u,
+            JMediaFileService m, MusicFolderDao md, JArtistDao a, SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         mediaFileService = m;
@@ -92,7 +95,8 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
             container.setTitle(item.getName());
             container.setChildCount(item.getArtist().getAlbumCount());
             if (item.getArtist().getCoverArtPath() != null) {
-                container.setProperties(Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(item.getArtist()))));
+                container.setProperties(Arrays.asList(
+                        new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(item.getArtist()))));
             }
             return container;
         } else {
@@ -119,9 +123,12 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         if (item.isArtist()) {
             int randomMax = settingsService.getDlnaRandomMax();
             int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-            return searchService.getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getAllMusicFolders()).stream().map(FolderArtist::new).collect(toList());
+            return searchService
+                    .getRandomSongsByArtist(item.getArtist(), count, offset, randomMax, util.getAllMusicFolders())
+                    .stream().map(FolderArtist::new).collect(toList());
         } else {
-            return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(item.getFolder())).stream().map(FolderArtist::new).collect(toList());
+            return artistDao.getAlphabetialArtists(offset, (int) maxResults, Arrays.asList(item.getFolder())).stream()
+                    .map(FolderArtist::new).collect(toList());
         }
     }
 
@@ -136,7 +143,8 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         if (isArtistId(ids)) {
             return new FolderArtist(artistDao.getArtist(id));
         } else if (isMusicFolderId(ids)) {
-            return new FolderArtist(musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
+            return new FolderArtist(
+                    musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
         }
         return new FolderArtist(mediaFileService.getMediaFile(id));
     }
@@ -149,7 +157,8 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
     @Override
     public List<FolderArtistWrapper> getItems(long offset, long maxResults) {
         List<MusicFolder> folders = util.getAllMusicFolders();
-        return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream().map(FolderArtist::new).collect(toList());
+        return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
+                .map(FolderArtist::new).collect(toList());
     }
 
     @PostConstruct
@@ -208,27 +217,26 @@ public class RandomSongByFolderArtistUpnpProcessor extends UpnpContentProcessor<
         @Override
         public MusicFolder getFolder() {
             return folder;
-        };
+        }
 
         @Override
         public String getId() {
             return id;
-        };
+        }
 
         @Override
         public String getName() {
             return name;
-        };
+        }
 
         @Override
         public MediaFile getSong() {
             return song;
-        };
+        }
 
         @Override
         public boolean isArtist() {
             return null != artist;
-        };
-
+        }
     }
 }

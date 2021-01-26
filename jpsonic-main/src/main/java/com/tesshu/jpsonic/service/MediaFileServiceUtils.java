@@ -16,6 +16,7 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
 
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
@@ -26,8 +27,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 /**
- * Utility class for injecting into legacy MediaFileService.
- * Supplement processing that is lacking in legacy services.
+ * Utility class for injecting into legacy MediaFileService. Supplement processing that is lacking in legacy services.
  */
 @Component
 @DependsOn({ "japaneseReadingUtils", "jpsonicComparators" })
@@ -44,8 +44,7 @@ public class MediaFileServiceUtils {
     }
 
     /**
-     * Compensate for missing properties when initial creation of MediaFile
-     * (when performing meta-analysis).
+     * Compensate for missing properties when initial creation of MediaFile (when performing meta-analysis).
      * 
      * @param m
      */
@@ -54,10 +53,11 @@ public class MediaFileServiceUtils {
     }
 
     /**
-     * Returns the sorting rules for the child elements of the specified MediaFile.
-     * MediaFile's sorting rules depend on the hierarchy to which it belongs.
+     * Returns the sorting rules for the child elements of the specified MediaFile. MediaFile's sorting rules depend on
+     * the hierarchy to which it belongs.
      *
      * @param parent
+     * 
      * @return
      */
     public MediaFileComparator mediaFileOrder(MediaFile parent) {

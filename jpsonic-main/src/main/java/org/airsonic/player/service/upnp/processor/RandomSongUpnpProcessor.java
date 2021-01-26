@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.MediaFile;
@@ -30,10 +35,6 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.List;
-
 @Service
 public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
@@ -43,7 +44,8 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p, SearchService s, SettingsService ss) {
+    public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            PlayerService p, SearchService s, SettingsService ss) {
         super(d, u, m, p);
         this.util = u;
         this.searchService = s;
@@ -58,7 +60,8 @@ public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
     }
 
     @Override
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

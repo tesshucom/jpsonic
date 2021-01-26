@@ -17,17 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import org.airsonic.player.service.SearchService;
+package org.airsonic.player.domain;
 
 import java.util.Date;
 import java.util.List;
+
+import org.airsonic.player.service.SearchService;
 
 /**
  * Defines criteria used when generating random playlists.
  *
  * @author Sindre Mehus
+ * 
  * @see SearchService#getRandomSongs
  */
 public class RandomSearchCriteria {
@@ -50,53 +52,58 @@ public class RandomSearchCriteria {
     /**
      * Creates a new instance.
      *
-     * @param count        Maximum number of songs to return.
-     * @param genres       Only return songs of the given genre. May be <code>null</code>.
-     * @param fromYear     Only return songs released after (or in) this year. May be <code>null</code>.
-     * @param toYear       Only return songs released before (or in) this year. May be <code>null</code>.
-     * @param musicFolders Only return songs from these music folder. May NOT be <code>null</code>.
+     * @param count
+     *            Maximum number of songs to return.
+     * @param genres
+     *            Only return songs of the given genre. May be <code>null</code>.
+     * @param fromYear
+     *            Only return songs released after (or in) this year. May be <code>null</code>.
+     * @param toYear
+     *            Only return songs released before (or in) this year. May be <code>null</code>.
+     * @param musicFolders
+     *            Only return songs from these music folder. May NOT be <code>null</code>.
      */
-    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear, List<MusicFolder> musicFolders) {
-        this(
-            count, genres, fromYear, toYear, musicFolders,
-            null, null, null, null, null, null, true, true, null
-        );
+    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear,
+            List<MusicFolder> musicFolders) {
+        this(count, genres, fromYear, toYear, musicFolders, null, null, null, null, null, null, true, true, null);
     }
 
     /**
      * Creates a new instance.
      *
-     * @param count              Maximum number of songs to return.
-     * @param genres             Only return songs of the given genre. May be <code>null</code>.
-     * @param fromYear           Only return songs released after (or in) this year. May be <code>null</code>.
-     * @param toYear             Only return songs released before (or in) this year. May be <code>null</code>.
-     * @param musicFolders       Only return songs from these music folder. May NOT be <code>null</code>.
-     * @param minLastPlayedDate  Only return songs last played after this date. May be <code>null</code>.
-     * @param maxLastPlayedDate  Only return songs last played before this date. May be <code>null</code>.
-     * @param minAlbumRating     Only return songs rated more or equalt to this value. May be <code>null</code>.
-     * @param maxAlbumRating     Only return songs rated less or equal to this value. May be <code>null</code>.
-     * @param minPlayCount       Only return songs whose play count is more or equal to this value. May be <code>null</code>.
-     * @param maxPlayCount       Only return songs whose play count is less or equal to this value. May be <code>null</code>.
-     * @param showStarredSongs   Show starred songs. May NOT be <code>null</code>.
-     * @param showUnstarredSongs Show unstarred songs. May NOT be <code>null</code>.
-     * @param format             Only return songs whose file format is equal to this value. May be <code>null</code>.
+     * @param count
+     *            Maximum number of songs to return.
+     * @param genres
+     *            Only return songs of the given genre. May be <code>null</code>.
+     * @param fromYear
+     *            Only return songs released after (or in) this year. May be <code>null</code>.
+     * @param toYear
+     *            Only return songs released before (or in) this year. May be <code>null</code>.
+     * @param musicFolders
+     *            Only return songs from these music folder. May NOT be <code>null</code>.
+     * @param minLastPlayedDate
+     *            Only return songs last played after this date. May be <code>null</code>.
+     * @param maxLastPlayedDate
+     *            Only return songs last played before this date. May be <code>null</code>.
+     * @param minAlbumRating
+     *            Only return songs rated more or equalt to this value. May be <code>null</code>.
+     * @param maxAlbumRating
+     *            Only return songs rated less or equal to this value. May be <code>null</code>.
+     * @param minPlayCount
+     *            Only return songs whose play count is more or equal to this value. May be <code>null</code>.
+     * @param maxPlayCount
+     *            Only return songs whose play count is less or equal to this value. May be <code>null</code>.
+     * @param showStarredSongs
+     *            Show starred songs. May NOT be <code>null</code>.
+     * @param showUnstarredSongs
+     *            Show unstarred songs. May NOT be <code>null</code>.
+     * @param format
+     *            Only return songs whose file format is equal to this value. May be <code>null</code>.
      */
-    public RandomSearchCriteria(
-            int count,
-            List<String> genres,
-            Integer fromYear,
-            Integer toYear,
-            List<MusicFolder> musicFolders,
-            Date minLastPlayedDate,
-            Date maxLastPlayedDate,
-            Integer minAlbumRating,
-            Integer maxAlbumRating,
-            Integer minPlayCount,
-            Integer maxPlayCount,
-            boolean showStarredSongs,
-            boolean showUnstarredSongs,
-            String format
-    ) {
+    public RandomSearchCriteria(int count, List<String> genres, Integer fromYear, Integer toYear,
+            List<MusicFolder> musicFolders, Date minLastPlayedDate, Date maxLastPlayedDate, Integer minAlbumRating,
+            Integer maxAlbumRating, Integer minPlayCount, Integer maxPlayCount, boolean showStarredSongs,
+            boolean showUnstarredSongs, String format) {
 
         this.count = count;
         this.genres = genres;

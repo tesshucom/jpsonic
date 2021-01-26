@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
@@ -39,8 +42,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Controller for the page used to administrate the set of transcoding configurations.
@@ -66,15 +67,12 @@ public class TranscodingSettingsController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
-        model.addAttribute("model", LegacyMap.of(
-                "transcodings", transcodingService.getAllTranscodings(),
-                "transcodeDirectory", transcodingService.getTranscodeDirectory(),
-                "hlsCommand", settingsService.getHlsCommand(),
-                "brand", settingsService.getBrand(),
-                "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
-                "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos(),
-                "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername())));
+        model.addAttribute("model",
+                LegacyMap.of("transcodings", transcodingService.getAllTranscodings(), "transcodeDirectory",
+                        transcodingService.getTranscodeDirectory(), "hlsCommand", settingsService.getHlsCommand(),
+                        "brand", settingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
+                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos(),
+                        "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername())));
         return "transcodingSettings";
     }
 
@@ -128,7 +126,8 @@ public class TranscodingSettingsController {
         boolean defaultActive = request.getParameter(Attributes.Request.DEFAULT_ACTIVE.value()) != null;
 
         if (name != null || sourceFormats != null || targetFormat != null || step1 != null || step2 != null) {
-            Transcoding transcoding = new Transcoding(null, name, sourceFormats, targetFormat, step1, step2, null, defaultActive);
+            Transcoding transcoding = new Transcoding(null, name, sourceFormats, targetFormat, step1, step2, null,
+                    defaultActive);
             String error = null;
             if (name == null) {
                 error = "transcodingsettings.noname";

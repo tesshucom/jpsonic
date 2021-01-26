@@ -16,47 +16,22 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
 
 import java.util.Locale;
 
 /**
- * BCP47 enumeration of speech recognition supported by Jpsonic. Currently,
- * there are languages such as Norwegian that cannot be simply replaced with
- * Language Tags (for google). Therefore, it is used to replace the user locale
- * of personal settings with this enumeration and replace it with a supported
- * BCP47.
+ * BCP47 enumeration of speech recognition supported by Jpsonic. Currently, there are languages such as Norwegian that
+ * cannot be simply replaced with Language Tags (for google). Therefore, it is used to replace the user locale of
+ * personal settings with this enumeration and replace it with a supported BCP47.
  */
 public enum SupportableBCP47 {
 
-    EN("en-US"),
-    EN_GB("en-GB"),
-    EN_US("en-US"),
-    FR("fr-FR"),
-    ES("es-ES"),
-    CA("ca-ES"),
-    PT("pt-BR"),
-    DE("de-DE"),
-    IT("it-IT"),
-    EL("el-GR"),
-    RU("ru-RU"),
-    SL("sl-SI"),
-    MK("mk-MK"),
-    PL("pl-PL"),
-    BG("bg-BG"),
-    CS("cs-CZ"),
-    ZH_CN("zh"),
-    ZH_TW("zh-TW"),
-    JA_JP("ja-JP"),
-    KO("ko-KR"),
-    NL("nl-NL"),
-    NO("no-NO"),
-    NN("no-NO"),
-    SV("sv-SE"),
-    DA("da-DK"),
-    FI("fi-FI"),
-    IS("is-IS"),
-    ET("et-EE");
+    EN("en-US"), EN_GB("en-GB"), EN_US("en-US"), FR("fr-FR"), ES("es-ES"), CA("ca-ES"), PT("pt-BR"), DE("de-DE"),
+    IT("it-IT"), EL("el-GR"), RU("ru-RU"), SL("sl-SI"), MK("mk-MK"), PL("pl-PL"), BG("bg-BG"), CS("cs-CZ"), ZH_CN("zh"),
+    ZH_TW("zh-TW"), JA_JP("ja-JP"), KO("ko-KR"), NL("nl-NL"), NO("no-NO"), NN("no-NO"), SV("sv-SE"), DA("da-DK"),
+    FI("fi-FI"), IS("is-IS"), ET("et-EE");
 
     private String value;
 

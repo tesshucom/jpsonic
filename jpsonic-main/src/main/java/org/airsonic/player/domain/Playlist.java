@@ -17,11 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
-import org.airsonic.player.util.StringUtil;
-
 import java.util.Date;
+
+import org.airsonic.player.util.StringUtil;
 
 /**
  * @author Sindre Mehus
@@ -44,7 +45,7 @@ public class Playlist {
     }
 
     public Playlist(int id, String username, boolean shared, String name, String comment, int fileCount,
-                    int durationSeconds, Date created, Date changed, String importedFrom) {
+            int durationSeconds, Date created, Date changed, String importedFrom) {
         this.id = id;
         this.username = username;
         this.shared = shared;

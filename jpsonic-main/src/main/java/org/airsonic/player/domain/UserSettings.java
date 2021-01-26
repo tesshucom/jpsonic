@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.Date;
@@ -373,7 +374,8 @@ public class UserSettings {
     /**
      * Sets when the corresponding database entry was last changed.
      *
-     * @param changed When the corresponding database entry was last changed.
+     * @param changed
+     *            When the corresponding database entry was last changed.
      */
     public void setChanged(Date changed) {
         this.changed = changed;
@@ -604,14 +606,15 @@ public class UserSettings {
         private boolean composerVisible;
         // <<<< JP
 
-        public Visibility() {}
+        public Visibility() {
+        }
 
-        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible,
-                          boolean genreVisible, boolean yearVisible, boolean bitRateVisible,
-                          boolean durationVisible, boolean formatVisible, boolean fileSizeVisible,
-                          // JP >>>>
-                          boolean composerVisible
-                          // <<<< JP
+        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible, boolean genreVisible,
+                boolean yearVisible, boolean bitRateVisible, boolean durationVisible, boolean formatVisible,
+                boolean fileSizeVisible,
+                // JP >>>>
+                boolean composerVisible
+        // <<<< JP
         ) {
             this.trackNumberVisible = trackNumberVisible;
             this.artistVisible = artistVisible;

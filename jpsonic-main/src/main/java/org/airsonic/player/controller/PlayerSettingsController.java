@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import com.tesshu.jpsonic.controller.Attributes;
@@ -47,13 +55,6 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * Controller for the player settings page.
  *
@@ -78,9 +79,7 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(
-            HttpServletRequest request,
-            Model model,
+    protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
 
         handleRequestParameters(request);
@@ -117,7 +116,7 @@ public class PlayerSettingsController {
 
             UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
             command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-            
+
         }
 
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -125,15 +124,15 @@ public class PlayerSettingsController {
         command.setTranscodeSchemes(TranscodeScheme.values());
         PlayerTechnology[] technologys = PlayerTechnology.values();
         if (!settingsService.isShowJavaJukebox()) {
-            technologys = Arrays.stream(technologys)
-                    .filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
+            technologys = Arrays.stream(technologys).filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
                     .toArray(PlayerTechnology[]::new);
         }
         command.setTechnologies(technologys);
         command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
 
-        command.setJavaJukeboxMixers(Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
+        command.setJavaJukeboxMixers(
+                Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
         if (player != null) {
             command.setJavaJukeboxMixer(player.getJavaJukeboxMixer());
         }
@@ -146,7 +145,8 @@ public class PlayerSettingsController {
     }
 
     @PostMapping
-    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
         if (player != null) {
             player.setAutoControlEnabled(command.isAutoControlEnabled());

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.theme;
 
 import org.airsonic.player.domain.Theme;
@@ -30,8 +31,8 @@ import org.springframework.ui.context.support.ResourceBundleThemeSource;
 import org.springframework.ui.context.support.UiApplicationContextUtils;
 
 /**
- * Theme source implementation which uses two resource bundles: the
- * theme specific (e.g., barents.properties), and the default (default.properties).
+ * Theme source implementation which uses two resource bundles: the theme specific (e.g., barents.properties), and the
+ * default (default.properties).
  *
  * @author Sindre Mehus
  */

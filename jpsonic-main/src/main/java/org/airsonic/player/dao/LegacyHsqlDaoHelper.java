@@ -1,15 +1,16 @@
+
 package org.airsonic.player.dao;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+
+import javax.annotation.PreDestroy;
+import javax.sql.DataSource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-
-import javax.annotation.PreDestroy;
-import javax.sql.DataSource;
-
-import java.sql.Connection;
-import java.sql.SQLException;
 
 /**
  * Special Dao Helper with additional features for managing the legacy embedded HSQL database.
@@ -36,7 +37,8 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
     }
 
     /**
-     * Shutdown the embedded HSQLDB database. After this has run, the database cannot be accessed again from the same DataSource.
+     * Shutdown the embedded HSQLDB database. After this has run, the database cannot be accessed again from the same
+     * DataSource.
      */
     private void shutdownHsqldbDatabase() {
         try {

@@ -1,4 +1,12 @@
+
 package org.airsonic.player.service;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -21,13 +29,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlaylistServiceExportTest {
@@ -63,13 +64,9 @@ public class PlaylistServiceExportTest {
 
     @Before
     public void setup() {
-        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao),
-                                              new JPlaylistDao(playlistDao),
-                                              securityService,
-                                              settingsService,
-                                              Lists.newArrayList(
-                                                      defaultPlaylistExportHandler),
-                                              Collections.emptyList());
+        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao), new JPlaylistDao(playlistDao),
+                securityService, settingsService, Lists.newArrayList(defaultPlaylistExportHandler),
+                Collections.emptyList());
     }
 
     @Test
@@ -86,12 +83,12 @@ public class PlaylistServiceExportTest {
     }
 
     private List<MediaFile> getPlaylistFiles() {
-        List<MediaFile> mediaFiles = new ArrayList<>();
 
         MediaFile mf1 = new MediaFile();
         mf1.setId(142);
         mf1.setPath("/some/path/to_album/to_artist/name - of - song.mp3");
         mf1.setPresent(true);
+        List<MediaFile> mediaFiles = new ArrayList<>();
         mediaFiles.add(mf1);
 
         MediaFile mf2 = new MediaFile();

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
 /**
@@ -36,6 +37,7 @@ public class UploadInfo {
 
     /**
      * Returns the number of bytes uploaded.
+     * 
      * @return The number of bytes uploaded.
      */
     public long getBytesUploaded() {
@@ -43,9 +45,10 @@ public class UploadInfo {
     }
 
     /**
-    * Returns the total number of bytes.
-    * @return The total number of bytes.
-    */
+     * Returns the total number of bytes.
+     * 
+     * @return The total number of bytes.
+     */
     public long getBytesTotal() {
         return bytesTotal;
     }

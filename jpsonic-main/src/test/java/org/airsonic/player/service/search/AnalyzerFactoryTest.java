@@ -1,6 +1,15 @@
 
 package org.airsonic.player.service.search;
 
+import static java.util.Arrays.asList;
+import static org.junit.Assert.assertEquals;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
 import org.apache.lucene.analysis.TokenStream;
@@ -17,19 +26,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-
 /**
- * Test case for Analyzer.
- * These cases have the purpose of observing the current situation
- * and observing the impact of upgrading Lucene.
+ * Test case for Analyzer. These cases have the purpose of observing the current situation and observing the impact of
+ * upgrading Lucene.
  */
 @SpringBootTest
 public class AnalyzerFactoryTest {
@@ -71,7 +70,8 @@ public class AnalyzerFactoryTest {
          */
 
         // 4
-        String[] multiTokenFields = { FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING, FieldNamesConstants.ALBUM, FieldNamesConstants.TITLE };
+        String[] multiTokenFields = { FieldNamesConstants.ARTIST, FieldNamesConstants.ARTIST_READING,
+                FieldNamesConstants.ALBUM, FieldNamesConstants.TITLE };
         Arrays.stream(multiTokenFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
             assertEquals("multiToken : " + n, 7, terms.size());
@@ -112,8 +112,7 @@ public class AnalyzerFactoryTest {
     }
 
     /**
-     * Detailed tests on Punctuation.
-     * In addition to the common delimiters, there are many delimiters.
+     * Detailed tests on Punctuation. In addition to the common delimiters, there are many delimiters.
      */
     @Test
     public void testPunctuation1() {
@@ -127,63 +126,58 @@ public class AnalyzerFactoryTest {
             List<String> terms = toTermString(n, query);
             switch (n) {
 
-                /*
-                 * In the legacy, these field divide input into 2.
-                 * It is not necessary to delimit
-                 * this field originally.
-                 */
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals("tokenized : " + n, 2, terms.size());
-                    assertEquals("tokenized : " + n, expected1, terms.get(0));
-                    assertEquals("tokenized : " + n, expected2, terms.get(1));
-                    break;
+            /*
+             * In the legacy, these field divide input into 2. It is not necessary to delimit this field originally.
+             */
+            case FieldNamesConstants.MEDIA_TYPE:
+                assertEquals("tokenized : " + n, 2, terms.size());
+                assertEquals("tokenized : " + n, expected1, terms.get(0));
+                assertEquals("tokenized : " + n, expected2, terms.get(1));
+                break;
 
-                /*
-                 * What should the fields of this be?
-                 * Generally discarded.
-                 */
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                case FieldNamesConstants.COMPOSER:
-                    assertEquals("tokenized : " + n, 2, terms.size());
-                    assertEquals("tokenized : " + n, expected1, terms.get(0));
-                    assertEquals("tokenized : " + n, expected2, terms.get(1));
-                    break;
+            /*
+             * What should the fields of this be? Generally discarded.
+             */
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+            case FieldNamesConstants.COMPOSER:
+                assertEquals("tokenized : " + n, 2, terms.size());
+                assertEquals("tokenized : " + n, expected1, terms.get(0));
+                assertEquals("tokenized : " + n, expected2, terms.get(1));
+                break;
 
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals("tokenized : " + n, 0, terms.size());
-                    break;
+            case FieldNamesConstants.TITLE_EX:
+            case FieldNamesConstants.ALBUM_EX:
+            case FieldNamesConstants.ARTIST_EX:
+                assertEquals("tokenized : " + n, 0, terms.size());
+                break;
 
-                case FieldNamesConstants.ARTIST_READING:
-                case FieldNamesConstants.COMPOSER_READING:
-                    assertEquals("tokenized : " + n, 1, terms.size());
-                    assertEquals("tokenized : " + n, expected3, terms.get(0));
-                    break;
+            case FieldNamesConstants.ARTIST_READING:
+            case FieldNamesConstants.COMPOSER_READING:
+                assertEquals("tokenized : " + n, 1, terms.size());
+                assertEquals("tokenized : " + n, expected3, terms.get(0));
+                break;
 
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals("tokenized : " + n, 1, terms.size());
-                    assertEquals("tokenized : " + n, query, terms.get(0));
-                    break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE:
+            case FieldNamesConstants.GENRE_KEY:
+                assertEquals("tokenized : " + n, 1, terms.size());
+                assertEquals("tokenized : " + n, query, terms.get(0));
+                break;
 
-                    /*
-                 * ID, FOLDER_ID, YEAR
-                 * This is not a problem because the input value does not contain a delimiter.
-                 */
-                default:
-                    assertEquals("tokenized : " + n, 2, terms.size());
-                    break;
+            /*
+             * ID, FOLDER_ID, YEAR This is not a problem because the input value does not contain a delimiter.
+             */
+            default:
+                assertEquals("tokenized : " + n, 2, terms.size());
+                break;
             }
         });
     }
 
     /*
-     * Detailed tests on Punctuation.
-     * Many of the symbols are delimiters or target to be removed.
+     * Detailed tests on Punctuation. Many of the symbols are delimiters or target to be removed.
      */
     @Test
     public void testPunctuation2() {
@@ -192,20 +186,20 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("removed : " + n, 0, terms.size());
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals("remain : " + n, 1, terms.size());
-                    break;
+            case FieldNamesConstants.MEDIA_TYPE:
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("removed : " + n, 0, terms.size());
+                break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE:
+            case FieldNamesConstants.GENRE_KEY:
+                assertEquals("remain : " + n, 1, terms.size());
+                break;
 
-                default:
-                    assertEquals("removed : " + n, 0, terms.size());
+            default:
+                assertEquals("removed : " + n, 0, terms.size());
             }
         });
     }
@@ -224,23 +218,20 @@ public class AnalyzerFactoryTest {
         String queryArticle = "a an the";
 
         /*
-         * It is not included in the Java default stopword. Default set as Airsonic
-         * index stop word.
+         * It is not included in the Java default stopword. Default set as Airsonic index stop word.
          */
         String queryIndexArticle = "el la las le les";
 
         /*
-         * Non-article in the default Stopward. In cases, it may be used for song names
-         * of 2 to 3 words. Stop words are essential for newspapers and documents, but
-         * they are over-processed for song titles.
+         * Non-article in the default Stopward. In cases, it may be used for song names of 2 to 3 words. Stop words are
+         * essential for newspapers and documents, but they are over-processed for song titles.
          */
         String queryNoStop = "and are as at be but by for if in into is it no not of on " //
                 + "or such that their then there these they this to was will with";
 
         /*
-         * Japanese Stopward. Like the English stopward, there may be cases of
-         * over-deletion in some cases. However, unlike the English stopward. Japanese
-         * Stopward is placed less frequently at the beginning of sentences.
+         * Japanese Stopward. Like the English stopward, there may be cases of over-deletion in some cases. However,
+         * unlike the English stopward. Japanese Stopward is placed less frequently at the beginning of sentences.
          */
         String queryJpStop = "の に は を た が で て と し れ さ ある いる も する から な こと として い " //
                 + "や れる など なっ ない この ため その あっ よう また もの という あり まで " //
@@ -257,69 +248,73 @@ public class AnalyzerFactoryTest {
             List<String> noStopTerms = toTermString(n, queryNoStop);
             List<String> jpStopTerms = toTermString(n, queryJpStop);
             switch (n) {
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals("through : " + n, 1, articleTerms.size());
-                    assertEquals("through : " + n, queryArticle, articleTerms.get(0));
-                    assertEquals("through : " + n, 1, indexArticleTerms.size());
-                    assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
-                    assertEquals("through : " + n, 1, noStopTerms.size());
-                    assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
-                    assertEquals("through : " + n, 1, jpStopTerms.size());
-                    assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals("through : " + n, 1, articleTerms.size());
-                    assertEquals("through : " + n, queryArticle, articleTerms.get(0));
-                    assertEquals("through : " + n, 1, indexArticleTerms.size());
-                    assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
-                    assertEquals("through : " + n, 1, noStopTerms.size());
-                    assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
-                    //false positives?
-                    assertEquals("??????? : " + n, 2, jpStopTerms.size());
-                    assertEquals("??????? : " + n, "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら", jpStopTerms.get(0));
-                    assertEquals("??????? : " + n, " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ", jpStopTerms.get(1));
-                    break;
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("apply : " + n, 0, articleTerms.size());
-                    assertEquals("apply : " + n, 0, indexArticleTerms.size());
-                    assertEquals("through : " + n, 30, noStopTerms.size());
-                    assertEquals("apply : " + n, 110, jpStopTerms.size()); //XXX Legacy(0) -> Phrase(110)
-                    break;
-                case FieldNamesConstants.ARTIST:
-                    assertEquals("apply : " + n, 0, articleTerms.size());
-                    assertEquals("apply : " + n, 0, indexArticleTerms.size());
-                    assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
-                    assertEquals("apply : " + n, 110, jpStopTerms.size()); //XXX Legacy(53) -> Phrase(110)
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals("article : " + n, 0, articleTerms.size());
-                    assertEquals("indexArticle : " + n, 0, indexArticleTerms.size());
-                    assertEquals("noStop : " + n, 29, noStopTerms.size()); // with is removed
-                    assertEquals("jpStop : " + n, 152, jpStopTerms.size()); //XXX Legacy(109) -> Phrase(152)
-                    break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.MEDIA_TYPE:
+            case FieldNamesConstants.GENRE_KEY:
+                assertEquals("through : " + n, 1, articleTerms.size());
+                assertEquals("through : " + n, queryArticle, articleTerms.get(0));
+                assertEquals("through : " + n, 1, indexArticleTerms.size());
+                assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
+                assertEquals("through : " + n, 1, noStopTerms.size());
+                assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
+                assertEquals("through : " + n, 1, jpStopTerms.size());
+                assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
+                break;
+            case FieldNamesConstants.GENRE:
+                assertEquals("through : " + n, 1, articleTerms.size());
+                assertEquals("through : " + n, queryArticle, articleTerms.get(0));
+                assertEquals("through : " + n, 1, indexArticleTerms.size());
+                assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
+                assertEquals("through : " + n, 1, noStopTerms.size());
+                assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
+                // false positives?
+                assertEquals("??????? : " + n, 2, jpStopTerms.size());
+                assertEquals("??????? : " + n,
+                        "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら",
+                        jpStopTerms.get(0));
+                assertEquals("??????? : " + n,
+                        " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ",
+                        jpStopTerms.get(1));
+                break;
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("apply : " + n, 0, articleTerms.size());
+                assertEquals("apply : " + n, 0, indexArticleTerms.size());
+                assertEquals("through : " + n, 30, noStopTerms.size());
+                assertEquals("apply : " + n, 110, jpStopTerms.size()); // XXX Legacy(0) -> Phrase(110)
+                break;
+            case FieldNamesConstants.ARTIST:
+                assertEquals("apply : " + n, 0, articleTerms.size());
+                assertEquals("apply : " + n, 0, indexArticleTerms.size());
+                assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
+                assertEquals("apply : " + n, 110, jpStopTerms.size()); // XXX Legacy(53) -> Phrase(110)
+                break;
+            case FieldNamesConstants.ARTIST_READING:
+                assertEquals("article : " + n, 0, articleTerms.size());
+                assertEquals("indexArticle : " + n, 0, indexArticleTerms.size());
+                assertEquals("noStop : " + n, 29, noStopTerms.size()); // with is removed
+                assertEquals("jpStop : " + n, 152, jpStopTerms.size()); // XXX Legacy(109) -> Phrase(152)
+                break;
 
-                default:
-                    break;
+            default:
+                break;
             }
         });
 
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             // to be affected by other filters
             switch (n) {
-                case FieldNamesConstants.ARTIST_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.TITLE_EX:
-                    //  #482 No longer used
-                    break;
-                default:
-                    break;
+            case FieldNamesConstants.ARTIST_EX:
+            case FieldNamesConstants.ALBUM_EX:
+            case FieldNamesConstants.TITLE_EX:
+                // #482 No longer used
+                break;
+            default:
+                break;
             }
         });
     }
-    
+
     /**
      * Detailed tests on Artist Stopward.
      */
@@ -357,30 +352,26 @@ public class AnalyzerFactoryTest {
         String queryHalfWidth = "THIS IS FULL-WIDTH SENTENCES.";
         List<String> terms = toTermString(queryHalfWidth);
         assertEquals(5, terms.size());
-        assertEquals("this", terms.get(0));// removal target is ignored
+        assertEquals("this", terms.get(0)); // removal target is ignored
         assertEquals("is", terms.get(1));
         assertEquals("full", terms.get(2));
         assertEquals("width", terms.get(3));
         assertEquals("sentences", terms.get(4));
 
         /*
-         * Legacy can avoid Stopward if it is full width.
-         * It is unclear whether it is a specification or not.
-         * (Problems due to a defect in filter application order?
-         * or
-         * Is it popular in English speaking countries?)
+         * Legacy can avoid Stopward if it is full width. It is unclear whether it is a specification or not. (Problems
+         * due to a defect in filter application order? or Is it popular in English speaking countries?)
          */
         String queryFullWidth = "ＴＨＩＳ　ＩＳ　ＦＵＬＬ－ＷＩＤＴＨ　ＳＥＮＴＥＮＣＥＳ.";
         terms = toTermString(queryFullWidth);
         /*
          * XXX 3.x -> 8.x :
          * 
-         * This is not a change due to the library but an intentional change.
-         * The filter order has been changed properly
+         * This is not a change due to the library but an intentional change. The filter order has been changed properly
          * as it is probably not a deliberate specification.
          */
         assertEquals(5, terms.size());
-        assertEquals("this", terms.get(0));// removal target is ignored
+        assertEquals("this", terms.get(0)); // removal target is ignored
         assertEquals("is", terms.get(1));
         assertEquals("full", terms.get(2));
         assertEquals("width", terms.get(3));
@@ -389,10 +380,9 @@ public class AnalyzerFactoryTest {
     }
 
     /**
-     * Tests on ligature and diacritical marks.
-     * In UAX#29, determination of non-practical word boundaries is not considered.
-     * Languages ​​that use special strings require "practical word" sample.
-     * Unit testing with only ligature and diacritical marks is not possible.
+     * Tests on ligature and diacritical marks. In UAX#29, determination of non-practical word boundaries is not
+     * considered. Languages ​​that use special strings require "practical word" sample. Unit testing with only ligature
+     * and diacritical marks is not possible.
      */
     @Test
     public void testASCIIFoldingStop() {
@@ -406,37 +396,37 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals("no case : " + n, 0, terms.size());
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE_KEY:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals("apply : " + n, 4, terms.size());
-                    assertEquals("apply : " + n, "caesar", terms.get(0));
-                    assertEquals("apply : " + n, "しい", terms.get(1));
-                    assertEquals("apply : " + n, "ーざ", terms.get(2));
-                    assertEquals("apply : " + n, "ざあ", terms.get(3));
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected3, terms.get(0));
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("apply : " + n, 2, terms.size());
-                    assertEquals("apply : " + n, expected1a, terms.get(0));
-                    assertEquals("apply : " + n, expected1b, terms.get(1));
-                    break;
-                default:
-                    break;
+            case FieldNamesConstants.TITLE_EX:
+            case FieldNamesConstants.ALBUM_EX:
+            case FieldNamesConstants.ARTIST_EX:
+                assertEquals("no case : " + n, 0, terms.size());
+                break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE_KEY:
+            case FieldNamesConstants.MEDIA_TYPE:
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("through : " + n, query, terms.get(0));
+                break;
+            case FieldNamesConstants.ARTIST_READING:
+                assertEquals("apply : " + n, 4, terms.size());
+                assertEquals("apply : " + n, "caesar", terms.get(0));
+                assertEquals("apply : " + n, "しい", terms.get(1));
+                assertEquals("apply : " + n, "ーざ", terms.get(2));
+                assertEquals("apply : " + n, "ざあ", terms.get(3));
+                break;
+            case FieldNamesConstants.GENRE:
+                assertEquals("apply : " + n, 1, terms.size());
+                assertEquals("apply : " + n, expected3, terms.get(0));
+                break;
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("apply : " + n, 2, terms.size());
+                assertEquals("apply : " + n, expected1a, terms.get(0));
+                assertEquals("apply : " + n, expected1b, terms.get(1));
+                break;
+            default:
+                break;
             }
         });
     }
@@ -453,22 +443,22 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                // Do nothing
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE_KEY:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNamesConstants.GENRE:
-                    // Some character strings are replaced within the range that does not affect display
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, expected1, terms.get(0));
-                    break;
-                default:
-                    // Strings not relevant to the search are removed
-                    assertEquals("apply : " + n, 0, terms.size());
-                    break;
+            // Do nothing
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE_KEY:
+            case FieldNamesConstants.MEDIA_TYPE:
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("through : " + n, query, terms.get(0));
+                break;
+            case FieldNamesConstants.GENRE:
+                // Some character strings are replaced within the range that does not affect display
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("apply : " + n, expected1, terms.get(0));
+                break;
+            default:
+                // Strings not relevant to the search are removed
+                assertEquals("apply : " + n, 0, terms.size());
+                break;
             }
         });
     }
@@ -486,41 +476,41 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals("no case : " + n, 0, terms.size());
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.MEDIA_TYPE:
-                case FieldNamesConstants.GENRE_KEY:
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNamesConstants.GENRE:
-                    assertEquals("apply : " + n, 1, terms.size());
-                    assertEquals("apply : " + n, apply1, terms.get(0));
-                    break;
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                    terms = toTermString(n, query2);
-                    assertEquals("no case : " + n, 2, terms.size());
-                    assertEquals("bigram : " + n, "ぁぃ", terms.get(0));
-                    assertEquals("bigram : " + n, "ぃぅ", terms.get(1));
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals("apply : " + n, 3, terms.size());
-                    assertEquals("apply : " + n, apply1a, terms.get(0));
-                    assertEquals("apply : " + n, "あい", terms.get(1));
-                    assertEquals("apply : " + n, "いう", terms.get(2));
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("apply : " + n, 2, terms.size());
-                    assertEquals("apply : " + n, apply1a, terms.get(0));
-                    assertEquals("apply : " + n, apply1b, terms.get(1));
-                    break;
-                default:
-                    break;
+            case FieldNamesConstants.ARTIST_EX:
+                assertEquals("no case : " + n, 0, terms.size());
+                break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.MEDIA_TYPE:
+            case FieldNamesConstants.GENRE_KEY:
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("through : " + n, query, terms.get(0));
+                break;
+            case FieldNamesConstants.GENRE:
+                assertEquals("apply : " + n, 1, terms.size());
+                assertEquals("apply : " + n, apply1, terms.get(0));
+                break;
+            case FieldNamesConstants.TITLE_EX:
+            case FieldNamesConstants.ALBUM_EX:
+                terms = toTermString(n, query2);
+                assertEquals("no case : " + n, 2, terms.size());
+                assertEquals("bigram : " + n, "ぁぃ", terms.get(0));
+                assertEquals("bigram : " + n, "ぃぅ", terms.get(1));
+                break;
+            case FieldNamesConstants.ARTIST_READING:
+                assertEquals("apply : " + n, 3, terms.size());
+                assertEquals("apply : " + n, apply1a, terms.get(0));
+                assertEquals("apply : " + n, "あい", terms.get(1));
+                assertEquals("apply : " + n, "いう", terms.get(2));
+                break;
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("apply : " + n, 2, terms.size());
+                assertEquals("apply : " + n, apply1a, terms.get(0));
+                assertEquals("apply : " + n, apply1b, terms.get(1));
+                break;
+            default:
+                break;
             }
         });
     }
@@ -539,40 +529,39 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    assertEquals("no case : " + n, 0, terms.size());
-                    break;
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals("apply : " + n, 2, terms.size());
-                    assertEquals("apply : " + n, "abcdefg", terms.get(0));
-                    assertEquals("apply : " + n, "ふ", terms.get(1));
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("apply : " + n, 2, terms.size());
-                    assertEquals("apply : " + n, expected1a, terms.get(0));
-                    assertEquals("apply : " + n, expected1b, terms.get(1));
-                    break;
-                default:
-                    break;
+            case FieldNamesConstants.TITLE_EX:
+            case FieldNamesConstants.ALBUM_EX:
+            case FieldNamesConstants.ARTIST_EX:
+                assertEquals("no case : " + n, 0, terms.size());
+                break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE:
+            case FieldNamesConstants.MEDIA_TYPE:
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("through : " + n, query, terms.get(0));
+                break;
+            case FieldNamesConstants.ARTIST_READING:
+                assertEquals("apply : " + n, 2, terms.size());
+                assertEquals("apply : " + n, "abcdefg", terms.get(0));
+                assertEquals("apply : " + n, "ふ", terms.get(1));
+                break;
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("apply : " + n, 2, terms.size());
+                assertEquals("apply : " + n, expected1a, terms.get(0));
+                assertEquals("apply : " + n, expected1b, terms.get(1));
+                break;
+            default:
+                break;
             }
         });
     }
 
     /**
-     * Detailed tests on EscapeRequires.
-     * The reserved string is discarded unless it is purposely Escape.
-     * This is fine as a search specification(if it is considered as a kind of reserved stop word).
-     * However, in the case of file path, it may be a problem.
+     * Detailed tests on EscapeRequires. The reserved string is discarded unless it is purposely Escape. This is fine as
+     * a search specification(if it is considered as a kind of reserved stop word). However, in the case of file path,
+     * it may be a problem.
      */
     @Test
     public void testLuceneEscapeRequires() {
@@ -651,7 +640,8 @@ public class AnalyzerFactoryTest {
 
         // Space
         assertEquals(asList("abc", "def"), toTermString(" ABC DEF "));
-        assertEquals(asList("abc", "1", "def"), toTermString(" ABC1 DEF "));    // XXX standard -> jp : abc1 def -> abc 1 def
+        assertEquals(asList("abc", "1", "def"), toTermString(" ABC1 DEF ")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
 
         // trim and delimiter
         assertEquals(asList("abc", "def"), toTermString("+ABC+DEF+"));
@@ -669,49 +659,77 @@ public class AnalyzerFactoryTest {
         assertEquals(asList("abc", "def"), toTermString("~ABC~DEF~"));
         assertEquals(asList("abc", "def"), toTermString("*ABC*DEF*"));
         assertEquals(asList("abc", "def"), toTermString("?ABC?DEF?"));
-        assertEquals(asList("abc", "def"), toTermString(":ABC:DEF:"));        // XXX 3.x -> 8.x : abc def -> abc:def // XXX standard -> jp : abc:def -> abc def
+        assertEquals(asList("abc", "def"), toTermString(":ABC:DEF:")); // XXX 3.x -> 8.x : abc def -> abc:def // XXX
+                                                                       // standard -> jp : abc:def -> abc def
         assertEquals(asList("abc", "def"), toTermString("-ABC-DEF-"));
         assertEquals(asList("abc", "def"), toTermString("/ABC/DEF/"));
         /*
-         * XXX 3.x -> 8.x : _abc_def_　in UAX#29.
-         * Since the effect is large, trim with Filter.
+         * XXX 3.x -> 8.x : _abc_def_ in UAX#29. Since the effect is large, trim with Filter.
          */
-        assertEquals(asList("abc", "def"), toTermString("_ABC_DEF_"));        // XXX 3.x -> 8.x : abc def -> abc_def // XXX standard -> jp : abc_def -> abc def
+        assertEquals(asList("abc", "def"), toTermString("_ABC_DEF_")); // XXX 3.x -> 8.x : abc def -> abc_def // XXX
+                                                                       // standard -> jp : abc_def -> abc def
         assertEquals(asList("abc", "def"), toTermString(",ABC,DEF,"));
-        assertEquals(asList("abc", "def"), toTermString(".ABC.DEF."));        // XXX standard -> jp : abc.def -> abc def
-        assertEquals(asList("abc", "def"), toTermString("&ABC&DEF&"));        // XXX 3.x -> 8.x : abc&def -> abc def
-        assertEquals(asList("abc", "def"), toTermString("@ABC@DEF@"));        // XXX 3.x -> 8.x : abc@def -> abc def
-        assertEquals(asList("abc", "def"), toTermString("'ABC'DEF'"));           // XXX standard -> jp : abc'def -> abc def
+        assertEquals(asList("abc", "def"), toTermString(".ABC.DEF.")); // XXX standard -> jp : abc.def -> abc def
+        assertEquals(asList("abc", "def"), toTermString("&ABC&DEF&")); // XXX 3.x -> 8.x : abc&def -> abc def
+        assertEquals(asList("abc", "def"), toTermString("@ABC@DEF@")); // XXX 3.x -> 8.x : abc@def -> abc def
+        assertEquals(asList("abc", "def"), toTermString("'ABC'DEF'")); // XXX standard -> jp : abc'def -> abc def
 
         // trim and delimiter and number
-        assertEquals(asList("abc", "1", "def"), toTermString("+ABC1+DEF+"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("|ABC1|DEF|"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("!ABC1!DEF!"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("(ABC1(DEF("));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString(")ABC1)DEF)"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("{ABC1{DEF{"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("}ABC1}DEF}"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("[ABC1[DEF["));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("]ABC1]DEF]"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("^ABC1^DEF^"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("\\ABC1\\DEF\\")); // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("\"ABC1\"DEF\"")); // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("~ABC1~DEF~"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("*ABC1*DEF*"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("?ABC1?DEF?"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString(":ABC1:DEF:"));    // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString(",ABC1,DEF,"));    // XXX 3.x -> 8.x : abc1,def -> abc1 def // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("-ABC1-DEF-"));    // XXX 3.x -> 8.x : abc1-def -> abc1 def // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("/ABC1/DEF/"));    // XXX 3.x -> 8.x : abc1/def -> abc1 def // XXX standard -> jp : abc1 def -> abc 1 def
+        assertEquals(asList("abc", "1", "def"), toTermString("+ABC1+DEF+")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("|ABC1|DEF|")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("!ABC1!DEF!")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("(ABC1(DEF(")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString(")ABC1)DEF)")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("{ABC1{DEF{")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("}ABC1}DEF}")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("[ABC1[DEF[")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("]ABC1]DEF]")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("^ABC1^DEF^")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("\\ABC1\\DEF\\")); // XXX standard -> jp : abc1 def -> abc
+                                                                                // 1 def
+        assertEquals(asList("abc", "1", "def"), toTermString("\"ABC1\"DEF\"")); // XXX standard -> jp : abc1 def -> abc
+                                                                                // 1 def
+        assertEquals(asList("abc", "1", "def"), toTermString("~ABC1~DEF~")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("*ABC1*DEF*")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("?ABC1?DEF?")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString(":ABC1:DEF:")); // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString(",ABC1,DEF,")); // XXX 3.x -> 8.x : abc1,def -> abc1 def //
+                                                                             // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("-ABC1-DEF-")); // XXX 3.x -> 8.x : abc1-def -> abc1 def //
+                                                                             // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("/ABC1/DEF/")); // XXX 3.x -> 8.x : abc1/def -> abc1 def //
+                                                                             // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
         /*
-         * XXX 3.x -> 8.x : _abc1_def_　in UAX#29.
-         * Since the effect is large, trim with Filter.
+         * XXX 3.x -> 8.x : _abc1_def_ in UAX#29. Since the effect is large, trim with Filter.
          */
-        assertEquals(asList("abc", "1", "def"), toTermString("_ABC1_DEF_"));    // XXX standard -> jp : abc1_def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString(".ABC1.DEF."));    // XXX 3.x -> 8.x : abc1.def -> abc1 def // XXX standard -> jp : abc1 def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("&ABC1&DEF&"));    // XXX standard -> jp : abc1_def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("@ABC1@DEF@"));    // XXX standard -> jp : abc1_def -> abc 1 def
-        assertEquals(asList("abc", "1", "def"), toTermString("'ABC1'DEF'"));    // XXX standard -> jp : abc1_def -> abc 1 def
+        assertEquals(asList("abc", "1", "def"), toTermString("_ABC1_DEF_")); // XXX standard -> jp : abc1_def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString(".ABC1.DEF.")); // XXX 3.x -> 8.x : abc1.def -> abc1 def //
+                                                                             // XXX standard -> jp : abc1 def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("&ABC1&DEF&")); // XXX standard -> jp : abc1_def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("@ABC1@DEF@")); // XXX standard -> jp : abc1_def -> abc 1
+                                                                             // def
+        assertEquals(asList("abc", "1", "def"), toTermString("'ABC1'DEF'")); // XXX standard -> jp : abc1_def -> abc 1
+                                                                             // def
 
     }
 
@@ -772,8 +790,7 @@ public class AnalyzerFactoryTest {
     }
 
     /*
-     * There is also a filter that converts the tense to correspond to the search by the present
-     * tense.
+     * There is also a filter that converts the tense to correspond to the search by the present tense.
      */
     @Test
     public void testPastParticiple() {
@@ -784,15 +801,15 @@ public class AnalyzerFactoryTest {
         String query = "This is formed with a form of the verb \"have\" and a past participl.";
         List<String> terms = toTermString(query);
         assertEquals(11, terms.size());
-        assertEquals("this", terms.get(0));// currently not stopward
-        assertEquals("is", terms.get(1));// currently not stopward
-        assertEquals("formed", terms.get(2));// leave passive / not "form"
-        assertEquals("with", terms.get(3));// currently not stopward
+        assertEquals("this", terms.get(0)); // currently not stopward
+        assertEquals("is", terms.get(1)); // currently not stopward
+        assertEquals("formed", terms.get(2)); // leave passive / not "form"
+        assertEquals("with", terms.get(3)); // currently not stopward
         assertEquals("form", terms.get(4));
-        assertEquals("of", terms.get(5));// currently not stopward
+        assertEquals("of", terms.get(5)); // currently not stopward
         assertEquals("verb", terms.get(6));
         assertEquals("have", terms.get(7));
-        assertEquals("and", terms.get(8));// currently not stopward
+        assertEquals("and", terms.get(8)); // currently not stopward
         assertEquals("past", terms.get(9));
         assertEquals("participl", terms.get(10));
 
@@ -811,7 +828,7 @@ public class AnalyzerFactoryTest {
         String query = "books boxes cities leaves men glasses";
         List<String> terms = toTermString(query);
         assertEquals(6, terms.size());
-        assertEquals("books", terms.get(0));// leave numeral / not singular
+        assertEquals("books", terms.get(0)); // leave numeral / not singular
         assertEquals("boxes", terms.get(1));
         assertEquals("cities", terms.get(2));
         assertEquals("leaves", terms.get(3));
@@ -820,41 +837,36 @@ public class AnalyzerFactoryTest {
     }
 
     /*
-     * Katakana is converted to hiragana. This is primarily intended for CDDB input.
-     * (It is not decided whether to register in CDDB with Katakana/Hiragana)
+     * Katakana is converted to hiragana. This is primarily intended for CDDB input. (It is not decided whether to
+     * register in CDDB with Katakana/Hiragana)
      */
     @Test
     public void testToHiragana() {
 
-        String notChange1 = "THE BLUE HEARTS";
-        String notChange2 = "ABC123";
-        String passable1 = "ABC123あいう";
-        String expected1 = "abc123あいう";
-        String passable2 = "ABC123アイウ";
-
         String n = FieldNamesConstants.ARTIST_READING;
 
-        List<String> terms = toTermString(n, notChange1);
+        List<String> terms = toTermString(n, "THE BLUE HEARTS");
         assertEquals("all Alpha : " + n, 2, terms.size());
         assertEquals("all Alpha : " + n, "blue", terms.get(0));
         assertEquals("all Alpha : " + n, "hearts", terms.get(1));
 
-        terms = toTermString(n, notChange2);
+        terms = toTermString(n, "ABC123");
         assertEquals("AlphaNum : " + n, 1, terms.size());
 
+        String passable1 = "ABC123あいう";
         terms = toTermString(n, passable1);
         assertEquals("ABC123あいう : " + n, 3, terms.size());
         assertEquals("ABC123あいう : " + n, "abc123", terms.get(0));
         assertEquals("ABC123あいう : " + n, "あい", terms.get(1));
         assertEquals("ABC123あいう : " + n, "いう", terms.get(2));
 
-        terms = toTermString(n, expected1);
+        terms = toTermString(n, "abc123あいう");
         assertEquals("abc123あいう : " + n, 3, terms.size());
         assertEquals("abc123あいう : " + n, "abc123", terms.get(0));
         assertEquals("abc123あいう : " + n, "あい", terms.get(1));
         assertEquals("abc123あいう : " + n, "いう", terms.get(2));
 
-        terms = toTermString(n, passable2);
+        terms = toTermString(n, "ABC123アイウ");
         assertEquals("ABC123アイウ : " + n, 3, terms.size());
         assertEquals("abc123アイウ : " + n, "abc123", terms.get(0));
         assertEquals("abc123アイウ: " + n, "あい", terms.get(1));
@@ -863,15 +875,13 @@ public class AnalyzerFactoryTest {
     }
 
     /*
-     * ALBUM_EX and TITLE_EX only allow Hiragana.
-     * Because hiragana-only high-precision word analysis is difficult, the purpose
-     * is to support the full text. (Hiragana-only album names and song names may be
-     * used to give a particularly soft impression, but are generally not used very
-     * often.)
+     * ALBUM_EX and TITLE_EX only allow Hiragana. Because hiragana-only high-precision word analysis is difficult, the
+     * purpose is to support the full text. (Hiragana-only album names and song names may be used to give a particularly
+     * soft impression, but are generally not used very often.)
      */
     @Test
     public void testHiraganaTermStemOnlyHiragana() {
-        //  #482 No longer used
+        // #482 No longer used
     }
 
     /*
@@ -889,30 +899,30 @@ public class AnalyzerFactoryTest {
         Arrays.stream(IndexType.values()).flatMap(i -> Arrays.stream(i.getFields())).forEach(n -> {
             List<String> terms = toTermString(n, query);
             switch (n) {
-                case FieldNamesConstants.FOLDER:
-                case FieldNamesConstants.GENRE:
-                case FieldNamesConstants.MEDIA_TYPE:
-                    assertEquals("through : " + n, 1, terms.size());
-                    assertEquals("through : " + n, query, terms.get(0));
-                    break;
-                case FieldNamesConstants.ARTIST_READING:
-                    assertEquals("token through filtered : " + n, 1, terms.size());
-                    assertEquals("token through filtered : " + n, expected2, terms.get(0));
-                    break;
-                case FieldNamesConstants.ARTIST:
-                case FieldNamesConstants.ALBUM:
-                case FieldNamesConstants.TITLE:
-                    assertEquals("tokend : " + n, 2, terms.size());
-                    assertEquals("tokend : " + n, expected2a, terms.get(0));
-                    assertEquals("tokend : " + n, expected2b, terms.get(1));
-                    break;
-                case FieldNamesConstants.TITLE_EX:
-                case FieldNamesConstants.ALBUM_EX:
-                case FieldNamesConstants.ARTIST_EX:
-                    //  #482 No longer used
-                    break;
-                default:
-                    break;
+            case FieldNamesConstants.FOLDER:
+            case FieldNamesConstants.GENRE:
+            case FieldNamesConstants.MEDIA_TYPE:
+                assertEquals("through : " + n, 1, terms.size());
+                assertEquals("through : " + n, query, terms.get(0));
+                break;
+            case FieldNamesConstants.ARTIST_READING:
+                assertEquals("token through filtered : " + n, 1, terms.size());
+                assertEquals("token through filtered : " + n, expected2, terms.get(0));
+                break;
+            case FieldNamesConstants.ARTIST:
+            case FieldNamesConstants.ALBUM:
+            case FieldNamesConstants.TITLE:
+                assertEquals("tokend : " + n, 2, terms.size());
+                assertEquals("tokend : " + n, expected2a, terms.get(0));
+                assertEquals("tokend : " + n, expected2b, terms.get(1));
+                break;
+            case FieldNamesConstants.TITLE_EX:
+            case FieldNamesConstants.ALBUM_EX:
+            case FieldNamesConstants.ARTIST_EX:
+                // #482 No longer used
+                break;
+            default:
+                break;
             }
         });
     }
@@ -924,17 +934,14 @@ public class AnalyzerFactoryTest {
     private List<String> toTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field,
-                    new StringReader(str));
+            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
-                result.add(stream.getAttribute(CharTermAttribute.class).toString()
-                        .replaceAll("^term\\=", ""));
+                result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTest.class)
-                    .error("Error during Token processing.", e);
+            LoggerFactory.getLogger(AnalyzerFactoryTest.class).error("Error during Token processing.", e);
         }
         return result;
     }
@@ -943,17 +950,14 @@ public class AnalyzerFactoryTest {
     private List<String> toQueryTermString(String field, String str) {
         List<String> result = new ArrayList<>();
         try {
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field,
-                    new StringReader(str));
+            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field, new StringReader(str));
             stream.reset();
             while (stream.incrementToken()) {
-                result.add(stream.getAttribute(CharTermAttribute.class).toString()
-                        .replaceAll("^term\\=", ""));
+                result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
             stream.close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(AnalyzerFactoryTest.class)
-                    .error("Error during Token processing.", e);
+            LoggerFactory.getLogger(AnalyzerFactoryTest.class).error("Error during Token processing.", e);
         }
         return result;
     }

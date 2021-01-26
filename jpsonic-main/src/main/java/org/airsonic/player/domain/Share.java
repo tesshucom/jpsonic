@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.Date;
@@ -25,6 +26,7 @@ import java.util.Date;
  * A collection of media files that is shared with someone, and accessible via a direct URL.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class Share {
@@ -41,8 +43,8 @@ public class Share {
     public Share() {
     }
 
-    public Share(int id, String name, String description, String username, Date created,
-            Date expires, Date lastVisited, int visitCount) {
+    public Share(int id, String name, String description, String username, Date created, Date expires, Date lastVisited,
+            int visitCount) {
         this.id = id;
         this.name = name;
         this.description = description;

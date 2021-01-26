@@ -16,7 +16,19 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -31,17 +43,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
-
-import java.io.File;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * If SORT exists for one name and null-sort data exists, unify it to SORT.
@@ -97,30 +98,30 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
         files.forEach(m -> {
             switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertNull(m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertNull(m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertNull(m.getComposerSort());
-                    break;
-    
-                default:
-                    fail();
-                    break;
+            case "file1":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("近衛秀麿", m.getArtist());
+                assertNull(m.getArtistSort());
+                break;
+            case "file2":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("中山晋平", m.getArtist());
+                assertNull(m.getArtistSort());
+                break;
+            case "file3":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertNull(m.getAlbumArtistSort());
+                assertEquals("ARTIST", m.getArtist());
+                assertNull(m.getArtistSort());
+                assertEquals("世阿弥", m.getComposer());
+                assertNull(m.getComposerSort());
+                break;
+
+            default:
+                fail();
+                break;
             }
         });
 
@@ -135,13 +136,13 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {
-                case "近衛秀麿":
-                case "山田耕筰":
-                    assertNull(a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "近衛秀麿":
+            case "山田耕筰":
+                assertNull(a.getSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 
@@ -154,30 +155,30 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
         files.forEach(m -> {
             switch (m.getName()) {
-                case "file1":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("近衛秀麿", m.getArtist());
-                    assertEquals("コノエヒデマロ", m.getArtistSort());
-                    break;
-                case "file2":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("中山晋平", m.getArtist());
-                    assertEquals("ナカヤマシンペイ", m.getArtistSort());
-                    break;
-                case "file3":
-                    assertEquals("近衛秀麿", m.getAlbumArtist());
-                    assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
-                    assertEquals("ARTIST", m.getArtist());
-                    assertEquals("ARTIST", m.getArtistSort());
-                    assertEquals("世阿弥", m.getComposer());
-                    assertEquals("ゼアミ", m.getComposerSort());
-                    break;
-    
-                default:
-                    fail();
-                    break;
+            case "file1":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("近衛秀麿", m.getArtist());
+                assertEquals("コノエヒデマロ", m.getArtistSort());
+                break;
+            case "file2":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("中山晋平", m.getArtist());
+                assertEquals("ナカヤマシンペイ", m.getArtistSort());
+                break;
+            case "file3":
+                assertEquals("近衛秀麿", m.getAlbumArtist());
+                assertEquals("コノエヒデマロ", m.getAlbumArtistSort());
+                assertEquals("ARTIST", m.getArtist());
+                assertEquals("ARTIST", m.getArtistSort());
+                assertEquals("世阿弥", m.getComposer());
+                assertEquals("ゼアミ", m.getComposerSort());
+                break;
+
+            default:
+                fail();
+                break;
             }
         });
 
@@ -185,15 +186,15 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {
-                case "近衛秀麿":
-                    assertEquals("コノエヒデマロ", a.getSort());
-                    break;
-                case "山田耕筰":
-                    assertEquals("ヤマダコウサク", a.getSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "近衛秀麿":
+                assertEquals("コノエヒデマロ", a.getSort());
+                break;
+            case "山田耕筰":
+                assertEquals("ヤマダコウサク", a.getSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 

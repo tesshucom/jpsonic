@@ -19,6 +19,10 @@
 
 package org.airsonic.player.service.sonos;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang3.tuple.Pair;
@@ -35,25 +39,22 @@ import org.apache.http.message.BasicNameValuePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class SonosServiceRegistration {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosServiceRegistration.class);
 
-    public void setEnabled(String airsonicBaseUrl, String sonosControllerIp, boolean enabled, String sonosServiceName, int sonosServiceId) throws IOException {
+    public void setEnabled(String airsonicBaseUrl, String sonosControllerIp, boolean enabled, String sonosServiceName,
+            int sonosServiceId) throws IOException {
         String localUrl = airsonicBaseUrl + "ws/Sonos";
-        String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
 
         if (LOG.isInfoEnabled()) {
-            LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP " + sonosControllerIp +
-                     ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
+            LOG.info((enabled ? "Enabling" : "Disabling") + " Sonos music service, using Sonos controller IP "
+                    + sonosControllerIp + ", SID " + sonosServiceId + ", and Airsonic URL " + localUrl);
         }
 
         List<Pair<String, String>> params = new ArrayList<>();
@@ -77,6 +78,7 @@ public class SonosServiceRegistration {
             params.add(Pair.of("stringsUri", airsonicBaseUrl + "sonos/strings.xml"));
         }
 
+        String controllerUrl = String.format("http://%s:1400/customsd", sonosControllerIp);
         String result = execute(controllerUrl, params);
         if (LOG.isInfoEnabled()) {
             LOG.info("Sonos controller returned: " + result);
@@ -89,8 +91,7 @@ public class SonosServiceRegistration {
         for (Pair<String, String> parameter : parameters) {
             params.add(new BasicNameValuePair(parameter.getLeft(), parameter.getRight()));
         }
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(20 * 1000) // 20 seconds
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(20 * 1000) // 20 seconds
                 .setSocketTimeout(20 * 1000) // 20 seconds
                 .build();
         HttpPost request = new HttpPost(url);

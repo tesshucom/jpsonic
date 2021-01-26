@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import java.text.DateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
@@ -34,15 +46,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.text.DateFormat;
-import java.util.*;
-
 /**
- * Provides AJAX-enabled services for manipulating playlists.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for manipulating playlists. This class is used by the DWR framework
+ * (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -116,8 +122,6 @@ public class PlaylistService {
 
     public int createPlaylistForPlayQueue() throws Exception {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
-        Player player = playerService.getPlayer(request, response);
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);
 
@@ -128,8 +132,10 @@ public class PlaylistService {
         playlist.setChanged(now);
         playlist.setShared(false);
         playlist.setName(dateFormat.format(now));
-
         deligate.createPlaylist(playlist);
+
+        HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
+        Player player = playerService.getPlayer(request, response);
         deligate.setFilesInPlaylist(playlist.getId(), player.getPlayQueue().getFiles());
 
         return playlist.getId();
@@ -174,8 +180,9 @@ public class PlaylistService {
     private List<PlaylistInfo.Entry> createEntries(List<MediaFile> files) {
         List<PlaylistInfo.Entry> result = new ArrayList<>();
         for (MediaFile file : files) {
-            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(), file.getAlbumName(),
-                    file.getGenre(), file.getDurationString(), file.getStarredDate() != null, file.isPresent()));
+            result.add(new PlaylistInfo.Entry(file.getId(), file.getTitle(), file.getArtist(), file.getComposer(),
+                    file.getAlbumName(), file.getGenre(), file.getDurationString(), file.getStarredDate() != null,
+                    file.isPresent()));
         }
 
         return result;

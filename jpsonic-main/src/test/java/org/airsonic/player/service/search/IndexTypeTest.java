@@ -16,12 +16,13 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class IndexTypeTest {
