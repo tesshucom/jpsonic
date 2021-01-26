@@ -444,32 +444,20 @@
                     </dependencies>
                     <configuration>
                         <configLocation>${project.basedir}/../jpsonic-main/checkstyle.xml</configLocation>
-                        <sourceDirectories>
-                            <sourceDirectory>${project.build.sourceDirectory}</sourceDirectory>
-                        </sourceDirectories>
                         <encoding>UTF-8</encoding>
-                        <consoleOutput>false</consoleOutput>
-                        <failOnViolation>false</failOnViolation>
+                        <consoleOutput>true</consoleOutput>
+                        <failOnViolation>true</failOnViolation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
-                    <!--
                     <executions>
                         <execution>
                             <id>validate</id>
                             <phase>validate</phase>
-                            <configuration>
-                                <configLocation>${project.basedir}/../jpsonic-main/checkstyle.xml</configLocation>
-                                <encoding>UTF-8</encoding>
-                                <consoleOutput>true</consoleOutput>
-                                <failOnViolation>true</failOnViolation>
-                                <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                            </configuration>
                             <goals>
                                 <goal>check</goal>
                             </goals>
                         </execution>
                     </executions>
-                    -->
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
