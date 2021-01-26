@@ -120,7 +120,7 @@ public class DocumentFactoryLegacyTest {
 
     @Test(expected = NullPointerException.class)
     public void testCreateArtistNullPointer() {
-        documentFactory.createArtistId3Document(new Artist(), null);// Folder is a required item.
+        documentFactory.createArtistId3Document(new Artist(), null); // Folder is a required item.
     }
 
     @Test

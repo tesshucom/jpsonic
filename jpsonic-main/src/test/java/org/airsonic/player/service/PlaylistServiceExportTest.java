@@ -83,12 +83,12 @@ public class PlaylistServiceExportTest {
     }
 
     private List<MediaFile> getPlaylistFiles() {
-        List<MediaFile> mediaFiles = new ArrayList<>();
 
         MediaFile mf1 = new MediaFile();
         mf1.setId(142);
         mf1.setPath("/some/path/to_album/to_artist/name - of - song.mp3");
         mf1.setPresent(true);
+        List<MediaFile> mediaFiles = new ArrayList<>();
         mediaFiles.add(mf1);
 
         MediaFile mf2 = new MediaFile();

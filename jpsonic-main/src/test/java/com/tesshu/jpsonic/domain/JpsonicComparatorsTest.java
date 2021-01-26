@@ -977,12 +977,12 @@ public class JpsonicComparatorsTest {
     public void testCollation() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
-        artists.add(new TestSortableArtist("p\u00e9ch\u00e9"));
+        artists.add(new TestSortableArtist("p\u00e9ch\u00e9")); // péché
         artists.add(new TestSortableArtist("peach"));
-        artists.add(new TestSortableArtist("p\u00eache"));
+        artists.add(new TestSortableArtist("p\u00eache")); // pêche
 
         Collections.sort(artists);
-        assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString());
+        assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString()); // péché, pêche
     }
 
     /*
@@ -995,7 +995,7 @@ public class JpsonicComparatorsTest {
     public void testCompareAlbums() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(true);
-        MediaFileComparator comparator = comparators.mediaFileOrder(null);
+        final MediaFileComparator comparator = comparators.mediaFileOrder(null);
 
         MediaFile albumA2012 = new MediaFile();
         albumA2012.setMediaType(MediaFile.MediaType.ALBUM);
@@ -1041,7 +1041,6 @@ public class JpsonicComparatorsTest {
     public void testCompareDiscNumbers() throws Exception {
         settingsService.setSortAlphanum(false);
         settingsService.setSortAlbumsByYear(false);
-        MediaFileComparator comparator = comparators.mediaFileOrder(null);
 
         MediaFile discXtrack1 = new MediaFile();
         discXtrack1.setMediaType(MediaFile.MediaType.MUSIC);
@@ -1077,6 +1076,7 @@ public class JpsonicComparatorsTest {
         disc6track2.setDiscNumber(6);
         disc6track2.setTrackNumber(2);
 
+        MediaFileComparator comparator = comparators.mediaFileOrder(null);
         assertEquals(0, comparator.compare(discXtrack1, discXtrack1));
         assertEquals(0, comparator.compare(disc5track1, disc5track1));
 
@@ -1128,14 +1128,14 @@ public class JpsonicComparatorsTest {
      * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
      * Copyright 2009 (C) Sindre Mehus
      */
+    @SuppressWarnings("checkstyle:variabledeclarationusagedistance")
     @Test
     public void testSortingWithAccents() {
-        List<TestSortableArtist> artists = new ArrayList<>();
 
         TestSortableArtist a1 = new TestSortableArtist("Sea");
         TestSortableArtist a2 = new TestSortableArtist("SEB");
         TestSortableArtist a3 = new TestSortableArtist("Seb");
-        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b");
+        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b"); // Séb
         TestSortableArtist a5 = new TestSortableArtist("Sed");
         TestSortableArtist a6 = new TestSortableArtist("See");
 
@@ -1159,6 +1159,7 @@ public class JpsonicComparatorsTest {
         assertTrue(a4.compareTo(a5) < 0);
         assertTrue(a4.compareTo(a6) < 0);
 
+        List<TestSortableArtist> artists = new ArrayList<>();
         artists.add(a1);
         artists.add(a2);
         artists.add(a3);
@@ -1168,7 +1169,7 @@ public class JpsonicComparatorsTest {
 
         Collections.shuffle(artists);
         Collections.sort(artists);
-        assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString());
+        assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString()); // Séb
     }
 
     private class ThreadRule implements MethodRule {

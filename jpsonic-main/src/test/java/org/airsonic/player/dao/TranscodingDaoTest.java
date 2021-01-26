@@ -89,9 +89,9 @@ public class TranscodingDaoTest extends DaoTestBase {
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", false));
         transcodingDao.createTranscoding(
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", false));
-        Transcoding transcodingA = transcodingDao.getAllTranscodings().get(0);
-        Transcoding transcodingB = transcodingDao.getAllTranscodings().get(1);
-        Transcoding transcodingC = transcodingDao.getAllTranscodings().get(2);
+        final Transcoding transcodingA = transcodingDao.getAllTranscodings().get(0);
+        final Transcoding transcodingB = transcodingDao.getAllTranscodings().get(1);
+        final Transcoding transcodingC = transcodingDao.getAllTranscodings().get(2);
 
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
         assertEquals("Wrong number of transcodings.", 0, activeTranscodings.size());

@@ -352,7 +352,7 @@ public class AnalyzerFactoryTest {
         String queryHalfWidth = "THIS IS FULL-WIDTH SENTENCES.";
         List<String> terms = toTermString(queryHalfWidth);
         assertEquals(5, terms.size());
-        assertEquals("this", terms.get(0));// removal target is ignored
+        assertEquals("this", terms.get(0)); // removal target is ignored
         assertEquals("is", terms.get(1));
         assertEquals("full", terms.get(2));
         assertEquals("width", terms.get(3));
@@ -371,7 +371,7 @@ public class AnalyzerFactoryTest {
          * as it is probably not a deliberate specification.
          */
         assertEquals(5, terms.size());
-        assertEquals("this", terms.get(0));// removal target is ignored
+        assertEquals("this", terms.get(0)); // removal target is ignored
         assertEquals("is", terms.get(1));
         assertEquals("full", terms.get(2));
         assertEquals("width", terms.get(3));
@@ -801,15 +801,15 @@ public class AnalyzerFactoryTest {
         String query = "This is formed with a form of the verb \"have\" and a past participl.";
         List<String> terms = toTermString(query);
         assertEquals(11, terms.size());
-        assertEquals("this", terms.get(0));// currently not stopward
-        assertEquals("is", terms.get(1));// currently not stopward
-        assertEquals("formed", terms.get(2));// leave passive / not "form"
-        assertEquals("with", terms.get(3));// currently not stopward
+        assertEquals("this", terms.get(0)); // currently not stopward
+        assertEquals("is", terms.get(1)); // currently not stopward
+        assertEquals("formed", terms.get(2)); // leave passive / not "form"
+        assertEquals("with", terms.get(3)); // currently not stopward
         assertEquals("form", terms.get(4));
-        assertEquals("of", terms.get(5));// currently not stopward
+        assertEquals("of", terms.get(5)); // currently not stopward
         assertEquals("verb", terms.get(6));
         assertEquals("have", terms.get(7));
-        assertEquals("and", terms.get(8));// currently not stopward
+        assertEquals("and", terms.get(8)); // currently not stopward
         assertEquals("past", terms.get(9));
         assertEquals("participl", terms.get(10));
 
@@ -828,7 +828,7 @@ public class AnalyzerFactoryTest {
         String query = "books boxes cities leaves men glasses";
         List<String> terms = toTermString(query);
         assertEquals(6, terms.size());
-        assertEquals("books", terms.get(0));// leave numeral / not singular
+        assertEquals("books", terms.get(0)); // leave numeral / not singular
         assertEquals("boxes", terms.get(1));
         assertEquals("cities", terms.get(2));
         assertEquals("leaves", terms.get(3));
@@ -843,35 +843,30 @@ public class AnalyzerFactoryTest {
     @Test
     public void testToHiragana() {
 
-        String notChange1 = "THE BLUE HEARTS";
-        String notChange2 = "ABC123";
-        String passable1 = "ABC123あいう";
-        String expected1 = "abc123あいう";
-        String passable2 = "ABC123アイウ";
-
         String n = FieldNamesConstants.ARTIST_READING;
 
-        List<String> terms = toTermString(n, notChange1);
+        List<String> terms = toTermString(n, "THE BLUE HEARTS");
         assertEquals("all Alpha : " + n, 2, terms.size());
         assertEquals("all Alpha : " + n, "blue", terms.get(0));
         assertEquals("all Alpha : " + n, "hearts", terms.get(1));
 
-        terms = toTermString(n, notChange2);
+        terms = toTermString(n, "ABC123");
         assertEquals("AlphaNum : " + n, 1, terms.size());
 
+        String passable1 = "ABC123あいう";
         terms = toTermString(n, passable1);
         assertEquals("ABC123あいう : " + n, 3, terms.size());
         assertEquals("ABC123あいう : " + n, "abc123", terms.get(0));
         assertEquals("ABC123あいう : " + n, "あい", terms.get(1));
         assertEquals("ABC123あいう : " + n, "いう", terms.get(2));
 
-        terms = toTermString(n, expected1);
+        terms = toTermString(n, "abc123あいう");
         assertEquals("abc123あいう : " + n, 3, terms.size());
         assertEquals("abc123あいう : " + n, "abc123", terms.get(0));
         assertEquals("abc123あいう : " + n, "あい", terms.get(1));
         assertEquals("abc123あいう : " + n, "いう", terms.get(2));
 
-        terms = toTermString(n, passable2);
+        terms = toTermString(n, "ABC123アイウ");
         assertEquals("ABC123アイウ : " + n, 3, terms.size());
         assertEquals("abc123アイウ : " + n, "abc123", terms.get(0));
         assertEquals("abc123アイウ: " + n, "あい", terms.get(1));

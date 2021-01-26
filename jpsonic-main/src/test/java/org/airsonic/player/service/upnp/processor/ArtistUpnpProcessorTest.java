@@ -180,7 +180,7 @@ public class ArtistUpnpProcessorTest extends AbstractAirsonicHomeTest {
         assertEquals(1, albums.size());
 
         Album album = albums.get(0);
-        assertEquals("AlBum!", album.getName());// the case where album name is different between file and id3
+        assertEquals("AlBum!", album.getName()); // the case where album name is different between file and id3
 
         List<MediaFile> songs = artistUpnpProcessor.getDispatcher().getAlbumProcessor().getChildren(album, 0,
                 Integer.MAX_VALUE);

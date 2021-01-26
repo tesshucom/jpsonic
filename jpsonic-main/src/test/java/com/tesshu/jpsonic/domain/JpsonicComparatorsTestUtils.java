@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
+@SuppressWarnings("checkstyle:methodname")
 public class JpsonicComparatorsTestUtils {
 
     @Autowired

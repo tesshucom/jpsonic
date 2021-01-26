@@ -174,7 +174,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals("MusicCenter-Composer", metaData.getComposer());
         assertNull(metaData.getComposerSort());
-        assertNull(metaData.getTrackNumber());// If track is not input, output 1.0.
+        assertNull(metaData.getTrackNumber()); // If track is not input, output 1.0.
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
         assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
         assertEquals(Integer.valueOf(320), metaData.getBitRate());

@@ -196,8 +196,8 @@ public class MediaScannerServiceTest {
     public void testSpecialCharactersInFilename() throws Exception {
         InputStream resource = MediaScannerServiceTest.class.getClassLoader().getResourceAsStream("MEDIAS/piano.mp3");
         assert resource != null;
-        String directoryName = "Muff1nman\u2019s \uFF0FMusic";
-        String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3";
+        String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
+        String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
         File artistDir = temporaryFolder.newFolder(directoryName);
         File musicFile = artistDir.toPath().resolve(fileName).toFile();
         IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));

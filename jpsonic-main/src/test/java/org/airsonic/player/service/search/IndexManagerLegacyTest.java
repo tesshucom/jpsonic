@@ -98,16 +98,16 @@ public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
         int count = Integer.MAX_VALUE;
         boolean includeComposer = false;
 
-        SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, includeComposer, musicFolders,
-                IndexType.ARTIST);
-        SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, includeComposer,
+        final SearchCriteria criteriaArtist = director.construct("_DIR_ Ravel", offset, count, includeComposer,
+                musicFolders, IndexType.ARTIST);
+        final SearchCriteria criteriaAlbum = director.construct("Complete Piano Works", offset, count, includeComposer,
                 musicFolders, IndexType.ALBUM);
-        SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, includeComposer, musicFolders,
+        final SearchCriteria criteriaSong = director.construct("Gaspard", offset, count, includeComposer, musicFolders,
                 IndexType.SONG);
-        SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, includeComposer,
+        final SearchCriteria criteriaArtistId3 = director.construct("_DIR_ Ravel", offset, count, includeComposer,
                 musicFolders, IndexType.ARTIST_ID3);
-        SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count, includeComposer,
-                musicFolders, IndexType.ALBUM_ID3);
+        final SearchCriteria criteriaAlbumId3 = director.construct("Complete Piano Works", offset, count,
+                includeComposer, musicFolders, IndexType.ALBUM_ID3);
 
         /* Delete DB record. */
 

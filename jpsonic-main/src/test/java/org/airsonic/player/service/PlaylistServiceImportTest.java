@@ -81,8 +81,8 @@ public class PlaylistServiceImportTest {
 
     @Test
     public void testImportFromM3U() throws Exception {
-        String username = "testUser";
-        String playlistName = "test-playlist";
+        final String username = "testUser";
+        final String playlistName = "test-playlist";
         StringBuilder builder = new StringBuilder();
         builder.append("#EXTM3U\n");
         File mf1 = folder.newFile();
@@ -117,8 +117,8 @@ public class PlaylistServiceImportTest {
 
     @Test
     public void testImportFromPLS() throws Exception {
-        String username = "testUser";
-        String playlistName = "test-playlist";
+        final String username = "testUser";
+        final String playlistName = "test-playlist";
         StringBuilder builder = new StringBuilder(40);
         builder.append("[playlist]\n");
         File mf1 = folder.newFile();
@@ -153,8 +153,8 @@ public class PlaylistServiceImportTest {
 
     @Test
     public void testImportFromXSPF() throws Exception {
-        String username = "testUser";
-        String playlistName = "test-playlist";
+        final String username = "testUser";
+        final String playlistName = "test-playlist";
         StringBuilder builder = new StringBuilder(300);
         builder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
                 + "<playlist version=\"1\" xmlns=\"http://xspf.org/ns/0/\">\n" + "    <trackList>\n");

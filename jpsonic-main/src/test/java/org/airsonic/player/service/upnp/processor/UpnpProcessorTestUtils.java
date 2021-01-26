@@ -31,7 +31,7 @@ class UpnpProcessorTestUtils {
     static final List<String> jPSonicNaturalList = Collections
             .unmodifiableList(Arrays.asList("10", "20", "30", "40", "50", "60", "70", "80", "90", "98", "99", "abcde",
                     "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "eabcd", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ", "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ",
-                    "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));;
+                    "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
 
     static final List<String> childrenList = Collections
             .unmodifiableList(Arrays.asList("empty30", "empty29", "empty28", "empty27", "empty26", "empty25", "empty24",

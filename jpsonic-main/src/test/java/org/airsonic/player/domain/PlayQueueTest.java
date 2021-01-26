@@ -223,14 +223,13 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
     public void testAddFilesAt() {
         PlayQueue playQueue = createPlaylist(0);
 
-        playQueue.addFilesAt(
-                Arrays.<MediaFile> asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("A"), new TestMediaFile("B"), new TestMediaFile("C")), 0);
         assertPlaylistEquals(playQueue, 0, "A", "B", "C");
 
-        playQueue.addFilesAt(Arrays.<MediaFile> asList(new TestMediaFile("D"), new TestMediaFile("E")), 1);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("D"), new TestMediaFile("E")), 1);
         assertPlaylistEquals(playQueue, 0, "A", "D", "E", "B", "C");
 
-        playQueue.addFilesAt(Arrays.<MediaFile> asList(new TestMediaFile("F")), 0);
+        playQueue.addFilesAt(Arrays.asList(new TestMediaFile("F")), 0);
         assertPlaylistEquals(playQueue, 0, "F", "A", "D", "E", "B", "C");
 
     }

@@ -292,7 +292,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         assertEquals(1, albums.size());
 
         MediaFile album = albums.get(0);
-        assertEquals("ALBUM", album.getName());// the case where album name is different between file and id3
+        assertEquals("ALBUM", album.getName()); // the case where album name is different between file and id3
 
         List<MediaFile> songs = indexUpnpProcessor.getChildren(album, 0, Integer.MAX_VALUE);
         assertEquals(1, songs.size());

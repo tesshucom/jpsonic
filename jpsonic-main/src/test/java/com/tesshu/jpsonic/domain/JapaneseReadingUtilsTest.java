@@ -72,10 +72,10 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
         assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
                 utils.createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
         assertEquals("Dvořák: Symphonies #7-9", utils.createReading("Dvořák: Symphonies #7-9"));
-        assertEquals("フクヤママサハル", utils.createReading("福山雅治"));// Readable case
-        assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃"));// Unreadable case
-        assertEquals("倖タ來ヒツジ", utils.createReading("倖田來未"));// Unreadable case
-        assertEquals("オクダ ミンセイ", utils.createReading("奥田　民生"));// Unreadable case
+        assertEquals("フクヤママサハル", utils.createReading("福山雅治")); // Readable case
+        assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃")); // Unreadable case
+        assertEquals("倖タ來ヒツジ", utils.createReading("倖田來未")); // Unreadable case
+        assertEquals("オクダ ミンセイ", utils.createReading("奥田　民生")); // Unreadable case
     }
 
     @Test

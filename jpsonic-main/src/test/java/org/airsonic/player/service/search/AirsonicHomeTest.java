@@ -19,7 +19,7 @@ public interface AirsonicHomeTest {
      */
     default List<MusicFolder> getMusicFolders() {
         return MusicFolderTestData.getTestMusicFolders();
-    };
+    }
 
     /**
      * Whether the data input has been completed.
