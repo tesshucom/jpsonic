@@ -17,8 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
@@ -36,13 +45,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
 /**
  * @author Sindre Mehus
  */
@@ -50,6 +52,7 @@ import java.util.concurrent.ExecutionException;
 @RequestMapping("/importPlaylist")
 public class ImportPlaylistController {
 
+    private static final String FIELD_NAME_FILE = "file";
     private static final long MAX_PLAYLIST_SIZE_MB = 5L;
 
     @Autowired
@@ -57,11 +60,9 @@ public class ImportPlaylistController {
     @Autowired
     private PlaylistService playlistService;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // Referenced only when an exception occurs
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IOException) Not reusable
     @PostMapping
-    protected String handlePost(RedirectAttributes redirectAttributes,
-                                HttpServletRequest request
-    ) {
+    protected String handlePost(RedirectAttributes redirectAttributes, HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         try {
@@ -73,9 +74,11 @@ public class ImportPlaylistController {
                 for (Object o : items) {
                     FileItem item = (FileItem) o;
 
-                    if ("file".equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
+                    if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
                         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
-                            throw new ExecutionException(new IOException("The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
+                            throw new ExecutionException(
+                                    new IOException("The playlist file is too large. Max file size is "
+                                            + MAX_PLAYLIST_SIZE_MB + " MB."));
                         }
                         String playlistName = FilenameUtils.getBaseName(item.getName());
                         String fileName = FilenameUtils.getName(item.getName());
@@ -90,7 +93,7 @@ public class ImportPlaylistController {
             map.put("error", e.getMessage());
         }
 
-        redirectAttributes.addFlashAttribute("model", map);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.MODEL.value(), map);
         return "redirect:importPlaylist";
     }
 

@@ -17,7 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
@@ -33,11 +41,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.support.RequestContextUtils;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.*;
 
 /**
  * Controller for the status page.
@@ -55,7 +58,9 @@ public class StatusController {
     @Autowired
     private SecurityService securityService;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -68,7 +73,7 @@ public class StatusController {
 
         for (int i = 0; i < streamStatuses.size(); i++) {
             long minutesAgo = streamStatuses.get(i).getMillisSinceLastUpdate() / 1000L / 60L;
-            if (minutesAgo < 60L) {
+            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
                 transferStatuses.add(new TransferStatusHolder(streamStatuses.get(i), true, false, false, i, locale));
             }
         }
@@ -78,44 +83,41 @@ public class StatusController {
         for (int i = 0; i < uploadStatuses.size(); i++) {
             transferStatuses.add(new TransferStatusHolder(uploadStatuses.get(i), false, false, true, i, locale));
         }
-        return new ModelAndView("status", "model", LegacyMap.of(
-                "brand", settingsService.getBrand(),
-                "admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()),
-                "showStatus", settingsService.isShowStatus(),
-                "transferStatuses", transferStatuses,
-                "chartWidth", StatusChartController.IMAGE_WIDTH,
-                "chartHeight", StatusChartController.IMAGE_HEIGHT));
+        return new ModelAndView("status", "model",
+                LegacyMap.of("brand", settingsService.getBrand(), "admin",
+                        securityService.isAdmin(securityService.getCurrentUser(request).getUsername()), "showStatus",
+                        settingsService.isShowStatus(), "transferStatuses", transferStatuses, "chartWidth",
+                        StatusChartController.IMAGE_WIDTH, "chartHeight", StatusChartController.IMAGE_HEIGHT));
     }
-
 
     public static class TransferStatusHolder {
         private TransferStatus transferStatus;
-        private boolean isStream;
-        private boolean isDownload;
-        private boolean isUpload;
+        private boolean stream;
+        private boolean download;
+        private boolean upload;
         private int index;
         private Locale locale;
 
         TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
-                             int index, Locale locale) {
+                int index, Locale locale) {
             this.transferStatus = transferStatus;
-            this.isStream = isStream;
-            this.isDownload = isDownload;
-            this.isUpload = isUpload;
+            this.stream = isStream;
+            this.download = isDownload;
+            this.upload = isUpload;
             this.index = index;
             this.locale = locale;
         }
 
         public boolean isStream() {
-            return isStream;
+            return stream;
         }
 
         public boolean isDownload() {
-            return isDownload;
+            return download;
         }
 
         public boolean isUpload() {
-            return isUpload;
+            return upload;
         }
 
         public int getIndex() {

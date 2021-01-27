@@ -1,4 +1,10 @@
+
 package org.airsonic.player.controller;
+
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
@@ -12,11 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Map;
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/index")
 public class IndexController {
@@ -28,10 +29,8 @@ public class IndexController {
 
     private Map<String, Object> createDefaultModel(HttpServletRequest request) {
         UserSettings userSettings = settingsService.getUserSettings(securityService.getCurrentUsername(request));
-        return LegacyMap.of(
-                "keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(),
-                "showLeft", userSettings.isCloseDrawer(),
-                "brand", settingsService.getBrand());
+        return LegacyMap.of("keyboardShortcutsEnabled", userSettings.isKeyboardShortcutsEnabled(), "showLeft",
+                userSettings.isCloseDrawer(), "brand", settingsService.getBrand());
     }
 
     @GetMapping

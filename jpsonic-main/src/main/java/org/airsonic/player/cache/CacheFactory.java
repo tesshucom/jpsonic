@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.cache;
+
+import java.io.File;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -26,17 +29,17 @@ import net.sf.ehcache.config.ConfigurationFactory;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.io.File;
-
 /**
  * Initializes Ehcache and creates caches.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class CacheFactory implements InitializingBean {
     private CacheManager cacheManager;
 
+    @Override
     public void afterPropertiesSet() {
         Configuration configuration = ConfigurationFactory.parseConfiguration();
 

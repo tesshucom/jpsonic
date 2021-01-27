@@ -16,7 +16,26 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static java.util.stream.Collectors.toList;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
+import static org.airsonic.player.util.PlayerUtils.subList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -43,24 +62,6 @@ import org.subsonic.restapi.ArtistID3;
 import org.subsonic.restapi.ArtistsID3;
 import org.subsonic.restapi.IndexID3;
 
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-
-import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
-import static org.airsonic.player.util.PlayerUtils.subList;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 @Service
 public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3Wrapper> {
 
@@ -83,7 +84,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private List<Id3Wrapper> topNodes;
 
-    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
+    public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -94,6 +96,11 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootId(CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
+    static final int getIDAndIncrement() {
+        return INDEX_IDS.getAndIncrement();
+    }
+
+    @Override
     public void addChild(DIDLContent didl, Id3Wrapper item) {
         if (!item.isSong()) {
             didl.addContainer(createContainer(item));
@@ -102,6 +109,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
+    @Override
     public void addItem(DIDLContent didl, Id3Wrapper item) {
         if (!item.isSong() || item.isIndex()) {
             didl.addContainer(createContainer(item));
@@ -124,6 +132,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         container.setChildCount(getChildSizeOf(item));
     }
 
+    @Override
     public Container createContainer(Id3Wrapper item) {
         int id = toRawId(item.getId());
         if (item.isAlbum()) {
@@ -158,13 +167,19 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @Override
     public List<Id3Wrapper> getChildren(Id3Wrapper item, long offset, long maxResults) {
         if (item.isIndex()) {
-            return subList(indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3::new).collect(toList()), offset, maxResults);
+            return subList(
+                    indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3::new).collect(toList()),
+                    offset, maxResults);
         } else if (item.isAlbum()) {
-            return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream().map(Id3::new).collect(toList());
+            return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
+                    .map(Id3::new).collect(toList());
         } else if (item.isArtist()) {
-            return albumDao.getAlbumsForArtist(offset, maxResults, item.getArtist(), util.isSortAlbumsByYear(item.getArtist()), util.getAllMusicFolders()).stream().map(Id3::new).collect(toList());
+            return albumDao.getAlbumsForArtist(offset, maxResults, item.getArtist(),
+                    util.isSortAlbumsByYear(item.getArtist()), util.getAllMusicFolders()).stream().map(Id3::new)
+                    .collect(toList());
         }
-        return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream().map(Id3::new).collect(toList());
+        return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
+                .map(Id3::new).collect(toList());
     }
 
     @Override
@@ -175,6 +190,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return item.getChildSize();
     }
 
+    @Override
     public Id3Wrapper getItemById(String ids) {
         int id = toRawId(ids);
         if (-1 > id) {
@@ -206,6 +222,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.index");
     }
@@ -213,8 +230,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
         indexesMap.entrySet()
                 .forEach(e -> indexesMap.get(e.getKey()).getIndexId3().getArtist().stream()
-                        .filter(a -> a.getId().equals(artist.getId()))
-                        .findFirst()
+                        .filter(a -> a.getId().equals(artist.getId())).findFirst()
                         .ifPresent(a -> container.setParentID(e.getKey())));
     }
 
@@ -225,16 +241,18 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IndexID3) Not reusable
     private final void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
-            if (isEmpty(content) || 0 == content.getIndex().stream().flatMap(i -> i.getArtist().stream()).count() || expired) {
+            if (isEmpty(content) || 0 == content.getIndex().stream().flatMap(i -> i.getArtist().stream()).count()
+                    || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = new ArtistsID3();
                 List<Artist> artists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, util.getAllMusicFolders());
-                SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService.getIndexedArtists(artists);
+                SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> indexedArtists = musicIndexService
+                        .getIndexedArtists(artists);
                 final Function<Artist, ArtistID3> toId3 = (a) -> {
                     ArtistID3 result = new ArtistID3();
                     result.setId(createArtistId(a.getId()));
@@ -242,7 +260,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     result.setAlbumCount(a.getAlbumCount());
                     return result;
                 };
-                for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists.entrySet()) {
+                for (Map.Entry<MusicIndex, List<MusicIndex.SortableArtistWithArtist>> entry : indexedArtists
+                        .entrySet()) {
                     IndexID3 index = new IndexID3();
                     index.setName(entry.getKey().getIndex());
                     content.getIndex().add(index);
@@ -266,38 +285,38 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private final int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
-    };
+    }
 
     private static final String TYPE_PREFIX_ARTIST = "artist:";
     private static final String TYPE_PREFIX_ALBUM = "album:";
 
-    private boolean isArtistId(String id) {
+    static final boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);
     }
 
-    private String createArtistId(String id) {
+    static final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
         return TYPE_PREFIX_ARTIST.concat(id);
     }
 
-    private String createArtistId(int id) {
+    final String createArtistId(int id) {
         return TYPE_PREFIX_ARTIST.concat(String.valueOf(id));
     }
 
-    private boolean isAlbumId(String id) {
+    static final boolean isAlbumId(String id) {
         return id.startsWith(TYPE_PREFIX_ALBUM);
     }
 
-    private String createAlbumId(String id) {
+    static final String createAlbumId(String id) {
         if (isArtistId(id)) {
             return id;
         }
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
-    class Id3 implements Id3Wrapper {
+    static class Id3 implements Id3Wrapper {
 
         private final String id;
         private IndexID3 index;
@@ -309,7 +328,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         private int childCount;
 
         public Id3(IndexID3 index) {
-            this.id = String.valueOf(INDEX_IDS.getAndIncrement());
+            this.id = String.valueOf(getIDAndIncrement());
             name = index.getName();
             childCount = index.getArtist().size();
             this.index = index;
@@ -401,6 +420,5 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
 
     }
-    
-    
+
 }

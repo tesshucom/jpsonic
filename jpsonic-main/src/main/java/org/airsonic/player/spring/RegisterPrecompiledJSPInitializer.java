@@ -1,4 +1,17 @@
+
 package org.airsonic.player.spring;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.SequenceInputStream;
+import java.nio.charset.Charset;
+import java.util.concurrent.CompletionException;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.spring.webxmldomain.ServletDef;
@@ -10,18 +23,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 //import org.springframework.stereotype.Component;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
-import java.nio.charset.Charset;
-import java.util.concurrent.CompletionException;
 
 //@Component
 public class RegisterPrecompiledJSPInitializer implements ServletContextInitializer {

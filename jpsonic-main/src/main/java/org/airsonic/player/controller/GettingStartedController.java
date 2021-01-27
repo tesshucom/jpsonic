@@ -17,8 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +32,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/gettingStarted")
@@ -40,10 +43,10 @@ public class GettingStartedController {
     @GetMapping
     public ModelAndView gettingStarted(HttpServletRequest request) {
 
-        if (request.getParameter("hide") != null) {
+        if (request.getParameter(Attributes.Request.HIDE.value()) != null) {
             settingsService.setGettingStartedEnabled(false);
             settingsService.save();
-            return new ModelAndView(new RedirectView("home.view"));
+            return new ModelAndView(new RedirectView(ViewName.HOME.value()));
         }
 
         return new ModelAndView("gettingStarted", "model",

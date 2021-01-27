@@ -1,18 +1,19 @@
-package org.airsonic.player.util;
 
-import org.airsonic.player.domain.MusicFolder;
+package org.airsonic.player.util;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.domain.MusicFolder;
+
 public class MusicFolderTestData {
 
     private static String baseResources = "/MEDIAS/";
 
     public static String resolveBaseMediaPath() {
-        return MusicFolderTestData.class.getResource(baseResources).toString().replace("file:","");
+        return MusicFolderTestData.class.getResource(baseResources).toString().replace("file:", "");
     }
 
     public static String resolveMusicFolderPath() {
@@ -30,11 +31,11 @@ public class MusicFolderTestData {
     public static List<MusicFolder> getTestMusicFolders() {
         List<MusicFolder> liste = new ArrayList<>();
         File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
-        MusicFolder musicFolder = new MusicFolder(1,musicDir,"Music",true,new Date());
+        MusicFolder musicFolder = new MusicFolder(1, musicDir, "Music", true, new Date());
         liste.add(musicFolder);
 
         File music2Dir = new File(MusicFolderTestData.resolveMusic2FolderPath());
-        MusicFolder musicFolder2 = new MusicFolder(2,music2Dir,"Music2",true,new Date());
+        MusicFolder musicFolder2 = new MusicFolder(2, music2Dir, "Music2", true, new Date());
         liste.add(musicFolder2);
         return liste;
     }

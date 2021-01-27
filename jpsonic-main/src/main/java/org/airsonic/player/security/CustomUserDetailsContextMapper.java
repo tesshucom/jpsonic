@@ -16,6 +16,9 @@
 
 package org.airsonic.player.security;
 
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -33,9 +36,6 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
-
 @Component
 public class CustomUserDetailsContextMapper implements UserDetailsContextMapper {
     // ~ Instance fields
@@ -52,9 +52,9 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     // ~ Methods
     // ========================================================================================================
-
+    @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-                                          Collection<? extends GrantedAuthority> authorities) {
+            Collection<? extends GrantedAuthority> authorities) {
         String dn = ctx.getNameInNamespace();
 
         if (LOG.isDebugEnabled()) {
@@ -113,17 +113,18 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     }
 
+    @Override
     public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
-        throw new UnsupportedOperationException(
-                "LdapUserDetailsMapper only supports reading from a context. Please "
-                        + "use a subclass if mapUserToContext() is required.");
+        throw new UnsupportedOperationException("LdapUserDetailsMapper only supports reading from a context. Please "
+                + "use a subclass if mapUserToContext() is required.");
     }
 
     /**
-     * Extension point to allow customized creation of the user's password from the
-     * attribute stored in the directory.
+     * Extension point to allow customized creation of the user's password from the attribute stored in the directory.
      *
-     * @param passwordValue the value of the password attribute
+     * @param passwordValue
+     *            the value of the password attribute
+     * 
      * @return a String representation of the password.
      */
     protected String mapPassword(final Object passwordValue) {

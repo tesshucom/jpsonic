@@ -16,7 +16,23 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 import com.atilika.kuromoji.ipadic.Token;
 import com.atilika.kuromoji.ipadic.Tokenizer;
@@ -32,21 +48,6 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 
-import java.text.Normalizer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-import java.util.stream.Collector;
-import java.util.stream.Stream;
-
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 /**
  * Provide analysis of Japanese name.
  */
@@ -61,25 +62,25 @@ public class JapaneseReadingUtils {
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
-            case Character.SPACE_SEPARATOR:
-            case Character.LINE_SEPARATOR:
-            case Character.PARAGRAPH_SEPARATOR:
-            case Character.CONTROL:
-            case Character.FORMAT:
-            case Character.DASH_PUNCTUATION:
-            case Character.START_PUNCTUATION:
-            case Character.END_PUNCTUATION:
-            case Character.CONNECTOR_PUNCTUATION:
-            case Character.OTHER_PUNCTUATION:
-            case Character.MATH_SYMBOL:
-            case Character.CURRENCY_SYMBOL:
-            case Character.MODIFIER_SYMBOL:
-            case Character.OTHER_SYMBOL:
-            case Character.INITIAL_QUOTE_PUNCTUATION:
-            case Character.FINAL_QUOTE_PUNCTUATION:
-                return true;
-            default:
-                return false;
+        case Character.SPACE_SEPARATOR:
+        case Character.LINE_SEPARATOR:
+        case Character.PARAGRAPH_SEPARATOR:
+        case Character.CONTROL:
+        case Character.FORMAT:
+        case Character.DASH_PUNCTUATION:
+        case Character.START_PUNCTUATION:
+        case Character.END_PUNCTUATION:
+        case Character.CONNECTOR_PUNCTUATION:
+        case Character.OTHER_PUNCTUATION:
+        case Character.MATH_SYMBOL:
+        case Character.CURRENCY_SYMBOL:
+        case Character.MODIFIER_SYMBOL:
+        case Character.OTHER_SYMBOL:
+        case Character.INITIAL_QUOTE_PUNCTUATION:
+        case Character.FINAL_QUOTE_PUNCTUATION:
+            return true;
+        default:
+            return false;
         }
     }
 
@@ -132,16 +133,14 @@ public class JapaneseReadingUtils {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            // @formatter:off
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b)
-                    || Character.UnicodeBlock.KATAKANA.equals(b)
+            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
                     || Character.UnicodeBlock.GREEK.equals(b)) {
                 return true;
-            } // @formatter:on
+            }
             return false;
         });
     }
@@ -201,16 +200,17 @@ public class JapaneseReadingUtils {
     }
 
     /**
-     * This method returns the normalized Artist name that can also be used to
-     * create the index prefix.
+     * This method returns the normalized Artist name that can also be used to create the index prefix.
      * 
-     * @param sort artist's sort string
+     * @param sort
+     *            artist's sort string
+     * 
      * @return indexable Name
      */
     private String createIndexableName(String sort) {
         String indexableName = sort;
         char c = sort.charAt(0);
-        if (!(c <= '\u007e')) {
+        if (!(c <= '\u007e')) { // Wavy line
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
             indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         }
@@ -228,19 +228,16 @@ public class JapaneseReadingUtils {
         }
         List<Token> tokens = tokenizer.tokenize(normalize(s));
 
-        // @formatter:off
-        final Collector<String, StringBuilder, String> join =
-                Collector.of(StringBuilder::new, StringBuilder::append, StringBuilder::append, StringBuilder::toString);
+        final Collector<String, StringBuilder, String> join = Collector.of(StringBuilder::new, StringBuilder::append,
+                StringBuilder::append, StringBuilder::toString);
 
         final Function<Token, String> readingAnalysis = token -> {
-            if (KATAKANA.matcher(token.getSurface()).matches() 
-                   || ALPHA.matcher(token.getSurface()).matches()
-                   || ASTER.equals(token.getReading())) {
+            if (KATAKANA.matcher(token.getSurface()).matches() || ALPHA.matcher(token.getSurface()).matches()
+                    || ASTER.equals(token.getReading())) {
                 return token.getSurface();
             }
             return token.getReading();
         };
-        // @formatter:on
 
         String reading = createIgnoredArticles(tokens.stream().map(readingAnalysis).collect(join));
         readingMap.put(s, reading);
@@ -268,15 +265,13 @@ public class JapaneseReadingUtils {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
-            // @formatter:off
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b)
-                    || Character.UnicodeBlock.KATAKANA.equals(b)
+            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                             && s.chars().anyMatch(c -> 65382 <= c && c <= 65437)) {
                 return true;
-            } // @formatter:on
+            }
             return false;
         });
     }
@@ -290,10 +285,11 @@ public class JapaneseReadingUtils {
     }
 
     /**
-     * There is no easy way to normalize Japanese words. Uses relatively natural
-     * NFKC, eliminates over-processing and adds under-processing.
+     * There is no easy way to normalize Japanese words. Uses relatively natural NFKC, eliminates over-processing and
+     * adds under-processing.
      *
      * @param s
+     * 
      * @return
      */
     final String normalize(@Nullable String s) {
@@ -318,15 +314,17 @@ public class JapaneseReadingUtils {
 
         // Convert certain strings additionally
         String expanded = excluded.toString();
-        expanded = expanded.replaceAll("\u300c", "\uff62");// Japanese braces
-        expanded = expanded.replaceAll("\u300d", "\uff63");// Japanese braces
+        expanded = expanded.replaceAll("\u300c", "\uff62"); // Japanese braces
+        expanded = expanded.replaceAll("\u300d", "\uff63"); // Japanese braces
         return expanded;
     }
 
     /**
-     * Delete a specific Punctuation.
-     * This result value is not persisted in DB.
-     * @param japaneseReading string after analysis
+     * Delete a specific Punctuation. This result value is not persisted in DB.
+     * 
+     * @param japaneseReading
+     *            string after analysis
+     * 
      * @return
      */
     public String removePunctuationFromJapaneseReading(String japaneseReading) {

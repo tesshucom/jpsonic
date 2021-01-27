@@ -17,12 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 /**
  * Parameters used when transcoding videos.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class VideoTranscodingSettings {

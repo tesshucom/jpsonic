@@ -1,4 +1,10 @@
+
 package org.airsonic.player.service.playlist;
+
+import java.io.File;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import chameleon.playlist.Media;
 import chameleon.playlist.Parallel;
@@ -13,11 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
@@ -29,43 +30,40 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
         return true;
     }
 
-    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
     @Override
-    public Pair<List<MediaFile>, List<String>> handle(
-            SpecificPlaylist inputSpecificPlaylist
-    ) {
+    public Pair<List<MediaFile>, List<String>> handle(SpecificPlaylist inputSpecificPlaylist) {
         List<MediaFile> mediaFiles = new ArrayList<>();
         List<String> errors = new ArrayList<>();
         try {
             inputSpecificPlaylist.toPlaylist().acceptDown(new PlaylistVisitor() {
                 @Override
                 public void beginVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitPlaylist(Playlist playlist) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitParallel(Parallel parallel) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void beginVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
                 public void endVisitSequence(Sequence sequence) {
-
+                    // Nothing is currently done.
                 }
 
                 @Override
@@ -86,7 +84,7 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
                 @Override
                 public void endVisitMedia(Media media) {
-
+                    // Nothing is currently done.
                 }
             });
         } catch (Exception e) {

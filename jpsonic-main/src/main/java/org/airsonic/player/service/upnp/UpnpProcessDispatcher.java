@@ -1,3 +1,4 @@
+
 package org.airsonic.player.service.upnp;
 
 import org.airsonic.player.service.upnp.processor.AlbumByGenreUpnpProcessor;
@@ -79,42 +80,42 @@ public interface UpnpProcessDispatcher {
     @SuppressWarnings("rawtypes")
     default UpnpContentProcessor findProcessor(String type) {
         switch (type) {
-            case CONTAINER_ID_ROOT:
-                return getRootProcessor();
-            case CONTAINER_ID_PLAYLIST_PREFIX:
-                return getPlaylistProcessor();
-            case CONTAINER_ID_FOLDER_PREFIX:
-                return getMediaFileProcessor();
-            case CONTAINER_ID_ALBUM_PREFIX:
-                return getAlbumProcessor();
-            case CONTAINER_ID_RECENT_PREFIX:
-                return getRecentAlbumProcessor();
-            case CONTAINER_ID_RECENT_ID3_PREFIX:
-                return getRecentAlbumId3Processor();
-            case CONTAINER_ID_ARTIST_PREFIX:
-                return getArtistProcessor();
-            case CONTAINER_ID_ARTIST_BY_FOLDER_PREFIX:
-                return getArtistByFolderProcessor();
-            case CONTAINER_ID_ALBUM_BY_GENRE_PREFIX:
-                return getAlbumByGenreProcessor();
-            case CONTAINER_ID_SONG_BY_GENRE_PREFIX:
-                return getSongByGenreProcessor();
-            case CONTAINER_ID_INDEX_PREFIX:
-                return getIndexProcessor();
-            case CONTAINER_ID_INDEX_ID3_PREFIX:
-                return getIndexId3Processor();
-            case CONTAINER_ID_PODCAST_PREFIX:
-                return getPodcastProcessor();
-            case CONTAINER_ID_RANDOM_ALBUM:
-                return getRandomAlbumProcessor();
-            case CONTAINER_ID_RANDOM_SONG:
-                return getRandomSongProcessor();
-            case CONTAINER_ID_RANDOM_SONG_BY_ARTIST:
-                return getRandomSongByArtistProcessor();
-            case CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST:
-                return getRandomSongByFolderArtistProcessor();
-            default:
-                throw new AssertionError(String.format("Unreachable code(%s=%s).", "type", type));
+        case CONTAINER_ID_ROOT:
+            return getRootProcessor();
+        case CONTAINER_ID_PLAYLIST_PREFIX:
+            return getPlaylistProcessor();
+        case CONTAINER_ID_FOLDER_PREFIX:
+            return getMediaFileProcessor();
+        case CONTAINER_ID_ALBUM_PREFIX:
+            return getAlbumProcessor();
+        case CONTAINER_ID_RECENT_PREFIX:
+            return getRecentAlbumProcessor();
+        case CONTAINER_ID_RECENT_ID3_PREFIX:
+            return getRecentAlbumId3Processor();
+        case CONTAINER_ID_ARTIST_PREFIX:
+            return getArtistProcessor();
+        case CONTAINER_ID_ARTIST_BY_FOLDER_PREFIX:
+            return getArtistByFolderProcessor();
+        case CONTAINER_ID_ALBUM_BY_GENRE_PREFIX:
+            return getAlbumByGenreProcessor();
+        case CONTAINER_ID_SONG_BY_GENRE_PREFIX:
+            return getSongByGenreProcessor();
+        case CONTAINER_ID_INDEX_PREFIX:
+            return getIndexProcessor();
+        case CONTAINER_ID_INDEX_ID3_PREFIX:
+            return getIndexId3Processor();
+        case CONTAINER_ID_PODCAST_PREFIX:
+            return getPodcastProcessor();
+        case CONTAINER_ID_RANDOM_ALBUM:
+            return getRandomAlbumProcessor();
+        case CONTAINER_ID_RANDOM_SONG:
+            return getRandomSongProcessor();
+        case CONTAINER_ID_RANDOM_SONG_BY_ARTIST:
+            return getRandomSongByArtistProcessor();
+        case CONTAINER_ID_RANDOM_SONG_BY_FOLDER_ARTIST:
+            return getRandomSongByFolderArtistProcessor();
+        default:
+            throw new AssertionError(String.format("Unreachable code(%s=%s).", "type", type));
         }
     }
 

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.upload;
 
 /**
@@ -26,5 +27,6 @@ package org.airsonic.player.upload;
  */
 public interface UploadListener {
     void start(String fileName);
+
     void bytesRead(long bytesRead);
 }

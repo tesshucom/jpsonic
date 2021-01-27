@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -31,10 +36,6 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.List;
-
 @Service
 public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
@@ -44,7 +45,8 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     private final SettingsService settingsService;
 
-    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
+    public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            JAlbumDao a, CoverArtLogic c, SearchService s, SettingsService ss) {
         super(d, u, m, a, c);
         this.util = u;
         this.searchService = s;
@@ -53,11 +55,14 @@ public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.randomAlbum");
     }
 
-    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion[] orderBy) throws Exception {
+    @Override
+    public BrowseResult browseRoot(String filter, long offset, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         int randomMax = settingsService.getDlnaRandomMax();
         if (offset < randomMax) {

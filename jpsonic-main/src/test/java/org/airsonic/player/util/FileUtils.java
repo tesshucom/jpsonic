@@ -1,10 +1,10 @@
+
 package org.airsonic.player.util;
 
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -14,13 +14,17 @@ import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FileUtils {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
-    
+
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
-            InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
+                InputStream is = Files.newInputStream(Paths.get(toCopy.toURI()))) {
             return FileUtils.copyStream(is, os);
         } catch (IOException e) {
             LOG.error("Exception occurred while copying file.", e);
@@ -28,9 +32,7 @@ public class FileUtils {
         return false;
     }
 
-    private static boolean copyFilesRecusively(
-            final File toCopy, final File destDir
-    ) {
+    private static boolean copyFilesRecusively(final File toCopy, final File destDir) {
         assert destDir.isDirectory();
 
         if (!toCopy.isDirectory()) {
@@ -50,9 +52,8 @@ public class FileUtils {
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public static boolean copyJarResourcesRecursively(
-            final File destDir, final JarURLConnection jarConnection
-    ) throws IOException {
+    public static boolean copyJarResourcesRecursively(final File destDir, final JarURLConnection jarConnection)
+            throws IOException {
         try (JarFile jarFile = jarConnection.getJarFile()) {
             for (final Enumeration<JarEntry> e = jarFile.entries(); e.hasMoreElements();) {
                 final JarEntry entry = e.nextElement();
@@ -104,9 +105,7 @@ public class FileUtils {
     private static boolean copyStream(final InputStream is, final OutputStream os) {
         try {
             final byte[] buf = new byte[1024];
-
-            int len;
-            while ((len = is.read(buf)) > 0) {
+            for (int len = is.read(buf); len > 0; len = is.read(buf)) {
                 os.write(buf, 0, len);
             }
             is.close();

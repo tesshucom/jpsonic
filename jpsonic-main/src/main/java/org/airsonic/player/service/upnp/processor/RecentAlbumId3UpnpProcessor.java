@@ -17,7 +17,12 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.service.JMediaFileService;
@@ -30,10 +35,6 @@ import org.fourthline.cling.support.model.SortCriterion;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.List;
-
 @Service
 public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
@@ -41,9 +42,10 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
     private final JAlbumDao albumDao;
 
-    private final static int RECENT_COUNT = 51;
+    private static final int RECENT_COUNT = 51;
 
-    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a, CoverArtLogic c) {
+    public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            JAlbumDao a, CoverArtLogic c) {
         super(d, u, m, a, c);
         this.util = u;
         this.albumDao = a;
@@ -51,11 +53,13 @@ public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.recentAlbumsId3");
     }
 
-    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion[] orderBy) throws Exception {
+    @Override
+    public BrowseResult browseRoot(String filter, long offset, long max, SortCriterion... orderBy) throws Exception {
         DIDLContent didl = new DIDLContent();
         if (offset < RECENT_COUNT) {
             long count = RECENT_COUNT < offset + max ? RECENT_COUNT - offset : max;

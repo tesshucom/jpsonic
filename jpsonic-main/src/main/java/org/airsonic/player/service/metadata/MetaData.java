@@ -17,10 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
 
 /**
  * Contains meta-data (song title, artist, album etc) for a music file.
+ * 
  * @author Sindre Mehus
  */
 public class MetaData {

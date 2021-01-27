@@ -16,7 +16,22 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.airsonic.player.util.PlayerUtils.subList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.service.JMediaFileService;
 import net.sf.ehcache.Ehcache;
@@ -36,20 +51,6 @@ import org.fourthline.cling.support.model.container.MusicAlbum;
 import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.airsonic.player.util.PlayerUtils.subList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Service
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
@@ -73,7 +74,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     private List<MediaFile> topNodes;
 
-    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, MusicIndexService mi, Ehcache indexCache) {
+    public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            MusicIndexService mi, Ehcache indexCache) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -82,6 +84,11 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
+    static final int getIDAndIncrement() {
+        return INDEX_IDS.getAndIncrement();
+    }
+
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (!child.isFile()) {
             didl.addContainer(createContainer(child));
@@ -90,6 +97,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
+    @Override
     public void addItem(DIDLContent didl, MediaFile item) {
         if (!item.isFile() || isIndex(item)) {
             didl.addContainer(createContainer(item));
@@ -107,7 +115,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     private void applyId(MediaFile item, Container container) {
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
+                + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
         if (!isIndex(item) && !mediaFileService.isRoot(item)) {
@@ -120,6 +129,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
+    @Override
     public Container createContainer(MediaFile item) {
         if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
@@ -146,7 +156,8 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         if (isIndex(item)) {
             MusicIndex index = indexesMap.get(item.getId()).getDeligate();
             // refactoring(Few cases are actually a problem)
-            return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream()).collect(Collectors.toList()), offset, maxResults);
+            return subList(content.getIndexedArtists().get(index).stream().flatMap(s -> s.getMediaFiles().stream())
+                    .collect(Collectors.toList()), offset, maxResults);
         }
         if (item.isAlbum()) {
             return mediaFileService.getSongsForAlbum(offset, maxResults, item);
@@ -165,6 +176,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return mediaFileService.getChildSizeOf(item);
     }
 
+    @Override
     public MediaFile getItemById(String ids) {
         int id = Integer.parseInt(ids);
         if (isIndex(id)) {
@@ -192,6 +204,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.index");
     }
@@ -204,10 +217,12 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
                 indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
-                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi)).collect(Collectors.toList());
+                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi))
+                        .collect(Collectors.toList());
                 indexesMap = new ConcurrentHashMap<>();
                 indexes.forEach(i -> indexesMap.put(i.getId(), i));
-                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream()).collect(Collectors.toList());
+                topNodes = Stream.concat(indexes.stream(), content.getSingleSongs().stream())
+                        .collect(Collectors.toList());
             }
         }
     }
@@ -235,7 +250,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
         public MediaIndex(MusicIndex deligate) {
             this.deligate = deligate;
-            this.id = INDEX_IDS.getAndIncrement();
+            this.id = getIDAndIncrement();
         }
 
         public MusicIndex getDeligate() {

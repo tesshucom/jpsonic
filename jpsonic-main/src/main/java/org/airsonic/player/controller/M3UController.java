@@ -17,8 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.io.PrintWriter;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -32,12 +40,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.PrintWriter;
-import java.util.List;
 
 /**
  * Controller which produces the M3U playlist.
@@ -55,7 +57,6 @@ public class M3UController {
     @Autowired
     private JWTSecurityService jwtSecurityService;
 
-    @SuppressWarnings("PMD.UseStringBufferForStringAppends") // "+" is OK if it is not a critical
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         response.setContentType("audio/x-mpegurl");
@@ -90,24 +91,24 @@ public class M3UController {
             }
             out.println("#EXTINF:" + duration + "," + mediaFile.getArtist() + " - " + mediaFile.getTitle());
 
-            String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=." +
-                    transcodingService.getSuffix(player, mediaFile, null);
+            String urlNoAuth = url + "player=" + player.getId() + "&id=" + mediaFile.getId() + "&suffix=."
+                    + transcodingService.getSuffix(player, mediaFile, null);
             String urlWithAuth = jwtSecurityService.addJWTToken(urlNoAuth);
             out.println(urlWithAuth);
         }
     }
 
-    @SuppressWarnings("PMD.UseStringBufferForStringAppends") // "+" is OK if it is not a critical
     private void createServerSidePlaylist(PrintWriter out, Player player, final String urlStr) {
 
         String url = urlStr;
 
-        url += "player=" + player.getId();
+        url += Attributes.Request.PLAYER.value() + "=" + player.getId();
 
         // Get suffix of current file, e.g., ".mp3".
         String suffix = getSuffix(player);
         if (suffix != null) {
-            url += "&suffix=." + suffix;
+            url = new StringBuilder(url).append('&').append(Attributes.Request.SUFFIX.value()).append("=.")
+                    .append(suffix).toString();
         }
 
         if (player.isM3uBomEnabled()) {

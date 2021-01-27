@@ -17,8 +17,19 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.service.JMediaFileService;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
@@ -45,17 +56,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
-
 @Service
-public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, MediaFile> {
+public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -63,7 +65,10 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
 
     private final PlayerService playerService;
 
-    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, PlayerService p) {
+    public static final int SINGLE_MUSIC_FOLDER = 1;
+
+    public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
+            PlayerService p) {
         super(d, u);
         this.util = u;
         this.mediaFileService = m;
@@ -72,6 +77,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.folders");
     }
@@ -86,7 +92,8 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     private void applyId(MediaFile item, Container container) {
-        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
+                + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
         if (!mediaFileService.isRoot(item)) {
@@ -99,6 +106,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
     }
 
+    @Override
     public Container createContainer(MediaFile item) {
         if (item.isAlbum()) {
             MusicAlbum container = new MusicAlbum();
@@ -126,7 +134,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     public int getItemCount() {
         int count;
         List<MusicFolder> allFolders = util.getAllMusicFolders();
-        if (allFolders.size() == 1) {
+        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             count = mediaFileService.getChildSizeOf(allFolders.get(0));
         } else {
             count = allFolders.size();
@@ -138,7 +146,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     public List<MediaFile> getItems(long offset, long maxResults) {
         List<MusicFolder> allFolders = util.getAllMusicFolders();
         List<MediaFile> returnValue = new ArrayList<>();
-        if (1 == allFolders.size()) {
+        if (allFolders.size() == SINGLE_MUSIC_FOLDER) {
             returnValue = getChildren(mediaFileService.getMediaFile(allFolders.get(0).getPath()), offset, maxResults);
         } else {
             for (int i = (int) offset; i < Math.min(allFolders.size(), offset + maxResults); i++) {
@@ -148,6 +156,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return returnValue;
     }
 
+    @Override
     public MediaFile getItemById(String id) {
         return mediaFileService.getMediaFile(Integer.parseInt(id));
     }
@@ -168,6 +177,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         return mediaFileService.getChildrenOf(item, offset, maxResults, util.isSortAlbumsByYear(item.getName()));
     }
 
+    @Override
     public void addItem(DIDLContent didl, MediaFile item) {
         if (item.isFile()) {
             didl.addItem(createItem(item));
@@ -176,6 +186,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
         }
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         if (child.isFile()) {
             didl.addItem(createItem(child));
@@ -240,21 +251,20 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor <MediaFile, Med
     }
 
     public final URI createArtistArtURI(MediaFile artist) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
-                .queryParam("id", artist.getId())
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(
+                UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                        .queryParam("id", artist.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final URI createAlbumArtURI(MediaFile album) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
-                .queryParam("id", album.getId())
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(
+                UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                        .queryParam("id", album.getId()).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     private String createStreamURI(MediaFile song, Player player) {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(util.getBaseUrl() + "/ext/stream")
-                .queryParam("id", song.getId())
-                .queryParam("player", player.getId());
+                .queryParam("id", song.getId()).queryParam("player", player.getId());
         if (song.isVideo()) {
             builder.queryParam("format", TranscodingService.FORMAT_RAW);
         }

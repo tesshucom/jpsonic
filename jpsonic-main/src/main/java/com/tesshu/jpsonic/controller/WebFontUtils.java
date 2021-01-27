@@ -16,17 +16,18 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import static org.springframework.util.StringUtils.hasLength;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.UserSettings;
 import org.apache.commons.lang3.ObjectUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
-
-import javax.servlet.http.HttpServletRequest;
-
-import static org.springframework.util.StringUtils.hasLength;
 
 public final class WebFontUtils {
 
@@ -51,7 +52,7 @@ public final class WebFontUtils {
         String escaped = raw;
         escaped = escaped.replace("\\", "").replace("\b", "").replace("\f", "").replace("\n", "").replace("\r", "")
                 .replace("\t", "");
-        String fonts[] = escaped.split(",");
+        String[] fonts = escaped.split(",");
         escaped = "";
         for (String font : fonts) {
             String fontEscaped = font.trim().replaceAll("\"", "");
@@ -79,15 +80,14 @@ public final class WebFontUtils {
             to.setAttribute(FONT_FAMILY_KEY, DEFAULT_FONT_FAMILY);
             return;
         }
-        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm [java/dereferenced-value-may-be-null]
-                ? new StringBuilder("@font-face ")
-                    .append('{')
-                    .append("font-family: \"").append(JP_FONT_NAME).append("\";")
-                    .append("src: ")
-                    .append("url(\"").append(to.getContextPath()).append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")
-                    .append("url(\"").append(to.getContextPath()).append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")").append(';')
-                    .append('}')
-                    .toString()
+        String fontFace = FontScheme.JP_EMBED.name().equals(from.getFontSchemeName()) // lgtm
+                // [java/dereferenced-value-may-be-null]
+                ? new StringBuilder("@font-face ").append('{').append("font-family: \"").append(JP_FONT_NAME)
+                        .append("\";").append("src: ").append("url(\"").append(to.getContextPath())
+                        .append("/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\")").append(", ")
+                        .append("url(\"").append(to.getContextPath())
+                        .append("/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\")").append(';').append('}')
+                        .toString()
                 : "";
         to.setAttribute(FONT_FACE_KEY, fontFace);
         to.setAttribute(FONT_SIZE_KEY, from.getFontSize());

@@ -19,6 +19,25 @@
 
 package org.airsonic.player.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.XMLGregorianCalendar;
+import javax.xml.ws.Holder;
+import javax.xml.ws.WebServiceContext;
+import javax.xml.ws.handler.MessageContext;
+
 import com.sonos.services._1.AbstractMedia;
 import com.sonos.services._1.AddToContainerResult;
 import com.sonos.services._1.AppLinkResult;
@@ -81,28 +100,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.datatype.XMLGregorianCalendar;
-import javax.xml.ws.Holder;
-import javax.xml.ws.WebServiceContext;
-import javax.xml.ws.handler.MessageContext;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListMap;
-
 /**
- * For manual testing of this service:
- * curl -s -X POST -H "Content-Type: text/xml;charset=UTF-8" -H 'SOAPACTION: "http://www.sonos.com/Services/1.1#getSessionId"' -d @getSessionId.xml http://localhost:4040/ws/Sonos | xmllint --format -
+ * For manual testing of this service: curl -s -X POST -H "Content-Type: text/xml;charset=UTF-8" -H 'SOAPACTION:
+ * "http://www.sonos.com/Services/1.1#getSessionId"' -d @getSessionId.xml http://localhost:4040/ws/Sonos | xmllint
+ * --format -
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
-@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Service
 public class SonosService implements SonosSoap {
 
@@ -150,14 +156,12 @@ public class SonosService implements SonosSoap {
     private UPnPService upnpService;
 
     /**
-     * The context for the request. This is used to get the Auth information
-     * form the headers as well as using the request url to build the correct
-     * media resource url.
+     * The context for the request. This is used to get the Auth information form the headers as well as using the
+     * request url to build the correct media resource url.
      */
     @Resource
     private WebServiceContext context;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
         if (sonosControllers.isEmpty()) {
@@ -175,11 +179,12 @@ public class SonosService implements SonosSoap {
 
         for (String sonosController : sonosControllers) {
             try {
-                new SonosServiceRegistration().setEnabled(baseUrl, sonosController, enabled,
-                        sonosServiceName, sonosServiceId);
+                new SonosServiceRegistration().setEnabled(baseUrl, sonosController, enabled, sonosServiceName,
+                        sonosServiceId);
                 break;
             } catch (IOException x) {
-                LOG.warn(String.format("Failed to enable/disable music service in Sonos controller %s: %s", sonosController, x));
+                LOG.warn(String.format("Failed to enable/disable music service in Sonos controller %s: %s",
+                        sonosController, x));
             }
         }
     }
@@ -201,7 +206,8 @@ public class SonosService implements SonosSoap {
         String username = getUsername();
         HttpServletRequest request = getRequest();
 
-        LOG.debug(String.format("getMetadata: id=%s index=%s count=%s recursive=%s", id, index, count, parameters.isRecursive()));
+        LOG.debug(String.format("getMetadata: id=%s index=%s count=%s recursive=%s", id, index, count,
+                parameters.isRecursive()));
 
         List<? extends AbstractMedia> media = null;
         MediaList mediaList = null;
@@ -271,8 +277,8 @@ public class SonosService implements SonosSoap {
             mediaList = SonosHelper.createSubList(index, count, media);
         }
 
-        LOG.debug(String.format("getMetadata result: id=%s index=%s count=%s total=%s",
-                id, mediaList.getIndex(), mediaList.getCount(), mediaList.getTotal()));
+        LOG.debug(String.format("getMetadata result: id=%s index=%s count=%s total=%s", id, mediaList.getIndex(),
+                mediaList.getCount(), mediaList.getTotal()));
 
         GetMetadataResponse response = new GetMetadataResponse();
         response.setGetMetadataResult(mediaList);
@@ -321,8 +327,8 @@ public class SonosService implements SonosSoap {
             throw new IllegalArgumentException("Invalid search category: " + id);
         }
 
-        MediaList mediaList = sonosHelper.forSearch(parameters.getTerm(), parameters.getIndex(),
-                parameters.getCount(), indexType, getUsername(), getRequest());
+        MediaList mediaList = sonosHelper.forSearch(parameters.getTerm(), parameters.getIndex(), parameters.getCount(),
+                indexType, getUsername(), getRequest());
         SearchResponse response = new SearchResponse();
         response.setSearchResult(mediaList);
         return response;
@@ -372,7 +378,11 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public void getMediaURI(String id, MediaUriAction action, Integer secondsSinceExplicit, Holder<String> deviceSessionToken, Holder<String> getMediaURIResult, Holder<EncryptionContext> deviceSessionKey, Holder<EncryptionContext> contentKey, Holder<HttpHeaders> httpHeaders, Holder<Integer> uriTimeout, Holder<PositionInformation> positionInformation, Holder<String> privateDataFieldName) throws CustomFault {
+    public void getMediaURI(String id, MediaUriAction action, Integer secondsSinceExplicit,
+            Holder<String> deviceSessionToken, Holder<String> getMediaURIResult,
+            Holder<EncryptionContext> deviceSessionKey, Holder<EncryptionContext> contentKey,
+            Holder<HttpHeaders> httpHeaders, Holder<Integer> uriTimeout,
+            Holder<PositionInformation> positionInformation, Holder<String> privateDataFieldName) throws CustomFault {
         getMediaURIResult.value = sonosHelper.getMediaURI(Integer.parseInt(id), getUsername(), getRequest());
         if (LOG.isDebugEnabled()) {
             LOG.debug("getMediaURI: " + id + " -> " + getMediaURIResult.value);
@@ -380,7 +390,8 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public CreateContainerResult createContainer(String containerType, String title, String parentId, String seedId) throws CustomFault {
+    public CreateContainerResult createContainer(String containerType, String title, String parentId, String seedId)
+            throws CustomFault {
         Date now = new Date();
         Playlist playlist = new Playlist();
         playlist.setName(title);
@@ -423,7 +434,8 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public AddToContainerResult addToContainer(String id, String parentId, int index, String updateId) throws CustomFault {
+    public AddToContainerResult addToContainer(String id, String parentId, int index, String updateId)
+            throws CustomFault {
         if (parentId.startsWith(ID_PLAYLIST_PREFIX)) {
             int playlistId = Integer.parseInt(parentId.replace(ID_PLAYLIST_PREFIX, ""));
             Playlist playlist = playlistService.getPlaylist(playlistId);
@@ -499,7 +511,8 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public RemoveFromContainerResult removeFromContainer(String id, String indices, String updateId) throws CustomFault {
+    public RemoveFromContainerResult removeFromContainer(String id, String indices, String updateId)
+            throws CustomFault {
         if (id.startsWith(ID_PLAYLIST_PREFIX)) {
             int playlistId = Integer.parseInt(id.replace(ID_PLAYLIST_PREFIX, ""));
             Playlist playlist = playlistService.getPlaylist(playlistId);
@@ -519,7 +532,7 @@ public class SonosService implements SonosSoap {
     }
 
     protected SortedSet<Integer> parsePlaylistIndices(String indices) {
-        // Comma-separated, may include ranges:  1,2,4-7
+        // Comma-separated, may include ranges: 1,2,4-7
         SortedSet<Integer> result = new TreeSet<>();
 
         for (String part : StringUtils.split(indices, ',')) {
@@ -557,7 +570,6 @@ public class SonosService implements SonosSoap {
         return messageContext == null ? null : (HttpServletRequest) messageContext.get("HTTP.REQUEST");
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (!(messageContext instanceof WrappedMessageContext)) {
@@ -570,14 +582,23 @@ public class SonosService implements SonosSoap {
         Message message = ((WrappedMessageContext) messageContext).getWrappedMessage();
         List<Header> headers = CastUtils.cast((List<?>) message.get(Header.HEADER_LIST));
         if (headers != null) {
+            // Unwrap the node using JAXB
+            JAXBContext jaxbContext = null;
+            try {
+                jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
+            } catch (JAXBException e) {
+                // failed to get the credentials object from the headers
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("JAXB error trying to unwrap credentials", e);
+                }
+            }
+            if (jaxbContext == null) {
+                return null;
+            }
             for (Header h : headers) {
                 Object o = h.getObject();
-                // Unwrap the node using JAXB
                 if (o instanceof Node) {
-                    JAXBContext jaxbContext;
                     try {
-                        // TODO: Check performance
-                        jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
                         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
                         o = unmarshaller.unmarshal((Node) o);
                     } catch (JAXBException e) {
@@ -623,12 +644,14 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public SegmentMetadataList getStreamingMetadata(String id, XMLGregorianCalendar startTime, int duration) throws CustomFault {
+    public SegmentMetadataList getStreamingMetadata(String id, XMLGregorianCalendar startTime, int duration)
+            throws CustomFault {
         return null;
     }
 
     @Override
-    public GetExtendedMetadataTextResponse getExtendedMetadataText(GetExtendedMetadataText parameters) throws CustomFault {
+    public GetExtendedMetadataTextResponse getExtendedMetadataText(GetExtendedMetadataText parameters)
+            throws CustomFault {
         return null;
     }
 
@@ -638,31 +661,37 @@ public class SonosService implements SonosSoap {
     }
 
     @Override
-    public AppLinkResult getAppLink(String householdId, String hardware, String osVersion, String sonosAppName, String callbackPath) throws CustomFault {
+    public AppLinkResult getAppLink(String householdId, String hardware, String osVersion, String sonosAppName,
+            String callbackPath) throws CustomFault {
         return null;
     }
 
     @Override
     public void reportAccountAction(String type) throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override
-    public void setPlayedSeconds(String id, int seconds, String contextId, String privateData, Integer offsetMillis) throws CustomFault {
+    public void setPlayedSeconds(String id, int seconds, String contextId, String privateData, Integer offsetMillis)
+            throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override
-    public ReportPlaySecondsResult reportPlaySeconds(String id, int seconds, String contextId, String privateData, Integer offsetMillis) throws CustomFault {
+    public ReportPlaySecondsResult reportPlaySeconds(String id, int seconds, String contextId, String privateData,
+            Integer offsetMillis) throws CustomFault {
         return null;
     }
 
     @Override
-    public DeviceAuthTokenResult getDeviceAuthToken(String householdId, String linkCode, String linkDeviceId, String callbackPath) throws CustomFault {
+    public DeviceAuthTokenResult getDeviceAuthToken(String householdId, String linkCode, String linkDeviceId,
+            String callbackPath) throws CustomFault {
         return null;
     }
 
     @Override
     public void reportStatus(String id, int errorCode, String message) throws CustomFault {
-
+        // Nothing is currently done.
     }
 
     @Override
@@ -672,6 +701,7 @@ public class SonosService implements SonosSoap {
 
     @Override
     public void reportPlayStatus(String id, String status, String contextId, Integer offsetMillis) throws CustomFault {
+        // Nothing is currently done.
     }
 
     @Override

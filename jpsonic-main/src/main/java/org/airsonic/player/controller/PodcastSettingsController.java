@@ -17,8 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PodcastSettingsCommand;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SettingsService;
@@ -29,7 +32,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the Podcast receiver.
@@ -54,12 +59,13 @@ public class PodcastSettingsController {
         command.setEpisodeDownloadCount(String.valueOf(settingsService.getPodcastEpisodeDownloadCount()));
         command.setFolder(settingsService.getPodcastFolder());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "podcastSettings";
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute PodcastSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute PodcastSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
         settingsService.setPodcastUpdateInterval(Integer.parseInt(command.getInterval()));
         settingsService.setPodcastEpisodeRetentionCount(Integer.parseInt(command.getEpisodeRetentionCount()));
         settingsService.setPodcastEpisodeDownloadCount(Integer.parseInt(command.getEpisodeDownloadCount()));
@@ -67,8 +73,9 @@ public class PodcastSettingsController {
         settingsService.save();
 
         podcastService.schedule();
-        redirectAttributes.addFlashAttribute("settings_toast", true);
-        return "redirect:podcastSettings.view";
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+
+        return new ModelAndView(new RedirectView(ViewName.PODCAST_SETTINGS.value()));
     }
 
 }

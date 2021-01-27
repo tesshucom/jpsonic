@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspTagException;
+import javax.servlet.jsp.PageContext;
+import javax.servlet.jsp.tagext.BodyTagSupport;
 
 import org.airsonic.player.filter.ParameterDecodingFilter;
 import org.airsonic.player.util.StringUtil;
@@ -27,32 +39,22 @@ import org.apache.taglibs.standard.tag.common.core.UrlSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspTagException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.BodyTagSupport;
-
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Creates a URL with optional query parameters. Similar to 'c:url', but
- * you may specify which character encoding to use for the URL query
- * parameters. If no encoding is specified, the following steps are performed:
+ * Creates a URL with optional query parameters. Similar to 'c:url', but you may specify which character encoding to use
+ * for the URL query parameters. If no encoding is specified, the following steps are performed:
  * <ul>
  * <li>Parameter values are encoded as the hexadecimal representation of the UTF-8 bytes of the original string.</li>
  * <li>Parameter names are prepended with the suffix "Utf8Hex"</li>
- * <li>Note: Nothing is done with the parameter name or value if the value only contains ASCII alphanumeric characters.</li>
+ * <li>Note: Nothing is done with the parameter name or value if the value only contains ASCII alphanumeric
+ * characters.</li>
  * </ul>
  * <p/>
- * (The problem with c:url is that is uses the same encoding as the http response,
- * but most(?) servlet container assumes that ISO-8859-1 is used.)
+ * (The problem with c:url is that is uses the same encoding as the http response, but most(?) servlet container assumes
+ * that ISO-8859-1 is used.)
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class UrlTag extends BodyTagSupport {
 
     private static final String DEFAULT_ENCODING = "Utf8Hex";
@@ -63,20 +65,22 @@ public class UrlTag extends BodyTagSupport {
     private String encoding = DEFAULT_ENCODING;
     private List<Pair<String, String>> parameters = new ArrayList<>();
 
+    @Override
     public int doStartTag() {
         parameters.clear();
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
 
         // Rewrite and encode the url.
         String result = formatUrl();
 
         // Store or print the output
-        if (var != null)
+        if (var != null) {
             pageContext.setAttribute(var, result, PageContext.PAGE_SCOPE);
-        else {
+        } else {
             try {
                 pageContext.getOut().print(result);
             } catch (IOException x) {
@@ -141,7 +145,7 @@ public class UrlTag extends BodyTagSupport {
         return DEFAULT_ENCODING.equals(encoding);
     }
 
-    static private boolean isAsciiAlphaNumeric(String s) {
+    private static boolean isAsciiAlphaNumeric(String s) {
         if (s == null) {
             return true;
         }
@@ -154,6 +158,8 @@ public class UrlTag extends BodyTagSupport {
         return true;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (var, value) Intentional allocation to release
+    @Override
     public void release() {
         var = null;
         value = null;

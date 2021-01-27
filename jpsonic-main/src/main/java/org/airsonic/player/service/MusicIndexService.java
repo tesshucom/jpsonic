@@ -17,7 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.StringTokenizer;
+import java.util.TreeMap;
 
 import com.tesshu.jpsonic.service.MusicIndexServiceUtils;
 import org.airsonic.player.domain.Artist;
@@ -29,16 +40,6 @@ import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.SortedMap;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
 
 /**
  * Provides services for grouping artists by index.
@@ -58,11 +59,15 @@ public class MusicIndexService {
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
      *
-     * @param folders The music folders.
-     * @param refresh Whether to look for updates by checking the last-modified timestamp of the music folders.
+     * @param folders
+     *            The music folders.
+     * @param refresh
+     *            Whether to look for updates by checking the last-modified timestamp of the music folders.
+     * 
      * @return A map from music indexes to sets of artists that are direct children of this music file.
      */
-    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(List<MusicFolder> folders, boolean refresh) {
+    public SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> getIndexedArtists(
+            List<MusicFolder> folders, boolean refresh) {
         List<MusicIndex.SortableArtistWithMediaFiles> artists = createSortableArtists(folders, refresh);
         return sortArtists(artists);
     }
@@ -73,7 +78,8 @@ public class MusicIndexService {
     }
 
     public MusicFolderContent getMusicFolderContent(List<MusicFolder> musicFoldersToUse, boolean refresh) {
-        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(musicFoldersToUse, refresh);
+        SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> indexedArtists = getIndexedArtists(
+                musicFoldersToUse, refresh);
         List<MediaFile> singleSongs = getSingleSongs(musicFoldersToUse, refresh);
         return new MusicFolderContent(indexedArtists, singleSongs);
     }
@@ -87,7 +93,7 @@ public class MusicIndexService {
         return result;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     public List<MediaFile> getShortcuts(List<MusicFolder> musicFoldersToUse) {
         List<MediaFile> result = new ArrayList<>();
         for (String shortcut : settingsService.getShortcutsAsArray()) {
@@ -101,7 +107,7 @@ public class MusicIndexService {
         return result;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList) Not reusable
     private <T extends SortableArtist> SortedMap<MusicIndex, List<T>> sortArtists(List<T> artists) {
         List<MusicIndex> indexes = createIndexesFromExpression(settingsService.getIndexString());
         Comparator<MusicIndex> indexComparator = new MusicIndexComparator(indexes);
@@ -122,15 +128,19 @@ public class MusicIndexService {
     }
 
     /**
-     * Creates a new instance by parsing the given expression.  The expression consists of an index name, followed by
-     * an optional list of one-character prefixes. For example:<p/>
+     * Creates a new instance by parsing the given expression. The expression consists of an index name, followed by an
+     * optional list of one-character prefixes. For example:
+     * <p/>
      * <p/>
      * The expression <em>"A"</em> will create the index <em>"A" -&gt; ["A"]</em><br/>
      * The expression <em>"The"</em> will create the index <em>"The" -&gt; ["The"]</em><br/>
-     * The expression <em>"A(A&Aring;&AElig;)"</em> will create the index <em>"A" -&gt; ["A", "&Aring;", "&AElig;"]</em><br/>
+     * The expression <em>"A(A&Aring;&AElig;)"</em> will create the index <em>"A" -&gt; ["A", "&Aring;",
+     * "&AElig;"]</em><br/>
      * The expression <em>"X-Z(XYZ)"</em> will create the index <em>"X-Z" -&gt; ["X", "Y", "Z"]</em>
      *
-     * @param expr The expression to parse.
+     * @param expr
+     *            The expression to parse.
+     * 
      * @return A new instance.
      */
     protected MusicIndex createIndexFromExpression(String expr) {
@@ -151,10 +161,12 @@ public class MusicIndexService {
     }
 
     /**
-     * Creates a list of music indexes by parsing the given expression.  The expression is a space-separated list of
+     * Creates a list of music indexes by parsing the given expression. The expression is a space-separated list of
      * sub-expressions, for which the rules described in {@link #createIndexFromExpression} apply.
      *
-     * @param expr The expression to parse.
+     * @param expr
+     *            The expression to parse.
+     * 
      * @return A list of music indexes.
      */
     protected List<MusicIndex> createIndexesFromExpression(String expr) {
@@ -170,7 +182,8 @@ public class MusicIndexService {
     }
 
     // JP >>>>
-    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
+    private List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
+            boolean refresh) {
         return utils.createSortableArtists(folders, refresh);
     }
 
@@ -182,11 +195,18 @@ public class MusicIndexService {
     /**
      * Returns the music index to which the given artist belongs.
      *
-     * @param artist  The artist in question.
-     * @param indexes List of available indexes.
+     * @param artist
+     *            The artist in question.
+     * @param indexes
+     *            List of available indexes.
+     * 
      * @return The music index to which this music file belongs, or {@link MusicIndex#OTHER} if no index applies.
      */
     @SuppressWarnings("PMD.UnusedPrivateMethod")
+    /*
+     * Fals positive. It has been confirmed to occur on Ubuntu. This constraint will be removed if it is confirmed the
+     * rule to work properly in the future.
+     */
     private MusicIndex getIndex(SortableArtist artist, List<MusicIndex> indexes) {
         String sortableName = artist.getSortableName().toUpperCase(settingsService.getLocale());
         for (MusicIndex index : indexes) {
@@ -207,6 +227,7 @@ public class MusicIndexService {
         this.mediaFileService = mediaFileService;
     }
 
+    @SuppressWarnings("serial")
     private static class MusicIndexComparator implements Comparator<MusicIndex>, Serializable {
 
         private List<MusicIndex> indexes;
@@ -215,6 +236,7 @@ public class MusicIndexService {
             this.indexes = indexes;
         }
 
+        @Override
         public int compare(MusicIndex a, MusicIndex b) {
             int indexA = indexes.indexOf(a);
             int indexB = indexes.indexOf(b);

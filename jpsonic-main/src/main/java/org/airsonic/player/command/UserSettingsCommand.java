@@ -17,14 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
+
+import java.util.List;
 
 import org.airsonic.player.controller.UserSettingsController;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
-
-import java.util.List;
 
 /**
  * Command used in {@link UserSettingsController}.
@@ -33,28 +34,28 @@ import java.util.List;
  */
 public class UserSettingsCommand {
     private String username;
-    private boolean isAdminRole;
-    private boolean isDownloadRole;
-    private boolean isUploadRole;
-    private boolean isCoverArtRole;
-    private boolean isCommentRole;
-    private boolean isPodcastRole;
-    private boolean isStreamRole;
-    private boolean isJukeboxRole;
-    private boolean isSettingsRole;
-    private boolean isShareRole;
+    private boolean adminRole;
+    private boolean downloadRole;
+    private boolean uploadRole;
+    private boolean coverArtRole;
+    private boolean commentRole;
+    private boolean podcastRole;
+    private boolean streamRole;
+    private boolean jukeboxRole;
+    private boolean settingsRole;
+    private boolean shareRole;
 
     private List<User> users;
-    private boolean isAdmin;
-    private boolean isCurrentUser;
-    private boolean isPasswordChange;
-    private boolean isNewUser;
-    private boolean isDeleteUser;
+    private boolean admin;
+    private boolean currentUser;
+    private boolean passwordChange;
+    private boolean newUser;
+    private boolean deleteUser;
     private String password;
     private String confirmPassword;
     private String email;
-    private boolean isLdapAuthenticated;
-    private boolean isLdapEnabled;
+    private boolean ldapAuthenticated;
+    private boolean ldapEnabled;
     private List<MusicFolder> allMusicFolders;
     private int[] allowedMusicFolderIds;
 
@@ -76,83 +77,83 @@ public class UserSettingsCommand {
     }
 
     public boolean isAdminRole() {
-        return isAdminRole;
+        return adminRole;
     }
 
     public void setAdminRole(boolean adminRole) {
-        isAdminRole = adminRole;
+        this.adminRole = adminRole;
     }
 
     public boolean isDownloadRole() {
-        return isDownloadRole;
+        return downloadRole;
     }
 
     public void setDownloadRole(boolean downloadRole) {
-        isDownloadRole = downloadRole;
+        this.downloadRole = downloadRole;
     }
 
     public boolean isUploadRole() {
-        return isUploadRole;
+        return uploadRole;
     }
 
     public void setUploadRole(boolean uploadRole) {
-        isUploadRole = uploadRole;
+        this.uploadRole = uploadRole;
     }
 
     public boolean isCoverArtRole() {
-        return isCoverArtRole;
+        return coverArtRole;
     }
 
     public void setCoverArtRole(boolean coverArtRole) {
-        isCoverArtRole = coverArtRole;
+        this.coverArtRole = coverArtRole;
     }
 
     public boolean isCommentRole() {
-        return isCommentRole;
+        return commentRole;
     }
 
     public void setCommentRole(boolean commentRole) {
-        isCommentRole = commentRole;
+        this.commentRole = commentRole;
     }
 
     public boolean isPodcastRole() {
-        return isPodcastRole;
+        return podcastRole;
     }
 
     public void setPodcastRole(boolean podcastRole) {
-        isPodcastRole = podcastRole;
+        this.podcastRole = podcastRole;
     }
 
     public boolean isStreamRole() {
-        return isStreamRole;
+        return streamRole;
     }
 
     public void setStreamRole(boolean streamRole) {
-        isStreamRole = streamRole;
+        this.streamRole = streamRole;
     }
 
     public boolean isJukeboxRole() {
-        return isJukeboxRole;
+        return jukeboxRole;
     }
 
     public void setJukeboxRole(boolean jukeboxRole) {
-        isJukeboxRole = jukeboxRole;
+        this.jukeboxRole = jukeboxRole;
     }
 
     public boolean isSettingsRole() {
-        return isSettingsRole;
+        return settingsRole;
     }
 
     public void setSettingsRole(boolean settingsRole) {
-        isSettingsRole = settingsRole;
+        this.settingsRole = settingsRole;
     }
 
     public boolean isShareRole() {
-        return isShareRole;
+        return shareRole;
     }
 
     public void setShareRole(boolean shareRole) {
-        isShareRole = shareRole;
+        this.shareRole = shareRole;
     }
 
     public List<User> getUsers() {
@@ -164,43 +165,43 @@ public class UserSettingsCommand {
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
     public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        this.admin = admin;
     }
 
     public boolean isCurrentUser() {
-        return isCurrentUser;
+        return currentUser;
     }
 
     public void setCurrentUser(boolean currentUser) {
-        isCurrentUser = currentUser;
+        this.currentUser = currentUser;
     }
 
     public boolean isPasswordChange() {
-        return isPasswordChange;
+        return passwordChange;
     }
 
     public void setPasswordChange(boolean passwordChange) {
-        isPasswordChange = passwordChange;
+        this.passwordChange = passwordChange;
     }
 
     public boolean isNewUser() {
-        return isNewUser;
+        return newUser;
     }
 
     public void setNewUser(boolean isNewUser) {
-        this.isNewUser = isNewUser;
+        this.newUser = isNewUser;
     }
 
     public boolean isDeleteUser() {
-        return isDeleteUser;
+        return deleteUser;
     }
 
     public void setDeleteUser(boolean deleteUser) {
-        this.isDeleteUser = deleteUser;
+        this.deleteUser = deleteUser;
     }
 
     public String getPassword() {
@@ -228,19 +229,19 @@ public class UserSettingsCommand {
     }
 
     public boolean isLdapAuthenticated() {
-        return isLdapAuthenticated;
+        return ldapAuthenticated;
     }
 
     public void setLdapAuthenticated(boolean ldapAuthenticated) {
-        isLdapAuthenticated = ldapAuthenticated;
+        this.ldapAuthenticated = ldapAuthenticated;
     }
 
     public boolean isLdapEnabled() {
-        return isLdapEnabled;
+        return ldapEnabled;
     }
 
     public void setLdapEnabled(boolean ldapEnabled) {
-        isLdapEnabled = ldapEnabled;
+        this.ldapEnabled = ldapEnabled;
     }
 
     public List<MusicFolder> getAllMusicFolders() {
@@ -255,9 +256,10 @@ public class UserSettingsCommand {
         return allowedMusicFolderIds;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setAllowedMusicFolderIds(int[] allowedMusicFolderIds) {
-        this.allowedMusicFolderIds = allowedMusicFolderIds;
+    public void setAllowedMusicFolderIds(int... allowedMusicFolderIds) {
+        if (allowedMusicFolderIds != null) {
+            this.allowedMusicFolderIds = allowedMusicFolderIds.clone();
+        }
     }
 
     public String getTranscodeSchemeName() {
@@ -272,8 +274,8 @@ public class UserSettingsCommand {
         return transcodeSchemeHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public void setTranscodeSchemes(TranscodeScheme[] transcodeSchemes) {
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
+    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {
             TranscodeScheme scheme = transcodeSchemes[i];
@@ -323,18 +325,18 @@ public class UserSettingsCommand {
 
     public void setUser(User user) {
         username = user == null ? null : user.getUsername();
-        isAdminRole = user != null && user.isAdminRole();
-        isDownloadRole = user != null && user.isDownloadRole();
-        isUploadRole = user != null && user.isUploadRole();
-        isCoverArtRole = user != null && user.isCoverArtRole();
-        isCommentRole = user != null && user.isCommentRole();
-        isPodcastRole = user != null && user.isPodcastRole();
-        isStreamRole = user != null && user.isStreamRole();
-        isJukeboxRole = user != null && user.isJukeboxRole();
-        isSettingsRole = user != null && user.isSettingsRole();
-        isShareRole = user != null && user.isShareRole();
-        isLdapAuthenticated = user != null && user.isLdapAuthenticated();
-        isNewUser = false;
+        adminRole = user != null && user.isAdminRole();
+        downloadRole = user != null && user.isDownloadRole();
+        uploadRole = user != null && user.isUploadRole();
+        coverArtRole = user != null && user.isCoverArtRole();
+        commentRole = user != null && user.isCommentRole();
+        podcastRole = user != null && user.isPodcastRole();
+        streamRole = user != null && user.isStreamRole();
+        jukeboxRole = user != null && user.isJukeboxRole();
+        settingsRole = user != null && user.isSettingsRole();
+        shareRole = user != null && user.isShareRole();
+        ldapAuthenticated = user != null && user.isLdapAuthenticated();
+        newUser = false;
     }
 
 }

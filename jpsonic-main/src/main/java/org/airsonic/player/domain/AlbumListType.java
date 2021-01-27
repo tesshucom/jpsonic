@@ -21,22 +21,17 @@ package org.airsonic.player.domain;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public enum AlbumListType {
 
-    RANDOM("random", "Random"),
-    NEWEST("newest", "Recently Added"),
-    STARRED("starred", "Starred"),
-    HIGHEST("highest", "Top Rated"),
-    FREQUENT("frequent", "Most Played"),
-    RECENT("recent", "Recently Played"),
-    DECADE("decade", "By Decade"),
-    GENRE("genre", "By Genre"),
-    ALPHABETICAL("alphabetical", "All"),
+    RANDOM("random", "Random"), NEWEST("newest", "Recently Added"), STARRED("starred", "Starred"),
+    HIGHEST("highest", "Top Rated"), FREQUENT("frequent", "Most Played"), RECENT("recent", "Recently Played"),
+    DECADE("decade", "By Decade"), GENRE("genre", "By Genre"), ALPHABETICAL("alphabetical", "All"),
     // >>>> JP
-    /* #630
-     * Not an album, but added to show index in Home.
+    /*
+     * #630 Not an album, but added to show index in Home.
      */
     INDEX("index", "Index all");
     // <<<< JP

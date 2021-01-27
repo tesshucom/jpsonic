@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.controller;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
@@ -26,13 +34,6 @@ import org.apache.catalina.connector.Request;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class WebFontUtilsTest {
@@ -60,14 +61,12 @@ public class WebFontUtilsTest {
         WebFontUtils.setToSettings(command, settings);
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(WebFontUtils.FONT_FACE_KEY),
-                "@font-face {" +
-                        "font-family: \"Kazesawa-Regular\";" +
-                        "src: " +
-                            "url(\"/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\"), " +
-                            "url(\"/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\");" +
-                "}");
+                "@font-face {" + "font-family: \"Kazesawa-Regular\";" + "src: "
+                        + "url(\"/fonts/kazesawa/Kazesawa-Regular.woff\") format(\"woff\"), "
+                        + "url(\"/fonts/kazesawa/Kazesawa-Regular.ttf\") format(\"truetype\");" + "}");
         assertEquals(request.getAttribute(WebFontUtils.FONT_SIZE_KEY), WebFontUtils.DEFAULT_JP_FONT_SIZE);
-        assertEquals(request.getAttribute(WebFontUtils.FONT_FAMILY_KEY), WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals(request.getAttribute(WebFontUtils.FONT_FAMILY_KEY),
+                WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
 
         // no settings(logon)
         request = new Request(null);
@@ -96,7 +95,8 @@ public class WebFontUtilsTest {
         WebFontUtils.setToRequest(settings, request);
         assertEquals(request.getAttribute(WebFontUtils.FONT_FACE_KEY), "");
         assertEquals(request.getAttribute(WebFontUtils.FONT_SIZE_KEY), WebFontUtils.DEFAULT_JP_FONT_SIZE);
-        assertEquals(request.getAttribute(WebFontUtils.FONT_FAMILY_KEY), WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
+        assertEquals(request.getAttribute(WebFontUtils.FONT_FAMILY_KEY),
+                WebFontUtils.JP_FONT_NAME + ", " + WebFontUtils.DEFAULT_FONT_FAMILY);
 
         command.setFontFamily("Arial");
         command.setFontSize(20);

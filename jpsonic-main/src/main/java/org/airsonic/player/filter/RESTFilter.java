@@ -17,14 +17,8 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.filter;
 
-import org.airsonic.player.controller.JAXBWriter;
-import org.airsonic.player.controller.SubsonicRESTController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.util.NestedServletException;
+package org.airsonic.player.filter;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -34,12 +28,20 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.airsonic.player.controller.JAXBWriter;
+import org.airsonic.player.controller.SubsonicRESTController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.util.NestedServletException;
+
 /**
  * Intercepts exceptions thrown by RESTController.
  *
  * Also adds the CORS response header (http://enable-cors.org)
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2006/03/01 16:58:08 $
  */
 public class RESTFilter implements Filter {
@@ -48,6 +50,7 @@ public class RESTFilter implements Filter {
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {
         try {
             HttpServletResponse response = (HttpServletResponse) res;
@@ -65,8 +68,7 @@ public class RESTFilter implements Filter {
         }
 
         SubsonicRESTController.ErrorCode code = t instanceof ServletRequestBindingException
-                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER
-                : SubsonicRESTController.ErrorCode.GENERIC;
+                ? SubsonicRESTController.ErrorCode.MISSING_PARAMETER : SubsonicRESTController.ErrorCode.GENERIC;
         String msg = getErrorMessage(t);
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error in REST API: " + msg, t);
@@ -88,10 +90,12 @@ public class RESTFilter implements Filter {
         return x.getClass().getSimpleName();
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }

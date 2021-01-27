@@ -17,8 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Share;
@@ -36,11 +46,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the set of shared media.
@@ -62,21 +70,17 @@ public class ShareSettingsController {
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {
-        model.addAttribute("model", LegacyMap.of(
-                "shareInfos", getShareInfos(request),
-                "user", securityService.getCurrentUser(request),
-                "useRadio", settingsService.isUseRadio(),
-                "useSonos", settingsService.isUseSonos()));
+        model.addAttribute("model",
+                LegacyMap.of("shareInfos", getShareInfos(request), "user", securityService.getCurrentUser(request),
+                        "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos()));
         return "shareSettings";
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-
-        redirectAttributes.addFlashAttribute("settings_toast", true);
-
-        return "redirect:shareSettings.view";
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        return new ModelAndView(new RedirectView(ViewName.SHARE_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {
@@ -84,9 +88,9 @@ public class ShareSettingsController {
         for (Share share : shareService.getSharesForUser(user)) {
             int id = share.getId();
 
-            String description = getParameter(request, "description", id);
-            boolean delete = getParameter(request, "delete", id) != null;
-            String expireIn = getParameter(request, "expireIn", id);
+            String description = getParameter(request, Attributes.Request.DESCRIPTION.value(), id);
+            boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
+            String expireIn = getParameter(request, Attributes.Request.EXPIRE_IN.value(), id);
 
             if (delete) {
                 shareService.deleteShare(id);
@@ -99,7 +103,8 @@ public class ShareSettingsController {
             }
         }
 
-        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request, "deleteExpired", false);
+        boolean deleteExpired = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DELETE_EXPIRED.value(), false);
         if (deleteExpired) {
             Date now = new Date();
             for (Share share : shareService.getSharesForUser(user)) {
@@ -111,7 +116,7 @@ public class ShareSettingsController {
         }
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ShareInfo) Not reusable
     private List<ShareInfo> getShareInfos(HttpServletRequest request) {
         List<ShareInfo> result = new ArrayList<>();
         User user = securityService.getCurrentUser(request);
@@ -121,14 +126,12 @@ public class ShareSettingsController {
             List<MediaFile> files = shareService.getSharedFiles(share.getId(), musicFolders);
             if (!files.isEmpty()) {
                 MediaFile file = files.get(0);
-                result.add(new ShareInfo(shareService.getShareUrl(request, share), share, file.isDirectory() ? file :
-                        mediaFileService
-                        .getParentOf(file)));
+                result.add(new ShareInfo(shareService.getShareUrl(request, share), share,
+                        file.isDirectory() ? file : mediaFileService.getParentOf(file)));
             }
         }
         return result;
     }
-
 
     private String getParameter(HttpServletRequest request, String name, int id) {
         return StringUtils.trimToNull(request.getParameter(name + "[" + id + "]"));

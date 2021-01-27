@@ -17,8 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -37,12 +46,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 /**
  * Controller for the page used to play videos.
  *
@@ -53,7 +56,7 @@ import java.util.Map;
 public class VideoPlayerController {
 
     public static final int DEFAULT_BIT_RATE = 2000;
-    private static final int[] BIT_RATES = {200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000};
+    private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
 
     @Autowired
     private MediaFileService mediaFileService;
@@ -64,17 +67,18 @@ public class VideoPlayerController {
     @Autowired
     private SettingsService settingsService;
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile file = mediaFileService.getMediaFile(id);
         MediaFile dir = mediaFileService.getParentOf(file);
 
         String username = securityService.getCurrentUsername(request);
         if (!securityService.isFolderAccessAllowed(dir, username)) {
-            return new ModelAndView(new RedirectView("accessDenied.view"));
+            return new ModelAndView(new RedirectView(ViewName.ACCESS_DENIED.value()));
         }
 
         User user = securityService.getCurrentUser(request);
@@ -83,7 +87,7 @@ public class VideoPlayerController {
         Integer playerId = playerService.getPlayer(request, response).getId();
         String url = NetworkService.getBaseUrl(request);
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
-        String coverArtUrl = url + "coverArt.view?id=" + file.getId();
+        String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
 
         Map<String, Object> map = LegacyMap.of();
@@ -111,7 +115,10 @@ public class VideoPlayerController {
         return new ModelAndView("videoPlayer", "model", map);
     }
 
-    @SuppressWarnings("PMD.UseConcurrentHashMap") /* LinkedHashMap used in Legacy code */
+    @SuppressWarnings("PMD.UseConcurrentHashMap")
+    /*
+     * LinkedHashMap used in Legacy code. Should be triaged in #831.
+     */
     public static Map<String, Integer> createSkipOffsets(int durationSeconds) {
         LinkedHashMap<String, Integer> result = new LinkedHashMap<>();
         for (int i = 0; i < durationSeconds; i += 60) {

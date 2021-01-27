@@ -16,7 +16,19 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -29,15 +41,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 /**
  * If SORT exists for one name and null-sort data exists, unify it to SORT.
@@ -78,9 +81,10 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
     }
 
     @Test
-    public void testCopySortOfArtist() {
+    public void testCopySortOfArtist() throws IllegalAccessException, IllegalArgumentException,
+            InvocationTargetException, NoSuchMethodException, SecurityException {
 
-        utils.mergeSortOfArtist();
+        invokeUtils(utils, "mergeSortOfArtist");
 
         List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
         assertEquals(1, artists.size());
@@ -102,7 +106,7 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
         assertEquals("case1", artistID3s.get(0).getName());
         assertNull(artistID3s.get(0).getSort());
 
-        utils.copySortOfArtist();
+        invokeUtils(utils, "copySortOfArtist");
 
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
         artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
@@ -110,14 +114,14 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
         assertEquals(2, files.size());
         files.forEach(f -> {
             switch (f.getName()) {
-                case "file1":
-                case "file2":
-                    assertEquals("case1", f.getArtist());
-                    assertEquals("artistA", f.getArtistSort());
-                    break;
-                default:
-                    fail();
-                    break;
+            case "file1":
+            case "file2":
+                assertEquals("case1", f.getArtist());
+                assertEquals("artistA", f.getArtistSort());
+                break;
+            default:
+                fail();
+                break;
             }
         });
 

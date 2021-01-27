@@ -17,8 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayStatus;
@@ -39,15 +47,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Provides AJAX-enabled services for retrieving the currently playing file and directory.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR
+ * framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -65,6 +67,8 @@ public class NowPlayingService {
     @Autowired
     private MediaScannerService mediaScannerService;
 
+    private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+
     /**
      * Returns details about what the current player is playing.
      *
@@ -72,7 +76,8 @@ public class NowPlayingService {
      */
     public NowPlayingInfo getNowPlayingForCurrentPlayer() throws Exception {
         WebContext webContext = WebContextFactory.get();
-        Player player = playerService.getPlayer(webContext.getHttpServletRequest(), webContext.getHttpServletResponse());
+        Player player = playerService.getPlayer(webContext.getHttpServletRequest(),
+                webContext.getHttpServletResponse());
 
         for (NowPlayingInfo info : getNowPlaying()) {
             if (player.getId().equals(info.getPlayerId())) {
@@ -105,11 +110,12 @@ public class NowPlayingService {
         return new ScanInfo(mediaScannerService.isScanning(), mediaScannerService.getScanCount());
     }
 
-    @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String url = NetworkService.getBaseUrl(request);
         List<NowPlayingInfo> result = new ArrayList<>();
+        final StringBuilder builder = new StringBuilder();
         for (PlayStatus status : playStatuses) {
 
             Player player = status.getPlayer();
@@ -126,25 +132,27 @@ public class NowPlayingService {
             String artist = mediaFile.getArtist();
             String title = mediaFile.getTitle();
             String streamUrl = url + "stream?player=" + player.getId() + "&id=" + mediaFile.getId();
-            String albumUrl = url + "main.view?id=" + mediaFile.getId();
+            String albumUrl = url + ViewName.MAIN.value() + "?id=" + mediaFile.getId();
             String lyricsUrl = null;
             if (!mediaFile.isVideo()) {
-                lyricsUrl = url + "lyrics.view?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist) +
-                                                        "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
+                lyricsUrl = url + ViewName.LYRICS.value() + "?artistUtf8Hex=" + StringUtil.utf8HexEncode(artist)
+                        + "&songUtf8Hex=" + StringUtil.utf8HexEncode(title);
             }
-            String coverArtUrl = url + "coverArt.view?size=60&id=" + mediaFile.getId();
+            String coverArtUrl = url + ViewName.COVER_ART.value() + "?size=60&id=" + mediaFile.getId();
 
             String avatarUrl = null;
             if (userSettings.getAvatarScheme() == AvatarScheme.SYSTEM) {
-                avatarUrl = url + "avatar.view?id=" + userSettings.getSystemAvatarId();
-            } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM && settingsService.getCustomAvatar(username) != null) {
-                avatarUrl = url + "avatar.view?usernameUtf8Hex=" + StringUtil.utf8HexEncode(username);
+                avatarUrl = url + ViewName.AVATAR.value() + "?id=" + userSettings.getSystemAvatarId();
+            } else if (userSettings.getAvatarScheme() == AvatarScheme.CUSTOM
+                    && settingsService.getCustomAvatar(username) != null) {
+                avatarUrl = url + ViewName.AVATAR.value() + "?usernameUtf8Hex=" + StringUtil.utf8HexEncode(username);
             }
 
             String tooltip = StringEscapeUtils.escapeHtml(artist) + " &ndash; " + StringEscapeUtils.escapeHtml(title);
 
             if (StringUtils.isNotBlank(player.getName())) {
-                username += "@" + player.getName();
+                builder.setLength(0);
+                username = builder.append(username).append('@').append(player.getName()).toString();
             }
             artist = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(artist, 25));
             title = StringEscapeUtils.escapeHtml(StringUtils.abbreviate(title, 25));
@@ -152,9 +160,9 @@ public class NowPlayingService {
 
             long minutesAgo = status.getMinutesAgo();
 
-            if (minutesAgo < 60) {
-                result.add(new NowPlayingInfo(player.getId(),username, artist, title, tooltip, streamUrl, albumUrl, lyricsUrl,
-                                              coverArtUrl, avatarUrl, (int) minutesAgo));
+            if (minutesAgo < LIMIT_OF_HISTORY_TO_BE_PRESENTED) {
+                result.add(new NowPlayingInfo(player.getId(), username, artist, title, tooltip, streamUrl, albumUrl,
+                        lyricsUrl, coverArtUrl, avatarUrl, (int) minutesAgo));
             }
         }
         return result;

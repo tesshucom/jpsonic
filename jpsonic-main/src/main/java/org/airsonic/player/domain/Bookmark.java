@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.Date;
@@ -25,6 +26,7 @@ import java.util.Date;
  * A bookmark within a media file, for a given user.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class Bookmark {
@@ -37,7 +39,8 @@ public class Bookmark {
     private Date created;
     private Date changed;
 
-    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Date created, Date changed) {
+    public Bookmark(int id, int mediaFileId, long positionMillis, String username, String comment, Date created,
+            Date changed) {
         this.id = id;
         this.mediaFileId = mediaFileId;
         this.positionMillis = positionMillis;

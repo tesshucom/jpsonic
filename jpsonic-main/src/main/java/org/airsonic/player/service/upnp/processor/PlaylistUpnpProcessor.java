@@ -17,8 +17,16 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
@@ -33,14 +41,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-
 @Component
-public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, MediaFile> {
+public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> {
 
     private final UpnpProcessorUtil util;
 
@@ -48,7 +50,8 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
 
     private final CoverArtLogic coverArtLogic;
 
-    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p, CoverArtLogic c) {
+    public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p,
+            CoverArtLogic c) {
         super(d, u);
         this.util = u;
         this.playlistService = p;
@@ -57,10 +60,12 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.playlists");
     }
 
+    @Override
     public Container createContainer(Playlist item) {
         PlaylistContainer container = new PlaylistContainer();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + item.getId());
@@ -84,6 +89,7 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return org.airsonic.player.util.PlayerUtils.subList(playlists, offset, maxResults);
     }
 
+    @Override
     public Playlist getItemById(String id) {
         return playlistService.getPlaylist(Integer.parseInt(id));
     }
@@ -98,14 +104,16 @@ public class PlaylistUpnpProcessor extends UpnpContentProcessor <Playlist, Media
         return playlistService.getFilesInPlaylist(item.getId(), offset, maxResults);
     }
 
+    @Override
     public void addChild(DIDLContent didl, MediaFile child) {
         didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
     }
 
     private URI getArtURI(Playlist playlist) {
-        return util.addJWTToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
-                .queryParam("id", coverArtLogic.createKey(playlist))
-                .queryParam("size", CoverArtScheme.LARGE.getSize())).build().encode().toUri();
+        return util.addJWTToken(UriComponentsBuilder
+                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                .queryParam("id", coverArtLogic.createKey(playlist)).queryParam("size", CoverArtScheme.LARGE.getSize()))
+                .build().encode().toUri();
     }
 
 }

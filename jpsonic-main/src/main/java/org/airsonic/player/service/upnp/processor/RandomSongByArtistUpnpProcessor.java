@@ -17,7 +17,15 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_ARTIST;
+
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import org.airsonic.player.domain.Artist;
@@ -32,22 +40,16 @@ import org.fourthline.cling.support.model.container.MusicArtist;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_RANDOM_SONG_BY_ARTIST;
-
 @Service
-public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artist, MediaFile> {
+public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist, MediaFile> {
 
     private final UpnpProcessorUtil util;
     private final JArtistDao artistDao;
     private final SearchService searchService;
     private final SettingsService settingsService;
 
-    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a, SearchService s, SettingsService ss) {
+    public RandomSongByArtistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JArtistDao a,
+            SearchService s, SettingsService ss) {
         super(d, u);
         util = u;
         artistDao = a;
@@ -57,10 +59,12 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.randomSongByArtist");
     }
 
+    @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = new MusicArtist();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
@@ -68,7 +72,8 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         container.setTitle(artist.getName());
         container.setChildCount(artist.getAlbumCount());
         if (artist.getCoverArtPath() != null) {
-            container.setProperties(Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
+            container.setProperties(
+                    Arrays.asList(new ALBUM_ART_URI(getDispatcher().getArtistProcessor().createArtistArtURI(artist))));
         }
         return container;
     }
@@ -83,6 +88,7 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         return artistDao.getAlphabetialArtists((int) offset, (int) count, util.getAllMusicFolders());
     }
 
+    @Override
     public Artist getItemById(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }
@@ -97,7 +103,8 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor <Artis
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax, util.getAllMusicFolders());
+        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax,
+                util.getAllMusicFolders());
     }
 
     @Override

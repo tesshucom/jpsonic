@@ -17,7 +17,11 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
@@ -28,21 +32,20 @@ import org.fourthline.cling.support.model.container.StorageFolder;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
-    private ArrayList<Container> containers = new ArrayList<>();
+    private List<Container> containers = new ArrayList<>();
 
     private SettingsService settingsService;
 
-    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util, SettingsService settingsService) {
+    public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
+            SettingsService settingsService) {
         super(dispatcher, util);
         this.settingsService = settingsService;
     }
 
+    @Override
     protected final Container createRootContainer() {
         StorageFolder root = new StorageFolder();
         root.setId(UpnpProcessDispatcher.CONTAINER_ID_ROOT);
@@ -68,6 +71,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         // to be none
     }
 
+    @Override
     public Container createContainer(Container item) {
         // the items are the containers in this case.
         return item;
@@ -134,6 +138,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
     }
 
+    @Override
     public Container getItemById(String id) {
         return createRootContainer();
     }
@@ -152,6 +157,7 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         return org.airsonic.player.util.PlayerUtils.subList(getChildren(item), offset, maxResults);
     }
 
+    @Override
     public void addChild(DIDLContent didl, Container child) {
         // special case; root doesn't have object instances
     }

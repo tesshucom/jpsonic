@@ -17,8 +17,21 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
@@ -42,26 +55,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Controller for the creating a random play queue.
  *
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping("/randomPlayQueue.view")
+@RequestMapping("/" + ViewName.ViewNameConstants.RANDOM_PLAYQUEUE)
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
+
+    private static final String REQUEST_VALUE_ANY = "any";
 
     @Autowired
     private PlayerService playerService;
@@ -74,24 +79,26 @@ public class RandomPlayQueueController {
     @Autowired
     private IndexManager indexManager;
 
+    @SuppressWarnings("PMD.NullAssignment")
+    /*
+     * (genre, lastPlayed, format) Intentional assignment in the case of receiving a param indicating no condition
+     * value.
+     */
     @PostMapping
-    protected String handleRandomPlayQueue(
-            ModelMap model,
-            HttpServletRequest request,
-            HttpServletResponse response,
-            @RequestParam("size") final Integer sizeParam,
-            @RequestParam(value = "genre", required = false) final String genreParam,
-            @RequestParam(value = "year", required = false) String year,
-            @RequestParam(value = "songRating", required = false) String songRating,
-            @RequestParam(value = "lastPlayedValue", required = false) String lastPlayedValue,
-            @RequestParam(value = "lastPlayedComp", required = false) String lastPlayedComp,
-            @RequestParam(value = "albumRatingValue", required = false) Integer albumRatingValue,
-            @RequestParam(value = "albumRatingComp", required = false) String albumRatingComp,
-            @RequestParam(value = "playCountValue", required = false) Integer playCountValue,
-            @RequestParam(value = "playCountComp", required = false) String playCountComp,
-            @RequestParam(value = "format", required = false) final String formatParam,
-            @RequestParam(value = "autoRandom", required = false) String autoRandom
-    ) throws Exception {
+    protected String handleRandomPlayQueue(ModelMap model, HttpServletRequest request, HttpServletResponse response,
+            @RequestParam(Attributes.Request.NameConstants.SIZE) final Integer sizeParam,
+            @RequestParam(value = Attributes.Request.NameConstants.GENRE, required = false) final String genreParam,
+            @RequestParam(value = Attributes.Request.NameConstants.YEAR, required = false) String year,
+            @RequestParam(value = Attributes.Request.NameConstants.SONG_RATING, required = false) String songRating,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_VALUE, required = false) String lastPlayedValue,
+            @RequestParam(value = Attributes.Request.NameConstants.LAST_PLAYED_COMP, required = false) String lastPlayedComp,
+            @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_VALUE, required = false) Integer albumRatingValue,
+            @RequestParam(value = Attributes.Request.NameConstants.ALBUM_RATING_COMP, required = false) String albumRatingComp,
+            @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_VALUE, required = false) Integer playCountValue,
+            @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_COMP, required = false) String playCountComp,
+            @RequestParam(value = Attributes.Request.NameConstants.FORMAT, required = false) final String formatParam,
+            @RequestParam(value = Attributes.Request.NameConstants.AUTO_RANDOM, required = false) String autoRandom)
+            throws Exception {
 
         Integer fromYear = null;
         Integer toYear = null;
@@ -106,26 +113,25 @@ public class RandomPlayQueueController {
 
         Integer size = sizeParam;
         String genre = genreParam;
-        String format = formatParam;
-        
+
         if (size == null) {
             size = 24;
         }
 
         // Handle the genre filter
-        if (StringUtils.equalsIgnoreCase("any", genre)) {
+        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, genre)) {
             genre = null;
         }
 
         // Handle the release year filter
-        if (!StringUtils.equalsIgnoreCase("any", year)) {
+        if (!StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, year)) {
             String[] tmp = StringUtils.split(year);
             fromYear = Integer.parseInt(tmp[0]);
             toYear = Integer.parseInt(tmp[1]);
         }
 
         // Handle the song rating filter
-        if (StringUtils.equalsIgnoreCase("any", songRating)) {
+        if (StringUtils.equalsIgnoreCase(REQUEST_VALUE_ANY, songRating)) {
             doesShowStarredSongs = true;
             doesShowUnstarredSongs = true;
         } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
@@ -140,113 +146,106 @@ public class RandomPlayQueueController {
         Calendar lastPlayed = Calendar.getInstance();
         lastPlayed.setTime(new Date());
         switch (lastPlayedValue) { // nullable
-            case "any":
-                lastPlayed = null;
+        case REQUEST_VALUE_ANY:
+            lastPlayed = null;
+            break;
+        case "1day":
+            lastPlayed.add(Calendar.DAY_OF_YEAR, -1);
+            break;
+        case "1week":
+            lastPlayed.add(Calendar.WEEK_OF_YEAR, -1);
+            break;
+        case "1month":
+            lastPlayed.add(Calendar.MONTH, -1);
+            break;
+        case "3months":
+            lastPlayed.add(Calendar.MONTH, -3);
+            break;
+        case "6months":
+            lastPlayed.add(Calendar.MONTH, -6);
+            break;
+        case "1year":
+            lastPlayed.add(Calendar.YEAR, -1);
+            break;
+        default:
+            // none
+            break;
+        }
+        if (lastPlayed != null) {
+            switch (lastPlayedComp) { // nullable
+            case "lt":
+                maxLastPlayedDate = lastPlayed.getTime();
                 break;
-            case "1day":
-                lastPlayed.add(Calendar.DAY_OF_YEAR, -1);
-                break;
-            case "1week":
-                lastPlayed.add(Calendar.WEEK_OF_YEAR, -1);
-                break;
-            case "1month":
-                lastPlayed.add(Calendar.MONTH, -1);
-                break;
-            case "3months":
-                lastPlayed.add(Calendar.MONTH, -3);
-                break;
-            case "6months":
-                lastPlayed.add(Calendar.MONTH, -6);
-                break;
-            case "1year":
-                lastPlayed.add(Calendar.YEAR, -1);
+            case "gt":
+                minLastPlayedDate = lastPlayed.getTime();
                 break;
             default:
                 // none
                 break;
-        }
-        if (lastPlayed != null) {
-            switch (lastPlayedComp) { // nullable
-                case "lt":
-                    minLastPlayedDate = null;
-                    maxLastPlayedDate = lastPlayed.getTime();
-                    break;
-                case "gt":
-                    minLastPlayedDate = lastPlayed.getTime();
-                    maxLastPlayedDate = null;
-                    break;
-                default:
-                    // none
-                    break;
             }
         }
 
         // Handle the album rating filter
         if (albumRatingValue != null) {
             switch (albumRatingComp) { // nullable
-                case "lt":
-                    minAlbumRating = null;
-                    maxAlbumRating = albumRatingValue - 1;
-                    break;
-                case "gt":
-                    minAlbumRating = albumRatingValue + 1;
-                    maxAlbumRating = null;
-                    break;
-                case "le":
-                    minAlbumRating = null;
-                    maxAlbumRating = albumRatingValue;
-                    break;
-                case "ge":
-                    minAlbumRating = albumRatingValue;
-                    maxAlbumRating = null;
-                    break;
-                case "eq":
-                    minAlbumRating = albumRatingValue;
-                    maxAlbumRating = albumRatingValue;
-                    break;
-                default:
-                    // none
-                    break;
+            case "lt":
+                maxAlbumRating = albumRatingValue - 1;
+                break;
+            case "gt":
+                minAlbumRating = albumRatingValue + 1;
+                break;
+            case "le":
+                maxAlbumRating = albumRatingValue;
+                break;
+            case "ge":
+                minAlbumRating = albumRatingValue;
+                break;
+            case "eq":
+                minAlbumRating = albumRatingValue;
+                maxAlbumRating = albumRatingValue;
+                break;
+            default:
+                // none
+                break;
             }
         }
 
         // Handle the play count filter
         if (playCountValue != null) {
             switch (playCountComp) { // nullable
-                case "lt":
-                    minPlayCount = null;
-                    maxPlayCount = playCountValue - 1;
-                    break;
-                case "gt":
-                    minPlayCount = playCountValue + 1;
-                    maxPlayCount = null;
-                    break;
-                case "le":
-                    minPlayCount = null;
-                    maxPlayCount = playCountValue;
-                    break;
-                case "ge":
-                    minPlayCount = playCountValue;
-                    maxPlayCount = null;
-                    break;
-                case "eq":
-                    minPlayCount = playCountValue;
-                    maxPlayCount = playCountValue;
-                    break;
-                default:
-                    // none
-                    break;
+            case "lt":
+                maxPlayCount = playCountValue - 1;
+                break;
+            case "gt":
+                minPlayCount = playCountValue + 1;
+                break;
+            case "le":
+                maxPlayCount = playCountValue;
+                break;
+            case "ge":
+                minPlayCount = playCountValue;
+                break;
+            case "eq":
+                minPlayCount = playCountValue;
+                maxPlayCount = playCountValue;
+                break;
+            default:
+                // none
+                break;
             }
         }
 
         // Handle the format filter
-        if (StringUtils.equalsIgnoreCase(format, "any")) format = null;
+        String format = formatParam;
+        if (StringUtils.equalsIgnoreCase(format, REQUEST_VALUE_ANY)) {
+            format = null;
+        }
 
         // Handle the music folder filter
         List<MusicFolder> musicFolders = getMusicFolders(request);
 
         // Do we add to the current playlist or do we replace it?
-        boolean shouldAddToPlayList = request.getParameter("addToPlaylist") != null;
+        boolean shouldAddToPlayList = request.getParameter(Attributes.Request.ADD_TO_PLAYLIST.value()) != null;
 
         List<String> genres = null;
         if (null != genre) {
@@ -256,28 +255,16 @@ public class RandomPlayQueueController {
             } else {
                 // #267 Invalid search for genre containing specific string
                 if (LOG.isWarnEnabled()) {
-                    LOG.warn("Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
+                    LOG.warn(
+                            "Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
                 }
             }
         }
 
         // Search the database using these criteria
-        RandomSearchCriteria criteria = new RandomSearchCriteria(
-                size,
-                genres,
-                fromYear,
-                toYear,
-                musicFolders,
-                minLastPlayedDate,
-                maxLastPlayedDate,
-                minAlbumRating,
-                maxAlbumRating,
-                minPlayCount,
-                maxPlayCount,
-                doesShowStarredSongs,
-                doesShowUnstarredSongs,
-                format
-        );
+        RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders,
+                minLastPlayedDate, maxLastPlayedDate, minAlbumRating, maxAlbumRating, minPlayCount, maxPlayCount,
+                doesShowStarredSongs, doesShowUnstarredSongs, format);
         User user = securityService.getCurrentUser(request);
         Player player = playerService.getPlayer(request, response);
         PlayQueue playQueue = player.getPlayQueue();
@@ -290,16 +277,19 @@ public class RandomPlayQueueController {
 
         // Render the 'reload' view to reload the play queue and the main page
         List<ReloadFrame> reloadFrames = new ArrayList<>();
-        reloadFrames.add(new ReloadFrame("playQueue", "playQueue.view?"));
-        reloadFrames.add(new ReloadFrame("upper", "top.view?"));
+        reloadFrames.add(new ReloadFrame("playQueue", ViewName.PLAY_QUEUE.value() + "?"));
+        reloadFrames.add(new ReloadFrame("upper", ViewName.TOP.value() + "?"));
         Map<String, Object> map = LegacyMap.of("reloadFrames", reloadFrames);
         model.addAttribute("model", map);
         return "reload";
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (selectedMusicFolderId) Intentional assignment in the case of receiving a
+                                            // param indicating no condition value.
     private List<MusicFolder> getMusicFolders(HttpServletRequest request) throws ServletRequestBindingException {
         String username = securityService.getCurrentUsername(request);
-        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request, "musicFolderId");
+        Integer selectedMusicFolderId = ServletRequestUtils.getRequiredIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         if (selectedMusicFolderId == -1) {
             selectedMusicFolderId = null;
         }

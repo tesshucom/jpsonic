@@ -17,12 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 /**
  * Represents a musical genre.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.2 $ $Date: 2005/12/25 13:48:46 $
  */
 public class Genre {

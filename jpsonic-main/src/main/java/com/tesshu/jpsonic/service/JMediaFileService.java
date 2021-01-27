@@ -16,7 +16,11 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import java.io.File;
+import java.util.List;
 
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.MediaFile;
@@ -25,12 +29,8 @@ import org.airsonic.player.service.MediaFileService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.util.List;
-
 /**
- * Extended service of MediaFileService. The purpose is a paging extension,
- * mainly used in UpnP.
+ * Extended service of MediaFileService. The purpose is a paging extension, mainly used in UpnP.
  */
 @Service
 @DependsOn({ "mediaFileDao", "mediaFileService" })
@@ -58,6 +58,7 @@ public class JMediaFileService {
      * Returns the number of child elements of the specified mediaFile.
      * 
      * @param mediaFile
+     * 
      * @return the number of child elements
      */
     public int getChildSizeOf(MediaFile mediaFile) {
@@ -68,6 +69,7 @@ public class JMediaFileService {
      * Returns the number of child elements of the specified musicFolder.
      * 
      * @param musicFolder
+     * 
      * @return the number of child elements
      */
     public int getChildSizeOf(MusicFolder musicFolder) {
@@ -98,8 +100,11 @@ public class JMediaFileService {
     /**
      * Returns the song count of the specified album name and album-artist.
      * 
-     * @param albumArtist album-artist
-     * @param album       name of album
+     * @param albumArtist
+     *            album-artist
+     * @param album
+     *            name of album
+     * 
      * @return song count
      */
     public int getSongsCountForAlbum(String albumArtist, String album) {
@@ -109,9 +114,13 @@ public class JMediaFileService {
     /**
      * Returns the song of the specified album.
      * 
-     * @param offset Number of songs to skip.
-     * @param count  Maximum number of songs to return.
-     * @param album  album
+     * @param offset
+     *            Number of songs to skip.
+     * @param count
+     *            Maximum number of songs to return.
+     * @param album
+     *            album
+     * 
      * @return Enumerating songs considering paging
      */
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, MediaFile album) {
@@ -121,10 +130,15 @@ public class JMediaFileService {
     /**
      * Returns the song of the specified album name and album-artist.
      * 
-     * @param offset Number of songs to skip.
-     * @param count  Maximum number of songs to return.
-     * @param album  album-artist
-     * @param album  name of album
+     * @param offset
+     *            Number of songs to skip.
+     * @param count
+     *            Maximum number of songs to return.
+     * @param album
+     *            album-artist
+     * @param album
+     *            name of album
+     * 
      * @return Enumerating songs considering paging
      */
     public List<MediaFile> getSongsForAlbum(final long offset, final long count, String albumArtist, String album) {

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.util.Date;
@@ -373,7 +374,8 @@ public class UserSettings {
     /**
      * Sets when the corresponding database entry was last changed.
      *
-     * @param changed When the corresponding database entry was last changed.
+     * @param changed
+     *            When the corresponding database entry was last changed.
      */
     public void setChanged(Date changed) {
         this.changed = changed;
@@ -591,120 +593,121 @@ public class UserSettings {
      * Configuration of what information to display about a song.
      */
     public static class Visibility {
-        private boolean isTrackNumberVisible;
-        private boolean isArtistVisible;
-        private boolean isAlbumVisible;
-        private boolean isGenreVisible;
-        private boolean isYearVisible;
-        private boolean isBitRateVisible;
-        private boolean isDurationVisible;
-        private boolean isFormatVisible;
-        private boolean isFileSizeVisible;
+        private boolean trackNumberVisible;
+        private boolean artistVisible;
+        private boolean albumVisible;
+        private boolean genreVisible;
+        private boolean yearVisible;
+        private boolean bitRateVisible;
+        private boolean durationVisible;
+        private boolean formatVisible;
+        private boolean fileSizeVisible;
         // JP >>>>
-        private boolean isComposerVisible;
+        private boolean composerVisible;
         // <<<< JP
 
-        public Visibility() {}
+        public Visibility() {
+        }
 
-        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible,
-                          boolean genreVisible, boolean yearVisible, boolean bitRateVisible,
-                          boolean durationVisible, boolean formatVisible, boolean fileSizeVisible,
-                          // JP >>>>
-                          boolean composerVisible
-                          // <<<< JP
+        public Visibility(boolean trackNumberVisible, boolean artistVisible, boolean albumVisible, boolean genreVisible,
+                boolean yearVisible, boolean bitRateVisible, boolean durationVisible, boolean formatVisible,
+                boolean fileSizeVisible,
+                // JP >>>>
+                boolean composerVisible
+        // <<<< JP
         ) {
-            isTrackNumberVisible = trackNumberVisible;
-            isArtistVisible = artistVisible;
-            isAlbumVisible = albumVisible;
-            isGenreVisible = genreVisible;
-            isYearVisible = yearVisible;
-            isBitRateVisible = bitRateVisible;
-            isDurationVisible = durationVisible;
-            isFormatVisible = formatVisible;
-            isFileSizeVisible = fileSizeVisible;
+            this.trackNumberVisible = trackNumberVisible;
+            this.artistVisible = artistVisible;
+            this.albumVisible = albumVisible;
+            this.genreVisible = genreVisible;
+            this.yearVisible = yearVisible;
+            this.bitRateVisible = bitRateVisible;
+            this.durationVisible = durationVisible;
+            this.formatVisible = formatVisible;
+            this.fileSizeVisible = fileSizeVisible;
             // JP >>>>
-            isComposerVisible = composerVisible;
+            this.composerVisible = composerVisible;
             // <<<< JP
         }
 
         public boolean isTrackNumberVisible() {
-            return isTrackNumberVisible;
+            return trackNumberVisible;
         }
 
         public void setTrackNumberVisible(boolean trackNumberVisible) {
-            isTrackNumberVisible = trackNumberVisible;
+            this.trackNumberVisible = trackNumberVisible;
         }
 
         public boolean isArtistVisible() {
-            return isArtistVisible;
+            return artistVisible;
         }
 
         public void setArtistVisible(boolean artistVisible) {
-            isArtistVisible = artistVisible;
+            this.artistVisible = artistVisible;
         }
 
         public boolean isAlbumVisible() {
-            return isAlbumVisible;
+            return albumVisible;
         }
 
         public void setAlbumVisible(boolean albumVisible) {
-            isAlbumVisible = albumVisible;
+            this.albumVisible = albumVisible;
         }
 
         public boolean isGenreVisible() {
-            return isGenreVisible;
+            return genreVisible;
         }
 
         public void setGenreVisible(boolean genreVisible) {
-            isGenreVisible = genreVisible;
+            this.genreVisible = genreVisible;
         }
 
         public boolean isYearVisible() {
-            return isYearVisible;
+            return yearVisible;
         }
 
         public void setYearVisible(boolean yearVisible) {
-            isYearVisible = yearVisible;
+            this.yearVisible = yearVisible;
         }
 
         public boolean isBitRateVisible() {
-            return isBitRateVisible;
+            return bitRateVisible;
         }
 
         public void setBitRateVisible(boolean bitRateVisible) {
-            isBitRateVisible = bitRateVisible;
+            this.bitRateVisible = bitRateVisible;
         }
 
         public boolean isDurationVisible() {
-            return isDurationVisible;
+            return durationVisible;
         }
 
         public void setDurationVisible(boolean durationVisible) {
-            isDurationVisible = durationVisible;
+            this.durationVisible = durationVisible;
         }
 
         public boolean isFormatVisible() {
-            return isFormatVisible;
+            return formatVisible;
         }
 
         public void setFormatVisible(boolean formatVisible) {
-            isFormatVisible = formatVisible;
+            this.formatVisible = formatVisible;
         }
 
         public boolean isFileSizeVisible() {
-            return isFileSizeVisible;
+            return fileSizeVisible;
         }
 
         public void setFileSizeVisible(boolean fileSizeVisible) {
-            isFileSizeVisible = fileSizeVisible;
+            this.fileSizeVisible = fileSizeVisible;
         }
 
         public boolean isComposerVisible() {
-            return isComposerVisible;
+            return composerVisible;
         }
 
         public void setComposerVisible(boolean isComposerVisible) {
-            this.isComposerVisible = isComposerVisible;
+            this.composerVisible = isComposerVisible;
         }
 
     }

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.domain;
 
 import java.io.Serializable;
@@ -26,18 +27,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A music index is a mapping from an index string to a list of prefixes.  A complete index consists of a list of
- * <code>MusicIndex</code> instances.<p/>
+ * A music index is a mapping from an index string to a list of prefixes. A complete index consists of a list of
+ * <code>MusicIndex</code> instances.
  * <p/>
- * For a normal alphabetical index, such a mapping would typically be <em>"A" -&gt; ["A"]</em>.  The index can also be used
- * to group less frequently used letters, such as  <em>"X-&Aring;" -&gt; ["X", "Y", "Z", "&AElig;", "&Oslash;", "&Aring;"]</em>, or to make multiple
- * indexes for frequently used letters, such as <em>"SA" -&gt; ["SA"]</em> and <em>"SO" -&gt; ["SO"]</em><p/>
+ * <p/>
+ * For a normal alphabetical index, such a mapping would typically be <em>"A" -&gt; ["A"]</em>. The index can also be
+ * used to group less frequently used letters, such as <em>"X-&Aring;" -&gt; ["X", "Y", "Z", "&AElig;", "&Oslash;",
+ * "&Aring;"]</em>, or to make multiple indexes for frequently used letters, such as <em>"SA" -&gt; ["SA"]</em> and
+ * <em>"SO" -&gt; ["SO"]</em>
+ * <p/>
  * <p/>
  * Clicking on an index in the user interface will typically bring up a list of all music files that are categorized
  * under that index.
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class MusicIndex implements Serializable {
 
     public static final MusicIndex OTHER = new MusicIndex("#");
@@ -48,7 +53,8 @@ public class MusicIndex implements Serializable {
     /**
      * Creates a new index with the given index string.
      *
-     * @param index The index string, e.g., "A" or "The".
+     * @param index
+     *            The index string, e.g., "A" or "The".
      */
     public MusicIndex(String index) {
         this.index = index;
@@ -57,7 +63,8 @@ public class MusicIndex implements Serializable {
     /**
      * Adds a prefix to this index. Music files that starts with this prefix will be categorized under this index entry.
      *
-     * @param prefix The prefix.
+     * @param prefix
+     *            The prefix.
      */
     public void addPrefix(String prefix) {
         prefixes.add(prefix);
@@ -84,9 +91,11 @@ public class MusicIndex implements Serializable {
     /**
      * Returns whether this object is equal to another one.
      *
-     * @param o Object to compare to.
-     * @return <code>true</code> if, and only if, the other object is a <code>MusicIndex</code> with the same
-     *         index name as this one.
+     * @param o
+     *            Object to compare to.
+     * 
+     * @return <code>true</code> if, and only if, the other object is a <code>MusicIndex</code> with the same index name
+     *         as this one.
      */
     @Override
     public boolean equals(Object o) {
@@ -135,6 +144,7 @@ public class MusicIndex implements Serializable {
             return sortableName;
         }
 
+        @Override
         public int compareTo(SortableArtist other) {
             return c.compare(this, other);
         }

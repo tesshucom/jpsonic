@@ -1,13 +1,14 @@
+
 package org.airsonic.player.service;
+
+import java.util.List;
+import java.util.Objects;
 
 import org.airsonic.player.dao.BookmarkDao;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.MediaFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Objects;
 
 @Service
 public class BookmarkService {
@@ -20,10 +21,9 @@ public class BookmarkService {
     }
 
     public Bookmark getBookmarkForUserAndMediaFile(String username, MediaFile mediaFile) {
-        return dao.getBookmarks(username)
-                .stream()
-                .filter(bookmark -> Objects.equals(mediaFile.getId(), bookmark.getMediaFileId()))
-                .findFirst().orElse(null);
+        return dao.getBookmarks(username).stream()
+                .filter(bookmark -> Objects.equals(mediaFile.getId(), bookmark.getMediaFileId())).findFirst()
+                .orElse(null);
     }
 
     public void createOrUpdateBookmark(Bookmark bookmark) {

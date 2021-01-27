@@ -17,8 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.dao.PlayerDao;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Transcoding;
@@ -32,19 +43,11 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestUtils;
 
-import javax.annotation.PostConstruct;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 /**
  * Provides services for maintaining the set of players.
  *
  * @author Sindre Mehus
+ * 
  * @see Player
  */
 @Service
@@ -52,6 +55,7 @@ import java.util.List;
 public class PlayerService {
 
     private static final String COOKIE_NAME = "player";
+    private static final String ATTRIBUTE_SESSION_KEY = "player";
     private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
 
     @Autowired
@@ -69,7 +73,7 @@ public class PlayerService {
     public void init() {
         playerDao.deleteOldPlayers(60);
     }
-    
+
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
      */
@@ -78,26 +82,32 @@ public class PlayerService {
     }
 
     /**
-     * Returns the player associated with the given HTTP request.  If no such player exists, a new
-     * one is created.
+     * Returns the player associated with the given HTTP request. If no such player exists, a new one is created.
      *
-     * @param request              The HTTP request.
-     * @param response             The HTTP response.
-     * @param remoteControlEnabled Whether this method should return a remote-controlled player.
-     * @param isStreamRequest      Whether the HTTP request is a request for streaming data.
+     * @param request
+     *            The HTTP request.
+     * @param response
+     *            The HTTP response.
+     * @param remoteControlEnabled
+     *            Whether this method should return a remote-controlled player.
+     * @param isStreamRequest
+     *            Whether the HTTP request is a request for streaming data.
+     * 
      * @return The player associated with the given HTTP request.
      */
-    public Player getPlayer(HttpServletRequest request, HttpServletResponse response,
-                                         boolean remoteControlEnabled, boolean isStreamRequest) throws Exception {
+    @SuppressWarnings("PMD.NullAssignment") // (player) Intentional assignment to eliminate user spoofing
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
+            boolean isStreamRequest) throws Exception {
 
         synchronized (LOCK) {
 
             // Find by 'player' request parameter.
-            Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, "player"));
+            Player player = getPlayerById(
+                    ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value()));
 
             // Find in session context.
             if (player == null && remoteControlEnabled) {
-                Integer playerId = (Integer) request.getSession().getAttribute("player");
+                Integer playerId = (Integer) request.getSession().getAttribute(ATTRIBUTE_SESSION_KEY);
                 if (playerId != null) {
                     player = getPlayerById(playerId);
                 }
@@ -110,7 +120,8 @@ public class PlayerService {
             }
 
             // Make sure we're not hijacking the player of another user.
-            if (player != null && player.getUsername() != null && username != null && !player.getUsername().equals(username)) {
+            if (player != null && player.getUsername() != null && username != null
+                    && !player.getUsername().equals(username)) {
                 player = null;
             }
 
@@ -131,8 +142,8 @@ public class PlayerService {
                 player.setUsername(username);
                 isUpdate = true;
             }
-            if (player.getIpAddress() == null || isStreamRequest ||
-                !isPlayerConnected(player) && player.isDynamicIp() && !request.getRemoteAddr().equals(player.getIpAddress())) {
+            if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player) && player.isDynamicIp()
+                    && !request.getRemoteAddr().equals(player.getIpAddress())) {
                 player.setIpAddress(request.getRemoteAddr());
                 isUpdate = true;
             }
@@ -164,7 +175,7 @@ public class PlayerService {
 
             // Save player in session context.
             if (remoteControlEnabled) {
-                request.getSession().setAttribute("player", player.getId());
+                request.getSession().setAttribute(Attributes.Session.PLAYER.value(), player.getId());
             }
 
             return player;
@@ -176,7 +187,8 @@ public class PlayerService {
     /**
      * Updates the given player.
      *
-     * @param player The player to update.
+     * @param player
+     *            The player to update.
      */
     public void updatePlayer(Player player) {
         playerDao.updatePlayer(player);
@@ -185,7 +197,9 @@ public class PlayerService {
     /**
      * Returns the player with the given ID.
      *
-     * @param id The unique player ID.
+     * @param id
+     *            The unique player ID.
+     * 
      * @return The player with the given ID, or <code>null</code> if no such player exists.
      */
     public Player getPlayerById(Integer id) {
@@ -199,7 +213,9 @@ public class PlayerService {
     /**
      * Returns whether the given player is connected.
      *
-     * @param player The player in question.
+     * @param player
+     *            The player in question.
+     * 
      * @return Whether the player is connected.
      */
     private boolean isPlayerConnected(Player player) {
@@ -215,8 +231,11 @@ public class PlayerService {
      * Returns the (non-REST) player with the given IP address and username. If no username is given, only IP address is
      * used as search criteria.
      *
-     * @param ipAddress The IP address.
-     * @param username  The remote user.
+     * @param ipAddress
+     *            The IP address.
+     * @param username
+     *            The remote user.
+     * 
      * @return The player with the given IP address, or <code>null</code> if no such player exists.
      */
     private Player getNonRestPlayerByIpAddressAndUsername(final String ipAddress, final String username) {
@@ -237,8 +256,11 @@ public class PlayerService {
     /**
      * Reads the player ID from the cookie in the HTTP request.
      *
-     * @param request  The HTTP request.
-     * @param username The name of the current user.
+     * @param request
+     *            The HTTP request.
+     * @param username
+     *            The name of the current user.
+     * 
      * @return The player ID embedded in the cookie, or <code>null</code> if cookie is not present.
      */
     private Integer getPlayerIdFromCookie(HttpServletRequest request, String username) {
@@ -262,9 +284,12 @@ public class PlayerService {
     /**
      * Returns all players owned by the given username and client ID.
      *
-     * @param username The name of the user.
-     * @param clientId The third-party client ID (used if this player is managed over the
-     *                 Airsonic REST API). May be <code>null</code>.
+     * @param username
+     *            The name of the user.
+     * @param clientId
+     *            The third-party client ID (used if this player is managed over the Airsonic REST API). May be
+     *            <code>null</code>.
+     * 
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
@@ -283,7 +308,8 @@ public class PlayerService {
     /**
      * Removes the player with the given ID.
      *
-     * @param id The unique player ID.
+     * @param id
+     *            The unique player ID.
      */
     public void removePlayerById(int id) {
         synchronized (LOCK) {
@@ -294,7 +320,9 @@ public class PlayerService {
     /**
      * Creates and returns a clone of the given player.
      *
-     * @param playerId The ID of the player to clone.
+     * @param playerId
+     *            The ID of the player to clone.
+     * 
      * @return The cloned player.
      */
     public Player clonePlayer(int playerId) {
@@ -310,7 +338,8 @@ public class PlayerService {
     /**
      * Creates the given player, and activates all transcodings.
      *
-     * @param player The player to create.
+     * @param player
+     *            The player to create.
      */
     public void createPlayer(Player player) {
         playerDao.createPlayer(player);

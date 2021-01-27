@@ -16,7 +16,15 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
@@ -26,13 +34,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @Repository("jalbumDao")
 @DependsOn({ "albumDao" })
@@ -47,7 +48,7 @@ public class JAlbumDao extends AbstractDao {
 
     public void clearOrder() {
         update("update album set album_order = -1");
-        update("delete from album where name_reading is null or artist_reading is null ");// #311
+        update("delete from album where name_reading is null or artist_reading is null "); // #311
     }
 
     public void createOrUpdateAlbum(Album album) {
@@ -67,30 +68,27 @@ public class JAlbumDao extends AbstractDao {
             return 0;
         }
         Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders));
-        return namedQueryForInt(// @formatter:off
-                "select count(id) from album " +
-                "where artist = :artist and present and folder_id in (:folders)", 0, args);
-        // @formatter:on
+        return namedQueryForInt(
+                "select count(id) from album " + "where artist = :artist and present and folder_id in (:folders)", 0,
+                args);
     }
 
-    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlbumsForArtist(final long offset, final long count, final String artist, boolean byYear,
+            final List<MusicFolder> musicFolders) {
         if (musicFolders.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of(
-                "artist", artist,
-                "folders", MusicFolder.toIdList(musicFolders),
-                "offset", offset,
-                "count", count);
-        return namedQuery(// @formatter:off
-                "select " + deligate.getQueryColoms() + " from album " +
-                "where artist = :artist and present and folder_id in (:folders) " +
-                "    order by " + (byYear ? "year" : "album_order") + ", name limit :count offset :offset",
+        Map<String, Object> args = LegacyMap.of("artist", artist, "folders", MusicFolder.toIdList(musicFolders),
+                "offset", offset, "count", count);
+        return namedQuery(
+                "select " + deligate.getQueryColoms() + " from album "
+                        + "where artist = :artist and present and folder_id in (:folders) " + "    order by "
+                        + (byYear ? "year" : "album_order") + ", name limit :count offset :offset",
                 deligate.getAlbumMapper(), args);
-        // @formatter:on
     }
 
-    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase, final List<MusicFolder> musicFolders) {
+    public List<Album> getAlphabeticalAlbums(final int offset, final int count, boolean byArtist, boolean ignoreCase,
+            final List<MusicFolder> musicFolders) {
         return deligate.getAlphabeticalAlbums(offset, count, byArtist, ignoreCase, musicFolders);
     }
 
@@ -102,52 +100,36 @@ public class JAlbumDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of(
-                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
-                "select id from album " +
-                "where present and name in (:names) " +
-                    "and (name_sort is null or name_sort not in(:sotes)) order by id",
-            (rs, rowNum) -> {
-                return rs.getInt(1);
-            }, args);
-    } // @formatter:on
+        return namedQuery("select id from album " + "where present and name in (:names) "
+                + "and (name_sort is null or name_sort not in(:sotes)) order by id", (rs, rowNum) -> {
+                    return rs.getInt(1);
+                }, args);
+    }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of(
-                "names", candidates.stream().map(c -> c.getName()).collect(toList()),
+        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
                 "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery(// @formatter:off
-                "select id from album " +
-                "where present and artist in (:names) " +
-                "    and (artist_sort is null or artist_sort not in(:sotes)) order by id",
-            (rs, rowNum) -> {
-                return rs.getInt(1);
-            }, args);
-    } // @formatter:on
+        return namedQuery("select id from album " + "where present and artist in (:names) "
+                + "    and (artist_sort is null or artist_sort not in(:sotes)) order by id", (rs, rowNum) -> {
+                    return rs.getInt(1);
+                }, args);
+    }
 
     public void updateAlbumSort(SortCandidate candidate) {
-        update(// @formatter:off
-                "update album set name_reading = ?, name_sort = ? " +
-                "where present and name = ? and (name_sort <> ? or name_sort is null)",
-                candidate.getReading(),
-                candidate.getSort(),
-                candidate.getName(),
-                candidate.getSort());
-    } // @formatter:on
+        update("update album set name_reading = ?, name_sort = ? "
+                + "where present and name = ? and (name_sort <> ? or name_sort is null)", candidate.getReading(),
+                candidate.getSort(), candidate.getName(), candidate.getSort());
+    }
 
     public void updateArtistSort(SortCandidate candidate) {
-        update(// @formatter:off
-                "update album set artist_reading = ?, artist_sort = ? " +
-                "where present and artist = ? and (artist_sort <> ? or artist_sort is null)",
-                candidate.getReading(),
-                candidate.getSort(),
-                candidate.getName(),
-                candidate.getSort());
-    } // @formatter:on
+        update("update album set artist_reading = ?, artist_sort = ? "
+                + "where present and artist = ? and (artist_sort <> ? or artist_sort is null)", candidate.getReading(),
+                candidate.getSort(), candidate.getName(), candidate.getSort());
+    }
 
 }

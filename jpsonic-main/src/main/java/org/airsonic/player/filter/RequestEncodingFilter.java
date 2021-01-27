@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.filter;
+
+import java.io.IOException;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,20 +30,19 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 
-import java.io.IOException;
-
 /**
- * Configurable filter for setting the character encoding to use for the HTTP request.
- * Typically used to set UTF-8 encoding when reading request parameters with non-Latin
- * content.
+ * Configurable filter for setting the character encoding to use for the HTTP request. Typically used to set UTF-8
+ * encoding when reading request parameters with non-Latin content.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2006/03/01 16:58:08 $
  */
 public class RequestEncodingFilter implements Filter {
 
     private String encoding;
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) req;
@@ -50,10 +52,13 @@ public class RequestEncodingFilter implements Filter {
         chain.doFilter(req, res);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         encoding = filterConfig.getInitParameter("encoding");
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (encoding) Intentional allocation to destroy
+    @Override
     public void destroy() {
         encoding = null;
     }

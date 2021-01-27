@@ -17,8 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.geom.RectangularShape;
+import java.awt.geom.RoundRectangle2D;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -42,14 +56,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.awt.*;
-import java.awt.geom.RectangularShape;
-import java.awt.geom.RoundRectangle2D;
-import java.util.List;
-
 /**
  * Controller for generating a chart showing bitrate vs time.
  *
@@ -72,7 +78,7 @@ public class UserChartController extends AbstractChartController {
     @Override
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        String type = request.getParameter("type");
+        String type = request.getParameter(Attributes.Request.TYPE.value());
         CategoryDataset dataset = createDataset(type);
         JFreeChart chart = createChart(dataset, request);
 
@@ -108,11 +114,8 @@ public class UserChartController extends AbstractChartController {
 
     private JFreeChart createChart(CategoryDataset dataset, HttpServletRequest request) {
 
-        Color bgColor = getBackground(request);
-        Color fgColor = getForeground(request);
-        Color stColor = getStroke(request);
-
-        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false, false, false);
+        JFreeChart chart = ChartFactory.createBarChart(null, null, null, dataset, PlotOrientation.HORIZONTAL, false,
+                false, false);
         StandardChartTheme theme = (StandardChartTheme) StandardChartTheme.createJFreeTheme();
         Font font = fontLoader.getFont(12F);
         theme.setExtraLargeFont(font);
@@ -120,30 +123,35 @@ public class UserChartController extends AbstractChartController {
         theme.setRegularFont(font);
         theme.setSmallFont(font);
         theme.apply(chart);
-        
+
+        Color bgColor = getBackground(request);
         chart.setBackgroundPaint(bgColor);
 
         CategoryPlot plot = chart.getCategoryPlot();
         plot.setBackgroundPaint(bgColor);
+        Color fgColor = getForeground(request);
         plot.setOutlinePaint(fgColor);
         plot.setRangeGridlinePaint(fgColor);
         plot.setRangeGridlineStroke(new BasicStroke(0.2f));
         plot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_LEFT);
 
         BarRenderer renderer = (BarRenderer) plot.getRenderer();
+        Color stColor = getStroke(request);
         renderer.setBarPainter(new BarPainter() {
             @Override
             public void paintBarShadow(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,
                     RectangleEdge base, boolean pegShadow) {
                 // to be none
             }
+
             @Override
             public void paintBar(Graphics2D g2, BarRenderer ren, int row, int col, RectangularShape shape,
                     RectangleEdge base) {
                 int barMaxHeight = 15;
                 double radius = 10.0;
                 double barX = shape.getX() - radius;
-                double barY = barMaxHeight < shape.getHeight() ? shape.getY() + (shape.getHeight() - barMaxHeight) / 2 : shape.getY();
+                double barY = barMaxHeight < shape.getHeight() ? shape.getY() + (shape.getHeight() - barMaxHeight) / 2
+                        : shape.getY();
                 double barHeight = barMaxHeight < shape.getHeight() ? barMaxHeight : shape.getHeight();
                 double barWidth = shape.getWidth() + radius;
                 RoundRectangle2D rec = new RoundRectangle2D.Double(barX, barY, barWidth, barHeight, radius, radius);

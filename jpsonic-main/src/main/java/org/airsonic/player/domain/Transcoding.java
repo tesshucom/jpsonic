@@ -17,18 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import org.airsonic.player.util.StringUtil;
+package org.airsonic.player.domain;
 
 import java.util.Objects;
 
+import org.airsonic.player.util.StringUtil;
+
 /**
- * Contains the configuration for a transcoding, i.e., a specification of how a given media format
- * should be converted to another.
- * <br/>
- * A transcoding may contain up to three steps. Typically you need to convert in several steps, for
- * instance from OGG to WAV to MP3.
+ * Contains the configuration for a transcoding, i.e., a specification of how a given media format should be converted
+ * to another. <br/>
+ * A transcoding may contain up to three steps. Typically you need to convert in several steps, for instance from OGG to
+ * WAV to MP3.
  *
  * @author Sindre Mehus
  */
@@ -46,17 +46,25 @@ public class Transcoding {
     /**
      * Creates a new transcoding specification.
      *
-     * @param id              The system-generated ID.
-     * @param name            The user-defined name.
-     * @param sourceFormats   The source formats, e.g., "ogg wav aac".
-     * @param targetFormat    The target format, e.g., "mp3".
-     * @param step1           The command to execute in step 1.
-     * @param step2           The command to execute in step 2.
-     * @param step3           The command to execute in step 3.
-     * @param defaultActive   Whether the transcoding should be automatically activated for all players.
+     * @param id
+     *            The system-generated ID.
+     * @param name
+     *            The user-defined name.
+     * @param sourceFormats
+     *            The source formats, e.g., "ogg wav aac".
+     * @param targetFormat
+     *            The target format, e.g., "mp3".
+     * @param step1
+     *            The command to execute in step 1.
+     * @param step2
+     *            The command to execute in step 2.
+     * @param step3
+     *            The command to execute in step 3.
+     * @param defaultActive
+     *            Whether the transcoding should be automatically activated for all players.
      */
-    public Transcoding(Integer id, String name, String sourceFormats, String targetFormat, String step1,
-            String step2, String step3, boolean defaultActive) {
+    public Transcoding(Integer id, String name, String sourceFormats, String targetFormat, String step1, String step2,
+            String step3, boolean defaultActive) {
         this.id = id;
         this.name = name;
         this.sourceFormats = sourceFormats;
@@ -92,7 +100,8 @@ public class Transcoding {
     /**
      * Sets the user-defined name.
      *
-     * @param name The user-defined name.
+     * @param name
+     *            The user-defined name.
      */
     public void setName(String name) {
         this.name = name;
@@ -114,7 +123,8 @@ public class Transcoding {
     /**
      * Sets the source formats, e.g., "ogg wav aac".
      *
-     * @param sourceFormats The source formats, e.g., "ogg wav aac".
+     * @param sourceFormats
+     *            The source formats, e.g., "ogg wav aac".
      */
     public void setSourceFormats(String sourceFormats) {
         this.sourceFormats = sourceFormats;
@@ -132,7 +142,8 @@ public class Transcoding {
     /**
      * Sets the target format, e.g., mp3.
      *
-     * @param targetFormat The target format, e.g., mp3.
+     * @param targetFormat
+     *            The target format, e.g., mp3.
      */
     public void setTargetFormat(String targetFormat) {
         this.targetFormat = targetFormat;
@@ -150,7 +161,8 @@ public class Transcoding {
     /**
      * Sets the command to execute in step 1.
      *
-     * @param step1 The command to execute in step 1.
+     * @param step1
+     *            The command to execute in step 1.
      */
     public void setStep1(String step1) {
         this.step1 = step1;
@@ -168,7 +180,8 @@ public class Transcoding {
     /**
      * Sets the command to execute in step 2.
      *
-     * @param step2 The command to execute in step 2.
+     * @param step2
+     *            The command to execute in step 2.
      */
     public void setStep2(String step2) {
         this.step2 = step2;
@@ -186,7 +199,8 @@ public class Transcoding {
     /**
      * Sets the command to execute in step 3.
      *
-     * @param step3 The command to execute in step 3.
+     * @param step3
+     *            The command to execute in step 3.
      */
     public void setStep3(String step3) {
         this.step3 = step3;
@@ -206,6 +220,7 @@ public class Transcoding {
         this.defaultActive = defaultActive;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -218,6 +233,7 @@ public class Transcoding {
         return Objects.equals(id, that.id);
     }
 
+    @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
     }

@@ -16,6 +16,7 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
 
 /**
@@ -24,21 +25,18 @@ package com.tesshu.jpsonic.domain;
 public enum SpeechToTextLangScheme {
 
     /**
-     * Default.
-     * Same as the language specified in your personal settings.
+     * Default. Same as the language specified in your personal settings.
      */
     DEFAULT,
 
     /**
-     * Unspecified explicitly.
-     * (For the browser's Javascript speech recognition
-     * engine, unspecified means the browser agent's language.)
+     * Unspecified explicitly. (For the browser's Javascript speech recognition engine, unspecified means the browser
+     * agent's language.)
      */
-    //UNSPECIFIED,
+    // UNSPECIFIED,
 
     /**
-     * Explicit specification by code.
-     * https://cloud.google.com/speech-to-text/docs/languages
+     * Explicit specification by code. https://cloud.google.com/speech-to-text/docs/languages
      */
     BCP47
 

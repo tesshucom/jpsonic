@@ -17,8 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.AdvancedSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
@@ -34,9 +39,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate advanced settings.
@@ -46,7 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 @Controller
 @RequestMapping("/advancedSettings")
 public class AdvancedSettingsController {
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(AdvancedSettingsController.class);
 
     @Autowired
@@ -80,16 +85,17 @@ public class AdvancedSettingsController {
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-        
-        model.addAttribute("command", command);
+
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "advancedSettings";
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute AdvancedSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute AdvancedSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
-        redirectAttributes.addFlashAttribute("settings_reload", false);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         try { // Should be rewritten if necessary
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
@@ -136,7 +142,7 @@ public class AdvancedSettingsController {
 
         settingsService.save();
 
-        return "redirect:advancedSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.ADVANCED_SETTINGS.value()));
     }
 
 }

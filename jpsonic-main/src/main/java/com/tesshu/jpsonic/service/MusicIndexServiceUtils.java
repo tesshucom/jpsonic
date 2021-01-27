@@ -16,7 +16,17 @@
 
  Copyright 2020 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import com.tesshu.jpsonic.domain.JapaneseReadingUtils;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
@@ -30,27 +40,14 @@ import org.airsonic.player.service.SettingsService;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
-
 /**
- * Utility class for injecting into legacy MusicIndexService. Supplement
- * processing that is lacking in legacy services.
+ * Utility class for injecting into legacy MusicIndexService. Supplement processing that is lacking in legacy services.
  * 
- * Delegate the entire method, because the processing difference from the legacy
- * code is large. The legacy index sort is a "private", basic specification and
- * cannot be changed. In practice, there is an inconsistency in the sorting
- * process, which makes people in languages ​​that are sensitive to sorting feel
- * uncomfortable.
+ * Delegate the entire method, because the processing difference from the legacy code is large. The legacy index sort is
+ * a "private", basic specification and cannot be changed. In practice, there is an inconsistency in the sorting
+ * process, which makes people in languages ​​that are sensitive to sorting feel uncomfortable.
  * 
- * Jpsonic will change these and make the processing as common as possible so
- * that they can be used naturally.
+ * Jpsonic will change these and make the processing as common as possible so that they can be used naturally.
  */
 @Component
 @DependsOn({ "settingsService", "mediaFileService", "japaneseReadingUtils", "jpsonicComparators" })
@@ -61,7 +58,8 @@ public class MusicIndexServiceUtils {
     private final JapaneseReadingUtils utils;
     private final JpsonicComparators comparators;
 
-    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, JapaneseReadingUtils utils, JpsonicComparators comp) {
+    public MusicIndexServiceUtils(SettingsService s, MediaFileService m, JapaneseReadingUtils utils,
+            JpsonicComparators comp) {
         super();
         this.settingsService = s;
         this.mediaFileService = m;
@@ -69,7 +67,7 @@ public class MusicIndexServiceUtils {
         this.comparators = comp;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
     public List<MusicIndex.SortableArtistWithArtist> createSortableArtists(List<Artist> artists) {
         List<MusicIndex.SortableArtistWithArtist> result = new ArrayList<>();
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
@@ -81,8 +79,9 @@ public class MusicIndexServiceUtils {
         return result;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders, boolean refresh) {
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (MusicIndex.~) Not reusable
+    public List<MusicIndex.SortableArtistWithMediaFiles> createSortableArtists(List<MusicFolder> folders,
+            boolean refresh) {
         String[] ignoredArticles = settingsService.getIgnoredArticlesAsArray();
         String[] shortcuts = settingsService.getShortcutsAsArray();
         SortedMap<String, MusicIndex.SortableArtistWithMediaFiles> artistMap = new TreeMap<>();
@@ -111,7 +110,7 @@ public class MusicIndexServiceUtils {
         return new ArrayList<MusicIndex.SortableArtistWithMediaFiles>(artistMap.values());
     }
 
-    private String createSortableName(String name, String[] ignoredArticles) {
+    private String createSortableName(String name, String... ignoredArticles) {
         String uppercaseName = name.toUpperCase(settingsService.getLocale());
         for (String article : ignoredArticles) {
             if (uppercaseName.startsWith(article.toUpperCase(settingsService.getLocale()) + " ")) {

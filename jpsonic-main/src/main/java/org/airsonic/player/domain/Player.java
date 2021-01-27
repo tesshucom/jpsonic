@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.domain;
 
-import org.apache.commons.lang.StringUtils;
+package org.airsonic.player.domain;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
- * Represens a remote player.  A player has a unique ID, a user-defined name, a logged-on user,
- * miscellaneous identifiers, and an associated playlist.
+ * Represens a remote player. A player has a unique ID, a user-defined name, a logged-on user, miscellaneous
+ * identifiers, and an associated playlist.
  *
  * @author Sindre Mehus
  */
@@ -38,9 +39,9 @@ public class Player {
     private String type;
     private String username;
     private String ipAddress;
-    private boolean isDynamicIp = true;
-    private boolean isAutoControlEnabled = true;
-    private boolean isM3uBomEnabled = true;
+    private boolean dynamicIp = true;
+    private boolean autoControlEnabled = true;
+    private boolean m3uBomEnabled = true;
     private Date lastSeen;
     private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
     private PlayQueue playQueue;
@@ -58,7 +59,8 @@ public class Player {
     /**
      * Sets the player ID.
      *
-     * @param id The player ID.
+     * @param id
+     *            The player ID.
      */
     public void setId(Integer id) {
         this.id = id;
@@ -76,7 +78,8 @@ public class Player {
     /**
      * Sets the user-defined player name.
      *
-     * @param name The user-defined player name.
+     * @param name
+     *            The user-defined player name.
      */
     public void setName(String name) {
         this.name = name;
@@ -92,8 +95,7 @@ public class Player {
     }
 
     /**
-     * Returns the third-party client ID (used if this player is managed over the
-     * Airsonic REST API).
+     * Returns the third-party client ID (used if this player is managed over the Airsonic REST API).
      *
      * @return The client ID.
      */
@@ -102,10 +104,10 @@ public class Player {
     }
 
     /**
-     * Sets the third-party client ID (used if this player is managed over the
-     * Airsonic REST API).
+     * Sets the third-party client ID (used if this player is managed over the Airsonic REST API).
      *
-     * @param clientId The client ID.
+     * @param clientId
+     *            The client ID.
      */
     public void setClientId(String clientId) {
         this.clientId = clientId;
@@ -114,7 +116,8 @@ public class Player {
     /**
      * Sets the player "technology", e.g., web, external or jukebox.
      *
-     * @param technology The player technology.
+     * @param technology
+     *            The player technology.
      */
     public void setTechnology(PlayerTechnology technology) {
         this.technology = technology;
@@ -152,7 +155,8 @@ public class Player {
     /**
      * Sets the player type, e.g., WinAmp, iTunes.
      *
-     * @param type The player type.
+     * @param type
+     *            The player type.
      */
     public void setType(String type) {
         this.type = type;
@@ -170,7 +174,8 @@ public class Player {
     /**
      * Sets the logged-in username.
      *
-     * @param username The logged-in username.
+     * @param username
+     *            The logged-in username.
      */
     public void setUsername(String username) {
         this.username = username;
@@ -182,16 +187,17 @@ public class Player {
      * @return Whether the player is automatically started.
      */
     public boolean isAutoControlEnabled() {
-        return isAutoControlEnabled;
+        return autoControlEnabled;
     }
 
     /**
      * Sets whether the player is automatically started.
      *
-     * @param isAutoControlEnabled Whether the player is automatically started.
+     * @param isAutoControlEnabled
+     *            Whether the player is automatically started.
      */
     public void setAutoControlEnabled(boolean isAutoControlEnabled) {
-        this.isAutoControlEnabled = isAutoControlEnabled;
+        this.autoControlEnabled = isAutoControlEnabled;
     }
 
     /**
@@ -200,16 +206,17 @@ public class Player {
      * @return Whether apply BOM mark when generating a M3U file.
      */
     public boolean isM3uBomEnabled() {
-        return isM3uBomEnabled;
+        return m3uBomEnabled;
     }
 
     /**
      * Sets whether apply BOM mark when generating a M3U file.
      *
-     * @param isM3uBomEnabled Whether apply BOM mark when generating a M3U file.
+     * @param isM3uBomEnabled
+     *            Whether apply BOM mark when generating a M3U file.
      */
     public void setM3uBomEnabled(boolean isM3uBomEnabled) {
-        this.isM3uBomEnabled = isM3uBomEnabled;
+        this.m3uBomEnabled = isM3uBomEnabled;
     }
 
     /**
@@ -224,7 +231,8 @@ public class Player {
     /**
      * Sets the time when the player was last seen.
      *
-     * @param lastSeen The time when the player was last seen.
+     * @param lastSeen
+     *            The time when the player was last seen.
      */
     public void setLastSeen(Date lastSeen) {
         this.lastSeen = lastSeen;
@@ -242,7 +250,8 @@ public class Player {
     /**
      * Sets the transcode scheme.
      *
-     * @param transcodeScheme The transcode scheme.
+     * @param transcodeScheme
+     *            The transcode scheme.
      */
     public void setTranscodeScheme(TranscodeScheme transcodeScheme) {
         this.transcodeScheme = transcodeScheme;
@@ -260,7 +269,8 @@ public class Player {
     /**
      * Sets the IP address of the player.
      *
-     * @param ipAddress The IP address of the player.
+     * @param ipAddress
+     *            The IP address of the player.
      */
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
@@ -272,16 +282,17 @@ public class Player {
      * @return Whether this player has a dynamic IP address.
      */
     public boolean isDynamicIp() {
-        return isDynamicIp;
+        return dynamicIp;
     }
 
     /**
      * Sets whether this player has a dynamic IP address.
      *
-     * @param dynamicIp Whether this player has a dynamic IP address.
+     * @param dynamicIp
+     *            Whether this player has a dynamic IP address.
      */
     public void setDynamicIp(boolean dynamicIp) {
-        isDynamicIp = dynamicIp;
+        this.dynamicIp = dynamicIp;
     }
 
     /**
@@ -296,7 +307,8 @@ public class Player {
     /**
      * Sets the player's playlist.
      *
-     * @param playQueue The player's playlist.
+     * @param playQueue
+     *            The player's playlist.
      */
     public void setPlayQueue(PlayQueue playQueue) {
         this.playQueue = playQueue;
@@ -331,7 +343,6 @@ public class Player {
         return "Player " + id;
     }
 
-
     public void setJavaJukeboxMixer(String javaJukeboxMixer) {
         this.javaJukeboxMixer = javaJukeboxMixer;
     }
@@ -340,11 +351,11 @@ public class Player {
         return javaJukeboxMixer;
     }
 
-
     /**
      * Returns a string representation of the player.
      *
      * @return A string representation of the player.
+     * 
      * @see #getDescription()
      */
     @Override

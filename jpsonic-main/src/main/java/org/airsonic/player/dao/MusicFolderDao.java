@@ -17,7 +17,13 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.slf4j.Logger;
@@ -25,11 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
-
-import java.io.File;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Provides database services for music folders.
@@ -70,14 +71,17 @@ public class MusicFolderDao extends AbstractDao {
     /**
      * Creates a new music folder.
      *
-     * @param musicFolder The music folder to create.
+     * @param musicFolder
+     *            The music folder to create.
      */
     public void createMusicFolder(MusicFolder musicFolder) {
         String sql = "insert into music_folder (" + INSERT_COLUMNS + ") values (?, ?, ?, ?)";
-        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(), musicFolder.isEnabled(), musicFolder.getChanged());
+        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(), musicFolder.isEnabled(),
+                musicFolder.getChanged());
 
         Integer id = queryForInt("select max(id) from music_folder", 0);
-        update("insert into music_folder_user (music_folder_id, username) select ?, username from " + userDao.getUserTable(), id);
+        update("insert into music_folder_user (music_folder_id, username) select ?, username from "
+                + userDao.getUserTable(), id);
         if (LOG.isInfoEnabled()) {
             LOG.info("Created music folder " + musicFolder.getPath());
         }
@@ -86,7 +90,8 @@ public class MusicFolderDao extends AbstractDao {
     /**
      * Deletes the music folder with the given ID.
      *
-     * @param id The music folder ID.
+     * @param id
+     *            The music folder ID.
      */
     public void deleteMusicFolder(Integer id) {
         String sql = "delete from music_folder where id=?";
@@ -99,17 +104,18 @@ public class MusicFolderDao extends AbstractDao {
     /**
      * Updates the given music folder.
      *
-     * @param musicFolder The music folder to update.
+     * @param musicFolder
+     *            The music folder to update.
      */
     public void updateMusicFolder(MusicFolder musicFolder) {
         String sql = "update music_folder set path=?, name=?, enabled=?, changed=? where id=?";
-        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(),
-               musicFolder.isEnabled(), musicFolder.getChanged(), musicFolder.getId());
+        update(sql, musicFolder.getPath().getPath(), musicFolder.getName(), musicFolder.isEnabled(),
+                musicFolder.getChanged(), musicFolder.getId());
     }
 
     public List<MusicFolder> getMusicFoldersForUser(String username) {
-        String sql = "select " + prefix(QUERY_COLUMNS, "music_folder") + " from music_folder, music_folder_user " +
-                     "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ?";
+        String sql = "select " + prefix(QUERY_COLUMNS, "music_folder") + " from music_folder, music_folder_user "
+                + "where music_folder.id = music_folder_user.music_folder_id and music_folder_user.username = ?";
         return query(sql, rowMapper, username);
     }
 
@@ -121,8 +127,10 @@ public class MusicFolderDao extends AbstractDao {
     }
 
     private static class MusicFolderRowMapper implements RowMapper<MusicFolder> {
+        @Override
         public MusicFolder mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return new MusicFolder(rs.getInt(1), new File(rs.getString(2)), rs.getString(3), rs.getBoolean(4), rs.getTimestamp(5));
+            return new MusicFolder(rs.getInt(1), new File(rs.getString(2)), rs.getString(3), rs.getBoolean(4),
+                    rs.getTimestamp(5));
         }
     }
 

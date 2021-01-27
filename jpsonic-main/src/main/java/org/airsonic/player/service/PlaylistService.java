@@ -17,7 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistFactory;
@@ -40,19 +53,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-
 /**
  * Provides services for loading and saving playlists to and from persistent storage.
  *
  * @author Sindre Mehus
+ * 
  * @see PlayQueue
  */
 @Service
@@ -74,14 +79,9 @@ public class PlaylistService {
     @Autowired
     private JpsonicComparators comparators;
 
-    public PlaylistService(
-            JMediaFileDao mediaFileDao,
-            JPlaylistDao playlistDao,
-            SecurityService securityService,
-            SettingsService settingsService,
-            List<PlaylistExportHandler> exportHandlers,
-            List<PlaylistImportHandler> importHandlers
-    ) {
+    public PlaylistService(JMediaFileDao mediaFileDao, JPlaylistDao playlistDao, SecurityService securityService,
+            SettingsService settingsService, List<PlaylistExportHandler> exportHandlers,
+            List<PlaylistImportHandler> importHandlers) {
         Assert.notNull(mediaFileDao, "mediaFileDao must not be null");
         Assert.notNull(playlistDao, "playlistDao must not be null");
         Assert.notNull(securityService, "securityservice must not be null");
@@ -198,12 +198,12 @@ public class PlaylistService {
         playlistDao.updatePlaylist(playlist);
     }
 
-    public Playlist importPlaylist(
-            String username, String playlistName, String fileName, InputStream inputStream, Playlist existingPlaylist
-    ) throws Exception {
+    public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
+            Playlist existingPlaylist) throws Exception {
 
         // TODO: handle other encodings
-        final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream, "UTF-8");
+        final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream,
+                "UTF-8");
         if (inputSpecificPlaylist == null) {
             throw new ExecutionException(new IOException("Unsupported playlist " + fileName));
         }
@@ -259,20 +259,14 @@ public class PlaylistService {
     }
 
     private PlaylistImportHandler getImportHandler(SpecificPlaylist playlist) {
-        return importHandlers.stream()
-                             .filter(handler -> handler.canHandle(playlist.getClass()))
-                             .findFirst()
-                             .orElseThrow(() -> new RuntimeException("No import handler for " + playlist.getClass()
-                                                                                                        .getName()));
+        return importHandlers.stream().filter(handler -> handler.canHandle(playlist.getClass())).findFirst()
+                .orElseThrow(() -> new RuntimeException("No import handler for " + playlist.getClass().getName()));
 
     }
 
     private PlaylistExportHandler getExportHandler(SpecificPlaylistProvider provider) {
-        return exportHandlers.stream()
-                             .filter(handler -> handler.canHandle(provider.getClass()))
-                             .findFirst()
-                             .orElseThrow(() -> new RuntimeException("No export handler for " + provider.getClass()
-                                                                                                        .getName()));
+        return exportHandlers.stream().filter(handler -> handler.canHandle(provider.getClass())).findFirst()
+                .orElseThrow(() -> new RuntimeException("No export handler for " + provider.getClass().getName()));
     }
 
     public void importPlaylists() {
@@ -331,8 +325,9 @@ public class PlaylistService {
         }
         try (InputStream in = Files.newInputStream(Paths.get(file.toURI()))) {
             // With the transition away from a hardcoded admin account to Admin Roles, there is no longer
-            //   a specific account to use for auto-imported playlists, so use the first admin account
-            importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName), fileName, in, existingPlaylist);
+            // a specific account to use for auto-imported playlists, so use the first admin account
+            importPlaylist(securityService.getAdminUsername(), FilenameUtils.getBaseName(fileName), fileName, in,
+                    existingPlaylist);
             if (LOG.isInfoEnabled()) {
                 LOG.info("Auto-imported playlist " + file);
             }

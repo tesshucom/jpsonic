@@ -1,9 +1,10 @@
+
 package org.airsonic.player.dao;
+
+import javax.sql.DataSource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
-import javax.sql.DataSource;
 
 public class GenericDaoHelper implements DaoHelper {
 
@@ -13,9 +14,7 @@ public class GenericDaoHelper implements DaoHelper {
 
     final DataSource dataSource;
 
-    public GenericDaoHelper(
-            DataSource dataSource
-    ) {
+    public GenericDaoHelper(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
@@ -34,5 +33,10 @@ public class GenericDaoHelper implements DaoHelper {
     @Override
     public DataSource getDataSource() {
         return dataSource;
+    }
+
+    @Override
+    public void checkpoint() {
+        // Nothing is currently done.
     }
 }

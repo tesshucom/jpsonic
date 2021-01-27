@@ -17,8 +17,16 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
 
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -35,14 +43,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.annotation.PostConstruct;
-
-import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
-
 @Service
-public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
+public class ArtistUpnpProcessor extends UpnpContentProcessor<Artist, Album> {
 
     private final UpnpProcessorUtil util;
     private final JArtistDao artistDao;
@@ -57,10 +59,12 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
     }
 
     @PostConstruct
+    @Override
     public void initTitle() {
         setRootTitleWithResource("dlna.title.artists");
     }
 
+    @Override
     public Container createContainer(Artist artist) {
         MusicArtist container = new MusicArtist();
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + artist.getId());
@@ -83,24 +87,23 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         return artistDao.getAlphabetialArtists((int) offset, (int) maxResults, util.getAllMusicFolders());
     }
 
+    @Override
     public Artist getItemById(String id) {
         return artistDao.getArtist(Integer.parseInt(id));
     }
 
     @Override
     public int getChildSizeOf(Artist artist) {
-        int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(), util.getAllMusicFolders());
+        int size = getDispatcher().getAlbumProcessor().getAlbumsCountForArtist(artist.getName(),
+                util.getAllMusicFolders());
         return size > 1 ? size + 1 : size;
     }
 
     @Override
     public List<Album> getChildren(Artist artist, long offset, long maxResults) {
-        List<Album> albums = getDispatcher().getAlbumProcessor()
-                .getAlbumsForArtist(artist.getName(),
-                        offset > 1 ? offset - 1 : offset,
-                        0L == offset ? maxResults - 1 : maxResults,
-                        util.isSortAlbumsByYear(artist.getName()),
-                        util.getAllMusicFolders());
+        List<Album> albums = getDispatcher().getAlbumProcessor().getAlbumsForArtist(artist.getName(),
+                offset > 1 ? offset - 1 : offset, 0L == offset ? maxResults - 1 : maxResults,
+                util.isSortAlbumsByYear(artist.getName()), util.getAllMusicFolders());
         if (albums.size() > 1 && 0L == offset) {
             Album firstElement = new Album();
             firstElement.setName(util.getResource("dlna.element.allalbums"));
@@ -111,14 +114,15 @@ public class ArtistUpnpProcessor extends UpnpContentProcessor <Artist, Album> {
         return albums;
     }
 
+    @Override
     public void addChild(DIDLContent didl, Album album) {
         didl.addContainer(getDispatcher().getAlbumProcessor().createContainer(album));
     }
 
     public URI createArtistArtURI(Artist artist) {
-        return util.createURIWithToken(UriComponentsBuilder.fromUriString(util.getBaseUrl() + "/ext/coverArt.view")
-                .queryParam("id", coverArtLogic.createKey(artist))
-                .queryParam("size", CoverArtScheme.LARGE.getSize()));
+        return util.createURIWithToken(UriComponentsBuilder
+                .fromUriString(util.getBaseUrl() + "/ext/" + ViewName.COVER_ART.value())
+                .queryParam("id", coverArtLogic.createKey(artist)).queryParam("size", CoverArtScheme.LARGE.getSize()));
     }
 
     public final BrowseResult toBrowseResult(ParamSearchResult<Artist> result) {

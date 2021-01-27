@@ -1,4 +1,12 @@
+
 package org.airsonic.player.service.search;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.dao.DaoHelper;
@@ -19,13 +27,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
-
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
@@ -54,16 +55,15 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     };
 
     /*
-     * Currently, Maven is executing test classes in series,
-     * so this class can hold the state.
-     * When executing in parallel, subclasses should override this.
+     * Currently, Maven is executing test classes in series, so this class can hold the state. When executing in
+     * parallel, subclasses should override this.
      */
     private static AtomicBoolean dataBasePopulated = new AtomicBoolean();
 
     // Above.
     private static AtomicBoolean dataBaseReady = new AtomicBoolean();
 
-    protected final static Function<String, String> resolveBaseMediaPath = (childPath) -> {
+    protected static final Function<String, String> resolveBaseMediaPath = (childPath) -> {
         return MusicFolderTestData.resolveBaseMediaPath().concat(childPath);
     };
 
@@ -148,13 +148,8 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                 LOG.debug("--- Report of records count per table ---");
             }
             Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-            records.keySet().stream().filter(s ->
-                    s.equals("MEDIA_FILE")
-                    | s.equals("ARTIST")
-                    | s.equals("MUSIC_FOLDER")
-                    | s.equals("ALBUM")
-                    | s.equals("GENRE"))
-                    .forEach(tableName -> {
+            records.keySet().stream().filter(s -> s.equals("MEDIA_FILE") | s.equals("ARTIST") | s.equals("MUSIC_FOLDER")
+                    | s.equals("ALBUM") | s.equals("GENRE")).forEach(tableName -> {
                         if (LOG.isInfoEnabled()) {
                             LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
                         }

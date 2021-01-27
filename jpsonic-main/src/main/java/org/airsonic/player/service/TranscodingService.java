@@ -17,7 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.apache.commons.lang3.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.airsonic.player.controller.VideoPlayerController;
 import org.airsonic.player.dao.TranscodingDao;
@@ -40,23 +52,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.apache.commons.lang3.ObjectUtils.isEmpty;
-
 /**
- * Provides services for transcoding media. Transcoding is the process of
- * converting a media file/stream to a different format and/or bit rate. The latter is
- * also called downsampling.
+ * Provides services for transcoding media. Transcoding is the process of converting a media file/stream to a different
+ * format and/or bit rate. The latter is also called downsampling.
  *
  * @author Sindre Mehus
+ * 
  * @see TranscodeInputStream
  */
 @Service
@@ -85,7 +86,9 @@ public class TranscodingService {
     /**
      * Returns all active transcodings for the given player. Only enabled transcodings are returned.
      *
-     * @param player The player.
+     * @param player
+     *            The player.
+     * 
      * @return All active transcodings for the player.
      */
     public List<Transcoding> getTranscodingsForPlayer(Player player) {
@@ -96,18 +99,22 @@ public class TranscodingService {
     /**
      * Sets the list of active transcodings for the given player.
      *
-     * @param player         The player.
-     * @param transcodingIds ID's of the active transcodings.
+     * @param player
+     *            The player.
+     * @param transcodingIds
+     *            ID's of the active transcodings.
      */
-    public void setTranscodingsForPlayer(Player player, int[] transcodingIds) {
+    public void setTranscodingsForPlayer(Player player, int... transcodingIds) {
         transcodingDao.setTranscodingsForPlayer(player.getId(), transcodingIds);
     }
 
     /**
      * Sets the list of active transcodings for the given player.
      *
-     * @param player       The player.
-     * @param transcodings The active transcodings.
+     * @param player
+     *            The player.
+     * @param transcodings
+     *            The active transcodings.
      */
     public void setTranscodingsForPlayer(Player player, List<Transcoding> transcodings) {
         int[] transcodingIds = new int[transcodings.size()];
@@ -117,11 +124,11 @@ public class TranscodingService {
         setTranscodingsForPlayer(player, transcodingIds);
     }
 
-
     /**
      * Creates a new transcoding.
      *
-     * @param transcoding The transcoding to create.
+     * @param transcoding
+     *            The transcoding to create.
      */
     public void createTranscoding(Transcoding transcoding) {
         transcodingDao.createTranscoding(transcoding);
@@ -141,7 +148,8 @@ public class TranscodingService {
     /**
      * Deletes the transcoding with the given ID.
      *
-     * @param id The transcoding ID.
+     * @param id
+     *            The transcoding ID.
      */
     public void deleteTranscoding(Integer id) {
         transcodingDao.deleteTranscoding(id);
@@ -150,7 +158,8 @@ public class TranscodingService {
     /**
      * Updates the given transcoding.
      *
-     * @param transcoding The transcoding to update.
+     * @param transcoding
+     *            The transcoding to update.
      */
     public void updateTranscoding(Transcoding transcoding) {
         transcodingDao.updateTranscoding(transcoding);
@@ -159,10 +168,13 @@ public class TranscodingService {
     /**
      * Returns whether transcoding is required for the given media file and player combination.
      *
-     * @param mediaFile The media file.
-     * @param player    The player.
-     * @return Whether transcoding  will be performed if invoking the
-     *         {@link #getTranscodedInputStream} method with the same arguments.
+     * @param mediaFile
+     *            The media file.
+     * @param player
+     *            The player.
+     * 
+     * @return Whether transcoding will be performed if invoking the {@link #getTranscodedInputStream} method with the
+     *         same arguments.
      */
     public boolean isTranscodingRequired(MediaFile mediaFile, Player player) {
         return getTranscoding(mediaFile, player, null, false) != null;
@@ -171,9 +183,13 @@ public class TranscodingService {
     /**
      * Returns the suffix for the given player and media file, taking transcodings into account.
      *
-     * @param player                The player in question.
-     * @param file                  The media file.
-     * @param preferredTargetFormat Used to select among multiple applicable transcodings. May be {@code null}.
+     * @param player
+     *            The player in question.
+     * @param file
+     *            The media file.
+     * @param preferredTargetFormat
+     *            Used to select among multiple applicable transcodings. May be {@code null}.
+     * 
      * @return The file suffix, e.g., "mp3".
      */
     public String getSuffix(Player player, MediaFile file, String preferredTargetFormat) {
@@ -184,24 +200,30 @@ public class TranscodingService {
     /**
      * Creates parameters for a possibly transcoded input stream for the given media file and player combination.
      * <p/>
-     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the
-     * given player, and either the desired format or bitrate needs changing.
+     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the given
+     * player, and either the desired format or bitrate needs changing.
      * <p/>
      * Otherwise, a normal input stream to the original file is returned.
      *
-     * @param mediaFile                The media file.
-     * @param player                   The player.
-     * @param maxBitRate               Overrides the per-player and per-user bitrate limit. May be {@code null}.
-     * @param preferredTargetFormat    Used to select among multiple applicable transcodings. May be {@code null}.
-     * @param videoTranscodingSettings Parameters used when transcoding video. May be {@code null}.
+     * @param mediaFile
+     *            The media file.
+     * @param player
+     *            The player.
+     * @param maxBitRate
+     *            Overrides the per-player and per-user bitrate limit. May be {@code null}.
+     * @param preferredTargetFormat
+     *            Used to select among multiple applicable transcodings. May be {@code null}.
+     * @param videoTranscodingSettings
+     *            Parameters used when transcoding video. May be {@code null}.
+     * 
      * @return Parameters to be used in the {@link #getTranscodedInputStream} method.
      */
-    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate, String preferredTargetFormat,
-                                    VideoTranscodingSettings videoTranscodingSettings) {
+    public Parameters getParameters(MediaFile mediaFile, Player player, final Integer maxBitRate,
+            String preferredTargetFormat, VideoTranscodingSettings videoTranscodingSettings) {
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
-        Integer mb = maxBitRate; 
+        Integer mb = maxBitRate;
         if (maxBitRate == null) {
             mb = TranscodeScheme.OFF.getMaxBitRate();
         }
@@ -209,8 +231,6 @@ public class TranscodingService {
         TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(mb));
         mb = transcodeScheme.getMaxBitRate();
 
-        boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
-        Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
         Integer bitRate = mediaFile.getBitRate();
         if (bitRate == null) {
             // Assume unlimited bitrate
@@ -236,8 +256,10 @@ public class TranscodingService {
             mb = bitRate;
         }
 
-        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb) ||
-            preferredTargetFormat != null && ! mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
+        boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
+        Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
+        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
+                || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
             parameters.setTranscoding(transcoding);
         }
 
@@ -250,17 +272,21 @@ public class TranscodingService {
     /**
      * Returns a possibly transcoded or downsampled input stream for the given music file and player combination.
      * <p/>
-     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the
-     * given player.
+     * A transcoding is applied if it is applicable for the format of the given file, and is activated for the given
+     * player.
      * <p/>
-     * If no transcoding is applicable, the file may still be downsampled, given that the player is configured
-     * with a bit rate limit which is higher than the actual bit rate of the file.
+     * If no transcoding is applicable, the file may still be downsampled, given that the player is configured with a
+     * bit rate limit which is higher than the actual bit rate of the file.
      * <p/>
      * Otherwise, a normal input stream to the original file is returned.
      *
-     * @param parameters As returned by {@link #getParameters}.
+     * @param parameters
+     *            As returned by {@link #getParameters}.
+     * 
      * @return A possible transcoded or downsampled input stream.
-     * @throws IOException If an I/O error occurs.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
     public InputStream getTranscodedInputStream(Parameters parameters) throws IOException {
         try {
@@ -271,16 +297,17 @@ public class TranscodingService {
 
         } catch (IOException x) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed: {}. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
+                LOG.warn("Transcoder failed: {}. Using original: "
+                        + parameters.getMediaFile().getFile().getAbsolutePath(), x.toString());
             }
         } catch (Exception x) {
             if (LOG.isWarnEnabled()) {
-                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(), x);
+                LOG.warn("Transcoder failed. Using original: " + parameters.getMediaFile().getFile().getAbsolutePath(),
+                        x);
             }
         }
         return Files.newInputStream(Paths.get(parameters.getMediaFile().getFile().toURI()));
     }
-
 
     /**
      * Returns the strictest transcoding scheme defined for the player and the user.
@@ -298,12 +325,15 @@ public class TranscodingService {
     /**
      * Returns an input stream by applying the given transcoding to the given music file.
      *
-     * @param parameters Transcoding parameters.
+     * @param parameters
+     *            Transcoding parameters.
+     * 
      * @return The transcoded input stream.
-     * @throws IOException If an I/O error occurs.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
-    private InputStream createTranscodedInputStream(Parameters parameters)
-            throws IOException {
+    private InputStream createTranscodedInputStream(Parameters parameters) throws IOException {
 
         Transcoding transcoding = parameters.getTranscoding();
         Integer maxBitRate = parameters.getMaxBitRate();
@@ -313,21 +343,24 @@ public class TranscodingService {
         if (!isEmpty(transcoding.getStep2()) && !isEmpty(transcoding.getStep3())) {
             return createTranscodeInputStream(transcoding.getStep3(), maxBitRate, videoTranscodingSettings, mediaFile,
                     createTranscodeInputStream(transcoding.getStep2(), maxBitRate, videoTranscodingSettings, mediaFile,
-                            createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null)));
+                            createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings,
+                                    mediaFile, null)));
         } else if (!isEmpty(transcoding.getStep2())) {
             return createTranscodeInputStream(transcoding.getStep2(), maxBitRate, videoTranscodingSettings, mediaFile,
-                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null));
+                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile,
+                            null));
         } else if (!isEmpty(transcoding.getStep3())) {
             return createTranscodeInputStream(transcoding.getStep3(), maxBitRate, videoTranscodingSettings, mediaFile,
-                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null));
+                    createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile,
+                            null));
         }
 
-        return createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile, null);
+        return createTranscodeInputStream(transcoding.getStep1(), maxBitRate, videoTranscodingSettings, mediaFile,
+                null);
     }
 
     /**
-     * Creates a transcoded input stream by interpreting the given command line string.
-     * This includes the following:
+     * Creates a transcoded input stream by interpreting the given command line string. This includes the following:
      * <ul>
      * <li>Splitting the command line string to an array.</li>
      * <li>Replacing occurrences of "%s" with the path of the given music file.</li>
@@ -342,15 +375,20 @@ public class TranscodingService {
      * <li>Prepending the path of the transcoder directory if the transcoder is found there.</li>
      * </ul>
      *
-     * @param command                  The command line string.
-     * @param maxBitRate               The maximum bitrate to use. May not be {@code null}.
-     * @param videoTranscodingSettings Parameters used when transcoding video. May be {@code null}.
-     * @param mediaFile                The media file.
-     * @param in                       Data to feed to the process.  May be {@code null}.  @return The newly created input stream.
+     * @param command
+     *            The command line string.
+     * @param maxBitRate
+     *            The maximum bitrate to use. May not be {@code null}.
+     * @param videoTranscodingSettings
+     *            Parameters used when transcoding video. May be {@code null}.
+     * @param mediaFile
+     *            The media file.
+     * @param in
+     *            Data to feed to the process. May be {@code null}. @return The newly created input stream.
      */
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
     private TranscodeInputStream createTranscodeInputStream(String command, Integer maxBitRate,
-                                                            VideoTranscodingSettings videoTranscodingSettings, MediaFile mediaFile, InputStream in) throws IOException {
+            VideoTranscodingSettings videoTranscodingSettings, MediaFile mediaFile, InputStream in) throws IOException {
 
         String title = mediaFile.getTitle();
         String album = mediaFile.getAlbumName();
@@ -421,13 +459,14 @@ public class TranscodingService {
     }
 
     /**
-     * Returns an applicable transcoding for the given file and player, or <code>null</code> if no
-     * transcoding should be done.
+     * Returns an applicable transcoding for the given file and player, or <code>null</code> if no transcoding should be
+     * done.
      */
     private Transcoding getTranscoding(MediaFile mediaFile, Player player, String preferredTargetFormat, boolean hls) {
 
         if (hls) {
-            return new Transcoding(null, "hls", mediaFile.getFormat(), "ts", settingsService.getHlsCommand(), null, null, true);
+            return new Transcoding(null, "hls", mediaFile.getFormat(), "ts", settingsService.getHlsCommand(), null,
+                    null, true);
         }
 
         if (FORMAT_RAW.equals(preferredTargetFormat)) {
@@ -439,15 +478,16 @@ public class TranscodingService {
 
         // This is what I'd like todo, but this will most likely break video transcoding as video transcoding is
         // never expected to be null
-//        if(StringUtils.equalsIgnoreCase(preferredTargetFormat, suffix)) {
-//            LOG.debug("Target formats are the same, returning no transcoding");
-//            return null;
-//        }
+        // if(StringUtils.equalsIgnoreCase(preferredTargetFormat, suffix)) {
+        // LOG.debug("Target formats are the same, returning no transcoding");
+        // return null;
+        // }
 
         List<Transcoding> transcodingsForPlayer = getTranscodingsForPlayer(player);
         for (Transcoding transcoding : transcodingsForPlayer) {
             // special case for now as video must have a transcoding
-            if (mediaFile.isVideo() && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
+            if (mediaFile.isVideo()
+                    && StringUtils.equalsIgnoreCase(preferredTargetFormat, transcoding.getTargetFormat())) {
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Detected source to target format match for video");
                 }
@@ -478,13 +518,15 @@ public class TranscodingService {
     /**
      * Returns whether transcoding is supported (i.e. whether ffmpeg is installed or not).
      *
-     * @param mediaFile If not null, returns whether transcoding is supported for this file.
+     * @param mediaFile
+     *            If not null, returns whether transcoding is supported for this file.
+     * 
      * @return Whether transcoding is supported.
      */
     public boolean isTranscodingSupported(MediaFile mediaFile) {
         List<Transcoding> transcodings = getAllTranscodings();
         for (Transcoding transcoding : transcodings) {
-            if (! isTranscodingInstalled(transcoding)) {
+            if (!isTranscodingInstalled(transcoding)) {
                 continue;
             }
             if (mediaFile == null) {
@@ -500,9 +542,8 @@ public class TranscodingService {
     }
 
     private boolean isTranscodingInstalled(Transcoding transcoding) {
-        return isTranscodingStepInstalled(transcoding.getStep1()) &&
-                isTranscodingStepInstalled(transcoding.getStep2()) &&
-                isTranscodingStepInstalled(transcoding.getStep3());
+        return isTranscodingStepInstalled(transcoding.getStep1()) && isTranscodingStepInstalled(transcoding.getStep2())
+                && isTranscodingStepInstalled(transcoding.getStep3());
     }
 
     private boolean isTranscodingStepInstalled(String step) {
@@ -542,7 +583,7 @@ public class TranscodingService {
         }
 
         // Over-estimate size a bit (2 seconds) so don't cut off early in case of small calculation differences
-        return (duration + 2) * (long)maxBitRate * 1000L / 8L;
+        return (duration + 2) * (long) maxBitRate * 1000L / 8L;
     }
 
     private boolean isRangeAllowed(Parameters parameters) {
@@ -551,7 +592,7 @@ public class TranscodingService {
         if (transcoding != null) {
             steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
         } else {
-            return true;  // not transcoding
+            return true; // not transcoding
         }
 
         // Verify that were able to predict the length

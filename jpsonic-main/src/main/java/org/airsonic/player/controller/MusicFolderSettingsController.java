@@ -17,8 +17,21 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import static org.springframework.util.StringUtils.isEmpty;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.MusicFolderSettingsCommand;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -41,17 +54,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.StringUtils.isEmpty;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the set of music folders.
@@ -88,9 +93,9 @@ public class MusicFolderSettingsController {
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request,
-            @RequestParam(value = "scanNow",required = false) String scanNow,
-            @RequestParam(value = "expunge",required = false) String expunge,
-            @RequestParam("toast") Optional<Boolean> toast, Model model) {
+            @RequestParam(value = Attributes.Request.NameConstants.SCAN_NOW, required = false) String scanNow,
+            @RequestParam(value = Attributes.Request.NameConstants.EXPUNGE, required = false) String expunge,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
         if (!isEmpty(scanNow)) {
@@ -119,7 +124,7 @@ public class MusicFolderSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     private void expunge() {
@@ -135,12 +140,11 @@ public class MusicFolderSettingsController {
         MediaLibraryStatistics statistics = indexManager.getStatistics();
 
         /*
-         * indexManager#expunge depends on DB delete flag.
-         * For consistency, clean of DB and Lucene must run in one block.
+         * indexManager#expunge depends on DB delete flag. For consistency, clean of DB and Lucene must run in one
+         * block.
          *
-         * Lucene's writing is exclusive.
-         * This process cannot be performed
-         * while during scan or scan has never been performed.
+         * Lucene's writing is exclusive. This process cannot be performed while during scan or scan has never been
+         * performed.
          */
         if (statistics != null && !mediaScannerService.isScanning()) {
 
@@ -175,7 +179,8 @@ public class MusicFolderSettingsController {
             mediaFileDao.checkpoint();
 
         } else {
-            LOG.warn("Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
+            LOG.warn(
+                    "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
 
         isExpunging.set(false);
@@ -183,11 +188,13 @@ public class MusicFolderSettingsController {
     }
 
     private List<MusicFolderSettingsCommand.MusicFolderInfo> wrap(List<MusicFolder> musicFolders) {
-        return musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new).collect(Collectors.toCollection(ArrayList::new));
+        return musicFolders.stream().map(MusicFolderSettingsCommand.MusicFolderInfo::new)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute("command") MusicFolderSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView onSubmit(@ModelAttribute(Attributes.Model.Command.VALUE) MusicFolderSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         for (MusicFolderSettingsCommand.MusicFolderInfo musicFolderInfo : command.getMusicFolders()) {
             if (musicFolderInfo.isDelete()) {
@@ -215,10 +222,11 @@ public class MusicFolderSettingsController {
 
         settingsService.save();
 
-        redirectAttributes.addFlashAttribute("settings_reload", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
         mediaScannerService.schedule();
-        return "redirect:musicFolderSettings.view";
+
+        return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
     }
 
 }

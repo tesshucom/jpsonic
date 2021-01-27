@@ -17,22 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.io;
 
-import org.airsonic.player.util.FileUtil;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player.io;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.airsonic.player.util.FileUtil;
+import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
- * Subclass of {@link InputStream} which provides on-the-fly transcoding.
- * Instances of <code>TranscodeInputStream</code> can be chained together, for instance to convert
- * from OGG to WAV to MP3.
+ * Subclass of {@link InputStream} which provides on-the-fly transcoding. Instances of <code>TranscodeInputStream</code>
+ * can be chained together, for instance to convert from OGG to WAV to MP3.
  *
  * @author Sindre Mehus
  */
@@ -46,15 +46,19 @@ public final class TranscodeInputStream extends InputStream {
     private final File tmpFile;
 
     /**
-     * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null,
-     * data from it is copied to the command.
+     * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null, data from it
+     * is copied to the command.
      *
-     * @param processBuilder Used to create the external process.
-     * @param in Data to feed to the process.  May be {@code null}.
-     * @param tmpFile Temporary file to delete when this stream is closed.  May be {@code null}.
-     * @throws IOException If an I/O error occurs.
+     * @param processBuilder
+     *            Used to create the external process.
+     * @param in
+     *            Data to feed to the process. May be {@code null}.
+     * @param tmpFile
+     *            Temporary file to delete when this stream is closed. May be {@code null}.
+     * 
+     * @throws IOException
+     *             If an I/O error occurs.
      */
-    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" }) // TODO #581
     public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile) throws IOException {
         this.tmpFile = tmpFile;
 
@@ -74,24 +78,41 @@ public final class TranscodeInputStream extends InputStream {
 
         // Copy data in a separate thread
         if (in != null) {
-            new Thread(name + " TranscodedInputStream copy thread") {
-                public void run() {
-                    try {
-                        IOUtils.copy(in, processOutputStream);
-                    } catch (IOException x) {
-                        // Intentionally ignored. Will happen if the remote player closes the stream.
-                    } finally {
-                        FileUtil.closeQuietly(in);
-                        FileUtil.closeQuietly(processOutputStream);
-                    }
-                }
-            }.start();
+            new TranscodedInputStreamThread(name, in, processOutputStream).start();
+        }
+    }
+
+    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" })
+    /*
+     * [UseTryWithResources] False positive. pmd/pmd/issues/2882 [EmptyCatchBlock] Triage in #824
+     */
+    private static class TranscodedInputStreamThread extends Thread {
+        final InputStream in;
+        final OutputStream out;
+
+        public TranscodedInputStreamThread(String name, InputStream in, OutputStream out) {
+            super(name + " TranscodedInputStream copy thread");
+            this.in = in;
+            this.out = out;
+        }
+
+        @Override
+        public void run() {
+            try {
+                IOUtils.copy(in, out);
+            } catch (IOException x) {
+                // Intentionally ignored. Will happen if the remote player closes the stream.
+            } finally {
+                FileUtil.closeQuietly(in);
+                FileUtil.closeQuietly(out);
+            }
         }
     }
 
     /**
      * @see InputStream#read()
      */
+    @Override
     public int read() throws IOException {
         return processInputStream.read();
     }
@@ -99,6 +120,7 @@ public final class TranscodeInputStream extends InputStream {
     /**
      * @see InputStream#read(byte[])
      */
+    @Override
     public int read(byte[] b) throws IOException {
         return processInputStream.read(b);
     }
@@ -106,6 +128,7 @@ public final class TranscodeInputStream extends InputStream {
     /**
      * @see InputStream#read(byte[], int, int)
      */
+    @Override
     public int read(byte[] b, int off, int len) throws IOException {
         return processInputStream.read(b, off, len);
     }
@@ -113,6 +136,7 @@ public final class TranscodeInputStream extends InputStream {
     /**
      * @see InputStream#close()
      */
+    @Override
     public void close() {
         FileUtil.closeQuietly(processInputStream);
         FileUtil.closeQuietly(processOutputStream);

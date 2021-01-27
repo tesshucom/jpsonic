@@ -17,16 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
+
+import java.util.Date;
+import java.util.List;
 
 import org.airsonic.player.controller.PlayerSettingsController;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.Transcoding;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Command used in {@link PlayerSettingsController}.
@@ -39,9 +40,9 @@ public class PlayerSettingsCommand {
     private String description;
     private String type;
     private Date lastSeen;
-    private boolean isDynamicIp;
-    private boolean isAutoControlEnabled;
-    private boolean isM3uBomEnabled;
+    private boolean dynamicIp;
+    private boolean autoControlEnabled;
+    private boolean m3uBomEnabled;
     private String technologyName;
     private String transcodeSchemeName;
     private boolean transcodingSupported;
@@ -51,7 +52,7 @@ public class PlayerSettingsCommand {
     private EnumHolder[] technologyHolders;
     private EnumHolder[] transcodeSchemeHolders;
     private Player[] players;
-    private boolean isAdmin;
+    private boolean admin;
     private String javaJukeboxMixer;
     private String[] javaJukeboxMixers;
     private boolean openDetailSetting;
@@ -100,27 +101,27 @@ public class PlayerSettingsCommand {
     }
 
     public boolean isDynamicIp() {
-        return isDynamicIp;
+        return dynamicIp;
     }
 
     public void setDynamicIp(boolean dynamicIp) {
-        isDynamicIp = dynamicIp;
+        this.dynamicIp = dynamicIp;
     }
 
     public boolean isAutoControlEnabled() {
-        return isAutoControlEnabled;
+        return autoControlEnabled;
     }
 
     public void setAutoControlEnabled(boolean autoControlEnabled) {
-        isAutoControlEnabled = autoControlEnabled;
+        this.autoControlEnabled = autoControlEnabled;
     }
 
     public boolean isM3uBomEnabled() {
-        return isM3uBomEnabled;
+        return m3uBomEnabled;
     }
 
     public void setM3uBomEnabled(boolean m3uBomEnabled) {
-        isM3uBomEnabled = m3uBomEnabled;
+        this.m3uBomEnabled = m3uBomEnabled;
     }
 
     public String getTranscodeSchemeName() {
@@ -159,17 +160,18 @@ public class PlayerSettingsCommand {
         return activeTranscodingIds;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setActiveTranscodingIds(int[] activeTranscodingIds) {
-        this.activeTranscodingIds = activeTranscodingIds;
+    public void setActiveTranscodingIds(int... activeTranscodingIds) {
+        if (activeTranscodingIds != null) {
+            this.activeTranscodingIds = activeTranscodingIds.clone();
+        }
     }
 
     public EnumHolder[] getTechnologyHolders() {
         return technologyHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public void setTechnologies(PlayerTechnology[] technologies) {
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
+    public void setTechnologies(PlayerTechnology... technologies) {
         technologyHolders = new EnumHolder[technologies.length];
         for (int i = 0; i < technologies.length; i++) {
             PlayerTechnology technology = technologies[i];
@@ -181,8 +183,8 @@ public class PlayerSettingsCommand {
         return transcodeSchemeHolders;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
-    public void setTranscodeSchemes(TranscodeScheme[] transcodeSchemes) {
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (EnumHolder) Not reusable -> #832
+    public void setTranscodeSchemes(TranscodeScheme... transcodeSchemes) {
         transcodeSchemeHolders = new EnumHolder[transcodeSchemes.length];
         for (int i = 0; i < transcodeSchemes.length; i++) {
             TranscodeScheme scheme = transcodeSchemes[i];
@@ -202,17 +204,18 @@ public class PlayerSettingsCommand {
         return players;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setPlayers(Player[] players) {
-        this.players = players;
+    public void setPlayers(Player... players) {
+        if (players != null) {
+            this.players = players.clone();
+        }
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return admin;
     }
 
     public void setAdmin(boolean admin) {
-        isAdmin = admin;
+        this.admin = admin;
     }
 
     public String getJavaJukeboxMixer() {
@@ -227,9 +230,10 @@ public class PlayerSettingsCommand {
         return javaJukeboxMixers;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setJavaJukeboxMixers(String[] javaJukeboxMixers) {
-        this.javaJukeboxMixers = javaJukeboxMixers;
+    public void setJavaJukeboxMixers(String... javaJukeboxMixers) {
+        if (javaJukeboxMixers != null) {
+            this.javaJukeboxMixers = javaJukeboxMixers.clone();
+        }
     }
 
     public boolean isOpenDetailSetting() {
@@ -269,11 +273,11 @@ public class PlayerSettingsCommand {
      */
     public static class TranscodingHolder {
         private Transcoding transcoding;
-        private boolean isActive;
+        private boolean active;
 
         public TranscodingHolder(Transcoding transcoding, boolean isActive) {
             this.transcoding = transcoding;
-            this.isActive = isActive;
+            this.active = isActive;
         }
 
         public Transcoding getTranscoding() {
@@ -281,7 +285,7 @@ public class PlayerSettingsCommand {
         }
 
         public boolean isActive() {
-            return isActive;
+            return active;
         }
     }
 }

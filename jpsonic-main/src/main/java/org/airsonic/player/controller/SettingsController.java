@@ -17,8 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,8 +31,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Controller for the main settings page.
@@ -44,13 +46,10 @@ public class SettingsController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) {
-
         User user = securityService.getCurrentUser(request);
-
         // Redirect to music folder settings if admin.
-        String view = user.isAdminRole() ? "musicFolderSettings.view" : "personalSettings.view";
-
-        return new ModelAndView(new RedirectView(view));
+        return new ModelAndView(new RedirectView(
+                user.isAdminRole() ? ViewName.MUSIC_FOLDER_SETTINGS.value() : ViewName.PERSONAL_SETTINGS.value()));
     }
 
 }

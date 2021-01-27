@@ -1,12 +1,5 @@
-package org.airsonic.player.util;
 
-import com.tesshu.jpsonic.SuppressFBWarnings;
-import org.airsonic.player.service.SettingsService;
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
+package org.airsonic.player.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -26,9 +19,21 @@ import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
+import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.spring.AirsonicHsqlDatabase;
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
+
 public class LegacyHsqlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyHsqlUtil.class);
+
+    public static final String UPGRADE_NEEDED_VERSION1 = "1.8.0";
+    public static final String UPGRADE_NEEDED_VERSION2 = "1.8.1";
 
     /**
      * Return the current version of the HSQLDB database, as reported by the database properties file.
@@ -66,11 +71,8 @@ public class LegacyHsqlUtil {
     /**
      * Check if a HSQLDB database upgrade will occur and backups are needed.
      *
-     * DB   Driver      Likely reason                                Decision
-     * null -           new db or non-legacy                         false
-     * -    null or !2  something went wrong, we better make copies  true
-     * 1.x  2.x         this is the big upgrade                      true
-     * 2.x  2.x         already up to date                           false
+     * DB Driver Likely reason Decision null - new db or non-legacy false - null or !2 something went wrong, we better
+     * make copies true 1.x 2.x this is the big upgrade true 2.x 2.x already up to date false
      *
      * @return true if a database backup/migration should be performed
      */
@@ -87,23 +89,21 @@ public class LegacyHsqlUtil {
         // Check the database driver version
         String driverVersion;
         try {
-            Driver driver =
-                    (Driver) Class.forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
-                    .getDeclaredConstructor()
-                    .newInstance();
+            Driver driver = (Driver) Class
+                    .forName("org.hsqldb.jdbc.JDBCDriver", true, Thread.currentThread().getContextClassLoader())
+                    .getDeclaredConstructor().newInstance();
             driverVersion = String.format("%d.%d", driver.getMajorVersion(), driver.getMinorVersion());
-            if (driver.getMajorVersion() != 2) {
-                LOG.warn("HSQLDB database driver version {} is untested ; trying to connect anyway, this may upgrade the database from version {}", driverVersion, currentVersion);
+            if (driver.getMajorVersion() != AirsonicHsqlDatabase.CURRENT_SUPPORTED_MAJOR_VERSION) {
+                LOG.warn(
+                        "HSQLDB database driver version {} is untested ; trying to connect anyway, this may upgrade the database from version {}",
+                        driverVersion, currentVersion);
                 return true;
             }
-        } catch (InstantiationException
-                | IllegalAccessException
-                | IllegalArgumentException
-                | InvocationTargetException
-                | NoSuchMethodException
-                | SecurityException
-                | ClassNotFoundException e) {
-            LOG.warn("HSQLDB database driver version cannot be determined ; trying to connect anyway, this may upgrade the database from version {}", currentVersion, e);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException | ClassNotFoundException e) {
+            LOG.warn(
+                    "HSQLDB database driver version cannot be determined ; trying to connect anyway, this may upgrade the database from version {}",
+                    currentVersion, e);
             return true;
         }
 
@@ -117,11 +117,13 @@ public class LegacyHsqlUtil {
         } else if (currentVersion.startsWith("2.")) {
             // If the database version is 2.x but older than the driver, the upgrade should be relatively painless.
             if (LOG.isDebugEnabled()) {
-                LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion, driverVersion);
+                LOG.debug("HSQLDB database will be silently upgraded from version {} to {}", currentVersion,
+                        driverVersion);
             }
             return false;
-        } else if ("1.8.0".equals(currentVersion) || "1.8.1".equals(currentVersion)) {
-            // If we're on a 1.8.0 or 1.8.1 database and upgrading to 2.x, we're going to handle this manually and check what we're doing.
+        } else if (UPGRADE_NEEDED_VERSION1.equals(currentVersion) || UPGRADE_NEEDED_VERSION2.equals(currentVersion)) {
+            // If we're on a 1.8.0 or 1.8.1 database and upgrading to 2.x, we're going to handle this manually and check
+            // what we're doing.
             if (LOG.isInfoEnabled()) {
                 LOG.info("HSQLDB database upgrade needed, from version {} to {}", currentVersion, driverVersion);
             }
@@ -135,6 +137,7 @@ public class LegacyHsqlUtil {
 
     /**
      * Perform a backup of the HSQLDB database, to a timestamped directory.
+     * 
      * @return the path to the backup directory
      */
     public static Path performHsqldbDatabaseBackup() throws IOException {
@@ -150,8 +153,7 @@ public class LegacyHsqlUtil {
         }
 
         String timestamp = DateTimeFormatter.ofPattern("yyyyMMddHHmmss").format(LocalDateTime.now());
-        Path destination = source
-                .resolveSibling(String.format("%s.backup.%s", fileName, timestamp));
+        Path destination = source.resolveSibling(String.format("%s.backup.%s", fileName, timestamp));
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Performing HSQLDB database backup...");
@@ -196,17 +198,15 @@ public class LegacyHsqlUtil {
                     writer.write(setRegularNamesFalse + System.getProperty("line.separator"));
                     writer.write(line + System.getProperty("line.separator"));
                     int i = 1;
-                    while (null != (line = reader.readLine())) {
+                    for (line = reader.readLine(); line != null; line = reader.readLine()) {
                         i++;
                         writer.write(line + System.getProperty("line.separator"));
                         if (i % 100 == 0) {
                             writer.flush();
                         }
                     }
-                    writer.close();
                 }
             }
-            reader.close();
         }
     }
 
@@ -225,7 +225,8 @@ public class LegacyHsqlUtil {
         // prevent further connections to the database.
         try (Connection conn = getHsqldbDatabaseConnection()) {
             if (LOG.isDebugEnabled()) {
-                LOG.debug("Database connection established. Current version is: {}", conn.getMetaData().getDatabaseProductVersion());
+                LOG.debug("Database connection established. Current version is: {}",
+                        conn.getMetaData().getDatabaseProductVersion());
             }
             // On upgrade, the official documentation recommends that we
             // run 'SHUTDOWN SCRIPT' to compact all the database into a
@@ -251,7 +252,7 @@ public class LegacyHsqlUtil {
      */
     public static void upgradeHsqldbDatabaseSafely() {
         if (LegacyHsqlUtil.isHsqldbDatabaseUpgradeNeeded()) {
-            
+
             Path backupDir;
             try {
                 backupDir = performHsqldbDatabaseBackup();
@@ -262,7 +263,8 @@ public class LegacyHsqlUtil {
                 try {
                     performAdditionOfScript(backupDir);
                 } catch (Exception e) {
-                    throw new CompletionException("Script verification/addition of HSQLDB database failed before upgrade", e);
+                    throw new CompletionException(
+                            "Script verification/addition of HSQLDB database failed before upgrade", e);
                 }
             }
             try {

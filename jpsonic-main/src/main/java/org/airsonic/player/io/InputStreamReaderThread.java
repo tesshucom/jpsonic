@@ -17,11 +17,8 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.io;
 
-import org.airsonic.player.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+package org.airsonic.player.io;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,10 +26,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+import org.airsonic.player.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Utility class which reads everything from an input stream and optionally logs it.
  *
  * @see TranscodeInputStream
+ * 
  * @author Sindre Mehus
  */
 public class InputStreamReaderThread extends Thread {
@@ -50,7 +52,8 @@ public class InputStreamReaderThread extends Thread {
         this.log = log;
     }
 
-    @SuppressWarnings("PMD.UseTryWithResources") // TODO #581
+    @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
+    @Override
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {

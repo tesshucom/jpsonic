@@ -17,7 +17,10 @@
   Copyright 2017 (C) Airsonic Authors
   Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
 */
+
 package org.airsonic.player.service.upnp.processor;
+
+import java.util.List;
 
 import org.airsonic.player.service.upnp.UpnpProcessDispatcher;
 import org.fourthline.cling.support.contentdirectory.DIDLParser;
@@ -26,8 +29,6 @@ import org.fourthline.cling.support.model.DIDLContent;
 import org.fourthline.cling.support.model.SortCriterion;
 import org.fourthline.cling.support.model.container.Container;
 import org.fourthline.cling.support.model.container.StorageFolder;
-
-import java.util.List;
 
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
@@ -67,7 +68,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses the top-level content of a type.
      */
-    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
+            throws Exception {
         DIDLContent didl = new DIDLContent();
         List<T> selectedItems = getItems(firstResult, maxResults);
         for (T item : selectedItems) {
@@ -89,7 +91,8 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses a child of the container.
      */
-    public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults, SortCriterion[] orderBy) throws Exception {
+    public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults,
+            SortCriterion... orderBy) throws Exception {
         T item = getItemById(id);
         List<U> selectedChildren = getChildren(item, firstResult, maxResults);
         DIDLContent didl = new DIDLContent();
@@ -154,4 +157,3 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     }
 
 }
-

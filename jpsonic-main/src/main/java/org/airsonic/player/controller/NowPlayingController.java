@@ -17,8 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
@@ -31,11 +39,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.List;
 
 /**
  * Controller for showing what's currently playing.
@@ -54,7 +57,8 @@ public class NowPlayingController {
     private MediaFileService mediaFileService;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         Player player = playerService.getPlayer(request, response);
         List<TransferStatus> statuses = statusService.getStreamStatusesForPlayer(player);
@@ -64,9 +68,9 @@ public class NowPlayingController {
 
         String url;
         if (dir != null && !mediaFileService.isRoot(dir)) {
-            url = "main.view?id=" + dir.getId();
+            url = ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + dir.getId();
         } else {
-            url = "home.view";
+            url = ViewName.HOME.value();
         }
 
         return new ModelAndView(new RedirectView(url));

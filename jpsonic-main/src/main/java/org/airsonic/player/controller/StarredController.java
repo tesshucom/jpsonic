@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.ViewAsListSelector;
 import org.airsonic.player.dao.MediaFileDao;
@@ -36,12 +43,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Controller for showing a user's starred items.
@@ -66,11 +67,11 @@ public class StarredController {
     private ViewAsListSelector viewSelector;
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
 
         User user = securityService.getCurrentUser(request);
         String username = user.getUsername();
-        UserSettings userSettings = settingsService.getUserSettings(username);
         List<MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         List<MediaFile> artists = mediaFileDao.getStarredDirectories(0, Integer.MAX_VALUE, username, musicFolders);
@@ -86,19 +87,14 @@ public class StarredController {
             (file.isVideo() ? videos : songs).add(file);
         }
 
-        return new ModelAndView("starred", "model", LegacyMap.of(
-                "user", user,
-                "partyModeEnabled", userSettings.isPartyModeEnabled(),
-                "visibility", userSettings.getMainVisibility(),
-                "player", playerService.getPlayer(request, response),
-                "coverArtSize", CoverArtScheme.MEDIUM.getSize(),
-                "artists", artists,
-                "albums", albums,
-                "songs", songs,
-                "videos", videos,
-                "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
-                "openDetailStar", userSettings.isOpenDetailStar(),
-                "simpleDisplay", userSettings.isSimpleDisplay()));
+        UserSettings userSettings = settingsService.getUserSettings(username);
+        return new ModelAndView("starred", "model",
+                LegacyMap.of("user", user, "partyModeEnabled", userSettings.isPartyModeEnabled(), "visibility",
+                        userSettings.getMainVisibility(), "player", playerService.getPlayer(request, response),
+                        "coverArtSize", CoverArtScheme.MEDIUM.getSize(), "artists", artists, "albums", albums, "songs",
+                        songs, "videos", videos, "viewAsList", viewSelector.isViewAsList(request, user.getUsername()),
+                        "openDetailStar", userSettings.isOpenDetailStar(), "simpleDisplay",
+                        userSettings.isSimpleDisplay()));
     }
 
 }

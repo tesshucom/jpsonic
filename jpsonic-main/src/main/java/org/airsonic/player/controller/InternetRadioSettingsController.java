@@ -17,8 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
@@ -30,14 +40,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the set of internet radio/tv stations.
@@ -52,7 +57,7 @@ public class InternetRadioSettingsController {
     private SettingsService settingsService;
 
     @GetMapping
-    public String doGet(Model model, @RequestParam("toast") Optional<Boolean> toast) {
+    public String doGet(Model model, @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         Map<String, Object> map = LegacyMap.of();
         map.put("internetRadios", settingsService.getAllInternetRadios(true));
         map.put("useRadio", settingsService.isUseRadio());
@@ -63,26 +68,27 @@ public class InternetRadioSettingsController {
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
 
         String error = handleParameters(request);
         if (error == null) {
-            redirectAttributes.addFlashAttribute("settings_reload", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         }
-        redirectAttributes.addFlashAttribute("error", error);
-        return "redirect:internetRadioSettings.view";
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
+        return new ModelAndView(new RedirectView(ViewName.INTERNET_RADIO_SETTINGS.value()));
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (InternetRadio) Not reusable
     private String handleParameters(HttpServletRequest request) {
         List<InternetRadio> radios = settingsService.getAllInternetRadios(true);
+        Date current = new Date();
         for (InternetRadio radio : radios) {
             Integer id = radio.getId();
-            String streamUrl = getParameter(request, "streamUrl", id);
-            String homepageUrl = getParameter(request, "homepageUrl", id);
-            String name = getParameter(request, "name", id);
-            boolean enabled = getParameter(request, "enabled", id) != null;
-            boolean delete = getParameter(request, "delete", id) != null;
+            String streamUrl = getParameter(request, Attributes.Request.STREAM_URL.value(), id);
+            String homepageUrl = getParameter(request, Attributes.Request.HOMEPAGE_URL.value(), id);
+            String name = getParameter(request, Attributes.Request.NAME.value(), id);
+            boolean enabled = getParameter(request, Attributes.Request.ENABLED.value(), id) != null;
+            boolean delete = getParameter(request, Attributes.Request.DELETE.value(), id) != null;
 
             if (delete) {
                 settingsService.deleteInternetRadio(id);
@@ -93,14 +99,15 @@ public class InternetRadioSettingsController {
                 if (streamUrl == null) {
                     return "internetradiosettings.nourl";
                 }
-                settingsService.updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, new Date()));
+                settingsService
+                        .updateInternetRadio(new InternetRadio(id, name, streamUrl, homepageUrl, enabled, current));
             }
         }
 
-        String name = StringUtils.trimToNull(request.getParameter("name"));
-        String streamUrl = StringUtils.trimToNull(request.getParameter("streamUrl"));
-        String homepageUrl = StringUtils.trimToNull(request.getParameter("homepageUrl"));
-        boolean enabled = StringUtils.trimToNull(request.getParameter("enabled")) != null;
+        String name = StringUtils.trimToNull(request.getParameter(Attributes.Request.NAME.value()));
+        String streamUrl = StringUtils.trimToNull(request.getParameter(Attributes.Request.STREAM_URL.value()));
+        String homepageUrl = StringUtils.trimToNull(request.getParameter(Attributes.Request.HOMEPAGE_URL.value()));
+        boolean enabled = StringUtils.trimToNull(request.getParameter(Attributes.Request.ENABLED.value())) != null;
 
         if (name != null || streamUrl != null || homepageUrl != null) {
             if (name == null) {

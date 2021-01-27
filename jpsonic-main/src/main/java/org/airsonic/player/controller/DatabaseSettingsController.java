@@ -17,9 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.DatabaseSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
@@ -34,9 +39,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
+import org.springframework.web.servlet.view.RedirectView;
 
 @Controller
 @RequestMapping("/databaseSettings")
@@ -69,39 +74,39 @@ public class DatabaseSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
-        model.addAttribute("command", command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected String onSubmit(@ModelAttribute("command") @Validated DatabaseSettingsCommand command,
-                              BindingResult bindingResult,
-                              RedirectAttributes redirectAttributes) {
+    protected ModelAndView onSubmit(
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (!bindingResult.hasErrors()) {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
-                case EMBED:
-                    settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
-                    settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
-                    settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
-                    settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
-                    break;
-                case JNDI:
-                    settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
-                    break;
-                case LEGACY:
-                default:
-                    break;
+            case EMBED:
+                settingsService.setDatabaseConfigEmbedDriver(command.getEmbedDriver());
+                settingsService.setDatabaseConfigEmbedPassword(command.getEmbedPassword());
+                settingsService.setDatabaseConfigEmbedUrl(command.getEmbedUrl());
+                settingsService.setDatabaseConfigEmbedUsername(command.getEmbedUsername());
+                break;
+            case JNDI:
+                settingsService.setDatabaseConfigJNDIName(command.getJNDIName());
+                break;
+            case LEGACY:
+            default:
+                break;
             }
             if (command.getConfigType() != DataSourceConfigType.LEGACY) {
                 settingsService.setDatabaseMysqlVarcharMaxlength(command.getMysqlVarcharMaxlength());
                 settingsService.setDatabaseUsertableQuote(command.getUsertableQuote());
             }
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             settingsService.save();
-            return "redirect:databaseSettings.view";
+            return new ModelAndView(new RedirectView(ViewName.DATABASE_SETTINGS.value()));
         } else {
-            return "databaseSettings.view";
+            return new ModelAndView(ViewName.DATABASE_SETTINGS.value());
         }
     }
 

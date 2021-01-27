@@ -17,13 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.service.metadata;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+package org.airsonic.player.service.metadata;
 
 import java.io.File;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Factory for creating meta-data parsers.
@@ -43,7 +44,9 @@ public class MetaDataParserFactory {
     /**
      * Returns a meta-data parser for the given file.
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return An applicable parser, or <code>null</code> if no parser is found.
      */
     public MetaDataParser getParser(File file) {

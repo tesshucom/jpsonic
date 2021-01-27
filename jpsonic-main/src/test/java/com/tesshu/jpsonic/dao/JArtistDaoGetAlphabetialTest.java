@@ -16,7 +16,15 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.dao;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
 import org.airsonic.player.domain.Artist;
@@ -26,13 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @SpringBootTest
 public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
@@ -63,7 +64,8 @@ public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
     @Test
     public void testGetAlphabetialArtists() {
         List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
-        JpsonicComparatorsTestUtils.validateNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        JpsonicComparatorsTestUtils
+                .validateNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList()));
     }
 
 }

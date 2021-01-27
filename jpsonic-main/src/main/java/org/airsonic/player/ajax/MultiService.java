@@ -17,7 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.ArtistBio;
 import org.airsonic.player.domain.MediaFile;
@@ -32,14 +41,6 @@ import org.airsonic.player.service.SettingsService;
 import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Provides miscellaneous AJAX-enabled services.
@@ -77,7 +78,7 @@ public class MultiService {
         return new ArtistInfo(similarArtists, artistBio, topSongs);
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TopSong) Not reusable
     private List<TopSong> getTopSongs(MediaFile mediaFile, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
@@ -88,12 +89,12 @@ public class MultiService {
         mediaFileService.populateStarredDate(files, username);
         for (MediaFile file : files) {
             result.add(new TopSong(file.getId(), file.getTitle(), file.getArtist(), file.getAlbumName(),
-                                   file.getDurationString(), file.getStarredDate() != null));
+                    file.getDurationString(), file.getStarredDate() != null));
         }
         return result;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (SimilarArtist) Not reusable
     private List<SimilarArtist> getSimilarArtists(int mediaFileId, int limit) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);

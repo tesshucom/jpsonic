@@ -16,7 +16,19 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package org.airsonic.player.service.search;
+
+import static java.util.stream.Collectors.toList;
+import static org.apache.commons.lang3.StringUtils.SPACE;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaLexer;
 import com.tesshu.jpsonic.service.upnp.UPnPSearchCriteriaListener;
@@ -73,27 +85,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.function.BiConsumer;
-
-import static java.util.stream.Collectors.toList;
-import static org.apache.commons.lang3.StringUtils.SPACE;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 /**
- * Director class for use Lucene's QueryBuilder at the same time as UPnP message
- * parsing.
+ * Director class for use Lucene's QueryBuilder at the same time as UPnP message parsing.
  */
 /*
- * Anltl4 syntax analysis class is automatically generated with reference to
- * Service Template Version 1.01 (For UPnP Version 1.0). Therefore, at this
- * stage, this class has many redundant skeleton methods.
+ * Anltl4 syntax analysis class is automatically generated with reference to Service Template Version 1.01 (For UPnP
+ * Version 1.0). Therefore, at this stage, this class has many redundant skeleton methods.
  */
-@SuppressWarnings("PMD.UncommentedEmptyMethodBody")
 @Component
 @Scope("prototype")
 public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
@@ -113,32 +111,29 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private BooleanQuery.Builder propExpQueryBuilder;
 
     private Occur lastLogOp;
-    
+
     private boolean includeComposer;
-    
+
     private Class<?> assignableClass;
-    
+
     private int offset;
     private int count;
     private String upnpSearchQuery;
     private UPnPSearchCriteria result;
 
     BiConsumer<Boolean, String> notice = (b, message) -> {
-        if (b)
+        if (b) {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
+        }
     };
 
-    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList(
-            "object.container.album.photoAlbum",
-            "object.container.playlistContainer",
-            "object.container.genre",
-            "object.container.genre.musicGenre",
-            "object.container.genre.movieGenre",
-            "object.container.storageSystem",
-            "object.container.storageVolume",
+    private static final List<String> UNSUPPORTED_CLASS = Arrays.asList("object.container.album.photoAlbum",
+            "object.container.playlistContainer", "object.container.genre", "object.container.genre.musicGenre",
+            "object.container.genre.movieGenre", "object.container.storageSystem", "object.container.storageVolume",
             "object.container.storageFolder");
 
-    public UPnPSearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService, UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
+    public UPnPSearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService,
+            UpnpProcessorUtil util, SearchServiceUtilities searchUtil) {
         this.queryFactory = queryFactory;
         this.settingsService = settingsService;
         this.upnpUtil = util;
@@ -159,22 +154,27 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterAsterisk(AsteriskContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBaseName(BaseNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBaseProperties(BasePropertiesContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterBinOp(BinOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterClassName(ClassNameContext ctx) {
+        // Nothing is currently done.
     }
 
     /**
@@ -189,8 +189,8 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         final String complement = children.get(2).getText();
 
         if (UNSUPPORTED_CLASS.contains(complement)) {
-            mediaTypeQueryBuilder = null;
-            throw createIllegal("The current version does not support searching for this class.", subject, verb, complement);
+            throw createIllegal("The current version does not support searching for this class.", subject, verb,
+                    complement);
         }
 
         if (complement.startsWith("object.item.audioItem") || complement.startsWith("object.item.videoItem")) {
@@ -198,96 +198,112 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         }
 
         switch (verb) {
-            case "derivedfrom":
-                switch (complement) {
+        case "derivedfrom":
+            switch (complement) {
 
-                    // artist
-                    case "object.container.person":
-                    case "object.container.person.musicArtist":
-                        assignableClass = Artist.class;
-                        break;
+            // artist
+            case "object.container.person":
+            case "object.container.person.musicArtist":
+                assignableClass = Artist.class;
+                break;
 
-                    // album
-                    case "object.container.album":
-                    case "object.container.album.musicAlbum":
-                        assignableClass = Album.class;
-                        break;
+            // album
+            case "object.container.album":
+            case "object.container.album.musicAlbum":
+                assignableClass = Album.class;
+                break;
 
-                    // audio
-                    case "object.item.audioItem":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
-                        }
-                        break;
-
-                    // video
-                    case "object.item.videoItem":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
-                        }
-                        break;
-
-                    default:
-                        mediaTypeQueryBuilder = null;
-                        throw createIllegal("An unknown class was specified.", subject, verb, complement);
-
+            // audio
+            case "object.item.audioItem":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
+                            Occur.SHOULD);
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
+                            Occur.SHOULD);
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
+                            Occur.SHOULD);
                 }
                 break;
-            case "=":
-                switch (complement) {
-    
-                    // artist
-                    case "object.container.person.musicArtist":
-                        assignableClass = Artist.class;
-                        break;
 
-                    // album
-                    case "object.container.album.musicAlbum":
-                        assignableClass = Album.class;
-                        break;
-
-                    // audio
-                    case "object.item.audioItem.musicTrack":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.SHOULD);
-                        }
-                        break;
-                    case "object.item.audioItem.audioBroadcast":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())), Occur.SHOULD);
-                        }
-                        break;
-                    case "object.item.audioItem.audioBook":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())), Occur.SHOULD);
-                        }
-                        break;
-
-                    // video
-                    case "object.item.videoItem.movie":
-                    case "object.item.videoItem.videoBroadcast":
-                    case "object.item.videoItem.musicVideoClip":
-                        assignableClass = MediaFile.class;
-                        if (!isEmpty(mediaTypeQueryBuilder)) {
-                            mediaTypeQueryBuilder.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())), Occur.MUST);
-                        }
-                        break;
-
-                    default:
-                        mediaTypeQueryBuilder = null;
-                        throw createIllegal("An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.", subject, verb, complement);
-
+            // video
+            case "object.item.videoItem":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
+                            Occur.MUST);
                 }
                 break;
+
             default:
+                throw createIllegal("An unknown class was specified.", subject, verb, complement);
+
+            }
+            break;
+        case "=":
+            switch (complement) {
+
+            // artist
+            case "object.container.person.musicArtist":
+                assignableClass = Artist.class;
                 break;
+
+            // album
+            case "object.container.album.musicAlbum":
+                assignableClass = Album.class;
+                break;
+
+            // audio
+            case "object.item.audioItem.musicTrack":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
+                            Occur.SHOULD);
+                }
+                break;
+            case "object.item.audioItem.audioBroadcast":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
+                            Occur.SHOULD);
+                }
+                break;
+            case "object.item.audioItem.audioBook":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
+                            Occur.SHOULD);
+                }
+                break;
+
+            // video
+            case "object.item.videoItem.movie":
+            case "object.item.videoItem.videoBroadcast":
+            case "object.item.videoItem.musicVideoClip":
+                assignableClass = MediaFile.class;
+                if (!isEmpty(mediaTypeQueryBuilder)) {
+                    mediaTypeQueryBuilder.add(
+                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
+                            Occur.MUST);
+                }
+                break;
+
+            default:
+                throw createIllegal(
+                        "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
+                        subject, verb, complement);
+
+            }
+            break;
+        default:
+            break;
         }
 
         includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
@@ -296,38 +312,47 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterDef_return(Def_returnContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterDerivedName(DerivedNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterDQuote(DQuoteContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterExistsOp(ExistsOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterFormFeed(FormFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterHTab(HTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterLineFeed(LineFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterLinksToContainers(LinksToContainersContext ctx) {
+        // Nothing is currently done.
     }
 
     /*
@@ -349,14 +374,17 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterPeopleInvolved(PeopleInvolvedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterProperty(PropertyContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterPropertyBooleanValue(PropertyBooleanValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
@@ -403,102 +431,127 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void enterPropertyStringValue(PropertyStringValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterRelOp(RelOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSearchCrit(SearchCritContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSearchExp(SearchExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterShortName(ShortNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterSpace(SpaceContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterStringOp(StringOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterVTab(VTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void enterWChar(WCharContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitAsterisk(AsteriskContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBaseName(BaseNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBaseProperties(BasePropertiesContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitBinOp(BinOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitClassName(ClassNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitClassRelExp(ClassRelExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDef_return(Def_returnContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDerivedName(DerivedNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitDQuote(DQuoteContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitExistsOp(ExistsOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitFormFeed(FormFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitHTab(HTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLineFeed(LineFeedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLinksToContainers(LinksToContainersContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitLogOp(LogOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
@@ -528,66 +581,82 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
 
     @Override
     public void exitPeopleInvolved(PeopleInvolvedContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitProperty(PropertyContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyBooleanValue(PropertyBooleanValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyExp(PropertyExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitPropertyStringValue(PropertyStringValueContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitRelOp(RelOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSearchCrit(SearchCritContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSearchExp(SearchExpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitShortName(ShortNameContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitSpace(SpaceContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitStringOp(StringOpContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitVTab(VTabContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void exitWChar(WCharContext ctx) {
+        // Nothing is currently done.
     }
 
     @Override
     public void visitErrorNode(ErrorNode node) {
+        // Nothing is currently done.
     }
 
     @Override
     public void visitTerminal(TerminalNode node) {
+        // Nothing is currently done.
     }
 
     private IllegalArgumentException createIllegal(String message, String subject, String verb, String complement) {
-        return new IllegalArgumentException(message.concat(" : ").concat(subject).concat(SPACE).concat(verb).concat(SPACE).concat(complement));
+        return new IllegalArgumentException(
+                message.concat(" : ").concat(subject).concat(SPACE).concat(verb).concat(SPACE).concat(complement));
     }
 
     private Query createMultiFieldQuery(final String[] fields, final String query) throws IOException {

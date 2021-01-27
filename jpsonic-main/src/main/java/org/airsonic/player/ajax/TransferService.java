@@ -17,18 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
-import org.airsonic.player.controller.UploadController;
+import javax.servlet.http.HttpSession;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.TransferStatus;
 import org.directwebremoting.WebContextFactory;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
-
 /**
- * Provides AJAX-enabled services for retrieving the status of ongoing transfers.
- * This class is used by the DWR framework (http://getahead.ltd.uk/dwr/).
+ * Provides AJAX-enabled services for retrieving the status of ongoing transfers. This class is used by the DWR
+ * framework (http://getahead.ltd.uk/dwr/).
  *
  * @author Sindre Mehus
  */
@@ -37,12 +38,13 @@ public class TransferService {
 
     /**
      * Returns info about any ongoing upload within the current session.
+     * 
      * @return Info about ongoing upload.
      */
     public UploadInfo getUploadInfo() {
 
         HttpSession session = WebContextFactory.get().getSession();
-        TransferStatus status = (TransferStatus) session.getAttribute(UploadController.UPLOAD_STATUS);
+        TransferStatus status = (TransferStatus) session.getAttribute(Attributes.Session.UPLOAD_STATUS.value());
 
         if (status != null) {
             return new UploadInfo(status.getBytesTransfered(), status.getBytesTotal());

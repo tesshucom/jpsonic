@@ -17,7 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import static org.apache.commons.lang3.StringUtils.isEmpty;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
 
 import net.sf.ehcache.Ehcache;
 import org.airsonic.player.dao.UserDao;
@@ -36,15 +46,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 /**
  * Provides security-related services for authentication and authorization.
@@ -68,11 +69,17 @@ public class SecurityService implements UserDetailsService {
     /**
      * Locates the user based on the username.
      *
-     * @param username The username
+     * @param username
+     *            The username
+     * 
      * @return A fully populated user record (never <code>null</code>)
-     * @throws UsernameNotFoundException if the user could not be found or the user has no GrantedAuthority.
-     * @throws DataAccessException       If user could not be found for a repository-specific reason.
+     * 
+     * @throws UsernameNotFoundException
+     *             if the user could not be found or the user has no GrantedAuthority.
+     * @throws DataAccessException
+     *             If user could not be found for a repository-specific reason.
      */
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
         return loadUserByUsername(username, true);
     }
@@ -86,17 +93,15 @@ public class SecurityService implements UserDetailsService {
 
         List<GrantedAuthority> authorities = getGrantedAuthorities(username);
 
-        return new org.springframework.security.core.userdetails.User(
-                username,
-                user.getPassword(),
-                !user.isLdapAuthenticated(),
-                true,
-                true,
-                true,
-                authorities);
+        return new org.springframework.security.core.userdetails.User(username, user.getPassword(),
+                !user.isLdapAuthenticated(), true, true, true, authorities);
     }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (SimpleGrantedAuthority) Not reusable [UseLocaleWithCaseConversions] The
+     * locale doesn't matter because just converting the literal.
+     */
     public List<GrantedAuthority> getGrantedAuthorities(String username) {
         String[] roles = userDao.getRolesForUser(username);
         List<GrantedAuthority> authorities = new ArrayList<>();
@@ -111,7 +116,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the currently logged-in user for the given HTTP request.
      *
-     * @param request The HTTP request.
+     * @param request
+     *            The HTTP request.
+     * 
      * @return The logged-in user, or <code>null</code>.
      */
     public User getCurrentUser(HttpServletRequest request) {
@@ -122,7 +129,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the name of the currently logged-in user.
      *
-     * @param request The HTTP request.
+     * @param request
+     *            The HTTP request.
+     * 
      * @return The name of the logged-in user, or <code>null</code>.
      */
     public String getCurrentUsername(HttpServletRequest request) {
@@ -132,7 +141,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the user with the given username.
      *
-     * @param username The username used when logging in.
+     * @param username
+     *            The username used when logging in.
+     * 
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByName(String username) {
@@ -141,8 +152,12 @@ public class SecurityService implements UserDetailsService {
 
     /**
      * Returns the user with the given username
-     * @param username The username to look for
-     * @param caseSensitive If false, will do a case insensitive search
+     * 
+     * @param username
+     *            The username to look for
+     * @param caseSensitive
+     *            If false, will do a case insensitive search
+     * 
      * @return The corresponding User
      */
     public User getUserByName(String username, boolean caseSensitive) {
@@ -152,7 +167,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns the user with the given email address.
      *
-     * @param email The email address.
+     * @param email
+     *            The email address.
+     * 
      * @return The user, or <code>null</code> if not found.
      */
     public User getUserByEmail(String email) {
@@ -193,11 +210,13 @@ public class SecurityService implements UserDetailsService {
     /**
      * Creates a new user.
      *
-     * @param user The user to create.
+     * @param user
+     *            The user to create.
      */
     public void createUser(User user) {
         userDao.createUser(user);
-        settingsService.setMusicFoldersForUser(user.getUsername(), MusicFolder.toIdList(settingsService.getAllMusicFolders()));
+        settingsService.setMusicFoldersForUser(user.getUsername(),
+                MusicFolder.toIdList(settingsService.getAllMusicFolders()));
         if (LOG.isInfoEnabled()) {
             LOG.info("Created user " + user.getUsername());
         }
@@ -206,7 +225,8 @@ public class SecurityService implements UserDetailsService {
     /**
      * Deletes the user with the given username.
      *
-     * @param username The username.
+     * @param username
+     *            The username.
      */
     public void deleteUser(String username) {
         userDao.deleteUser(username);
@@ -219,7 +239,8 @@ public class SecurityService implements UserDetailsService {
     /**
      * Updates the given user.
      *
-     * @param user The user to update.
+     * @param user
+     *            The user to update.
      */
     public void updateUser(User user) {
         userDao.updateUser(user);
@@ -229,12 +250,17 @@ public class SecurityService implements UserDetailsService {
     /**
      * Updates the byte counts for given user.
      *
-     * @param user                 The user to update, may be <code>null</code>.
-     * @param bytesStreamedDelta   Increment bytes streamed count with this value.
-     * @param bytesDownloadedDelta Increment bytes downloaded count with this value.
-     * @param bytesUploadedDelta   Increment bytes uploaded count with this value.
+     * @param user
+     *            The user to update, may be <code>null</code>.
+     * @param bytesStreamedDelta
+     *            Increment bytes streamed count with this value.
+     * @param bytesDownloadedDelta
+     *            Increment bytes downloaded count with this value.
+     * @param bytesUploadedDelta
+     *            Increment bytes uploaded count with this value.
      */
-    public void updateUserByteCounts(User user, long bytesStreamedDelta, long bytesDownloadedDelta, long bytesUploadedDelta) {
+    public void updateUserByteCounts(User user, long bytesStreamedDelta, long bytesDownloadedDelta,
+            long bytesUploadedDelta) {
         if (user == null) {
             return;
         }
@@ -290,7 +316,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns whether the given file is located in one of the music folders (or any of their sub-folders).
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return Whether the given file is located in one of the music folders.
      */
     private boolean isInMusicFolder(File file) {
@@ -325,7 +353,9 @@ public class SecurityService implements UserDetailsService {
     /**
      * Returns whether the given file is located in the Podcast folder (or any of its sub-folders).
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return Whether the given file is located in the Podcast folder.
      */
     private boolean isInPodcastFolder(File file) {
@@ -364,15 +394,17 @@ public class SecurityService implements UserDetailsService {
     }
 
     /**
-     * Returns whether the given file is located in the given folder (or any of its sub-folders).
-     * If the given file contains the expression ".." (indicating a reference to the parent directory),
-     * this method will return <code>false</code>.
+     * Returns whether the given file is located in the given folder (or any of its sub-folders). If the given file
+     * contains the expression ".." (indicating a reference to the parent directory), this method will return
+     * <code>false</code>.
      *
-     * @param file   The file in question.
-     * @param folder The folder in question.
+     * @param file
+     *            The file in question.
+     * @param folder
+     *            The folder in question.
+     * 
      * @return Whether the given file is located in the given folder.
      */
-    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions" })
     protected boolean isFileInFolder(final String file, final String folder) {
         if (isEmpty(file)) {
             return false;
@@ -383,7 +415,8 @@ public class SecurityService implements UserDetailsService {
         }
 
         // Convert slashes.
-        return file.replace('\\', '/').toUpperCase().startsWith(folder.replace('\\', '/').toUpperCase());
+        return file.replace('\\', '/').toUpperCase(settingsService.getLocale())
+                .startsWith(folder.replace('\\', '/').toUpperCase(settingsService.getLocale()));
     }
 
     public void setSettingsService(SettingsService settingsService) {

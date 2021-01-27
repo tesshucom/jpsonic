@@ -17,14 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
-package org.airsonic.player.io;
 
-import org.airsonic.player.util.HttpRange;
+package org.airsonic.player.io;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.airsonic.player.util.HttpRange;
 
 /**
  * Special output stream for grabbing only part of a passed stream.
@@ -46,12 +46,14 @@ public class RangeOutputStream extends FilterOutputStream {
     }
 
     /**
-     * Wraps the given output stream in a RangeOutputStream, using the values
-     * in the given range, unless the range is <code>null</code> in which case
-     * the original OutputStream is returned.
+     * Wraps the given output stream in a RangeOutputStream, using the values in the given range, unless the range is
+     * <code>null</code> in which case the original OutputStream is returned.
      *
-     * @param out   The output stream to wrap in a RangeOutputStream.
-     * @param range The range, may be <code>null</code>.
+     * @param out
+     *            The output stream to wrap in a RangeOutputStream.
+     * @param range
+     *            The range, may be <code>null</code>.
+     * 
      * @return The possibly wrapped output stream.
      */
     public static OutputStream wrap(OutputStream out, HttpRange range) {
@@ -65,8 +67,11 @@ public class RangeOutputStream extends FilterOutputStream {
     /**
      * Writes the byte if it's within the range.
      *
-     * @param b The byte to write.
-     * @throws IOException Thrown if there was a problem writing to the stream.
+     * @param b
+     *            The byte to write.
+     * 
+     * @throws IOException
+     *             Thrown if there was a problem writing to the stream.
      */
     @Override
     public void write(int b) throws IOException {
@@ -79,10 +84,15 @@ public class RangeOutputStream extends FilterOutputStream {
     /**
      * Writes the subset of the bytes that are within the range.
      *
-     * @param b   The bytes to write.
-     * @param off The offset to start at.
-     * @param len The number of bytes to write.
-     * @throws IOException Thrown if there was a problem writing to the stream.
+     * @param b
+     *            The bytes to write.
+     * @param off
+     *            The offset to start at.
+     * @param len
+     *            The number of bytes to write.
+     * 
+     * @throws IOException
+     *             Thrown if there was a problem writing to the stream.
      */
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
@@ -104,4 +114,3 @@ public class RangeOutputStream extends FilterOutputStream {
         return Math.min(a, Math.min(b, c));
     }
 }
-

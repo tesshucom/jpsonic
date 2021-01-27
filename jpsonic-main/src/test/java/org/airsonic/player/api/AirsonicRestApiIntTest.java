@@ -1,4 +1,10 @@
+
 package org.airsonic.player.api;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.util.HomeRule;
@@ -12,12 +18,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -44,16 +44,9 @@ public class AirsonicRestApiIntTest {
 
     @Test
     public void pingTest() throws Exception {
-        mvc.perform(get("/rest/ping")
-                .param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME)
-                .param("u", AIRSONIC_USER)
-                .param("p", AIRSONIC_PASSWORD)
-                .param("f", EXPECTED_FORMAT)
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.version").value(AIRSONIC_API_VERSION))
-                .andDo(print());
+        mvc.perform(get("/rest/ping").param("v", AIRSONIC_API_VERSION).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)
+                .param("p", AIRSONIC_PASSWORD).param("f", EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                .andExpect(jsonPath("$.subsonic-response.version").value(AIRSONIC_API_VERSION)).andDo(print());
     }
 }

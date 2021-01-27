@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.validator;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.command.UserSettingsCommand;
 import org.airsonic.player.controller.UserSettingsController;
@@ -26,8 +29,6 @@ import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Validator for {@link UserSettingsController}.
@@ -40,7 +41,14 @@ public class UserSettingsValidator implements Validator {
     private SettingsService settingsService;
     private HttpServletRequest request;
 
-    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService, HttpServletRequest request) {
+    private static final String REJECTED_FIELD_USERNAME = "username";
+    private static final String REJECTED_FIELD_EMAIL = "email";
+    private static final String REJECTED_FIELD_PASSWORD = "password";
+    private static final String REJECTED_FIELD_DELETEUSER = "deleteUser";
+    private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
+
+    public UserSettingsValidator(SecurityService securityService, SettingsService settingsService,
+            HttpServletRequest request) {
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.request = request;
@@ -49,13 +57,15 @@ public class UserSettingsValidator implements Validator {
     /**
      * {@inheritDoc}
      */
-    public boolean supports(Class clazz) {
+    @Override
+    public boolean supports(Class<?> clazz) {
         return clazz.equals(UserSettingsCommand.class);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
         String username = command.getUsername();
@@ -65,36 +75,36 @@ public class UserSettingsValidator implements Validator {
 
         if (command.isNewUser()) {
             if (username == null || username.isEmpty()) {
-                errors.rejectValue("username", "usersettings.nousername");
+                errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.nousername");
             } else if (securityService.getUserByName(username) != null) {
-                errors.rejectValue("username", "usersettings.useralreadyexists");
+                errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.useralreadyexists");
             } else if (email == null) {
-                errors.rejectValue("email", "usersettings.noemail");
+                errors.rejectValue(REJECTED_FIELD_EMAIL, "usersettings.noemail");
             } else if (command.isLdapAuthenticated() && !settingsService.isLdapEnabled()) {
-                errors.rejectValue("password", "usersettings.ldapdisabled");
+                errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.ldapdisabled");
             } else if (command.isLdapAuthenticated() && password != null) {
-                errors.rejectValue("password", "usersettings.passwordnotsupportedforldap");
+                errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
             }
         }
 
         if ((command.isNewUser() || command.isPasswordChange()) && !command.isLdapAuthenticated()) {
             if (password == null) {
-                errors.rejectValue("password", "usersettings.nopassword");
+                errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.nopassword");
             } else if (!password.equals(confirmPassword)) {
-                errors.rejectValue("password", "usersettings.wrongpassword");
+                errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.wrongpassword");
             }
         }
 
         if (command.isPasswordChange() && command.isLdapAuthenticated()) {
-            errors.rejectValue("password", "usersettings.passwordnotsupportedforldap");
+            errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
         }
 
         if (securityService.getCurrentUser(request).getUsername().equals(username)) {
             if (command.isDeleteUser()) {
-                errors.rejectValue("deleteUser", "usersettings.cantdeleteuser");
+                errors.rejectValue(REJECTED_FIELD_DELETEUSER, "usersettings.cantdeleteuser");
             }
             if (!command.isAdminRole()) {
-                errors.rejectValue("adminRole", "usersettings.cantremoverole");
+                errors.rejectValue(REJECTED_FIELD_ADMINROLE, "usersettings.cantremoverole");
             }
         }
 

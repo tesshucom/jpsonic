@@ -1,12 +1,15 @@
+
 package org.airsonic.player.util;
 
-import org.airsonic.player.domain.MediaLibraryStatistics;
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.util.Date;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import org.airsonic.player.domain.MediaLibraryStatistics;
+import org.junit.Test;
 
 public class UtilTest {
 
@@ -37,14 +40,10 @@ public class UtilTest {
 
     @Test
     public void stringMapToObject() {
-        Map<String, String> stringStringMap = LegacyMap.of(
-                "albumCount", "5",
-                "songCount", "4",
-                "artistCount", "910823",
-                "totalDurationInSeconds", "30",
-                "totalLengthInBytes", "2930491082",
-                "scanDate", "1568350960725");
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
+                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725");
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
+                stringStringMap);
         assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
         assertEquals(Integer.valueOf(4), statistics.getSongCount());
         assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
@@ -55,15 +54,11 @@ public class UtilTest {
 
     @Test
     public void stringMapToObjectWithExtraneousData() {
-        Map<String, String> stringStringMap = LegacyMap.of(
-                "albumCount", "5",
-                "songCount", "4",
-                "artistCount", "910823",
-                "totalDurationInSeconds", "30",
-                "totalLengthInBytes", "2930491082",
-                "scanDate", "1568350960725",
+        Map<String, String> stringStringMap = LegacyMap.of("albumCount", "5", "songCount", "4", "artistCount", "910823",
+                "totalDurationInSeconds", "30", "totalLengthInBytes", "2930491082", "scanDate", "1568350960725",
                 "extraneousData", "nothingHereToLookAt");
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, stringStringMap);
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class,
+                stringStringMap);
         assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
         assertEquals(Integer.valueOf(4), statistics.getSongCount());
         assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
@@ -79,7 +74,8 @@ public class UtilTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void stringMapToValidObjectWithNoData() {
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, LegacyMap.of());
+        MediaLibraryStatistics statistics = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
+                LegacyMap.of());
     }
 
 }

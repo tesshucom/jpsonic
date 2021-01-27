@@ -17,9 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.util.Date;
+import java.util.Locale;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
@@ -41,15 +52,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Date;
-import java.util.Locale;
-import java.util.Optional;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate per-user settings.
@@ -68,7 +73,8 @@ public class PersonalSettingsController {
     private OutlineHelpSelector outlineHelpSelector;
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
+    protected void formBackingObject(HttpServletRequest request, Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
 
         User user = securityService.getCurrentUser(request);
@@ -79,7 +85,8 @@ public class PersonalSettingsController {
         command.setTabletSettings(settingsService.createDefaultTabletUserSettings(""));
         command.setSmartphoneSettings(settingsService.createDefaultSmartphoneUserSettings(""));
         command.setFontFamilyDefault(WebFontUtils.DEFAULT_FONT_FAMILY);
-        command.setFontFamilyJpEmbedDefault(WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
+        command.setFontFamilyJpEmbedDefault(
+                WebFontUtils.JP_FONT_NAME.concat(", ").concat(WebFontUtils.DEFAULT_FONT_FAMILY));
         command.setFontSizeDefault(WebFontUtils.DEFAULT_FONT_SIZE);
         command.setFontSizeJpEmbedDefault(WebFontUtils.DEFAULT_JP_FONT_SIZE);
         command.setLocaleIndex("-1");
@@ -181,7 +188,7 @@ public class PersonalSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @GetMapping
@@ -190,7 +197,9 @@ public class PersonalSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") PersonalSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) PersonalSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = null;
@@ -275,9 +284,9 @@ public class PersonalSettingsController {
         settings.setChanged(new Date());
         settingsService.updateUserSettings(settings);
 
-        redirectAttributes.addFlashAttribute("settings_reload", true);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
-        return "redirect:personalSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.PERSONAL_SETTINGS.value()));
     }
 
     private int getAvatarId(UserSettings userSettings) {
@@ -297,8 +306,7 @@ public class PersonalSettingsController {
 
     private Integer getSystemAvatarId(PersonalSettingsCommand command) {
         int avatarId = command.getAvatarId();
-        if (avatarId == AvatarScheme.NONE.getCode() ||
-            avatarId == AvatarScheme.CUSTOM.getCode()) {
+        if (avatarId == AvatarScheme.NONE.getCode() || avatarId == AvatarScheme.CUSTOM.getCode()) {
             return null;
         }
         return avatarId;

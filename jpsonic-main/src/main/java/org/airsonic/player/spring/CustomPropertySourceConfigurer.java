@@ -1,4 +1,7 @@
+
 package org.airsonic.player.spring;
+
+import java.util.List;
 
 import com.google.common.collect.Lists;
 import org.airsonic.player.service.ApacheCommonsConfigurationService;
@@ -8,13 +11,12 @@ import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.core.env.PropertySource;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
 
-import java.util.List;
-
-public class CustomPropertySourceConfigurer implements
-        ApplicationContextInitializer<ConfigurableWebApplicationContext> {
+public class CustomPropertySourceConfigurer
+        implements ApplicationContextInitializer<ConfigurableWebApplicationContext> {
 
     public static final String DATASOURCE_CONFIG_TYPE = "DatabaseConfigType";
 
+    @Override
     public void initialize(ConfigurableWebApplicationContext ctx) {
 
         ApacheCommonsConfigurationService configurationService = new ApacheCommonsConfigurationService();

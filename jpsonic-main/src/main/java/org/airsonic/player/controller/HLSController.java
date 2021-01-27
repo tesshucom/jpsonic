@@ -17,9 +17,21 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.awt.Dimension;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.JWTSecurityService;
@@ -36,23 +48,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.awt.*;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Controller which produces the HLS (Http Live Streaming) playlist.
  *
  * @author Sindre Mehus
  */
 @Controller("hlsController")
-@RequestMapping({"/hls/**", "/ext/hls/**"})
+@RequestMapping({ "/hls/**", "/ext/hls/**" })
 public class HLSController {
 
     private static final int SEGMENT_DURATION = 10;
@@ -67,13 +69,15 @@ public class HLSController {
     @Autowired
     private JWTSecurityService jwtSecurityService;
 
+    private static final int SINGLE_ELEMENT = 1;
+
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         response.setHeader("Access-Control-Allow-Origin", "*");
 
-        int id = ServletRequestUtils.getIntParameter(request, "id", 0);
+        int id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value(), 0);
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Media file not found: " + id);
@@ -98,10 +102,11 @@ public class HLSController {
         response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
         List<Pair<Integer, Dimension>> bitRates = parseBitRates(request);
         try (PrintWriter writer = response.getWriter()) {
-            if (bitRates.size() > 1) {
+            if (bitRates.size() > SINGLE_ELEMENT) {
                 generateVariantPlaylist(request, id, player, bitRates, writer);
             } else {
-                generateNormalPlaylist(request, id, player, bitRates.size() == 1 ? bitRates.get(0) : null, duration, writer);
+                generateNormalPlaylist(request, id, player, bitRates.size() == SINGLE_ELEMENT ? bitRates.get(0) : null,
+                        duration, writer);
             }
         }
     }
@@ -136,19 +141,20 @@ public class HLSController {
         }
     }
 
-    private void generateVariantPlaylist(HttpServletRequest request, int id, Player player, List<Pair<Integer, Dimension>> bitRates, PrintWriter writer) {
+    private void generateVariantPlaylist(HttpServletRequest request, int id, Player player,
+            List<Pair<Integer, Dimension>> bitRates, PrintWriter writer) {
         writer.println("#EXTM3U");
         writer.println("#EXT-X-VERSION:1");
-//        writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
+        // writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
 
         String contextPath = getContextPath(request);
         for (Pair<Integer, Dimension> bitRate : bitRates) {
             Integer kbps = bitRate.getLeft();
             writer.println("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=" + kbps * 1000L);
             UriComponentsBuilder url = UriComponentsBuilder.fromUriString(contextPath + "ext/hls/hls.m3u8")
-                    .queryParam("id", id)
-                    .queryParam("player", player.getId())
-                    .queryParam("bitRate", kbps);
+                    .queryParam(Attributes.Request.ID.value(), id)
+                    .queryParam(Attributes.Request.PLAYER.value(), player.getId())
+                    .queryParam(Attributes.Request.BITRATE.value(), kbps);
             jwtSecurityService.addJWTToken(url);
             writer.print(url.toUriString());
             Dimension dimension = bitRate.getRight();
@@ -157,10 +163,11 @@ public class HLSController {
             }
             writer.println();
         }
-//        writer.println("#EXT-X-ENDLIST");
+        // writer.println("#EXT-X-ENDLIST");
     }
 
-    private void generateNormalPlaylist(HttpServletRequest request, int id, Player player, Pair<Integer, Dimension> bitRate, int totalDuration, PrintWriter writer) {
+    private void generateNormalPlaylist(HttpServletRequest request, int id, Player player,
+            Pair<Integer, Dimension> bitRate, int totalDuration, PrintWriter writer) {
         writer.println("#EXTM3U");
         writer.println("#EXT-X-VERSION:1");
         writer.println("#EXT-X-TARGETDURATION:" + SEGMENT_DURATION);
@@ -180,32 +187,33 @@ public class HLSController {
         writer.println("#EXT-X-ENDLIST");
     }
 
-    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration, Pair<Integer, Dimension> bitRate) {
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(getContextPath(request) + "ext/stream/stream.ts");
-        builder.queryParam("id", id);
-        builder.queryParam("hls", "true");
-        builder.queryParam("timeOffset", offset);
-        builder.queryParam("player", player.getId());
-        builder.queryParam("duration", duration);
+    private String createStreamUrl(HttpServletRequest request, Player player, int id, int offset, int duration,
+            Pair<Integer, Dimension> bitRate) {
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromUriString(getContextPath(request) + "ext/stream/stream.ts");
+        builder.queryParam(Attributes.Request.ID.value(), id);
+        builder.queryParam(Attributes.Request.HLS.value(), "true");
+        builder.queryParam(Attributes.Request.TIME_OFFSET.value(), offset);
+        builder.queryParam(Attributes.Request.PLAYER.value(), player.getId());
+        builder.queryParam(Attributes.Request.DURATION.value(), duration);
         if (bitRate != null) {
-            builder.queryParam("maxBitRate", bitRate.getLeft());
+            builder.queryParam(Attributes.Request.MAX_BIT_RATE.value(), bitRate.getLeft());
             Dimension dimension = bitRate.getRight();
             if (dimension != null) {
-                builder.queryParam("size", dimension.width);
-                builder.queryParam("x", dimension.height);
+                builder.queryParam(Attributes.Request.SIZE.value(), dimension.width);
+                builder.queryParam(Attributes.Request.X.value(), dimension.height);
             }
         }
         jwtSecurityService.addJWTToken(builder);
         return builder.toUriString();
     }
 
-    @SuppressWarnings({ "PMD.UseStringBufferForStringAppends" }) // "+" is OK if it is not a critical
     private String getContextPath(HttpServletRequest request) {
         String contextPath = request.getContextPath();
         if (StringUtils.isEmpty(contextPath)) {
             contextPath = "/";
         } else {
-            contextPath += "/";
+            contextPath = new StringBuilder(contextPath).append('/').toString();
         }
         return contextPath;
     }

@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
 
 /**
@@ -38,8 +39,8 @@ public class NowPlayingInfo {
     private final String avatarUrl;
     private final int minutesAgo;
 
-    public NowPlayingInfo(Integer playerId, String user, String artist, String title, String tooltip, String streamUrl, String albumUrl,
-                          String lyricsUrl, String coverArtUrl, String avatarUrl, int minutesAgo) {
+    public NowPlayingInfo(Integer playerId, String user, String artist, String title, String tooltip, String streamUrl,
+            String albumUrl, String lyricsUrl, String coverArtUrl, String avatarUrl, int minutesAgo) {
         this.playerId = playerId;
         this.username = user;
         this.artist = artist;

@@ -17,8 +17,38 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
+
+import javax.annotation.PostConstruct;
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.FontLoader;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
@@ -52,41 +82,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.LastModified;
 
-import javax.annotation.PostConstruct;
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Semaphore;
-
 /**
  * Controller which produces cover art images.
  *
  * @author Sindre Mehus
  */
 @Controller
-@RequestMapping({"/coverArt", "/ext/coverArt"})
+@RequestMapping({ "/coverArt", "/ext/coverArt" })
+@SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #834
 public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
@@ -113,15 +116,16 @@ public class CoverArtController implements LastModified {
     @Autowired
     private FontLoader fontLoader;
 
-    private final static Object DIRS_LOCK = new Object();
+    private static final Object DIRS_LOCK = new Object();
 
-    private final static Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
+    private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
         semaphore = new Semaphore(settingsService.getCoverArtConcurrency());
     }
 
+    @Override
     public long getLastModified(HttpServletRequest request) {
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
         if (null == coverArtRequest) {
@@ -137,7 +141,7 @@ public class CoverArtController implements LastModified {
         if (LOG.isTraceEnabled()) {
             LOG.trace("handleRequest - " + coverArtRequest);
         }
-        Integer size = ServletRequestUtils.getIntParameter(request, "size");
+        Integer size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value());
 
         // Send fallback image if no ID is given. (No need to cache it, since it will be cached in browser.)
         if (coverArtRequest == null) {
@@ -171,7 +175,7 @@ public class CoverArtController implements LastModified {
     }
 
     private CoverArtRequest createCoverArtRequest(HttpServletRequest request) {
-        String id = request.getParameter("id");
+        String id = request.getParameter(Attributes.Request.ID.value());
         if (id == null) {
             return null;
         }
@@ -219,7 +223,7 @@ public class CoverArtController implements LastModified {
             return null;
         }
         if (mediaFile.isVideo()) {
-            int offset = ServletRequestUtils.getIntParameter(request, "offset", 60);
+            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 60);
             return new VideoCoverArtRequest(mediaFile, offset);
         }
         return new MediaFileCoverArtRequest(mediaFile);
@@ -256,7 +260,8 @@ public class CoverArtController implements LastModified {
 
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
         String encoding = request.getCoverArt() != null ? "jpeg" : "png";
-        File cachedImage = new File(getImageCacheDirectory(size), DigestUtils.md5Hex(request.getKey()) + "." + encoding);
+        File cachedImage = new File(getImageCacheDirectory(size),
+                DigestUtils.md5Hex(request.getKey()) + "." + encoding);
         String lockKey = cachedImage.getPath();
 
         Object lock = new Object();
@@ -291,18 +296,22 @@ public class CoverArtController implements LastModified {
     }
 
     /**
-     * Returns an input stream to the image in the given file.  If the file is an audio file,
-     * the embedded album art is returned.
+     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
+     * returned.
      */
     private InputStream getImageInputStream(File file) throws IOException {
         return getImageInputStreamWithType(file).getLeft();
     }
 
     /**
-     * Returns an input stream to the image in the given file.  If the file is an audio file,
-     * the embedded album art is returned. In addition returns the mime type
+     * Returns an input stream to the image in the given file. If the file is an audio file, the embedded album art is
+     * returned. In addition returns the mime type
      */
-    @SuppressWarnings("PMD.CloseResource") // tryWithResource is used in all of the paths
+    @SuppressWarnings("PMD.CloseResource")
+    /*
+     * False positive. This method is an intermediate function used internally by createImage, sendUnscaled. The methods
+     * calling this method auto-closes the resource after this method completes.
+     */
     private Pair<InputStream, String> getImageInputStreamWithType(File file) throws IOException {
         InputStream is;
         String mimeType;
@@ -328,7 +337,8 @@ public class CoverArtController implements LastModified {
         return Pair.of(is, mimeType);
     }
 
-    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset) throws Exception {
+    private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset)
+            throws Exception {
         VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
         TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
         String command = settingsService.getVideoImageCommand();
@@ -355,7 +365,7 @@ public class CoverArtController implements LastModified {
         return dir;
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // TODO #585
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (BufferedImage) Not reusable
     public static BufferedImage scale(BufferedImage image, int width, int height) {
         int w = image.getWidth();
         int h = image.getHeight();
@@ -374,8 +384,7 @@ public class CoverArtController implements LastModified {
 
             BufferedImage temp = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
             Graphics2D g2 = temp.createGraphics();
-            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+            g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
             g2.drawImage(thumb, 0, 0, temp.getWidth(), temp.getHeight(), null);
             g2.dispose();
 
@@ -421,7 +430,8 @@ public class CoverArtController implements LastModified {
             BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
             Graphics2D graphics = image.createGraphics();
             float fontSize = (height - height * 0.02f) * 0.1f;
-            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height, fontLoader.getFont(fontSize));
+            AutoCover autoCover = new AutoCover(graphics, getKey(), getArtist(), getAlbum(), width, height,
+                    fontLoader.getFont(fontSize));
             autoCover.paintCover();
             graphics.dispose();
             return image;
@@ -436,7 +446,7 @@ public class CoverArtController implements LastModified {
 
         private final Artist artist;
 
-        private ArtistCoverArtRequest(Artist artist) {
+        ArtistCoverArtRequest(Artist artist) {
             super(artist.getCoverArtPath());
             this.artist = artist;
         }
@@ -460,18 +470,13 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return artist.getName();
         }
-
-        @Override
-        public String toString() {
-            return "Artist " + artist.getId() + " - " + artist.getName();
-        }
     }
 
     private class AlbumCoverArtRequest extends CoverArtRequest {
 
         private final Album album;
 
-        private AlbumCoverArtRequest(Album album) {
+        AlbumCoverArtRequest(Album album) {
             super(album.getCoverArtPath());
             this.album = album;
         }
@@ -495,18 +500,15 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return album.getArtist();
         }
-
-        @Override
-        public String toString() {
-            return "Album " + album.getId() + " - " + album.getName();
-        }
     }
 
     private class PlaylistCoverArtRequest extends CoverArtRequest {
 
+        private static final int IMAGE_COMPOSITES_THRESHOLD = 4;
+
         private final Playlist playlist;
 
-        private PlaylistCoverArtRequest(Playlist playlist) {
+        PlaylistCoverArtRequest(Playlist playlist) {
             super(null);
             this.playlist = playlist;
         }
@@ -532,17 +534,12 @@ public class CoverArtController implements LastModified {
         }
 
         @Override
-        public String toString() {
-            return "Playlist " + playlist.getId() + " - " + playlist.getName();
-        }
-
-        @Override
         public BufferedImage createImage(int size) {
             List<MediaFile> albums = getRepresentativeAlbums();
             if (albums.isEmpty()) {
                 return createAutoCover(size, size);
             }
-            if (albums.size() < 4) {
+            if (albums.size() < IMAGE_COMPOSITES_THRESHOLD) {
                 return new MediaFileCoverArtRequest(albums.get(0)).createImage(size);
             }
 
@@ -601,11 +598,9 @@ public class CoverArtController implements LastModified {
 
     private class MediaFileCoverArtRequest extends CoverArtRequest {
 
-        private final MediaFile mediaFile;
         private final MediaFile dir;
 
-        private MediaFileCoverArtRequest(MediaFile mediaFile) {
-            this.mediaFile = mediaFile;
+        MediaFileCoverArtRequest(MediaFile mediaFile) {
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
@@ -629,11 +624,6 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return dir.getAlbumArtist() != null ? dir.getAlbumArtist() : dir.getArtist();
         }
-
-        @Override
-        public String toString() {
-            return "Media file " + mediaFile.getId() + " - " + mediaFile;
-        }
     }
 
     private class VideoCoverArtRequest extends CoverArtRequest {
@@ -641,7 +631,7 @@ public class CoverArtController implements LastModified {
         private final MediaFile mediaFile;
         private final int offset;
 
-        private VideoCoverArtRequest(MediaFile mediaFile, int offset) {
+        VideoCoverArtRequest(MediaFile mediaFile, int offset) {
             this.mediaFile = mediaFile;
             this.offset = offset;
         }
@@ -683,16 +673,11 @@ public class CoverArtController implements LastModified {
         public String getArtist() {
             return mediaFile.getName();
         }
-
-        @Override
-        public String toString() {
-            return "Video file " + mediaFile.getId() + " - " + mediaFile;
-        }
     }
 
     static class AutoCover {
 
-        private final static int[] COLORS = {0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444};
+        private static final int[] COLORS = { 0x33B5E5, 0xAA66CC, 0x99CC00, 0xFFBB33, 0xFF4444 };
         private final Graphics2D graphics;
         private final String artist;
         private final String album;

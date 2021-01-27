@@ -15,7 +15,7 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.4.0-RELEASE</jpsonic.version>
+        <jpsonic.version>109.5.0-SNAPSHOT</jpsonic.version>
         <lucene.version>8.7.0</lucene.version>
     </properties>
 
@@ -770,6 +770,10 @@
                                 <copy todir="${project.build.directory}/classes/fonts">
                                     <fileset dir="src/main/webapp/fonts" includes = "**/" />
                                 </copy>
+                                <!--Because when generating a CSS map it will generate a valid link to the source with a relative path　-->
+                                <copy todir="${project.build.directory}/jpsonic/scss/">
+                                    <fileset dir="${basedir}/src/main/webapp/scss" includes="**" />
+                                </copy>
                             </target>
                         </configuration>
                         <goals>
@@ -777,6 +781,25 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.warmuuh</groupId>
+                <artifactId>libsass-maven-plugin</artifactId>
+                <version>0.2.10-libsass_3.5.3</version>
+                <executions>
+                    <execution>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <inputPath>${project.build.directory}/jpsonic/scss/</inputPath>
+                    <outputPath>${project.build.directory}/jpsonic/style/</outputPath>
+                    <sourceMapOutputPath>${project.build.directory}/jpsonic/style/</sourceMapOutputPath>
+                    <outputStyle>compressed</outputStyle>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.owasp</groupId>

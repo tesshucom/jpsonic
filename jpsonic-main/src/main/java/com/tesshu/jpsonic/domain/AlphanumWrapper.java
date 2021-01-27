@@ -17,13 +17,14 @@
  Copyright 2019 (C) tesshu.com
  Based upon Alphanum Algorithm, Copyright 2007-2017 David Koelle
  */
-package com.tesshu.jpsonic.domain;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
+package com.tesshu.jpsonic.domain;
 
 import java.text.CollationKey;
 import java.text.Collator;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 
 /**
  * Class to perform Collaror sort considering serial number.
@@ -36,6 +37,7 @@ class AlphanumWrapper extends Collator {
         this.deligate = collator;
     }
 
+    @Override
     public int compare(String s1, String s2) {
 
         int thisMarker = 0;
@@ -61,12 +63,12 @@ class AlphanumWrapper extends Collator {
                     }
                 }
             } else {
-                result = null == deligate
-                        ? thisChunk.compareToIgnoreCase(thatChunk)
+                result = null == deligate ? thisChunk.compareToIgnoreCase(thatChunk)
                         : deligate.compare(thisChunk, thatChunk);
             }
-            if (result != 0)
+            if (result != 0) {
                 return result;
+            }
         }
         return s1Length - s2Length;
     }
@@ -80,16 +82,18 @@ class AlphanumWrapper extends Collator {
         if (isDigit(c)) {
             while (cursol < slength) {
                 c = s.charAt(cursol);
-                if (!isDigit(c))
+                if (!isDigit(c)) {
                     break;
+                }
                 chunk.append(c);
                 cursol++;
             }
         } else {
             while (cursol < slength) {
                 c = s.charAt(cursol);
-                if (isDigit(c))
+                if (isDigit(c)) {
                     break;
+                }
                 chunk.append(c);
                 cursol++;
             }
@@ -122,6 +126,5 @@ class AlphanumWrapper extends Collator {
         AlphanumWrapper that = (AlphanumWrapper) o;
         return new EqualsBuilder().appendSuper(super.equals(that)).append(that, that.deligate).isEquals();
     }
-
 
 }

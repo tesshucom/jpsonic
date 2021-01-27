@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.upnp;
 
 import com.hoodcomputing.natpmp.MapRequestMessage;
@@ -24,6 +25,7 @@ import com.hoodcomputing.natpmp.NatPmpDevice;
 
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public final class NATPMPRouter implements Router {
@@ -42,6 +44,7 @@ public final class NATPMPRouter implements Router {
         }
     }
 
+    @Override
     public void addPortMapping(int externalPort, int internalPort, final int leaseDuration) {
         int duration = leaseDuration;
         // Use one week if lease duration is "forever".
@@ -53,6 +56,7 @@ public final class NATPMPRouter implements Router {
         device.waitUntilQueueEmpty();
     }
 
+    @Override
     public void deletePortMapping(int externalPort, int internalPort) {
         MapRequestMessage map = new MapRequestMessage(true, internalPort, externalPort, 0, null);
         device.enqueueMessage(map);

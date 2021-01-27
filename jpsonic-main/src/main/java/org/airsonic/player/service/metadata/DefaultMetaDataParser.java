@@ -17,15 +17,16 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.metadata;
+
+import java.io.File;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-
-import java.io.File;
 
 /**
  * Parses meta data by guessing artist, album and song title based on the path of the file.
@@ -46,9 +47,12 @@ public class DefaultMetaDataParser extends MetaDataParser {
     /**
      * Parses meta data for the given file.
      *
-     * @param file The file to parse.
+     * @param file
+     *            The file to parse.
+     * 
      * @return Meta data for the file.
      */
+    @Override
     public MetaData getRawMetaData(File file) {
         MetaData metaData = new MetaData();
         String artist = guessArtist(file);
@@ -60,14 +64,16 @@ public class DefaultMetaDataParser extends MetaDataParser {
     }
 
     /**
-     * Updates the given file with the given meta data.
-     * This method has no effect.
+     * Updates the given file with the given meta data. This method has no effect.
      *
-     * @param file     The file to update.
-     * @param metaData The new meta data.
+     * @param file
+     *            The file to update.
+     * @param metaData
+     *            The new meta data.
      */
-    @SuppressWarnings("PMD.UncommentedEmptyMethodBody")
+    @Override
     public void setMetaData(MediaFile file, MetaData metaData) {
+        // Nothing is currently done. It seems that it is only implemented in JaudiotaggerParser...
     }
 
     /**
@@ -75,6 +81,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
      *
      * @return Always false.
      */
+    @Override
     public boolean isEditingSupported() {
         return false;
     }
@@ -87,9 +94,12 @@ public class DefaultMetaDataParser extends MetaDataParser {
     /**
      * Returns whether this parser is applicable to the given file.
      *
-     * @param file The file in question.
+     * @param file
+     *            The file in question.
+     * 
      * @return Whether this parser is applicable to the given file.
      */
+    @Override
     public boolean isApplicable(File file) {
         return file.isFile();
     }

@@ -1,4 +1,7 @@
+
 package org.airsonic.player.service.playlist;
+
+import java.util.List;
 
 import chameleon.content.Content;
 import chameleon.playlist.Media;
@@ -10,8 +13,6 @@ import org.airsonic.player.domain.MediaFile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class DefaultPlaylistExportHandler implements PlaylistExportHandler {

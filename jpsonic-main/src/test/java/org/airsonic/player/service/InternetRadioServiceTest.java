@@ -1,13 +1,8 @@
+
 package org.airsonic.player.service;
 
-import org.airsonic.player.domain.InternetRadio;
-import org.airsonic.player.domain.InternetRadioSource;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.*;
-import org.mockito.junit.MockitoJUnitRunner;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -16,7 +11,15 @@ import java.net.URL;
 import java.util.Date;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import org.airsonic.player.domain.InternetRadio;
+import org.airsonic.player.domain.InternetRadioSource;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.Spy;
+import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class InternetRadioServiceTest {
@@ -33,17 +36,10 @@ public class InternetRadioServiceTest {
     String TEST_STREAM_URL_2 = "http://example.com/stream2";
     String TEST_STREAM_URL_3 = "http://example.com/stream3";
     String TEST_STREAM_URL_4 = "http://example.com/stream4";
-    String TEST_STREAM_PLAYLIST_CONTENTS_1 = (
-        "http://example.com/stream1\n" +
-        "http://example.com/stream2\n"
-    );
-    String TEST_STREAM_PLAYLIST_CONTENTS_2 = (
-        "#EXTM3U\n" +
-        "#EXTINF:123, Sample artist - Sample title\n" +
-        "http://example.com/stream3\n" +
-        "#EXTINF:321,Example Artist - Example title\n" +
-        "http://example.com/stream4\n"
-    );
+    String TEST_STREAM_PLAYLIST_CONTENTS_1 = ("http://example.com/stream1\n" + "http://example.com/stream2\n");
+    String TEST_STREAM_PLAYLIST_CONTENTS_2 = ("#EXTM3U\n" + "#EXTINF:123, Sample artist - Sample title\n"
+            + "http://example.com/stream3\n" + "#EXTINF:321,Example Artist - Example title\n"
+            + "http://example.com/stream4\n");
 
     InternetRadio radio1;
     InternetRadio radio2;
@@ -61,10 +57,14 @@ public class InternetRadioServiceTest {
         // Prepare a mock InternetRadio object
         radio1 = new InternetRadio(1, TEST_RADIO_NAME, TEST_PLAYLIST_URL_1, TEST_RADIO_HOMEPAGE, true, new Date());
         radio2 = new InternetRadio(2, TEST_RADIO_NAME, TEST_PLAYLIST_URL_2, TEST_RADIO_HOMEPAGE, true, new Date());
-        radioMove = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE, TEST_RADIO_HOMEPAGE, true, new Date());
-        radioMoveLoop = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE_LOOP, TEST_RADIO_HOMEPAGE, true, new Date());
-        radioLarge = new InternetRadio(4, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE, TEST_RADIO_HOMEPAGE, true, new Date());
-        radioLarge2 = new InternetRadio(5, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE_2, TEST_RADIO_HOMEPAGE, true, new Date());
+        radioMove = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE, TEST_RADIO_HOMEPAGE, true,
+                new Date());
+        radioMoveLoop = new InternetRadio(3, TEST_RADIO_NAME, TEST_PLAYLIST_URL_MOVE_LOOP, TEST_RADIO_HOMEPAGE, true,
+                new Date());
+        radioLarge = new InternetRadio(4, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE, TEST_RADIO_HOMEPAGE, true,
+                new Date());
+        radioLarge2 = new InternetRadio(5, TEST_RADIO_NAME, TEST_PLAYLIST_URL_LARGE_2, TEST_RADIO_HOMEPAGE, true,
+                new Date());
 
         // Prepare the mocked URL connection for the simple playlist
         HttpURLConnection mockURLConnection1 = Mockito.mock(HttpURLConnection.class);
@@ -94,9 +94,10 @@ public class InternetRadioServiceTest {
         HttpURLConnection mockURLConnectionLarge = Mockito.mock(HttpURLConnection.class);
         InputStream mockURLInputStreamLarge = new InputStream() {
             private long pos = 0;
+
             @Override
             public int read() {
-                return TEST_STREAM_PLAYLIST_CONTENTS_2.charAt((int)(pos++ % TEST_STREAM_PLAYLIST_CONTENTS_2.length()));
+                return TEST_STREAM_PLAYLIST_CONTENTS_2.charAt((int) (pos++ % TEST_STREAM_PLAYLIST_CONTENTS_2.length()));
             }
         };
         doReturn(mockURLInputStreamLarge).when(mockURLConnectionLarge).getInputStream();
@@ -107,6 +108,7 @@ public class InternetRadioServiceTest {
         HttpURLConnection mockURLConnectionLarge2 = Mockito.mock(HttpURLConnection.class);
         InputStream mockURLInputStreamLarge2 = new InputStream() {
             private long pos = 0;
+
             @Override
             public int read() {
                 return 0x41;
@@ -119,9 +121,11 @@ public class InternetRadioServiceTest {
         doReturn(mockURLConnection1).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_1)));
         doReturn(mockURLConnection2).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_2)));
         doReturn(mockURLConnectionMove).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE)));
-        doReturn(mockURLConnectionMoveLoop).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE_LOOP)));
+        doReturn(mockURLConnectionMoveLoop).when(internetRadioService)
+                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE_LOOP)));
         doReturn(mockURLConnectionLarge).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE)));
-        doReturn(mockURLConnectionLarge2).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE_2)));
+        doReturn(mockURLConnectionLarge2).when(internetRadioService)
+                .connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE_2)));
     }
 
     @Test

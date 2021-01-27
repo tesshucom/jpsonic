@@ -16,7 +16,14 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.domain;
+
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.text.Collator;
+import java.util.Comparator;
+import java.util.regex.Pattern;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -31,26 +38,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.text.Collator;
-import java.util.Comparator;
-import java.util.regex.Pattern;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 /**
  * This class provides Comparator for domain objects.
  *
- * The sorting rules can be changed with some global options and are dynamic.
- * Executed through this class whenever domain objects in the system are sorted.
+ * The sorting rules can be changed with some global options and are dynamic. Executed through this class whenever
+ * domain objects in the system are sorted.
  */
 @Component
 @DependsOn({ "settingsService", "japaneseReadingUtils" })
 public class JpsonicComparators {
 
     public enum OrderBy {
-        TRACK,
-        ARTIST,
-        ALBUM
+        TRACK, ARTIST, ALBUM
     }
 
     private final Pattern isVarious = Pattern.compile("^various.*$");
@@ -72,15 +71,12 @@ public class JpsonicComparators {
      */
     public Comparator<Album> albumOrderByAlpha() {
         return new Comparator<Album>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(Album o1, Album o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return c.compare(o1.getNameReading(), o2.getNameReading());
+                return createCollator().compare(o1.getNameReading(), o2.getNameReading());
             }
         };
     }
@@ -92,15 +88,12 @@ public class JpsonicComparators {
      */
     public Comparator<Artist> artistOrderByAlpha() {
         return new Comparator<Artist>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(Artist o1, Artist o2) {
                 if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
                     return o1.getOrder() - o2.getOrder();
                 }
-                return c.compare(o1.getReading(), o2.getReading());
+                return createCollator().compare(o1.getReading(), o2.getReading());
             }
         };
     }
@@ -108,47 +101,36 @@ public class JpsonicComparators {
     /**
      * Returns Collator which is used as standard in Jpsonic.
      */
-    private final Collator createCollator() {
+    final Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
 
     public Comparator<Genre> genreOrder(boolean sortByAlbum) {
-        return (Genre o1, Genre o2) -> sortByAlbum ? o2.getAlbumCount() - o1.getAlbumCount() : o2.getSongCount() - o1.getSongCount();
+        return (Genre o1, Genre o2) -> sortByAlbum ? o2.getAlbumCount() - o1.getAlbumCount()
+                : o2.getSongCount() - o1.getSongCount();
     }
 
     public Comparator<Genre> genreOrderByAlpha() {
-        return new Comparator<Genre>() {
-
-            private final Comparator<Object> c = createCollator();
-
-            @Override
-            public int compare(Genre o1, Genre o2) {
-                utils.analyze(o1);
-                utils.analyze(o2);
-                return c.compare(o1.getReading(), o2.getReading());
-            }
-        };
+        return new GenreComparator(utils, createCollator());
     }
 
     private final boolean isSortAlbumsByYear(MediaFile parent) {
-        return settingsService.isSortAlbumsByYear()
-                && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
+        return settingsService.isSortAlbumsByYear() && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
-        return settingsService.isSortAlbumsByYear()
-                && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                        && isVarious.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
+        return settingsService.isSortAlbumsByYear() && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
+                && isVarious.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
     }
 
     /**
-     * Returns the comparator that changes the sorting rules by hierarchy.
-     * Mainly used when expanding files.
-     * The result is affected by the global settings related to sorting.
+     * Returns the comparator that changes the sorting rules by hierarchy. Mainly used when expanding files. The result
+     * is affected by the global settings related to sorting.
      *
-     * @param parent The common parent of the list to sort. Null for
-     *               hierarchy-independent or top-level sorting.
+     * @param parent
+     *            The common parent of the list to sort. Null for hierarchy-independent or top-level sorting.
+     * 
      * @return
      */
     public MediaFileComparator mediaFileOrder(@Nullable MediaFile parent) {
@@ -156,46 +138,42 @@ public class JpsonicComparators {
     }
 
     /**
-     * Returns a comparator for sorting MediaFiles
-     * by specifying a field regardless of MediaType.
+     * Returns a comparator for sorting MediaFiles by specifying a field regardless of MediaType.
      *
      * @param orderBy
+     * 
      * @return
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return new Comparator<MediaFile>() {
-
-            private final Comparator<Object> c = createCollator();
-
+            @Override
             public int compare(MediaFile a, MediaFile b) {
                 switch (orderBy) {
-                    case TRACK:
-                        Integer trackA = a.getTrackNumber();
-                        Integer trackB = b.getTrackNumber();
-                        if (trackA == null) {
-                            trackA = 0;
-                        }
-                        if (trackB == null) {
-                            trackB = 0;
-                        }
-                        return trackA.compareTo(trackB);
-                    case ARTIST:
-                        return c.compare(a.getArtistReading(), b.getArtistReading());
-                    case ALBUM:
-                        return c.compare(a.getAlbumReading(), b.getAlbumReading());
-                    default:
-                        return 0;
+                case TRACK:
+                    Integer trackA = a.getTrackNumber();
+                    Integer trackB = b.getTrackNumber();
+                    if (trackA == null) {
+                        trackA = 0;
+                    }
+                    if (trackB == null) {
+                        trackB = 0;
+                    }
+                    return trackA.compareTo(trackB);
+                case ARTIST:
+                    return createCollator().compare(a.getArtistReading(), b.getArtistReading());
+                case ALBUM:
+                    return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
+                default:
+                    return 0;
                 }
             }
         };
     }
 
     /**
-     * Returns a comparator for dictionary order sorting MediaFiles
-     * with different MediaTypes.
-     * Ignores some of the global settings related to sorting,
-     * and sorts naturally based on Type and name.
-     * It is mainly used for order index during scanning.
+     * Returns a comparator for dictionary order sorting MediaFiles with different MediaTypes. Ignores some of the
+     * global settings related to sorting, and sorts naturally based on Type and name. It is mainly used for order index
+     * during scanning.
      *
      * @return Comparator
      */
@@ -204,29 +182,52 @@ public class JpsonicComparators {
     }
 
     public Comparator<Playlist> playlistOrder() {
-        return new Comparator<Playlist>() {
-
-            private final Comparator<Object> c = createCollator();
-
-            @Override
-            public int compare(Playlist o1, Playlist o2) {
-                utils.analyze(o1);
-                utils.analyze(o2);
-                return c.compare(o1.getReading(), o2.getReading());
-            }
-        };
+        return new PlaylistComparator(utils, createCollator());
     }
 
     public Comparator<SortableArtist> sortableArtistOrder() {
 
         return new Comparator<SortableArtist>() {
-
-            private final Collator c = createCollator();
-
             @Override
             public int compare(SortableArtist o1, SortableArtist o2) {
-                return c.compare(o1.getSortableName(), o2.getSortableName());
+                return createCollator().compare(o1.getSortableName(), o2.getSortableName());
             }
         };
+    }
+
+    private static class GenreComparator implements Comparator<Genre> {
+        final JapaneseReadingUtils utils;
+        final Collator collator;
+
+        public GenreComparator(JapaneseReadingUtils utils, Collator collator) {
+            super();
+            this.utils = utils;
+            this.collator = collator;
+        }
+
+        @Override
+        public int compare(Genre o1, Genre o2) {
+            this.utils.analyze(o1);
+            this.utils.analyze(o2);
+            return this.collator.compare(o1.getReading(), o2.getReading());
+        }
+    }
+
+    private static class PlaylistComparator implements Comparator<Playlist> {
+        final JapaneseReadingUtils utils;
+        final Collator collator;
+
+        public PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
+            super();
+            this.utils = utils;
+            this.collator = collator;
+        }
+
+        @Override
+        public int compare(Playlist o1, Playlist o2) {
+            this.utils.analyze(o1);
+            this.utils.analyze(o2);
+            return this.collator.compare(o1.getReading(), o2.getReading());
+        }
     }
 }

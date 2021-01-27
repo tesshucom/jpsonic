@@ -20,6 +20,19 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.dao.AlbumDao;
@@ -41,28 +54,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 /**
  * Termination used by SearchService.
  *
- * Since SearchService operates as a proxy for storage (DB) using lucene,
- * there are many redundant descriptions different from essential data processing.
- * This class is a transfer class for saving those redundant descriptions.
+ * Since SearchService operates as a proxy for storage (DB) using lucene, there are many redundant descriptions
+ * different from essential data processing. This class is a transfer class for saving those redundant descriptions.
  *
- * Exception handling is not termination,
- * so do not include exception handling in this class.
+ * Exception handling is not termination, so do not include exception handling in this class.
  */
 @Component
 public class SearchServiceUtilities {
@@ -86,25 +84,21 @@ public class SearchServiceUtilities {
     private Ehcache randomCache;
 
     /*
-     * Search by id only.
-     * Although there is no influence at present,
-     * mediaFileService has a caching mechanism.
-     * Service is used instead of Dao until you are sure you need to use mediaFileDao.
+     * Search by id only. Although there is no influence at present, mediaFileService has a caching mechanism. Service
+     * is used instead of Dao until you are sure you need to use mediaFileDao.
      */
     @Autowired
     private MediaFileService mediaFileService;
 
-    private Random random;
+    private static Random random;
 
-    private Random secureRandom;
-
-    {
+    static {
         try {
-            secureRandom = SecureRandom.getInstance("NativePRNG");
+            random = SecureRandom.getInstance("NativePRNG");
             LOG.info("NativePRNG is used to create a random list of songs.");
         } catch (NoSuchAlgorithmException e) {
             try {
-                secureRandom = SecureRandom.getInstance("SHA1PRNG");
+                random = SecureRandom.getInstance("SHA1PRNG");
                 LOG.info("SHA1PRNG is used to create a random list of songs.");
             } catch (NoSuchAlgorithmException e1) {
                 random = new Random(System.currentTimeMillis());
@@ -113,8 +107,7 @@ public class SearchServiceUtilities {
         }
     }
 
-    public Function<Integer, Integer> nextInt = (range) -> 
-        isEmpty(secureRandom) ? random.nextInt(range) : secureRandom.nextInt(range);  
+    public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
     public final Function<Long, Integer> round = (i) -> {
         // return
@@ -182,8 +175,7 @@ public class SearchServiceUtilities {
         return CollectionUtils.addIgnoreNull(collection, object);
     }
 
-    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType,
-            int subjectId) {
+    public final boolean addIgnoreNull(Collection<?> collection, IndexType indexType, int subjectId) {
         if (indexType == IndexType.ALBUM || indexType == IndexType.SONG) {
             return addIgnoreNull(collection, mediaFileService.getMediaFile(subjectId));
         } else if (indexType == IndexType.ALBUM_ID3) {
@@ -192,8 +184,8 @@ public class SearchServiceUtilities {
         return false;
     }
 
-    public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType,
-            int subjectId, Class<T> subjectClass) {
+    public final <T> void addIgnoreNull(ParamSearchResult<T> dist, IndexType indexType, int subjectId,
+            Class<T> subjectClass) {
         if (indexType == IndexType.SONG || indexType == IndexType.ALBUM || indexType == IndexType.ARTIST) {
             MediaFile mediaFile = mediaFileService.getMediaFile(subjectId);
             addIgnoreNull(dist.getItems(), subjectClass.cast(mediaFile));
@@ -206,8 +198,7 @@ public class SearchServiceUtilities {
         }
     }
 
-    public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType,
-            Document subject) {
+    public final void addIfAnyMatch(SearchResult dist, IndexType subjectIndexType, Document subject) {
         int documentId = getId.apply(subject);
         if (subjectIndexType == IndexType.ARTIST || subjectIndexType == IndexType.ALBUM
                 || subjectIndexType == IndexType.SONG) {
@@ -221,7 +212,8 @@ public class SearchServiceUtilities {
 
     public final String[] filterComposer(String[] fields, boolean includeComposer) {
         return Arrays.asList(fields).stream()
-                .filter(f -> includeComposer ? true : !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
+                .filter(f -> includeComposer ? true
+                        : !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
                 .collect(Collectors.toList()).toArray(new String[0]);
     }
 
@@ -233,7 +225,8 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
-    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
+    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+            String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(',').append(casheMax).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
@@ -258,7 +251,8 @@ public class SearchServiceUtilities {
     }
 
     @SuppressWarnings("unchecked")
-    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, String... additional) {
+    public Optional<List<MediaFile>> getCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+            String... additional) {
         List<MediaFile> mediaFiles = null;
         Element element;
         synchronized (randomCache) {
@@ -295,7 +289,8 @@ public class SearchServiceUtilities {
         }
     }
 
-    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value, String... additional) {
+    public void putCache(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders, List<MediaFile> value,
+            String... additional) {
         synchronized (randomCache) {
             randomCache.put(new Element(createCacheKey(key, casheMax, musicFolders, additional), value));
         }

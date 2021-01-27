@@ -1,4 +1,11 @@
+
 package org.airsonic.player.api.jukebox;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -10,8 +17,6 @@ import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
-
-import static org.mockito.Mockito.*;
 
 public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxIntTest {
 

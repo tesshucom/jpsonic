@@ -17,11 +17,20 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.ajax;
+
+import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.SocketException;
+import java.util.Objects;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.config.RequestConfig;
@@ -37,12 +46,6 @@ import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.SocketException;
-
-import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
 
 /**
  * Provides AJAX-enabled services for retrieving song lyrics from chartlyrics.com.
@@ -61,16 +64,19 @@ public class LyricsService {
     /**
      * Returns lyrics for the given song and artist.
      *
-     * @param artist The artist.
-     * @param song   The song.
+     * @param artist
+     *            The artist.
+     * @param song
+     *            The song.
+     * 
      * @return The lyrics, never <code>null</code> .
      */
     public LyricsInfo getLyrics(final String artist, final String song) {
         LyricsInfo lyrics = new LyricsInfo();
         try {
 
-            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist=" +
-                    StringUtil.urlEncode(artist) + "&song=" + StringUtil.urlEncode(song);
+            String url = "http://api.chartlyrics.com/apiv1.asmx/SearchLyricDirect?artist="
+                    + StringUtil.urlEncode(artist) + "&song=" + StringUtil.urlEncode(song);
             String xml = executeGetRequest(url);
             lyrics = parseSearchResult(xml);
 
@@ -78,7 +84,7 @@ public class LyricsService {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to get lyrics for song '{}'. Request failed: {}", song, x.toString());
             }
-            if (x.getStatusCode() == 503) {
+            if (Objects.equals(HttpStatus.SC_SERVICE_UNAVAILABLE, x.getStatusCode())) {
                 lyrics.setTryLater(true);
             }
         } catch (SocketException | ConnectTimeoutException x) {
@@ -110,10 +116,7 @@ public class LyricsService {
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeGetRequest(String url) throws IOException {
-        RequestConfig requestConfig = RequestConfig.custom()
-                .setConnectTimeout(15000)
-                .setSocketTimeout(15000)
-                .build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000).setSocketTimeout(15000).build();
         HttpGet method = new HttpGet(url);
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {

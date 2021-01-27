@@ -20,6 +20,14 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
@@ -41,25 +49,18 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 /**
- * Factory class of Lucene Query.
- * This class is an extract of the functionality that was once part of SearchService.
- * It is for maintainability and verification.
- * Each corresponds to the SearchService method.
- * The API syntax for query generation depends on the lucene version.
- * verification with query grammar is possible.
- * On the other hand, the generated queries are relatively small by version.
- * Therefore, test cases of this class are useful for large version upgrades.
+ * Factory class of Lucene Query. This class is an extract of the functionality that was once part of SearchService. It
+ * is for maintainability and verification. Each corresponds to the SearchService method. The API syntax for query
+ * generation depends on the lucene version. verification with query grammar is possible. On the other hand, the
+ * generated queries are relatively small by version. Therefore, test cases of this class are useful for large version
+ * upgrades.
  **/
-@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.CloseResource" }) // Analyzer should not be closed
+@SuppressWarnings("PMD.CloseResource")
+/*
+ * Analysers are the factory class for TokenStreams and thread-safe. Loaded only once at startup and used for scanning
+ * and searching. Do not explicitly close in this class.
+ */
 @Component
 public class QueryFactory {
 
@@ -82,31 +83,25 @@ public class QueryFactory {
     };
 
     /*
-     *  XXX 3.x -> 8.x :
-     *  "SpanOr" has been changed to "Or".
-     *   - Path comparison is more appropriate with "Or".
-     *   - If "SpanOr" is maintained, the DOC design needs to be changed.
+     * XXX 3.x -> 8.x : "SpanOr" has been changed to "Or". - Path comparison is more appropriate with "Or". - If
+     * "SpanOr" is maintained, the DOC design needs to be changed.
      */
-    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (
-            isId3, folders) -> {
+    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3, folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
-        folders.stream()
-            .map(isId3 ? toFolderIdQuery : toFolderPathQuery)
-            .forEach(t -> mfQuery.add(t, Occur.SHOULD));
+        folders.stream().map(isId3 ? toFolderIdQuery : toFolderPathQuery).forEach(t -> mfQuery.add(t, Occur.SHOULD));
         return mfQuery.build();
     };
 
     /*
-     *  XXX 3.x -> 8.x :
-     * In order to support wildcards,
-     * MultiFieldQueryParser has been replaced by the following process.
+     * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
      * 
-     *  - There is also an override of MultiFieldQueryParser, but it is known to be high cost.
-     *  - MultiFieldQueryParser was created before Java API was modernized.
-     *  - The spec of Parser has changed from time to time. Using parser does not reduce library update risk.
-     *  - Self made parser process reduces one library dependency.
-     *  - It is easy to make corrections later when changing the query to improve search accuracy.
+     * - There is also an override of MultiFieldQueryParser, but it is known to be high cost. - MultiFieldQueryParser
+     * was created before Java API was modernized. - The spec of Parser has changed from time to time. Using parser does
+     * not reduce library update risk. - Self made parser process reduces one library dependency. - It is easy to make
+     * corrections later when changing the query to improve search accuracy.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery,
+    // BooleanQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
@@ -137,9 +132,7 @@ public class QueryFactory {
         }
 
         /* If Field's Tokenizer is different, token's length may not match. **/
-        int maxTermLength = fieldsQuerys.stream()
-                .map(l -> l.size())
-                .max(Integer::compare).orElse(0);
+        int maxTermLength = fieldsQuerys.stream().map(l -> l.size()).max(Integer::compare).orElse(0);
 
         if (0 < fieldsQuerys.size()) {
             for (int i = 0; i < maxTermLength; i++) {
@@ -155,10 +148,12 @@ public class QueryFactory {
 
         return mainQuery.build();
 
-    };
+    }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString, @NonNull IndexType indexType) throws IOException {
+    final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+            @NonNull IndexType indexType) throws IOException {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
         BooleanQuery.Builder fieldQuerys = new BooleanQuery.Builder();
@@ -179,7 +174,8 @@ public class QueryFactory {
             if (exists) {
                 phrase.setSlop(1);
                 if (indexType.getBoosts().containsKey(fieldName)) {
-                    fieldQuerys.add(new BoostQuery(phrase.build(), indexType.getBoosts().get(fieldName) * 2), Occur.SHOULD);
+                    fieldQuerys.add(new BoostQuery(phrase.build(), indexType.getBoosts().get(fieldName) * 2),
+                            Occur.SHOULD);
                 } else {
                     fieldQuerys.add(phrase.build(), Occur.SHOULD);
                 }
@@ -187,29 +183,33 @@ public class QueryFactory {
         }
         return fieldQuerys.build();
 
-    };
+    }
 
     /*
-     * XXX 3.x -> 8.x :
-     * RangeQuery has been changed to not allow null.
+     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
      */
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery =
-        (from, to) -> {
-            return IntPoint.newRangeQuery(FieldNamesConstants.YEAR,
-                isEmpty(from) ? Integer.MIN_VALUE : from,
+    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
+        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
                 isEmpty(to) ? Integer.MAX_VALUE : to);
-        };
+    };
 
     /**
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#search(SearchCriteria, List, IndexType)}.
      * 
-     * @param searchInput searchInput
-     * @param includeComposer includeComposer
-     * @param musicFolders musicFolders
-     * @param indexType {@link IndexType}
+     * @param searchInput
+     *            searchInput
+     * @param includeComposer
+     *            includeComposer
+     * @param musicFolders
+     *            musicFolders
+     * @param indexType
+     *            {@link IndexType}
+     * 
      * @return Query
-     * @throws IOException When parsing of MultiFieldQueryParser fails
+     * 
+     * @throws IOException
+     *             When parsing of MultiFieldQueryParser fails
      */
     public Query search(String searchInput, boolean includeComposer, List<MusicFolder> musicFolders,
             IndexType indexType) throws IOException {
@@ -247,11 +247,12 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getRandomSongs(RandomSearchCriteria)}.
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getRandomSongs(RandomSearchCriteria criteria) throws IOException {
 
         BooleanQuery.Builder query = new BooleanQuery.Builder();
-        
+
         // Unanalyzed field
         query.add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST);
 
@@ -287,24 +288,30 @@ public class QueryFactory {
     /**
      * {@link org.airsonic.player.service.SearchService#getRandomSongs(int, int, int, List)}.
      * 
-     * @param musicFolders musicFolders
+     * @param musicFolders
+     *            musicFolders
+     * 
      * @return Query
      */
     public Query getRandomSongs(List<MusicFolder> musicFolders) {
         return new BooleanQuery.Builder()
                 .add(new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())), Occur.MUST)
-                .add(toFolderQuery.apply(false, musicFolders), Occur.MUST)
-                .build();
+                .add(toFolderQuery.apply(false, musicFolders), Occur.MUST).build();
     }
 
     /**
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#searchByName( String, String, int, int, List, Class)}.
      * 
-     * @param fieldName {@link FieldNames}
+     * @param fieldName
+     *            {@link FieldNames}
+     * 
      * @return Query
-     * @throws IOException When parsing of QueryParser fails
+     * 
+     * @throws IOException
+     *             When parsing of QueryParser fails
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term, WildcardQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query searchByName(String fieldName, String name) throws IOException {
 
@@ -319,9 +326,7 @@ public class QueryFactory {
             stream.incrementToken();
 
             /*
-             *  XXX 3.x -> 8.x :
-             * In order to support wildcards,
-             * QueryParser has been replaced by the following process.
+             * XXX 3.x -> 8.x : In order to support wildcards, QueryParser has been replaced by the following process.
              */
 
             /* Wildcards apply only to tail tokens **/
@@ -346,32 +351,35 @@ public class QueryFactory {
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getRandomAlbums(int, List)}.
      * 
-     * @param musicFolders musicFolders
+     * @param musicFolders
+     *            musicFolders
+     * 
      * @return Query
      */
     public Query getRandomAlbums(List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder()
-                .add(toFolderQuery.apply(false, musicFolders), Occur.SHOULD)
-                .build();
+        return new BooleanQuery.Builder().add(toFolderQuery.apply(false, musicFolders), Occur.SHOULD).build();
     }
 
     /**
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getRandomAlbumsId3(int, List)}.
      * 
-     * @param musicFolders musicFolders
+     * @param musicFolders
+     *            musicFolders
+     * 
      * @return Query
      */
     public Query getRandomAlbumsId3(List<MusicFolder> musicFolders) {
-        return new BooleanQuery.Builder()
-                .add(toFolderQuery.apply(true, musicFolders), Occur.SHOULD)
-                .build();
+        return new BooleanQuery.Builder().add(toFolderQuery.apply(true, musicFolders), Occur.SHOULD).build();
     }
 
     /**
-     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
+     * Query generation expression extracted from
+     * {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
+     * 
      * @param musicFolders
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getAlbumId3sByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
@@ -381,10 +389,12 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
+            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
+                    genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
-                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
+                            stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
                 }
             }
             query.add(genreQuery.build(), Occur.MUST);
@@ -392,19 +402,25 @@ public class QueryFactory {
 
         // sub - folder
         BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
-        musicFolders.forEach(musicFolder -> folderQuery.add(new TermQuery(new Term(FieldNamesConstants.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD));
+        musicFolders.forEach(musicFolder -> folderQuery.add(
+                new TermQuery(new Term(FieldNamesConstants.FOLDER_ID, musicFolder.getId().toString())), Occur.SHOULD));
         query.add(folderQuery.build(), Occur.MUST);
 
         return query.build();
 
     }
-    
+
     /**
-     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getSongsByGenre(String, int, int, List)}
-     * Query generation expression extracted from {@link org.airsonic.player.service.SearchService#getAlbumsByGenre(int, int, String, List)}
+     * Query generation expression extracted from
+     * {@link org.airsonic.player.service.SearchService#getSongsByGenre(String, int, int, List)} Query generation
+     * expression extracted from
+     * {@link org.airsonic.player.service.SearchService#getAlbumsByGenre(int, int, String, List)}
+     * 
      * @param musicFolders
+     * 
      * @return
      */
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query getMediasByGenres(String genres, List<MusicFolder> musicFolders) throws IOException {
 
@@ -414,10 +430,12 @@ public class QueryFactory {
         // sub - genre
         if (!isEmpty(genres)) {
             BooleanQuery.Builder genreQuery = new BooleanQuery.Builder();
-            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genres)) {
+            try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
+                    genres)) {
                 stream.reset();
                 while (stream.incrementToken()) {
-                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                    genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
+                            stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
                 }
             }
             query.add(genreQuery.build(), Occur.MUST);
@@ -425,13 +443,15 @@ public class QueryFactory {
 
         // sub - folder
         BooleanQuery.Builder folderQuery = new BooleanQuery.Builder();
-        musicFolders.forEach(musicFolder -> folderQuery.add(new TermQuery(new Term(FieldNamesConstants.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
+        musicFolders.forEach(musicFolder -> folderQuery.add(
+                new TermQuery(new Term(FieldNamesConstants.FOLDER, musicFolder.getPath().getPath())), Occur.SHOULD));
         query.add(folderQuery.build(), Occur.MUST);
 
         return query.build();
 
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public Query toPreAnalyzedGenres(List<String> genres) throws IOException {
 
@@ -443,10 +463,12 @@ public class QueryFactory {
 
         for (String genre : genres) {
             if (!isEmpty(genre)) {
-                try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE, genre)) {
+                try (TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(FieldNamesConstants.GENRE,
+                        genre)) {
                     stream.reset();
                     while (stream.incrementToken()) {
-                        genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
+                        genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE,
+                                stream.getAttribute(CharTermAttribute.class).toString())), Occur.SHOULD);
                     }
                 }
             }
@@ -457,7 +479,8 @@ public class QueryFactory {
     }
 
     public Query getGenre(String genre) throws IOException {
-        return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD).build();
+        return new BooleanQuery.Builder().add(new TermQuery(new Term(FieldNamesConstants.GENRE, genre)), Occur.SHOULD)
+                .build();
     }
 
 }

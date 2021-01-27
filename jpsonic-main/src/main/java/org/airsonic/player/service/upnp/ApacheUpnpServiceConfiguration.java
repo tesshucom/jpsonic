@@ -17,7 +17,10 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2013 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.upnp;
+
+import java.util.concurrent.Executors;
 
 import org.fourthline.cling.DefaultUpnpServiceConfiguration;
 import org.fourthline.cling.transport.impl.apache.StreamClientConfigurationImpl;
@@ -28,13 +31,11 @@ import org.fourthline.cling.transport.spi.NetworkAddressFactory;
 import org.fourthline.cling.transport.spi.StreamClient;
 import org.fourthline.cling.transport.spi.StreamServer;
 
-import java.util.concurrent.Executors;
-
 /**
- * UPnP configuration which uses Apache HttpComponents.  Needed to make UPnP work
- * when deploying on Tomcat.
+ * UPnP configuration which uses Apache HttpComponents. Needed to make UPnP work when deploying on Tomcat.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class ApacheUpnpServiceConfiguration extends DefaultUpnpServiceConfiguration {

@@ -17,7 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.filter;
+
+import java.io.IOException;
+import java.util.Enumeration;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -27,19 +31,18 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import java.io.IOException;
-import java.util.Enumeration;
-
 /**
- * Configurable filter for setting HTTP response headers. Can be used, for instance, to
- * set cache control directives for certain resources.
+ * Configurable filter for setting HTTP response headers. Can be used, for instance, to set cache control directives for
+ * certain resources.
  *
  * @author Sindre Mehus
+ * 
  * @version $Revision: 1.1 $ $Date: 2005/08/14 13:14:47 $
  */
 public class ResponseHeaderFilter implements Filter {
     private FilterConfig filterConfig;
 
+    @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {
         HttpServletResponse response = (HttpServletResponse) res;
@@ -54,10 +57,13 @@ public class ResponseHeaderFilter implements Filter {
         chain.doFilter(req, response);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         this.filterConfig = filterConfig;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (filterConfig) Intentional allocation to destroy
+    @Override
     public void destroy() {
         this.filterConfig = null;
     }

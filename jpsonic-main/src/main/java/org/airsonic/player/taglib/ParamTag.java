@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
 
 import javax.servlet.jsp.JspTagException;
@@ -26,13 +27,16 @@ import javax.servlet.jsp.tagext.TagSupport;
  * A tag representing an URL query parameter.
  *
  * @see ParamTag
+ * 
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class ParamTag extends TagSupport {
 
     private String name;
     private String value;
 
+    @Override
     public int doEndTag() throws JspTagException {
 
         // Add parameter name and value to surrounding 'url' tag.
@@ -44,6 +48,8 @@ public class ParamTag extends TagSupport {
         return EVAL_PAGE;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (name, value)Intentional allocation to release
+    @Override
     public void release() {
         name = null;
         value = null;

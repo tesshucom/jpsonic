@@ -19,22 +19,27 @@
 
 package org.airsonic.player.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Properties;
+
 import de.umass.lastfm.cache.Cache;
 import de.umass.lastfm.cache.FileSystemCache;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Properties;
-
 /**
- * Based on {@link FileSystemCache}, but properly closes files and enforces
- * time-to-live (by ignoring HTTP header directives).
+ * Based on {@link FileSystemCache}, but properly closes files and enforces time-to-live (by ignoring HTTP header
+ * directives).
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class LastFmCache extends Cache {
@@ -77,7 +82,7 @@ public class LastFmCache extends Cache {
         }
     }
 
-    @SuppressWarnings("PMD.EmptyCatchBlock")
+    @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @Override
     public void store(String cacheEntryName, InputStream inputStream, long expirationDate) {
         createCache();

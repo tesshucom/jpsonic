@@ -1,5 +1,12 @@
+
 package org.airsonic.player;
 
+import java.lang.reflect.Method;
+
+import javax.servlet.Filter;
+import javax.servlet.Servlet;
+
+import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.filter.FontSchemeFilter;
 import org.airsonic.player.filter.BootstrapVerificationFilter;
 import org.airsonic.player.filter.MetricsFilter;
@@ -7,6 +14,7 @@ import org.airsonic.player.filter.ParameterDecodingFilter;
 import org.airsonic.player.filter.RESTFilter;
 import org.airsonic.player.filter.RequestEncodingFilter;
 import org.airsonic.player.filter.ResponseHeaderFilter;
+import org.airsonic.player.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.airsonic.player.util.LegacyHsqlUtil;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;
@@ -28,21 +36,15 @@ import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerF
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Profiles;
 import org.springframework.util.ReflectionUtils;
 
-import javax.servlet.Filter;
-
-import java.lang.reflect.Method;
-
-@SpringBootApplication(exclude = {
-        JmxAutoConfiguration.class,
-        JdbcTemplateAutoConfiguration.class,
-        DataSourceAutoConfiguration.class,
-        DataSourceTransactionManagerAutoConfiguration.class,
+@SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
+        DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
         MultipartAutoConfiguration.class, // TODO: update to use spring boot builtin multipart support
-        LiquibaseAutoConfiguration.class},
-        scanBasePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-public class Application extends SpringBootServletInitializer implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
+        LiquibaseAutoConfiguration.class }, scanBasePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+public class Application extends SpringBootServletInitializer
+        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
 
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
@@ -52,20 +54,20 @@ public class Application extends SpringBootServletInitializer implements WebServ
      * @return a registration bean.
      */
     @Bean
-    public ServletRegistrationBean dwrServletRegistrationBean() {
-        ServletRegistrationBean servlet = new ServletRegistrationBean(new DwrServlet(), "/dwr/*");
-        servlet.addInitParameter("crossDomainSessionSecurity","false");
+    public ServletRegistrationBean<Servlet> dwrServletRegistrationBean() {
+        ServletRegistrationBean<Servlet> servlet = new ServletRegistrationBean<>(new DwrServlet(), "/dwr/*");
+        servlet.addInitParameter("crossDomainSessionSecurity", "false");
         return servlet;
     }
 
     @Bean
-    public ServletRegistrationBean cxfServletBean() {
-        return new ServletRegistrationBean(new org.apache.cxf.transport.servlet.CXFServlet(), "/ws/*");
+    public ServletRegistrationBean<Servlet> cxfServletBean() {
+        return new ServletRegistrationBean<>(new org.apache.cxf.transport.servlet.CXFServlet(), "/ws/*");
     }
 
     @Bean
-    public FilterRegistrationBean bootstrapVerificationFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> bootstrapVerificationFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(bootstrapVerificationFiler());
         registration.addUrlPatterns("/*");
         registration.setName("BootstrapVerificationFilter");
@@ -79,8 +81,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean parameterDecodingFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> parameterDecodingFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(parameterDecodingFilter());
         registration.addUrlPatterns("/*");
         registration.setName("ParameterDecodingFilter");
@@ -94,8 +96,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean restFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> restFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(restFilter());
         registration.addUrlPatterns("/rest/*");
         registration.setName("RESTFilter");
@@ -109,8 +111,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean requestEncodingFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> requestEncodingFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(requestEncodingFilter());
         registration.addUrlPatterns("/*");
         registration.addInitParameter("encoding", "UTF-8");
@@ -125,10 +127,11 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean cacheFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> cacheFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(cacheFilter());
-        registration.addUrlPatterns("/icons/*", "/style/*", "/script/*", "/dwr/*", "/icons/*", "/coverArt.view", "/avatar.view");
+        registration.addUrlPatterns("/icons/*", "/style/*", "/script/*", "/dwr/*", "/icons/*",
+                "/" + ViewName.COVER_ART.value(), "/" + ViewName.AVATAR.value());
         registration.addInitParameter("Cache-Control", "max-age=36000");
         registration.setName("CacheFilter");
         registration.setOrder(5);
@@ -141,10 +144,13 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean noCacheFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> noCacheFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(noCacheFilter());
-        registration.addUrlPatterns("/statusChart.view", "/userChart.view", "/playQueue.view", "/podcastChannels.view", "/podcastChannel.view", "/help.view", "/top.view", "/home.view");
+        registration.addUrlPatterns("/" + ViewName.STATUS_CHART.value(), "/" + ViewName.USER_CHART.value(),
+                "/" + ViewName.PLAY_QUEUE.value(), "/" + ViewName.PODCAST_CHANNELS.value(),
+                "/" + ViewName.PODCAST_CHANNEL.value(), "/" + ViewName.HELP.value(), "/" + ViewName.TOP.value(),
+                "/" + ViewName.HOME.value());
         registration.addInitParameter("Cache-Control", "no-cache, post-check=0, pre-check=0");
         registration.addInitParameter("Pragma", "no-cache");
         registration.addInitParameter("Expires", "Thu, 01 Dec 1994 16:00:00 GMT");
@@ -159,8 +165,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     }
 
     @Bean
-    public FilterRegistrationBean metricsFilterRegistration() {
-        FilterRegistrationBean registration = new FilterRegistrationBean();
+    public FilterRegistrationBean<Filter> metricsFilterRegistration() {
+        FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(metricsFilter());
         registration.setOrder(7);
         return registration;
@@ -183,7 +189,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
     private static SpringApplicationBuilder doConfigure(SpringApplicationBuilder application) {
         // Handle HSQLDB database upgrades from 1.8 to 2.x before any beans are started.
         application.application().addListeners((ApplicationListener<ApplicationPreparedEvent>) event -> {
-            if (event.getApplicationContext().getEnvironment().acceptsProfiles("legacy")) {
+            if (event.getApplicationContext().getEnvironment()
+                    .acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
                 LegacyHsqlUtil.upgradeHsqldbDatabaseSafely();
             }
         });
@@ -208,7 +215,8 @@ public class Application extends SpringBootServletInitializer implements WebServ
         // ensure this class does not have any direct dependencies on any Tomcat
         // specific classes.
         try {
-            Class<?> tomcatESCF = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
+            Class<?> tomcatESCF = Class
+                    .forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
             if (tomcatESCF.isInstance(container)) {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Detected Tomcat web server");

@@ -17,22 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
 
-import org.airsonic.player.util.StringUtil;
-import org.springframework.web.servlet.support.RequestContextUtils;
+import java.io.IOException;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import java.io.IOException;
-import java.util.Locale;
+import org.airsonic.player.util.StringUtil;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
- * Converts a byte-count to a formatted string suitable for display to the user, with respect
- * to the current locale.
+ * Converts a byte-count to a formatted string suitable for display to the user, with respect to the current locale.
  * <p/>
  * For instance:
  * <ul>
@@ -44,14 +44,17 @@ import java.util.Locale;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class FormatBytesTag extends BodyTagSupport {
 
     private long bytes;
 
+    @Override
     public int doStartTag() {
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         Locale locale = RequestContextUtils.getLocale((HttpServletRequest) pageContext.getRequest());
         String result = StringUtil.formatBytes(bytes, locale);
@@ -64,6 +67,7 @@ public class FormatBytesTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    @Override
     public void release() {
         bytes = 0L;
         super.release();

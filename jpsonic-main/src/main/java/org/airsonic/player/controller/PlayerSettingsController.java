@@ -17,9 +17,19 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PlayerSettingsCommand;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -41,14 +51,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the player settings page.
@@ -74,7 +79,8 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
+    protected void formBackingObject(HttpServletRequest request, Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
 
         handleRequestParameters(request);
         List<Player> players = getPlayers(request);
@@ -82,7 +88,7 @@ public class PlayerSettingsController {
         User user = securityService.getCurrentUser(request);
         PlayerSettingsCommand command = new PlayerSettingsCommand();
         Player player = null;
-        Integer playerId = ServletRequestUtils.getIntParameter(request, "id");
+        Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         if (playerId != null) {
             player = playerService.getPlayerById(playerId);
         } else if (!players.isEmpty()) {
@@ -110,7 +116,7 @@ public class PlayerSettingsController {
 
             UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
             command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
-            
+
         }
 
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -118,15 +124,15 @@ public class PlayerSettingsController {
         command.setTranscodeSchemes(TranscodeScheme.values());
         PlayerTechnology[] technologys = PlayerTechnology.values();
         if (!settingsService.isShowJavaJukebox()) {
-            technologys = Arrays.stream(technologys)
-                    .filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
+            technologys = Arrays.stream(technologys).filter(technology -> PlayerTechnology.JAVA_JUKEBOX != technology)
                     .toArray(PlayerTechnology[]::new);
         }
         command.setTechnologies(technologys);
         command.setPlayers(players.toArray(new Player[0]));
         command.setAdmin(user.isAdminRole());
 
-        command.setJavaJukeboxMixers(Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
+        command.setJavaJukeboxMixers(
+                Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
         if (player != null) {
             command.setJavaJukeboxMixer(player.getJavaJukeboxMixer());
         }
@@ -135,11 +141,12 @@ public class PlayerSettingsController {
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") PlayerSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
         if (player != null) {
             player.setAutoControlEnabled(command.isAutoControlEnabled());
@@ -153,11 +160,11 @@ public class PlayerSettingsController {
             playerService.updatePlayer(player);
             transcodingService.setTranscodingsForPlayer(player, command.getActiveTranscodingIds());
 
-            redirectAttributes.addFlashAttribute("settings_reload", true);
-            redirectAttributes.addFlashAttribute("settings_toast", true);
-            return "redirect:playerSettings.view";
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+            return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
         } else {
-            return "redirect:notFound";
+            return new ModelAndView(new RedirectView("notFound"));
         }
     }
 
@@ -177,13 +184,13 @@ public class PlayerSettingsController {
     }
 
     private void handleRequestParameters(HttpServletRequest request) throws Exception {
-        if (request.getParameter("delete") != null) {
-            Integer delete = ServletRequestUtils.getIntParameter(request, "delete");
+        if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
+            Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {
                 playerService.removePlayerById(delete);
             }
-        } else if (request.getParameter("clone") != null) {
-            Integer clone = ServletRequestUtils.getIntParameter(request, "clone");
+        } else if (request.getParameter(Attributes.Request.CLONE.value()) != null) {
+            Integer clone = ServletRequestUtils.getIntParameter(request, Attributes.Request.CLONE.value());
             if (clone != null) {
                 playerService.clonePlayer(clone);
             }

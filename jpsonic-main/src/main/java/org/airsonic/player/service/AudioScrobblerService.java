@@ -17,7 +17,11 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service;
+
+import java.util.Date;
+
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.scrobbler.LastFMScrobbler;
@@ -25,11 +29,8 @@ import org.airsonic.player.service.scrobbler.ListenBrainzScrobbler;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 /**
- * Provides services for "audioscrobbling", which is the process of
- * registering what songs are played at website.
+ * Provides services for "audioscrobbling", which is the process of registering what songs are played at website.
  */
 @Service
 @DependsOn("settingsService")
@@ -47,13 +48,17 @@ public class AudioScrobblerService {
     private static final Object BRAINZ_LOCK = new Object();
 
     /**
-     * Registers the given media file at audio scrobble service. This method returns immediately, the actual registration is done
-     * by separate threads.
+     * Registers the given media file at audio scrobble service. This method returns immediately, the actual
+     * registration is done by separate threads.
      *
-     * @param mediaFile  The media file to register.
-     * @param username   The user which played the music file.
-     * @param submission Whether this is a submission or a now playing notification.
-     * @param time       Event time, or {@code null} to use current time.
+     * @param mediaFile
+     *            The media file to register.
+     * @param username
+     *            The user which played the music file.
+     * @param submission
+     *            Whether this is a submission or a now playing notification.
+     * @param time
+     *            Event time, or {@code null} to use current time.
      */
     public void register(MediaFile mediaFile, String username, boolean submission, Date time) {
         if (mediaFile == null || mediaFile.isVideo()) {
@@ -61,13 +66,15 @@ public class AudioScrobblerService {
         }
 
         UserSettings userSettings = settingsService.getUserSettings(username);
-        if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null && userSettings.getLastFmPassword() != null) {
+        if (userSettings.isLastFmEnabled() && userSettings.getLastFmUsername() != null
+                && userSettings.getLastFmPassword() != null) {
             synchronized (FM_LOCK) {
                 if (lastFMScrobbler == null) {
                     lastFMScrobbler = new LastFMScrobbler();
                 }
             }
-            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(), submission, time);
+            lastFMScrobbler.register(mediaFile, userSettings.getLastFmUsername(), userSettings.getLastFmPassword(),
+                    submission, time);
         }
 
         if (userSettings.isListenBrainzEnabled() && userSettings.getListenBrainzToken() != null) {

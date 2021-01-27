@@ -17,8 +17,18 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.UserSettingsCommand;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.TranscodeScheme;
@@ -44,14 +54,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate users.
@@ -75,9 +80,10 @@ public class UserSettingsController {
     }
 
     @GetMapping
-    protected String displayForm(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) throws Exception {
+    protected String displayForm(HttpServletRequest request, Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
-        if (!model.containsAttribute("command")) {
+        if (!model.containsAttribute(Attributes.Model.Command.VALUE)) {
             command = new UserSettingsCommand();
 
             User user = getUser(request);
@@ -87,7 +93,8 @@ public class UserSettingsController {
                 UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
                 command.setTranscodeSchemeName(userSettings.getTranscodeScheme().name());
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
-                command.setCurrentUser(securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
+                command.setCurrentUser(
+                        securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
             } else {
                 command.setNewUser(true);
                 command.setStreamRole(true);
@@ -95,7 +102,7 @@ public class UserSettingsController {
             }
 
         } else {
-            command = (UserSettingsCommand) model.asMap().get("command");
+            command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);
         }
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -106,12 +113,12 @@ public class UserSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(b -> command.setShowToast(b));
-        model.addAttribute("command", command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "userSettings";
     }
 
     private User getUser(HttpServletRequest request) throws ServletRequestBindingException {
-        Integer userIndex = ServletRequestUtils.getIntParameter(request, "userIndex");
+        Integer userIndex = ServletRequestUtils.getIntParameter(request, Attributes.Request.USER_INDEX.value());
         if (userIndex != null) {
             List<User> allUsers = securityService.getAllUsers();
             if (userIndex >= 0 && userIndex < allUsers.size()) {
@@ -123,9 +130,8 @@ public class UserSettingsController {
 
     private List<Integer> getAllowedMusicFolderIds(User user) {
         List<Integer> result = new ArrayList<>();
-        List<MusicFolder> allowedMusicFolders = user == null
-                                                ? settingsService.getAllMusicFolders()
-                                                : settingsService.getMusicFoldersForUser(user.getUsername());
+        List<MusicFolder> allowedMusicFolders = user == null ? settingsService.getAllMusicFolders()
+                : settingsService.getMusicFoldersForUser(user.getUsername());
 
         for (MusicFolder musicFolder : allowedMusicFolders) {
             result.add(musicFolder.getId());
@@ -134,7 +140,9 @@ public class UserSettingsController {
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") @Validated UserSettingsCommand command, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
+            BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
         if (!bindingResult.hasErrors()) {
             if (command.isDeleteUser()) {
@@ -144,14 +152,13 @@ public class UserSettingsController {
             } else {
                 updateUser(command);
             }
-            redirectAttributes.addFlashAttribute("settings_reload", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
         } else {
-            redirectAttributes.addFlashAttribute("command", command);
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.command", bindingResult);
-            redirectAttributes.addFlashAttribute("userIndex", getUserIndex(command));
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
         }
-
-        return "redirect:userSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }
 
     private Integer getUserIndex(UserSettingsCommand command) {

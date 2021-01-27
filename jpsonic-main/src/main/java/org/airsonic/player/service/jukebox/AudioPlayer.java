@@ -17,25 +17,26 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.service.jukebox;
 
-import org.airsonic.player.util.FileUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.CLOSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.EOM;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PAUSED;
+import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.concurrent.atomic.AtomicReference;
-
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.CLOSED;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.EOM;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.PAUSED;
-import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
+import org.airsonic.player.util.FileUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A simple wrapper for playing sound from an input stream.
@@ -43,6 +44,7 @@ import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
  * Supports pause and resume, but not restarting.
  *
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class AudioPlayer {
@@ -77,8 +79,7 @@ public class AudioPlayer {
     }
 
     /**
-     * Starts (or resumes) the player.  This only has effect if the current state is
-     * {@link State#PAUSED}.
+     * Starts (or resumes) the player. This only has effect if the current state is {@link State#PAUSED}.
      */
     public void play() {
         if (state.get() == PAUSED) {
@@ -90,8 +91,7 @@ public class AudioPlayer {
     }
 
     /**
-     * Pauses the player.  This only has effect if the current state is
-     * {@link State#PLAYING}.
+     * Pauses the player. This only has effect if the current state is {@link State#PLAYING}.
      */
     public void pause() {
         if (state.get() == PLAYING) {
@@ -104,8 +104,8 @@ public class AudioPlayer {
     }
 
     /**
-     * Closes the player, releasing all resources. After this the player state is
-     * {@link State#CLOSED} (unless the current state is {@link State#EOM}).
+     * Closes the player, releasing all resources. After this the player state is {@link State#CLOSED} (unless the
+     * current state is {@link State#EOM}).
      */
     public void close() {
         if (state.get() != CLOSED && state.get() != EOM) {
@@ -146,13 +146,14 @@ public class AudioPlayer {
     /**
      * Sets the gain.
      *
-     * @param gain The gain between 0.0 and 1.0.
+     * @param gain
+     *            The gain between 0.0 and 1.0.
      */
     public void setGain(float gain) {
         if (gainControl != null) {
 
             double minGainDB = gainControl.getMinimum();
-            double maxGainDB = Math.min(0.0, gainControl.getMaximum());  // Don't use positive gain to avoid distortion.
+            double maxGainDB = Math.min(0.0, gainControl.getMaximum()); // Don't use positive gain to avoid distortion.
             double ampGainDB = 0.5f * maxGainDB - minGainDB;
             double cste = Math.log(10.0) / 20;
             double valueDB = minGainDB + (1 / cste) * Math.log(1 + (Math.exp(cste * ampGainDB) - 1) * gain);
@@ -177,12 +178,17 @@ public class AudioPlayer {
         }
     }
 
+    @SuppressWarnings("PMD.AccessorMethodGeneration")
+    /*
+     * It is problematic and needs to be redesigned. At Jpsonic, the jukebox is one of the suppressed legacy features.
+     */
     private class AudioDataWriter implements Runnable {
 
         public AudioDataWriter() {
             new Thread(this).start();
         }
 
+        @Override
         public void run() {
             try {
                 byte[] buffer = new byte[line.getBufferSize()];
@@ -190,23 +196,23 @@ public class AudioPlayer {
                 while (true) {
 
                     switch (state.get()) {
-                        case CLOSED:
-                        case EOM:
+                    case CLOSED:
+                    case EOM:
+                        return;
+                    case PAUSED:
+                        Thread.sleep(250);
+                        break;
+                    case PLAYING:
+                        // Fill buffer in order to ensure that write() receives an integral number of frames.
+                        int n = fill(buffer);
+                        if (n == -1) {
+                            setState(EOM);
                             return;
-                        case PAUSED:
-                            Thread.sleep(250);
-                            break;
-                        case PLAYING:
-                            // Fill buffer in order to ensure that write() receives an integral number of frames.
-                            int n = fill(buffer);
-                            if (n == -1) {
-                                setState(EOM);
-                                return;
-                            }
-                            line.write(buffer, 0, n);
-                            break;
-                        default:
-                            throw new AssertionError("Unreachable code.");
+                        }
+                        line.write(buffer, 0, n);
+                        break;
+                    default:
+                        throw new AssertionError("Unreachable code.");
                     }
                 }
             } catch (Throwable x) {
@@ -236,9 +242,6 @@ public class AudioPlayer {
     }
 
     public static enum State {
-        PAUSED,
-        PLAYING,
-        CLOSED,
-        EOM
+        PAUSED, PLAYING, CLOSED, EOM
     }
 }

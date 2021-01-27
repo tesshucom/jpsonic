@@ -17,9 +17,29 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PlayerService;
@@ -41,21 +61,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 /**
  * Controller which receives uploaded files.
  *
@@ -75,9 +80,15 @@ public class UploadController {
     private StatusService statusService;
     @Autowired
     private SettingsService settingsService;
-    public static final String UPLOAD_STATUS = "uploadStatus";
+
+    public static final String FIELD_NAME_DIR = "dir";
+    public static final String FIELD_NAME_UNZIP = "unzip";
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [AvoidInstantiatingObjectsInLoops] (File, GeneralSecurityException) Not reusable [UseLocaleWithCaseConversions]
+     * The locale doesn't matter, as only comparing the extension literal.
+     */
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
@@ -91,7 +102,7 @@ public class UploadController {
             status = statusService.createUploadStatus(playerService.getPlayer(request, response, false, false));
             status.setBytesTotal(request.getContentLength());
 
-            request.getSession().setAttribute(UPLOAD_STATUS, status);
+            request.getSession().setAttribute(Attributes.Session.UPLOAD_STATUS.value(), status);
 
             // Check that we have a file upload request
             if (!ServletFileUpload.isMultipartContent(request)) {
@@ -101,20 +112,18 @@ public class UploadController {
             File dir = null;
             boolean unzip = false;
 
-            UploadListener listener = new UploadListenerImpl(status);
+            UploadListener listener = new UploadListenerImpl(status, statusService, settingsService);
 
             FileItemFactory factory = new MonitoredDiskFileItemFactory(listener);
             ServletFileUpload upload = new ServletFileUpload(factory);
 
-            List<?> items = upload.parseRequest(request);
+            List<FileItem> items = upload.parseRequest(request);
 
             // First, look for "dir" and "unzip" parameters.
-            for (Object o : items) {
-                FileItem item = (FileItem) o;
-
-                if (item.isFormField() && "dir".equals(item.getFieldName())) {
+            for (FileItem item : items) {
+                if (item.isFormField() && FIELD_NAME_DIR.equals(item.getFieldName())) {
                     dir = new File(item.getString());
-                } else if (item.isFormField() && "unzip".equals(item.getFieldName())) {
+                } else if (item.isFormField() && FIELD_NAME_UNZIP.equals(item.getFieldName())) {
                     unzip = true;
                 }
             }
@@ -133,7 +142,8 @@ public class UploadController {
                         File targetFile = new File(dir, new File(item.getName()).getName());
 
                         if (!securityService.isUploadAllowed(targetFile)) {
-                            throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                            throw new ExecutionException(new GeneralSecurityException(
+                                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
                         }
 
                         if (!dir.exists()) {
@@ -163,7 +173,7 @@ public class UploadController {
         } finally {
             if (status != null) {
                 statusService.removeUploadStatus(status);
-                request.getSession().removeAttribute(UPLOAD_STATUS);
+                request.getSession().removeAttribute(Attributes.Session.UPLOAD_STATUS.value());
                 User user = securityService.getCurrentUser(request);
                 securityService.updateUserByteCounts(user, 0L, 0L, status.getBytesTransfered());
             }
@@ -172,11 +182,12 @@ public class UploadController {
         map.put("uploadedFiles", uploadedFiles);
         map.put("unzippedFiles", unzippedFiles);
 
-        return new ModelAndView("upload","model",map);
+        return new ModelAndView("upload", "model", map);
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException, GeneralSecurityException, byte[])
+                                                              // Not reusable
     private void unzip(File file, List<File> unzippedFiles) throws Exception {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
@@ -190,13 +201,15 @@ public class UploadController {
                 ZipEntry entry = (ZipEntry) entries.nextElement();
                 File entryFile = new File(file.getParentFile(), entry.getName());
                 if (!entryFile.toPath().normalize().startsWith(file.getParentFile().toPath())) {
-                    throw new ExecutionException(new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                    throw new ExecutionException(
+                            new IOException("Bad zip filename: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                 }
 
                 if (!entry.isDirectory()) {
 
                     if (!securityService.isUploadAllowed(entryFile)) {
-                        throw new ExecutionException(new GeneralSecurityException("Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
+                        throw new ExecutionException(new GeneralSecurityException(
+                                "Permission denied: " + StringEscapeUtils.escapeHtml(entryFile.getPath())));
                     }
 
                     if (!entryFile.getParentFile().mkdirs() && LOG.isWarnEnabled()) {
@@ -204,10 +217,8 @@ public class UploadController {
                                 entryFile.getParentFile().getAbsolutePath());
                     }
 
-                    try (
-                            OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
-                            InputStream inputStream = zipFile.getInputStream(entry)
-                    ) {
+                    try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
+                            InputStream inputStream = zipFile.getInputStream(entry)) {
                         byte[] buf = new byte[8192];
                         while (true) {
                             int n = inputStream.read(buf);
@@ -231,20 +242,23 @@ public class UploadController {
         }
     }
 
-
-
-
-
     /**
      * Receives callbacks as the file upload progresses.
      */
-    private class UploadListenerImpl implements UploadListener {
-        private TransferStatus status;
-        private long start;
+    private static class UploadListenerImpl implements UploadListener {
 
-        private UploadListenerImpl(TransferStatus status) {
+        private TransferStatus status;
+        private long startTime;
+        private final StatusService statusService;
+        private final SettingsService settingsService;
+
+        private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
+
+        UploadListenerImpl(TransferStatus status, StatusService statusService, SettingsService settingsService) {
             this.status = status;
-            start = System.currentTimeMillis();
+            startTime = System.currentTimeMillis();
+            this.statusService = statusService;
+            this.settingsService = settingsService;
         }
 
         @Override
@@ -260,7 +274,7 @@ public class UploadController {
             long byteCount = status.getBytesTransfered() + bytesRead;
             long bitCount = byteCount * 8L;
 
-            float elapsedMillis = Math.max(1, System.currentTimeMillis() - start);
+            float elapsedMillis = Math.max(1, System.currentTimeMillis() - startTime);
             float elapsedSeconds = elapsedMillis / 1000.0F;
             long maxBitsPerSecond = getBitrateLimit();
 
@@ -281,7 +295,8 @@ public class UploadController {
         }
 
         private long getBitrateLimit() {
-            return 1024L * settingsService.getUploadBitrateLimit() / Math.max(1, statusService.getAllUploadStatuses().size());
+            return 1024L * this.settingsService.getUploadBitrateLimit()
+                    / Math.max(1, this.statusService.getAllUploadStatuses().size());
         }
     }
 

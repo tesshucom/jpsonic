@@ -1,5 +1,10 @@
+
 package org.airsonic.player.controller;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
@@ -10,9 +15,6 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * Spring MVC Controller that serves the login page.
@@ -29,7 +31,7 @@ public class ExportPlayListController {
     @GetMapping
     public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
-        int id = ServletRequestUtils.getRequiredIntParameter(request, "id");
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);
         if (!playlistService.isReadAllowed(playlist, securityService.getCurrentUsername(request))) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN);
@@ -37,11 +39,11 @@ public class ExportPlayListController {
 
         }
         response.setContentType("application/x-download");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
+        response.setHeader("Content-Disposition",
+                "attachment; filename=\"" + StringUtil.fileSystemSafe(playlist.getName()) + ".m3u8\"");
 
         playlistService.exportPlaylist(id, response.getOutputStream());
         return null;
     }
-
 
 }

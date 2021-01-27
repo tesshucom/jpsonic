@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.validator;
 
 import org.airsonic.player.command.PasswordSettingsCommand;
@@ -33,10 +34,12 @@ import org.springframework.validation.Validator;
 @Component
 public class PasswordSettingsValidator implements Validator {
 
-    public boolean supports(Class clazz) {
+    @Override
+    public boolean supports(Class<?> clazz) {
         return clazz.equals(PasswordSettingsCommand.class);
     }
 
+    @Override
     public void validate(Object obj, Errors errors) {
         PasswordSettingsCommand command = (PasswordSettingsCommand) obj;
 

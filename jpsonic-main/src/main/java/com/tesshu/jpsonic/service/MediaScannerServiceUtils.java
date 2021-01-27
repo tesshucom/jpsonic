@@ -16,7 +16,12 @@
 
  Copyright 2019 (C) tesshu.com
  */
+
 package com.tesshu.jpsonic.service;
+
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
@@ -33,43 +38,31 @@ import org.airsonic.player.service.search.IndexManager;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-
-//@formatter:off
 /**
  * Utility class for injecting into legacy MediaScannerService.
  * 
  * Supplement processing that is lacking in legacy services.
  * 
- *  - Unify Sort tags for names.
- *  - Determines the order of all media from the sort key.
+ * - Unify Sort tags for names. - Determines the order of all media from the sort key.
  *
  * There are three steps to integrating sort-tags:
  *
- * [merge]
- * If multiple Sort tags exist for one name, unify them in order of priority.
+ * [merge] If multiple Sort tags exist for one name, unify them in order of priority.
  *
- * [copy]
- * Copy if null-tag exists and can be resolved with the merged tag.
+ * [copy] Copy if null-tag exists and can be resolved with the merged tag.
  *
- * [compensation]
- * If null-tag is cannot be resolved by merge/copy, generate it from the name.
- * If it is Japanese, it is converted from notation to phoneme.
+ * [compensation] If null-tag is cannot be resolved by merge/copy, generate it from the name. If it is Japanese, it is
+ * converted from notation to phoneme.
  *
- * - Eliminate inconsistencies and dropouts in search results
- * - Compress index size by unifying data
- * - Perform a perfect sort
- * - In particular, in the case of Japanese, a sort search considering phonemes is realized.
- *   Prevent dropouts when searching by voice.
- * - Perform a perfect sort
- * - Realize high-speed paging with WEB/REST/UPnP
+ * - Eliminate inconsistencies and dropouts in search results - Compress index size by unifying data - Perform a perfect
+ * sort - In particular, in the case of Japanese, a sort search considering phonemes is realized. Prevent dropouts when
+ * searching by voice. - Perform a perfect sort - Realize high-speed paging with WEB/REST/UPnP
  *
  * This class has a great influence on the accuracy of sorting and searching.
  */
-// @formatter:on
 @Component
-@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager", "jpsonicComparators" })
+@DependsOn({ "settingsService", "jmediaFileDao", "jartistDao", "jalbumDao", "japaneseReadingUtils", "indexManager",
+        "jpsonicComparators" })
 public class MediaScannerServiceUtils {
 
     private final SettingsService settingsService;
@@ -80,13 +73,8 @@ public class MediaScannerServiceUtils {
     private final IndexManager indexManager;
     private final JpsonicComparators comparators;
 
-    public MediaScannerServiceUtils(// @formatter:off
-            SettingsService settingsService,
-            JMediaFileDao mediaFileDao,
-            JArtistDao artistDao,
-            JAlbumDao albumDao,
-            JapaneseReadingUtils utils,
-            IndexManager indexManager,
+    public MediaScannerServiceUtils(SettingsService settingsService, JMediaFileDao mediaFileDao, JArtistDao artistDao,
+            JAlbumDao albumDao, JapaneseReadingUtils utils, IndexManager indexManager,
             JpsonicComparators jpsonicComparator) {
         super();
         this.settingsService = settingsService;
@@ -96,7 +84,7 @@ public class MediaScannerServiceUtils {
         this.utils = utils;
         this.indexManager = indexManager;
         this.comparators = jpsonicComparator;
-    } // @formatter:on
+    }
 
     /**
      * Update the order of all mediaFile records.
@@ -114,37 +102,37 @@ public class MediaScannerServiceUtils {
         albumDao.clearOrder();
     }
 
-    FixedIds compensateSortOfAlbum() {
+    private FixedIds compensateSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds compensateSortOfArtist() {
+    private FixedIds compensateSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getSortForPersonWithoutSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds copySortOfAlbum() {
+    private FixedIds copySortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds copySortOfArtist() {
+    private FixedIds copySortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForPersons();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
     }
 
-    FixedIds mergeSortOfAlbum() {
+    private FixedIds mergeSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.guessAlbumSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfAlbum(candidates);
     }
 
-    FixedIds mergeSortOfArtist() {
+    private FixedIds mergeSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.guessPersonsSorts();
         candidates.forEach(c -> utils.analyze(c));
         return updateSortOfArtist(candidates);
@@ -153,25 +141,25 @@ public class MediaScannerServiceUtils {
     private void updateIndexOfAlbum(FixedIds... fixedIds) {
         FixedIds fixedIdAll = new FixedIds();
         for (FixedIds toBeFixed : fixedIds) {
-            fixedIdAll.mediaFileIds.addAll(toBeFixed.mediaFileIds);
-            fixedIdAll.artistIds.addAll(toBeFixed.artistIds);
-            fixedIdAll.albumIds.addAll(toBeFixed.albumIds);
+            fixedIdAll.getMediaFileIds().addAll(toBeFixed.getMediaFileIds());
+            fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
+            fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.mediaFileIds.forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
-        fixedIdAll.albumIds.forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
+        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     private void updateIndexOfArtist(FixedIds... fixedIds) {
         FixedIds fixedIdAll = new FixedIds();
         for (FixedIds toBeFixed : fixedIds) {
-            fixedIdAll.mediaFileIds.addAll(toBeFixed.mediaFileIds);
-            fixedIdAll.artistIds.addAll(toBeFixed.artistIds);
-            fixedIdAll.albumIds.addAll(toBeFixed.albumIds);
+            fixedIdAll.getMediaFileIds().addAll(toBeFixed.getMediaFileIds());
+            fixedIdAll.getArtistIds().addAll(toBeFixed.getArtistIds());
+            fixedIdAll.getAlbumIds().addAll(toBeFixed.getAlbumIds());
         }
-        fixedIdAll.mediaFileIds.forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
+        fixedIdAll.getMediaFileIds().forEach(id -> indexManager.index(mediaFileDao.getMediaFile(id)));
         List<MusicFolder> folders = settingsService.getAllMusicFolders(false, false);
-        fixedIdAll.artistIds.forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
-        fixedIdAll.albumIds.forEach(id -> indexManager.index(albumDao.getAlbum(id)));
+        fixedIdAll.getArtistIds().forEach(id -> folders.forEach(m -> indexManager.index(artistDao.getArtist(id), m)));
+        fixedIdAll.getAlbumIds().forEach(id -> indexManager.index(albumDao.getAlbum(id)));
     }
 
     private void updateOrderOfAlbum() {
@@ -237,8 +225,8 @@ public class MediaScannerServiceUtils {
         if (0 == candidates.size()) {
             return ids;
         }
-        ids.mediaFileIds.addAll(mediaFileDao.getSortOfAlbumToBeFixed(candidates));
-        ids.albumIds.addAll(albumDao.getSortOfAlbumToBeFixed(candidates));
+        ids.getMediaFileIds().addAll(mediaFileDao.getSortOfAlbumToBeFixed(candidates));
+        ids.getAlbumIds().addAll(albumDao.getSortOfAlbumToBeFixed(candidates));
         candidates.forEach(c -> {
             mediaFileDao.updateAlbumSort(c);
             albumDao.updateAlbumSort(c);
@@ -258,9 +246,9 @@ public class MediaScannerServiceUtils {
         if (0 == candidates.size()) {
             return ids;
         }
-        ids.mediaFileIds.addAll(mediaFileDao.getSortOfArtistToBeFixed(candidates));
-        ids.artistIds.addAll(artistDao.getSortOfArtistToBeFixed(candidates));
-        ids.albumIds.addAll(albumDao.getSortOfArtistToBeFixed(candidates));
+        ids.getMediaFileIds().addAll(mediaFileDao.getSortOfArtistToBeFixed(candidates));
+        ids.getArtistIds().addAll(artistDao.getSortOfArtistToBeFixed(candidates));
+        ids.getAlbumIds().addAll(albumDao.getSortOfArtistToBeFixed(candidates));
         candidates.forEach(c -> {
             mediaFileDao.updateArtistSort(c);
             artistDao.updateArtistSort(c);
@@ -269,10 +257,21 @@ public class MediaScannerServiceUtils {
         return ids;
     }
 
-    static class FixedIds {
-        private LinkedHashSet<Integer> mediaFileIds = new LinkedHashSet<>();
-        private LinkedHashSet<Integer> artistIds = new LinkedHashSet<>();
-        private LinkedHashSet<Integer> albumIds = new LinkedHashSet<>();
-    }
+    private static class FixedIds {
+        private Set<Integer> mediaFileIds = new LinkedHashSet<>();
+        private Set<Integer> artistIds = new LinkedHashSet<>();
+        private Set<Integer> albumIds = new LinkedHashSet<>();
 
+        public Set<Integer> getMediaFileIds() {
+            return mediaFileIds;
+        }
+
+        public Set<Integer> getArtistIds() {
+            return artistIds;
+        }
+
+        public Set<Integer> getAlbumIds() {
+            return albumIds;
+        }
+    }
 }

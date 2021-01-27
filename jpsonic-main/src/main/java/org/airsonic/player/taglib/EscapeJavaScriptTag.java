@@ -17,29 +17,30 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.taglib;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import java.io.IOException;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspTagException;
 import javax.servlet.jsp.tagext.BodyTagSupport;
 
-import java.io.IOException;
+import org.apache.commons.lang.StringEscapeUtils;
 
 /**
  * Escapes the characters in a <code>String</code> using JavaScript String rules.
  * <p/>
- * Escapes any values it finds into their JavaScript String form.
- * Deals correctly with quotes and control-chars (tab, backslash, cr, ff, etc.)
+ * Escapes any values it finds into their JavaScript String form. Deals correctly with quotes and control-chars (tab,
+ * backslash, cr, ff, etc.)
  * <p/>
- * So a tab becomes the characters <code>'\\'</code> and
- * <code>'t'</code>.
+ * So a tab becomes the characters <code>'\\'</code> and <code>'t'</code>.
  * <p/>
- * The only difference between Java strings and JavaScript strings
- * is that in JavaScript, a single quote must be escaped.
+ * The only difference between Java strings and JavaScript strings is that in JavaScript, a single quote must be
+ * escaped.
  * <p/>
  * Example:
+ * 
  * <pre>
  * input string: He didn't say, "Stop!"
  * output string: He didn\'t say, \"Stop!\"
@@ -47,14 +48,17 @@ import java.io.IOException;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("serial")
 public class EscapeJavaScriptTag extends BodyTagSupport {
 
     private String string;
 
+    @Override
     public int doStartTag() {
         return EVAL_BODY_BUFFERED;
     }
 
+    @Override
     public int doEndTag() throws JspException {
         try {
             pageContext.getOut().print(StringEscapeUtils.escapeJavaScript(string));
@@ -64,6 +68,8 @@ public class EscapeJavaScriptTag extends BodyTagSupport {
         return EVAL_PAGE;
     }
 
+    @SuppressWarnings("PMD.NullAssignment") // (string) Intentional allocation to release
+    @Override
     public void release() {
         string = null;
         super.release();

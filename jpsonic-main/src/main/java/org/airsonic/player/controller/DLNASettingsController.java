@@ -16,8 +16,18 @@
  *
  * Copyright 2013 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.trimToNull;
+
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
@@ -31,14 +41,9 @@ import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Map;
-
-import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.apache.commons.lang.StringUtils.trimToNull;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate the UPnP/DLNA server settings.
@@ -98,44 +103,59 @@ public class DLNASettingsController {
     }
 
     @PostMapping
-    public String handlePost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+    public ModelAndView handlePost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         handleParameters(request);
-        redirectAttributes.addFlashAttribute("settings_toast", true);
-        return "redirect:dlnaSettings.view";
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        return new ModelAndView(new RedirectView(ViewName.DLNA_SETTINGS.value()));
     }
 
     private void handleParameters(HttpServletRequest request) {
-        boolean dlnaEnabled = ServletRequestUtils.getBooleanParameter(request, "dlnaEnabled", false);
-        String dlnaServerName = trimToNull(request.getParameter("dlnaServerName"));
+        boolean dlnaEnabled = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DLNA_ENABLED.value(),
+                false);
+        String dlnaServerName = trimToNull(request.getParameter(Attributes.Request.DLNA_SERVER_NAME.value()));
         if (dlnaServerName == null) {
             dlnaServerName = "Jpsonic";
         }
-        String dlnaBaseLANURL = trimToNull(request.getParameter("dlnaBaseLANURL"));
+        String dlnaBaseLANURL = trimToNull(request.getParameter(Attributes.Request.DLNA_BASE_LAN_URL.value()));
 
-        boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumVisible", false);
-        boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistVisible", false);
-        boolean dlnaArtistByFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaArtistByFolderVisible", false);
-        boolean dlnaAlbumByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaAlbumByGenreVisible", false);
-        boolean dlnaSongByGenreVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaSongByGenreVisible", false);
-        boolean dlnaGenreCountVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaGenreCountVisible", false);
-        boolean dlnaFolderVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaFolderVisible", false);
-        boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPlaylistVisible", false);
-        boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumVisible", false);
-        boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaRecentAlbumId3Visible", false);
-        boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomAlbumVisible", false);
-        boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongVisible", false);
-        boolean dlnaRandomSongByArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongByArtistVisible", false);
-        boolean dlnaRandomSongByFolderArtistVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaRandomSongByFolderArtistVisible", false);
-        boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexVisible", false);
-        boolean dlnaIndexId3Visible = ServletRequestUtils.getBooleanParameter(request, "dlnaIndexId3Visible", false);
-        boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request, "dlnaPodcastVisible", false);
-        int dlnaRandomMax = ServletRequestUtils.getIntParameter(request, "dlnaRandomMax", 50);
-        boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request, "dlnaGuestPublish", false);
-
-        boolean isEnabledStateChange =
-                !(settingsService.isDlnaEnabled() == dlnaEnabled
-                && !isEmpty(dlnaServerName) && dlnaServerName.equals(settingsService.getDlnaServerName())
-                && !isEmpty(dlnaBaseLANURL) && dlnaBaseLANURL.equals(settingsService.getDlnaBaseLANURL()));
+        boolean dlnaAlbumVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_ALBUM_VISIBLE.value(), false);
+        boolean dlnaArtistVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_ARTIST_VISIBLE.value(), false);
+        boolean dlnaArtistByFolderVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_ARTIST_BY_FOLDER_VISIBLE.value(), false);
+        boolean dlnaAlbumByGenreVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_ALBUM_BYGENRE_VISIBLE.value(), false);
+        boolean dlnaSongByGenreVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_SONG_BY_GENRE_VISIBLE.value(), false);
+        boolean dlnaGenreCountVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_GENRE_COUNT_VISIBLE.value(), false);
+        boolean dlnaFolderVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_FOLDER_VISIBLE.value(), false);
+        boolean dlnaPlaylistVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_PLAYLIST_VISIBLE.value(), false);
+        boolean dlnaRecentAlbumVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RECENT_ALBUM_VISIBLE.value(), false);
+        boolean dlnaRecentAlbumId3Visible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RECENT_ALBUM_ID3_VISIBLE.value(), false);
+        boolean dlnaRandomAlbumVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RANDOM_ALBUM_VISIBLE.value(), false);
+        boolean dlnaRandomSongVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RANDOM_SONG_VISIBLE.value(), false);
+        boolean dlnaRandomSongByArtistVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RANDOM_SONG_BY_ARTIST_VISIBLE.value(), false);
+        boolean dlnaRandomSongByFolderArtistVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_RANDOM_SONG_BY_FOLDER_ARTIST_VISIBLE.value(), false);
+        boolean dlnaIndexVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_INDEX_VISIBLE.value(), false);
+        boolean dlnaIndexId3Visible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_INDEX_ID3_VISIBLE.value(), false);
+        boolean dlnaPodcastVisible = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_PODCAST_VISIBLE.value(), false);
+        int dlnaRandomMax = ServletRequestUtils.getIntParameter(request, Attributes.Request.DLNA_RANDOM_MAX.value(),
+                50);
+        boolean dlnaGuestPublish = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DLNA_GUEST_PUBLISH.value(), false);
 
         settingsService.setDlnaEnabled(dlnaEnabled);
         settingsService.setDlnaServerName(dlnaServerName);
@@ -163,6 +183,9 @@ public class DLNASettingsController {
 
         settingsService.save();
 
+        boolean isEnabledStateChange = !(settingsService.isDlnaEnabled() == dlnaEnabled && !isEmpty(dlnaServerName)
+                && dlnaServerName.equals(settingsService.getDlnaServerName()) && !isEmpty(dlnaBaseLANURL)
+                && dlnaBaseLANURL.equals(settingsService.getDlnaBaseLANURL()));
         if (isEnabledStateChange) {
             upnpService.setMediaServerEnabled(dlnaEnabled);
         }

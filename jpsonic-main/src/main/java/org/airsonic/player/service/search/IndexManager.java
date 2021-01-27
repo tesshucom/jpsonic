@@ -20,6 +20,23 @@
 
 package org.airsonic.player.service.search;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.AlbumDao;
@@ -56,31 +73,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static org.springframework.util.ObjectUtils.isEmpty;
-
 /**
- * Function class that is strongly linked to the lucene index implementation.
- * Legacy has an implementation in SearchService.
+ * Function class that is strongly linked to the lucene index implementation. Legacy has an implementation in
+ * SearchService.
  *
- * If the index CRUD and search functionality are in the same class,
- * there is often a dependency conflict on the class used.
- * Although the interface of SearchService is left to maintain the legacy implementation,
- * it is desirable that methods of index operations other than search essentially use this class directly.
+ * If the index CRUD and search functionality are in the same class, there is often a dependency conflict on the class
+ * used. Although the interface of SearchService is left to maintain the legacy implementation, it is desirable that
+ * methods of index operations other than search essentially use this class directly.
  */
 @Component
 public class IndexManager {
@@ -88,12 +87,10 @@ public class IndexManager {
     private static final Logger LOG = LoggerFactory.getLogger(IndexManager.class);
 
     /**
-     * Schema version of Airsonic index.
-     * It may be incremented in the following cases:
+     * Schema version of Airsonic index. It may be incremented in the following cases:
      *
-     *  - Incompatible update case in Lucene index implementation
-     *  - When schema definition is changed due to modification of AnalyzerFactory,
-     *    DocumentFactory or the class that they use.
+     * - Incompatible update case in Lucene index implementation - When schema definition is changed due to modification
+     * of AnalyzerFactory, DocumentFactory or the class that they use.
      *
      */
     private static final int INDEX_VERSION = 23;
@@ -106,15 +103,18 @@ public class IndexManager {
     /**
      * File supplier for index directory.
      */
-    private Supplier<File> rootIndexDirectory = () ->
-        new File(SettingsService.getJpsonicHome(), INDEX_ROOT_DIR_NAME.concat(Integer.toString(INDEX_VERSION)));
+    private Supplier<File> rootIndexDirectory = () -> new File(SettingsService.getJpsonicHome(),
+            INDEX_ROOT_DIR_NAME.concat(Integer.toString(INDEX_VERSION)));
 
     /**
      * Returns the directory of the specified index
      */
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
-    private Function<IndexType, File> getIndexDirectory = (indexType) ->
-        new File(rootIndexDirectory.get(), indexType.toString().toLowerCase());
+    /*
+     * The locale doesn't matter because just converting the literal.
+     */
+    private Function<IndexType, File> getIndexDirectory = (indexType) -> new File(rootIndexDirectory.get(),
+            indexType.toString().toLowerCase());
 
     @Autowired
     private AnalyzerFactory analyzerFactory;
@@ -242,16 +242,14 @@ public class IndexManager {
     public void expunge() {
 
         Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+                .map(m -> documentFactory.createPrimarykey(m)).toArray(i -> new Term[i]);
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artist doc.", e);
         }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m))
+        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
                 .toArray(i -> new Term[i]);
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
@@ -259,8 +257,7 @@ public class IndexManager {
             LOG.error("Failed to delete album doc.", e);
         }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m))
+        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
                 .toArray(i -> new Term[i]);
         try {
             writers.get(IndexType.SONG).deleteDocuments(primarykeys);
@@ -268,8 +265,7 @@ public class IndexManager {
             LOG.error("Failed to delete song doc.", e);
         }
 
-        primarykeys = artistDao.getExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m))
+        primarykeys = artistDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
                 .toArray(i -> new Term[i]);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
@@ -277,8 +273,7 @@ public class IndexManager {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
 
-        primarykeys = albumDao.getExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m))
+        primarykeys = albumDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
                 .toArray(i -> new Term[i]);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
@@ -289,8 +284,7 @@ public class IndexManager {
     }
 
     /**
-     * Close Writer of all indexes and update SearcherManager.
-     * Called at the end of the Scan flow.
+     * Close Writer of all indexes and update SearcherManager. Called at the end of the Scan flow.
      */
     public void stopIndexing(MediaLibraryStatistics statistics) {
         Arrays.asList(IndexType.values()).forEach(indexType -> stopIndexing(indexType, statistics));
@@ -306,7 +300,7 @@ public class IndexManager {
         boolean isUpdate = false;
         // close
         try (IndexWriter writer = writers.get(type)) {
-            Map<String,String> userData = PlayerUtils.objectToStringMap(statistics);
+            Map<String, String> userData = PlayerUtils.objectToStringMap(statistics);
             writer.setLiveCommitData(userData.entrySet());
             isUpdate = -1 != writers.get(type).commit();
             writer.close();
@@ -337,10 +331,14 @@ public class IndexManager {
     }
 
     /**
-     * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data.
-     * On invalid indices, returns null.
+     * Return the MediaLibraryStatistics saved on commit in the index. Ensures that each index reports the same data. On
+     * invalid indices, returns null.
      */
-    @SuppressWarnings("PMD.CloseResource") // Should not be closed
+    @SuppressWarnings("PMD.CloseResource")
+    /*
+     * False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once all threads have
+     * finished using it. No explicit close is done here.
+     */
     public @Nullable MediaLibraryStatistics getStatistics() {
         MediaLibraryStatistics stats = null;
         for (IndexType indexType : IndexType.values()) {
@@ -385,11 +383,14 @@ public class IndexManager {
     }
 
     /**
-     * Return the IndexSearcher of the specified index.
-     * At initial startup, it may return null
-     * if the user performs any search before performing a scan.
+     * Return the IndexSearcher of the specified index. At initial startup, it may return null if the user performs any
+     * search before performing a scan.
      */
-    @SuppressWarnings("PMD.CloseResource") // Should not be closed
+    @SuppressWarnings("PMD.CloseResource")
+    /*
+     * False positive. SearcherManager inherits Closeable but ensures each searcher is closed only once all threads have
+     * finished using it. No explicit close is done here.
+     */
     public @Nullable IndexSearcher getSearcher(IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
             File indexDirectory = getIndexDirectory.apply(indexType);
@@ -402,7 +403,8 @@ public class IndexManager {
                 }
             } catch (IndexNotFoundException e) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(), indexDirectory.getAbsolutePath());
+                    LOG.debug("Index {} does not exist in {}, likely not yet created.", indexType.toString(),
+                            indexDirectory.getAbsolutePath());
                 }
                 return null;
             } catch (IOException e) {
@@ -440,17 +442,15 @@ public class IndexManager {
     }
 
     /**
-     * Check the version of the index and clean it up if necessary.
-     * Legacy type indexes (files or directories starting with lucene) are deleted.
-     * If there is no index directory, initialize the directory.
-     * If the index directory exists and is not the current version,
-     * initialize the directory.
+     * Check the version of the index and clean it up if necessary. Legacy type indexes (files or directories starting
+     * with lucene) are deleted. If there is no index directory, initialize the directory. If the index directory exists
+     * and is not the current version, initialize the directory.
      */
     public void deleteOldIndexFiles() {
 
         // Delete legacy files unconditionally
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
-            (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
+                (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
                 .forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found legacy index file. Try to delete : {}", old.getAbsolutePath());
@@ -468,9 +468,8 @@ public class IndexManager {
                 });
 
         // Delete if not old index version
-        Arrays.stream(SettingsService.getJpsonicHome()
-                .listFiles(
-                    (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
+        Arrays.stream(SettingsService.getJpsonicHome().listFiles(
+                (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
                 .filter(dir -> !dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
@@ -488,24 +487,23 @@ public class IndexManager {
                 });
 
         if (settingsService.isSearchMethodChanged()) {
-            Arrays.stream(SettingsService.getJpsonicHome()
-                .listFiles((file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                .filter(dir -> dir.getName().equals(rootIndexDirectory.get().getName()))
-                .forEach(old -> {
-                    if (FileUtil.exists(old)) {
-                        LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
-                        try {
-                            if (old.isFile()) {
-                                FileUtils.deleteQuietly(old);
-                            } else {
-                                FileUtils.deleteDirectory(old);
+            Arrays.stream(SettingsService.getJpsonicHome().listFiles(
+                    (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
+                    .filter(dir -> dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
+                        if (FileUtil.exists(old)) {
+                            LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
+                            try {
+                                if (old.isFile()) {
+                                    FileUtils.deleteQuietly(old);
+                                } else {
+                                    FileUtils.deleteDirectory(old);
+                                }
+                            } catch (IOException e) {
+                                // Log only if failed
+                                LOG.warn("Failed to delete the Index : ".concat(old.getAbsolutePath()), e);
                             }
-                        } catch (IOException e) {
-                            // Log only if failed
-                            LOG.warn("Failed to delete the Index : ".concat(old.getAbsolutePath()), e);
                         }
-                    }
-                });
+                    });
             settingsService.setSearchMethodChanged(false);
             settingsService.save();
         }
@@ -532,11 +530,14 @@ public class IndexManager {
     /**
      * Get pre-parsed genre string from parsed genre string.
      * 
-     * The genre analysis includes tokenize processing.
-     * Therefore, the parsed genre string and the cardinal of the unedited genre string are n: n.
+     * The genre analysis includes tokenize processing. Therefore, the parsed genre string and the cardinal of the
+     * unedited genre string are n: n.
      * 
-     * @param genres list of analyzed genres
+     * @param genres
+     *            list of analyzed genres
+     * 
      * @return pre-analyzed genres
+     * 
      * @since 101.2.0
      */
     public List<String> toPreAnalyzedGenres(List<String> genres) {
@@ -556,9 +557,11 @@ public class IndexManager {
             TopDocs topDocs = searcher.search(query, Integer.MAX_VALUE);
             int totalHits = util.round.apply(topDocs.totalHits.value);
             for (int i = 0; i < totalHits; i++) {
-                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc).getFields(FieldNamesConstants.GENRE_KEY);
+                IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc)
+                        .getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
-                    List<String> fieldValues = Arrays.stream(fields).map(f -> f.stringValue()).collect(Collectors.toList());
+                    List<String> fieldValues = Arrays.stream(fields).map(f -> f.stringValue())
+                            .collect(Collectors.toList());
                     fieldValues.forEach(v -> {
                         if (!result.contains(v)) {
                             result.add(v);
@@ -608,14 +611,13 @@ public class IndexManager {
             }
         }
 
-        List<Genre> genres = sortByAlbum
-                ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
+        List<Genre> genres = sortByAlbum ? multiGenreMaster.get(GenreSort.ALBUM_COUNT)
                 : multiGenreMaster.get(GenreSort.SONG_COUNT);
         return isEmpty(genres) ? Collections.emptyList() : genres;
 
     }
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Genre) Not reusable
     private void refreshMultiGenreMaster() {
 
         IndexSearcher genreSearcher = getSearcher(IndexType.GENRE);
@@ -633,12 +635,16 @@ public class IndexManager {
                     Comparator<TermStats> c = new HighFreqTerms.DocFreqComparator();
                     TermStats[] stats;
                     try {
-                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms, FieldNamesConstants.GENRE, c);
+                        stats = HighFreqTerms.getHighFreqTerms(genreSearcher.getIndexReader(), numTerms,
+                                FieldNamesConstants.GENRE, c);
                     } catch (Exception e) {
-                        LOG.error("The genre field may not exist. This is an expected error before scan or using library without genre. : ", e);
+                        LOG.error(
+                                "The genre field may not exist. This is an expected error before scan or using library without genre. : ",
+                                e);
                         break mayBeInit;
                     }
-                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString()).collect(Collectors.toList());
+                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString())
+                            .collect(Collectors.toList());
 
                     List<Genre> genres = new ArrayList<>();
                     for (String genreName : genreNames) {

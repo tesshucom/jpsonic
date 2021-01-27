@@ -17,21 +17,22 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.i18n;
+
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import java.util.Arrays;
-import java.util.Locale;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Locale resolver implementation which returns the locale selected in the settings.
@@ -49,11 +50,14 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     private static final Object LOCK = new Object();
 
     /**
-    * Resolve the current locale via the given request.
-    *
-    * @param request Request to be used for resolution.
-    * @return The current locale.
-    */
+     * Resolve the current locale via the given request.
+     *
+     * @param request
+     *            Request to be used for resolution.
+     * 
+     * @return The current locale.
+     */
+    @Override
     public Locale resolveLocale(HttpServletRequest request) {
         Locale locale = (Locale) request.getAttribute("airsonic.locale");
         if (locale != null) {
@@ -90,19 +94,22 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
 
     /**
      * Returns whether the given locale exists.
-     * @param locale The locale.
+     * 
+     * @param locale
+     *            The locale.
+     * 
      * @return Whether the locale exists.
      */
     private boolean localeExists(Locale locale) {
         synchronized (LOCK) {
             if (locales == null) {
-                locales = Arrays.asList(settingsService.getAvailableLocales()).stream()
-                        .collect(Collectors.toSet());
+                locales = Arrays.asList(settingsService.getAvailableLocales()).stream().collect(Collectors.toSet());
             }
         }
         return locales.contains(locale);
     }
 
+    @Override
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
         throw new UnsupportedOperationException("Cannot change locale - use a different locale resolution strategy");
     }

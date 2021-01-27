@@ -17,6 +17,7 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.command;
 
 import org.airsonic.player.controller.GeneralSettingsController;
@@ -174,9 +175,8 @@ public class GeneralSettingsCommand {
         return locales;
     }
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly") // reference
-    public void setLocales(String[] locales) {
-        this.locales = locales;
+    public void setLocales(String... locales) {
+        this.locales = locales.clone();
     }
 
     public String getThemeIndex() {
@@ -191,7 +191,7 @@ public class GeneralSettingsCommand {
         return themes;
     }
 
-    public void setThemes(Theme[] themes) {
+    public void setThemes(Theme... themes) {
         if (themes != null) {
             this.themes = themes.clone();
         }

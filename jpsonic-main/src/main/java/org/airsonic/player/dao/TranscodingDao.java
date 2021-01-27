@@ -17,7 +17,12 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 import org.airsonic.player.domain.Transcoding;
 import org.slf4j.Logger;
@@ -25,10 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
 /**
  * Provides database services for transcoding configurations.
@@ -56,23 +57,27 @@ public class TranscodingDao extends AbstractDao {
     /**
      * Returns all active transcodings for the given player.
      *
-     * @param playerId The player ID.
+     * @param playerId
+     *            The player ID.
+     * 
      * @return All active transcodings for the player.
      */
     public List<Transcoding> getTranscodingsForPlayer(Integer playerId) {
-        String sql = "select " + QUERY_COLUMNS + " from transcoding2, player_transcoding2 " +
-                     "where player_transcoding2.player_id = ? " +
-                     "and   player_transcoding2.transcoding_id = transcoding2.id";
+        String sql = "select " + QUERY_COLUMNS + " from transcoding2, player_transcoding2 "
+                + "where player_transcoding2.player_id = ? "
+                + "and   player_transcoding2.transcoding_id = transcoding2.id";
         return query(sql, rowMapper, playerId);
     }
 
     /**
      * Sets the list of active transcodings for the given player.
      *
-     * @param playerId       The player ID.
-     * @param transcodingIds ID's of the active transcodings.
+     * @param playerId
+     *            The player ID.
+     * @param transcodingIds
+     *            ID's of the active transcodings.
      */
-    public void setTranscodingsForPlayer(Integer playerId, int[] transcodingIds) {
+    public void setTranscodingsForPlayer(Integer playerId, int... transcodingIds) {
         update("delete from player_transcoding2 where player_id = ?", playerId);
         String sql = "insert into player_transcoding2(player_id, transcoding_id) values (?, ?)";
         for (int transcodingId : transcodingIds) {
@@ -83,7 +88,8 @@ public class TranscodingDao extends AbstractDao {
     /**
      * Creates a new transcoding.
      *
-     * @param transcoding The transcoding to create.
+     * @param transcoding
+     *            The transcoding to create.
      */
     @Transactional
     public void createTranscoding(Transcoding transcoding) {
@@ -94,8 +100,8 @@ public class TranscodingDao extends AbstractDao {
         transcoding.setId(existingMax + 1);
         String sql = "insert into transcoding2 (" + QUERY_COLUMNS + ") values (" + questionMarks(QUERY_COLUMNS) + ")";
         update(sql, transcoding.getId(), transcoding.getName(), transcoding.getSourceFormats(),
-                transcoding.getTargetFormat(), transcoding.getStep1(),
-                transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive());
+                transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(),
+                transcoding.isDefaultActive());
         if (LOG.isInfoEnabled()) {
             LOG.info("Created transcoding " + transcoding.getName());
         }
@@ -104,7 +110,8 @@ public class TranscodingDao extends AbstractDao {
     /**
      * Deletes the transcoding with the given ID.
      *
-     * @param id The transcoding ID.
+     * @param id
+     *            The transcoding ID.
      */
     public void deleteTranscoding(Integer id) {
         String sql = "delete from transcoding2 where id=?";
@@ -117,17 +124,19 @@ public class TranscodingDao extends AbstractDao {
     /**
      * Updates the given transcoding.
      *
-     * @param transcoding The transcoding to update.
+     * @param transcoding
+     *            The transcoding to update.
      */
     public void updateTranscoding(Transcoding transcoding) {
-        String sql = "update transcoding2 set name=?, source_formats=?, target_format=?, " +
-                "step1=?, step2=?, step3=?, default_active=? where id=?";
-        update(sql, transcoding.getName(), transcoding.getSourceFormats(),
-                transcoding.getTargetFormat(), transcoding.getStep1(), transcoding.getStep2(),
-                transcoding.getStep3(), transcoding.isDefaultActive(), transcoding.getId());
+        String sql = "update transcoding2 set name=?, source_formats=?, target_format=?, "
+                + "step1=?, step2=?, step3=?, default_active=? where id=?";
+        update(sql, transcoding.getName(), transcoding.getSourceFormats(), transcoding.getTargetFormat(),
+                transcoding.getStep1(), transcoding.getStep2(), transcoding.getStep3(), transcoding.isDefaultActive(),
+                transcoding.getId());
     }
 
     private static class TranscodingRowMapper implements RowMapper<Transcoding> {
+        @Override
         public Transcoding mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Transcoding(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5),
                     rs.getString(6), rs.getString(7), rs.getBoolean(8));

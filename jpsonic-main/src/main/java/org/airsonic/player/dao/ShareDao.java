@@ -17,7 +17,14 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.Share;
@@ -25,12 +32,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Provides database services for shared media.
@@ -49,7 +50,8 @@ public class ShareDao extends AbstractDao {
     /**
      * Creates a new share.
      *
-     * @param share The share to create.  The ID of the share will be set by this method.
+     * @param share
+     *            The share to create. The ID of the share will be set by this method.
      */
     @Transactional
     public void createShare(Share share) {
@@ -85,19 +87,22 @@ public class ShareDao extends AbstractDao {
     /**
      * Updates the given share.
      *
-     * @param share The share to update.
+     * @param share
+     *            The share to update.
      */
     public void updateShare(Share share) {
         String sql = "update share set name=?, description=?, username=?, created=?, expires=?, last_visited=?, visit_count=? where id=?";
-        update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(), share.getExpires(),
-                share.getLastVisited(), share.getVisitCount(), share.getId());
+        update(sql, share.getName(), share.getDescription(), share.getUsername(), share.getCreated(),
+                share.getExpires(), share.getLastVisited(), share.getVisitCount(), share.getId());
     }
 
     /**
      * Creates shared files.
      *
-     * @param shareId The share ID.
-     * @param paths   Paths of the files to share.
+     * @param shareId
+     *            The share ID.
+     * @param paths
+     *            Paths of the files to share.
      */
     public void createSharedFiles(int shareId, String... paths) {
         String sql = "insert into share_file (share_id, path) values (?, ?)";
@@ -109,7 +114,9 @@ public class ShareDao extends AbstractDao {
     /**
      * Returns files for a share.
      *
-     * @param shareId The ID of the share.
+     * @param shareId
+     *            The ID of the share.
+     * 
      * @return The paths of the shared files.
      */
     public List<String> getSharedFiles(final int shareId, final List<MusicFolder> musicFolders) {
@@ -117,21 +124,23 @@ public class ShareDao extends AbstractDao {
             return Collections.emptyList();
         }
         Map<String, Object> args = LegacyMap.of("shareId", shareId, "folders", MusicFolder.toPathList(musicFolders));
-        return namedQuery("select share_file.path from share_file, media_file where share_id = :shareId and " +
-                          "share_file.path = media_file.path and media_file.present and media_file.folder in (:folders)",
-                          shareFileRowMapper, args);
+        return namedQuery("select share_file.path from share_file, media_file where share_id = :shareId and "
+                + "share_file.path = media_file.path and media_file.present and media_file.folder in (:folders)",
+                shareFileRowMapper, args);
     }
 
     /**
      * Deletes the share with the given ID.
      *
-     * @param id The ID of the share to delete.
+     * @param id
+     *            The ID of the share to delete.
      */
     public void deleteShare(Integer id) {
         update("delete from share where id=?", id);
     }
 
     private static class ShareRowMapper implements RowMapper<Share> {
+        @Override
         public Share mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Share(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getTimestamp(5),
                     rs.getTimestamp(6), rs.getTimestamp(7), rs.getInt(8));
@@ -139,6 +148,7 @@ public class ShareDao extends AbstractDao {
     }
 
     private static class ShareFileRowMapper implements RowMapper<String> {
+        @Override
         public String mapRow(ResultSet rs, int rowNum) throws SQLException {
             return rs.getString(1);
         }

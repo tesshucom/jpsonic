@@ -17,12 +17,15 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.filter;
 
-import org.airsonic.player.util.LegacyMap;
-import org.airsonic.player.util.StringUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -33,17 +36,14 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Map;
+import org.airsonic.player.util.LegacyMap;
+import org.airsonic.player.util.StringUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Servlet filter which decodes HTTP request parameters.  If a parameter name ends with
- * "Utf8Hex" ({@link #PARAM_SUFFIX}) , the corresponding parameter value is assumed to be the
- * hexadecimal representation of the UTF-8 bytes of the value.
+ * Servlet filter which decodes HTTP request parameters. If a parameter name ends with "Utf8Hex" ({@link #PARAM_SUFFIX})
+ * , the corresponding parameter value is assumed to be the hexadecimal representation of the UTF-8 bytes of the value.
  * <p/>
  * Used to support request parameter values of any character encoding.
  *
@@ -52,8 +52,8 @@ import java.util.Map;
 public class ParameterDecodingFilter implements Filter {
 
     public static final String PARAM_SUFFIX = "Utf8Hex";
-    private static final Logger LOG = LoggerFactory.getLogger(ParameterDecodingFilter.class);
 
+    @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
 
@@ -64,15 +64,19 @@ public class ParameterDecodingFilter implements Filter {
         chain.doFilter(decodedRequest, response);
     }
 
+    @Override
     public void init(FilterConfig filterConfig) {
         // Don't remove this method.
     }
 
+    @Override
     public void destroy() {
         // Don't remove this method.
     }
 
     private static class DecodingServletRequestWrapper extends HttpServletRequestWrapper {
+
+        private static final Logger LOG = LoggerFactory.getLogger(DecodingServletRequestWrapper.class);
 
         public DecodingServletRequestWrapper(HttpServletRequest servletRequest) {
             super(servletRequest);
@@ -120,7 +124,7 @@ public class ParameterDecodingFilter implements Filter {
         }
 
         @Override
-        public String[] getParameterValues(String name) { // NOPMD - ReturnEmptyArrayRatherThanNull : Due to third party specifications
+        public String[] getParameterValues(String name) {
             String[] values = super.getParameterValues(name);
             if (values != null) {
                 return values;
@@ -134,7 +138,7 @@ public class ParameterDecodingFilter implements Filter {
             return new String[0];
         }
 
-        private String[] decode(String[] values) {
+        private String[] decode(String... values) {
             if (values == null) {
                 return null;
             }

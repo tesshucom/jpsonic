@@ -17,8 +17,28 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
+import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.concurrent.CompletionException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.util.StringUtil;
 import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
@@ -31,26 +51,9 @@ import org.subsonic.restapi.ObjectFactory;
 import org.subsonic.restapi.Response;
 import org.subsonic.restapi.ResponseStatus;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.concurrent.CompletionException;
-
-import static org.airsonic.player.util.XMLUtil.createSAXBuilder;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
-
 /**
  * @author Sindre Mehus
+ * 
  * @version $Id$
  */
 public class JAXBWriter {
@@ -118,8 +121,8 @@ public class JAXBWriter {
 
     public void writeResponse(HttpServletRequest request, HttpServletResponse httpResponse, Response jaxbResponse) {
 
-        String format = getStringParameter(request, "f", "xml");
-        String jsonpCallback = request.getParameter("callback");
+        String format = getStringParameter(request, Attributes.Request.F.value(), "xml");
+        String jsonpCallback = request.getParameter(Attributes.Request.CALLBACK.value());
         boolean json = "json".equals(format);
         boolean jsonp = "jsonp".equals(format) && jsonpCallback != null;
         Marshaller marshaller;
@@ -168,7 +171,7 @@ public class JAXBWriter {
     }
 
     public void writeErrorResponse(HttpServletRequest request, HttpServletResponse response,
-                                   SubsonicRESTController.ErrorCode code, String message) {
+            SubsonicRESTController.ErrorCode code, String message) {
         Response res = createResponse(false);
         Error error = new Error();
         res.setError(error);
@@ -192,6 +195,6 @@ public class JAXBWriter {
             return null;
         }
 
-        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar)calendar).normalize();
+        return datatypeFactory.newXMLGregorianCalendar((GregorianCalendar) calendar).normalize();
     }
 }

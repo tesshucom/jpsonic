@@ -20,92 +20,59 @@
 
 package org.airsonic.player.service.search;
 
-import org.airsonic.player.util.LegacyMap;
-
 import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
+import org.airsonic.player.util.LegacyMap;
+import org.apache.lucene.search.BoostQuery;
+
 /**
- * Enum that symbolizes the each lucene index entity.
- * This class is a division of what was once part of SearchService and added functionality.
+ * Enum that symbolizes the each lucene index entity. This class is a division of what was once part of SearchService
+ * and added functionality.
+ * 
  * @since legacy
  */
 public enum IndexType {
 
-    SONG(
-        fieldNames(
-            FieldNamesConstants.TITLE_EX,
-            FieldNamesConstants.TITLE,
-            FieldNamesConstants.ARTIST_READING,
-            FieldNamesConstants.ARTIST_EX,
-            FieldNamesConstants.ARTIST,
-            FieldNamesConstants.COMPOSER_READING,
+    SONG(fieldNames(FieldNamesConstants.TITLE_EX, FieldNamesConstants.TITLE, FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX, FieldNamesConstants.ARTIST, FieldNamesConstants.COMPOSER_READING,
             FieldNamesConstants.COMPOSER),
-        boosts(
-            entry(FieldNamesConstants.TITLE_EX, 2.3F),
-            entry(FieldNamesConstants.TITLE, 2.2F),
-            entry(FieldNamesConstants.ARTIST_READING, 1.4F),
-            entry(FieldNamesConstants.ARTIST_EX, 1.3F),
-            entry(FieldNamesConstants.ARTIST, 1.2F),
-            entry(FieldNamesConstants.COMPOSER_READING, 1.1F))),
+            boosts(entry(FieldNamesConstants.TITLE_EX, 2.3F), entry(FieldNamesConstants.TITLE, 2.2F),
+                    entry(FieldNamesConstants.ARTIST_READING, 1.4F), entry(FieldNamesConstants.ARTIST_EX, 1.3F),
+                    entry(FieldNamesConstants.ARTIST, 1.2F), entry(FieldNamesConstants.COMPOSER_READING, 1.1F))),
 
-    ALBUM(
-        fieldNames(
-            FieldNamesConstants.ALBUM_EX,
-            FieldNamesConstants.ALBUM,
-            FieldNamesConstants.ARTIST_READING,
-            FieldNamesConstants.ARTIST_EX,
-            FieldNamesConstants.ARTIST),
-        boosts(
-            entry(FieldNamesConstants.ALBUM_EX, 2.3F),
-            entry(FieldNamesConstants.ALBUM, 2.3F),
-            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
+    ALBUM(fieldNames(FieldNamesConstants.ALBUM_EX, FieldNamesConstants.ALBUM, FieldNamesConstants.ARTIST_READING,
+            FieldNamesConstants.ARTIST_EX, FieldNamesConstants.ARTIST),
+            boosts(entry(FieldNamesConstants.ALBUM_EX, 2.3F), entry(FieldNamesConstants.ALBUM, 2.3F),
+                    entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     ALBUM_ID3(
-        fieldNames(
-            FieldNamesConstants.ALBUM_EX,
-            FieldNamesConstants.ALBUM,
-            FieldNamesConstants.ARTIST_READING,
-            FieldNamesConstants.ARTIST_EX,
-            FieldNamesConstants.ARTIST),
-        boosts(
-            entry(FieldNamesConstants.ALBUM_EX, 2.3F),
-            entry(FieldNamesConstants.ALBUM, 2.3F),
-            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
+            fieldNames(FieldNamesConstants.ALBUM_EX, FieldNamesConstants.ALBUM, FieldNamesConstants.ARTIST_READING,
+                    FieldNamesConstants.ARTIST_EX, FieldNamesConstants.ARTIST),
+            boosts(entry(FieldNamesConstants.ALBUM_EX, 2.3F), entry(FieldNamesConstants.ALBUM, 2.3F),
+                    entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
-    ARTIST(
-        fieldNames(
-            FieldNamesConstants.ARTIST_READING,
-            FieldNamesConstants.ARTIST_EX,
-            FieldNamesConstants.ARTIST),
-        boosts(
-            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
+    ARTIST(fieldNames(FieldNamesConstants.ARTIST_READING, FieldNamesConstants.ARTIST_EX, FieldNamesConstants.ARTIST),
+            boosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
     ARTIST_ID3(
-        fieldNames(
-            FieldNamesConstants.ARTIST_READING,
-            FieldNamesConstants.ARTIST_EX,
-            FieldNamesConstants.ARTIST),
-        boosts(
-            entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
+            fieldNames(FieldNamesConstants.ARTIST_READING, FieldNamesConstants.ARTIST_EX, FieldNamesConstants.ARTIST),
+            boosts(entry(FieldNamesConstants.ARTIST_READING, 1.1F))),
 
-    GENRE(
-        fieldNames(
-            FieldNamesConstants.GENRE_KEY,
-            FieldNamesConstants.GENRE),
-        boosts(
-            entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
-    
+    GENRE(fieldNames(FieldNamesConstants.GENRE_KEY, FieldNamesConstants.GENRE),
+            boosts(entry(FieldNamesConstants.GENRE_KEY, 1.1F))),
+
     ;
 
     /**
      * Define the field's applied boost value when searching IndexType.
      * 
-     * @param entry {@link #entry(String, float)}.
-     *              When specifying multiple values, enumerate entries.
+     * @param entry
+     *            {@link #entry(String, float)}. When specifying multiple values, enumerate entries.
+     * 
      * @return Map of boost values ​​to be applied to the field
      */
     @SafeVarargs
@@ -118,8 +85,11 @@ public enum IndexType {
     /**
      * Create an entry representing the boost value for the field.
      * 
-     * @param k Field name defined by FieldNames
-     * @param v Boost value
+     * @param k
+     *            Field name defined by FieldNames
+     * @param v
+     *            Boost value
+     * 
      * @return
      */
     private static final SimpleEntry<String, Float> entry(String k, float v) {
@@ -127,11 +97,11 @@ public enum IndexType {
     }
 
     /**
-     * Defines the field that the input value is to search for
-     * when searching IndexType.
-     * If you specify multiple values, list the field names.
+     * Defines the field that the input value is to search for when searching IndexType. If you specify multiple values,
+     * list the field names.
      * 
      * @param names
+     * 
      * @return
      */
     private static final String[] fieldNames(String... names) {
@@ -142,9 +112,8 @@ public enum IndexType {
 
     private final String[] fields;
 
-    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     private IndexType(String[] fieldNames, Map<String, Float> boosts) {
-        this.fields = fieldNames;
+        this.fields = fieldNames.clone();
         this.boosts = boosts;
     }
 
@@ -152,7 +121,9 @@ public enum IndexType {
      * Returns a map of fields and boost values.
      * 
      * @return Map of fields and boost values
+     * 
      * @since legacy
+     * 
      * @see BoostQuery
      */
     public Map<String, Float> getBoosts() {
@@ -163,6 +134,7 @@ public enum IndexType {
      * Return some of the fields defined in the index.
      * 
      * @return Fields mainly used in multi-field search
+     * 
      * @since legacy
      */
     public String[] getFields() {

@@ -17,9 +17,17 @@
  Copyright 2016 (C) Airsonic Authors
  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
  */
+
 package org.airsonic.player.controller;
 
+import java.util.Locale;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.OutlineHelpSelector;
+import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.GeneralSettingsCommand;
 import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.User;
@@ -34,12 +42,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import javax.servlet.http.HttpServletRequest;
-
-import java.util.Locale;
-import java.util.Optional;
+import org.springframework.web.servlet.view.RedirectView;
 
 /**
  * Controller for the page used to administrate general settings.
@@ -63,7 +68,8 @@ public class GeneralSettingsController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model, @RequestParam("toast") Optional<Boolean> toast) {
+    protected void formBackingObject(HttpServletRequest request, Model model,
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {
         GeneralSettingsCommand command = new GeneralSettingsCommand();
         command.setCoverArtFileTypes(settingsService.getCoverArtFileTypes());
         command.setIgnoredArticles(settingsService.getIgnoredArticles());
@@ -132,11 +138,13 @@ public class GeneralSettingsController {
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
-        model.addAttribute("command",command);
+        model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
     @PostMapping
-    protected String doSubmitAction(@ModelAttribute("command") GeneralSettingsCommand command, RedirectAttributes redirectAttributes) {
+    protected ModelAndView doSubmitAction(
+            @ModelAttribute(Attributes.Model.Command.VALUE) GeneralSettingsCommand command,
+            RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         Theme theme = settingsService.getAvailableThemes()[themeIndex];
@@ -147,12 +155,11 @@ public class GeneralSettingsController {
         boolean isReload = !settingsService.getIndexString().equals(command.getIndex())
                 || !settingsService.getIgnoredArticles().equals(command.getIgnoredArticles())
                 || !settingsService.getShortcuts().equals(command.getShortcuts())
-                || !settingsService.getThemeId().equals(theme.getId())
-                || !settingsService.getLocale().equals(locale)
+                || !settingsService.getThemeId().equals(theme.getId()) || !settingsService.getLocale().equals(locale)
                 || settingsService.isOthersPlayingEnabled() != command.isOthersPlayingEnabled();
-        redirectAttributes.addFlashAttribute("settings_reload", isReload);
+        redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), isReload);
         if (!isReload) {
-            redirectAttributes.addFlashAttribute("settings_toast", true);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
         }
         settingsService.setIndexString(command.getIndex());
         settingsService.setIgnoredArticles(command.getIgnoredArticles());
@@ -168,7 +175,8 @@ public class GeneralSettingsController {
         settingsService.setSortStrict(command.isSortStrict());
         settingsService.setSearchComposer(command.isSearchComposer());
         settingsService.setOutputSearchQuery(command.isOutputSearchQuery());
-        settingsService.setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
+        settingsService
+                .setSearchMethodChanged(settingsService.isSearchMethodLegacy() != command.isSearchMethodLegacy());
         settingsService.setSearchMethodLegacy(command.isSearchMethodLegacy());
         settingsService.setGettingStartedEnabled(command.isGettingStartedEnabled());
         settingsService.setWelcomeTitle(command.getWelcomeTitle());
@@ -187,7 +195,7 @@ public class GeneralSettingsController {
         settingsService.setShowRememberMe(command.isShowRememberMe());
         settingsService.save();
 
-        return "redirect:generalSettings.view";
+        return new ModelAndView(new RedirectView(ViewName.GENERAL_SETTINGS.value()));
     }
 
 }
