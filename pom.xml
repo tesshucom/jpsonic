@@ -11,9 +11,9 @@
         <name>Jpsonic</name>
         <url>https://tesshu.com/</url>
     </organization>
-    <inceptionYear>2016</inceptionYear>
 
     <properties>
+        <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.2</cxf.version>
@@ -576,10 +576,55 @@
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.5.2</version>
                 </plugin>
+                <plugin>
+                    <inherited>false</inherited>
+                    <groupId>com.mycila</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>3.0</version>
+                </plugin>
             </plugins>
         </pluginManagement>
 
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <configuration>
+                    <header>contrib/assets/template-gpl3.txt</header>
+                    <properties>
+                        <product>Jpsonic</product>
+                        <owner>tesshucom</owner>
+                        <year>${inceptionYear}</year>
+                        <useDefaultExcludes>true</useDefaultExcludes>
+                    </properties>
+                    <includes>
+                        <include>src/*/java/**/*.java</include>
+                    </includes>
+                    <excludes>
+                        <exclude>.github/**</exclude>
+                        <exclude>contrib/**</exclude>
+                        <exclude>install/**</exclude>
+                        <exclude>jpsonic-sonos-api/**</exclude>
+                        <exclude>subsonic-rest-api/**</exclude>
+                        <exclude>repo/**</exclude>
+                        <exclude>**/*.xsd</exclude>
+                        <exclude>**/*.wsdl</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.html</exclude>
+                        <exclude>**/*.css</exclude>
+                        <exclude>**/*.js</exclude>
+                        <exclude>.mvn/**</exclude>
+                        <exclude>mvnw*</exclude>
+                        <exclude>**/_config.yml</exclude>
+                        <exclude>**/coverage.xml</exclude>
+                        <exclude>config/**.xml</exclude>
+                    </excludes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
