@@ -15,14 +15,17 @@
     Authors: Max Vetrenko, Ruslan Diachenko, Roman Ivanov.
  -->
 <!--
-    This file is a Jpsonic checkstyle definition. Based on Google style, 
-	it may be modified for compatibility with Sun rules, removal of malfunctions, 
-	and maintainability of Jpsonic.
+    This file is a Jpsonic Checkstyle definition for Checkstyle on Maven(8.39) 
+	or Codacy(8.38) or IntelliJ(8.39). Based on Google style, it may be modified 
+	for compatibility with Sun rules, removal of malfunctions, and maintainability 
+	of Jpsonic. This is a measure to make PMD, SpotBugs, CheckStyle, and Formatter 
+	work in harmony.
+
 	It comes from the definition that comes with checkstyle 8.39 RELEASE.
-	https://github.com/checkstyle/checkstyle/blob/checkstyle-8.39/src/main/resources/google_checks.xml
+	https://github.com/checkstyle/checkstyle/blob/checkstyle-8.39/src/main/resources/google_checks.xml 
 
 	Author: tesshucom
- -->
+-->
 
 <module name = "Checker">
   <property name="charset" value="UTF-8"/>
