@@ -125,7 +125,7 @@ public class ShoutCastOutputStream extends OutputStream {
      */
     @Override
     public void write(int b) throws IOException {
-        byte[] buf = new byte[] { (byte) b };
+        byte[] buf = { (byte) b };
         write(buf);
     }
 
