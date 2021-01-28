@@ -1132,12 +1132,12 @@ public class JpsonicComparatorsTest {
     @Test
     public void testSortingWithAccents() {
 
-        TestSortableArtist a1 = new TestSortableArtist("Sea");
-        TestSortableArtist a2 = new TestSortableArtist("SEB");
-        TestSortableArtist a3 = new TestSortableArtist("Seb");
-        TestSortableArtist a4 = new TestSortableArtist("S\u00e9b"); // Séb
-        TestSortableArtist a5 = new TestSortableArtist("Sed");
-        TestSortableArtist a6 = new TestSortableArtist("See");
+        final TestSortableArtist a1 = new TestSortableArtist("Sea");
+        final TestSortableArtist a2 = new TestSortableArtist("SEB");
+        final TestSortableArtist a3 = new TestSortableArtist("Seb");
+        final TestSortableArtist a4 = new TestSortableArtist("S\u00e9b"); // Séb
+        final TestSortableArtist a5 = new TestSortableArtist("Sed");
+        final TestSortableArtist a6 = new TestSortableArtist("See");
 
         assertTrue(a1.compareTo(a1) == 0);
         assertTrue(a1.compareTo(a2) < 0);
