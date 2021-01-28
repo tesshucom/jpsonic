@@ -49,7 +49,7 @@ public class TomcatApplicationHelper {
             if (development) {
                 resources.setCachingAllowed(false);
             } else {
-                resources.setCacheMaxSize(100000);
+                resources.setCacheMaxSize(100_000);
                 resources.setCacheObjectMaxSize(4000);
                 resources.setCacheTtl(24 * 3600 * 1000); // 1 day, in milliseconds
             }

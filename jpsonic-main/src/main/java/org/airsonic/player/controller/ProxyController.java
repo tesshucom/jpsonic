@@ -56,7 +56,7 @@ public class ProxyController {
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
 
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000).setSocketTimeout(15000).build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
         HttpGet method = new HttpGet(url);
         method.setConfig(requestConfig);
 

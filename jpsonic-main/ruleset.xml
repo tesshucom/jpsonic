@@ -55,7 +55,6 @@
         <!-- 3 --><exclude name="LinguisticNaming" />
         <!-- 3 --><exclude name="UnnecessaryModifier" />
         <!-- 3 --><exclude name="DefaultPackage" />
-        <!-- 3 --><exclude name="UseUnderscoresInNumericLiterals" />
         <!-- 3 --><exclude name="TooManyStaticImports" />
     </rule>
 

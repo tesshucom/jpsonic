@@ -379,10 +379,10 @@ public class InternetRadioService {
     protected HttpURLConnection connectToURL(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setAllowUserInteraction(false);
-        urlConnection.setConnectTimeout(10000);
+        urlConnection.setConnectTimeout(10_000);
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(false);
-        urlConnection.setReadTimeout(60000);
+        urlConnection.setReadTimeout(60_000);
         urlConnection.setUseCaches(true);
         urlConnection.connect();
         return urlConnection;

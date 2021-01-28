@@ -62,8 +62,8 @@ public class LastFMScrobbler {
 
     private RegistrationThread thread;
     private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15000)
-            .setSocketTimeout(15000).build();
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15_000)
+            .setSocketTimeout(15_000).build();
 
     private static final Object REGISTRATION_LOCK = new Object();
 

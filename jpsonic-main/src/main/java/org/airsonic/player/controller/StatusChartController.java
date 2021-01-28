@@ -121,7 +121,7 @@ public class StatusChartController extends AbstractChartController {
         }
 
         // Compute moving average.
-        series = MovingAverage.createMovingAverage(series, "Kbps", 20000, 5000);
+        series = MovingAverage.createMovingAverage(series, "Kbps", 20_000, 5000);
 
         // Find min and max values.
         double min = 100;

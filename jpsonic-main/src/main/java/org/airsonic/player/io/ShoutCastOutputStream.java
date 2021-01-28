@@ -42,7 +42,7 @@ public class ShoutCastOutputStream extends OutputStream {
     /**
      * Number of bytes between each SHOUTcast metadata block.
      */
-    public static final int META_DATA_INTERVAL = 20480;
+    public static final int META_DATA_INTERVAL = 20_480;
 
     /**
      * The underlying output stream to decorate.

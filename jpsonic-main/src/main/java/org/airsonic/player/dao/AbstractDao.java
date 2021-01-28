@@ -83,7 +83,7 @@ public class AbstractDao {
     }
 
     private void writeLog(String sql, long startTimeNano) {
-        long millis = (System.nanoTime() - startTimeNano) / 1000000L;
+        long millis = (System.nanoTime() - startTimeNano) / 1_000_000L;
 
         // Log queries that take more than 2 seconds.
         if (millis > TimeUnit.SECONDS.toMillis(2L)) {

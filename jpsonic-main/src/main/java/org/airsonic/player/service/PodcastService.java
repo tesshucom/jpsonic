@@ -627,7 +627,7 @@ public class PodcastService {
 
                         byte[] buffer = new byte[4096];
                         long bytesDownloaded = 0;
-                        long nextLogCount = 30000L;
+                        long nextLogCount = 30_000L;
 
                         try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
                             for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
@@ -636,7 +636,7 @@ public class PodcastService {
 
                                 if (bytesDownloaded > nextLogCount) {
                                     episode.setBytesDownloaded(bytesDownloaded);
-                                    nextLogCount += 30000L;
+                                    nextLogCount += 30_000L;
 
                                     // Abort download if episode was deleted by user.
                                     if (isEpisodeDeleted(episode)) {

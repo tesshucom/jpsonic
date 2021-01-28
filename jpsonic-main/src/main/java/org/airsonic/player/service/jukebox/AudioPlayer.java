@@ -65,7 +65,7 @@ public class AudioPlayer {
         this.in = in;
         this.listener = listener;
 
-        AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, true);
+        AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44_100.0F, 16, 2, 4, 44_100.0F, true);
         line = AudioSystem.getSourceDataLine(format);
         line.open(format);
         if (LOG.isDebugEnabled()) {
@@ -170,7 +170,7 @@ public class AudioPlayer {
      * Returns the position in seconds.
      */
     public int getPosition() {
-        return (int) (line.getMicrosecondPosition() / 1000000L);
+        return (int) (line.getMicrosecondPosition() / 1_000_000L);
     }
 
     private void setState(State state) {

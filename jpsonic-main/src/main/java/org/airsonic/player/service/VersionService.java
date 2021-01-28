@@ -267,7 +267,7 @@ public class VersionService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000).setSocketTimeout(10000)
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10_000).setSocketTimeout(10_000)
                     .build();
             HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
             method.setConfig(requestConfig);

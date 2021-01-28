@@ -117,7 +117,7 @@ public class LyricsService {
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     private String executeGetRequest(String url) throws IOException {
-        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15000).setSocketTimeout(15000).build();
+        RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(15_000).setSocketTimeout(15_000).build();
         HttpGet method = new HttpGet(url);
         method.setConfig(requestConfig);
         try (CloseableHttpClient client = HttpClients.createDefault()) {
