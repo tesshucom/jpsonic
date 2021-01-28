@@ -115,7 +115,7 @@ public class MusicFolderSettingsController {
         command.setMusicFolders(wrap(settingsService.getAllMusicFolders(true, true)));
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
         command.setExcludePatternString(settingsService.getExcludePatternString());
-        command.setIgnoreSymLinks(settingsService.getIgnoreSymLinks());
+        command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
@@ -218,7 +218,7 @@ public class MusicFolderSettingsController {
         settingsService.setFastCacheEnabled(command.isFastCache());
         settingsService.setOrganizeByFolderStructure(command.isOrganizeByFolderStructure());
         settingsService.setExcludePatternString(command.getExcludePatternString());
-        settingsService.setIgnoreSymLinks(command.getIgnoreSymLinks());
+        settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
         settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());
 
         settingsService.save();

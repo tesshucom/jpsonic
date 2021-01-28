@@ -50,7 +50,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals("Rock", metaData.getGenre());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
@@ -71,7 +71,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals("ロック", metaData.getGenre());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
@@ -200,7 +200,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.3 v1.1 */
@@ -225,7 +225,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.3 */
@@ -250,7 +250,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.4 */
@@ -275,7 +275,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
 }

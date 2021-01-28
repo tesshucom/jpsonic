@@ -115,7 +115,7 @@ public class MusicFolderSettingsCommand {
         this.excludePatternString = excludePatternString;
     }
 
-    public boolean getIgnoreSymLinks() {
+    public boolean isIgnoreSymLinks() {
         return ignoreSymLinks;
     }
 

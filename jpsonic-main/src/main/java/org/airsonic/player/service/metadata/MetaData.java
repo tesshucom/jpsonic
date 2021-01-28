@@ -122,7 +122,7 @@ public class MetaData {
         this.bitRate = bitRate;
     }
 
-    public boolean getVariableBitRate() {
+    public boolean isVariableBitRate() {
         return variableBitRate;
     }
 

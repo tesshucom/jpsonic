@@ -1017,7 +1017,7 @@ public class SettingsService {
         setBoolean(KEY_SEARCH_METHOD_CHANGED, b);
     }
 
-    public boolean getIgnoreSymLinks() {
+    public boolean isIgnoreSymLinks() {
         return getBoolean(KEY_IGNORE_SYMLINKS, DEFAULT_IGNORE_SYMLINKS);
     }
 

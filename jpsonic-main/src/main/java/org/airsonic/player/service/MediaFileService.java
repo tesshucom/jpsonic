@@ -545,7 +545,7 @@ public class MediaFileService {
      * @return Whether the child file is excluded.
      */
     private boolean isExcluded(File file) {
-        if (settingsService.getIgnoreSymLinks() && Files.isSymbolicLink(file.toPath())) {
+        if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(file.toPath())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("excluding symbolic link " + file.toPath());
             }
@@ -599,7 +599,7 @@ public class MediaFileService {
                 mediaFile.setYear(metaData.getYear());
                 mediaFile.setDurationSeconds(metaData.getDurationSeconds());
                 mediaFile.setBitRate(metaData.getBitRate());
-                mediaFile.setVariableBitRate(metaData.getVariableBitRate());
+                mediaFile.setVariableBitRate(metaData.isVariableBitRate());
                 mediaFile.setHeight(metaData.getHeight());
                 mediaFile.setWidth(metaData.getWidth());
                 mediaFile.setTitleSort(metaData.getTitleSort());
