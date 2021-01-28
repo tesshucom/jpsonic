@@ -58,7 +58,6 @@
         <!-- 3 --><exclude name="UseUnderscoresInNumericLiterals" />
         <!-- 3 --><exclude name="TooManyStaticImports" />
         <!-- 3 --><exclude name="UseShortArrayInitializer" />
-        <!-- 4 --><exclude name="ShortClassName" />
     </rule>
 
     <!-- Java Rules:Design -->

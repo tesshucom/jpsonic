@@ -26,6 +26,7 @@ package org.airsonic.player.domain;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.ShortClassName")
 public class User {
 
     public static final String USERNAME_GUEST = "guest";

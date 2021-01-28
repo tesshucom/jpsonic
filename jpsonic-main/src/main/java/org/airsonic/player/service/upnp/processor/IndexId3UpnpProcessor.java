@@ -168,18 +168,18 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     public List<Id3Wrapper> getChildren(Id3Wrapper item, long offset, long maxResults) {
         if (item.isIndex()) {
             return subList(
-                    indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3::new).collect(toList()),
+                    indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3Content::new).collect(toList()),
                     offset, maxResults);
         } else if (item.isAlbum()) {
             return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
-                    .map(Id3::new).collect(toList());
+                    .map(Id3Content::new).collect(toList());
         } else if (item.isArtist()) {
             return albumDao.getAlbumsForArtist(offset, maxResults, item.getArtist(),
-                    util.isSortAlbumsByYear(item.getArtist()), util.getAllMusicFolders()).stream().map(Id3::new)
+                    util.isSortAlbumsByYear(item.getArtist()), util.getAllMusicFolders()).stream().map(Id3Content::new)
                     .collect(toList());
         }
         return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
-                .map(Id3::new).collect(toList());
+                .map(Id3Content::new).collect(toList());
     }
 
     @Override
@@ -196,11 +196,11 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         if (-1 > id) {
             return indexesMap.get(ids);
         } else if (isArtistId(ids)) {
-            return new Id3(artistDao.getArtist(id));
+            return new Id3Content(artistDao.getArtist(id));
         } else if (isAlbumId(ids)) {
-            return new Id3(albumDao.getAlbum(id));
+            return new Id3Content(albumDao.getAlbum(id));
         }
-        return new Id3(mediaFileService.getMediaFile(id));
+        return new Id3Content(mediaFileService.getMediaFile(id));
     }
 
     @Override
@@ -268,7 +268,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     entry.getValue().forEach(s -> index.getArtist().add(toId3.apply(s.getArtist())));
                 }
                 indexCache.put(new Element(IndexCacheKey.ID3, content));
-                topNodes = content.getIndex().stream().map(i -> new Id3(i)).collect(toList());
+                topNodes = content.getIndex().stream().map(i -> new Id3Content(i)).collect(toList());
                 indexesMap = new ConcurrentHashMap<>();
                 topNodes.forEach(i -> indexesMap.put(i.getId(), i));
             }
@@ -316,7 +316,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
-    static class Id3 implements Id3Wrapper {
+    static class Id3Content implements Id3Wrapper {
 
         private final String id;
         private IndexID3 index;
@@ -327,28 +327,28 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         private String comment;
         private int childCount;
 
-        public Id3(IndexID3 index) {
+        public Id3Content(IndexID3 index) {
             this.id = String.valueOf(getIDAndIncrement());
             name = index.getName();
             childCount = index.getArtist().size();
             this.index = index;
         }
 
-        public Id3(ArtistID3 a) {
+        public Id3Content(ArtistID3 a) {
             id = createArtistId(a.getId());
             name = a.getName();
             artist = a.getName();
             childCount = a.getAlbumCount();
         }
 
-        public Id3(Artist a) {
+        public Id3Content(Artist a) {
             id = createArtistId(String.valueOf(a.getId()));
             name = a.getName();
             artist = a.getName();
             childCount = a.getAlbumCount();
         }
 
-        public Id3(Album album) {
+        public Id3Content(Album album) {
             id = createAlbumId(String.valueOf(album.getId()));
             name = album.getName();
             artist = album.getArtist();
@@ -356,7 +356,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             childCount = album.getSongCount();
         }
 
-        public Id3(MediaFile song) {
+        public Id3Content(MediaFile song) {
             id = String.valueOf(song.getId());
             name = song.getTitle();
             artist = song.getAlbumArtist();

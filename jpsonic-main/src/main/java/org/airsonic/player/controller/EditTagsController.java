@@ -82,12 +82,12 @@ public class EditTagsController {
         }
         map.put("allGenres", JaudiotaggerParser.getID3V1Genres());
 
-        List<Song> songs = new ArrayList<>();
+        List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
-            songs.add(createSong(files.get(i), i));
+            parsedSongs.add(createParsedSong(files.get(i), i));
         }
         map.put("id", id);
-        map.put("songs", songs);
+        map.put("songs", parsedSongs);
         map.put("ancestors", getAncestors(dir));
 
         String username = securityService.getCurrentUsername(request);
@@ -116,27 +116,26 @@ public class EditTagsController {
         return result;
     }
 
-    private Song createSong(MediaFile file, int index) {
+    private ParsedSong createParsedSong(MediaFile file, int index) {
         MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
-
-        Song song = new Song();
-        song.setId(file.getId());
-        song.setFileName(FilenameUtils.getBaseName(file.getPath()));
-        song.setTrack(file.getTrackNumber());
-        song.setSuggestedTrack(index + 1);
-        song.setTitle(file.getTitle());
-        song.setSuggestedTitle(parser.guessTitle(file.getFile()));
-        song.setArtist(file.getArtist());
-        song.setAlbum(file.getAlbumName());
-        song.setYear(file.getYear());
-        song.setGenre(file.getGenre());
-        return song;
+        ParsedSong parsedSong = new ParsedSong();
+        parsedSong.setId(file.getId());
+        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPath()));
+        parsedSong.setTrack(file.getTrackNumber());
+        parsedSong.setSuggestedTrack(index + 1);
+        parsedSong.setTitle(file.getTitle());
+        parsedSong.setSuggestedTitle(parser.guessTitle(file.getFile()));
+        parsedSong.setArtist(file.getArtist());
+        parsedSong.setAlbum(file.getAlbumName());
+        parsedSong.setYear(file.getYear());
+        parsedSong.setGenre(file.getGenre());
+        return parsedSong;
     }
 
     /**
      * Contains information about a single song.
      */
-    public static class Song {
+    public static class ParsedSong {
         private int id;
         private String fileName;
         private Integer suggestedTrack;

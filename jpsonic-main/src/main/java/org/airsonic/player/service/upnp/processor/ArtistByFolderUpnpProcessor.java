@@ -146,14 +146,14 @@ public class ArtistByFolderUpnpProcessor
             return getDispatcher()
                     .getAlbumProcessor().getAlbumsForArtist(item.getName(), first, maxResults,
                             util.isSortAlbumsByYear(item.getName()), util.getAllMusicFolders())
-                    .stream().map(Leaf::new).collect(toList());
+                    .stream().map(FolderContent::new).collect(toList());
         } else if (item.isAlbum()) {
             return mediaFileService
                     .getSongsForAlbum(first, maxResults, item.getAlbum().getArtist(), item.getAlbum().getName())
-                    .stream().map(Leaf::new).collect(toList());
+                    .stream().map(FolderContent::new).collect(toList());
         } else {
             return artistDao.getAlphabetialArtists((int) first, (int) maxResults, Arrays.asList(item.getFolder()))
-                    .stream().map(Leaf::new).collect(toList());
+                    .stream().map(FolderContent::new).collect(toList());
         }
     }
 
@@ -166,14 +166,14 @@ public class ArtistByFolderUpnpProcessor
     public FolderArtistAlbumWrapper getItemById(String ids) {
         int id = toRawId(ids);
         if (isArtistId(ids)) {
-            return new Leaf(artistDao.getArtist(id));
+            return new FolderContent(artistDao.getArtist(id));
         } else if (isAlbumId(ids)) {
-            return new Leaf(albumDao.getAlbum(id));
+            return new FolderContent(albumDao.getAlbum(id));
         } else if (isMusicFolderId(ids)) {
-            return new Leaf(
+            return new FolderContent(
                     musicFolderDao.getAllMusicFolders().stream().filter(m -> id == m.getId()).findFirst().get());
         }
-        return new Leaf(mediaFileService.getMediaFile(id));
+        return new FolderContent(mediaFileService.getMediaFile(id));
     }
 
     @Override
@@ -185,7 +185,7 @@ public class ArtistByFolderUpnpProcessor
     public List<FolderArtistAlbumWrapper> getItems(long offset, long maxResults) {
         List<MusicFolder> folders = util.getAllMusicFolders();
         return folders.subList((int) offset, Math.min(folders.size(), (int) (offset + maxResults))).stream()
-                .map(Leaf::new).collect(toList());
+                .map(FolderContent::new).collect(toList());
     }
 
     @PostConstruct
@@ -210,7 +210,7 @@ public class ArtistByFolderUpnpProcessor
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
-    static class Leaf implements FolderArtistAlbumWrapper {
+    static class FolderContent implements FolderArtistAlbumWrapper {
 
         private Artist artist;
         private Album album;
@@ -221,28 +221,28 @@ public class ArtistByFolderUpnpProcessor
 
         private final String name;
 
-        public Leaf(Album album) {
+        public FolderContent(Album album) {
             super();
             this.album = album;
             this.id = createAlbumId(Integer.toString(album.getId()));
             this.name = album.getName();
         }
 
-        public Leaf(Artist artist) {
+        public FolderContent(Artist artist) {
             super();
             this.artist = artist;
             this.id = createArtistId(Integer.toString(artist.getId()));
             this.name = artist.getName();
         }
 
-        public Leaf(MediaFile song) {
+        public FolderContent(MediaFile song) {
             super();
             this.song = song;
             this.id = Integer.toString(song.getId());
             this.name = song.getName();
         }
 
-        public Leaf(MusicFolder folder) {
+        public FolderContent(MusicFolder folder) {
             super();
             this.folder = folder;
             this.id = createMusicFolderId(Integer.toString(folder.getId()));
