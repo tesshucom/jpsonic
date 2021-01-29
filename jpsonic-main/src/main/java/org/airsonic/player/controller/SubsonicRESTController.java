@@ -168,10 +168,11 @@ import org.subsonic.restapi.Videos;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.LinguisticNaming" })
 /*
- * There are 21 loop instantiatings, but none of them can be reused. This class has many loop instances because it is
- * responsible for conversion objects.
+ * [AvoidInstantiatingObjectsInLoops] There are 21 loop instantiatings, but none of them can be reused. This class has
+ * many loop instances because it is responsible for conversion objects. [LinguisticNaming] This is a naming convention
+ * specific to this REST class that writes directly to the HTTP response without returning a return value.
  */
 @Controller
 @RequestMapping(value = "/rest", method = { RequestMethod.GET, RequestMethod.POST })

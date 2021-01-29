@@ -95,8 +95,12 @@ public class PlayQueueInfo {
         return startPlayerAt;
     }
 
-    public PlayQueueInfo setStartPlayerAt(int startPlayerAt) {
+    private void setStartPlayerAt(int startPlayerAt) {
         this.startPlayerAt = startPlayerAt;
+    }
+
+    public PlayQueueInfo startPlayerAtAndGetInfo(int startPlayerAt) {
+        setStartPlayerAt(startPlayerAt);
         return this;
     }
 
@@ -104,8 +108,12 @@ public class PlayQueueInfo {
         return startPlayerAtPosition;
     }
 
-    public PlayQueueInfo setStartPlayerAtPosition(long startPlayerAtPosition) {
+    private void setStartPlayerAtPosition(long startPlayerAtPosition) {
         this.startPlayerAtPosition = startPlayerAtPosition;
+    }
+
+    public PlayQueueInfo startPlayerAtPositionAndGetInfo(long startPlayerAtPosition) {
+        setStartPlayerAtPosition(startPlayerAtPosition);
         return this;
     }
 

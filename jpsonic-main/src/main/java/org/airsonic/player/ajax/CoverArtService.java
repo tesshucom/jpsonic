@@ -80,7 +80,7 @@ public class CoverArtService {
      * 
      * @return The error string if something goes wrong, <code>null</code> otherwise.
      */
-    public String setCoverArtImage(int albumId, String url) {
+    public String saveCoverArtImage(int albumId, String url) {
         try {
             MediaFile mediaFile = mediaFileService.getMediaFile(albumId);
             saveCoverArt(mediaFile.getPath(), url);

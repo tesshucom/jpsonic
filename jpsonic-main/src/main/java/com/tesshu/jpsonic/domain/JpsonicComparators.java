@@ -52,7 +52,7 @@ public class JpsonicComparators {
         TRACK, ARTIST, ALBUM
     }
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
+    private final Pattern various = Pattern.compile("^various.*$");
 
     private final SettingsService settingsService;
 
@@ -121,7 +121,7 @@ public class JpsonicComparators {
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
         return settingsService.isSortAlbumsByYear() && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                && isVarious.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
+                && various.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
     }
 
     /**
