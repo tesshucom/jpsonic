@@ -26,6 +26,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -74,8 +76,12 @@ public class AnalyzerFactoryTest {
     private SettingsService settingsService;
 
     @Before
-    public void setup() {
-        analyzerFactory.setSearchMethodLegacy(false);
+    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
+                boolean.class);
+        setSearchMethodLegacy.setAccessible(true);
+        setSearchMethodLegacy.invoke(analyzerFactory, false);
         settingsService.setSearchMethodLegacy(false);
     }
 

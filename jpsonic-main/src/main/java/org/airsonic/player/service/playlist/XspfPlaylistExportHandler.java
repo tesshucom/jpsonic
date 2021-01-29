@@ -40,10 +40,10 @@ import org.springframework.stereotype.Component;
 public class XspfPlaylistExportHandler implements PlaylistExportHandler {
 
     @Autowired
-    MediaFileDao mediaFileDao;
+    private MediaFileDao mediaFileDao;
 
     @Autowired
-    PlaylistDao playlistDao;
+    private PlaylistDao playlistDao;
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass) {
@@ -55,7 +55,7 @@ public class XspfPlaylistExportHandler implements PlaylistExportHandler {
         return createXsfpPlaylistFromDBId(id);
     }
 
-    chameleon.playlist.xspf.Playlist createXsfpPlaylistFromDBId(int id) {
+    private chameleon.playlist.xspf.Playlist createXsfpPlaylistFromDBId(int id) {
         chameleon.playlist.xspf.Playlist newPlaylist = new chameleon.playlist.xspf.Playlist();
         Playlist playlist = playlistDao.getPlaylist(id);
         newPlaylist.setTitle(playlist.getName());

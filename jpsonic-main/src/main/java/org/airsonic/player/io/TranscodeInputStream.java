@@ -88,8 +88,8 @@ public final class TranscodeInputStream extends InputStream {
      * [UseTryWithResources] False positive. pmd/pmd/issues/2882 [EmptyCatchBlock] Triage in #824
      */
     private static class TranscodedInputStreamThread extends Thread {
-        final InputStream in;
-        final OutputStream out;
+        private final InputStream in;
+        private final OutputStream out;
 
         public TranscodedInputStreamThread(String name, InputStream in, OutputStream out) {
             super(name + " TranscodedInputStream copy thread");

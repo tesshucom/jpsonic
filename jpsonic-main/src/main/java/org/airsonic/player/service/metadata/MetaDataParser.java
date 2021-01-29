@@ -116,7 +116,7 @@ public abstract class MetaDataParser {
     /**
      * Guesses the artist for the given file.
      */
-    String guessArtist(File file) {
+    protected final String guessArtist(File file) {
         File parent = file.getParentFile();
         if (isRoot(parent)) {
             return null;
@@ -128,7 +128,7 @@ public abstract class MetaDataParser {
     /**
      * Guesses the album for the given file.
      */
-    String guessAlbum(File file, String artist) {
+    protected final String guessAlbum(File file, String artist) {
         File parent = file.getParentFile();
         String album = isRoot(parent) ? null : parent.getName();
         if (artist != null && album != null) {
@@ -155,7 +155,7 @@ public abstract class MetaDataParser {
         return false;
     }
 
-    abstract SettingsService getSettingsService();
+    protected abstract SettingsService getSettingsService();
 
     /**
      * Removes any prefixed track number from the given title string.

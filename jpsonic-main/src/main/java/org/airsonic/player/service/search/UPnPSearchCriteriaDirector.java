@@ -121,7 +121,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private String upnpSearchQuery;
     private UPnPSearchCriteria result;
 
-    BiConsumer<Boolean, String> notice = (b, message) -> {
+    private BiConsumer<Boolean, String> notice = (b, message) -> {
         if (b) {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
         }

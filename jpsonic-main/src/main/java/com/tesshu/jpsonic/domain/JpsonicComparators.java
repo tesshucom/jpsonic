@@ -101,7 +101,7 @@ public class JpsonicComparators {
     /**
      * Returns Collator which is used as standard in Jpsonic.
      */
-    final Collator createCollator() {
+    protected final Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
@@ -196,8 +196,8 @@ public class JpsonicComparators {
     }
 
     private static class GenreComparator implements Comparator<Genre> {
-        final JapaneseReadingUtils utils;
-        final Collator collator;
+        private final JapaneseReadingUtils utils;
+        private final Collator collator;
 
         public GenreComparator(JapaneseReadingUtils utils, Collator collator) {
             super();
@@ -214,8 +214,8 @@ public class JpsonicComparators {
     }
 
     private static class PlaylistComparator implements Comparator<Playlist> {
-        final JapaneseReadingUtils utils;
-        final Collator collator;
+        private final JapaneseReadingUtils utils;
+        private final Collator collator;
 
         public PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
             super();

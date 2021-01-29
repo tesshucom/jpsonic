@@ -128,7 +128,7 @@ public class JapaneseReadingUtils {
     /**
      * 
      */
-    boolean isJapaneseReadable(String str) {
+    private boolean isJapaneseReadable(String str) {
         if (isEmpty(str)) {
             return false;
         }
@@ -219,7 +219,7 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    String createReading(String s) {
+    private String createReading(String s) {
         if (isEmpty(s)) {
             return null;
         }
@@ -260,7 +260,7 @@ public class JapaneseReadingUtils {
         return reading;
     }
 
-    boolean isJapaneseReading(String str) {
+    private boolean isJapaneseReading(String str) {
         if (isEmpty(str)) {
             return false;
         }
@@ -292,7 +292,7 @@ public class JapaneseReadingUtils {
      * 
      * @return
      */
-    final String normalize(@Nullable String s) {
+    private String normalize(@Nullable String s) {
         if (isEmpty(s)) {
             return null;
         }

@@ -189,7 +189,7 @@ public class JukeboxJavaService {
         audioPlayer.setGain(gain);
     }
 
-    final void onSongStart(Player player) {
+    protected final void onSongStart(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(),
                 FileUtil.getShortPath(file.getFile()));
@@ -204,7 +204,7 @@ public class JukeboxJavaService {
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
-    final void onSongEnd(Player player) {
+    protected final void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(),
                 FileUtil.getShortPath(file.getFile()));

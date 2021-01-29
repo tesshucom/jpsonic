@@ -81,14 +81,14 @@ public class ArtistByFolderUpnpProcessor
         }
     }
 
-    static final String createAlbumId(String id) {
+    protected static final String createAlbumId(String id) {
         if (isAlbumId(id)) {
             return id;
         }
         return TYPE_PREFIX_ALBUM.concat(id);
     }
 
-    static final String createArtistId(String id) {
+    protected static final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
@@ -133,7 +133,7 @@ public class ArtistByFolderUpnpProcessor
         }
     }
 
-    static final String createMusicFolderId(String id) {
+    protected static final String createMusicFolderId(String id) {
         if (isMusicFolderId(id)) {
             return id;
         }

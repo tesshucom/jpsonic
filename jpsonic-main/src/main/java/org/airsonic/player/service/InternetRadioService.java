@@ -231,8 +231,8 @@ public class InternetRadioService {
 
         private static final Logger LOG = LoggerFactory.getLogger(PlaylistVisitorImpl.class);
 
-        final int maxCount;
-        final List<InternetRadioSource> entries;
+        private final int maxCount;
+        private final List<InternetRadioSource> entries;
 
         public PlaylistVisitorImpl(int maxCount, List<InternetRadioSource> entries) {
             super();

@@ -33,7 +33,7 @@ import org.apache.commons.collections4.queue.CircularFifoQueue;
  */
 public class TransferStatus {
 
-    static final int HISTORY_LENGTH = 200;
+    private static final int HISTORY_LENGTH = 200;
     private static final long SAMPLE_INTERVAL_MILLIS = 5000;
 
     private Player player;

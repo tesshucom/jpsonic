@@ -155,7 +155,7 @@ public class MediaScannerService {
         }
     }
 
-    boolean neverScanned() {
+    public boolean neverScanned() {
         return indexManager.getStatistics() == null;
     }
 

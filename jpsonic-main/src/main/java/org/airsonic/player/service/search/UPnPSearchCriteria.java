@@ -46,7 +46,7 @@ public class UPnPSearchCriteria extends LuceneSearchCriteria {
         return assignableClass;
     }
 
-    void setAssignableClass(Class<?> assignableClass) {
+    public void setAssignableClass(Class<?> assignableClass) {
         this.assignableClass = assignableClass;
     }
 

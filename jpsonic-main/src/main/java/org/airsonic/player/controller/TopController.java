@@ -170,10 +170,9 @@ public class TopController {
     }
 
     /**
-     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified as we don't
-     * need browser-side caching of left.jsp. This method is only used by RESTController.
+     * This method is only used by RESTController.
      */
-    long getLastModified(HttpServletRequest request) throws Exception {
+    public long getLastModified(HttpServletRequest request) throws Exception {
         saveSelectedMusicFolder(request);
 
         if (mediaScannerService.isScanning()) {

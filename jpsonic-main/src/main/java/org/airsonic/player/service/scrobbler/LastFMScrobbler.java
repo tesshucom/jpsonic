@@ -117,7 +117,7 @@ public class LastFMScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    static final void scrobble(RegistrationData registrationData)
+    protected static final void scrobble(RegistrationData registrationData)
             throws URISyntaxException, ClientProtocolException, IOException {
         if (registrationData == null) {
             return;
@@ -285,7 +285,7 @@ public class LastFMScrobbler {
      */
     private static class RegistrationThread extends Thread {
 
-        final LinkedBlockingQueue<RegistrationData> queue;
+        private final LinkedBlockingQueue<RegistrationData> queue;
 
         private static final Logger LOG = LoggerFactory.getLogger(RegistrationThread.class);
 

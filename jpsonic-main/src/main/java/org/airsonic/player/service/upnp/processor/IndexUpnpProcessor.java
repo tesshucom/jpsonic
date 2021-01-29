@@ -84,7 +84,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
-    static final int getIDAndIncrement() {
+    protected static final int getIDAndIncrement() {
         return INDEX_IDS.getAndIncrement();
     }
 

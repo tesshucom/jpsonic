@@ -54,7 +54,7 @@ public class MetaDataParserTest {
             }
 
             @Override
-            SettingsService getSettingsService() {
+            protected SettingsService getSettingsService() {
                 return null;
             }
 

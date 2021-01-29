@@ -28,11 +28,11 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 public class GenericDaoHelper implements DaoHelper {
 
-    final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    final DataSource dataSource;
+    private final DataSource dataSource;
 
     public GenericDaoHelper(DataSource dataSource) {
         this.dataSource = dataSource;

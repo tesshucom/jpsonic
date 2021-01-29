@@ -2535,7 +2535,7 @@ public class SubsonicRESTController {
         };
     }
 
-    final String mapId(String id) {
+    protected final String mapId(String id) {
 
         if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {
             return id;

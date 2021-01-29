@@ -46,7 +46,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
     private static final Logger LOG = LoggerFactory.getLogger(XspfPlaylistImportHandler.class);
 
     @Autowired
-    MediaFileService mediaFileService;
+    private MediaFileService mediaFileService;
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylist> playlistClass) {

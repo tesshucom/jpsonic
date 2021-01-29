@@ -87,7 +87,7 @@ public final class AnalyzerFactory {
 
     private String stopWords;
 
-    boolean isSearchMethodLegacy;
+    private boolean isSearchMethodLegacy;
 
     private static final String FILTER_ATTR_PATTERN = "pattern";
 
@@ -104,7 +104,7 @@ public final class AnalyzerFactory {
      * executed only once when the server starts. The timing of initialization and dynamic changes should only be
      * considered during testing.
      */
-    void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
+    private void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
         this.isSearchMethodLegacy = isSearchMethodLegacy;
         if (!isSearchMethodLegacy) {
             stopWords = "com/tesshu/jpsonic/service/stopwords4phrase.txt";

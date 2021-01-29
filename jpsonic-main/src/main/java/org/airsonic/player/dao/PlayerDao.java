@@ -176,7 +176,7 @@ public class PlayerDao extends AbstractDao {
                 player.getClientId(), player.getJavaJukeboxMixer(), player.getId());
     }
 
-    static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
+    protected static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
             PlayerDaoPlayQueueFactory factory) {
         PlayQueue playQueue = playlistMap.get(player.getId());
         if (playQueue == null) {
@@ -188,8 +188,8 @@ public class PlayerDao extends AbstractDao {
 
     private static class PlayerRowMapper implements RowMapper<Player> {
 
-        final Map<Integer, PlayQueue> playlistMap;
-        final PlayerDaoPlayQueueFactory factory;
+        private final Map<Integer, PlayQueue> playlistMap;
+        private final PlayerDaoPlayQueueFactory factory;
 
         public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap, PlayerDaoPlayQueueFactory factory) {
             super();

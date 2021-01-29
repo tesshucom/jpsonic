@@ -63,18 +63,18 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
 
-    static final String FAILURE_URL = "/login?error=1";
+    private static final String FAILURE_URL = "/login?error=1";
 
-    static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
+    private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
     @Autowired
     private SecurityService securityService;
 
     @Autowired
-    SettingsService settingsService;
+    private SettingsService settingsService;
 
     @Autowired
-    CustomUserDetailsContextMapper customUserDetailsContextMapper;
+    private CustomUserDetailsContextMapper customUserDetailsContextMapper;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -163,13 +163,13 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
         @Autowired
-        ApplicationEventPublisher eventPublisher;
+        private ApplicationEventPublisher eventPublisher;
 
         @Autowired
         private SecurityService securityService;
 
         @Autowired
-        SettingsService settingsService;
+        private SettingsService settingsService;
 
         private String generateRememberMeKey() {
             byte[] array = new byte[32];

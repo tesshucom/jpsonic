@@ -87,7 +87,8 @@ public class QueryFactory {
      * XXX 3.x -> 8.x : "SpanOr" has been changed to "Or". - Path comparison is more appropriate with "Or". - If
      * "SpanOr" is maintained, the DOC design needs to be changed.
      */
-    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3, folders) -> {
+    public final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3,
+            folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
         folders.stream().map(isId3 ? toFolderIdQuery : toFolderPathQuery).forEach(t -> mfQuery.add(t, Occur.SHOULD));
         return mfQuery.build();
@@ -112,7 +113,7 @@ public class QueryFactory {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery,
     // BooleanQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -161,7 +162,7 @@ public class QueryFactory {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();

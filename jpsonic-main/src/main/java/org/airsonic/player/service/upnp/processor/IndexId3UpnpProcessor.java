@@ -97,7 +97,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
-    static final int getIDAndIncrement() {
+    protected static final int getIDAndIncrement() {
         return INDEX_IDS.getAndIncrement();
     }
 
@@ -288,26 +288,26 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 
-    static final boolean isArtistId(String id) {
+    protected static final boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);
     }
 
-    static final String createArtistId(String id) {
+    protected static final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
         return TYPE_PREFIX_ARTIST.concat(id);
     }
 
-    final String createArtistId(int id) {
+    protected final String createArtistId(int id) {
         return TYPE_PREFIX_ARTIST.concat(String.valueOf(id));
     }
 
-    static final boolean isAlbumId(String id) {
+    protected static final boolean isAlbumId(String id) {
         return id.startsWith(TYPE_PREFIX_ALBUM);
     }
 
-    static final String createAlbumId(String id) {
+    protected static final String createAlbumId(String id) {
         if (isArtistId(id)) {
             return id;
         }

@@ -38,7 +38,7 @@ import org.springframework.stereotype.Component;
 public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
     @Autowired
-    MediaFileDao mediaFileDao;
+    private MediaFileDao mediaFileDao;
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass) {
@@ -51,7 +51,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
         return provider.toSpecificPlaylist(playlist);
     }
 
-    Playlist createChameleonGenericPlaylistFromDBId(int id) {
+    private Playlist createChameleonGenericPlaylistFromDBId(int id) {
         Playlist newPlaylist = new Playlist();
         List<MediaFile> files = mediaFileDao.getFilesInPlaylist(id);
         files.forEach(file -> {

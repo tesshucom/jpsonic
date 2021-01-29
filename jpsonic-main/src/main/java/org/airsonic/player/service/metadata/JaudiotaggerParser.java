@@ -271,7 +271,7 @@ public class JaudiotaggerParser extends MetaDataParser {
     }
 
     @Override
-    SettingsService getSettingsService() {
+    protected SettingsService getSettingsService() {
         return settingsService;
     }
 

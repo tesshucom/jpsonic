@@ -88,7 +88,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
     }
 
     @Override
-    SettingsService getSettingsService() {
+    protected SettingsService getSettingsService() {
         return settingsService;
     }
 

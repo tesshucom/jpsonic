@@ -107,7 +107,7 @@ public class ListenBrainzScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    static final void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
+    protected static void scrobble(RegistrationData registrationData) throws ClientProtocolException, IOException {
         if (registrationData == null || registrationData.getToken() == null) {
             return;
         }
@@ -193,7 +193,7 @@ public class ListenBrainzScrobbler {
 
         private static final Logger LOG = LoggerFactory.getLogger(ListenBrainzScrobbler.class);
 
-        final LinkedBlockingQueue<RegistrationData> queue;
+        private final LinkedBlockingQueue<RegistrationData> queue;
 
         RegistrationThread(LinkedBlockingQueue<RegistrationData> queue) {
             super("ListenBrainzScrobbler Registration");

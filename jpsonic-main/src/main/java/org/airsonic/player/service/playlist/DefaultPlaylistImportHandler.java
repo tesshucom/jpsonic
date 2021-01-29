@@ -43,7 +43,7 @@ import org.springframework.stereotype.Component;
 public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
     @Autowired
-    MediaFileService mediaFileService;
+    protected MediaFileService mediaFileService;
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylist> playlistClass) {

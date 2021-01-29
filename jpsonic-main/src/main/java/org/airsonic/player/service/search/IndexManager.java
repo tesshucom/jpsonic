@@ -578,7 +578,7 @@ public class IndexManager {
         return result;
     }
 
-    List<Genre> getGenres(boolean sortByAlbum) {
+    public List<Genre> getGenres(boolean sortByAlbum) {
 
         if (multiGenreMaster.isEmpty()) {
             refreshMultiGenreMaster();

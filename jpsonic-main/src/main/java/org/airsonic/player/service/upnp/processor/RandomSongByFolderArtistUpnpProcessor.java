@@ -78,7 +78,7 @@ public class RandomSongByFolderArtistUpnpProcessor
         }
     }
 
-    final String createArtistId(String id) {
+    protected final String createArtistId(String id) {
         if (isArtistId(id)) {
             return id;
         }
@@ -109,7 +109,7 @@ public class RandomSongByFolderArtistUpnpProcessor
         }
     }
 
-    final String createMusicFolderId(String id) {
+    protected final String createMusicFolderId(String id) {
         if (isMusicFolderId(id)) {
             return id;
         }

@@ -65,10 +65,10 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
     private String passwordAttributeName = "userPassword";
 
     @Autowired
-    SecurityService securityService;
+    private SecurityService securityService;
 
     @Autowired
-    SettingsService settingsService;
+    private SettingsService settingsService;
 
     // ~ Methods
     // ========================================================================================================

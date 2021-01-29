@@ -279,7 +279,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    static final String decrypt(String s) {
+    protected static final String decrypt(String s) {
         if (s == null) {
             return null;
         }
@@ -470,7 +470,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    String getUserTable() {
+    public String getUserTable() {
         return userTableQuote + "user" + userTableQuote;
     }
 }

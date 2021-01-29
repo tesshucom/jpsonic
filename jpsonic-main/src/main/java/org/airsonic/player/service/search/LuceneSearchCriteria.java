@@ -64,7 +64,7 @@ public class LuceneSearchCriteria {
         return includeComposer;
     }
 
-    final void setParsedQuery(Query parsedQuery) {
+    protected final void setParsedQuery(Query parsedQuery) {
         this.parsedQuery = parsedQuery;
     }
 

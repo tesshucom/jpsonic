@@ -270,7 +270,7 @@ public class UPnPService {
 
     private static class ServiceManager extends DefaultServiceManager<CustomContentDirectory> {
 
-        final CustomContentDirectory directory;
+        private final CustomContentDirectory directory;
 
         public ServiceManager(LocalService<CustomContentDirectory> service, CustomContentDirectory directory) {
             super(service);

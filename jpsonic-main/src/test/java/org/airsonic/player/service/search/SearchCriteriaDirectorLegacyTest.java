@@ -26,6 +26,8 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.lang.annotation.Documented;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
@@ -121,8 +123,12 @@ public class SearchCriteriaDirectorLegacyTest {
     private SettingsService settingsService;
 
     @Before
-    public void setup() {
-        analyzerFactory.setSearchMethodLegacy(true);
+    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
+                boolean.class);
+        setSearchMethodLegacy.setAccessible(true);
+        setSearchMethodLegacy.invoke(analyzerFactory, true);
         settingsService.setSearchMethodLegacy(true);
     }
 

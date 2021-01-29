@@ -39,13 +39,13 @@ public final class WebFontUtils {
 
     public static final String JP_FONT_NAME = "Kazesawa-Regular";
 
-    static final String FONT_FACE_KEY = "viewhint.fontFace";
+    private static final String FONT_FACE_KEY = "viewhint.fontFace";
 
-    static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
+    private static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
 
-    static final String FONT_SIZE_KEY = "viewhint.fontSize";
+    private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
-    static String formatFontFamily(String raw) {
+    public static String formatFontFamily(String raw) {
         if (raw == null) {
             return "";
         }

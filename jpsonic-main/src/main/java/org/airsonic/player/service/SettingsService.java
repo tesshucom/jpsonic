@@ -74,6 +74,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 @SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Literal value for which OS is assumed.")
+@SuppressWarnings("PMD.DefaultPackage")
+/*
+ * [DefaultPackage] A remnant of legacy, some methods are implemented in package private. This is intended not to be
+ * used by other than Service. Little bad practices. Design improvements can be made by resolving Godclass.
+ */
 public class SettingsService {
 
     private enum LocksKeys {

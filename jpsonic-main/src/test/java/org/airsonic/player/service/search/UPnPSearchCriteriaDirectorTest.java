@@ -26,6 +26,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Documented;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
@@ -271,10 +273,13 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     private String fid = "";
 
     @Before
-    public void setUp() {
-
+    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
+                boolean.class);
+        setSearchMethodLegacy.setAccessible(true);
+        setSearchMethodLegacy.invoke(analyzerFactory, false);
         settingsService.setSearchMethodLegacy(false);
-        analyzerFactory.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
         settingsService.setSearchComposer(true);
         for (MusicFolder m : settingsService.getAllMusicFolders()) {
