@@ -51,7 +51,6 @@
         <!-- 3 --><exclude name="ShortMethodName" />
         <!-- 3 --><exclude name="ConfusingTernary" />
         <!-- 3 --><exclude name="DefaultPackage" />
-        <!-- 3 --><exclude name="TooManyStaticImports" />
     </rule>
 
     <!-- Java Rules:Design -->

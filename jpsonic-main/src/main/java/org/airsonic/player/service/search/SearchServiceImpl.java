@@ -21,10 +21,6 @@
 
 package org.airsonic.player.service.search;
 
-import static org.airsonic.player.service.search.IndexType.ALBUM;
-import static org.airsonic.player.service.search.IndexType.ALBUM_ID3;
-import static org.airsonic.player.service.search.IndexType.ARTIST_ID3;
-import static org.airsonic.player.service.search.IndexType.SONG;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.IOException;
@@ -137,11 +133,11 @@ public class SearchServiceImpl implements SearchService {
 
         IndexType indexType = null;
         if (Artist.class == criteria.getAssignableClass()) {
-            indexType = ARTIST_ID3;
+            indexType = IndexType.ARTIST_ID3;
         } else if (Album.class == criteria.getAssignableClass()) {
-            indexType = ALBUM_ID3;
+            indexType = IndexType.ALBUM_ID3;
         } else if (MediaFile.class == criteria.getAssignableClass()) {
-            indexType = SONG;
+            indexType = IndexType.SONG;
         }
 
         if (isEmpty(indexType)) {
@@ -166,21 +162,21 @@ public class SearchServiceImpl implements SearchService {
             int start = Math.min(offset, totalHits);
             int end = Math.min(start + count, totalHits);
 
-            if (ARTIST_ID3 == indexType) {
+            if (IndexType.ARTIST_ID3 == indexType) {
                 ParamSearchResult<Artist> artistResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(artistResult, indexType, util.getId.apply(doc), Artist.class);
                 }
                 artistResult.getItems().forEach(a -> result.getItems().add((T) a));
-            } else if (ALBUM_ID3 == indexType) {
+            } else if (IndexType.ALBUM_ID3 == indexType) {
                 ParamSearchResult<Album> albumResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
                     util.addIgnoreNull(albumResult, indexType, util.getId.apply(doc), Album.class);
                 }
                 albumResult.getItems().forEach(a -> result.getItems().add((T) a));
-            } else if (SONG == indexType) {
+            } else if (IndexType.SONG == indexType) {
                 ParamSearchResult<MediaFile> songResult = new ParamSearchResult<>();
                 for (int i = start; i < end; i++) {
                     Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
@@ -226,7 +222,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria) {
 
-        IndexSearcher searcher = indexManager.getSearcher(SONG);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
         if (isEmpty(searcher)) {
             // At first start
             return Collections.emptyList();
@@ -236,12 +232,12 @@ public class SearchServiceImpl implements SearchService {
 
             Query query = queryFactory.getRandomSongs(criteria);
             return createRandomDocsList(criteria.getCount(), searcher, query,
-                    (dist, id) -> util.addIgnoreNull(dist, SONG, id));
+                    (dist, id) -> util.addIgnoreNull(dist, IndexType.SONG, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search or random songs.", e);
         } finally {
-            indexManager.release(SONG, searcher);
+            indexManager.release(IndexType.SONG, searcher);
         }
         return Collections.emptyList();
     }
@@ -252,13 +248,13 @@ public class SearchServiceImpl implements SearchService {
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<Integer>> addSubToResult = (ids) -> ids
                 .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
-                .forEach(id -> util.addIgnoreNull(result, SONG, id));
+                .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
         util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(SONG);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.SONG);
         if (isEmpty(searcher)) {
             return result;
         }
@@ -285,7 +281,7 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to search for random songs.", e);
         } finally {
-            indexManager.release(SONG, searcher);
+            indexManager.release(IndexType.SONG, searcher);
         }
 
         return result;
@@ -338,7 +334,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<MediaFile> getRandomAlbums(int count, List<MusicFolder> musicFolders) {
 
-        IndexSearcher searcher = indexManager.getSearcher(ALBUM);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
@@ -347,12 +343,13 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            return createRandomDocsList(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, ALBUM, id));
+            return createRandomDocsList(count, searcher, query,
+                    (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
-            indexManager.release(ALBUM, searcher);
+            indexManager.release(IndexType.ALBUM, searcher);
         }
         return Collections.emptyList();
     }
@@ -360,7 +357,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<Album> getRandomAlbumsId3(int count, List<MusicFolder> musicFolders) {
 
-        IndexSearcher searcher = indexManager.getSearcher(ALBUM_ID3);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
@@ -369,12 +366,13 @@ public class SearchServiceImpl implements SearchService {
 
         try {
 
-            return createRandomDocsList(count, searcher, query, (dist, id) -> util.addIgnoreNull(dist, ALBUM_ID3, id));
+            return createRandomDocsList(count, searcher, query,
+                    (dist, id) -> util.addIgnoreNull(dist, IndexType.ALBUM_ID3, id));
 
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
-            indexManager.release(ALBUM_ID3, searcher);
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
         return Collections.emptyList();
     }
@@ -385,13 +383,13 @@ public class SearchServiceImpl implements SearchService {
         final List<Album> result = new ArrayList<>();
         Consumer<List<Integer>> addSubToResult = (ids) -> ids
                 .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
-                .forEach(id -> util.addIgnoreNull(result, ALBUM_ID3, id));
+                .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
         util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(ALBUM_ID3);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
             return result;
         }
@@ -418,7 +416,7 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to search for random albums.", e);
         } finally {
-            indexManager.release(ALBUM_ID3, searcher);
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
 
         return result;
@@ -449,7 +447,7 @@ public class SearchServiceImpl implements SearchService {
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
-        util.getCache(genres, musicFolders, ALBUM).ifPresent(addSubToResult);
+        util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
@@ -457,7 +455,7 @@ public class SearchServiceImpl implements SearchService {
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
         final List<MediaFile> cache = mediaFileDao.getAlbumsByGenre(0, Integer.MAX_VALUE, preAnalyzedGenresList,
                 musicFolders);
-        util.putCache(genres, musicFolders, ALBUM, cache);
+        util.putCache(genres, musicFolders, IndexType.ALBUM, cache);
         addSubToResult.accept(cache);
         return result;
     }
@@ -469,14 +467,14 @@ public class SearchServiceImpl implements SearchService {
             return Collections.emptyList();
         }
 
-        IndexSearcher searcher = indexManager.getSearcher(ALBUM_ID3);
+        IndexSearcher searcher = indexManager.getSearcher(IndexType.ALBUM_ID3);
         if (isEmpty(searcher)) {
             return Collections.emptyList();
         }
 
         List<Album> result = new ArrayList<>();
         try {
-            SortField[] sortFields = Arrays.stream(ALBUM_ID3.getFields())
+            SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
                     .map(n -> new SortField(n, SortField.Type.STRING)).toArray(i -> new SortField[i]);
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
             TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
@@ -493,7 +491,7 @@ public class SearchServiceImpl implements SearchService {
         } catch (IOException e) {
             LOG.error("Failed to execute Lucene search.", e);
         } finally {
-            indexManager.release(ALBUM_ID3, searcher);
+            indexManager.release(IndexType.ALBUM_ID3, searcher);
         }
         return result;
 
@@ -508,7 +506,7 @@ public class SearchServiceImpl implements SearchService {
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
                 .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
-        util.getCache(genres, musicFolders, SONG).ifPresent(addSubToResult);
+        util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
         }
@@ -516,7 +514,7 @@ public class SearchServiceImpl implements SearchService {
         List<String> preAnalyzedGenresList = indexManager.toPreAnalyzedGenres(Arrays.asList(genres));
         final List<MediaFile> cache = mediaFileDao.getSongsByGenre(preAnalyzedGenresList, 0, Integer.MAX_VALUE,
                 musicFolders);
-        util.putCache(genres, musicFolders, SONG, cache);
+        util.putCache(genres, musicFolders, IndexType.SONG, cache);
         addSubToResult.accept(cache);
         return result;
     }

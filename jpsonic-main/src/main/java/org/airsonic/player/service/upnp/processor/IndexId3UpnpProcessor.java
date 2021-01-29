@@ -20,8 +20,6 @@
 package org.airsonic.player.service.upnp.processor;
 
 import static java.util.stream.Collectors.toList;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX;
-import static org.airsonic.player.service.upnp.UpnpProcessDispatcher.OBJECT_ID_SEPARATOR;
 import static org.airsonic.player.util.PlayerUtils.subList;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
@@ -96,7 +94,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         this.artistDao = ad;
         this.albumDao = ald;
         this.indexCache = indexCache;
-        setRootId(CONTAINER_ID_INDEX_ID3_PREFIX);
+        setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX);
     }
 
     static final int getIDAndIncrement() {
@@ -130,7 +128,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     private void applyId(Id3Wrapper item, Container container) {
-        container.setId(CONTAINER_ID_INDEX_ID3_PREFIX + OBJECT_ID_SEPARATOR + item.getId());
+        container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
+                + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
     }
@@ -161,7 +160,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
             return container;
         } else {
             GenreContainer container = new GenreContainer();
-            container.setParentID(CONTAINER_ID_INDEX_ID3_PREFIX);
+            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_INDEX_ID3_PREFIX);
             applyId(item, container);
             return container;
         }
