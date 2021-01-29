@@ -59,10 +59,6 @@ public class StatusService {
 
     private final MediaFileService mediaFileService;
 
-    public StatusService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
     private final List<TransferStatus> streamStatuses = new ArrayList<>();
     private final List<TransferStatus> downloadStatuses = new ArrayList<>();
     private final List<TransferStatus> uploadStatuses = new ArrayList<>();
@@ -75,6 +71,10 @@ public class StatusService {
 
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<>();
+
+    public StatusService(MediaFileService mediaFileService) {
+        this.mediaFileService = mediaFileService;
+    }
 
     public TransferStatus createStreamStatus(Player player) {
         synchronized (STREAM_LOCK) {

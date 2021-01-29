@@ -94,16 +94,6 @@ public class DocumentFactory {
 
     }
 
-    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
-        this.settingsService = settingsService;
-        this.readingUtils = readingUtils;
-    }
-
-    @FunctionalInterface
-    private interface Consumer<T, U, V> {
-        void accept(T t, U u, V v);
-    }
-
     private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
         doc.add(new StoredField(FieldNamesConstants.ID, Integer.toString(value), TYPE_ID));
     };
@@ -151,6 +141,11 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
+    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
+        this.settingsService = settingsService;
+        this.readingUtils = readingUtils;
+    }
+
     public final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
@@ -165,6 +160,11 @@ public class DocumentFactory {
 
     public final Term createPrimarykey(MediaFile mediaFile) {
         return createPrimarykey(mediaFile.getId());
+    }
+
+    @FunctionalInterface
+    private interface Consumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 
     /**

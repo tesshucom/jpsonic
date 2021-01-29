@@ -52,6 +52,17 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
 
     private final JMediaFileService mediaFileService;
 
+    private final Function<Genre, MediaFile> toMediaFile = (g) -> {
+        MediaFile m = new MediaFile();
+        m.setId(-1);
+        m.setTitle(g.getName());
+        if (0 != g.getAlbumCount()) {
+            m.setComment(Integer.toString(g.getAlbumCount()));
+        }
+        m.setGenre(g.getName());
+        return m;
+    };
+
     public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             SearchService s) {
         super(d, u);
@@ -116,17 +127,6 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
     public int getItemCount() {
         return searchService.getGenresCount(true);
     }
-
-    private final Function<Genre, MediaFile> toMediaFile = (g) -> {
-        MediaFile m = new MediaFile();
-        m.setId(-1);
-        m.setTitle(g.getName());
-        if (0 != g.getAlbumCount()) {
-            m.setComment(Integer.toString(g.getAlbumCount()));
-        }
-        m.setGenre(g.getName());
-        return m;
-    };
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {

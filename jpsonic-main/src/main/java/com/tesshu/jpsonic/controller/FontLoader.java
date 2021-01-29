@@ -36,13 +36,13 @@ public class FontLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
 
+    private static final Object FONT_LOCK = new Object();
+
     private final Ehcache fontCache;
 
     public FontLoader(Ehcache fontCache) {
         this.fontCache = fontCache;
     }
-
-    private static final Object FONT_LOCK = new Object();
 
     public Font getFont(float fontSize) {
         Font font = null;

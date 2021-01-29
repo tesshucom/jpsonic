@@ -27,9 +27,6 @@ package org.airsonic.player.service.search;
  */
 public final class FieldNamesConstants {
 
-    private FieldNamesConstants() {
-    }
-
     /**
      * A field same to a legacy server, id field.
      *
@@ -127,5 +124,8 @@ public final class FieldNamesConstants {
      * Jpsonic specific assistance field.
      */
     public static final String COMPOSER_READING = "cmpR";
+
+    private FieldNamesConstants() {
+    }
 
 }

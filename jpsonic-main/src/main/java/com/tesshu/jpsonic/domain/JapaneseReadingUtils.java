@@ -60,6 +60,13 @@ public class JapaneseReadingUtils {
     private static final String ASTER = "*";
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
 
+    private final SettingsService settingsService;
+    private final Tokenizer tokenizer = new Tokenizer();
+
+    private Map<String, String> readingMap = new ConcurrentHashMap<>();
+    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
+    private List<String> ignoredArticles;
+
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
         case Character.SPACE_SEPARATOR:
@@ -83,13 +90,6 @@ public class JapaneseReadingUtils {
             return false;
         }
     }
-
-    private final SettingsService settingsService;
-
-    private final Tokenizer tokenizer = new Tokenizer();
-    private Map<String, String> readingMap = new ConcurrentHashMap<>();
-    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
-    private List<String> ignoredArticles;
 
     public JapaneseReadingUtils(SettingsService settingsService) {
         super();

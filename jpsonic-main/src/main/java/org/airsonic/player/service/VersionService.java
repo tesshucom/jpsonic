@@ -80,6 +80,9 @@ public class VersionService {
     private String localBuildNumber;
     private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
 
+    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
+    private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
+
     /**
      * Time when latest version was fetched (in milliseconds).
      */
@@ -252,9 +255,6 @@ public class VersionService {
             }
         }
     }
-
-    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
-    private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
     /**
      * Resolves the latest available Jpsonic version by inspecting github.

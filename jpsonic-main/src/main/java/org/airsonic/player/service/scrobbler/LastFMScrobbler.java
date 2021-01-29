@@ -338,6 +338,15 @@ public class LastFMScrobbler {
 
     private static class RegistrationData {
 
+        private String username;
+        private String password;
+        private String artist;
+        private String album;
+        private String title;
+        private int duration;
+        private Date time;
+        public boolean submission;
+
         public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
             this.username = username;
             this.password = password;
@@ -348,15 +357,6 @@ public class LastFMScrobbler {
             this.time = time == null ? new Date() : time;
             this.submission = submission;
         }
-
-        private String username;
-        private String password;
-        private String artist;
-        private String album;
-        private String title;
-        private int duration;
-        private Date time;
-        public boolean submission;
 
         public String getUsername() {
             return username;

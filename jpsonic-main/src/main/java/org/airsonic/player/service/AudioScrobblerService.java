@@ -41,12 +41,12 @@ public class AudioScrobblerService {
     private ListenBrainzScrobbler listenBrainzScrobbler;
     private final SettingsService settingsService;
 
+    private static final Object FM_LOCK = new Object();
+    private static final Object BRAINZ_LOCK = new Object();
+
     public AudioScrobblerService(SettingsService settingsService) {
         this.settingsService = settingsService;
     }
-
-    private static final Object FM_LOCK = new Object();
-    private static final Object BRAINZ_LOCK = new Object();
 
     /**
      * Registers the given media file at audio scrobble service. This method returns immediately, the actual

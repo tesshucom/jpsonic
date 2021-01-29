@@ -48,6 +48,13 @@ public class MetricsManager {
     // Potential metrics reporters
     private static JmxReporter reporter;
 
+    // -----------------------------------------------------------------
+    // Convenient singletons to avoid creating useless objects instances
+    // -----------------------------------------------------------------
+    private static final NullTimer NULL_TIMER_SINGLETON = new NullTimer(null);
+    private static final NullTimerBuilder CONDITION_FALSE_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
+    private static final NullTimerBuilder NULL_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
+
     private void configureMetricsActivation() {
         if (configurationService.containsKey("Metrics")) {
             metricsActivatedByConfiguration.set(true);
@@ -144,13 +151,6 @@ public class MetricsManager {
         }
 
     }
-
-    // -----------------------------------------------------------------
-    // Convenient singletons to avoid creating useless objects instances
-    // -----------------------------------------------------------------
-    private static final NullTimer NULL_TIMER_SINGLETON = new NullTimer(null);
-    private static final NullTimerBuilder CONDITION_FALSE_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
-    private static final NullTimerBuilder NULL_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
 
     private static class NullTimer extends Timer {
 

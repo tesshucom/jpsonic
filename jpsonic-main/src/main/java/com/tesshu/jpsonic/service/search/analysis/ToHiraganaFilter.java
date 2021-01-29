@@ -31,6 +31,48 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public final class ToHiraganaFilter extends TokenFilter {
 
+    private final Transliterator transform;
+
+    private final Transliterator.Position position = new Transliterator.Position();
+
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+
+    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
+
+    /**
+     * Create a Filter that transforms text on the given stream.
+     * 
+     * @param input
+     *            {@link TokenStream} to filter.
+     */
+    @SuppressWarnings("deprecation")
+    public ToHiraganaFilter(TokenStream input) {
+        super(input);
+        this.transform = Transliterator.getInstance("Katakana-Hiragana");
+        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
+            final UnicodeSet sourceSet = transform.getSourceSet();
+            if (sourceSet != null && !sourceSet.isEmpty()) {
+                transform.setFilter(sourceSet);
+            }
+        }
+    }
+
+    @Override
+    public boolean incrementToken() throws IOException {
+        if (input.incrementToken()) {
+            replaceableAttribute.setText(termAtt);
+            final int length = termAtt.length();
+            position.start = 0;
+            position.limit = length;
+            position.contextStart = 0;
+            position.contextLimit = length;
+            transform.filteredTransliterate(replaceableAttribute, position, false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Wrap a {@link CharTermAttribute} with the Replaceable API.
      */
@@ -105,48 +147,6 @@ public final class ToHiraganaFilter extends TokenFilter {
                 System.arraycopy(buffer, limit, buffer, start + charsLen, unitLength - limit);
             }
             return newLength;
-        }
-    }
-
-    private final Transliterator transform;
-
-    private final Transliterator.Position position = new Transliterator.Position();
-
-    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
-
-    /**
-     * Create a Filter that transforms text on the given stream.
-     * 
-     * @param input
-     *            {@link TokenStream} to filter.
-     */
-    @SuppressWarnings("deprecation")
-    public ToHiraganaFilter(TokenStream input) {
-        super(input);
-        this.transform = Transliterator.getInstance("Katakana-Hiragana");
-        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
-            final UnicodeSet sourceSet = transform.getSourceSet();
-            if (sourceSet != null && !sourceSet.isEmpty()) {
-                transform.setFilter(sourceSet);
-            }
-        }
-    }
-
-    @Override
-    public boolean incrementToken() throws IOException {
-        if (input.incrementToken()) {
-            replaceableAttribute.setText(termAtt);
-            final int length = termAtt.length();
-            position.start = 0;
-            position.limit = length;
-            position.contextStart = 0;
-            position.contextLimit = length;
-            transform.filteredTransliterate(replaceableAttribute, position, false);
-            return true;
-        } else {
-            return false;
         }
     }
 }

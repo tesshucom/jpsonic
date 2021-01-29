@@ -48,15 +48,15 @@ public final class ComplementaryFilter extends TokenFilter {
 
     private static Object lock = new Object();
 
-    private Reader getReafer(Class<?> clazz) {
-        return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
-    }
-
     private CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
 
     private String stopwards;
 
     private Mode mode;
+
+    private Reader getReafer(Class<?> clazz) {
+        return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
+    }
 
     public enum Mode {
         STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");

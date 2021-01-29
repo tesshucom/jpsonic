@@ -40,6 +40,63 @@ import org.apache.commons.lang.StringUtils;
 public class ShoutCastOutputStream extends OutputStream {
 
     /**
+     * Maps from miscellaneous accented characters to similar-looking ASCII characters.
+     */
+    private static final char[][] CHAR_MAP = { { '\u00C0', 'A' }, // À
+            { '\u00C1', 'A' }, // Á
+            { '\u00C2', 'A' }, // Â
+            { '\u00C3', 'A' }, // Ã
+            { '\u00C4', 'A' }, // Ä
+            { '\u00C5', 'A' }, // Å
+            { '\u00C6', 'A' }, // Æ
+            { '\u00C8', 'E' }, // È
+            { '\u00C9', 'E' }, // É
+            { '\u00CA', 'E' }, // Ê
+            { '\u00CB', 'E' }, // Ë
+            { '\u00CC', 'I' }, // Ì
+            { '\u00CD', 'I' }, // Í
+            { '\u00CE', 'I' }, // Î
+            { '\u00CF', 'I' }, // Ï
+            { '\u00D2', 'O' }, // Ò
+            { '\u00D3', 'O' }, // Ó
+            { '\u00D4', 'O' }, // Ô
+            { '\u00D5', 'O' }, // Õ
+            { '\u00D6', 'O' }, // Ö
+            { '\u00D9', 'U' }, // Ù
+            { '\u00DA', 'U' }, // Ú
+            { '\u00DB', 'U' }, // Û
+            { '\u00DC', 'U' }, // Ü
+            { '\u00DF', 'B' }, // ß
+            { '\u00E0', 'a' }, // à
+            { '\u00E1', 'a' }, // á
+            { '\u00E2', 'a' }, // â
+            { '\u00E3', 'a' }, // ã
+            { '\u00E4', 'a' }, // ä
+            { '\u00E5', 'a' }, // å
+            { '\u00E6', 'a' }, // æ
+            { '\u00E7', 'c' }, // ç
+            { '\u00E8', 'e' }, // è
+            { '\u00E9', 'e' }, // é
+            { '\u00EA', 'e' }, // ê
+            { '\u00EB', 'e' }, // ë
+            { '\u00EC', 'i' }, // ì
+            { '\u00ED', 'i' }, // í
+            { '\u00EE', 'i' }, // î
+            { '\u00EF', 'i' }, // ï
+            { '\u00F1', 'n' }, // ñ
+            { '\u00F2', 'o' }, // ò
+            { '\u00F3', 'o' }, // ó
+            { '\u00F4', 'o' }, // ô
+            { '\u00F5', 'o' }, // õ
+            { '\u00F6', 'o' }, // ö
+            { '\u00F8', 'o' }, // ø
+            { '\u00F9', 'u' }, // ù
+            { '\u00FA', 'u' }, // ú
+            { '\u00FB', 'u' }, // û
+            { '\u00FC', 'u' }, // ü
+            { '\u2013', '-' } }; // –
+
+    /**
      * Number of bytes between each SHOUTcast metadata block.
      */
     public static final int META_DATA_INTERVAL = 20_480;
@@ -197,61 +254,4 @@ public class ShoutCastOutputStream extends OutputStream {
         result = "StreamTitle='" + result + "';";
         return result.getBytes(StandardCharsets.US_ASCII);
     }
-
-    /**
-     * Maps from miscellaneous accented characters to similar-looking ASCII characters.
-     */
-    private static final char[][] CHAR_MAP = { { '\u00C0', 'A' }, // À
-            { '\u00C1', 'A' }, // Á
-            { '\u00C2', 'A' }, // Â
-            { '\u00C3', 'A' }, // Ã
-            { '\u00C4', 'A' }, // Ä
-            { '\u00C5', 'A' }, // Å
-            { '\u00C6', 'A' }, // Æ
-            { '\u00C8', 'E' }, // È
-            { '\u00C9', 'E' }, // É
-            { '\u00CA', 'E' }, // Ê
-            { '\u00CB', 'E' }, // Ë
-            { '\u00CC', 'I' }, // Ì
-            { '\u00CD', 'I' }, // Í
-            { '\u00CE', 'I' }, // Î
-            { '\u00CF', 'I' }, // Ï
-            { '\u00D2', 'O' }, // Ò
-            { '\u00D3', 'O' }, // Ó
-            { '\u00D4', 'O' }, // Ô
-            { '\u00D5', 'O' }, // Õ
-            { '\u00D6', 'O' }, // Ö
-            { '\u00D9', 'U' }, // Ù
-            { '\u00DA', 'U' }, // Ú
-            { '\u00DB', 'U' }, // Û
-            { '\u00DC', 'U' }, // Ü
-            { '\u00DF', 'B' }, // ß
-            { '\u00E0', 'a' }, // à
-            { '\u00E1', 'a' }, // á
-            { '\u00E2', 'a' }, // â
-            { '\u00E3', 'a' }, // ã
-            { '\u00E4', 'a' }, // ä
-            { '\u00E5', 'a' }, // å
-            { '\u00E6', 'a' }, // æ
-            { '\u00E7', 'c' }, // ç
-            { '\u00E8', 'e' }, // è
-            { '\u00E9', 'e' }, // é
-            { '\u00EA', 'e' }, // ê
-            { '\u00EB', 'e' }, // ë
-            { '\u00EC', 'i' }, // ì
-            { '\u00ED', 'i' }, // í
-            { '\u00EE', 'i' }, // î
-            { '\u00EF', 'i' }, // ï
-            { '\u00F1', 'n' }, // ñ
-            { '\u00F2', 'o' }, // ò
-            { '\u00F3', 'o' }, // ó
-            { '\u00F4', 'o' }, // ô
-            { '\u00F5', 'o' }, // õ
-            { '\u00F6', 'o' }, // ö
-            { '\u00F8', 'o' }, // ø
-            { '\u00F9', 'u' }, // ù
-            { '\u00FA', 'u' }, // ú
-            { '\u00FB', 'u' }, // û
-            { '\u00FC', 'u' }, // ü
-            { '\u2013', '-' } }; // –
 }

@@ -146,6 +146,16 @@ public class Attributes {
         USERNAME_OR_EMAIL(NameConstants.USERNAME_OR_EMAIL), V(NameConstants.V),
         VIEW_AS_LIST(NameConstants.VIEW_AS_LIST), X(NameConstants.X);
 
+        private String v;
+
+        Request(String value) {
+            this.v = value;
+        }
+
+        public String value() {
+            return v;
+        }
+
         public static class NameConstants { // Used from annotation
             public static final String ACTION = "action";
             public static final String ADD = "add";
@@ -298,16 +308,6 @@ public class Attributes {
 
             private NameConstants() {
             }
-        }
-
-        private String v;
-
-        Request(String value) {
-            this.v = value;
-        }
-
-        public String value() {
-            return v;
         }
     }
 

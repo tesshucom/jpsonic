@@ -56,6 +56,15 @@ public final class PlayerUtils {
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
 
+    private static ObjectMapper objectMapper = new ObjectMapper();
+
+    private static Validator validator;
+
+    static {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+    }
+
     /**
      * Disallow external instantiation.
      */
@@ -124,8 +133,6 @@ public final class PlayerUtils {
         }
         return result;
     }
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -208,13 +215,6 @@ public final class PlayerUtils {
 
     public static <T> T stringMapToObject(Class<T> clazz, Map<String, String> data) {
         return objectMapper.convertValue(data, clazz);
-    }
-
-    private static Validator validator;
-
-    static {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
     }
 
     public static <T> T stringMapToValidObject(Class<T> clazz, Map<String, String> data) {

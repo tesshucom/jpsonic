@@ -38,12 +38,12 @@ import org.springframework.web.servlet.support.RequestContextUtils;
  */
 public abstract class AbstractChartController {
 
-    public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws Exception;
-
     private static final String KEY_BACKGROUND_COLOR = "backgroundColor";
     private static final String KEY_STROKE_COLOR = "strokeColor";
     private static final String KEY_TEXT_COLOR = "textColor";
+
+    public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws Exception;
 
     /**
      * Returns the chart background color for the current theme.

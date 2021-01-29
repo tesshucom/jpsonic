@@ -94,6 +94,14 @@ public class QueryFactory {
     };
 
     /*
+     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
+     */
+    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
+        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
+                isEmpty(to) ? Integer.MAX_VALUE : to);
+    };
+
+    /*
      * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
      * 
      * - There is also an override of MultiFieldQueryParser, but it is known to be high cost. - MultiFieldQueryParser
@@ -185,14 +193,6 @@ public class QueryFactory {
         return fieldQuerys.build();
 
     }
-
-    /*
-     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
-     */
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
-        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
-                isEmpty(to) ? Integer.MAX_VALUE : to);
-    };
 
     /**
      * Query generation expression extracted from

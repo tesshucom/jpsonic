@@ -83,112 +83,6 @@ public class InternalHelpController {
     private static final int LOG_LINES_TO_SHOW = 50;
     private static final String TABLE_TYPE_TABLE = "table";
 
-    public static class IndexStatistics {
-        private String name;
-        private int count;
-        private int deletedCount;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public void setCount(int count) {
-            this.count = count;
-        }
-
-        public int getDeletedCount() {
-            return deletedCount;
-        }
-
-        public void setDeletedCount(int deletedCount) {
-            this.deletedCount = deletedCount;
-        }
-    }
-
-    public static class FileStatistics {
-        private String name;
-        private String path;
-        private String freeFilesystemSizeBytes;
-        private String totalFilesystemSizeBytes;
-        private boolean readable;
-        private boolean writable;
-        private boolean executable;
-
-        public String getName() {
-            return name;
-        }
-
-        public String getFreeFilesystemSizeBytes() {
-            return freeFilesystemSizeBytes;
-        }
-
-        public boolean isReadable() {
-            return readable;
-        }
-
-        public boolean isWritable() {
-            return writable;
-        }
-
-        public boolean isExecutable() {
-            return executable;
-        }
-
-        public String getTotalFilesystemSizeBytes() {
-            return totalFilesystemSizeBytes;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setFreeFilesystemSizeBytes(String freeFilesystemSizeBytes) {
-            this.freeFilesystemSizeBytes = freeFilesystemSizeBytes;
-        }
-
-        public void setReadable(boolean readable) {
-            this.readable = readable;
-        }
-
-        public void setWritable(boolean writable) {
-            this.writable = writable;
-        }
-
-        public void setExecutable(boolean executable) {
-            this.executable = executable;
-        }
-
-        public void setTotalFilesystemSizeBytes(String totalFilesystemSizeBytes) {
-            this.totalFilesystemSizeBytes = totalFilesystemSizeBytes;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        public void setFromFile(File file) {
-            this.setName(file.getName());
-            this.setPath(file.getAbsolutePath());
-            this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getUsableSpace()));
-            this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getTotalSpace()));
-            this.setReadable(Files.isReadable(file.toPath()));
-            this.setWritable(Files.isWritable(file.toPath()));
-            this.setExecutable(Files.isExecutable(file.toPath()));
-        }
-    }
-
     @Autowired
     private VersionService versionService;
     @Autowired
@@ -516,4 +410,109 @@ public class InternalHelpController {
         return executableStatistics;
     }
 
+    public static class IndexStatistics {
+        private String name;
+        private int count;
+        private int deletedCount;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public int getDeletedCount() {
+            return deletedCount;
+        }
+
+        public void setDeletedCount(int deletedCount) {
+            this.deletedCount = deletedCount;
+        }
+    }
+
+    public static class FileStatistics {
+        private String name;
+        private String path;
+        private String freeFilesystemSizeBytes;
+        private String totalFilesystemSizeBytes;
+        private boolean readable;
+        private boolean writable;
+        private boolean executable;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getFreeFilesystemSizeBytes() {
+            return freeFilesystemSizeBytes;
+        }
+
+        public boolean isReadable() {
+            return readable;
+        }
+
+        public boolean isWritable() {
+            return writable;
+        }
+
+        public boolean isExecutable() {
+            return executable;
+        }
+
+        public String getTotalFilesystemSizeBytes() {
+            return totalFilesystemSizeBytes;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setFreeFilesystemSizeBytes(String freeFilesystemSizeBytes) {
+            this.freeFilesystemSizeBytes = freeFilesystemSizeBytes;
+        }
+
+        public void setReadable(boolean readable) {
+            this.readable = readable;
+        }
+
+        public void setWritable(boolean writable) {
+            this.writable = writable;
+        }
+
+        public void setExecutable(boolean executable) {
+            this.executable = executable;
+        }
+
+        public void setTotalFilesystemSizeBytes(String totalFilesystemSizeBytes) {
+            this.totalFilesystemSizeBytes = totalFilesystemSizeBytes;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public void setFromFile(File file) {
+            this.setName(file.getName());
+            this.setPath(file.getAbsolutePath());
+            this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getUsableSpace()));
+            this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getTotalSpace()));
+            this.setReadable(Files.isReadable(file.toPath()));
+            this.setWritable(Files.isWritable(file.toPath()));
+            this.setExecutable(Files.isExecutable(file.toPath()));
+        }
+    }
 }

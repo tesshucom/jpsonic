@@ -47,6 +47,16 @@ public enum ViewName {
     TRANSCODING_SETTINGS(ViewNameConstants.TRANSCODING_SETTINGS), USER_CHART(ViewNameConstants.USER_CHART),
     USER_SETTINGS(ViewNameConstants.USER_SETTINGS);
 
+    private String v;
+
+    ViewName(String value) {
+        this.v = value;
+    }
+
+    public String value() {
+        return v;
+    }
+
     public static final class ViewNameConstants {
 
         public static final String ACCESS_DENIED = "accessDenied.view";
@@ -85,15 +95,5 @@ public enum ViewName {
 
         private ViewNameConstants() {
         }
-    }
-
-    private String v;
-
-    ViewName(String value) {
-        this.v = value;
-    }
-
-    public String value() {
-        return v;
     }
 }

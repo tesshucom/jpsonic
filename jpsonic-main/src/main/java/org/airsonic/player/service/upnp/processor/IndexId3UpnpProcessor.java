@@ -84,6 +84,9 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     private List<Id3Wrapper> topNodes;
 
+    private static final String TYPE_PREFIX_ARTIST = "artist:";
+    private static final String TYPE_PREFIX_ALBUM = "album:";
+
     public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
         super(d, u);
@@ -285,9 +288,6 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     private int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
-
-    private static final String TYPE_PREFIX_ARTIST = "artist:";
-    private static final String TYPE_PREFIX_ALBUM = "album:";
 
     static final boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);

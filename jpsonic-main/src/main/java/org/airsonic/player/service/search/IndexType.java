@@ -68,6 +68,10 @@ public enum IndexType {
 
     ;
 
+    private final Map<String, Float> boosts;
+
+    private final String[] fields;
+
     /**
      * Define the field's applied boost value when searching IndexType.
      * 
@@ -108,10 +112,6 @@ public enum IndexType {
     private static String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
     }
-
-    private final Map<String, Float> boosts;
-
-    private final String[] fields;
 
     IndexType(String[] fieldNames, Map<String, Float> boosts) {
         this.fields = fieldNames.clone();
