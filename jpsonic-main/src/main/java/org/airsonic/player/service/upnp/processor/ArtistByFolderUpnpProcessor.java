@@ -194,19 +194,19 @@ public class ArtistByFolderUpnpProcessor
         setRootTitleWithResource("dlna.title.artists");
     }
 
-    private static final boolean isAlbumId(String id) {
+    private static boolean isAlbumId(String id) {
         return id.startsWith(TYPE_PREFIX_ALBUM);
     }
 
-    private static final boolean isArtistId(String id) {
+    private static boolean isArtistId(String id) {
         return id.startsWith(TYPE_PREFIX_ARTIST);
     }
 
-    private static final boolean isMusicFolderId(String id) {
+    private static boolean isMusicFolderId(String id) {
         return id.startsWith(TYPE_PREFIX_MUSIC_FOLDER);
     }
 
-    private final int toRawId(String prefixed) {
+    private int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 

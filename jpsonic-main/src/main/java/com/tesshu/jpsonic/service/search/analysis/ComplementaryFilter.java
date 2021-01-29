@@ -58,12 +58,12 @@ public final class ComplementaryFilter extends TokenFilter {
 
     private Mode mode;
 
-    public static enum Mode {
+    public enum Mode {
         STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");
 
         private String value;
 
-        private Mode(String value) {
+        Mode(String value) {
             this.value = value;
         }
 
@@ -90,7 +90,7 @@ public final class ComplementaryFilter extends TokenFilter {
     }
 
     @Override
-    public final boolean incrementToken() throws IOException {
+    public boolean incrementToken() throws IOException {
         if (!stopWordLoaded.get() && Mode.HIRA_KATA_ONLY != mode) {
             synchronized (lock) {
                 try (Reader reader = getReafer(getClass())) {

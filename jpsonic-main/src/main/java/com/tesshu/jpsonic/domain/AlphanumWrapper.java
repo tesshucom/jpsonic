@@ -72,7 +72,7 @@ class AlphanumWrapper extends Collator {
         return s1Length - s2Length;
     }
 
-    private final String getChunk(String s, int slength, int marker) {
+    private String getChunk(String s, int slength, int marker) {
         int cursol = marker;
         StringBuilder chunk = new StringBuilder();
         char c = s.charAt(cursol);
@@ -100,7 +100,7 @@ class AlphanumWrapper extends Collator {
         return chunk.toString();
     }
 
-    private final boolean isDigit(char ch) {
+    private boolean isDigit(char ch) {
         return ch >= 48 && ch <= 57;
     }
 

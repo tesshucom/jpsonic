@@ -53,7 +53,6 @@
         <!-- 3 --><exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
         <!-- 3 --><exclude name="ConfusingTernary" />
         <!-- 3 --><exclude name="LinguisticNaming" />
-        <!-- 3 --><exclude name="UnnecessaryModifier" />
         <!-- 3 --><exclude name="DefaultPackage" />
         <!-- 3 --><exclude name="TooManyStaticImports" />
     </rule>

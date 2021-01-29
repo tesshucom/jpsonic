@@ -42,7 +42,7 @@ public class Attributes {
 
             private String v;
 
-            private Command(String value) {
+            Command(String value) {
                 this.v = value;
             }
 
@@ -55,7 +55,7 @@ public class Attributes {
 
         private String v;
 
-        private Model(String value) {
+        Model(String value) {
             this.v = value;
         }
 
@@ -72,7 +72,7 @@ public class Attributes {
 
         private String v;
 
-        private Redirect(String value) {
+        Redirect(String value) {
             this.v = value;
         }
 
@@ -302,7 +302,7 @@ public class Attributes {
 
         private String v;
 
-        private Request(String value) {
+        Request(String value) {
             this.v = value;
         }
 
@@ -317,7 +317,7 @@ public class Attributes {
 
         private String v;
 
-        private Session(String value) {
+        Session(String value) {
             this.v = value;
         }
 

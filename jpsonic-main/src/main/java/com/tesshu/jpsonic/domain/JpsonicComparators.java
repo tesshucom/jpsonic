@@ -115,7 +115,7 @@ public class JpsonicComparators {
         return new GenreComparator(utils, createCollator());
     }
 
-    private final boolean isSortAlbumsByYear(MediaFile parent) {
+    private boolean isSortAlbumsByYear(MediaFile parent) {
         return settingsService.isSortAlbumsByYear() && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 

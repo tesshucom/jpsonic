@@ -102,7 +102,7 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
         return container;
     }
 
-    private final Container createContainer(MediaFile item, String index) {
+    private Container createContainer(MediaFile item, String index) {
         GenreContainer container = new GenreContainer();
         container.setParentID(getRootId());
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);

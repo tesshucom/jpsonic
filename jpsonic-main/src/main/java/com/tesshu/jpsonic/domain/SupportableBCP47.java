@@ -35,7 +35,7 @@ public enum SupportableBCP47 {
 
     private String value;
 
-    private SupportableBCP47(String n) {
+    SupportableBCP47(String n) {
         this.value = n;
     }
 

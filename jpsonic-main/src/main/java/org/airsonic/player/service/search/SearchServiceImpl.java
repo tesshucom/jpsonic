@@ -206,7 +206,7 @@ public class SearchServiceImpl implements SearchService {
      * @param id2ListCallBack
      *            Callback to get D from id and store it in List
      */
-    private final <D> List<D> createRandomDocsList(int count, IndexSearcher searcher, Query query,
+    private <D> List<D> createRandomDocsList(int count, IndexSearcher searcher, Query query,
             BiConsumer<List<D>, Integer> id2ListCallBack) throws IOException {
 
         List<Integer> docs = Arrays.stream(searcher.search(query, Integer.MAX_VALUE).scoreDocs).map(sd -> sd.doc)
@@ -291,7 +291,7 @@ public class SearchServiceImpl implements SearchService {
         return result;
     }
 
-    private final int min(Integer... integers) {
+    private int min(Integer... integers) {
         int min = Integer.MAX_VALUE;
         for (int i : integers) {
             min = Integer.min(min, i);

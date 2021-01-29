@@ -89,7 +89,7 @@ public enum ViewName {
 
     private String v;
 
-    private ViewName(String value) {
+    ViewName(String value) {
         this.v = value;
     }
 

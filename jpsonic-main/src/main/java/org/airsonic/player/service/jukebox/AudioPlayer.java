@@ -242,7 +242,7 @@ public class AudioPlayer {
         void stateChanged(AudioPlayer player, State state);
     }
 
-    public static enum State {
+    public enum State {
         PAUSED, PLAYING, CLOSED, EOM
     }
 }

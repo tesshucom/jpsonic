@@ -174,7 +174,7 @@ public class RandomSongByFolderArtistUpnpProcessor
         return id.startsWith(TYPE_PREFIX_MUSIC_FOLDER);
     }
 
-    private final int toRawId(String prefixed) {
+    private int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 

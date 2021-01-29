@@ -93,7 +93,7 @@ public enum IndexType {
      * 
      * @return
      */
-    private static final SimpleEntry<String, Float> entry(String k, float v) {
+    private static SimpleEntry<String, Float> entry(String k, float v) {
         return new AbstractMap.SimpleEntry<>(k, v);
     }
 
@@ -105,7 +105,7 @@ public enum IndexType {
      * 
      * @return
      */
-    private static final String[] fieldNames(String... names) {
+    private static String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
     }
 
@@ -113,7 +113,7 @@ public enum IndexType {
 
     private final String[] fields;
 
-    private IndexType(String[] fieldNames, Map<String, Float> boosts) {
+    IndexType(String[] fieldNames, Map<String, Float> boosts) {
         this.fields = fieldNames.clone();
         this.boosts = boosts;
     }

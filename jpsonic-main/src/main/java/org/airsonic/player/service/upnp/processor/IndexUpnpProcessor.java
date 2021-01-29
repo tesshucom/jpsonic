@@ -209,7 +209,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void refreshIndex() {
+    private void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
@@ -227,15 +227,15 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
-    private final boolean isIndex(int id) {
+    private boolean isIndex(int id) {
         return -1 > id;
     }
 
-    private final boolean isIndex(MediaFile item) {
+    private boolean isIndex(MediaFile item) {
         return isIndex(item.getId());
     }
 
-    private final int min(Integer... integers) {
+    private int min(Integer... integers) {
         int min = Integer.MAX_VALUE;
         for (int i : integers) {
             min = Integer.min(min, i);

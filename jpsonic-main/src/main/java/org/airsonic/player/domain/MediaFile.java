@@ -656,7 +656,7 @@ public class MediaFile {
         return from -> from.getId();
     }
 
-    public static enum MediaType {
+    public enum MediaType {
         MUSIC, PODCAST, AUDIOBOOK, VIDEO, DIRECTORY, ALBUM
     }
 }

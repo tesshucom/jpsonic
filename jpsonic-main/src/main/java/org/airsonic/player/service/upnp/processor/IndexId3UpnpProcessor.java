@@ -167,9 +167,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     @Override
     public List<Id3Wrapper> getChildren(Id3Wrapper item, long offset, long maxResults) {
         if (item.isIndex()) {
-            return subList(
-                    indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3Content::new).collect(toList()),
-                    offset, maxResults);
+            return subList(indexesMap.get(item.getId()).getIndexId3().getArtist().stream().map(Id3Content::new)
+                    .collect(toList()), offset, maxResults);
         } else if (item.isAlbum()) {
             return mediaFileService.getSongsForAlbum(offset, maxResults, item.getArtist(), item.getName()).stream()
                     .map(Id3Content::new).collect(toList());
@@ -227,14 +226,14 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void applyParentId(Id3Wrapper artist, MusicArtist container) {
+    private void applyParentId(Id3Wrapper artist, MusicArtist container) {
         indexesMap.entrySet()
                 .forEach(e -> indexesMap.get(e.getKey()).getIndexId3().getArtist().stream()
                         .filter(a -> a.getId().equals(artist.getId())).findFirst()
                         .ifPresent(a -> container.setParentID(e.getKey())));
     }
 
-    private final void applyParentId(Id3Wrapper album, MusicAlbum container) {
+    private void applyParentId(Id3Wrapper album, MusicAlbum container) {
         Artist artist = artistDao.getArtist(album.getArtist());
         if (!isEmpty(artist)) {
             container.setParentID(createArtistId(artist.getId()));
@@ -242,7 +241,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IndexID3) Not reusable
-    private final void refreshIndex() {
+    private void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
@@ -275,7 +274,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         }
     }
 
-    private final int min(Integer... integers) {
+    private int min(Integer... integers) {
         int min = Integer.MAX_VALUE;
         for (int i : integers) {
             min = Integer.min(min, i);
@@ -283,7 +282,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         return min;
     }
 
-    private final int toRawId(String prefixed) {
+    private int toRawId(String prefixed) {
         return Integer.parseInt(prefixed.replaceAll("^.*:", ""));
     }
 

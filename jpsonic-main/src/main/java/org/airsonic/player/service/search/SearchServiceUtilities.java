@@ -218,7 +218,7 @@ public class SearchServiceUtilities {
                 .collect(Collectors.toList()).toArray(new String[0]);
     }
 
-    private final String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         StringBuilder b = new StringBuilder();
         b.append(genres).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
@@ -226,7 +226,7 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
-    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+    private String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
             String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(',').append(casheMax).append('[');
