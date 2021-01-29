@@ -132,6 +132,7 @@ public class ShoutCastOutputStream extends OutputStream {
      *            Meta-data is fetched from this playlist.
      */
     public ShoutCastOutputStream(OutputStream out, PlayQueue playQueue, SettingsService settingsService) {
+        super();
         this.out = out;
         this.playQueue = playQueue;
         this.settingsService = settingsService;

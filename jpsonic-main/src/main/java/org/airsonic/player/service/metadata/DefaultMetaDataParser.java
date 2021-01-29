@@ -42,6 +42,7 @@ public class DefaultMetaDataParser extends MetaDataParser {
     private final SettingsService settingsService;
 
     public DefaultMetaDataParser(SettingsService settingsService) {
+        super();
         this.settingsService = settingsService;
     }
 

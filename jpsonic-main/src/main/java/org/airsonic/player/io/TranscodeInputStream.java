@@ -61,6 +61,8 @@ public final class TranscodeInputStream extends InputStream {
      *             If an I/O error occurs.
      */
     public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile) throws IOException {
+        super();
+
         this.tmpFile = tmpFile;
 
         StringBuilder buf = new StringBuilder("Starting transcoder: ");

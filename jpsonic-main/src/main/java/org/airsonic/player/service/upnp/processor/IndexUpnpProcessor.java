@@ -249,6 +249,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         private final int id;
 
         public MediaIndex(MusicIndex deligate) {
+            super();
             this.deligate = deligate;
             this.id = getIDAndIncrement();
         }

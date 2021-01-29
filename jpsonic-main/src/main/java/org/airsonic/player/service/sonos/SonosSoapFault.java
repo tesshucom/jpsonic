@@ -35,6 +35,7 @@ public class SonosSoapFault extends RuntimeException {
     private final int sonosError;
 
     protected SonosSoapFault(String faultCode, int sonosError) {
+        super();
         this.faultCode = faultCode;
         this.sonosError = sonosError;
     }

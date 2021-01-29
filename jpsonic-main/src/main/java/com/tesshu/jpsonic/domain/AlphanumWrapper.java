@@ -33,6 +33,7 @@ class AlphanumWrapper extends Collator {
     private final Collator deligate;
 
     AlphanumWrapper(Collator collator) {
+        super();
         this.deligate = collator;
     }
 

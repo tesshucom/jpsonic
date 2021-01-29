@@ -44,7 +44,6 @@
         <!-- 3 --><exclude name="ShortVariable" />
         <!-- 3 --><exclude name="LocalVariableCouldBeFinal" />
         <!-- 3 --><exclude name="OnlyOneReturn" />
-        <!-- 3 --><exclude name="CallSuperInConstructor" />
         <!-- 3 --><exclude name="CommentDefaultAccessModifier" />
         <!-- 3 --><exclude name="AtLeastOneConstructor" />
         <!-- 3 --><exclude name="LongVariable" />

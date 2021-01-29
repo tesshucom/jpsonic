@@ -573,6 +573,7 @@ public class CoverArtController implements LastModified {
         private final PodcastChannel channel;
 
         PodcastCoverArtRequest(PodcastChannel channel) {
+            super(null);
             this.channel = channel;
         }
 
@@ -602,6 +603,7 @@ public class CoverArtController implements LastModified {
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
+            super(mediaFile.getCoverArtPath());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
@@ -633,6 +635,7 @@ public class CoverArtController implements LastModified {
         private final int offset;
 
         VideoCoverArtRequest(MediaFile mediaFile, int offset) {
+            super(mediaFile.getCoverArtPath());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }

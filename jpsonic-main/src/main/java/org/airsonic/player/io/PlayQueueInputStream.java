@@ -64,6 +64,7 @@ public class PlayQueueInputStream extends InputStream {
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
             SearchService searchService) {
+        super();
         this.player = player;
         this.status = status;
         this.maxBitRate = maxBitRate;

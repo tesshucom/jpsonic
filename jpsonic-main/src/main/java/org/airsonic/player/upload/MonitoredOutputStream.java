@@ -34,6 +34,7 @@ public class MonitoredOutputStream extends OutputStream {
     private UploadListener listener;
 
     public MonitoredOutputStream(OutputStream target, UploadListener listener) {
+        super();
         this.target = target;
         this.listener = listener;
     }

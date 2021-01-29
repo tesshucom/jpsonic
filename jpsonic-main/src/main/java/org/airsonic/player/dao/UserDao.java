@@ -89,6 +89,7 @@ public class UserDao extends AbstractDao {
 
     @Autowired
     public UserDao(String userTableQuote) {
+        super();
         this.userTableQuote = userTableQuote;
     }
 

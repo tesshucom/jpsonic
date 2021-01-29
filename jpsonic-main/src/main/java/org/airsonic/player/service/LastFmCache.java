@@ -52,9 +52,9 @@ public class LastFmCache extends Cache {
     private final long ttl;
 
     public LastFmCache(File cacheDir, final long ttl) {
+        super();
         this.cacheDir = cacheDir;
         this.ttl = ttl;
-
         setExpirationPolicy((method, params) -> ttl);
     }
 

@@ -38,6 +38,7 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      * Construct a new Id3ArtistTokenizer.
      */
     public Id3ArtistTokenizer() {
+        super();
     }
 
     /**

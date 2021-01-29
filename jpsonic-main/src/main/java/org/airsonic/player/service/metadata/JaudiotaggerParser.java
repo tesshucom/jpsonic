@@ -63,6 +63,7 @@ public class JaudiotaggerParser extends MetaDataParser {
     private final SettingsService settingsService;
 
     public JaudiotaggerParser(SettingsService settingsService) {
+        super();
         this.settingsService = settingsService;
     }
 

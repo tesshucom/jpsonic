@@ -40,12 +40,6 @@ public class GenreTokenizer extends CharTokenizer {
     private static final int DELIM = ';' | '\0';
 
     /**
-     * Construct a new Id3ArtistTokenizer.
-     */
-    public GenreTokenizer() {
-    }
-
-    /**
      * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
      *
      * @param factory
