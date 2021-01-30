@@ -77,7 +77,6 @@
         <!-- 3 --><exclude name="AvoidDeeplyNestedIfStmts" />
         <!-- 3 --><exclude name="ExcessiveClassLength" />
         <!-- 3 --><exclude name="CouplingBetweenObjects" />
-        <!-- 3 --><exclude name="SwitchDensity" />
         <!-- Because this rule traditionally causes an error that the class does not exist. -->
         <!-- 3 --><exclude name="LoosePackageCoupling" />
     </rule>

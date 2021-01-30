@@ -177,6 +177,12 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
+    private void addMediaTypeQuery(String fieldName, String mediaType, Occur occur) {
+        if (!isEmpty(mediaTypeQueryBuilder)) {
+            mediaTypeQueryBuilder.add(new TermQuery(new Term(fieldName, mediaType)), occur);
+        }
+    }
+
     /**
      * 7. Appendix C - AV Working Committee Class Definitions
      */
@@ -197,8 +203,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
         }
 
-        switch (verb) {
-        case "derivedfrom":
+        if ("derivedfrom".equals(verb)) {
             switch (complement) {
 
             // artist
@@ -216,35 +221,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             // audio
             case "object.item.audioItem":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
-                            Occur.SHOULD);
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
-                            Occur.SHOULD);
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
-                            Occur.SHOULD);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
                 break;
 
             // video
             case "object.item.videoItem":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
-                            Occur.MUST);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
                 break;
 
             default:
                 throw createIllegal("An unknown class was specified.", subject, verb, complement);
-
             }
-            break;
-        case "=":
+        } else if ("=".equals(verb)) {
             switch (complement) {
 
             // artist
@@ -260,27 +251,15 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             // audio
             case "object.item.audioItem.musicTrack":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
-                            Occur.SHOULD);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
                 break;
             case "object.item.audioItem.audioBroadcast":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
-                            Occur.SHOULD);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
                 break;
             case "object.item.audioItem.audioBook":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
-                            Occur.SHOULD);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
                 break;
 
             // video
@@ -288,22 +267,14 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             case "object.item.videoItem.videoBroadcast":
             case "object.item.videoItem.musicVideoClip":
                 assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
-                            Occur.MUST);
-                }
+                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
                 break;
 
             default:
                 throw createIllegal(
                         "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
                         subject, verb, complement);
-
             }
-            break;
-        default:
-            break;
         }
 
         includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
