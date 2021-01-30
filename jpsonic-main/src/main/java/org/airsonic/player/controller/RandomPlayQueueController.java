@@ -251,14 +251,14 @@ public class RandomPlayQueueController {
         List<String> genres = null;
         if (null != genre) {
             List<String> preAnalyzeds = indexManager.toPreAnalyzedGenres(Arrays.asList(genre));
-            if (0 != preAnalyzeds.size()) {
-                genres = preAnalyzeds;
-            } else {
+            if (0 == preAnalyzeds.size()) {
                 // #267 Invalid search for genre containing specific string
                 if (LOG.isWarnEnabled()) {
                     LOG.warn(
                             "Could not find the specified genre. A forbidden string such as \"double quotes\" may be used.");
                 }
+            } else {
+                genres = preAnalyzeds;
             }
         }
 

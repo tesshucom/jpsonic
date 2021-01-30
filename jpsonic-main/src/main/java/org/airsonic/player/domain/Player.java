@@ -322,10 +322,10 @@ public class Player {
      */
     public String getDescription() {
         StringBuilder builder = new StringBuilder();
-        if (name != null) {
-            builder.append(name);
-        } else {
+        if (name == null) {
             builder.append("Player ").append(id);
+        } else {
+            builder.append(name);
         }
 
         builder.append(" [").append(username).append(']');

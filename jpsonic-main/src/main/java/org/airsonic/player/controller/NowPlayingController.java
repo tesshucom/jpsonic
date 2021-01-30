@@ -57,6 +57,7 @@ public class NowPlayingController {
     @Autowired
     private MediaFileService mediaFileService;
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
             throws Exception {

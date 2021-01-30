@@ -72,6 +72,7 @@ public class RecoverController {
     @Autowired
     private SecurityService securityService;
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
     public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
 

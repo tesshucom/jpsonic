@@ -186,6 +186,7 @@ public class LegacyHsqlUtil {
         return destination;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public static void performAdditionOfScript(Path backupDir) throws IOException {
 

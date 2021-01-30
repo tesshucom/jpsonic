@@ -67,15 +67,15 @@ public class LegacyHsqlDaoHelper extends GenericDaoHelper {
             }
             JdbcTemplate jdbcTemplate = getJdbcTemplate();
             DataSource dataSource = jdbcTemplate.getDataSource();
-            if (dataSource != null) {
+            if (dataSource == null) {
+                LOG.debug("Cannot get dataSource.");
+            } else {
                 try (Connection conn = DataSourceUtils.getConnection(dataSource)) {
                     jdbcTemplate.execute("SHUTDOWN");
                 }
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Database shutdown complete.");
                 }
-            } else {
-                LOG.debug("Cannot get dataSource.");
             }
         } catch (SQLException e) {
             if (LOG.isErrorEnabled()) {

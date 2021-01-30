@@ -120,7 +120,9 @@ public class JukeboxJavaService {
             LOG.info("use default mixer");
             audioPlayer = javaPlayerFactory.createJavaPlayer();
         }
-        if (audioPlayer != null) {
+        if (audioPlayer == null) {
+            throw new IllegalStateException("AudioPlayer has not been initialized properly");
+        } else {
             audioPlayer.setGain(DEFAULT_GAIN);
             audioPlayer.registerListener(new PlayerListener() {
                 @Override
@@ -149,8 +151,6 @@ public class JukeboxJavaService {
                 }
             });
             LOG.info("New audio player {} has been initialized.", audioPlayer.toString());
-        } else {
-            throw new IllegalStateException("AudioPlayer has not been initialized properly");
         }
         return audioPlayer;
     }
@@ -248,10 +248,10 @@ public class JukeboxJavaService {
                 @Override
                 public File getCurrentAudioFile() {
                     MediaFile current = airsonicPlayer.getPlayQueue().getCurrentFile();
-                    if (current != null) {
-                        return airsonicPlayer.getPlayQueue().getCurrentFile().getFile();
-                    } else {
+                    if (current == null) {
                         return null;
+                    } else {
+                        return airsonicPlayer.getPlayQueue().getCurrentFile().getFile();
                     }
                 }
 

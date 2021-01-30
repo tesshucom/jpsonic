@@ -98,10 +98,10 @@ public class UPnPService {
 
     public void ensureServiceStarted() {
         running.getAndUpdate(bo -> {
-            if (!bo) {
-                startService();
+            if (bo) {
                 return true;
             } else {
+                startService();
                 return true;
             }
         });

@@ -195,7 +195,7 @@ public class TranscodingService {
      */
     public String getSuffix(Player player, MediaFile file, String preferredTargetFormat) {
         Transcoding transcoding = getTranscoding(file, player, preferredTargetFormat, false);
-        return transcoding != null ? transcoding.getTargetFormat() : file.getFormat();
+        return transcoding == null ? file.getFormat() : transcoding.getTargetFormat();
     }
 
     /**
@@ -334,6 +334,7 @@ public class TranscodingService {
      * @throws IOException
      *             If an I/O error occurs.
      */
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private InputStream createTranscodedInputStream(Parameters parameters) throws IOException {
 
         Transcoding transcoding = parameters.getTranscoding();
@@ -590,10 +591,10 @@ public class TranscodingService {
     private boolean isRangeAllowed(Parameters parameters) {
         Transcoding transcoding = parameters.getTranscoding();
         List<String> steps;
-        if (transcoding != null) {
-            steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
-        } else {
+        if (transcoding == null) {
             return true; // not transcoding
+        } else {
+            steps = Arrays.asList(transcoding.getStep3(), transcoding.getStep2(), transcoding.getStep1());
         }
 
         // Verify that were able to predict the length

@@ -260,7 +260,7 @@ public class CoverArtController implements LastModified {
     }
 
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
-        String encoding = request.getCoverArt() != null ? "jpeg" : "png";
+        String encoding = request.getCoverArt() == null ? "png" : "jpeg";
         File cachedImage = new File(getImageCacheDirectory(size),
                 DigestUtils.md5Hex(request.getKey()) + "." + encoding);
         String lockKey = cachedImage.getPath();
@@ -454,12 +454,12 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return artist.getCoverArtPath() != null ? artist.getCoverArtPath() : logic.createKey(artist);
+            return artist.getCoverArtPath() == null ? logic.createKey(artist) : artist.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : artist.getLastScanned().getTime();
+            return coverArt == null ? artist.getLastScanned().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -484,12 +484,12 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return album.getCoverArtPath() != null ? album.getCoverArtPath() : logic.createKey(album);
+            return album.getCoverArtPath() == null ? logic.createKey(album) : album.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : album.getLastScanned().getTime();
+            return coverArt == null ? album.getLastScanned().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -594,7 +594,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getArtist() {
-            return channel.getTitle() != null ? channel.getTitle() : channel.getUrl();
+            return channel.getTitle() == null ? channel.getUrl() : channel.getTitle();
         }
     }
 
@@ -610,12 +610,12 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return coverArt != null ? coverArt.getPath() : dir.getPath();
+            return coverArt == null ? dir.getPath() : coverArt.getPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : dir.getChanged().getTime();
+            return coverArt == null ? dir.getChanged().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -625,7 +625,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getArtist() {
-            return dir.getAlbumArtist() != null ? dir.getAlbumArtist() : dir.getArtist();
+            return dir.getAlbumArtist() == null ? dir.getArtist() : dir.getAlbumArtist();
         }
     }
 

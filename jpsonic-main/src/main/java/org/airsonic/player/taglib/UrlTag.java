@@ -79,14 +79,14 @@ public class UrlTag extends BodyTagSupport {
         String result = formatUrl();
 
         // Store or print the output
-        if (var != null) {
-            pageContext.setAttribute(var, result, PageContext.PAGE_SCOPE);
-        } else {
+        if (var == null) {
             try {
                 pageContext.getOut().print(result);
             } catch (IOException x) {
                 throw new JspTagException(x);
             }
+        } else {
+            pageContext.setAttribute(var, result, PageContext.PAGE_SCOPE);
         }
         return EVAL_PAGE;
     }

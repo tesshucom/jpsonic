@@ -55,9 +55,7 @@ public class FileUtils {
     private static boolean copyFilesRecusively(final File toCopy, final File destDir) {
         assert destDir.isDirectory();
 
-        if (!toCopy.isDirectory()) {
-            return FileUtils.copyFile(toCopy, new File(destDir, toCopy.getName()));
-        } else {
+        if (toCopy.isDirectory()) {
             final File newDestDir = new File(destDir, toCopy.getName());
             if (!newDestDir.exists() && !newDestDir.mkdir()) {
                 return false;
@@ -67,6 +65,8 @@ public class FileUtils {
                     return false;
                 }
             }
+        } else {
+            return FileUtils.copyFile(toCopy, new File(destDir, toCopy.getName()));
         }
         return true;
     }
@@ -82,15 +82,15 @@ public class FileUtils {
                             jarConnection.getEntryName());
 
                     final File f = new File(destDir, filename);
-                    if (!entry.isDirectory()) {
+                    if (entry.isDirectory()) {
+                        if (!FileUtils.ensureDirectoryExists(f)) {
+                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
+                        }
+                    } else {
                         try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
                             if (!FileUtils.copyStream(entryInputStream, f)) {
                                 return false;
                             }
-                        }
-                    } else {
-                        if (!FileUtils.ensureDirectoryExists(f)) {
-                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
                         }
                     }
                 }

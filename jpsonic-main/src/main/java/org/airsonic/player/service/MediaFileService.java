@@ -635,7 +635,9 @@ public class MediaFileService {
                     }
                 }
 
-                if (firstChild != null) {
+                if (firstChild == null) {
+                    mediaFile.setArtist(file.getName());
+                } else {
                     mediaFile.setMediaType(MediaFile.MediaType.ALBUM);
 
                     // Guess artist/album name, year and genre.
@@ -657,9 +659,6 @@ public class MediaFileService {
                     if (coverArt != null) {
                         mediaFile.setCoverArtPath(coverArt.getPath());
                     }
-
-                } else {
-                    mediaFile.setArtist(file.getName());
                 }
                 utils.analyze(mediaFile);
             }
@@ -743,7 +742,7 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (parser.isApplicable(candidate)) {
-                return JaudiotaggerParser.getArtwork(getMediaFile(candidate)) != null ? candidate : null;
+                return JaudiotaggerParser.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
             }
         }
         return null;

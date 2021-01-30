@@ -295,9 +295,8 @@ public class MediaFile {
 
     public String getName() {
         if (isFile()) {
-            return title != null ? title : FilenameUtils.getBaseName(path);
+            return title == null ? FilenameUtils.getBaseName(path) : title;
         }
-
         return FilenameUtils.getName(path);
     }
 

@@ -175,6 +175,7 @@ public class JapaneseReadingUtils {
         return result;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(Artist artist) {
         String indexableName = artist.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
@@ -187,6 +188,7 @@ public class JapaneseReadingUtils {
         return createIndexableName(indexableName);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(MediaFile mediaFile) {
         String indexableName = mediaFile.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
@@ -300,15 +302,15 @@ public class JapaneseReadingUtils {
         StringBuilder excluded = new StringBuilder();
         int start = 0;
         int i = s.indexOf(TILDE);
-        if (-1 != i) {
+        if (-1 == i) {
+            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
+        } else {
             while (-1 != i) {
                 excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
                 excluded.append(TILDE);
                 start = i + 1;
                 i = s.indexOf(TILDE, i + 1);
             }
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
-        } else {
             excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
         }
 

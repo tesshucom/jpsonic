@@ -81,12 +81,12 @@ public class PlayerDao extends AbstractDao {
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
-        if (clientId != null) {
-            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
-            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
-        } else {
+        if (clientId == null) {
             String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id is null";
             return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
+        } else {
+            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
+            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
         }
     }
 

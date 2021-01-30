@@ -53,6 +53,7 @@ public class BootstrapVerificationFilter implements Filter {
     private boolean jpsonicHomeVerified;
     private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
             throws IOException, ServletException {

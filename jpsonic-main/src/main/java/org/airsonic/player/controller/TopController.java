@@ -188,14 +188,14 @@ public class TopController {
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
-        if (selectedMusicFolder != null) {
-            File file = selectedMusicFolder.getPath();
-            lastModified = Math.max(lastModified, FileUtil.lastModified(file));
-        } else {
+        if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 File file = musicFolder.getPath();
                 lastModified = Math.max(lastModified, FileUtil.lastModified(file));
             }
+        } else {
+            File file = selectedMusicFolder.getPath();
+            lastModified = Math.max(lastModified, FileUtil.lastModified(file));
         }
 
         // When was music folder table last changed?

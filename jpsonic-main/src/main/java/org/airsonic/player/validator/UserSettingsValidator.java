@@ -67,6 +67,7 @@ public class UserSettingsValidator implements Validator {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
         String username = command.getUsername();

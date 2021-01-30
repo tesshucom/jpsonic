@@ -92,10 +92,10 @@ public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
                         URI uri = media.getSource().getURI();
                         File file = new File(uri);
                         MediaFile mediaFile = mediaFileService.getMediaFile(file);
-                        if (mediaFile != null) {
-                            mediaFiles.add(mediaFile);
-                        } else {
+                        if (mediaFile == null) {
                             errors.add("Cannot find media file " + file);
+                        } else {
+                            mediaFiles.add(mediaFile);
                         }
                     } catch (Exception e) {
                         errors.add(e.getMessage());

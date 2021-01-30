@@ -95,13 +95,13 @@ public class ShareManagementController {
         return playlistId == null ? null : playlistService.getPlaylist(playlistId).getName();
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private List<MediaFile> getMediaFiles(HttpServletRequest request) throws Exception {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
         Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());
 
         List<MediaFile> result = new ArrayList<>();
-
         if (id != null) {
             MediaFile album = mediaFileService.getMediaFile(id);
             int[] indexes = ServletRequestUtils.getIntParameters(request, Attributes.Request.I.value());

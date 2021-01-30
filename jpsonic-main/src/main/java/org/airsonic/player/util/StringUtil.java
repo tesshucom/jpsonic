@@ -225,10 +225,10 @@ public final class StringUtil {
         List<String> result = new ArrayList<>();
         Matcher m = SPLIT_PATTERN.matcher(input);
         while (m.find()) {
-            if (m.group(1) != null) {
-                result.add(m.group(1)); // quoted string
-            } else {
+            if (m.group(1) == null) {
                 result.add(m.group(2)); // unquoted string
+            } else {
+                result.add(m.group(1)); // quoted string
             }
         }
 

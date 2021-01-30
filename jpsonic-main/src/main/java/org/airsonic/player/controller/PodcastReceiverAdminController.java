@@ -80,13 +80,13 @@ public class PodcastReceiverAdminController {
                     ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
         }
         if (request.getParameter(Attributes.Request.REFRESH.value()) != null) {
-            if (channelId != null) {
+            if (channelId == null) {
+                podcastService.refreshAllChannels(true);
+                return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
+            } else {
                 podcastService.refreshChannel(channelId, true);
                 return new ModelAndView(new RedirectView(
                         ViewName.PODCAST_CHANNELS.value() + "?" + Attributes.Request.ID.value() + "=" + channelId));
-            } else {
-                podcastService.refreshAllChannels(true);
-                return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));
             }
         }
         return new ModelAndView(new RedirectView(ViewName.PODCAST_CHANNELS.value()));

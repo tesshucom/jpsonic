@@ -41,6 +41,7 @@ class JpMediaFileComparator implements MediaFileComparator {
         comparator = collator;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @Override
     public int compare(MediaFile a, MediaFile b) {
 

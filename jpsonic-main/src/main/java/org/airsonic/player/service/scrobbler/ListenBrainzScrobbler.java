@@ -112,15 +112,15 @@ public class ListenBrainzScrobbler {
             return;
         }
 
-        if (!submit(registrationData)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("Failed to scrobble song '" + registrationData.getTitle() + "' at ListenBrainz.");
-            }
-        } else {
+        if (submit(registrationData)) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
                         + " for song '" + registrationData.getTitle() + "'" + " at ListenBrainz: "
                         + registrationData.getTime());
+            }
+        } else {
+            if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to scrobble song '" + registrationData.getTitle() + "' at ListenBrainz.");
             }
         }
     }

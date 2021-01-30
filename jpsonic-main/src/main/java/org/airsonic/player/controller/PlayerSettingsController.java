@@ -80,6 +80,7 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     protected void formBackingObject(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
 
@@ -149,7 +150,9 @@ public class PlayerSettingsController {
     protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
             RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
-        if (player != null) {
+        if (player == null) {
+            return new ModelAndView(new RedirectView("notFound"));
+        } else {
             player.setAutoControlEnabled(command.isAutoControlEnabled());
             player.setM3uBomEnabled(command.isM3uBomEnabled());
             player.setDynamicIp(command.isDynamicIp());
@@ -164,8 +167,6 @@ public class PlayerSettingsController {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
-        } else {
-            return new ModelAndView(new RedirectView("notFound"));
         }
     }
 
@@ -184,6 +185,7 @@ public class PlayerSettingsController {
         return authorizedPlayers;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void handleRequestParameters(HttpServletRequest request) throws Exception {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());

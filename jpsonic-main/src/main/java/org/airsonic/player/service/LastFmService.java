@@ -456,7 +456,7 @@ public class LastFmService {
 
             String biography = processWikiText(info.getWikiSummary());
             String redirectedArtistName = getRedirectedArtist(biography);
-            return redirectedArtistName != null ? redirectedArtistName : artistName;
+            return redirectedArtistName == null ? artistName : redirectedArtistName;
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to find artist bio for " + artistName, x);
@@ -518,7 +518,7 @@ public class LastFmService {
     private String getArtistName(MediaFile mediaFile) {
         String artistName = mediaFile.getName();
         if (mediaFile.isAlbum() || mediaFile.isFile()) {
-            artistName = mediaFile.getAlbumArtist() != null ? mediaFile.getAlbumArtist() : mediaFile.getArtist();
+            artistName = mediaFile.getAlbumArtist() == null ? mediaFile.getArtist() : mediaFile.getAlbumArtist();
         }
         return artistName;
     }

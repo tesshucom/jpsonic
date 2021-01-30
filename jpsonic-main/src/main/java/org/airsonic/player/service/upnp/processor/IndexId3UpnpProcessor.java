@@ -103,10 +103,10 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
 
     @Override
     public void addChild(DIDLContent didl, Id3Wrapper item) {
-        if (!item.isSong()) {
-            didl.addContainer(createContainer(item));
-        } else {
+        if (item.isSong()) {
             didl.addItem(getDispatcher().getMediaFileProcessor().createItem(item.getSong()));
+        } else {
+            didl.addContainer(createContainer(item));
         }
     }
 

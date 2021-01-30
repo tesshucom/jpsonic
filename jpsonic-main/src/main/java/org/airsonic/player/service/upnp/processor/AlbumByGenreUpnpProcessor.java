@@ -102,13 +102,13 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
                 + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
-        if (!mediaFileService.isRoot(item)) {
+        if (mediaFileService.isRoot(item)) {
+            container.setParentID(getRootId());
+        } else {
             MediaFile parent = mediaFileService.getParentOf(item);
             if (parent != null) {
                 container.setParentID(String.valueOf(parent.getId()));
             }
-        } else {
-            container.setParentID(getRootId());
         }
         return container;
     }

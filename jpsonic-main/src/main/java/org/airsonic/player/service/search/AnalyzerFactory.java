@@ -106,12 +106,12 @@ public final class AnalyzerFactory {
      */
     private void setSearchMethodLegacy(boolean isSearchMethodLegacy) {
         this.isSearchMethodLegacy = isSearchMethodLegacy;
-        if (!isSearchMethodLegacy) {
-            stopWords = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
-            stopTags = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
-        } else {
+        if (isSearchMethodLegacy) {
             stopWords = "com/tesshu/jpsonic/service/stopwords.txt";
             stopTags = "org/apache/lucene/analysis/ja/stoptags.txt";
+        } else {
+            stopWords = "com/tesshu/jpsonic/service/stopwords4phrase.txt";
+            stopTags = "com/tesshu/jpsonic/service/stoptags4phrase.txt";
         }
         analyzer = null;
         queryAnalyzer = null;

@@ -80,10 +80,10 @@ public class TranscodingSettingsController {
     @PostMapping
     public ModelAndView doPost(HttpServletRequest request, RedirectAttributes redirectAttributes) {
         String error = handleParameters(request, redirectAttributes);
-        if (error != null) {
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
-        } else {
+        if (error == null) {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
+        } else {
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.ERROR.value(), error);
         }
         return new ModelAndView(new RedirectView(ViewName.TRANSCODING_SETTINGS.value()));
     }

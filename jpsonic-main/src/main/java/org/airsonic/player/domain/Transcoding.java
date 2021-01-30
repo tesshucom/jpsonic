@@ -236,6 +236,6 @@ public class Transcoding {
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        return id == null ? 0 : id.hashCode();
     }
 }

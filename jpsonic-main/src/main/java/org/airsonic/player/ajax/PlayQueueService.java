@@ -554,10 +554,10 @@ public class PlayQueueService {
         if (removeVideoFiles) {
             mediaFileService.removeVideoFiles(files);
         }
-        if (addAtIndex != null) {
-            playQueue.addFilesAt(files, addAtIndex);
-        } else {
+        if (addAtIndex == null) {
             playQueue.addFiles(true, files);
+        } else {
+            playQueue.addFilesAt(files, addAtIndex);
         }
         playQueue.setRandomSearchCriteria(null);
         playQueue.setInternetRadio(null);

@@ -176,14 +176,14 @@ public class InternalHelpController {
             IndexSearcher searcher = indexManager.getSearcher(indexType);
             stat.setName(indexType.name());
             indexStats.put(indexType.name(), stat);
-            if (searcher != null) {
+            if (searcher == null) {
+                stat.setCount(0);
+                stat.setDeletedCount(0);
+            } else {
                 IndexReader reader = searcher.getIndexReader();
                 stat.setCount(reader.numDocs());
                 stat.setDeletedCount(reader.numDeletedDocs());
                 indexManager.release(indexType, searcher);
-            } else {
-                stat.setCount(0);
-                stat.setDeletedCount(0);
             }
         }
         map.put("indexStatistics", indexStats);

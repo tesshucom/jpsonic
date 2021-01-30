@@ -97,13 +97,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
                 + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
-        if (!mediaFileService.isRoot(item)) {
+        if (mediaFileService.isRoot(item)) {
+            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
+        } else {
             MediaFile parent = mediaFileService.getParentOf(item);
             if (parent != null) {
                 container.setParentID(String.valueOf(parent.getId()));
             }
-        } else {
-            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
         }
     }
 

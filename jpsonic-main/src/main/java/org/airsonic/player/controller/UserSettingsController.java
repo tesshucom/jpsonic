@@ -84,11 +84,16 @@ public class UserSettingsController {
     protected String displayForm(HttpServletRequest request, Model model,
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
         UserSettingsCommand command;
-        if (!model.containsAttribute(Attributes.Model.Command.VALUE)) {
+        if (model.containsAttribute(Attributes.Model.Command.VALUE)) {
+            command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);
+        } else {
             command = new UserSettingsCommand();
-
             User user = getUser(request);
-            if (user != null) {
+            if (user == null) {
+                command.setNewUser(true);
+                command.setStreamRole(true);
+                command.setSettingsRole(true);
+            } else {
                 command.setUser(user);
                 command.setEmail(user.getEmail());
                 UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
@@ -96,14 +101,8 @@ public class UserSettingsController {
                 command.setAllowedMusicFolderIds(PlayerUtils.toIntArray(getAllowedMusicFolderIds(user)));
                 command.setCurrentUser(
                         securityService.getCurrentUser(request).getUsername().equals(user.getUsername()));
-            } else {
-                command.setNewUser(true);
-                command.setStreamRole(true);
-                command.setSettingsRole(true);
             }
 
-        } else {
-            command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);
         }
         command.setUsers(securityService.getAllUsers());
         command.setTranscodingSupported(transcodingService.isTranscodingSupported(null));
@@ -145,7 +144,11 @@ public class UserSettingsController {
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated UserSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
 
-        if (!bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
+            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
+        } else {
             if (command.isDeleteUser()) {
                 deleteUser(command);
             } else if (command.isNewUser()) {
@@ -154,10 +157,6 @@ public class UserSettingsController {
                 updateUser(command);
             }
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
-        } else {
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.COMMAND.value(), command);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.BINDING_RESULT.value(), bindingResult);
-            redirectAttributes.addFlashAttribute(Attributes.Redirect.USER_INDEX.value(), getUserIndex(command));
         }
         return new ModelAndView(new RedirectView(ViewName.USER_SETTINGS.value()));
     }

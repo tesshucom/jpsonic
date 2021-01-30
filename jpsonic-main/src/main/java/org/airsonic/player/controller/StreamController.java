@@ -195,7 +195,11 @@ public class StreamController {
                     long contentLength;
                     // If range was requested, respond in kind
                     range = getRange(request, file.getDurationSeconds(), fileLengthExpected);
-                    if (range != null) {
+                    if (range == null) {
+                        // No range was requested, give back the whole file
+                        response.setStatus(HttpServletResponse.SC_OK);
+                        contentLength = fileLengthExpected;
+                    } else {
                         response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                         response.setHeader("Accept-Ranges", "bytes");
 
@@ -206,10 +210,6 @@ public class StreamController {
                         response.setHeader("Content-Range",
                                 String.format("bytes %d-%d/%d", startByte, endByte, fileLengthExpected));
                         contentLength = endByte + 1 - startByte;
-                    } else {
-                        // No range was requested, give back the whole file
-                        response.setStatus(HttpServletResponse.SC_OK);
-                        contentLength = fileLengthExpected;
                     }
 
                     response.setIntHeader("ETag", file.getId());

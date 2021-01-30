@@ -90,10 +90,10 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
 
     @Override
     public void addChild(DIDLContent didl, MediaFile child) {
-        if (!child.isFile()) {
-            didl.addContainer(createContainer(child));
-        } else {
+        if (child.isFile()) {
             didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+        } else {
+            didl.addContainer(createContainer(child));
         }
     }
 
@@ -114,6 +114,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return createBrowseResult(didl, 1, 1);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void applyId(MediaFile item, Container container) {
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
                 + item.getId());

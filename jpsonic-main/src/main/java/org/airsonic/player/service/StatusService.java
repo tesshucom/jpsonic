@@ -80,10 +80,10 @@ public class StatusService {
         synchronized (STREAM_LOCK) {
             // Reuse existing status, if possible.
             TransferStatus status = inactiveStreamStatuses.get(player.getId());
-            if (status != null) {
-                status.setActive(true);
-            } else {
+            if (status == null) {
                 status = createStatus(player, streamStatuses);
+            } else {
+                status.setActive(true);
             }
             return status;
         }

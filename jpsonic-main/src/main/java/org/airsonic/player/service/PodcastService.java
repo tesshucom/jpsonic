@@ -456,7 +456,7 @@ public class PodcastService {
     }
 
     private String getErrorMessage(Exception x) {
-        return x.getMessage() != null ? x.getMessage() : x.toString();
+        return x.getMessage() == null ? x.toString() : x.getMessage();
     }
 
     public void downloadEpisode(final PodcastEpisode episode) {

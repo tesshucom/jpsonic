@@ -63,12 +63,12 @@ public class ProxyController {
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             try (CloseableHttpResponse resp = client.execute(method)) {
                 int statusCode = resp.getStatusLine().getStatusCode();
-                if (statusCode != OK.value()) {
-                    response.sendError(statusCode);
-                } else {
+                if (statusCode == OK.value()) {
                     try (InputStream in = resp.getEntity().getContent()) {
                         IOUtils.copy(in, response.getOutputStream());
                     }
+                } else {
+                    response.sendError(statusCode);
                 }
             }
         }

@@ -128,6 +128,7 @@ public class MusicFolderSettingsController {
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void expunge() {
 
         if (isExpunging.get()) {

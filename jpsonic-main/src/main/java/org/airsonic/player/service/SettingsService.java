@@ -412,9 +412,10 @@ public class SettingsService {
 
     }
 
-    @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
+    @SuppressWarnings({ "PMD.UseLocaleWithCaseConversions", "PMD.ConfusingTernary" })
     /*
-     * [UseLocaleWithCaseConversions] The locale doesn't matter, as only comparing the OS names.
+     * [UseLocaleWithCaseConversions] The locale doesn't matter, as only comparing the OS names. [ConfusingTernary]
+     * false positive
      */
     public static File getJpsonicHome() {
         File home;
@@ -1039,7 +1040,10 @@ public class SettingsService {
         compileExcludePattern();
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (excludePattern) Intentional allocation to clear cache
+    @SuppressWarnings({ "PMD.NullAssignment", "PMD.ConfusingTernary" })
+    /*
+     * [NullAssignment](excludePattern) Intentional allocation to clear cache. [ConfusingTernary] false positive
+     */
     private void compileExcludePattern() {
         if (getExcludePatternString() != null && !StringUtils.isAllBlank(getExcludePatternString())) {
             excludePattern = Pattern.compile(getExcludePatternString());

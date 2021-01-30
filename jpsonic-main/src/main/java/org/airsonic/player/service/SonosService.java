@@ -583,7 +583,11 @@ public class SonosService implements SonosSoap {
 
         Message message = ((WrappedMessageContext) messageContext).getWrappedMessage();
         List<Header> headers = CastUtils.cast((List<?>) message.get(Header.HEADER_LIST));
-        if (headers != null) {
+        if (headers == null) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("No headers found");
+            }
+        } else {
             // Unwrap the node using JAXB
             JAXBContext jaxbContext = null;
             try {
@@ -627,10 +631,6 @@ public class SonosService implements SonosSoap {
                         LOG.error("No credentials object");
                     }
                 }
-            }
-        } else {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("No headers found");
             }
         }
         return null;

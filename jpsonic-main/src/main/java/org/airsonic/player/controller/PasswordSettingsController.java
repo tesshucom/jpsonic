@@ -74,7 +74,9 @@ public class PasswordSettingsController {
     protected ModelAndView doSubmitAction(
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated PasswordSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (!bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            return new ModelAndView("passwordSettings");
+        } else {
             User user = securityService.getUserByName(command.getUsername());
             user.setPassword(command.getPassword());
             securityService.updateUser(user);
@@ -83,8 +85,6 @@ public class PasswordSettingsController {
             command.setConfirmPassword(null);
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             return new ModelAndView(new RedirectView(ViewName.PASSWORD_SETTINGS.value()));
-        } else {
-            return new ModelAndView("passwordSettings");
         }
     }
 

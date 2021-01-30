@@ -110,6 +110,7 @@ public class DownloadController implements LastModified {
     }
 
     @GetMapping
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
 
         User user = securityService.getCurrentUser(request);

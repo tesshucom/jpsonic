@@ -1080,7 +1080,15 @@ public class SubsonicRESTController {
 
         org.airsonic.player.domain.Playlist playlist;
         String username = securityService.getCurrentUsername(request);
-        if (playlistId != null) {
+        if (playlistId == null) {
+            playlist = new org.airsonic.player.domain.Playlist();
+            playlist.setName(name);
+            playlist.setCreated(new Date());
+            playlist.setChanged(new Date());
+            playlist.setShared(false);
+            playlist.setUsername(username);
+            playlistService.createPlaylist(playlist);
+        } else {
             playlist = playlistService.getPlaylist(playlistId);
             if (playlist == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + playlistId);
@@ -1090,14 +1098,6 @@ public class SubsonicRESTController {
                 writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + playlistId);
                 return;
             }
-        } else {
-            playlist = new org.airsonic.player.domain.Playlist();
-            playlist.setName(name);
-            playlist.setCreated(new Date());
-            playlist.setChanged(new Date());
-            playlist.setShared(false);
-            playlist.setUsername(username);
-            playlistService.createPlaylist(playlist);
         }
 
         List<MediaFile> songs = new ArrayList<>();
@@ -2584,7 +2584,7 @@ public class SubsonicRESTController {
         }
 
         // Return the player ID.
-        return !players.isEmpty() ? String.valueOf(players.get(0).getId()) : null;
+        return players.isEmpty() ? null : String.valueOf(players.get(0).getId());
     }
 
     public enum ErrorCode {

@@ -82,7 +82,9 @@ public class DatabaseSettingsController {
     protected ModelAndView onSubmit(
             @ModelAttribute(Attributes.Model.Command.VALUE) @Validated DatabaseSettingsCommand command,
             BindingResult bindingResult, RedirectAttributes redirectAttributes) {
-        if (!bindingResult.hasErrors()) {
+        if (bindingResult.hasErrors()) {
+            return new ModelAndView(ViewName.DATABASE_SETTINGS.value());
+        } else {
             settingsService.resetDatabaseToDefault();
             settingsService.setDatabaseConfigType(command.getConfigType());
             switch (command.getConfigType()) {
@@ -106,8 +108,6 @@ public class DatabaseSettingsController {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             settingsService.save();
             return new ModelAndView(new RedirectView(ViewName.DATABASE_SETTINGS.value()));
-        } else {
-            return new ModelAndView(ViewName.DATABASE_SETTINGS.value());
         }
     }
 
