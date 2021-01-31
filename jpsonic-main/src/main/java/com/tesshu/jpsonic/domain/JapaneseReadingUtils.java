@@ -59,6 +59,7 @@ public class JapaneseReadingUtils {
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
+    private static final char WAVY_LINE = '\u007e'; // ~
 
     private final SettingsService settingsService;
     private final Tokenizer tokenizer = new Tokenizer();
@@ -211,8 +212,7 @@ public class JapaneseReadingUtils {
      */
     private String createIndexableName(String sort) {
         String indexableName = sort;
-        char c = sort.charAt(0);
-        if (!(c <= '\u007e')) { // Wavy line
+        if (sort.charAt(0) > WAVY_LINE) {
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
             indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         }

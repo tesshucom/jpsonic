@@ -68,7 +68,6 @@
         <!-- 3 --><exclude name="AvoidCatchingGenericException" />
         <!-- 3 --><exclude name="AvoidUncheckedExceptionsInSignatures" />
         <!-- 3 --><exclude name="UseUtilityClass" />
-        <!-- 3 --><exclude name="LogicInversion" />
         <!-- 3 --><exclude name="NPathComplexity" />
         <!-- 3 --><exclude name="ExcessiveMethodLength" />
         <!-- 3 --><exclude name="NcssCount" />
