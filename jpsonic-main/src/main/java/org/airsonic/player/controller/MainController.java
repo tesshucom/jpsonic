@@ -121,7 +121,8 @@ public class MainController {
 
         int userPaginationPreference = userSettings.getPaginationSize();
 
-        boolean isShowAll = userPaginationPreference <= 0 ? true : null == showAll ? false : showAll;
+        boolean isShowAll = userPaginationPreference <= 0 || null != showAll && showAll;
+
         boolean thereIsMoreSAlbums = false;
 
         mediaFileService.populateStarredDate(dir, username);
