@@ -61,26 +61,25 @@ public class ImportPlaylistController {
     @Autowired
     private PlaylistService playlistService;
 
-    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (IOException) Not reusable
+    private void playListSizeCheck(FileItem item) throws ExecutionException {
+        if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
+            throw new ExecutionException(new IOException(
+                    "The playlist file is too large. Max file size is " + MAX_PLAYLIST_SIZE_MB + " MB."));
+        }
+    }
+
     @PostMapping
     protected String handlePost(RedirectAttributes redirectAttributes, HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         try {
             if (ServletFileUpload.isMultipartContent(request)) {
-
                 FileItemFactory factory = new DiskFileItemFactory();
                 ServletFileUpload upload = new ServletFileUpload(factory);
-                List<?> items = upload.parseRequest(request);
-                for (Object o : items) {
-                    FileItem item = (FileItem) o;
-
+                List<FileItem> items = upload.parseRequest(request);
+                for (FileItem item : items) {
                     if (FIELD_NAME_FILE.equals(item.getFieldName()) && !StringUtils.isBlank(item.getName())) {
-                        if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {
-                            throw new ExecutionException(
-                                    new IOException("The playlist file is too large. Max file size is "
-                                            + MAX_PLAYLIST_SIZE_MB + " MB."));
-                        }
+                        playListSizeCheck(item);
                         String playlistName = FilenameUtils.getBaseName(item.getName());
                         String fileName = FilenameUtils.getName(item.getName());
                         String username = securityService.getCurrentUsername(request);

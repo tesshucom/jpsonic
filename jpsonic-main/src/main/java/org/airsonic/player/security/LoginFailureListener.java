@@ -40,16 +40,23 @@ public class LoginFailureListener implements ApplicationListener<ApplicationEven
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof AbstractAuthenticationFailureEvent) {
-            if (event.getSource() instanceof AbstractAuthenticationToken) {
-                AbstractAuthenticationToken token = (AbstractAuthenticationToken) event.getSource();
-                Object details = token.getDetails();
-                if (details instanceof WebAuthenticationDetails) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
-                    }
-                }
-            }
+        if (!(event instanceof AbstractAuthenticationFailureEvent)) {
+            return;
+        }
+
+        Object source = event.getSource();
+        if (!(source instanceof AbstractAuthenticationToken)) {
+            return;
+        }
+
+        AbstractAuthenticationToken token = (AbstractAuthenticationToken) source;
+        Object details = token.getDetails();
+        if (!(details instanceof WebAuthenticationDetails)) {
+            return;
+        }
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
         }
 
     }

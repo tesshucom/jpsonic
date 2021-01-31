@@ -134,36 +134,33 @@ public class UploadController {
             }
 
             // Look for file items.
-            for (Object o : items) {
-                FileItem item = (FileItem) o;
+            for (FileItem item : items) {
+                if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
 
-                if (!item.isFormField()) {
-                    if (!StringUtils.isAllBlank(item.getName())) {
+                    File targetFile = new File(dir, new File(item.getName()).getName());
 
-                        File targetFile = new File(dir, new File(item.getName()).getName());
+                    if (!securityService.isUploadAllowed(targetFile)) {
+                        throw new ExecutionException(new GeneralSecurityException(
+                                "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                    }
 
-                        if (!securityService.isUploadAllowed(targetFile)) {
-                            throw new ExecutionException(new GeneralSecurityException(
-                                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
-                        }
-
-                        if (!dir.exists()) {
-                            if (!dir.mkdirs() && LOG.isWarnEnabled()) {
-                                LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
-                            }
-                        }
-
-                        item.write(targetFile);
-                        uploadedFiles.add(targetFile);
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Uploaded " + targetFile);
-                        }
-
-                        if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
-                            unzip(targetFile, unzippedFiles);
+                    if (!dir.exists()) {
+                        if (!dir.mkdirs() && LOG.isWarnEnabled()) {
+                            LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
                         }
                     }
+
+                    item.write(targetFile);
+                    uploadedFiles.add(targetFile);
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Uploaded " + targetFile);
+                    }
+
+                    if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
+                        unzip(targetFile, unzippedFiles);
+                    }
                 }
+
             }
 
         } catch (Exception x) {

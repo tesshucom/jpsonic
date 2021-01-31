@@ -140,10 +140,8 @@ public class LastFmCache extends Cache {
         File[] listFiles = cacheDir.listFiles();
         if (listFiles != null) {
             for (File file : listFiles) {
-                if (file.isFile()) {
-                    if (!file.delete() && LOG.isWarnEnabled()) {
-                        LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
-                    }
+                if (file.isFile() && !file.delete() && LOG.isWarnEnabled()) {
+                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
                 }
             }
         }

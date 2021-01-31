@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -121,19 +122,19 @@ public class LastFmService {
                 }
             }
 
+            if (!includeNotPresent) {
+                return result;
+            }
+
             // Then fill up with non-present artists
-            if (includeNotPresent) {
-                for (Artist lastFmArtist : similarArtists) {
-                    MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-                    if (similarArtist == null) {
-                        MediaFile notPresentArtist = new MediaFile();
-                        notPresentArtist.setId(-1);
-                        notPresentArtist.setArtist(lastFmArtist.getName());
-                        result.add(notPresentArtist);
-                        if (result.size() == count) {
-                            return result;
-                        }
-                    }
+            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+                Artist lastFmArtist = i.next();
+                MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+                if (similarArtist == null) {
+                    MediaFile notPresentArtist = new MediaFile();
+                    notPresentArtist.setId(-1);
+                    notPresentArtist.setArtist(lastFmArtist.getName());
+                    result.add(notPresentArtist);
                 }
             }
 
@@ -180,19 +181,19 @@ public class LastFmService {
                 }
             }
 
+            if (!includeNotPresent) {
+                return result;
+            }
+
             // Then fill up with non-present artists
-            if (includeNotPresent) {
-                for (Artist lastFmArtist : similarArtists) {
-                    org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
-                    if (similarArtist == null) {
-                        org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
-                        notPresentArtist.setId(-1);
-                        notPresentArtist.setName(lastFmArtist.getName());
-                        result.add(notPresentArtist);
-                        if (result.size() == count) {
-                            return result;
-                        }
-                    }
+            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+                Artist lastFmArtist = i.next();
+                org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
+                if (similarArtist == null) {
+                    org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
+                    notPresentArtist.setId(-1);
+                    notPresentArtist.setName(lastFmArtist.getName());
+                    result.add(notPresentArtist);
                 }
             }
 
