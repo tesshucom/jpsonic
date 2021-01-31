@@ -88,6 +88,7 @@ public class DatabaseConfiguration {
         return dataSource;
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's spring API
     @Bean
     @Profile(ProfileNameConstants.EMBED)
     public DataSource embedDataSource(@Value("${DatabaseConfigEmbedDriver}") String driver,

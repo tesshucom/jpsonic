@@ -71,6 +71,7 @@ public class TagService {
      * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary. Otherwise the error message
      *         is returned.
      */
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's ajax API
     public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
             String yearStr, String genreStr) {
 

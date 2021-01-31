@@ -391,6 +391,7 @@ public class SonosService implements SonosSoap {
         }
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public CreateContainerResult createContainer(String containerType, String title, String parentId, String seedId)
             throws CustomFault {
@@ -662,6 +663,7 @@ public class SonosService implements SonosSoap {
         return null;
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public AppLinkResult getAppLink(String householdId, String hardware, String osVersion, String sonosAppName,
             String callbackPath) throws CustomFault {
@@ -685,6 +687,7 @@ public class SonosService implements SonosSoap {
         return null;
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public DeviceAuthTokenResult getDeviceAuthToken(String householdId, String linkCode, String linkDeviceId,
             String callbackPath) throws CustomFault {

@@ -71,7 +71,6 @@
         <!-- 3 --><exclude name="LogicInversion" />
         <!-- 3 --><exclude name="NPathComplexity" />
         <!-- 3 --><exclude name="ExcessiveMethodLength" />
-        <!-- 3 --><exclude name="UseObjectForClearerAPI" />
         <!-- 3 --><exclude name="NcssCount" />
         <!-- 3 --><exclude name="ExcessiveClassLength" />
         <!-- 3 --><exclude name="CouplingBetweenObjects" />
