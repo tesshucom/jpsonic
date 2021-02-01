@@ -237,11 +237,9 @@ public class StreamController {
                 return;
             }
 
-            if (fileLengthExpected != null) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Streaming request for [{}] with range [{}]", file.getPath(),
-                            response.getHeader("Content-Range"));
-                }
+            if (LOG.isInfoEnabled() && fileLengthExpected != null) {
+                LOG.info("Streaming request for [{}] with range [{}]", file.getPath(),
+                        response.getHeader("Content-Range"));
             }
 
             // Terminate any other streams to this player.
@@ -284,13 +282,11 @@ public class StreamController {
                                 sendDummyDelayed(buf, out);
                             }
                         } else {
-                            if (fileLengthExpected != null && bytesWritten <= fileLengthExpected
+                            if (LOG.isWarnEnabled() && fileLengthExpected != null && bytesWritten <= fileLengthExpected
                                     && bytesWritten + n > fileLengthExpected) {
-                                if (LOG.isWarnEnabled()) {
-                                    LOG.warn("Stream output exceeded expected length of {}. It is likely that "
-                                            + "the transcoder is not adhering to the bitrate limit or the media "
-                                            + "source is corrupted or has grown larger", fileLengthExpected);
-                                }
+                                LOG.warn("Stream output exceeded expected length of {}. It is likely that "
+                                        + "the transcoder is not adhering to the bitrate limit or the media "
+                                        + "source is corrupted or has grown larger", fileLengthExpected);
                             }
                             out.write(buf, 0, n);
                             bytesWritten += n;

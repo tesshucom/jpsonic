@@ -73,10 +73,8 @@ public class LoginController {
                 settingsService.isShowRememberMe());
 
         User admin = securityService.getUserByName("admin");
-        if (admin != null) {
-            if (admin.getUsername().equals(admin.getPassword())) {
-                map.put("insecure", true);
-            }
+        if (admin != null && admin.getUsername().equals(admin.getPassword())) {
+            map.put("insecure", true);
         }
 
         return new ModelAndView("login", "model", map);

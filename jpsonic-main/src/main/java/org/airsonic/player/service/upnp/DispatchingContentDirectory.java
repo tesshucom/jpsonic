@@ -159,9 +159,7 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
             return returnValue;
         } catch (Throwable t) {
             if (LOG.isErrorEnabled()) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("UPnP error: ", t);
-                }
+                LOG.error("UPnP error: ", t);
             }
             throw new ContentDirectoryException(ContentDirectoryErrorCode.CANNOT_PROCESS.getCode(),
                     ContentDirectoryErrorCode.CANNOT_PROCESS.getDescription(), t);

@@ -175,21 +175,13 @@ public class CoverArtService {
 
     private void backup(File newCoverFile, File backup) {
         if (newCoverFile.exists()) {
-            if (backup.exists()) {
-                if (!backup.delete()) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Failed to delete " + backup);
-                    }
-                }
+            if (backup.exists() && !backup.delete() && LOG.isWarnEnabled()) {
+                LOG.warn("Failed to delete " + backup);
             }
-            if (newCoverFile.renameTo(backup)) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Backed up old image file to " + backup);
-                }
-            } else {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Failed to create image file backup " + backup);
-                }
+            if (newCoverFile.renameTo(backup) && LOG.isInfoEnabled()) {
+                LOG.info("Backed up old image file to " + backup);
+            } else if (LOG.isWarnEnabled()) {
+                LOG.warn("Failed to create image file backup " + backup);
             }
         }
     }

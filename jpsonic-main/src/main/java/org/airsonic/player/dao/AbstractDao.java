@@ -86,10 +86,8 @@ public class AbstractDao {
         long millis = (System.nanoTime() - startTimeNano) / 1_000_000L;
 
         // Log queries that take more than 2 seconds.
-        if (millis > TimeUnit.SECONDS.toMillis(2L)) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(millis + " ms:  " + sql);
-            }
+        if (LOG.isDebugEnabled() && millis > TimeUnit.SECONDS.toMillis(2L)) {
+            LOG.debug(millis + " ms:  " + sql);
         }
     }
 

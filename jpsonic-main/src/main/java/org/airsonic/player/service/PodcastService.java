@@ -651,10 +651,8 @@ public class PodcastService {
                             if (LOG.isInfoEnabled()) {
                                 LOG.info("Podcast " + episode.getUrl() + " was deleted. Aborting download.");
                             }
-                            if (!file.delete()) {
-                                if (LOG.isWarnEnabled()) {
-                                    LOG.warn("Unable to delete " + file);
-                                }
+                            if (!file.delete() && LOG.isWarnEnabled()) {
+                                LOG.warn("Unable to delete " + file);
                             }
                         } else {
                             addMediaFileIdToEpisodes(Arrays.asList(episode));
@@ -824,10 +822,8 @@ public class PodcastService {
         if (episode.getPath() != null) {
             synchronized (FILE_LOCK) {
                 File file = new File(episode.getPath());
-                if (file.exists()) {
-                    if (!file.delete() && LOG.isWarnEnabled()) {
-                        LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
-                    }
+                if (file.exists() && !file.delete() && LOG.isWarnEnabled()) {
+                    LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
                 }
             }
         }

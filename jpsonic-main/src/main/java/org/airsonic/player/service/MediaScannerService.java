@@ -308,10 +308,8 @@ public class MediaScannerService {
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
             Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
         scanCount++;
-        if (scanCount % 250 == 0) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Scanned media library with " + scanCount + " entries.");
-            }
+        if (LOG.isInfoEnabled() && scanCount % 250 == 0) {
+            LOG.info("Scanned media library with " + scanCount + " entries.");
         }
 
         LOG.trace("Scanning file {}", file.getPath());

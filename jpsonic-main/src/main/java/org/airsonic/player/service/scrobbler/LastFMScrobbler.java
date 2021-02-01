@@ -146,12 +146,10 @@ public class LastFMScrobbler {
             if (LOG.isWarnEnabled()) {
                 LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Invalid session.");
             }
-        } else if (lines[0].startsWith("OK")) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
-                        + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
-                        + " at Last.fm: " + registrationData.getTime());
-            }
+        } else if (LOG.isInfoEnabled() && lines[0].startsWith("OK")) {
+            LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
+                    + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
+                    + " at Last.fm: " + registrationData.getTime());
         }
     }
 

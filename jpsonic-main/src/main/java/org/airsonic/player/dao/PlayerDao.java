@@ -153,10 +153,8 @@ public class PlayerDao extends AbstractDao {
         cal.add(Calendar.DATE, -days);
         String sql = "delete from player where name is null and client_id is null and (last_seen is null or last_seen < ?)";
         int n = update(sql, cal.getTime());
-        if (n > 0) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
-            }
+        if (LOG.isInfoEnabled() && n > 0) {
+            LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
         }
     }
 

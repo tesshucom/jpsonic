@@ -496,10 +496,8 @@ public class TranscodingService {
                 return transcoding;
             }
             for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
-                if (sourceFormat.equalsIgnoreCase(suffix)) {
-                    if (isTranscodingInstalled(transcoding)) {
-                        applicableTranscodings.add(transcoding);
-                    }
+                if (sourceFormat.equalsIgnoreCase(suffix) && isTranscodingInstalled(transcoding)) {
+                    applicableTranscodings.add(transcoding);
                 }
             }
         }

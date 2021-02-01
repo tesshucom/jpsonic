@@ -128,12 +128,9 @@ public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, P
             }
         }
 
-        if (episode.getStatus() == PodcastStatus.COMPLETED) {
-            if (!isEmpty(episode.getMediaFileId())) {
-                MediaFile mediaFile = mediaFileService.getMediaFile(episode.getMediaFileId());
-                item.setResources(
-                        Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
-            }
+        if (episode.getStatus() == PodcastStatus.COMPLETED && !isEmpty(episode.getMediaFileId())) {
+            MediaFile mediaFile = mediaFileService.getMediaFile(episode.getMediaFileId());
+            item.setResources(Arrays.asList(getDispatcher().getMediaFileProcessor().createResourceForSong(mediaFile)));
         }
 
         return item;

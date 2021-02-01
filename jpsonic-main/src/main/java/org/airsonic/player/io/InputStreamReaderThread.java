@@ -58,10 +58,8 @@ public class InputStreamReaderThread extends Thread {
     public void run() {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-                if (log) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info('(' + name + ") " + line);
-                    }
+                if (log && LOG.isInfoEnabled()) {
+                    LOG.info('(' + name + ") " + line);
                 }
             }
         } catch (IOException ignored) {

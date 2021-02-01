@@ -145,10 +145,8 @@ public class UploadController {
                                 "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
                     }
 
-                    if (!dir.exists()) {
-                        if (!dir.mkdirs() && LOG.isWarnEnabled()) {
-                            LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
-                        }
+                    if (!dir.exists() && !dir.mkdirs() && LOG.isWarnEnabled()) {
+                        LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
                     }
 
                     item.write(targetFile);

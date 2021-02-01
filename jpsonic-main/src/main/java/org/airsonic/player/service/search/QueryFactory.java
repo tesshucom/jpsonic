@@ -262,14 +262,12 @@ public class QueryFactory {
         Analyzer queryAnalyzer = analyzerFactory.getQueryAnalyzer();
         if (!isEmpty(criteria.getGenres())) {
             for (String genre : criteria.getGenres()) {
-                if (!isEmpty(criteria.getGenres())) {
-                    if (!isEmpty(genre)) {
-                        try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
-                            stream.reset();
-                            while (stream.incrementToken()) {
-                                String token = stream.getAttribute(CharTermAttribute.class).toString();
-                                genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
-                            }
+                if (!isEmpty(criteria.getGenres()) && !isEmpty(genre)) {
+                    try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
+                        stream.reset();
+                        while (stream.incrementToken()) {
+                            String token = stream.getAttribute(CharTermAttribute.class).toString();
+                            genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
                         }
                     }
                 }
