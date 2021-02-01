@@ -28,6 +28,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.geom.RectangularShape;
 import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -78,7 +79,7 @@ public class UserChartController extends AbstractChartController {
 
     @Override
     @GetMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String type = request.getParameter(Attributes.Request.TYPE.value());
         CategoryDataset dataset = createDataset(type);
         JFreeChart chart = createChart(dataset, request);

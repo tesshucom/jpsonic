@@ -28,5 +28,6 @@ import org.springframework.core.Ordered;
 public interface PlaylistExportHandler extends Ordered {
     boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass);
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws Exception;
 }

@@ -39,6 +39,7 @@ import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
+import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
@@ -72,7 +73,7 @@ public class AvatarUploadController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Exception) Not reusable
     @PostMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws FileUploadException {
 
         // Check that we have a file upload request.
         if (!ServletFileUpload.isMultipartContent(request)) {

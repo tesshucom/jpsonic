@@ -42,6 +42,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.jdom2.input.SAXBuilder;
 import org.slf4j.Logger;
@@ -101,7 +102,7 @@ public class LyricsService {
         return lyrics;
     }
 
-    private LyricsInfo parseSearchResult(String xml) throws Exception {
+    private LyricsInfo parseSearchResult(String xml) throws JDOMException, IOException {
         SAXBuilder builder = createSAXBuilder();
         Document document = builder.build(new StringReader(xml));
 

@@ -68,7 +68,8 @@ public class ShareManagementController {
     private SecurityService securityService;
 
     @GetMapping
-    public ModelAndView createShare(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView createShare(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         List<MediaFile> files = getMediaFiles(request);
         MediaFile dir = null;
@@ -96,7 +97,7 @@ public class ShareManagementController {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private List<MediaFile> getMediaFiles(HttpServletRequest request) throws Exception {
+    private List<MediaFile> getMediaFiles(HttpServletRequest request) throws ServletRequestBindingException {
         Integer id = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
         Integer playerId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value());
         Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST.value());

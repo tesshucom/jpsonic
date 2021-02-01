@@ -21,6 +21,7 @@
 
 package org.airsonic.player.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,7 +86,7 @@ public class ExternalPlayerController {
     @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws IOException {
 
         String shareName = ControllerUtils.extractMatched(request);
         if (LOG.isDebugEnabled()) {

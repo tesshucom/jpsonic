@@ -22,6 +22,7 @@
 package org.airsonic.player.controller;
 
 import java.awt.Color;
+import java.io.IOException;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,7 +44,7 @@ public abstract class AbstractChartController {
     private static final String KEY_TEXT_COLOR = "textColor";
 
     public abstract ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
-            throws Exception;
+            throws IOException;
 
     /**
      * Returns the chart background color for the current theme.

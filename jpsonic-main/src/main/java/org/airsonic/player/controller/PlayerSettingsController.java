@@ -46,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -82,7 +83,8 @@ public class PlayerSettingsController {
     @ModelAttribute
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     protected void formBackingObject(HttpServletRequest request, Model model,
-            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
+            throws ServletRequestBindingException {
 
         handleRequestParameters(request);
         List<Player> players = getPlayers(request);
@@ -186,7 +188,7 @@ public class PlayerSettingsController {
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
-    private void handleRequestParameters(HttpServletRequest request) throws Exception {
+    private void handleRequestParameters(HttpServletRequest request) throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {

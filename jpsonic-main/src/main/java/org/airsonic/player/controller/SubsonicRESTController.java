@@ -100,6 +100,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -300,7 +301,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getIndexes")
-    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
@@ -389,7 +390,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSongsByGenre")
-    public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -441,7 +443,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs")
-    public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -468,7 +471,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs2")
-    public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -494,7 +498,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getTopSongs")
-    public void getTopSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getTopSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
@@ -516,7 +521,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo")
-    public void getArtistInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtistInfo(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
@@ -558,7 +564,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo2")
-    public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -620,7 +627,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtist")
-    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -684,7 +691,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbum")
-    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Album album = albumDao.getAlbum(id);
@@ -706,7 +713,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSong")
-    public void getSong(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSong(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -729,7 +736,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getMusicDirectory")
-    public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
@@ -776,7 +784,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search")
-    public void search(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
 
         StringBuilder query = new StringBuilder();
@@ -821,7 +830,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search2")
-    public void search2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search2(HttpServletRequest req, HttpServletResponse response)
+            throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -867,7 +877,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search3")
-    public void search3(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search3(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -941,7 +952,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlaylist")
-    public void getPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
@@ -970,7 +982,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/jukeboxControl")
-    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response)
+            throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
 
         User user = securityService.getCurrentUser(request);
@@ -1069,7 +1082,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createPlaylist")
-    public void createPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createPlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
         Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         String name = request.getParameter(Attributes.Request.NAME.value());
@@ -1113,7 +1127,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updatePlaylist")
-    public void updatePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updatePlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req, true);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
@@ -1183,7 +1198,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePlaylist")
-    public void deletePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
@@ -1203,7 +1219,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList")
-    public void getAlbumList(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumList(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, ExecutionException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
@@ -1260,7 +1277,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList2")
-    public void getAlbumList2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumList2(HttpServletRequest req, HttpServletResponse response)
+            throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
@@ -1311,7 +1329,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getRandomSongs")
-    public void getRandomSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getRandomSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1342,7 +1361,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getVideos")
-    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1514,7 +1533,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/download")
-    public void download(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void download(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isDownloadRole()) {
@@ -1539,7 +1559,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/stream")
-    public void stream(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void stream(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
@@ -1552,7 +1573,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/hls")
-    public void hls(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void hls(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
@@ -1574,7 +1596,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/scrobble")
-    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
         long[] times = ServletRequestUtils.getLongParameters(request, "time");
@@ -1661,7 +1683,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred")
-    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1686,7 +1708,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred2")
-    public void getStarred2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getStarred2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1712,7 +1735,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPodcasts")
-    public void getPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPodcasts(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1752,7 +1776,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getNewestPodcasts")
-    public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1802,7 +1827,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createPodcastChannel")
-    public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1816,7 +1842,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePodcastChannel")
-    public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1830,7 +1857,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deletePodcastEpisode")
-    public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1844,7 +1872,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/downloadPodcastEpisode")
-    public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1882,7 +1911,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getBookmarks")
-    public void getBookmarks(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getBookmarks(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1907,7 +1937,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createBookmark")
-    public void createBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createBookmark(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -1921,7 +1952,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteBookmark")
-    public void deleteBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteBookmark(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUsername(request);
@@ -1932,7 +1964,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlayQueue")
-    public void getPlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPlayQueue(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         SavedPlayQueue playQueue = playQueueDao.getPlayQueue(username);
@@ -1962,7 +1995,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/savePlayQueue")
-    public void savePlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void savePlayQueue(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         List<Integer> mediaFileIds = PlayerUtils
                 .toIntegerList(ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value()));
@@ -1984,7 +2018,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getShares")
-    public void getShares(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getShares(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -2006,7 +2040,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createShare")
-    public void createShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isShareRole()) {
@@ -2045,7 +2080,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteShare")
-    public void deleteShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -2066,7 +2102,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateShare")
-    public void updateShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updateShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -2107,19 +2144,21 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getCoverArt")
-    public void getCoverArt(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getCoverArt(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         coverArtController.handleRequest(request, response);
     }
 
     @RequestMapping("/getAvatar")
-    public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws IOException {
         HttpServletRequest request = wrapRequest(req);
         avatarController.handleRequest(request, response);
     }
 
     @RequestMapping("/changePassword")
-    public void changePassword(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void changePassword(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         User authUser = securityService.getCurrentUser(request);
@@ -2142,7 +2181,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getUser")
-    public void getUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
@@ -2223,7 +2262,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createUser")
-    public void createUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
@@ -2274,7 +2313,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateUser")
-    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
@@ -2354,7 +2393,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteUser")
-    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
@@ -2411,7 +2450,7 @@ public class SubsonicRESTController {
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @RequestMapping("/setRating")
-    public void setRating(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void setRating(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Integer rating = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.RATING.value());
         if (rating == 0) {
@@ -2432,7 +2471,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo")
-    public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
@@ -2451,7 +2491,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo2")
-    public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());

@@ -69,6 +69,7 @@ import org.airsonic.player.util.StringUtil;
 import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
@@ -117,15 +118,17 @@ public class PlayQueueService {
      * Returns the play queue for the player of the current user.
      *
      * @return The play queue.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public PlayQueueInfo getPlayQueue() throws Exception {
+    public PlayQueueInfo getPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo start() throws Exception {
+    public PlayQueueInfo start() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
         if (player.isJukebox()) {
@@ -134,7 +137,7 @@ public class PlayQueueService {
         return convert(resolveHttpServletRequest(), player, true);
     }
 
-    public PlayQueueInfo stop() throws Exception {
+    public PlayQueueInfo stop() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
         if (player.isJukebox()) {
@@ -143,13 +146,14 @@ public class PlayQueueService {
         return convert(resolveHttpServletRequest(), player, true);
     }
 
-    public PlayQueueInfo toggleStartStop() throws Exception {
+    public PlayQueueInfo toggleStartStop() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         return doToggleStartStop(request, response);
     }
 
-    public PlayQueueInfo doToggleStartStop(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public PlayQueueInfo doToggleStartStop(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException {
         Player player = getCurrentPlayer(request, response);
         if (player.getPlayQueue().getStatus() == PlayQueue.Status.STOPPED) {
             player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
@@ -159,11 +163,11 @@ public class PlayQueueService {
         return convert(request, player, true);
     }
 
-    public PlayQueueInfo skip(int index) throws Exception {
+    public PlayQueueInfo skip(int index) throws ServletRequestBindingException {
         return doSkip(index, 0);
     }
 
-    public PlayQueueInfo doSkip(int index, int offset) throws Exception {
+    public PlayQueueInfo doSkip(int index, int offset) throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().setIndex(index);
         boolean serverSidePlaylist = !player.isExternalWithPlaylist();
@@ -173,7 +177,7 @@ public class PlayQueueService {
         return convert(resolveHttpServletRequest(), player, serverSidePlaylist);
     }
 
-    public PlayQueueInfo reloadSearchCriteria() throws Exception {
+    public PlayQueueInfo reloadSearchCriteria() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         String username = securityService.getCurrentUsername(request);
@@ -186,7 +190,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public void savePlayQueue(int currentSongIndex, long positionMillis) throws Exception {
+    public void savePlayQueue(int currentSongIndex, long positionMillis) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -201,7 +205,7 @@ public class PlayQueueService {
         playQueueDao.savePlayQueue(savedPlayQueue);
     }
 
-    public PlayQueueInfo loadPlayQueue() throws Exception {
+    public PlayQueueInfo loadPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -242,7 +246,7 @@ public class PlayQueueService {
         return result;
     }
 
-    public PlayQueueInfo play(int id) throws Exception {
+    public PlayQueueInfo play(int id) throws ServletRequestBindingException {
         HttpServletRequest request = resolveHttpServletRequest();
         HttpServletResponse response = resolveHttpServletResponse();
 
@@ -274,8 +278,11 @@ public class PlayQueueService {
      * @param startIndex
      *            Start playing at this index in the list of radio streams, or play whole radio playlist if
      *            {@code null}.
+     * 
+     * @throws ExecutionException
      */
-    public PlayQueueInfo playInternetRadio(int id, Integer startIndex) throws Exception {
+    public PlayQueueInfo playInternetRadio(int id, Integer startIndex)
+            throws ServletRequestBindingException, ExecutionException {
 
         InternetRadio radio = internetRadioDao.getInternetRadioById(id);
         if (!radio.isEnabled()) {
@@ -286,7 +293,7 @@ public class PlayQueueService {
         return doPlayInternetRadio(request, resolvePlayer(), radio).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo addPlaylist(int id) throws Exception {
+    public PlayQueueInfo addPlaylist(int id) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -303,8 +310,10 @@ public class PlayQueueService {
     /**
      * @param startIndex
      *            Start playing at this index, or play whole playlist if {@code null}.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws Exception {
+    public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -331,8 +340,10 @@ public class PlayQueueService {
     /**
      * @param startIndex
      *            Start playing at this index, or play all top songs if {@code null}.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public PlayQueueInfo playTopSong(int id, Integer startIndex) throws Exception {
+    public PlayQueueInfo playTopSong(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -353,7 +364,7 @@ public class PlayQueueService {
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playPodcastChannel(int id) throws Exception {
+    public PlayQueueInfo playPodcastChannel(int id) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -371,7 +382,7 @@ public class PlayQueueService {
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playPodcastEpisode(int id) throws Exception {
+    public PlayQueueInfo playPodcastEpisode(int id) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -395,7 +406,7 @@ public class PlayQueueService {
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playNewestPodcastEpisode(Integer startIndex) throws Exception {
+    public PlayQueueInfo playNewestPodcastEpisode(Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -418,7 +429,7 @@ public class PlayQueueService {
         return doPlay(request, player, files).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playStarred() throws Exception {
+    public PlayQueueInfo playStarred() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -430,7 +441,7 @@ public class PlayQueueService {
     }
 
     public PlayQueueInfo playShuffle(String albumListType, int offset, int count, String genre, String decade)
-            throws Exception {
+            throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         String username = securityService.getCurrentUsername(request);
 
@@ -498,7 +509,7 @@ public class PlayQueueService {
         return convert(request, player, true);
     }
 
-    public PlayQueueInfo playRandom(int id, int count) throws Exception {
+    public PlayQueueInfo playRandom(int id, int count) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
@@ -511,7 +522,7 @@ public class PlayQueueService {
         return convert(request, player, true).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo playSimilar(int id, int count) throws Exception {
+    public PlayQueueInfo playSimilar(int id, int count) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         MediaFile artist = mediaFileService.getMediaFile(id);
@@ -525,13 +536,13 @@ public class PlayQueueService {
         return convert(request, player, true).startPlayerAtAndGetInfo(0);
     }
 
-    public PlayQueueInfo add(int id) throws Exception {
+    public PlayQueueInfo add(int id) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         return doAdd(request, response, new int[] { id }, null);
     }
 
-    public PlayQueueInfo addAt(int id, int index) throws Exception {
+    public PlayQueueInfo addAt(int id, int index) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         return doAdd(request, response, new int[] { id }, index);
@@ -570,7 +581,7 @@ public class PlayQueueService {
      *            end of the play queue
      */
     public PlayQueueInfo doAdd(HttpServletRequest request, HttpServletResponse response, int[] ids, Integer addAtIndex)
-            throws Exception {
+            throws ServletRequestBindingException {
         Player player = getCurrentPlayer(request, response);
         boolean removeVideoFiles = false;
         if (player.isWeb()) {
@@ -595,26 +606,26 @@ public class PlayQueueService {
         return playQueue;
     }
 
-    public PlayQueueInfo clear() throws Exception {
+    public PlayQueueInfo clear() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().clear();
         boolean serverSidePlaylist = !player.isExternalWithPlaylist();
         return convert(resolveHttpServletRequest(), player, serverSidePlaylist);
     }
 
-    public PlayQueueInfo shuffle() throws Exception {
+    public PlayQueueInfo shuffle() throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().shuffle();
         return convert(resolveHttpServletRequest(), player, false);
     }
 
-    public PlayQueueInfo remove(int index) throws Exception {
+    public PlayQueueInfo remove(int index) throws ServletRequestBindingException {
         Player player = resolvePlayer();
         player.getPlayQueue().removeFileAt(index);
         return convert(resolveHttpServletRequest(), player, false);
     }
 
-    public PlayQueueInfo toggleStar(int index) throws Exception {
+    public PlayQueueInfo toggleStar(int index) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -631,13 +642,13 @@ public class PlayQueueService {
     }
 
     public PlayQueueInfo doRemove(HttpServletRequest request, HttpServletResponse response, int index)
-            throws Exception {
+            throws ServletRequestBindingException {
         Player player = getCurrentPlayer(request, response);
         player.getPlayQueue().removeFileAt(index);
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo removeMany(int... indexes) throws Exception {
+    public PlayQueueInfo removeMany(int... indexes) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -647,7 +658,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo rearrange(int... indexes) throws Exception {
+    public PlayQueueInfo rearrange(int... indexes) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -655,7 +666,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo up(int index) throws Exception {
+    public PlayQueueInfo up(int index) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -663,7 +674,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo down(int index) throws Exception {
+    public PlayQueueInfo down(int index) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -671,7 +682,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo toggleRepeat() throws Exception {
+    public PlayQueueInfo toggleRepeat() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -685,7 +696,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo undo() throws Exception {
+    public PlayQueueInfo undo() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -694,7 +705,7 @@ public class PlayQueueService {
         return convert(request, player, serverSidePlaylist);
     }
 
-    public PlayQueueInfo sortByTrack() throws Exception {
+    public PlayQueueInfo sortByTrack() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -702,7 +713,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo sortByArtist() throws Exception {
+    public PlayQueueInfo sortByArtist() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -710,7 +721,7 @@ public class PlayQueueService {
         return convert(request, player, false);
     }
 
-    public PlayQueueInfo sortByAlbum() throws Exception {
+    public PlayQueueInfo sortByAlbum() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -836,11 +847,12 @@ public class PlayQueueService {
         return mediaFile.getBitRate() + " Kbps";
     }
 
-    private Player getCurrentPlayer(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    private Player getCurrentPlayer(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException {
         return playerService.getPlayer(request, response);
     }
 
-    private Player resolvePlayer() throws Exception {
+    private Player resolvePlayer() throws ServletRequestBindingException {
         return getCurrentPlayer(resolveHttpServletRequest(), resolveHttpServletResponse());
     }
 
@@ -856,7 +868,7 @@ public class PlayQueueService {
     // Methods dedicated to jukebox
     //
 
-    public void setGain(float gain) throws Exception {
+    public void setGain(float gain) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
         Player player = getCurrentPlayer(request, response);
@@ -865,7 +877,7 @@ public class PlayQueueService {
         }
     }
 
-    public void setJukeboxPosition(int positionInSeconds) throws Exception {
+    public void setJukeboxPosition(int positionInSeconds) throws ServletRequestBindingException {
         Player player = resolvePlayer();
         jukeboxService.setPosition(player, positionInSeconds);
     }

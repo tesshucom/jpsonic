@@ -49,7 +49,10 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     /**
      * Browses the root metadata for a type.
+     * 
+     * @throws Exception
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseRootMetadata() throws Exception {
         DIDLContent didl = new DIDLContent();
         didl.addContainer(createRootContainer());
@@ -69,6 +72,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses the top-level content of a type.
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseRoot(String filter, long firstResult, long maxResults, SortCriterion... orderBy)
             throws Exception {
         DIDLContent didl = new DIDLContent();
@@ -82,6 +86,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses metadata for a child.
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseObjectMetadata(String id) throws Exception {
         T item = getItemById(id);
         DIDLContent didl = new DIDLContent();
@@ -92,6 +97,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
     /**
      * Browses a child of the container.
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     public BrowseResult browseObject(String id, String filter, long firstResult, long maxResults,
             SortCriterion... orderBy) throws Exception {
         T item = getItemById(id);
@@ -103,6 +109,7 @@ public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
         return createBrowseResult(didl, selectedChildren.size(), getChildSizeOf(item));
     }
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     protected final BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
         return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
     }

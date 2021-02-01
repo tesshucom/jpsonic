@@ -21,6 +21,7 @@
 
 package org.airsonic.player.controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +44,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -82,7 +84,8 @@ public class SearchController {
 
     @PostMapping
     protected String onSubmit(HttpServletRequest request, HttpServletResponse response,
-            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command, Model model) throws Exception {
+            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command, Model model)
+            throws ServletRequestBindingException, IOException {
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

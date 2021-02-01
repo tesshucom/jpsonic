@@ -24,6 +24,7 @@ package org.airsonic.player.controller;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Font;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -80,7 +81,7 @@ public class StatusChartController extends AbstractChartController {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Millisecond, Date) Not reusable
     @Override
     @GetMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String type = request.getParameter(Attributes.Request.TYPE.value());
         int index = ServletRequestUtils.getIntParameter(request, Attributes.Request.INDEX.value(), 0);
 

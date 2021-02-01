@@ -47,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 
 /**
  * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR
@@ -74,8 +75,10 @@ public class NowPlayingService {
      * Returns details about what the current player is playing.
      *
      * @return Details about what the current player is playing, or <code>null</code> if not playing anything.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public NowPlayingInfo getNowPlayingForCurrentPlayer() throws Exception {
+    public NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {
         WebContext webContext = WebContextFactory.get();
         Player player = playerService.getPlayer(webContext.getHttpServletRequest(),
                 webContext.getHttpServletResponse());

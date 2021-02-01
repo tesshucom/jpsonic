@@ -31,6 +31,7 @@ import org.airsonic.player.service.RatingService;
 import org.airsonic.player.service.SecurityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,7 +56,7 @@ public class SetRatingController {
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Integer rating = ServletRequestUtils.getIntParameter(request, Attributes.Request.RATING.value());
         if (rating != null && rating == 0) {

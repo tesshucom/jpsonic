@@ -62,7 +62,7 @@
         <!-- 3 --><exclude name="DataClass" />
         <!-- 3 --><exclude name="ExcessiveImports" />
         <!-- 3 --><exclude name="CollapsibleIfStatements" />
-        <!-- 3 --><exclude name="SignatureDeclareThrowsException" />
+
         <!-- 3 --><exclude name="ImmutableField" />
         <!-- 3 --><exclude name="AvoidCatchingGenericException" />
         <!-- 3 --><exclude name="UseUtilityClass" />

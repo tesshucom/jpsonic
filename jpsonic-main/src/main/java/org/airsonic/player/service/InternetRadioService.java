@@ -24,6 +24,7 @@ package org.airsonic.player.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -184,8 +185,15 @@ public class InternetRadioService {
      *            an internet radio
      * 
      * @return a list of internet radio sources
+     * 
+     * @throws Exception
+     * @throws PlaylistException
+     * @throws IOException
+     * @throws MalformedURLException
      */
-    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws Exception {
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
+    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio)
+            throws MalformedURLException, IOException, PlaylistException, Exception {
         return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
                 PLAYLIST_REMOTE_MAX_REDIRECTS);
     }
@@ -203,9 +211,14 @@ public class InternetRadioService {
      *            maximum number of redirects, or 0 if unlimited
      * 
      * @return a list of internet radio sources
+     * 
+     * @throws PlaylistException
+     * @throws IOException
+     * @throws MalformedURLException
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,
-            int maxRedirects) throws Exception {
+            int maxRedirects) throws MalformedURLException, IOException, PlaylistException, Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
         if (LOG.isDebugEnabled()) {

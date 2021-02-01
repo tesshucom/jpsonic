@@ -46,6 +46,7 @@ import org.directwebremoting.WebContextFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 
 /**
  * Provides AJAX-enabled services for manipulating playlists. This class is used by the DWR framework
@@ -121,7 +122,7 @@ public class PlaylistService {
         return getReadablePlaylists();
     }
 
-    public int createPlaylistForPlayQueue() throws Exception {
+    public int createPlaylistForPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
         Locale locale = airsonicLocaleResolver.resolveLocale(request);
         DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, locale);

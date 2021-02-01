@@ -99,7 +99,7 @@ public class RandomPlayQueueController {
             @RequestParam(value = Attributes.Request.NameConstants.PLAY_COUNT_COMP, required = false) String playCountComp,
             @RequestParam(value = Attributes.Request.NameConstants.FORMAT, required = false) final String formatParam,
             @RequestParam(value = Attributes.Request.NameConstants.AUTO_RANDOM, required = false) String autoRandom)
-            throws Exception {
+            throws ServletRequestBindingException {
 
         Integer fromYear = null;
         Integer toYear = null;

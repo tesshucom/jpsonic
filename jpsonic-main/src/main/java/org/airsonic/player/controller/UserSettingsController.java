@@ -82,7 +82,8 @@ public class UserSettingsController {
 
     @GetMapping
     protected String displayForm(HttpServletRequest request, Model model,
-            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
+            throws ServletRequestBindingException {
         UserSettingsCommand command;
         if (model.containsAttribute(Attributes.Model.Command.VALUE)) {
             command = (UserSettingsCommand) model.asMap().get(Attributes.Model.Command.VALUE);

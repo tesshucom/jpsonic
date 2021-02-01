@@ -36,6 +36,7 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.StatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -60,7 +61,7 @@ public class NowPlayingController {
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws ServletRequestBindingException {
 
         Player player = playerService.getPlayer(request, response);
         List<TransferStatus> statuses = statusService.getStreamStatusesForPlayer(player);

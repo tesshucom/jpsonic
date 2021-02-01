@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import org.airsonic.player.util.FileUtil;
@@ -61,7 +62,7 @@ public class AudioPlayer {
 
     private static final Object LINE_LOCK = new Object();
 
-    public AudioPlayer(InputStream in, Listener listener) throws Exception {
+    public AudioPlayer(InputStream in, Listener listener) throws LineUnavailableException {
         this.in = in;
         this.listener = listener;
 

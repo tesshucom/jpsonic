@@ -40,6 +40,7 @@ public abstract class CustomContentDirectory extends AbstractContentDirectorySer
         super(Lists.newArrayList("*"), Lists.newArrayList());
     }
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 fourthline
     protected BrowseResult createBrowseResult(DIDLContent didl, int count, int totalMatches) throws Exception {
         return new BrowseResult(new DIDLParser().generate(didl), count, totalMatches);
     }

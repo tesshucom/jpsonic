@@ -45,6 +45,7 @@ import org.eclipse.persistence.jaxb.JAXBContext;
 import org.eclipse.persistence.jaxb.MarshallerProperties;
 import org.jdom2.Attribute;
 import org.jdom2.Document;
+import org.jdom2.JDOMException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.subsonic.restapi.Error;
@@ -101,7 +102,7 @@ public class JAXBWriter {
         }
     }
 
-    private String getRESTProtocolVersion() throws Exception {
+    private String getRESTProtocolVersion() throws JDOMException, IOException {
         try (InputStream in = StringUtil.class.getResourceAsStream("/subsonic-rest-api.xsd")) {
             Document document = createSAXBuilder().build(in);
             Attribute version = document.getRootElement().getAttribute("version");

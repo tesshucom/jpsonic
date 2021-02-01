@@ -83,7 +83,7 @@ public class MainController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
-            throws Exception {
+            throws IOException {
 
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {

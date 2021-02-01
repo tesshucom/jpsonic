@@ -200,7 +200,7 @@ public class PlaylistService {
     }
 
     public Playlist importPlaylist(String username, String playlistName, String fileName, InputStream inputStream,
-            Playlist existingPlaylist) throws Exception {
+            Playlist existingPlaylist) throws ExecutionException, IOException {
 
         // TODO: handle other encodings
         final SpecificPlaylist inputSpecificPlaylist = SpecificPlaylistFactory.getInstance().readFrom(inputStream,
@@ -251,6 +251,7 @@ public class PlaylistService {
         return provider.getContentTypes()[0].getExtensions()[0];
     }
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     public void exportPlaylist(int id, OutputStream out) throws Exception {
         String format = settingsService.getPlaylistExportFormat();
         SpecificPlaylistProvider provider = SpecificPlaylistFactory.getInstance().findProviderById(format);
@@ -311,7 +312,8 @@ public class PlaylistService {
         }
     }
 
-    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists) throws Exception {
+    private void importPlaylistIfUpdated(File file, List<Playlist> allPlaylists)
+            throws ExecutionException, IOException {
 
         String fileName = file.getName();
         Playlist existingPlaylist = null;

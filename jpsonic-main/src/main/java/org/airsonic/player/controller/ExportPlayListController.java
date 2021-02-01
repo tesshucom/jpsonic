@@ -1,25 +1,23 @@
 /*
  * This file is part of Jpsonic.
  *
- * Jpsonic is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Jpsonic is free software: you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- * Jpsonic is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Jpsonic is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2016 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2009 Sindre Mehus (C) 2016 Airsonic Authors (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
+
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +29,7 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,8 +47,10 @@ public class ExportPlayListController {
     @Autowired
     private SecurityService securityService;
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     @GetMapping
-    public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView exportPlaylist(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException, Exception {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Playlist playlist = playlistService.getPlaylist(id);

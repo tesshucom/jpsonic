@@ -42,6 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 
 /**
@@ -77,8 +78,11 @@ public class PlayerService {
 
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
+     * 
+     * @throws ServletRequestBindingException
      */
-    public Player getPlayer(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException {
         return getPlayer(request, response, true, false);
     }
 
@@ -95,10 +99,12 @@ public class PlayerService {
      *            Whether the HTTP request is a request for streaming data.
      * 
      * @return The player associated with the given HTTP request.
+     * 
+     * @throws ServletRequestBindingException
      */
     @SuppressWarnings("PMD.NullAssignment") // (player) Intentional assignment to eliminate user spoofing
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
-            boolean isStreamRequest) throws Exception {
+            boolean isStreamRequest) throws ServletRequestBindingException {
 
         synchronized (LOCK) {
 

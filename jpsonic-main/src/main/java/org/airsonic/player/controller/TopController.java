@@ -51,6 +51,7 @@ import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,7 +89,7 @@ public class TopController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("mainView") Optional<String> mainView) throws Exception {
+            @RequestParam("mainView") Optional<String> mainView) throws ServletRequestBindingException {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -171,8 +172,10 @@ public class TopController {
 
     /**
      * This method is only used by RESTController.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public long getLastModified(HttpServletRequest request) throws Exception {
+    public long getLastModified(HttpServletRequest request) throws ServletRequestBindingException {
         saveSelectedMusicFolder(request);
 
         if (mediaScannerService.isScanning()) {
@@ -215,7 +218,7 @@ public class TopController {
         return lastModified;
     }
 
-    private boolean saveSelectedMusicFolder(HttpServletRequest request) throws Exception {
+    private boolean saveSelectedMusicFolder(HttpServletRequest request) throws ServletRequestBindingException {
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {

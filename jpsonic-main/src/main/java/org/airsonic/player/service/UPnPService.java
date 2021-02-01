@@ -21,6 +21,7 @@
 
 package org.airsonic.player.service;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ import org.fourthline.cling.UpnpServiceConfiguration;
 import org.fourthline.cling.UpnpServiceImpl;
 import org.fourthline.cling.binding.annotations.AnnotationLocalServiceBinder;
 import org.fourthline.cling.model.DefaultServiceManager;
+import org.fourthline.cling.model.ValidationException;
 import org.fourthline.cling.model.meta.Device;
 import org.fourthline.cling.model.meta.DeviceDetails;
 import org.fourthline.cling.model.meta.DeviceIdentity;
@@ -186,7 +188,7 @@ public class UPnPService {
     /*
      * [PMD.AvoidInstantiatingObjectsInLoops] (DLNAProtocolInfo, AssertionError) Not reusable
      */
-    private LocalDevice createMediaServerDevice() throws Exception {
+    private LocalDevice createMediaServerDevice() throws ValidationException, IOException {
 
         // TODO: DLNACaps
 

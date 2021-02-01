@@ -106,7 +106,8 @@ public class StreamController {
 
     @SuppressWarnings("PMD.NullAssignment") // (maxBitRate)Intentional allocation to register null
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
 
         TransferStatus status = null;
         Player player = playerService.getPlayer(request, response, false, true);

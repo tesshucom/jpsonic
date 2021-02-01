@@ -76,6 +76,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @Autowired
     private CustomUserDetailsContextMapper customUserDetailsContextMapper;
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         if (settingsService.isLdapEnabled()) {
@@ -133,6 +134,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             super(true);
         }
 
+        @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
         @Bean(name = "jwtAuthenticationFilter")
         public JWTRequestParameterProcessingFilter jwtAuthFilter() throws Exception {
             return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);

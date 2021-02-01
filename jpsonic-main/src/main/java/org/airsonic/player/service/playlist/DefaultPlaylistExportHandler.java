@@ -45,6 +45,7 @@ public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
         return true;
     }
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     @Override
     public SpecificPlaylist handle(int id, SpecificPlaylistProvider provider) throws Exception {
         Playlist playlist = createChameleonGenericPlaylistFromDBId(id);

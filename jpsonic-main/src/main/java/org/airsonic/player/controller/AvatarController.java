@@ -21,6 +21,8 @@
 
 package org.airsonic.player.controller;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -63,7 +65,7 @@ public class AvatarController implements LastModified {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Avatar avatar = getAvatar(request);
 
         if (avatar == null) {

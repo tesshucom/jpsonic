@@ -30,6 +30,7 @@ import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,7 +50,7 @@ public class SetMusicFileInfoController {
     private MediaFileService mediaFileService;
 
     @PostMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws Exception {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         String action = request.getParameter(Attributes.Request.ACTION.value());
 

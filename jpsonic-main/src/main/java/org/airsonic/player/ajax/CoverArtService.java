@@ -22,6 +22,7 @@
 package org.airsonic.player.ajax;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -100,7 +101,7 @@ public class CoverArtService {
      * [AvoidInstantiatingObjectsInLoops] (File) Not reusable [UseLocaleWithCaseConversions] The locale doesn't matter,
      * as only comparing the extension literal. [ConfusingTernary] false positive
      */
-    private void saveCoverArt(String path, String url) throws Exception {
+    private void saveCoverArt(String path, String url) throws ExecutionException, IOException {
 
         // Attempt to resolve proper suffix.
         String suffix = "jpg";
