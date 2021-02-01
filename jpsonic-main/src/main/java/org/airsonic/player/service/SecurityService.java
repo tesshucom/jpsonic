@@ -80,20 +80,15 @@ public class SecurityService implements UserDetailsService {
      * @throws DataAccessException
      *             If user could not be found for a repository-specific reason.
      */
+    @SuppressWarnings("PMD.AvoidUncheckedExceptionsInSignatures") // False positive for explicit comment.
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException, DataAccessException {
-        return loadUserByUsername(username, true);
-    }
-
-    public UserDetails loadUserByUsername(String username, boolean caseSensitive)
-            throws UsernameNotFoundException, DataAccessException {
+        boolean caseSensitive = true;
         User user = getUserByName(username, caseSensitive);
         if (user == null) {
             throw new UsernameNotFoundException("User \"" + username + "\" was not found.");
         }
-
         List<GrantedAuthority> authorities = getGrantedAuthorities(username);
-
         return new org.springframework.security.core.userdetails.User(username, user.getPassword(),
                 !user.isLdapAuthenticated(), true, true, true, authorities);
     }

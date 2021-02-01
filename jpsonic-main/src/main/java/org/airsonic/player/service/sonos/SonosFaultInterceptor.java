@@ -57,7 +57,7 @@ public class SonosFaultInterceptor extends AbstractSoapInterceptor {
      * Only handles instances of SonosSoapFault, all other exceptions fall through to the default Fault Interceptor
      */
     @Override
-    public void handleMessage(SoapMessage message) throws Fault {
+    public void handleMessage(SoapMessage message) {
         Fault fault = (Fault) message.getContent(Exception.class);
         if (LOG.isWarnEnabled()) {
             LOG.warn("Error: {}", fault);

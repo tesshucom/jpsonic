@@ -65,7 +65,6 @@
         <!-- 3 --><exclude name="SignatureDeclareThrowsException" />
         <!-- 3 --><exclude name="ImmutableField" />
         <!-- 3 --><exclude name="AvoidCatchingGenericException" />
-        <!-- 3 --><exclude name="AvoidUncheckedExceptionsInSignatures" />
         <!-- 3 --><exclude name="UseUtilityClass" />
         <!-- 3 --><exclude name="NPathComplexity" />
         <!-- 3 --><exclude name="ExcessiveMethodLength" />

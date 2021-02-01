@@ -112,7 +112,7 @@ public class HLSController {
         }
     }
 
-    private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) throws IllegalArgumentException {
+    private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) {
         List<Pair<Integer, Dimension>> result = new ArrayList<>();
         String[] bitRates = request.getParameterValues("bitRate");
         if (bitRates != null) {
@@ -126,7 +126,7 @@ public class HLSController {
     /**
      * Parses a string containing the bitrate and an optional width/height, e.g., 1200@640x480
      */
-    protected Pair<Integer, Dimension> parseBitRate(String bitRate) throws IllegalArgumentException {
+    protected Pair<Integer, Dimension> parseBitRate(String bitRate) {
 
         Matcher matcher = BITRATE_PATTERN.matcher(bitRate);
         if (!matcher.matches()) {

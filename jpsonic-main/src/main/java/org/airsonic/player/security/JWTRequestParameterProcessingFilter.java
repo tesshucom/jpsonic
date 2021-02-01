@@ -57,8 +57,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
         failureHandler = new SimpleUrlAuthenticationFailureHandler(failureUrl);
     }
 
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-            throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         Optional<JWTAuthenticationToken> token = findToken(request);
         if (token.isPresent()) {
             return authenticationManager.authenticate(token.get());

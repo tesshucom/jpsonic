@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.web.util.UriComponents;
@@ -53,7 +52,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication auth) throws AuthenticationException {
+    public Authentication authenticate(Authentication auth) {
         JWTAuthenticationToken authentication = (JWTAuthenticationToken) auth;
         if (!(authentication.getCredentials() instanceof String)) {
             LOG.error("Credentials not present");
