@@ -135,14 +135,11 @@ public class JapaneseReadingUtils {
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
-                    || Character.UnicodeBlock.GREEK.equals(b)) {
-                return true;
-            }
-            return false;
+                    || Character.UnicodeBlock.GREEK.equals(b);
         });
     }
 
@@ -268,13 +265,10 @@ public class JapaneseReadingUtils {
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
-                            && s.chars().anyMatch(c -> 65_382 <= c && c <= 65_437)) {
-                return true;
-            }
-            return false;
+                            && s.chars().anyMatch(c -> 65_382 <= c && c <= 65_437);
         });
     }
 

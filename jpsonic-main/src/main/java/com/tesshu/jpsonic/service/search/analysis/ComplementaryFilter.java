@@ -132,10 +132,7 @@ public final class ComplementaryFilter extends TokenFilter {
         }
         return Stream.of(str.split(EMPTY)).allMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)) {
-                return true;
-            }
-            return false;
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b);
         });
     }
 

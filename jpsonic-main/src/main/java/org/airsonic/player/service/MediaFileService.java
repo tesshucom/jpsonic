@@ -500,10 +500,8 @@ public class MediaFileService {
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public boolean includeMediaFile(File candidate) {
         String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
-        if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
-            return true;
-        }
-        return false;
+        return !isExcluded(candidate)
+                && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
     public List<File> filterMediaFiles(File... candidates) {
