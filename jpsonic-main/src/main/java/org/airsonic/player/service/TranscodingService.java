@@ -224,25 +224,44 @@ public class TranscodingService {
 
         Parameters parameters = new Parameters(mediaFile, videoTranscodingSettings);
 
-        Integer mb = maxBitRate;
-        if (maxBitRate == null) {
-            mb = TranscodeScheme.OFF.getMaxBitRate();
+        Integer mb = maxBitRate == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate()) : maxBitRate;
+        final TranscodeScheme transcodeScheme = getTranscodeScheme(player)
+                .strictest(TranscodeScheme.fromMaxBitRate(mb));
+        mb = mediaFile.isVideo() ? VideoPlayerController.DEFAULT_BIT_RATE : transcodeScheme.getMaxBitRate();
+        final Integer bitRate = createBitrate(mediaFile);
+
+        if (mb == 0 || bitRate != 0 && bitRate < mb) {
+            mb = bitRate;
         }
 
-        TranscodeScheme transcodeScheme = getTranscodeScheme(player).strictest(TranscodeScheme.fromMaxBitRate(mb));
-        mb = transcodeScheme.getMaxBitRate();
+        final boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
+        final Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
 
-        Integer bitRate = mediaFile.getBitRate();
-        if (bitRate == null) {
-            // Assume unlimited bitrate
-            bitRate = TranscodeScheme.OFF.getMaxBitRate();
+        if (isNeedTranscoding(transcoding, mb, bitRate, preferredTargetFormat, mediaFile)) {
+            parameters.setTranscoding(transcoding);
         }
 
-        if (mediaFile.isVideo()) {
-            if (mb == 0) {
-                mb = VideoPlayerController.DEFAULT_BIT_RATE;
-            }
-        } else {
+        parameters.setMaxBitRate(mb == 0 ? null : mb);
+        parameters.setExpectedLength(getExpectedLength(parameters));
+        parameters.setRangeAllowed(isRangeAllowed(parameters));
+        return parameters;
+    }
+
+    private boolean isNeedTranscoding(Transcoding transcoding, Integer mb, Integer bitRate,
+            String preferredTargetFormat, MediaFile mediaFile) {
+        boolean isNeedTranscoding = false;
+        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
+                || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
+            isNeedTranscoding = true;
+        }
+        return isNeedTranscoding;
+    }
+
+    private Integer createBitrate(MediaFile mediaFile) {
+        // If null assume unlimited bitrate
+        Integer bitRate = mediaFile.getBitRate() == null ? Integer.valueOf(TranscodeScheme.OFF.getMaxBitRate())
+                : mediaFile.getBitRate();
+        if (!mediaFile.isVideo()) {
             if (mediaFile.isVariableBitRate()) {
                 // Assume VBR needs approx 20% more bandwidth to maintain equivalent quality in CBR
                 bitRate = bitRate * 6 / 5;
@@ -252,22 +271,7 @@ public class TranscodingService {
                 bitRate = TranscodeScheme.fromMaxBitRate(bitRate).getMaxBitRate();
             }
         }
-
-        if (mb == 0 || bitRate != 0 && bitRate < mb) {
-            mb = bitRate;
-        }
-
-        boolean hls = videoTranscodingSettings != null && videoTranscodingSettings.isHls();
-        Transcoding transcoding = getTranscoding(mediaFile, player, preferredTargetFormat, hls);
-        if (transcoding != null && (mb != 0 && (bitRate == 0 || bitRate > mb)
-                || preferredTargetFormat != null && !mediaFile.getFormat().equalsIgnoreCase(preferredTargetFormat))) {
-            parameters.setTranscoding(transcoding);
-        }
-
-        parameters.setMaxBitRate(mb == 0 ? null : mb);
-        parameters.setExpectedLength(getExpectedLength(parameters));
-        parameters.setRangeAllowed(isRangeAllowed(parameters));
-        return parameters;
+        return bitRate;
     }
 
     /**
@@ -413,29 +417,15 @@ public class TranscodingService {
 
         for (int i = 1; i < result.size(); i++) {
             String cmd = result.get(i);
-            if (cmd.contains("%b")) {
-                cmd = cmd.replace("%b", String.valueOf(maxBitRate));
-            }
-            if (cmd.contains("%t")) {
-                cmd = cmd.replace("%t", title);
-            }
-            if (cmd.contains("%l")) {
-                cmd = cmd.replace("%l", album);
-            }
-            if (cmd.contains("%a")) {
-                cmd = cmd.replace("%a", artist);
-            }
-            if (cmd.contains("%o") && videoTranscodingSettings != null) {
-                cmd = cmd.replace("%o", String.valueOf(videoTranscodingSettings.getTimeOffset()));
-            }
-            if (cmd.contains("%d") && videoTranscodingSettings != null) {
-                cmd = cmd.replace("%d", String.valueOf(videoTranscodingSettings.getDuration()));
-            }
-            if (cmd.contains("%w") && videoTranscodingSettings != null) {
-                cmd = cmd.replace("%w", String.valueOf(videoTranscodingSettings.getWidth()));
-            }
-            if (cmd.contains("%h") && videoTranscodingSettings != null) {
-                cmd = cmd.replace("%h", String.valueOf(videoTranscodingSettings.getHeight()));
+            cmd = replaceIfcontains(cmd, "%b", String.valueOf(maxBitRate));
+            cmd = replaceIfcontains(cmd, "%t", title);
+            cmd = replaceIfcontains(cmd, "%l", album);
+            cmd = replaceIfcontains(cmd, "%a", artist);
+            if (videoTranscodingSettings != null) {
+                cmd = replaceIfcontains(cmd, "%o", String.valueOf(videoTranscodingSettings.getTimeOffset()));
+                cmd = replaceIfcontains(cmd, "%d", String.valueOf(videoTranscodingSettings.getDuration()));
+                cmd = replaceIfcontains(cmd, "%w", String.valueOf(videoTranscodingSettings.getWidth()));
+                cmd = replaceIfcontains(cmd, "%h", String.valueOf(videoTranscodingSettings.getHeight()));
             }
             if (cmd.contains("%s")) {
 
@@ -458,6 +448,13 @@ public class TranscodingService {
             result.set(i, cmd);
         }
         return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile);
+    }
+
+    private String replaceIfcontains(String line, String target, String value) {
+        if (line.contains(target)) {
+            return line.replace(target, value);
+        }
+        return line;
     }
 
     /**
@@ -495,11 +492,10 @@ public class TranscodingService {
                 }
                 return transcoding;
             }
-            for (String sourceFormat : transcoding.getSourceFormatsAsArray()) {
-                if (sourceFormat.equalsIgnoreCase(suffix) && isTranscodingInstalled(transcoding)) {
-                    applicableTranscodings.add(transcoding);
-                }
-            }
+            Arrays.asList(transcoding.getSourceFormatsAsArray()).stream()
+                    .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
+                    .filter(sourceFormat -> isTranscodingInstalled(transcoding))
+                    .forEach(s -> applicableTranscodings.add(transcoding));
         }
 
         if (applicableTranscodings.isEmpty()) {

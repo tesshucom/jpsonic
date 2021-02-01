@@ -131,15 +131,7 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        IndexType indexType = null;
-        if (Artist.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ARTIST_ID3;
-        } else if (Album.class == criteria.getAssignableClass()) {
-            indexType = IndexType.ALBUM_ID3;
-        } else if (MediaFile.class == criteria.getAssignableClass()) {
-            indexType = IndexType.SONG;
-        }
-
+        IndexType indexType = searchableIndex(criteria);
         if (isEmpty(indexType)) {
             return result;
         }
@@ -192,6 +184,18 @@ public class SearchServiceImpl implements SearchService {
         }
         return result;
 
+    }
+
+    private IndexType searchableIndex(UPnPSearchCriteria criteria) {
+        IndexType indexType = null;
+        if (Artist.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ARTIST_ID3;
+        } else if (Album.class == criteria.getAssignableClass()) {
+            indexType = IndexType.ALBUM_ID3;
+        } else if (MediaFile.class == criteria.getAssignableClass()) {
+            indexType = IndexType.SONG;
+        }
+        return indexType;
     }
 
     /**

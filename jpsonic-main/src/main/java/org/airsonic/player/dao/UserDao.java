@@ -328,43 +328,46 @@ public class UserDao extends AbstractDao {
         }
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
     private void writeRoles(User user) {
-        String sql = "delete from user_role where username=?";
-        getJdbcTemplate().update(sql, user.getUsername());
-        sql = "insert into user_role (username, role_id) values(?, ?)";
+        getJdbcTemplate().update("delete from user_role where username=?", user.getUsername());
         if (user.isAdminRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_ADMIN);
+            updateRole(user.getUsername(), ROLE_ID_ADMIN);
         }
         if (user.isDownloadRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_DOWNLOAD);
+            updateRole(user.getUsername(), ROLE_ID_DOWNLOAD);
         }
         if (user.isUploadRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_UPLOAD);
+            updateRole(user.getUsername(), ROLE_ID_UPLOAD);
         }
         if (user.isPlaylistRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_PLAYLIST);
+            updateRole(user.getUsername(), ROLE_ID_PLAYLIST);
         }
         if (user.isCoverArtRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_COVER_ART);
+            updateRole(user.getUsername(), ROLE_ID_COVER_ART);
         }
         if (user.isCommentRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_COMMENT);
+            updateRole(user.getUsername(), ROLE_ID_COMMENT);
         }
         if (user.isPodcastRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_PODCAST);
+            updateRole(user.getUsername(), ROLE_ID_PODCAST);
         }
         if (user.isStreamRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_STREAM);
+            updateRole(user.getUsername(), ROLE_ID_STREAM);
         }
         if (user.isJukeboxRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_JUKEBOX);
+            updateRole(user.getUsername(), ROLE_ID_JUKEBOX);
         }
         if (user.isSettingsRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_SETTINGS);
+            updateRole(user.getUsername(), ROLE_ID_SETTINGS);
         }
         if (user.isShareRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_SHARE);
+            updateRole(user.getUsername(), ROLE_ID_SHARE);
         }
+    }
+
+    private void updateRole(String username, Integer role) {
+        getJdbcTemplate().update("insert into user_role (username, role_id) values(?, ?)", username, role);
     }
 
     private static class UserRowMapper implements RowMapper<User> {

@@ -103,6 +103,11 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             throw new BadCredentialsException("LDAP authentication disabled for user.");
         }
 
+        LdapUserDetailsImpl.Essence essence = createEssence(ctx, dn, username);
+        return essence.createUserDetails();
+    }
+
+    private LdapUserDetailsImpl.Essence createEssence(DirContextOperations ctx, String dn, String userName) {
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
 
@@ -112,10 +117,10 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             essence.setPassword(mapPassword(passwordValue));
         }
 
-        essence.setUsername(user.getUsername());
+        essence.setUsername(userName);
 
         // Add the supplied authorities
-        for (GrantedAuthority authority : securityService.getGrantedAuthorities(user.getUsername())) {
+        for (GrantedAuthority authority : securityService.getGrantedAuthorities(userName)) {
             essence.addAuthority(authority);
         }
 
@@ -128,9 +133,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
             essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());
         }
-
-        return essence.createUserDetails();
-
+        return essence;
     }
 
     @Override

@@ -121,9 +121,7 @@ public class MediaScannerService {
 
             long daysBetween = settingsService.getIndexCreationInterval();
             if (daysBetween == -1) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Automatic media scanning disabled.");
-                }
+                writeInfo("Automatic media scanning disabled.");
                 return;
             }
 
@@ -147,9 +145,7 @@ public class MediaScannerService {
 
             // In addition, create index immediately if it doesn't exist on disk.
             if (SettingsService.isScanOnBoot() && neverScanned()) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Media library never scanned. Doing it now.");
-                }
+                writeInfo("Media library never scanned. Doing it now.");
                 scanLibrary();
             }
         }
@@ -202,9 +198,7 @@ public class MediaScannerService {
     }
 
     private void doScanLibrary() {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Starting to scan media library.");
-        }
+        writeInfo("Starting to scan media library.");
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
@@ -239,18 +233,15 @@ public class MediaScannerService {
                         statistics, albumCount, genres, true);
             }
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Scanned media library with " + scanCount + " entries.");
-                LOG.info("Marking non-present files.");
-            }
+            writeInfo("Scanned media library with " + scanCount + " entries.");
+            writeInfo("Marking non-present files.");
+
             mediaFileDao.markNonPresent(statistics.getScanDate());
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Marking non-present artists.");
-            }
+            writeInfo("Marking non-present artists.");
+
             artistDao.markNonPresent(statistics.getScanDate());
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Marking non-present albums.");
-            }
+            writeInfo("Marking non-present albums.");
+
             albumDao.markNonPresent(statistics.getScanDate());
 
             // Update statistics
@@ -264,36 +255,24 @@ public class MediaScannerService {
 
             if (jpsonicCleansingProcess) {
 
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
-                }
+                writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
                 utils.updateSortOfArtist();
                 utils.updateSortOfAlbum();
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("[1/2] Done.");
-                }
+                writeInfo("[1/2] Done.");
 
                 if (settingsService.isSortStrict()) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info(
-                                "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                    }
+                    writeInfo(
+                            "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
                     utils.updateOrderOfAll();
                 } else {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info(
-                                "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
-                    }
+                    writeInfo(
+                            "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
                 }
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("[2/2] Done.");
-                }
+                writeInfo("[2/2] Done.");
 
             }
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Completed media library scan.");
-            }
+            writeInfo("Completed media library scan.");
 
         } catch (Throwable x) {
             LOG.error("Failed to scan media library.", x);
@@ -305,11 +284,17 @@ public class MediaScannerService {
         }
     }
 
+    private void writeInfo(String msg) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info(msg);
+        }
+    }
+
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
             Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
         scanCount++;
         if (LOG.isInfoEnabled() && scanCount % 250 == 0) {
-            LOG.info("Scanned media library with " + scanCount + " entries.");
+            writeInfo("Scanned media library with " + scanCount + " entries.");
         }
 
         LOG.trace("Scanning file {}", file.getPath());
@@ -363,59 +348,33 @@ public class MediaScannerService {
 
     private void updateAlbum(MediaFile file, MusicFolder musicFolder, Date lastScanned,
             Map<String, Integer> albumCount) {
-        String artist;
-        String reading;
-        String sort;
-        if (isEmpty(file.getAlbumArtist())) {
-            artist = file.getArtist();
-            reading = file.getArtistReading();
-            sort = file.getArtistSort();
-        } else {
-            artist = file.getAlbumArtist();
-            reading = file.getAlbumArtistReading();
-            sort = file.getAlbumArtistSort();
-        }
 
-        if (file.getAlbumName() == null || artist == null || file.getParentPath() == null || !file.isAudio()) {
+        if (isNotAlbumUpdatable(file)) {
             return;
         }
 
-        Album album = albumDao.getAlbumForFile(file);
-        if (album == null) {
-            album = new Album();
-            album.setPath(file.getParentPath());
-            album.setName(file.getAlbumName());
-            album.setNameReading(file.getAlbumReading());
-            album.setNameSort(file.getAlbumSort());
-            album.setArtist(artist);
-            album.setArtistReading(reading);
-            album.setArtistSort(sort);
-            album.setCreated(file.getChanged());
+        String artist;
+        String artistReading;
+        String artistSort;
+        if (isEmpty(file.getAlbumArtist())) {
+            artist = file.getArtist();
+            artistReading = file.getArtistReading();
+            artistSort = file.getArtistSort();
+        } else {
+            artist = file.getAlbumArtist();
+            artistReading = file.getAlbumArtistReading();
+            artistSort = file.getAlbumArtistSort();
         }
 
-        if (file.getMusicBrainzReleaseId() != null) {
-            album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
-        }
-        MediaFile parent = mediaFileService.getParentOf(file);
-        if (parent != null && parent.getCoverArtPath() != null) {
-            album.setCoverArtPath(parent.getCoverArtPath());
-        }
+        Album album = getMergedAlbum(file, artist, artistReading, artistSort);
 
         boolean firstEncounter = !lastScanned.equals(album.getLastScanned());
         if (firstEncounter) {
-            album.setFolderId(musicFolder.getId());
-            album.setDurationSeconds(0);
-            album.setSongCount(0);
             Integer n = albumCount.get(artist);
             albumCount.put(artist, n == null ? 1 : n + 1);
-            // see #414 Change properties only on firstEncounter
-            if (file.getYear() != null) {
-                album.setYear(file.getYear());
-            }
-            if (file.getGenre() != null) {
-                album.setGenre(file.getGenre());
-            }
+            mergeOnFirstEncount(album, file, musicFolder);
         }
+
         if (file.getDurationSeconds() != null) {
             album.setDurationSeconds(album.getDurationSeconds() + file.getDurationSeconds());
         }
@@ -424,6 +383,7 @@ public class MediaScannerService {
         }
         album.setLastScanned(lastScanned);
         album.setPresent(true);
+
         albumDao.createOrUpdateAlbum(album);
         if (firstEncounter) {
             indexManager.index(album);
@@ -436,6 +396,51 @@ public class MediaScannerService {
             file.setAlbumArtistSort(album.getArtistSort());
             mediaFileDao.createOrUpdateMediaFile(file);
         }
+    }
+
+    private void mergeOnFirstEncount(Album album, MediaFile file, MusicFolder musicFolder) {
+        album.setFolderId(musicFolder.getId());
+        album.setDurationSeconds(0);
+        album.setSongCount(0);
+        // see #414 Change properties only on firstEncounter
+        if (file.getYear() != null) {
+            album.setYear(file.getYear());
+        }
+        if (file.getGenre() != null) {
+            album.setGenre(file.getGenre());
+        }
+    }
+
+    private boolean isNotAlbumUpdatable(MediaFile file) {
+        boolean isNotAlbumUpdatable = false;
+        if (file.getAlbumName() == null || file.getParentPath() == null || !file.isAudio()
+                || file.getArtist() == null && file.getAlbumArtist() == null) {
+            isNotAlbumUpdatable = true;
+        }
+        return isNotAlbumUpdatable;
+    }
+
+    private Album getMergedAlbum(MediaFile file, String artist, String artistReading, String artistSort) {
+        Album album = albumDao.getAlbumForFile(file);
+        if (album == null) {
+            album = new Album();
+            album.setPath(file.getParentPath());
+            album.setName(file.getAlbumName());
+            album.setNameReading(file.getAlbumReading());
+            album.setNameSort(file.getAlbumSort());
+            album.setArtist(artist);
+            album.setArtistReading(artistReading);
+            album.setArtistSort(artistSort);
+            album.setCreated(file.getChanged());
+        }
+        if (file.getMusicBrainzReleaseId() != null) {
+            album.setMusicBrainzReleaseId(file.getMusicBrainzReleaseId());
+        }
+        MediaFile parent = mediaFileService.getParentOf(file);
+        if (parent != null && parent.getCoverArtPath() != null) {
+            album.setCoverArtPath(parent.getCoverArtPath());
+        }
+        return album;
     }
 
     private void updateArtist(MediaFile file, MusicFolder musicFolder, Date lastScanned,

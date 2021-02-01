@@ -82,27 +82,8 @@ public class TagService {
         String year = StringUtils.trimToNull(yearStr);
         String genre = StringUtils.trimToNull(genreStr);
 
-        Integer trackNumber = null;
-        if (track != null) {
-            try {
-                trackNumber = Integer.valueOf(track);
-            } catch (NumberFormatException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Illegal track number: " + track, x);
-                }
-            }
-        }
-
-        Integer yearNumber = null;
-        if (year != null) {
-            try {
-                yearNumber = Integer.valueOf(year);
-            } catch (NumberFormatException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Illegal year: " + year, x);
-                }
-            }
-        }
+        Integer trackNumber = getTrackNumber(track);
+        Integer yearNumber = getYearNumber(year);
 
         try {
 
@@ -141,6 +122,34 @@ public class TagService {
             }
             return x.getMessage();
         }
+    }
+
+    private Integer getTrackNumber(String track) {
+        Integer trackNumber = null;
+        if (track != null) {
+            try {
+                trackNumber = Integer.valueOf(track);
+            } catch (NumberFormatException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal track number: " + track, x);
+                }
+            }
+        }
+        return trackNumber;
+    }
+
+    private Integer getYearNumber(String year) {
+        Integer yearNumber = null;
+        if (year != null) {
+            try {
+                yearNumber = Integer.valueOf(year);
+            } catch (NumberFormatException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal year: " + year, x);
+                }
+            }
+        }
+        return yearNumber;
     }
 
     public void setMediaFileService(MediaFileService mediaFileService) {

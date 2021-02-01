@@ -272,21 +272,7 @@ public class DownloadController implements LastModified {
 
             out.setMethod(ZipOutputStream.STORED); // No compression.
 
-            Set<MediaFile> filesToDownload = new HashSet<>();
-            if (indexes == null) {
-                filesToDownload.addAll(files);
-            } else {
-                for (int index : indexes) {
-                    try {
-                        filesToDownload.add(files.get(index));
-                    } catch (IndexOutOfBoundsException e) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("Error in parse of filesToDownload#add", e);
-                        }
-                    }
-                }
-            }
-
+            Set<MediaFile> filesToDownload = createFilesToDownload(indexes, files);
             for (MediaFile mediaFile : filesToDownload) {
                 zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
                 if (coverArtFile != null && coverArtFile.exists()
@@ -300,6 +286,24 @@ public class DownloadController implements LastModified {
 
         }
         writeLog("Downloaded", zipFileName, status.getPlayer());
+    }
+
+    private Set<MediaFile> createFilesToDownload(int[] indexes, List<MediaFile> files) {
+        Set<MediaFile> filesToDownload = new HashSet<>();
+        if (indexes == null) {
+            filesToDownload.addAll(files);
+        } else {
+            for (int index : indexes) {
+                try {
+                    filesToDownload.add(files.get(index));
+                } catch (IndexOutOfBoundsException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Error in parse of filesToDownload#add", e);
+                    }
+                }
+            }
+        }
+        return filesToDownload;
     }
 
     /**

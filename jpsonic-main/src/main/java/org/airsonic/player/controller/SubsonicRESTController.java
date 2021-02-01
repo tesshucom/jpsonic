@@ -995,9 +995,31 @@ public class SubsonicRESTController {
 
         Player player = playerService.getPlayer(request, response);
 
-        boolean returnPlaylist = false;
         String action = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.ACTION.value());
+        doJukeboxAction(action, request, player);
 
+        String username = securityService.getCurrentUsername(request);
+        PlayQueue playQueue = player.getPlayQueue();
+
+        // this variable is only needed for the JukeboxLegacySubsonicService. To be removed.
+        boolean controlsJukebox = jukeboxService.canControl(player);
+
+        int currentIndex = controlsJukebox && !playQueue.isEmpty() ? playQueue.getIndex() : -1;
+        boolean playing = controlsJukebox && !playQueue.isEmpty() && playQueue.getStatus() == PlayQueue.Status.PLAYING;
+        float gain;
+        int position;
+        gain = jukeboxService.getGain(player);
+        position = controlsJukebox && !playQueue.isEmpty() ? jukeboxService.getPosition(player) : 0;
+
+        boolean returnPlaylist = "get".equals(action);
+        JukeboxControlResponseParam responseParam = new JukeboxControlResponseParam(returnPlaylist, currentIndex,
+                playing, gain, position);
+        Response res = createJukeboxControlResponse(responseParam, username, player, playQueue);
+        jaxbWriter.writeResponse(request, response, res);
+    }
+
+    private void doJukeboxAction(String action, HttpServletRequest request, Player player)
+            throws ServletRequestBindingException, ExecutionException {
         switch (action) {
         case "start":
             player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
@@ -1036,7 +1058,7 @@ public class SubsonicRESTController {
             jukeboxService.setGain(player, gain);
             break;
         case "get":
-            returnPlaylist = true;
+            // No action necessary. However, the response format is different from the others.
             break;
         case "status":
             // No action necessary.
@@ -1044,41 +1066,68 @@ public class SubsonicRESTController {
         default:
             throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
         }
+    }
 
-        String username = securityService.getCurrentUsername(request);
-        PlayQueue playQueue = player.getPlayQueue();
+    private static class JukeboxControlResponseParam {
+        private boolean returnPlaylist;
+        private int currentIndex;
+        private boolean playing;
+        private float gain;
+        private Integer position;
 
-        // this variable is only needed for the JukeboxLegacySubsonicService. To be removed.
-        boolean controlsJukebox = jukeboxService.canControl(player);
+        public JukeboxControlResponseParam(boolean returnPlaylist, int currentIndex, boolean playing, float gain,
+                Integer position) {
+            super();
+            this.returnPlaylist = returnPlaylist;
+            this.currentIndex = currentIndex;
+            this.playing = playing;
+            this.gain = gain;
+            this.position = position;
+        }
 
-        int currentIndex = controlsJukebox && !playQueue.isEmpty() ? playQueue.getIndex() : -1;
-        boolean playing = controlsJukebox && !playQueue.isEmpty() && playQueue.getStatus() == PlayQueue.Status.PLAYING;
-        float gain;
-        int position;
-        gain = jukeboxService.getGain(player);
-        position = controlsJukebox && !playQueue.isEmpty() ? jukeboxService.getPosition(player) : 0;
+        public boolean isReturnPlaylist() {
+            return returnPlaylist;
+        }
 
-        Response res = createResponse();
-        if (returnPlaylist) {
+        public int getCurrentIndex() {
+            return currentIndex;
+        }
+
+        public boolean isPlaying() {
+            return playing;
+        }
+
+        public float getGain() {
+            return gain;
+        }
+
+        public Integer getPosition() {
+            return position;
+        }
+    }
+
+    private Response createJukeboxControlResponse(JukeboxControlResponseParam param, String username, Player player,
+            PlayQueue playQueue) {
+        Response response = createResponse();
+        if (param.isReturnPlaylist()) {
             JukeboxPlaylist result = new JukeboxPlaylist();
-            res.setJukeboxPlaylist(result);
-            result.setCurrentIndex(currentIndex);
-            result.setPlaying(playing);
-            result.setGain(gain);
-            result.setPosition(position);
+            response.setJukeboxPlaylist(result);
+            result.setCurrentIndex(param.getCurrentIndex());
+            result.setPlaying(param.isPlaying());
+            result.setGain(param.getGain());
+            result.setPosition(param.getPosition());
             for (MediaFile mediaFile : playQueue.getFiles()) {
                 result.getEntry().add(createJaxbChild(player, mediaFile, username));
             }
         } else {
             JukeboxStatus result = new JukeboxStatus();
-            res.setJukeboxStatus(result);
-            result.setCurrentIndex(currentIndex);
-            result.setPlaying(playing);
-            result.setGain(gain);
-            result.setPosition(position);
+            response.setJukeboxStatus(result);
+            result.setCurrentIndex(param.getCurrentIndex());
+            result.setPlaying(param.isPlaying());
+            result.setGain(param.getGain());
+            result.setPosition(param.getPosition());
         }
-
-        jaxbWriter.writeResponse(request, response, res);
+        return response;
     }
 
     @RequestMapping("/createPlaylist")
@@ -1170,11 +1219,18 @@ public class SubsonicRESTController {
         // }
         // }
         List<MediaFile> songs = playlistService.getFilesInPlaylist(id);
+        int[] toRemove = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value());
+        int[] toAdd = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value());
+        updatePlaylistSongs(id, toRemove, toAdd, songs);
+
+        writeEmptyResponse(request, response);
+    }
+
+    private void updatePlaylistSongs(int playlistId, int[] toRemove, int[] toAdd, List<MediaFile> songs) {
         boolean songsChanged = false;
 
         SortedSet<Integer> tmp = new TreeSet<>();
-        for (int songIndexToRemove : ServletRequestUtils.getIntParameters(request,
-                Attributes.Request.SONG_INDEX_TO_REMOVE.value())) {
+        for (int songIndexToRemove : toRemove) {
             tmp.add(songIndexToRemove);
         }
         List<Integer> songIndexesToRemove = new ArrayList<>(tmp);
@@ -1183,7 +1239,7 @@ public class SubsonicRESTController {
             songs.remove(songIndexToRemove.intValue());
             songsChanged = true;
         }
-        for (int songToAdd : ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value())) {
+        for (int songToAdd : toAdd) {
             MediaFile song = mediaFileService.getMediaFile(songToAdd);
             if (song != null) {
                 songs.add(song);
@@ -1191,10 +1247,8 @@ public class SubsonicRESTController {
             }
         }
         if (songsChanged) {
-            playlistService.setFilesInPlaylist(id, songs);
+            playlistService.setFilesInPlaylist(playlistId, songs);
         }
-
-        writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/deletePlaylist")
@@ -1467,23 +1521,11 @@ public class SubsonicRESTController {
                     child.setArtistId(String.valueOf(artist.getId()));
                 }
             }
-            switch (mediaFile.getMediaType()) {
-            case MUSIC:
-                child.setType(MediaType.MUSIC);
-                break;
-            case PODCAST:
-                child.setType(MediaType.PODCAST);
-                break;
-            case AUDIOBOOK:
-                child.setType(MediaType.AUDIOBOOK);
-                break;
-            case VIDEO:
-                child.setType(MediaType.VIDEO);
+
+            child.setType(getMedyaType(mediaFile.getMediaType()));
+            if (mediaFile.getMediaType() == MediaFile.MediaType.VIDEO) {
                 child.setOriginalWidth(mediaFile.getWidth());
                 child.setOriginalHeight(mediaFile.getHeight());
-                break;
-            default:
-                break;
             }
 
             if (transcodingService.isTranscodingRequired(mediaFile, player)) {
@@ -1493,6 +1535,27 @@ public class SubsonicRESTController {
             }
         }
         return child;
+    }
+
+    private MediaType getMedyaType(MediaFile.MediaType mediaType) {
+        MediaType result = null;
+        switch (mediaType) {
+        case MUSIC:
+            result = MediaType.MUSIC;
+            break;
+        case PODCAST:
+            result = MediaType.PODCAST;
+            break;
+        case AUDIOBOOK:
+            result = MediaType.AUDIOBOOK;
+            break;
+        case VIDEO:
+            result = MediaType.VIDEO;
+            break;
+        default:
+            break;
+        }
+        return result;
     }
 
     private String findCoverArt(MediaFile mediaFile, MediaFile parent) {

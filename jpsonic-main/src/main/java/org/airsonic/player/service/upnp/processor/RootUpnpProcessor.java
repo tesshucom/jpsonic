@@ -84,22 +84,11 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     @Override
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
-
-        if (settingsService.isDlnaIndexVisible()) {
-            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
-        }
-        if (settingsService.isDlnaIndexId3Visible()) {
-            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
-        }
+        addIndexContainer(containers);
         if (settingsService.isDlnaFolderVisible()) {
             containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaArtistVisible()) {
-            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
-        }
-        if (settingsService.isDlnaArtistByFolderVisible()) {
-            containers.add(getDispatcher().getArtistByFolderProcessor().createRootContainer());
-        }
+        addArtistContainer(containers);
         if (settingsService.isDlnaAlbumVisible()) {
             containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
         }
@@ -112,12 +101,43 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaSongByGenreVisible()) {
             containers.add(getDispatcher().getSongByGenreProcessor().createRootContainer());
         }
+        addRecentAlbumContainer(containers);
+        addRandomContainer(containers);
+        if (settingsService.isDlnaPodcastVisible()) {
+            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
+        }
+
+        return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
+    }
+
+    private void addIndexContainer(List<Container> containers) {
+        if (settingsService.isDlnaIndexVisible()) {
+            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaIndexId3Visible()) {
+            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
+        }
+    }
+
+    private void addArtistContainer(List<Container> containers) {
+        if (settingsService.isDlnaArtistVisible()) {
+            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaArtistByFolderVisible()) {
+            containers.add(getDispatcher().getArtistByFolderProcessor().createRootContainer());
+        }
+    }
+
+    private void addRecentAlbumContainer(List<Container> containers) {
         if (settingsService.isDlnaRecentAlbumVisible()) {
             containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
         }
         if (settingsService.isDlnaRecentAlbumId3Visible()) {
             containers.add(getDispatcher().getRecentAlbumId3Processor().createRootContainer());
         }
+    }
+
+    private void addRandomContainer(List<Container> containers) {
         if (settingsService.isDlnaRandomSongVisible()) {
             containers.add(getDispatcher().getRandomSongProcessor().createRootContainer());
         }
@@ -130,11 +150,6 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaRandomSongByFolderArtistVisible()) {
             containers.add(getDispatcher().getRandomSongByFolderArtistProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaPodcastVisible()) {
-            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
-        }
-
-        return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
     }
 
     @Override

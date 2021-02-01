@@ -94,9 +94,7 @@ public class LastFMScrobbler {
             }
 
             if (queue.size() >= MAX_PENDING_REGISTRATION) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
-                }
+                writeWarn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
                 return;
             }
 
@@ -104,9 +102,7 @@ public class LastFMScrobbler {
             try {
                 queue.put(registrationData);
             } catch (InterruptedException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
-                }
+                writeWarn("Interrupted while queuing Last.fm scrobble: " + x.toString());
             }
         }
     }
@@ -139,13 +135,9 @@ public class LastFMScrobbler {
         }
 
         if (lines[0].startsWith("FAILED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
         } else if (lines[0].startsWith("BADSESSION")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Invalid session.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Invalid session.");
         } else if (LOG.isInfoEnabled() && lines[0].startsWith("OK")) {
             LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
                     + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
@@ -177,43 +169,38 @@ public class LastFMScrobbler {
         String[] lines = executeGetRequest(uri);
 
         if (lines[0].startsWith("BANNED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Client version is banned.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Client version is banned.");
             return null;
         }
 
         if (lines[0].startsWith("BADAUTH")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Wrong username or password.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Wrong username or password.");
             return null;
         }
 
         if (lines[0].startsWith("BADTIME")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle()
-                        + "' at Last.fm. Bad timestamp, please check local clock.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle()
+                    + "' at Last.fm. Bad timestamp, please check local clock.");
             return null;
         }
 
         if (lines[0].startsWith("FAILED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
             return null;
         }
 
         if (!lines[0].startsWith("OK")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: "
-                        + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: " + lines[0]);
             return null;
         }
 
         return lines;
+    }
+
+    protected static void writeWarn(String msg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg);
+        }
     }
 
     private static String[] registerSubmission(RegistrationData registrationData, String sessionId, String url)
@@ -302,9 +289,7 @@ public class LastFMScrobbler {
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
                 } catch (Exception x) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Error in Last.fm registration: " + x.toString());
-                    }
+                    writeWarn("Error in Last.fm registration: " + x.toString());
                 }
             }
         }

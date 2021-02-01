@@ -280,6 +280,11 @@ public class InternalHelpController {
             }
         }
 
+        putDatabaseLegacyInfoTo(map);
+        putDatabaseTableInfoTo(map);
+    }
+
+    private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
         if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
             map.put("dbIsLegacy", true);
             File dbDirectory = new File(SettingsService.getJpsonicHome(), "db");
@@ -292,6 +297,9 @@ public class InternalHelpController {
             map.put("dbIsLegacy", false);
         }
 
+    }
+
+    private void putDatabaseTableInfoTo(Map<String, Object> map) {
         map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate()
                 .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
         map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate()

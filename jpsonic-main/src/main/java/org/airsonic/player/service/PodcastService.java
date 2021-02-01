@@ -467,6 +467,34 @@ public class PodcastService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
     private void refreshEpisodes(PodcastChannel channel, List<Element> episodeElements) {
 
+        Integer channelId = channel.getId();
+        // Create episodes object.
+        List<PodcastEpisode> episodes = createPodcastEpisodes(channelId, episodeElements);
+
+        // Sort episode in reverse chronological order (newest first)
+        episodes.sort((a, b) -> {
+            long timeA = a.getPublishDate() == null ? 0L : a.getPublishDate().getTime();
+            long timeB = b.getPublishDate() == null ? 0L : b.getPublishDate().getTime();
+            return Long.compare(timeB, timeA);
+        });
+
+        // Create episodes in database, skipping the proper number of episodes.
+        int downloadCount = settingsService.getPodcastEpisodeDownloadCount();
+        if (downloadCount == -1) {
+            downloadCount = Integer.MAX_VALUE;
+        }
+
+        for (int i = 0; i < episodes.size(); i++) {
+            PodcastEpisode episode = episodes.get(i);
+            if (i >= downloadCount) {
+                episode.setStatus(PodcastStatus.SKIPPED);
+            }
+            podcastDao.createEpisode(episode);
+        }
+    }
+
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
+    private List<PodcastEpisode> createPodcastEpisodes(Integer channelId, List<Element> episodeElements) {
         List<PodcastEpisode> episodes = new ArrayList<>();
 
         for (Element episodeElement : episodeElements) {
@@ -501,7 +529,7 @@ public class PodcastService {
                 }
 
                 Date date = parseDate(episodeElement.getChildTextTrim("pubDate"));
-                PodcastEpisode episode = new PodcastEpisode(null, channel.getId(), url, null, title, description, date,
+                PodcastEpisode episode = new PodcastEpisode(null, channelId, url, null, title, description, date,
                         duration, length, 0L, PodcastStatus.NEW, null);
                 episodes.add(episode);
                 if (LOG.isInfoEnabled()) {
@@ -509,28 +537,7 @@ public class PodcastService {
                 }
             }
         }
-
-        // Sort episode in reverse chronological order (newest first)
-        episodes.sort((a, b) -> {
-            long timeA = a.getPublishDate() == null ? 0L : a.getPublishDate().getTime();
-            long timeB = b.getPublishDate() == null ? 0L : b.getPublishDate().getTime();
-
-            return Long.compare(timeB, timeA);
-        });
-
-        // Create episodes in database, skipping the proper number of episodes.
-        int downloadCount = settingsService.getPodcastEpisodeDownloadCount();
-        if (downloadCount == -1) {
-            downloadCount = Integer.MAX_VALUE;
-        }
-
-        for (int i = 0; i < episodes.size(); i++) {
-            PodcastEpisode episode = episodes.get(i);
-            if (i >= downloadCount) {
-                episode.setStatus(PodcastStatus.SKIPPED);
-            }
-            podcastDao.createEpisode(episode);
-        }
+        return episodes;
     }
 
     private Date parseDate(String s) {
@@ -625,27 +632,7 @@ public class PodcastService {
                         episode.setPath(file.getPath());
                         podcastDao.updateEpisode(episode);
 
-                        byte[] buffer = new byte[4096];
-                        long bytesDownloaded = 0;
-                        long nextLogCount = 30_000L;
-
-                        try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
-                            for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
-                                out.write(buffer, 0, n);
-                                bytesDownloaded += n;
-
-                                if (bytesDownloaded > nextLogCount) {
-                                    episode.setBytesDownloaded(bytesDownloaded);
-                                    nextLogCount += 30_000L;
-
-                                    // Abort download if episode was deleted by user.
-                                    if (isEpisodeDeleted(episode)) {
-                                        break;
-                                    }
-                                    podcastDao.updateEpisode(episode);
-                                }
-                            }
-                        }
+                        long bytesDownloaded = updateEpisode(episode, file, in);
 
                         if (isEpisodeDeleted(episode)) {
                             if (LOG.isInfoEnabled()) {
@@ -686,6 +673,30 @@ public class PodcastService {
                 podcastDao.updateEpisode(episode);
             }
         }
+    }
+
+    private long updateEpisode(PodcastEpisode episode, File file, InputStream in) throws IOException {
+        long bytesDownloaded = 0;
+        byte[] buffer = new byte[4096];
+        long nextLogCount = 30_000L;
+        try (OutputStream out = Files.newOutputStream(Paths.get(file.toURI()))) {
+            for (int n = in.read(buffer); n != -1; n = in.read(buffer)) {
+                out.write(buffer, 0, n);
+                bytesDownloaded += n;
+
+                if (bytesDownloaded > nextLogCount) {
+                    episode.setBytesDownloaded(bytesDownloaded);
+                    nextLogCount += 30_000L;
+
+                    // Abort download if episode was deleted by user.
+                    if (isEpisodeDeleted(episode)) {
+                        break;
+                    }
+                    podcastDao.updateEpisode(episode);
+                }
+            }
+        }
+        return bytesDownloaded;
     }
 
     private boolean isEpisodeDeleted(PodcastEpisode episode) {

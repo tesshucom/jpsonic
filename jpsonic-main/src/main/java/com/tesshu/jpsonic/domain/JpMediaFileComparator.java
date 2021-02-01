@@ -46,52 +46,72 @@ class JpMediaFileComparator implements MediaFileComparator {
     public int compare(MediaFile a, MediaFile b) {
 
         // Directories before files.
-        if (a.isFile() && b.isDirectory()) {
-            return 1;
-        }
-        if (a.isDirectory() && b.isFile()) {
-            return -1;
+        int i = compareDirectoryAndFile(a, b);
+        if (i != 0) {
+            return i;
         }
 
         // Non-album directories before album directories.
-        if (a.isAlbum() && b.getMediaType() == MediaFile.MediaType.DIRECTORY) {
-            return 1;
-        }
-        if (a.getMediaType() == MediaFile.MediaType.DIRECTORY && b.isAlbum()) {
-            return -1;
+        i = compareAlbumAndNotAlbum(a, b);
+        if (i != 0) {
+            return i;
         }
 
         // Sort albums by year
         if (sortAlbumsByYear && a.isAlbum() && b.isAlbum()) {
-            int i = nullSafeCompare(a.getYear(), b.getYear(), false);
+            i = nullSafeCompare(a.getYear(), b.getYear(), false);
             if (i != 0) {
                 return i;
             }
         }
 
         if (a.isDirectory() && b.isDirectory()) {
-            int n;
-            if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
-                n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
-            } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading())
-                    && !isEmpty(b.getArtistReading())) {
-                n = comparator.compare(a.getArtistReading(), b.getArtistReading());
-            } else {
-                n = comparator.compare(a.getName(), b.getName());
-            }
-            return n == 0 ? comparator.compare(a.getPath(), b.getPath()) : n; // To make it consistent to
-                                                                              // MediaFile.equals()
+            return compareDirectory(a, b);
         }
 
         // Compare by disc and track numbers, if present.
         Integer trackA = getSortableDiscAndTrackNumber(a);
         Integer trackB = getSortableDiscAndTrackNumber(b);
-        int i = nullSafeCompare(trackA, trackB, false);
+        i = nullSafeCompare(trackA, trackB, false);
         if (i != 0) {
             return i;
         }
 
         return comparator.compare(a.getPath(), b.getPath());
+    }
+
+    private int compareDirectoryAndFile(MediaFile a, MediaFile b) {
+        if (a.isFile() && b.isDirectory()) {
+            return 1;
+        }
+        if (a.isDirectory() && b.isFile()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    private int compareAlbumAndNotAlbum(MediaFile a, MediaFile b) {
+        if (a.isAlbum() && b.getMediaType() == MediaFile.MediaType.DIRECTORY) {
+            return 1;
+        }
+        if (a.getMediaType() == MediaFile.MediaType.DIRECTORY && b.isAlbum()) {
+            return -1;
+        }
+        return 0;
+    }
+
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
+    private int compareDirectory(MediaFile a, MediaFile b) {
+        int n;
+        if (a.isAlbum() && b.isAlbum() && !isEmpty(a.getAlbumReading()) && !isEmpty(b.getAlbumReading())) {
+            n = comparator.compare(a.getAlbumReading(), b.getAlbumReading());
+        } else if (!a.isAlbum() && !b.isAlbum() && !isEmpty(a.getArtistReading()) && !isEmpty(b.getArtistReading())) {
+            n = comparator.compare(a.getArtistReading(), b.getArtistReading());
+        } else {
+            n = comparator.compare(a.getName(), b.getName());
+        }
+        return n == 0 ? comparator.compare(a.getPath(), b.getPath()) : n; // To make it consistent to
+                                                                          // MediaFile.equals()
     }
 
     private <T extends Comparable<T>> int nullSafeCompare(T a, T b, boolean nullIsSmaller) {

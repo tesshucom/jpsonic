@@ -530,10 +530,7 @@ public class MediaFileDao extends AbstractDao {
                 + "order by starred_media_file.created desc limit :count offset :offset", rowMapper, args);
     }
 
-    /*
-     * Detected by Ubuntu but not detected by Windows. The literal is too big, so split the append into multiple lines
-     * for readability.
-     */
+    @SuppressWarnings("PMD.NPathComplexity") // #862
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, final String username) {
         if (criteria.getMusicFolders().isEmpty()) {
             return Collections.emptyList();
@@ -788,6 +785,7 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // #863
     private static class MediaFileMapper implements RowMapper<MediaFile> {
         @Override
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {

@@ -97,7 +97,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
 
         if (!requiresAuthentication(httpRequest, httpResponse)) {
             chain.doFilter(request, response);
-
             return;
         }
 
@@ -108,8 +107,19 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         String version = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.V.value()));
         String client = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.C.value()));
 
-        SubsonicRESTController.ErrorCode errorCode = null;
+        SubsonicRESTController.ErrorCode errorCode = getErrorCode(httpRequest, username, password, salt, token, version,
+                client);
+        if (errorCode == null) {
+            chain.doFilter(request, response);
+        } else {
+            SecurityContextHolder.getContext().setAuthentication(null);
+            sendErrorXml(httpRequest, httpResponse, errorCode);
+        }
+    }
 
+    private SubsonicRESTController.ErrorCode getErrorCode(HttpServletRequest httpRequest, String username,
+            String password, String salt, String token, String version, String client) {
+        SubsonicRESTController.ErrorCode errorCode = null;
         // The username and credentials parameters are not required if the user
         // was previously authenticated, for example using Basic Auth.
         boolean passwordOrTokenPresent = password != null || salt != null && token != null;
@@ -118,21 +128,13 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         if (missingCredentials || version == null || client == null) {
             errorCode = SubsonicRESTController.ErrorCode.MISSING_PARAMETER;
         }
-
         if (errorCode == null) {
             errorCode = checkAPIVersion(version);
         }
-
         if (errorCode == null) {
             errorCode = authenticate(httpRequest, username, password, salt, token, previousAuth);
         }
-
-        if (errorCode == null) {
-            chain.doFilter(request, response);
-        } else {
-            SecurityContextHolder.getContext().setAuthentication(null);
-            sendErrorXml(httpRequest, httpResponse, errorCode);
-        }
+        return errorCode;
     }
 
     private SubsonicRESTController.ErrorCode checkAPIVersion(String version) {

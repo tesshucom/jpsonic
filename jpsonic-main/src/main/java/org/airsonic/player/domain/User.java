@@ -206,6 +206,7 @@ public class User {
         this.shareRole = shareRole;
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder(username);

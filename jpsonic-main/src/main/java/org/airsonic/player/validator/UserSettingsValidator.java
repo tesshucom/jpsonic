@@ -67,15 +67,21 @@ public class UserSettingsValidator implements Validator {
      * {@inheritDoc}
      */
     @Override
-    @SuppressWarnings("PMD.ConfusingTernary") // false positive
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
-        String username = command.getUsername();
-        String email = StringUtils.trimToNull(command.getEmail());
-        String password = StringUtils.trimToNull(command.getPassword());
-        String confirmPassword = command.getConfirmPassword();
+        validateNewUser(command, errors);
+        validatePassword(command, errors);
+        validateLdap(command, errors);
+        validateCurrentUser(command, errors);
+    }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
+    private void validateNewUser(UserSettingsCommand command, Errors errors) {
         if (command.isNewUser()) {
+            String username = command.getUsername();
+            String email = StringUtils.trimToNull(command.getEmail());
+            String password = StringUtils.trimToNull(command.getPassword());
             if (username == null || username.isEmpty()) {
                 errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.nousername");
             } else if (securityService.getUserByName(username) != null) {
@@ -88,19 +94,28 @@ public class UserSettingsValidator implements Validator {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
             }
         }
+    }
 
+    private void validatePassword(UserSettingsCommand command, Errors errors) {
         if ((command.isNewUser() || command.isPasswordChange()) && !command.isLdapAuthenticated()) {
+            String password = StringUtils.trimToNull(command.getPassword());
+            String confirmPassword = command.getConfirmPassword();
             if (password == null) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.nopassword");
             } else if (!password.equals(confirmPassword)) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.wrongpassword");
             }
         }
+    }
 
+    private void validateLdap(UserSettingsCommand command, Errors errors) {
         if (command.isPasswordChange() && command.isLdapAuthenticated()) {
             errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
         }
+    }
 
+    private void validateCurrentUser(UserSettingsCommand command, Errors errors) {
+        String username = command.getUsername();
         if (securityService.getCurrentUser(request).getUsername().equals(username)) {
             if (command.isDeleteUser()) {
                 errors.rejectValue(REJECTED_FIELD_DELETEUSER, "usersettings.cantdeleteuser");
@@ -109,7 +124,6 @@ public class UserSettingsValidator implements Validator {
                 errors.rejectValue(REJECTED_FIELD_ADMINROLE, "usersettings.cantremoverole");
             }
         }
-
     }
 
 }

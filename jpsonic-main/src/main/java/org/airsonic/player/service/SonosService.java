@@ -576,18 +576,14 @@ public class SonosService implements SonosSoap {
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (!(messageContext instanceof WrappedMessageContext)) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Message context is null or not an instance of WrappedMessageContext.");
-            }
+            writeError("Message context is null or not an instance of WrappedMessageContext.");
             return null;
         }
 
         Message message = ((WrappedMessageContext) messageContext).getWrappedMessage();
         List<Header> headers = CastUtils.cast((List<?>) message.get(Header.HEADER_LIST));
         if (headers == null) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("No headers found");
-            }
+            writeError("No headers found");
         } else {
             // Unwrap the node using JAXB
             JAXBContext jaxbContext = null;
@@ -595,9 +591,7 @@ public class SonosService implements SonosSoap {
                 jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
             } catch (JAXBException e) {
                 // failed to get the credentials object from the headers
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("JAXB error trying to unwrap credentials", e);
-                }
+                writeError("JAXB error trying to unwrap credentials", e);
             }
             if (jaxbContext == null) {
                 return null;
@@ -610,9 +604,7 @@ public class SonosService implements SonosSoap {
                         o = unmarshaller.unmarshal((Node) o);
                     } catch (JAXBException e) {
                         // failed to get the credentials object from the headers
-                        if (LOG.isErrorEnabled()) {
-                            LOG.error("JAXB error trying to unwrap credentials", e);
-                        }
+                        writeError("JAXB error trying to unwrap credentials", e);
                     }
                 }
                 if (o instanceof Credentials) {
@@ -628,13 +620,23 @@ public class SonosService implements SonosSoap {
                     }
                     return username;
                 } else {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("No credentials object");
-                    }
+                    writeError("No credentials object");
                 }
             }
         }
         return null;
+    }
+
+    protected static void writeError(String msg, Throwable t) {
+        if (LOG.isErrorEnabled()) {
+            LOG.warn(msg, t);
+        }
+    }
+
+    protected static void writeError(String msg) {
+        if (LOG.isErrorEnabled()) {
+            LOG.warn(msg);
+        }
     }
 
     public void setSonosHelper(SonosHelper sonosHelper) {
