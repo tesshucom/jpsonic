@@ -41,7 +41,7 @@ import org.airsonic.player.domain.Share;
 import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.ShareService;
@@ -155,14 +155,14 @@ public class ExternalPlayerController {
             Date expires) {
         String prefix = "ext";
         String streamUrl = jwtSecurityService
-                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/stream")
+                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
                         .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                         .queryParam(Attributes.Request.PLAYER.value(), player.getId())
                         .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE), expires)
                 .build().toUriString();
 
         String coverArtUrl = jwtSecurityService.addJWTToken(UriComponentsBuilder
-                .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
+                .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
                 .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                 .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires).build().toUriString();
         return new MediaFileWithUrlInfo(mediaFile, coverArtUrl, streamUrl);

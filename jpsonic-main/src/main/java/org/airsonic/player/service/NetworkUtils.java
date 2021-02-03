@@ -32,18 +32,19 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.UrlPathHelper;
 
-@Service
-public class NetworkService {
+public final class NetworkUtils {
 
     private static UrlPathHelper urlPathHelper = new UrlPathHelper();
     private static final String X_FORWARDED_SERVER = "X-Forwarded-Server";
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
+
+    private NetworkUtils() {
+    }
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {

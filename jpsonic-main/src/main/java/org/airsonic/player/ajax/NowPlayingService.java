@@ -34,7 +34,7 @@ import org.airsonic.player.domain.PlayStatus;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaScannerService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.StatusService;
@@ -117,7 +117,7 @@ public class NowPlayingService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         List<NowPlayingInfo> result = new ArrayList<>();
         final StringBuilder builder = new StringBuilder();
         for (PlayStatus status : playStatuses) {

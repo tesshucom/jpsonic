@@ -27,7 +27,10 @@ import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 
-public class TomcatApplicationHelper {
+public final class TomcatApplicationHelper {
+
+    private TomcatApplicationHelper() {
+    }
 
     public static void configure(TomcatServletWebServerFactory tomcatFactory) {
 

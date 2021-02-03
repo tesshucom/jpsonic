@@ -57,7 +57,7 @@ import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.JukeboxService;
 import org.airsonic.player.service.LastFmService;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.PodcastService;
@@ -756,7 +756,7 @@ public class PlayQueueService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Entry) Not reusable
     private List<PlayQueueInfo.Entry> convertMediaFileList(HttpServletRequest request, Player player) {
 
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         Locale locale = RequestContextUtils.getLocale(request);
         PlayQueue playQueue = player.getPlayQueue();
 

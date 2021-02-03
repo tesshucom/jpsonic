@@ -33,7 +33,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.JWTSecurityService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.StringUtil;
@@ -68,7 +68,7 @@ public class M3UController {
 
         Player player = playerService.getPlayer(request, response);
 
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         url = url + "ext/stream?";
 
         if (player.isExternalWithPlaylist()) {

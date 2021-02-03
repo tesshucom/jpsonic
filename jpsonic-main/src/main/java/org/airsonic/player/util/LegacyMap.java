@@ -28,7 +28,10 @@ import java.util.HashMap;
  * In these two points, the policies of legacy implementation are not unified.
  * If solved , most impls can be replaced with Map.of(...) after Java8.
  */
-public class LegacyMap {
+public final class LegacyMap {
+
+    private LegacyMap() {
+    }
 
     /*
      * The part that calls this may simply not be replaced.

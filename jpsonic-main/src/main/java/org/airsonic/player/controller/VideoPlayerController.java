@@ -33,7 +33,7 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -87,7 +87,7 @@ public class VideoPlayerController {
         mediaFileService.populateStarredDate(file, user.getUsername());
         Integer duration = file.getDurationSeconds();
         Integer playerId = playerService.getPlayer(request, response).getId();
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         String streamUrl = url + "stream?id=" + file.getId() + "&player=" + playerId + "&format=mp4";
         String coverArtUrl = url + ViewName.COVER_ART.value() + "?id=" + file.getId();
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

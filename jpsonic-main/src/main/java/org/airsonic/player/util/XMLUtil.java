@@ -23,7 +23,10 @@ package org.airsonic.player.util;
 
 import org.jdom2.input.SAXBuilder;
 
-public class XMLUtil {
+public final class XMLUtil {
+
+    private XMLUtil() {
+    }
 
     public static SAXBuilder createSAXBuilder() {
         SAXBuilder builder = new SAXBuilder();

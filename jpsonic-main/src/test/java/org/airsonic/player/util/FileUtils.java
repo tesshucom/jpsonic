@@ -38,9 +38,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileUtils {
+public final class FileUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
+
+    private FileUtils() {
+    }
 
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));

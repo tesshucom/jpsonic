@@ -21,7 +21,7 @@
 
 package org.airsonic.player.service.sonos;
 
-import static org.airsonic.player.service.NetworkService.getBaseUrl;
+import static org.airsonic.player.service.NetworkUtils.getBaseUrl;
 
 import java.io.IOException;
 import java.util.ArrayList;

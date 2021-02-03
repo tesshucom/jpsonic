@@ -48,12 +48,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
-public class LegacyHsqlUtil {
+public final class LegacyHsqlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyHsqlUtil.class);
 
     public static final String UPGRADE_NEEDED_VERSION1 = "1.8.0";
     public static final String UPGRADE_NEEDED_VERSION2 = "1.8.1";
+
+    private LegacyHsqlUtil() {
+    }
 
     /**
      * Return the current version of the HSQLDB database, as reported by the database properties file.

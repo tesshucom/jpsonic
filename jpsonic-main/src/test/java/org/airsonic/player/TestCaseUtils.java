@@ -36,11 +36,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @SuppressWarnings("PMD.NonThreadSafeSingleton") // This class is not designed for multithreading
-public class TestCaseUtils {
+public final class TestCaseUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(TestCaseUtils.class);
 
     private static File jpsonicHomeDirForTest;
+
+    private TestCaseUtils() {
+    }
 
     /**
      * Returns the path of the JPSONIC_HOME directory to use for tests. This will create a temporary directory.

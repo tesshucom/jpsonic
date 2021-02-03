@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.SonosService;
 import org.airsonic.player.util.LegacyMap;
@@ -84,8 +84,8 @@ public class SonosSettingsController {
         settingsService.setSonosServiceName(sonosServiceName);
         settingsService.save();
 
-        sonosService.setMusicServiceEnabled(false, NetworkService.getBaseUrl(request));
-        sonosService.setMusicServiceEnabled(sonosEnabled, NetworkService.getBaseUrl(request));
+        sonosService.setMusicServiceEnabled(false, NetworkUtils.getBaseUrl(request));
+        sonosService.setMusicServiceEnabled(sonosEnabled, NetworkUtils.getBaseUrl(request));
     }
 
     public void setSettingsService(SettingsService settingsService) {

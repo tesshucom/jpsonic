@@ -63,7 +63,6 @@
         <!-- 3 --><exclude name="ExcessiveImports" />
         <!-- 3 --><exclude name="ImmutableField" />
         <!-- 3 --><exclude name="AvoidCatchingGenericException" />
-        <!-- 3 --><exclude name="UseUtilityClass" />
         <!-- 3 --><exclude name="ExcessiveMethodLength" />
         <!-- 3 --><exclude name="NcssCount" />
         <!-- 3 --><exclude name="ExcessiveClassLength" />

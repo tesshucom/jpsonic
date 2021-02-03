@@ -29,7 +29,10 @@ import org.springframework.web.servlet.HandlerMapping;
 /**
  * This class has been created to refactor code previously present in the MultiController.
  */
-public class ControllerUtils {
+public final class ControllerUtils {
+
+    private ControllerUtils() {
+    }
 
     public static String extractMatched(final HttpServletRequest request) {
 
