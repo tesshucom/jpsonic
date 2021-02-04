@@ -4,6 +4,16 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
 
+    <!-- This file is whitelist definition of rules for a Spotbugs. It can be 
+        used from Maven or IDE. The file name is findbugs, but the definition is 
+        for Spotbug. This is a limitation of Codacy's auto-import. While Jpsonic 
+        builds use PMD/Spotbugs/Checkstyle, Cadacy uses 9 static inspection 
+        tools, including these.
+
+        https://docs.codacy.com/repositories-configure/code-patterns/#using-your-own-tool-configuration-files 
+
+        Author: tesshucom
+        -->
     <Match>
         <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS" /><!-- It is a bug rule. -->
     </Match>
