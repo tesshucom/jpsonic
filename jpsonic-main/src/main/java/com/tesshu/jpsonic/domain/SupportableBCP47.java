@@ -20,6 +20,8 @@
 package com.tesshu.jpsonic.domain;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * BCP47 enumeration of speech recognition supported by Jpsonic. Currently, there are languages such as Norwegian that
@@ -33,6 +35,39 @@ public enum SupportableBCP47 {
     ZH_TW("zh-TW"), JA_JP("ja-JP"), KO("ko-KR"), NL("nl-NL"), NO("no-NO"), NN("no-NO"), SV("sv-SE"), DA("da-DK"),
     FI("fi-FI"), IS("is-IS"), ET("et-EE");
 
+    private static Map<String, SupportableBCP47> supportableLocales = new ConcurrentHashMap<>();
+
+    static {
+        // Add as needed
+        supportableLocales.put("en-US", EN_US);
+        supportableLocales.put("en-GB", EN_GB);
+        supportableLocales.put("fr", FR);
+        supportableLocales.put("es", ES);
+        supportableLocales.put("ca", CA);
+        supportableLocales.put("pt", PT);
+        supportableLocales.put("de", DE);
+        supportableLocales.put("it", IT);
+        supportableLocales.put("el", EL);
+        supportableLocales.put("ru", RU);
+        supportableLocales.put("sl", SL);
+        supportableLocales.put("mk", MK);
+        supportableLocales.put("pl", PL);
+        supportableLocales.put("bg", BG);
+        supportableLocales.put("cs", CS);
+        supportableLocales.put("zh-CN", ZH_CN);
+        supportableLocales.put("zh-TW", ZH_TW);
+        supportableLocales.put("ja-JP", JA_JP);
+        supportableLocales.put("ko", KO);
+        supportableLocales.put("nl", NL);
+        supportableLocales.put("no", NO);
+        supportableLocales.put("nn", NN);
+        supportableLocales.put("sv", SV);
+        supportableLocales.put("da", DA);
+        supportableLocales.put("fi", FI);
+        supportableLocales.put("is", IS);
+        supportableLocales.put("et", ET);
+    }
+
     private String value;
 
     SupportableBCP47(String n) {
@@ -44,63 +79,10 @@ public enum SupportableBCP47 {
     }
 
     public static SupportableBCP47 valueOf(Locale locale) {
-        if (locale == null || EN_US.name().equals(locale.toLanguageTag())) {
+        SupportableBCP47 supportable = supportableLocales.get(locale.toLanguageTag());
+        if (supportable == null) {
             return EN;
-        } else if ("en-GB".equals(locale.toLanguageTag())) {
-            return EN_GB;
-        } else if ("fr".equals(locale.toLanguageTag())) {
-            return FR;
-        } else if ("es".equals(locale.toLanguageTag())) {
-            return ES;
-        } else if ("ca".equals(locale.toLanguageTag())) {
-            return CA;
-        } else if ("pt".equals(locale.toLanguageTag())) {
-            return PT;
-        } else if ("de".equals(locale.toLanguageTag())) {
-            return DE;
-        } else if ("it".equals(locale.toLanguageTag())) {
-            return IT;
-        } else if ("el".equals(locale.toLanguageTag())) {
-            return EL;
-        } else if ("ru".equals(locale.toLanguageTag())) {
-            return RU;
-        } else if ("sl".equals(locale.toLanguageTag())) {
-            return SL;
-        } else if ("mk".equals(locale.toLanguageTag())) {
-            return MK;
-        } else if ("pl".equals(locale.toLanguageTag())) {
-            return PL;
-        } else if ("bg".equals(locale.toLanguageTag())) {
-            return BG;
-        } else if ("cs".equals(locale.toLanguageTag())) {
-            return CS;
-        } else if ("zh-CN".equals(locale.toLanguageTag())) {
-            return ZH_CN;
-        } else if ("zh-TW".equals(locale.toLanguageTag())) {
-            return ZH_TW;
-        } else if ("zh-TW".equals(locale.toLanguageTag())) {
-            return ZH_TW;
-        } else if ("ja-JP".equals(locale.toLanguageTag())) {
-            return JA_JP;
-        } else if ("ko".equals(locale.toLanguageTag())) {
-            return KO;
-        } else if ("nl".equals(locale.toLanguageTag())) {
-            return NL;
-        } else if ("no".equals(locale.toLanguageTag())) {
-            return NO;
-        } else if ("nn".equals(locale.toLanguageTag())) {
-            return NN;
-        } else if ("sv".equals(locale.toLanguageTag())) {
-            return SV;
-        } else if ("da".equals(locale.toLanguageTag())) {
-            return DA;
-        } else if ("fi".equals(locale.toLanguageTag())) {
-            return FI;
-        } else if ("is".equals(locale.toLanguageTag())) {
-            return IS;
-        } else if ("et".equals(locale.toLanguageTag())) {
-            return ET;
         }
-        return EN;
+        return supportable;
     }
 }

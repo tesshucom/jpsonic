@@ -204,81 +204,87 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         }
 
         if ("derivedfrom".equals(verb)) {
-            switch (complement) {
-
-            // artist
-            case "object.container.person":
-            case "object.container.person.musicArtist":
-                assignableClass = Artist.class;
-                break;
-
-            // album
-            case "object.container.album":
-            case "object.container.album.musicAlbum":
-                assignableClass = Album.class;
-                break;
-
-            // audio
-            case "object.item.audioItem":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
-                break;
-
-            // video
-            case "object.item.videoItem":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
-                break;
-
-            default:
-                throw createIllegal("An unknown class was specified.", subject, verb, complement);
-            }
+            purseDerivedfrom(subject, verb, complement);
         } else if ("=".equals(verb)) {
-            switch (complement) {
-
-            // artist
-            case "object.container.person.musicArtist":
-                assignableClass = Artist.class;
-                break;
-
-            // album
-            case "object.container.album.musicAlbum":
-                assignableClass = Album.class;
-                break;
-
-            // audio
-            case "object.item.audioItem.musicTrack":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
-                break;
-            case "object.item.audioItem.audioBroadcast":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
-                break;
-            case "object.item.audioItem.audioBook":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
-                break;
-
-            // video
-            case "object.item.videoItem.movie":
-            case "object.item.videoItem.videoBroadcast":
-            case "object.item.videoItem.musicVideoClip":
-                assignableClass = MediaFile.class;
-                addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
-                break;
-
-            default:
-                throw createIllegal(
-                        "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
-                        subject, verb, complement);
-            }
+            purseClass(subject, verb, complement);
         }
-
         includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
+    }
 
+    private void purseDerivedfrom(String subject, String verb, String complement) {
+        switch (complement) {
+
+        // artist
+        case "object.container.person":
+        case "object.container.person.musicArtist":
+            assignableClass = Artist.class;
+            break;
+
+        // album
+        case "object.container.album":
+        case "object.container.album.musicAlbum":
+            assignableClass = Album.class;
+            break;
+
+        // audio
+        case "object.item.audioItem":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+            break;
+
+        // video
+        case "object.item.videoItem":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            break;
+
+        default:
+            throw createIllegal("An unknown class was specified.", subject, verb, complement);
+        }
+    }
+
+    private void purseClass(String subject, String verb, String complement) {
+        switch (complement) {
+
+        // artist
+        case "object.container.person.musicArtist":
+            assignableClass = Artist.class;
+            break;
+
+        // album
+        case "object.container.album.musicAlbum":
+            assignableClass = Album.class;
+            break;
+
+        // audio
+        case "object.item.audioItem.musicTrack":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+            break;
+        case "object.item.audioItem.audioBroadcast":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+            break;
+        case "object.item.audioItem.audioBook":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+            break;
+
+        // video
+        case "object.item.videoItem.movie":
+        case "object.item.videoItem.videoBroadcast":
+        case "object.item.videoItem.musicVideoClip":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            break;
+
+        default:
+            throw createIllegal(
+                    "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
+                    subject, verb, complement);
+        }
     }
 
     @Override
