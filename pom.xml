@@ -18,11 +18,11 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.2</cxf.version>
         <jackson.version>2.12.1</jackson.version>
-        <tomcat.version>9.0.41</tomcat.version>
+        <tomcat.version>9.0.43</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.36.v20210114</jetty.version>
         <jetty-jsp.version>9.4.36.v20210114</jetty-jsp.version>
-        <pmd.version>6.30.0</pmd.version>
+        <pmd.version>6.31.0</pmd.version>
         <log4j.version>2.14.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
@@ -150,7 +150,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.9.1</version>
+                <version>3.10.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -434,12 +434,12 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.1.1</version>
+                    <version>3.1.2</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.39</version>
+                            <version>8.40</version>
                         </dependency>
                     </dependencies>
                     <configuration>
