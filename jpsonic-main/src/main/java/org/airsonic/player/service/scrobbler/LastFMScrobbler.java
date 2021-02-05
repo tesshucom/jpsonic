@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.scrobbler;
@@ -61,8 +62,8 @@ public class LastFMScrobbler {
 
     private RegistrationThread thread;
     private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15000)
-            .setSocketTimeout(15000).build();
+    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15_000)
+            .setSocketTimeout(15_000).build();
 
     private static final Object REGISTRATION_LOCK = new Object();
 
@@ -93,9 +94,7 @@ public class LastFMScrobbler {
             }
 
             if (queue.size() >= MAX_PENDING_REGISTRATION) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
-                }
+                writeWarn("Last.fm scrobbler queue is full. Ignoring " + mediaFile);
                 return;
             }
 
@@ -103,9 +102,7 @@ public class LastFMScrobbler {
             try {
                 queue.put(registrationData);
             } catch (InterruptedException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Interrupted while queuing Last.fm scrobble: " + x.toString());
-                }
+                writeWarn("Interrupted while queuing Last.fm scrobble: " + x.toString());
             }
         }
     }
@@ -116,7 +113,7 @@ public class LastFMScrobbler {
      * @param registrationData
      *            Registration data for the song.
      */
-    static final void scrobble(RegistrationData registrationData)
+    protected static final void scrobble(RegistrationData registrationData)
             throws URISyntaxException, ClientProtocolException, IOException {
         if (registrationData == null) {
             return;
@@ -138,19 +135,13 @@ public class LastFMScrobbler {
         }
 
         if (lines[0].startsWith("FAILED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
         } else if (lines[0].startsWith("BADSESSION")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Invalid session.");
-            }
-        } else if (lines[0].startsWith("OK")) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
-                        + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
-                        + " at Last.fm: " + registrationData.getTime());
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Invalid session.");
+        } else if (LOG.isInfoEnabled() && lines[0].startsWith("OK")) {
+            LOG.info("Successfully registered " + (registrationData.isSubmission() ? "submission" : "now playing")
+                    + " for song '" + registrationData.getTitle() + "' for user " + registrationData.getUsername()
+                    + " at Last.fm: " + registrationData.getTime());
         }
     }
 
@@ -178,43 +169,38 @@ public class LastFMScrobbler {
         String[] lines = executeGetRequest(uri);
 
         if (lines[0].startsWith("BANNED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Client version is banned.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Client version is banned.");
             return null;
         }
 
         if (lines[0].startsWith("BADAUTH")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Wrong username or password.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm. Wrong username or password.");
             return null;
         }
 
         if (lines[0].startsWith("BADTIME")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle()
-                        + "' at Last.fm. Bad timestamp, please check local clock.");
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle()
+                    + "' at Last.fm. Bad timestamp, please check local clock.");
             return null;
         }
 
         if (lines[0].startsWith("FAILED")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm: " + lines[0]);
             return null;
         }
 
         if (!lines[0].startsWith("OK")) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: "
-                        + lines[0]);
-            }
+            writeWarn(MSG_PREF_ON_FAIL + registrationData.getTitle() + "' at Last.fm.  Unknown response: " + lines[0]);
             return null;
         }
 
         return lines;
+    }
+
+    protected static void writeWarn(String msg) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(msg);
+        }
     }
 
     private static String[] registerSubmission(RegistrationData registrationData, String sessionId, String url)
@@ -284,7 +270,7 @@ public class LastFMScrobbler {
      */
     private static class RegistrationThread extends Thread {
 
-        final LinkedBlockingQueue<RegistrationData> queue;
+        private final LinkedBlockingQueue<RegistrationData> queue;
 
         private static final Logger LOG = LoggerFactory.getLogger(RegistrationThread.class);
 
@@ -303,9 +289,7 @@ public class LastFMScrobbler {
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
                 } catch (Exception x) {
-                    if (LOG.isWarnEnabled()) {
-                        LOG.warn("Error in Last.fm registration: " + x.toString());
-                    }
+                    writeWarn("Error in Last.fm registration: " + x.toString());
                 }
             }
         }
@@ -337,6 +321,15 @@ public class LastFMScrobbler {
 
     private static class RegistrationData {
 
+        private String username;
+        private String password;
+        private String artist;
+        private String album;
+        private String title;
+        private int duration;
+        private Date time;
+        public boolean submission;
+
         public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
             this.username = username;
             this.password = password;
@@ -347,15 +340,6 @@ public class LastFMScrobbler {
             this.time = time == null ? new Date() : time;
             this.submission = submission;
         }
-
-        private String username;
-        private String password;
-        private String artist;
-        private String album;
-        private String title;
-        private int duration;
-        private Date time;
-        public boolean submission;
 
         public String getUsername() {
             return username;

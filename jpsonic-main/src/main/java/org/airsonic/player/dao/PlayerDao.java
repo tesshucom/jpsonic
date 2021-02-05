@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.dao;
@@ -80,12 +81,12 @@ public class PlayerDao extends AbstractDao {
      * @return All relevant players.
      */
     public List<Player> getPlayersForUserAndClientId(String username, String clientId) {
-        if (clientId != null) {
-            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
-            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
-        } else {
+        if (clientId == null) {
             String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id is null";
             return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username);
+        } else {
+            String sql = "select " + QUERY_COLUMNS + " from player where username=? and client_id=?";
+            return query(sql, new PlayerRowMapper(playlists, playerDaoPlayQueueFactory), username, clientId);
         }
     }
 
@@ -152,10 +153,8 @@ public class PlayerDao extends AbstractDao {
         cal.add(Calendar.DATE, -days);
         String sql = "delete from player where name is null and client_id is null and (last_seen is null or last_seen < ?)";
         int n = update(sql, cal.getTime());
-        if (n > 0) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
-            }
+        if (LOG.isInfoEnabled() && n > 0) {
+            LOG.info("Deleted " + n + " player(s) that haven't been used after " + cal.getTime());
         }
     }
 
@@ -175,7 +174,7 @@ public class PlayerDao extends AbstractDao {
                 player.getClientId(), player.getJavaJukeboxMixer(), player.getId());
     }
 
-    static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
+    protected static final void addPlaylist(Player player, Map<Integer, PlayQueue> playlistMap,
             PlayerDaoPlayQueueFactory factory) {
         PlayQueue playQueue = playlistMap.get(player.getId());
         if (playQueue == null) {
@@ -187,8 +186,8 @@ public class PlayerDao extends AbstractDao {
 
     private static class PlayerRowMapper implements RowMapper<Player> {
 
-        final Map<Integer, PlayQueue> playlistMap;
-        final PlayerDaoPlayQueueFactory factory;
+        private final Map<Integer, PlayQueue> playlistMap;
+        private final PlayerDaoPlayQueueFactory factory;
 
         public PlayerRowMapper(Map<Integer, PlayQueue> playlistMap, PlayerDaoPlayQueueFactory factory) {
             super();

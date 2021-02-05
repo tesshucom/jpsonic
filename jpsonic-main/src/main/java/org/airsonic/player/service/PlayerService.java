@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -29,6 +30,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.dao.PlayerDao;
 import org.airsonic.player.domain.Player;
@@ -38,9 +40,11 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 
 /**
@@ -76,8 +80,11 @@ public class PlayerService {
 
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
+     * 
+     * @throws ServletRequestBindingException
      */
-    public Player getPlayer(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException {
         return getPlayer(request, response, true, false);
     }
 
@@ -94,72 +101,28 @@ public class PlayerService {
      *            Whether the HTTP request is a request for streaming data.
      * 
      * @return The player associated with the given HTTP request.
+     * 
+     * @throws ServletRequestBindingException
      */
-    @SuppressWarnings("PMD.NullAssignment") // (player) Intentional assignment to eliminate user spoofing
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
-            boolean isStreamRequest) throws Exception {
+            boolean isStreamRequest) throws ServletRequestBindingException {
 
         synchronized (LOCK) {
 
-            // Find by 'player' request parameter.
-            Player player = getPlayerById(
-                    ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value()));
+            // Get player.
+            Player player = findOrCreatePlayer(request, remoteControlEnabled);
 
-            // Find in session context.
-            if (player == null && remoteControlEnabled) {
-                Integer playerId = (Integer) request.getSession().getAttribute(ATTRIBUTE_SESSION_KEY);
-                if (playerId != null) {
-                    player = getPlayerById(playerId);
-                }
-            }
-
-            // Find by cookie.
-            String username = securityService.getCurrentUsername(request);
-            if (player == null && remoteControlEnabled) {
-                player = getPlayerById(getPlayerIdFromCookie(request, username));
-            }
-
-            // Make sure we're not hijacking the player of another user.
-            if (player != null && player.getUsername() != null && username != null
-                    && !player.getUsername().equals(username)) {
-                player = null;
-            }
-
-            // Look for player with same IP address and user name.
-            if (player == null) {
-                player = getNonRestPlayerByIpAddressAndUsername(request.getRemoteAddr(), username);
-            }
-
-            // If no player was found, create it.
-            if (player == null) {
-                player = new Player();
-                createPlayer(player);
-            }
+            // Check if player data should be updated.
+            boolean isUpdate = isToBeUpdate(request, isStreamRequest, player);
 
             // Update player data.
-            boolean isUpdate = false;
-            if (username != null && player.getUsername() == null) {
-                player.setUsername(username);
-                isUpdate = true;
-            }
-            if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player) && player.isDynamicIp()
-                    && !request.getRemoteAddr().equals(player.getIpAddress())) {
-                player.setIpAddress(request.getRemoteAddr());
-                isUpdate = true;
-            }
-            String userAgent = request.getHeader("user-agent");
-            if (isStreamRequest) {
-                player.setType(userAgent);
-                player.setLastSeen(new Date());
-                isUpdate = true;
-            }
-
             if (isUpdate) {
                 updatePlayer(player);
             }
 
             // Set cookie in response.
             if (response != null) {
+                String username = securityService.getCurrentUsername(request);
                 String cookieName = COOKIE_NAME + "-" + StringUtil.utf8HexEncode(username);
                 Cookie cookie = new Cookie(cookieName, String.valueOf(player.getId()));
                 cookie.setMaxAge(COOKIE_EXPIRY);
@@ -179,9 +142,73 @@ public class PlayerService {
             }
 
             return player;
+        }
+    }
 
+    @SuppressWarnings("PMD.NullAssignment") // (player) Intentional assignment to eliminate user spoofing
+    private Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled)
+            throws ServletRequestBindingException {
+
+        // Find by 'player' request parameter.
+        Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value()));
+
+        // Find in session context.
+        if (player == null && remoteControlEnabled) {
+            player = findPlayerInSession(request);
         }
 
+        // Find by cookie.
+        String username = securityService.getCurrentUsername(request);
+        if (player == null && remoteControlEnabled) {
+            player = getPlayerById(getPlayerIdFromCookie(request, username));
+        }
+
+        // Make sure we're not hijacking the player of another user.
+        if (player != null && player.getUsername() != null && username != null
+                && !player.getUsername().equals(username)) {
+            player = null;
+        }
+
+        // Look for player with same IP address and user name.
+        if (player == null) {
+            player = getNonRestPlayerByIpAddressAndUsername(request.getRemoteAddr(), username);
+        }
+
+        // If no player was found, create it.
+        if (player == null) {
+            player = new Player();
+            createPlayer(player);
+        }
+        return player;
+    }
+
+    @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. The value of isStreamRequest is not always false.")
+    private boolean isToBeUpdate(HttpServletRequest request, boolean isStreamRequest, Player player) {
+        String username = securityService.getCurrentUsername(request);
+        if (username != null && player.getUsername() == null) {
+            player.setUsername(username);
+            return true;
+        }
+        if (player.getIpAddress() == null || isStreamRequest || !isPlayerConnected(player) && player.isDynamicIp()
+                && !request.getRemoteAddr().equals(player.getIpAddress())) {
+            player.setIpAddress(request.getRemoteAddr());
+            return true;
+        }
+        String userAgent = request.getHeader("user-agent");
+        if (isStreamRequest) {
+            player.setType(userAgent);
+            player.setLastSeen(new Date());
+            return true;
+        }
+        return false;
+    }
+
+    private @Nullable Player findPlayerInSession(HttpServletRequest request) throws ServletRequestBindingException {
+        Integer playerId = (Integer) request.getSession().getAttribute(ATTRIBUTE_SESSION_KEY);
+        if (playerId != null) {
+            return getPlayerById(playerId);
+        }
+        return null;
     }
 
     /**

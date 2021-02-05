@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.util;
 
@@ -28,12 +48,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
 
-public class LegacyHsqlUtil {
+public final class LegacyHsqlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyHsqlUtil.class);
 
     public static final String UPGRADE_NEEDED_VERSION1 = "1.8.0";
     public static final String UPGRADE_NEEDED_VERSION2 = "1.8.1";
+
+    private LegacyHsqlUtil() {
+    }
 
     /**
      * Return the current version of the HSQLDB database, as reported by the database properties file.
@@ -166,6 +189,7 @@ public class LegacyHsqlUtil {
         return destination;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     public static void performAdditionOfScript(Path backupDir) throws IOException {
 

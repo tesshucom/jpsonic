@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.jukebox;
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 
 import org.airsonic.player.util.FileUtil;
@@ -60,11 +62,11 @@ public class AudioPlayer {
 
     private static final Object LINE_LOCK = new Object();
 
-    public AudioPlayer(InputStream in, Listener listener) throws Exception {
+    public AudioPlayer(InputStream in, Listener listener) throws LineUnavailableException {
         this.in = in;
         this.listener = listener;
 
-        AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44100.0F, 16, 2, 4, 44100.0F, true);
+        AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44_100.0F, 16, 2, 4, 44_100.0F, true);
         line = AudioSystem.getSourceDataLine(format);
         line.open(format);
         if (LOG.isDebugEnabled()) {
@@ -169,7 +171,7 @@ public class AudioPlayer {
      * Returns the position in seconds.
      */
     public int getPosition() {
-        return (int) (line.getMicrosecondPosition() / 1000000L);
+        return (int) (line.getMicrosecondPosition() / 1_000_000L);
     }
 
     private void setState(State state) {
@@ -241,7 +243,7 @@ public class AudioPlayer {
         void stateChanged(AudioPlayer player, State state);
     }
 
-    public static enum State {
+    public enum State {
         PAUSED, PLAYING, CLOSED, EOM
     }
 }

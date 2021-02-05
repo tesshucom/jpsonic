@@ -74,9 +74,9 @@ function updateNextTag() {
     var year = dwr.util.getValue("year" + index);
     var genre = dwr.util.getValue("genre" + index);
     dwr.util.setValue("status" + index, "<fmt:message key="edittags.working"/>");
-    tagService.setTags(id, track, artist, album, title, year, genre, setTagsCallback);
+    tagService.updateTags(id, track, artist, album, title, year, genre, updateTagsCallback);
 }
-function setTagsCallback(result) {
+function updateTagsCallback(result) {
     var message;
     if (result == "SKIPPED") {
         message = "<fmt:message key="edittags.skipped"/>";

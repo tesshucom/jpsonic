@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -31,18 +32,19 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.web.util.UrlPathHelper;
 
-@Service
-public class NetworkService {
+public final class NetworkUtils {
 
     private static UrlPathHelper urlPathHelper = new UrlPathHelper();
     private static final String X_FORWARDED_SERVER = "X-Forwarded-Server";
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
 
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
+
+    private NetworkUtils() {
+    }
 
     public static String getBaseUrl(HttpServletRequest request) {
         try {

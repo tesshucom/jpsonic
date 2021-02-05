@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -33,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -92,10 +94,9 @@ public class UploadController {
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
 
-        Map<String, Object> map = LegacyMap.of();
-        List<File> uploadedFiles = new ArrayList<>();
-        List<File> unzippedFiles = new ArrayList<>();
         TransferStatus status = null;
+        UnzipResult result = null;
+        Map<String, Object> model = LegacyMap.of();
 
         try {
 
@@ -132,44 +133,13 @@ public class UploadController {
                 throw new ExecutionException(new IOException("Missing 'dir' parameter."));
             }
 
-            // Look for file items.
-            for (Object o : items) {
-                FileItem item = (FileItem) o;
-
-                if (!item.isFormField()) {
-                    if (!StringUtils.isAllBlank(item.getName())) {
-
-                        File targetFile = new File(dir, new File(item.getName()).getName());
-
-                        if (!securityService.isUploadAllowed(targetFile)) {
-                            throw new ExecutionException(new GeneralSecurityException(
-                                    "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
-                        }
-
-                        if (!dir.exists()) {
-                            if (!dir.mkdirs() && LOG.isWarnEnabled()) {
-                                LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
-                            }
-                        }
-
-                        item.write(targetFile);
-                        uploadedFiles.add(targetFile);
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Uploaded " + targetFile);
-                        }
-
-                        if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
-                            unzip(targetFile, unzippedFiles);
-                        }
-                    }
-                }
-            }
+            result = doUnzip(items, dir, unzip);
 
         } catch (Exception x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Uploading failed.", x);
             }
-            map.put("exception", x);
+            model.put("exception", x);
         } finally {
             if (status != null) {
                 statusService.removeUploadStatus(status);
@@ -179,20 +149,81 @@ public class UploadController {
             }
         }
 
-        map.put("uploadedFiles", uploadedFiles);
-        map.put("unzippedFiles", unzippedFiles);
+        if (result != null) {
+            model.put("uploadedFiles", result.getUploadedFiles());
+            model.put("unzippedFiles", result.getUnzippedFiles());
+        }
 
-        return new ModelAndView("upload", "model", map);
+        return new ModelAndView("upload", "model", model);
+    }
+
+    private static class UnzipResult {
+
+        private List<File> uploadedFiles;
+        private List<File> unzippedFiles;
+
+        public UnzipResult(List<File> uploadedFiles, List<File> unzippedFiles) {
+            super();
+            this.uploadedFiles = uploadedFiles;
+            this.unzippedFiles = unzippedFiles;
+        }
+
+        public List<File> getUploadedFiles() {
+            return uploadedFiles;
+        }
+
+        public List<File> getUnzippedFiles() {
+            return unzippedFiles;
+        }
+    }
+
+    @SuppressWarnings({ "PMD.SignatureDeclareThrowsException", "PMD.AvoidInstantiatingObjectsInLoops",
+            "PMD.UseLocaleWithCaseConversions" })
+    /*
+     * [SignatureDeclareThrowsException] #857 apache commons [AvoidInstantiatingObjectsInLoops] (File, Execution) Not
+     * reusable [] The locale doesn't matter, as only comparing the extension literal.
+     */
+    private UnzipResult doUnzip(List<FileItem> items, File dir, boolean unzip)
+            throws ExecutionException, IOException, Exception {
+        List<File> uploadedFiles = new ArrayList<>();
+        List<File> unzippedFiles = new ArrayList<>();
+        // Look for file items.
+        for (FileItem item : items) {
+            if (!item.isFormField() && !StringUtils.isAllBlank(item.getName())) {
+
+                File targetFile = new File(dir, new File(item.getName()).getName());
+
+                if (!securityService.isUploadAllowed(targetFile)) {
+                    throw new ExecutionException(new GeneralSecurityException(
+                            "Permission denied: " + StringEscapeUtils.escapeHtml(targetFile.getPath())));
+                }
+
+                if (!dir.exists() && !dir.mkdirs() && LOG.isWarnEnabled()) {
+                    LOG.warn("The directory '{}' could not be created.", dir.getAbsolutePath());
+                }
+
+                item.write(targetFile);
+                uploadedFiles.add(targetFile);
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Uploaded " + targetFile);
+                }
+
+                if (unzip && targetFile.getName().toLowerCase().endsWith(".zip")) {
+                    unzippedFiles = unzip(targetFile);
+                }
+            }
+        }
+        return new UnzipResult(uploadedFiles, unzippedFiles);
     }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File, IOException, GeneralSecurityException, byte[])
                                                               // Not reusable
-    private void unzip(File file, List<File> unzippedFiles) throws Exception {
+    private List<File> unzip(File file) throws ExecutionException, ZipException, IOException {
         if (LOG.isInfoEnabled()) {
             LOG.info("Unzipping " + file);
         }
-
+        List<File> unzippedFiles = null;
         try (ZipFile zipFile = new ZipFile(file)) {
 
             Enumeration<?> entries = zipFile.entries();
@@ -217,21 +248,7 @@ public class UploadController {
                                 entryFile.getParentFile().getAbsolutePath());
                     }
 
-                    try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
-                            InputStream inputStream = zipFile.getInputStream(entry)) {
-                        byte[] buf = new byte[8192];
-                        while (true) {
-                            int n = inputStream.read(buf);
-                            if (n == -1) {
-                                break;
-                            }
-                            outputStream.write(buf, 0, n);
-                        }
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("Unzipped " + entryFile);
-                        }
-                        unzippedFiles.add(entryFile);
-                    }
+                    unzippedFiles = unzip(zipFile, entry, entryFile);
                 }
             }
 
@@ -240,6 +257,27 @@ public class UploadController {
                 LOG.warn("The file '{}' could not be deleted.", file.getAbsolutePath());
             }
         }
+        return unzippedFiles;
+    }
+
+    private List<File> unzip(ZipFile zipFile, ZipEntry entry, File entryFile) throws IOException {
+        List<File> unzippedFiles = new ArrayList<>();
+        try (OutputStream outputStream = Files.newOutputStream(Paths.get(entryFile.toURI()));
+                InputStream inputStream = zipFile.getInputStream(entry)) {
+            byte[] buf = new byte[8192];
+            while (true) {
+                int n = inputStream.read(buf);
+                if (n == -1) {
+                    break;
+                }
+                outputStream.write(buf, 0, n);
+            }
+            if (LOG.isInfoEnabled()) {
+                LOG.info("Unzipped " + entryFile);
+            }
+            unzippedFiles.add(entryFile);
+        }
+        return unzippedFiles;
     }
 
     /**

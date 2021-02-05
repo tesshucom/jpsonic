@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package com.tesshu.jpsonic.domain;
@@ -59,6 +59,14 @@ public class JapaneseReadingUtils {
     private static final Pattern KATAKANA = Pattern.compile("^[\\u30A0-\\u30FF]+$");
     private static final String ASTER = "*";
     private static final String TILDE = "\uff5e"; // Special usage for Japanese
+    private static final char WAVY_LINE = '\u007e'; // ~
+
+    private final SettingsService settingsService;
+    private final Tokenizer tokenizer = new Tokenizer();
+
+    private Map<String, String> readingMap = new ConcurrentHashMap<>();
+    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
+    private List<String> ignoredArticles;
 
     public static boolean isPunctuation(char ch) {
         switch (Character.getType(ch)) {
@@ -83,13 +91,6 @@ public class JapaneseReadingUtils {
             return false;
         }
     }
-
-    private final SettingsService settingsService;
-
-    private final Tokenizer tokenizer = new Tokenizer();
-    private Map<String, String> readingMap = new ConcurrentHashMap<>();
-    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
-    private List<String> ignoredArticles;
 
     public JapaneseReadingUtils(SettingsService settingsService) {
         super();
@@ -128,20 +129,17 @@ public class JapaneseReadingUtils {
     /**
      * 
      */
-    boolean isJapaneseReadable(String str) {
+    private boolean isJapaneseReadable(String str) {
         if (isEmpty(str)) {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.CJK_SYMBOLS_AND_PUNCTUATION.equals(b)
-                    || Character.UnicodeBlock.GREEK.equals(b)) {
-                return true;
-            }
-            return false;
+                    || Character.UnicodeBlock.GREEK.equals(b);
         });
     }
 
@@ -175,6 +173,7 @@ public class JapaneseReadingUtils {
         return result;
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(Artist artist) {
         String indexableName = artist.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(artist.getName())) {
@@ -187,6 +186,7 @@ public class JapaneseReadingUtils {
         return createIndexableName(indexableName);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     public String createIndexableName(MediaFile mediaFile) {
         String indexableName = mediaFile.getName();
         if (settingsService.isIndexEnglishPrior() && isStartWithAlpha(mediaFile.getName())) {
@@ -209,8 +209,7 @@ public class JapaneseReadingUtils {
      */
     private String createIndexableName(String sort) {
         String indexableName = sort;
-        char c = sort.charAt(0);
-        if (!(c <= '\u007e')) { // Wavy line
+        if (sort.charAt(0) > WAVY_LINE) {
             indexableName = Transliterator.getInstance("Fullwidth-Halfwidth").transliterate(indexableName);
             indexableName = Transliterator.getInstance("Hiragana-Katakana").transliterate(indexableName);
         }
@@ -219,7 +218,7 @@ public class JapaneseReadingUtils {
         return indexableName;
     }
 
-    String createReading(String s) {
+    private String createReading(String s) {
         if (isEmpty(s)) {
             return null;
         }
@@ -260,19 +259,16 @@ public class JapaneseReadingUtils {
         return reading;
     }
 
-    boolean isJapaneseReading(String str) {
+    private boolean isJapaneseReading(String str) {
         if (isEmpty(str)) {
             return false;
         }
         return Stream.of(str.split(EMPTY)).anyMatch(s -> {
             Character.UnicodeBlock b = Character.UnicodeBlock.of(s.toCharArray()[0]);
-            if (Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
+            return Character.UnicodeBlock.HIRAGANA.equals(b) || Character.UnicodeBlock.KATAKANA.equals(b)
                     || Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS.equals(b)
                     || Character.UnicodeBlock.HALFWIDTH_AND_FULLWIDTH_FORMS.equals(b)
-                            && s.chars().anyMatch(c -> 65382 <= c && c <= 65437)) {
-                return true;
-            }
-            return false;
+                            && s.chars().anyMatch(c -> 65_382 <= c && c <= 65_437);
         });
     }
 
@@ -292,7 +288,7 @@ public class JapaneseReadingUtils {
      * 
      * @return
      */
-    final String normalize(@Nullable String s) {
+    private String normalize(@Nullable String s) {
         if (isEmpty(s)) {
             return null;
         }
@@ -300,15 +296,15 @@ public class JapaneseReadingUtils {
         StringBuilder excluded = new StringBuilder();
         int start = 0;
         int i = s.indexOf(TILDE);
-        if (-1 != i) {
+        if (-1 == i) {
+            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
+        } else {
             while (-1 != i) {
                 excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
                 excluded.append(TILDE);
                 start = i + 1;
                 i = s.indexOf(TILDE, i + 1);
             }
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
-        } else {
             excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
         }
 

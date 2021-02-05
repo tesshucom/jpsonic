@@ -1,20 +1,22 @@
 /*
- * This file is part of Airsonic.
+ * This file is part of Jpsonic.
  *
- *  Airsonic is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Airsonic is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright 2014 (C) Sindre Mehus
+ * (C) 2014 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -24,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -119,19 +122,19 @@ public class LastFmService {
                 }
             }
 
+            if (!includeNotPresent) {
+                return result;
+            }
+
             // Then fill up with non-present artists
-            if (includeNotPresent) {
-                for (Artist lastFmArtist : similarArtists) {
-                    MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
-                    if (similarArtist == null) {
-                        MediaFile notPresentArtist = new MediaFile();
-                        notPresentArtist.setId(-1);
-                        notPresentArtist.setArtist(lastFmArtist.getName());
-                        result.add(notPresentArtist);
-                        if (result.size() == count) {
-                            return result;
-                        }
-                    }
+            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+                Artist lastFmArtist = i.next();
+                MediaFile similarArtist = mediaFileDao.getArtistByName(lastFmArtist.getName(), musicFolders);
+                if (similarArtist == null) {
+                    MediaFile notPresentArtist = new MediaFile();
+                    notPresentArtist.setId(-1);
+                    notPresentArtist.setArtist(lastFmArtist.getName());
+                    result.add(notPresentArtist);
                 }
             }
 
@@ -178,19 +181,19 @@ public class LastFmService {
                 }
             }
 
+            if (!includeNotPresent) {
+                return result;
+            }
+
             // Then fill up with non-present artists
-            if (includeNotPresent) {
-                for (Artist lastFmArtist : similarArtists) {
-                    org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
-                    if (similarArtist == null) {
-                        org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
-                        notPresentArtist.setId(-1);
-                        notPresentArtist.setName(lastFmArtist.getName());
-                        result.add(notPresentArtist);
-                        if (result.size() == count) {
-                            return result;
-                        }
-                    }
+            for (Iterator<Artist> i = similarArtists.iterator(); i.hasNext() && result.size() != count;) {
+                Artist lastFmArtist = i.next();
+                org.airsonic.player.domain.Artist similarArtist = artistDao.getArtist(lastFmArtist.getName());
+                if (similarArtist == null) {
+                    org.airsonic.player.domain.Artist notPresentArtist = new org.airsonic.player.domain.Artist();
+                    notPresentArtist.setId(-1);
+                    notPresentArtist.setName(lastFmArtist.getName());
+                    result.add(notPresentArtist);
                 }
             }
 
@@ -454,7 +457,7 @@ public class LastFmService {
 
             String biography = processWikiText(info.getWikiSummary());
             String redirectedArtistName = getRedirectedArtist(biography);
-            return redirectedArtistName != null ? redirectedArtistName : artistName;
+            return redirectedArtistName == null ? artistName : redirectedArtistName;
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to find artist bio for " + artistName, x);
@@ -516,7 +519,7 @@ public class LastFmService {
     private String getArtistName(MediaFile mediaFile) {
         String artistName = mediaFile.getName();
         if (mediaFile.isAlbum() || mediaFile.isFile()) {
-            artistName = mediaFile.getAlbumArtist() != null ? mediaFile.getAlbumArtist() : mediaFile.getArtist();
+            artistName = mediaFile.getAlbumArtist() == null ? mediaFile.getArtist() : mediaFile.getAlbumArtist();
         }
         return artistName;
     }

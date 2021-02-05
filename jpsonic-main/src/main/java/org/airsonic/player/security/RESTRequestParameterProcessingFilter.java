@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.security;
@@ -96,7 +97,6 @@ public class RESTRequestParameterProcessingFilter implements Filter {
 
         if (!requiresAuthentication(httpRequest, httpResponse)) {
             chain.doFilter(request, response);
-
             return;
         }
 
@@ -107,8 +107,19 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         String version = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.V.value()));
         String client = StringUtils.trimToNull(httpRequest.getParameter(Attributes.Request.C.value()));
 
-        SubsonicRESTController.ErrorCode errorCode = null;
+        SubsonicRESTController.ErrorCode errorCode = getErrorCode(httpRequest, username, password, salt, token, version,
+                client);
+        if (errorCode == null) {
+            chain.doFilter(request, response);
+        } else {
+            SecurityContextHolder.getContext().setAuthentication(null);
+            sendErrorXml(httpRequest, httpResponse, errorCode);
+        }
+    }
 
+    private SubsonicRESTController.ErrorCode getErrorCode(HttpServletRequest httpRequest, String username,
+            String password, String salt, String token, String version, String client) {
+        SubsonicRESTController.ErrorCode errorCode = null;
         // The username and credentials parameters are not required if the user
         // was previously authenticated, for example using Basic Auth.
         boolean passwordOrTokenPresent = password != null || salt != null && token != null;
@@ -117,21 +128,13 @@ public class RESTRequestParameterProcessingFilter implements Filter {
         if (missingCredentials || version == null || client == null) {
             errorCode = SubsonicRESTController.ErrorCode.MISSING_PARAMETER;
         }
-
         if (errorCode == null) {
             errorCode = checkAPIVersion(version);
         }
-
         if (errorCode == null) {
             errorCode = authenticate(httpRequest, username, password, salt, token, previousAuth);
         }
-
-        if (errorCode == null) {
-            chain.doFilter(request, response);
-        } else {
-            SecurityContextHolder.getContext().setAuthentication(null);
-            sendErrorXml(httpRequest, httpResponse, errorCode);
-        }
+        return errorCode;
     }
 
     private SubsonicRESTController.ErrorCode checkAPIVersion(String version) {

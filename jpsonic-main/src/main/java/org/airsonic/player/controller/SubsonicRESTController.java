@@ -1,37 +1,27 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
 
 import static org.airsonic.player.security.RESTRequestParameterProcessingFilter.decrypt;
-import static org.springframework.web.bind.ServletRequestUtils.getBooleanParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getIntParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getLongParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getLongParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredFloatParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredIntParameters;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredLongParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getRequiredStringParameter;
-import static org.springframework.web.bind.ServletRequestUtils.getStringParameter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -110,6 +100,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
+import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -167,10 +159,11 @@ import org.subsonic.restapi.Videos;
  *
  * @author Sindre Mehus
  */
-@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
+@SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.LinguisticNaming" })
 /*
- * There are 21 loop instantiatings, but none of them can be reused. This class has many loop instances because it is
- * responsible for conversion objects.
+ * [AvoidInstantiatingObjectsInLoops] There are 21 loop instantiatings, but none of them can be reused. This class has
+ * many loop instances because it is responsible for conversion objects. [LinguisticNaming] This is a naming convention
+ * specific to this REST class that writes directly to the HTTP response without returning a return value.
  */
 @Controller
 @RequestMapping(value = "/rest", method = { RequestMethod.GET, RequestMethod.POST })
@@ -308,11 +301,12 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getIndexes")
-    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getIndexes(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         Response res = createResponse();
-        long ifModifiedSince = getLongParameter(request, Attributes.Request.IF_MODIFIED_SINCE.value(), 0L);
+        long ifModifiedSince = ServletRequestUtils.getLongParameter(request,
+                Attributes.Request.IF_MODIFIED_SINCE.value(), 0L);
         long lastModified = topController.getLastModified(request);
         if (lastModified <= ifModifiedSince) {
             jaxbWriter.writeResponse(request, response, res);
@@ -325,7 +319,8 @@ public class SubsonicRESTController {
         indexes.setIgnoredArticles(settingsService.getIgnoredArticles());
 
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId != null) {
             for (org.airsonic.player.domain.MusicFolder musicFolder : musicFolders) {
                 if (musicFolderId.equals(musicFolder.getId())) {
@@ -395,18 +390,20 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSongsByGenre")
-    public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSongsByGenre(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
         Songs songs = new Songs();
 
-        String genre = getRequiredStringParameter(request, Attributes.Request.GENRE.value());
-        int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 10);
+        String genre = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value());
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 10);
         count = Math.max(0, Math.min(count, 500));
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -446,10 +443,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs")
-    public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSimilarSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
@@ -457,7 +455,7 @@ public class SubsonicRESTController {
         }
 
         String username = securityService.getCurrentUsername(request);
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs result = new SimilarSongs();
 
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
@@ -473,10 +471,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSimilarSongs2")
-    public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSimilarSongs2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
@@ -484,7 +483,7 @@ public class SubsonicRESTController {
         }
 
         String username = securityService.getCurrentUsername(request);
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
         SimilarSongs2 result = new SimilarSongs2();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
         List<MediaFile> similarSongs = lastFmService.getSimilarSongs(artist, count, musicFolders);
@@ -499,12 +498,13 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getTopSongs")
-    public void getTopSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getTopSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
-        String artist = getRequiredStringParameter(request, Attributes.Request.ARTIST.value());
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 50);
+        String artist = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.ARTIST.value());
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 50);
 
         TopSongs result = new TopSongs();
 
@@ -521,17 +521,19 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo")
-    public void getArtistInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtistInfo(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found.");
             return;
         }
 
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 20);
-        boolean includeNotPresent = getBooleanParameter(request, Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
 
         ArtistInfo result = new ArtistInfo();
 
@@ -562,18 +564,20 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtistInfo2")
-    public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtistInfo2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
             return;
         }
 
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 20);
-        boolean includeNotPresent = getBooleanParameter(request, Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        boolean includeNotPresent = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.INCLUDE_NOT_PRESENT.value(), false);
         ArtistInfo2 result = new ArtistInfo2();
         User user = securityService.getCurrentUser(request);
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService
@@ -623,10 +627,10 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getArtist")
-    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getArtist(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Artist artist = artistDao.getArtist(id);
         if (artist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found.");
@@ -687,9 +691,9 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbum")
-    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbum(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         Album album = albumDao.getAlbum(id);
         if (album == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Album not found.");
@@ -709,10 +713,10 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getSong")
-    public void getSong(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getSong(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile song = mediaFileDao.getMediaFile(id);
         if (song == null || song.isDirectory()) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Song not found.");
@@ -732,9 +736,10 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getMusicDirectory")
-    public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getMusicDirectory(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
         if (dir == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Directory not found");
@@ -779,7 +784,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search")
-    public void search(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
 
         StringBuilder query = new StringBuilder();
@@ -800,8 +806,8 @@ public class SubsonicRESTController {
             query.append(title);
         }
 
-        int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         String username = securityService.getCurrentUsername(request);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
@@ -824,17 +830,19 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search2")
-    public void search2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search2(HttpServletRequest req, HttpServletResponse response)
+            throws IOException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
 
         SearchResult2 searchResult = new SearchResult2();
 
         String searchInput = StringUtils.trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
-        int offset = getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
-        int count = getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
@@ -847,16 +855,16 @@ public class SubsonicRESTController {
             searchResult.getArtist().add(createJaxbArtist(mediaFile, username));
         }
 
-        offset = getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
-        count = getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
+        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
+        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM);
         org.airsonic.player.domain.SearchResult albums = searchService.search(criteria);
         for (MediaFile mediaFile : albums.getMediaFiles()) {
             searchResult.getAlbum().add(createJaxbChild(player, mediaFile, username));
         }
 
-        offset = getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
-        count = getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
+        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
+        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
         org.airsonic.player.domain.SearchResult songs = searchService.search(criteria);
         for (MediaFile mediaFile : songs.getMediaFiles()) {
@@ -869,17 +877,19 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/search3")
-    public void search3(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void search3(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
 
         SearchResult3 searchResult = new SearchResult3();
 
         String searchInput = StringUtils.trimToEmpty(request.getParameter(Attributes.Request.QUERY.value()));
-        int offset = getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
-        int count = getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_OFFSET.value(), 0);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ARTIST_COUNT.value(), 20);
         boolean includeComposer = settingsService.isSearchComposer()
                 || settingsService.getUserSettings(username).getMainVisibility().isComposerVisible();
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
@@ -892,16 +902,16 @@ public class SubsonicRESTController {
             searchResult.getArtist().add(createJaxbArtist(new ArtistID3(), artist, username));
         }
 
-        offset = getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
-        count = getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
+        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_OFFSET.value(), 0);
+        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.ALBUM_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.ALBUM_ID3);
         result = searchService.search(criteria);
         for (Album album : result.getAlbums()) {
             searchResult.getAlbum().add(createJaxbAlbum(new AlbumID3(), album, username));
         }
 
-        offset = getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
-        count = getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
+        offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_OFFSET.value(), 0);
+        count = ServletRequestUtils.getIntParameter(request, Attributes.Request.SONG_COUNT.value(), 20);
         criteria = director.construct(searchInput, offset, count, includeComposer, musicFolders, IndexType.SONG);
         result = searchService.search(criteria);
         for (MediaFile song : result.getMediaFiles()) {
@@ -942,9 +952,10 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPlaylist")
-    public void getPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -971,7 +982,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/jukeboxControl")
-    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void jukeboxControl(HttpServletRequest req, HttpServletResponse response)
+            throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
 
         User user = securityService.getCurrentUser(request);
@@ -983,55 +995,8 @@ public class SubsonicRESTController {
 
         Player player = playerService.getPlayer(request, response);
 
-        boolean returnPlaylist = false;
-        String action = getRequiredStringParameter(request, Attributes.Request.ACTION.value());
-
-        switch (action) {
-        case "start":
-            player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
-            jukeboxService.start(player);
-            break;
-        case "stop":
-            player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
-            jukeboxService.stop(player);
-            break;
-        case "skip":
-            int index = getRequiredIntParameter(request, Attributes.Request.INDEX.value());
-            int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-            player.getPlayQueue().setIndex(index);
-            jukeboxService.skip(player, index, offset);
-            break;
-        case "add":
-            int[] ids = getIntParameters(request, Attributes.Request.ID.value());
-            playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), ids, null, true);
-            break;
-        case "set":
-            ids = getIntParameters(request, Attributes.Request.ID.value());
-            playQueueService.resetPlayQueue(player.getPlayQueue(), ids, true);
-            break;
-        case "clear":
-            player.getPlayQueue().clear();
-            break;
-        case "remove":
-            index = getRequiredIntParameter(request, Attributes.Request.INDEX.value());
-            player.getPlayQueue().removeFileAt(index);
-            break;
-        case "shuffle":
-            player.getPlayQueue().shuffle();
-            break;
-        case "setGain":
-            float gain = getRequiredFloatParameter(request, Attributes.Request.GAIN.value());
-            jukeboxService.setGain(player, gain);
-            break;
-        case "get":
-            returnPlaylist = true;
-            break;
-        case "status":
-            // No action necessary.
-            break;
-        default:
-            throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
-        }
+        String action = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.ACTION.value());
+        doJukeboxAction(action, request, player);
 
         String username = securityService.getCurrentUsername(request);
         PlayQueue playQueue = player.getPlayQueue();
@@ -1046,33 +1011,130 @@ public class SubsonicRESTController {
         gain = jukeboxService.getGain(player);
         position = controlsJukebox && !playQueue.isEmpty() ? jukeboxService.getPosition(player) : 0;
 
-        Response res = createResponse();
-        if (returnPlaylist) {
+        boolean returnPlaylist = "get".equals(action);
+        JukeboxControlResponseParam responseParam = new JukeboxControlResponseParam(returnPlaylist, currentIndex,
+                playing, gain, position);
+        Response res = createJukeboxControlResponse(responseParam, username, player, playQueue);
+        jaxbWriter.writeResponse(request, response, res);
+    }
+
+    private void doJukeboxAction(String action, HttpServletRequest request, Player player)
+            throws ServletRequestBindingException, ExecutionException {
+        switch (action) {
+        case "start":
+            player.getPlayQueue().setStatus(PlayQueue.Status.PLAYING);
+            jukeboxService.start(player);
+            break;
+        case "stop":
+            player.getPlayQueue().setStatus(PlayQueue.Status.STOPPED);
+            jukeboxService.stop(player);
+            break;
+        case "skip":
+            int index = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.INDEX.value());
+            int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+            player.getPlayQueue().setIndex(index);
+            jukeboxService.skip(player, index, offset);
+            break;
+        case "add":
+            int[] ids = ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value());
+            playQueueService.addMediaFilesToPlayQueue(player.getPlayQueue(), ids, null, true);
+            break;
+        case "set":
+            ids = ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value());
+            playQueueService.resetPlayQueue(player.getPlayQueue(), ids, true);
+            break;
+        case "clear":
+            player.getPlayQueue().clear();
+            break;
+        case "remove":
+            index = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.INDEX.value());
+            player.getPlayQueue().removeFileAt(index);
+            break;
+        case "shuffle":
+            player.getPlayQueue().shuffle();
+            break;
+        case "setGain":
+            float gain = ServletRequestUtils.getRequiredFloatParameter(request, Attributes.Request.GAIN.value());
+            jukeboxService.setGain(player, gain);
+            break;
+        case "get":
+            // No action necessary. However, the response format is different from the others.
+            break;
+        case "status":
+            // No action necessary.
+            break;
+        default:
+            throw new ExecutionException(new IOException("Unknown jukebox action: '" + action + "'."));
+        }
+    }
+
+    private static class JukeboxControlResponseParam {
+        private boolean returnPlaylist;
+        private int currentIndex;
+        private boolean playing;
+        private float gain;
+        private Integer position;
+
+        public JukeboxControlResponseParam(boolean returnPlaylist, int currentIndex, boolean playing, float gain,
+                Integer position) {
+            super();
+            this.returnPlaylist = returnPlaylist;
+            this.currentIndex = currentIndex;
+            this.playing = playing;
+            this.gain = gain;
+            this.position = position;
+        }
+
+        public boolean isReturnPlaylist() {
+            return returnPlaylist;
+        }
+
+        public int getCurrentIndex() {
+            return currentIndex;
+        }
+
+        public boolean isPlaying() {
+            return playing;
+        }
+
+        public float getGain() {
+            return gain;
+        }
+
+        public Integer getPosition() {
+            return position;
+        }
+    }
+
+    private Response createJukeboxControlResponse(JukeboxControlResponseParam param, String username, Player player,
+            PlayQueue playQueue) {
+        Response response = createResponse();
+        if (param.isReturnPlaylist()) {
             JukeboxPlaylist result = new JukeboxPlaylist();
-            res.setJukeboxPlaylist(result);
-            result.setCurrentIndex(currentIndex);
-            result.setPlaying(playing);
-            result.setGain(gain);
-            result.setPosition(position);
+            response.setJukeboxPlaylist(result);
+            result.setCurrentIndex(param.getCurrentIndex());
+            result.setPlaying(param.isPlaying());
+            result.setGain(param.getGain());
+            result.setPosition(param.getPosition());
             for (MediaFile mediaFile : playQueue.getFiles()) {
                 result.getEntry().add(createJaxbChild(player, mediaFile, username));
             }
         } else {
             JukeboxStatus result = new JukeboxStatus();
-            res.setJukeboxStatus(result);
-            result.setCurrentIndex(currentIndex);
-            result.setPlaying(playing);
-            result.setGain(gain);
-            result.setPosition(position);
+            response.setJukeboxStatus(result);
+            result.setCurrentIndex(param.getCurrentIndex());
+            result.setPlaying(param.isPlaying());
+            result.setGain(param.getGain());
+            result.setPosition(param.getPosition());
         }
-
-        jaxbWriter.writeResponse(request, response, res);
+        return response;
     }
 
     @RequestMapping("/createPlaylist")
-    public void createPlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createPlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
-        Integer playlistId = getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
+        Integer playlistId = ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         String name = request.getParameter(Attributes.Request.NAME.value());
         if (playlistId == null && name == null) {
             writeError(request, response, ErrorCode.MISSING_PARAMETER, "Playlist ID or name must be specified.");
@@ -1081,7 +1143,15 @@ public class SubsonicRESTController {
 
         org.airsonic.player.domain.Playlist playlist;
         String username = securityService.getCurrentUsername(request);
-        if (playlistId != null) {
+        if (playlistId == null) {
+            playlist = new org.airsonic.player.domain.Playlist();
+            playlist.setName(name);
+            playlist.setCreated(new Date());
+            playlist.setChanged(new Date());
+            playlist.setShared(false);
+            playlist.setUsername(username);
+            playlistService.createPlaylist(playlist);
+        } else {
             playlist = playlistService.getPlaylist(playlistId);
             if (playlist == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + playlistId);
@@ -1091,18 +1161,10 @@ public class SubsonicRESTController {
                 writeError(request, response, ErrorCode.NOT_AUTHORIZED, MSG_PLAYLIST_DENIED + playlistId);
                 return;
             }
-        } else {
-            playlist = new org.airsonic.player.domain.Playlist();
-            playlist.setName(name);
-            playlist.setCreated(new Date());
-            playlist.setChanged(new Date());
-            playlist.setShared(false);
-            playlist.setUsername(username);
-            playlistService.createPlaylist(playlist);
         }
 
         List<MediaFile> songs = new ArrayList<>();
-        for (int id : getIntParameters(request, Attributes.Request.SONG_ID.value())) {
+        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID.value())) {
             MediaFile song = mediaFileService.getMediaFile(id);
             if (song != null) {
                 songs.add(song);
@@ -1114,10 +1176,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updatePlaylist")
-    public void updatePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updatePlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req, true);
-        int id = getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.PLAYLIST_ID.value());
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -1138,7 +1201,7 @@ public class SubsonicRESTController {
         if (comment != null) {
             playlist.setComment(comment);
         }
-        Boolean shared = getBooleanParameter(request, Attributes.Request.PUBLIC.value());
+        Boolean shared = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PUBLIC.value());
         if (shared != null) {
             playlist.setShared(shared);
         }
@@ -1156,10 +1219,18 @@ public class SubsonicRESTController {
         // }
         // }
         List<MediaFile> songs = playlistService.getFilesInPlaylist(id);
+        int[] toRemove = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value());
+        int[] toAdd = ServletRequestUtils.getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value());
+        updatePlaylistSongs(id, toRemove, toAdd, songs);
+
+        writeEmptyResponse(request, response);
+    }
+
+    private void updatePlaylistSongs(int playlistId, int[] toRemove, int[] toAdd, List<MediaFile> songs) {
         boolean songsChanged = false;
 
         SortedSet<Integer> tmp = new TreeSet<>();
-        for (int songIndexToRemove : getIntParameters(request, Attributes.Request.SONG_INDEX_TO_REMOVE.value())) {
+        for (int songIndexToRemove : toRemove) {
             tmp.add(songIndexToRemove);
         }
         List<Integer> songIndexesToRemove = new ArrayList<>(tmp);
@@ -1168,7 +1239,7 @@ public class SubsonicRESTController {
             songs.remove(songIndexToRemove.intValue());
             songsChanged = true;
         }
-        for (int songToAdd : getIntParameters(request, Attributes.Request.SONG_ID_TO_ADD.value())) {
+        for (int songToAdd : toAdd) {
             MediaFile song = mediaFileService.getMediaFile(songToAdd);
             if (song != null) {
                 songs.add(song);
@@ -1176,16 +1247,15 @@ public class SubsonicRESTController {
             }
         }
         if (songsChanged) {
-            playlistService.setFilesInPlaylist(id, songs);
+            playlistService.setFilesInPlaylist(playlistId, songs);
         }
-
-        writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/deletePlaylist")
-    public void deletePlaylist(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePlaylist(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req, true);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Playlist playlist = playlistService.getPlaylist(id);
         if (playlist == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, MSG_PLAYLIST_NOT_FOUND + id);
@@ -1203,19 +1273,21 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList")
-    public void getAlbumList(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumList(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, ExecutionException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
 
-        int size = getIntParameter(request, Attributes.Request.SIZE.value(), 10);
-        int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
 
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
 
         size = Math.max(0, Math.min(size, 500));
-        String type = getRequiredStringParameter(request, Attributes.Request.TYPE.value());
+        String type = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.TYPE.value());
 
         List<MediaFile> albums;
         if ("highest".equals(type)) {
@@ -1234,11 +1306,13 @@ public class SubsonicRESTController {
             albums = mediaFileService.getAlphabeticalAlbums(offset, size, false, musicFolders);
         } else if ("byGenre".equals(type)) {
             albums = searchService.getAlbumsByGenres(
-                    getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset, size, musicFolders);
+                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
+                    size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = mediaFileService.getAlbumsByYear(offset, size,
-                    getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
-                    getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()), musicFolders);
+                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
+                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
+                    musicFolders);
         } else if ("random".equals(type)) {
             albums = searchService.getRandomAlbums(size, musicFolders);
         } else {
@@ -1257,15 +1331,17 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getAlbumList2")
-    public void getAlbumList2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumList2(HttpServletRequest req, HttpServletResponse response)
+            throws ExecutionException, ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int size = getIntParameter(request, Attributes.Request.SIZE.value(), 10);
-        int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         size = Math.max(0, Math.min(size, 500));
-        String type = getRequiredStringParameter(request, Attributes.Request.TYPE.value());
+        String type = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.TYPE.value());
         String username = securityService.getCurrentUsername(request);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -1282,11 +1358,13 @@ public class SubsonicRESTController {
             albums = albumDao.getAlphabeticalAlbums(offset, size, false, false, musicFolders);
         } else if ("byGenre".equals(type)) {
             albums = searchService.getAlbumId3sByGenres(
-                    getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset, size, musicFolders);
+                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.GENRE.value()), offset,
+                    size, musicFolders);
         } else if ("byYear".equals(type)) {
             albums = albumDao.getAlbumsByYear(offset, size,
-                    getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
-                    getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()), musicFolders);
+                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.FROM_YEAR.value()),
+                    ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.TO_YEAR.value()),
+                    musicFolders);
         } else if ("starred".equals(type)) {
             albums = albumDao.getStarredAlbums(offset, size, securityService.getCurrentUser(request).getUsername(),
                     musicFolders);
@@ -1305,22 +1383,24 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getRandomSongs")
-    public void getRandomSongs(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getRandomSongs(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
-        int size = getIntParameter(request, Attributes.Request.SIZE.value(), 10);
+        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), 10);
         size = Math.max(0, Math.min(size, 500));
         // TODO #252
         List<String> genres = null;
-        String genre = getStringParameter(request, Attributes.Request.GENRE.value());
+        String genre = ServletRequestUtils.getStringParameter(request, Attributes.Request.GENRE.value());
         if (null != genre) {
             genres = Arrays.asList(genre);
         }
-        Integer fromYear = getIntParameter(request, Attributes.Request.FROM_YEAR.value());
-        Integer toYear = getIntParameter(request, Attributes.Request.TO_YEAR.value());
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer fromYear = ServletRequestUtils.getIntParameter(request, Attributes.Request.FROM_YEAR.value());
+        Integer toYear = ServletRequestUtils.getIntParameter(request, Attributes.Request.TO_YEAR.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
         RandomSearchCriteria criteria = new RandomSearchCriteria(size, genres, fromYear, toYear, musicFolders);
@@ -1335,13 +1415,13 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getVideos")
-    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getVideos(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
-        int size = getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
-        int offset = getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
+        int size = ServletRequestUtils.getIntParameter(request, Attributes.Request.SIZE.value(), Integer.MAX_VALUE);
+        int offset = ServletRequestUtils.getIntParameter(request, Attributes.Request.OFFSET.value(), 0);
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username);
 
         Videos result = new Videos();
@@ -1441,23 +1521,11 @@ public class SubsonicRESTController {
                     child.setArtistId(String.valueOf(artist.getId()));
                 }
             }
-            switch (mediaFile.getMediaType()) {
-            case MUSIC:
-                child.setType(MediaType.MUSIC);
-                break;
-            case PODCAST:
-                child.setType(MediaType.PODCAST);
-                break;
-            case AUDIOBOOK:
-                child.setType(MediaType.AUDIOBOOK);
-                break;
-            case VIDEO:
-                child.setType(MediaType.VIDEO);
+
+            child.setType(getMedyaType(mediaFile.getMediaType()));
+            if (mediaFile.getMediaType() == MediaFile.MediaType.VIDEO) {
                 child.setOriginalWidth(mediaFile.getWidth());
                 child.setOriginalHeight(mediaFile.getHeight());
-                break;
-            default:
-                break;
             }
 
             if (transcodingService.isTranscodingRequired(mediaFile, player)) {
@@ -1467,6 +1535,27 @@ public class SubsonicRESTController {
             }
         }
         return child;
+    }
+
+    private MediaType getMedyaType(MediaFile.MediaType mediaType) {
+        MediaType result = null;
+        switch (mediaType) {
+        case MUSIC:
+            result = MediaType.MUSIC;
+            break;
+        case PODCAST:
+            result = MediaType.PODCAST;
+            break;
+        case AUDIOBOOK:
+            result = MediaType.AUDIOBOOK;
+            break;
+        case VIDEO:
+            result = MediaType.VIDEO;
+            break;
+        default:
+            break;
+        }
+        return result;
     }
 
     private String findCoverArt(MediaFile mediaFile, MediaFile parent) {
@@ -1507,7 +1596,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/download")
-    public void download(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void download(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isDownloadRole()) {
@@ -1532,7 +1622,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/stream")
-    public void stream(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void stream(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
@@ -1545,7 +1636,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/hls")
-    public void hls(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void hls(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isStreamRole()) {
@@ -1553,7 +1645,7 @@ public class SubsonicRESTController {
                     user.getUsername() + " is not authorized to play files.");
             return;
         }
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile video = mediaFileDao.getMediaFile(id);
         if (video == null || video.isDirectory()) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Video not found.");
@@ -1567,17 +1659,18 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/scrobble")
-    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void scrobble(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        int[] ids = getRequiredIntParameters(request, Attributes.Request.ID.value());
-        long[] times = getLongParameters(request, "time");
+        int[] ids = ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value());
+        long[] times = ServletRequestUtils.getLongParameters(request, "time");
         if (times.length > 0 && (int) times.length != (int) ids.length) {
             writeError(request, response, ErrorCode.GENERIC, "Wrong number of timestamps: " + times.length);
             return;
         }
 
         Player player = playerService.getPlayer(request, response);
-        boolean submission = getBooleanParameter(request, Attributes.Request.SUBMISSION.value(), true);
+        boolean submission = ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SUBMISSION.value(),
+                true);
         for (int i = 0; i < ids.length; i++) {
             int id = ids[i];
             MediaFile file = mediaFileService.getMediaFile(id);
@@ -1612,7 +1705,7 @@ public class SubsonicRESTController {
         HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUser(request).getUsername();
-        for (int id : getIntParameters(request, Attributes.Request.ID.value())) {
+        for (int id : ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value())) {
             MediaFile mediaFile = mediaFileDao.getMediaFile(id);
             if (mediaFile == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, "Media file not found: " + id);
@@ -1624,7 +1717,7 @@ public class SubsonicRESTController {
                 mediaFileDao.unstarMediaFile(id, username);
             }
         }
-        for (int albumId : getIntParameters(request, "albumId")) {
+        for (int albumId : ServletRequestUtils.getIntParameters(request, "albumId")) {
             Album album = albumDao.getAlbum(albumId);
             if (album == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, "Album not found: " + albumId);
@@ -1636,7 +1729,7 @@ public class SubsonicRESTController {
                 albumDao.unstarAlbum(albumId, username);
             }
         }
-        for (int artistId : getIntParameters(request, "artistId")) {
+        for (int artistId : ServletRequestUtils.getIntParameters(request, "artistId")) {
             org.airsonic.player.domain.Artist artist = artistDao.getArtist(artistId);
             if (artist == null) {
                 writeError(request, response, ErrorCode.NOT_FOUND, "Artist not found: " + artistId);
@@ -1653,11 +1746,12 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred")
-    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getStarred(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -1677,11 +1771,13 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getStarred2")
-    public void getStarred2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getStarred2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        Integer musicFolderId = getIntParameter(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
+                Attributes.Request.MUSIC_FOLDER_ID.value());
         List<org.airsonic.player.domain.MusicFolder> musicFolders = settingsService.getMusicFoldersForUser(username,
                 musicFolderId);
 
@@ -1702,12 +1798,14 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getPodcasts")
-    public void getPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPodcasts(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
-        boolean includeEpisodes = getBooleanParameter(request, Attributes.Request.INCLUDE_EPISODES.value(), true);
-        Integer channelId = getIntParameter(request, Attributes.Request.ID.value());
+        boolean includeEpisodes = ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.INCLUDE_EPISODES.value(), true);
+        Integer channelId = ServletRequestUtils.getIntParameter(request, Attributes.Request.ID.value());
 
         Podcasts result = new Podcasts();
 
@@ -1741,12 +1839,13 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getNewestPodcasts")
-    public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getNewestPodcasts(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
 
-        int count = getIntParameter(request, Attributes.Request.COUNT.value(), 20);
+        int count = ServletRequestUtils.getIntParameter(request, Attributes.Request.COUNT.value(), 20);
         NewestPodcasts result = new NewestPodcasts();
 
         for (org.airsonic.player.domain.PodcastEpisode episode : podcastService.getNewestEpisodes(count)) {
@@ -1791,7 +1890,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createPodcastChannel")
-    public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createPodcastChannel(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1799,13 +1899,14 @@ public class SubsonicRESTController {
             return;
         }
 
-        String url = getRequiredStringParameter(request, Attributes.Request.URL.value());
+        String url = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.URL.value());
         podcastService.createChannel(url);
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/deletePodcastChannel")
-    public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePodcastChannel(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1813,13 +1914,14 @@ public class SubsonicRESTController {
             return;
         }
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         podcastService.deleteChannel(id);
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/deletePodcastEpisode")
-    public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deletePodcastEpisode(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1827,13 +1929,14 @@ public class SubsonicRESTController {
             return;
         }
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         podcastService.deleteEpisode(id, true);
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/downloadPodcastEpisode")
-    public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void downloadPodcastEpisode(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isPodcastRole()) {
@@ -1841,7 +1944,7 @@ public class SubsonicRESTController {
             return;
         }
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.PodcastEpisode episode = podcastService.getEpisode(id, true);
         if (episode == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Podcast episode " + id + " not found.");
@@ -1871,7 +1974,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getBookmarks")
-    public void getBookmarks(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getBookmarks(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1896,11 +2000,12 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createBookmark")
-    public void createBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createBookmark(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
-        int mediaFileId = getRequiredIntParameter(request, Attributes.Request.ID.value());
-        long position = getRequiredLongParameter(request, Attributes.Request.POSITION.value());
+        int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
+        long position = ServletRequestUtils.getRequiredLongParameter(request, Attributes.Request.POSITION.value());
         String comment = request.getParameter(Attributes.Request.COMMENT.value());
         Date now = new Date();
 
@@ -1910,18 +2015,20 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteBookmark")
-    public void deleteBookmark(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteBookmark(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
         String username = securityService.getCurrentUsername(request);
-        int mediaFileId = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int mediaFileId = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         bookmarkService.deleteBookmark(username, mediaFileId);
 
         writeEmptyResponse(request, response);
     }
 
     @RequestMapping("/getPlayQueue")
-    public void getPlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getPlayQueue(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         String username = securityService.getCurrentUsername(request);
         SavedPlayQueue playQueue = playQueueDao.getPlayQueue(username);
@@ -1951,20 +2058,21 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/savePlayQueue")
-    public void savePlayQueue(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void savePlayQueue(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         List<Integer> mediaFileIds = PlayerUtils
-                .toIntegerList(getIntParameters(request, Attributes.Request.ID.value()));
-        Integer current = getIntParameter(request, Attributes.Request.CURRENT.value());
+                .toIntegerList(ServletRequestUtils.getIntParameters(request, Attributes.Request.ID.value()));
+        Integer current = ServletRequestUtils.getIntParameter(request, Attributes.Request.CURRENT.value());
         if (!mediaFileIds.contains(current)) {
             writeError(request, response, ErrorCode.GENERIC, "Current track is not included in play queue");
             return;
         }
 
         String username = securityService.getCurrentUsername(request);
-        Long position = getLongParameter(request, Attributes.Request.POSITION.value());
+        Long position = ServletRequestUtils.getLongParameter(request, Attributes.Request.POSITION.value());
         Date changed = new Date();
-        String changedBy = getRequiredStringParameter(request, Attributes.Request.C.value());
+        String changedBy = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.C.value());
 
         SavedPlayQueue playQueue = new SavedPlayQueue(null, username, mediaFileIds, current, position, changed,
                 changedBy);
@@ -1973,7 +2081,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getShares")
-    public void getShares(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getShares(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         Player player = playerService.getPlayer(request, response);
         String username = securityService.getCurrentUsername(request);
@@ -1995,7 +2103,8 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createShare")
-    public void createShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isShareRole()) {
@@ -2005,13 +2114,13 @@ public class SubsonicRESTController {
         }
 
         List<MediaFile> files = new ArrayList<>();
-        for (int id : getRequiredIntParameters(request, Attributes.Request.ID.value())) {
+        for (int id : ServletRequestUtils.getRequiredIntParameters(request, Attributes.Request.ID.value())) {
             files.add(mediaFileService.getMediaFile(id));
         }
 
         org.airsonic.player.domain.Share share = shareService.createShare(request, files);
         share.setDescription(request.getParameter(Attributes.Request.DESCRIPTION.value()));
-        long expires = getLongParameter(request, Attributes.Request.EXPIRES.value(), 0L);
+        long expires = ServletRequestUtils.getLongParameter(request, Attributes.Request.EXPIRES.value(), 0L);
         if (expires != 0) {
             share.setExpires(new Date(expires));
         }
@@ -2034,10 +2143,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteShare")
-    public void deleteShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
@@ -2055,10 +2165,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateShare")
-    public void updateShare(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updateShare(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         org.airsonic.player.domain.Share share = shareService.getShareById(id);
         if (share == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "Shared media not found.");
@@ -2096,23 +2207,25 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getCoverArt")
-    public void getCoverArt(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getCoverArt(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         HttpServletRequest request = wrapRequest(req);
         coverArtController.handleRequest(request, response);
     }
 
     @RequestMapping("/getAvatar")
-    public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAvatar(HttpServletRequest req, HttpServletResponse response) throws IOException {
         HttpServletRequest request = wrapRequest(req);
         avatarController.handleRequest(request, response);
     }
 
     @RequestMapping("/changePassword")
-    public void changePassword(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void changePassword(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         User authUser = securityService.getCurrentUser(request);
-        String username = getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         boolean allowed = authUser.isAdminRole()
                 || username.equals(authUser.getUsername()) && authUser.isSettingsRole();
         if (!allowed) {
@@ -2121,7 +2234,8 @@ public class SubsonicRESTController {
             return;
         }
 
-        String password = decrypt(getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
+        String password = decrypt(
+                ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value()));
         User user = securityService.getUserByName(username);
         user.setPassword(password);
         securityService.updateUser(user);
@@ -2130,10 +2244,10 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/getUser")
-    public void getUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        String username = getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
 
         User currentUser = securityService.getCurrentUser(request);
         if (!username.equals(currentUser.getUsername()) && !currentUser.isAdminRole()) {
@@ -2211,7 +2325,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/createUser")
-    public void createUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void createUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
@@ -2221,24 +2335,36 @@ public class SubsonicRESTController {
         }
 
         UserSettingsCommand command = new UserSettingsCommand();
-        command.setUsername(getRequiredStringParameter(request, Attributes.Request.USER_NAME.value()));
-        command.setPassword(decrypt(getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
-        command.setEmail(getRequiredStringParameter(request, Attributes.Request.EMAIL.value()));
+        command.setUsername(
+                ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value()));
+        command.setPassword(
+                decrypt(ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
+        command.setEmail(ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.EMAIL.value()));
         command.setLdapAuthenticated(
-                getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(), false));
-        command.setAdminRole(getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(), false));
-        command.setCommentRole(getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(), false));
-        command.setCoverArtRole(getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(), false));
-        command.setDownloadRole(getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(), false));
-        command.setStreamRole(getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), true));
-        command.setUploadRole(getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), false));
-        command.setJukeboxRole(getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(), false));
-        command.setPodcastRole(getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), false));
-        command.setSettingsRole(getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), true));
-        command.setShareRole(getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(), false));
+        command.setAdminRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(), false));
+        command.setCommentRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(), false));
+        command.setCoverArtRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(), false));
+        command.setDownloadRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(), false));
+        command.setStreamRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), true));
+        command.setUploadRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), false));
+        command.setJukeboxRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(), false));
+        command.setPodcastRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), false));
+        command.setSettingsRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), true));
+        command.setShareRole(
+                ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), false));
         command.setTranscodeSchemeName(TranscodeScheme.OFF.name());
 
-        int[] folderIds = getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
             folderIds = PlayerUtils
                     .toIntArray(org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getAllMusicFolders()));
@@ -2250,7 +2376,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/updateUser")
-    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void updateUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
 
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
@@ -2260,7 +2386,7 @@ public class SubsonicRESTController {
             return;
         }
 
-        String username = getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         User u = securityService.getUserByName(username);
         if (u == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "No such user: " + username);
@@ -2275,28 +2401,33 @@ public class SubsonicRESTController {
 
         UserSettingsCommand command = new UserSettingsCommand();
         command.setUsername(username);
-        command.setEmail(getStringParameter(request, Attributes.Request.EMAIL.value(), u.getEmail()));
-        command.setLdapAuthenticated(
-                getBooleanParameter(request, Attributes.Request.LDAP_AUTHENTICATED.value(), u.isLdapAuthenticated()));
-        command.setAdminRole(getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(), u.isAdminRole()));
-        command.setCommentRole(
-                getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(), u.isCommentRole()));
-        command.setCoverArtRole(
-                getBooleanParameter(request, Attributes.Request.COVER_ART_ROLE.value(), u.isCoverArtRole()));
-        command.setDownloadRole(
-                getBooleanParameter(request, Attributes.Request.DOWNLOAD_ROLE.value(), u.isDownloadRole()));
-        command.setStreamRole(getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(), u.isDownloadRole()));
-        command.setUploadRole(getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(), u.isUploadRole()));
-        command.setJukeboxRole(
-                getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(), u.isJukeboxRole()));
-        command.setPodcastRole(
-                getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(), u.isPodcastRole()));
-        command.setSettingsRole(
-                getBooleanParameter(request, Attributes.Request.SETTINGS_ROLE.value(), u.isSettingsRole()));
-        command.setShareRole(getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(), u.isShareRole()));
+        command.setEmail(
+                ServletRequestUtils.getStringParameter(request, Attributes.Request.EMAIL.value(), u.getEmail()));
+        command.setLdapAuthenticated(ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.LDAP_AUTHENTICATED.value(), u.isLdapAuthenticated()));
+        command.setAdminRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.ADMIN_ROLE.value(),
+                u.isAdminRole()));
+        command.setCommentRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.COMMENT_ROLE.value(),
+                u.isCommentRole()));
+        command.setCoverArtRole(ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.COVER_ART_ROLE.value(), u.isCoverArtRole()));
+        command.setDownloadRole(ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.DOWNLOAD_ROLE.value(), u.isDownloadRole()));
+        command.setStreamRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.STREAM_ROLE.value(),
+                u.isDownloadRole()));
+        command.setUploadRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.UPLOAD_ROLE.value(),
+                u.isUploadRole()));
+        command.setJukeboxRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.JUKEBOX_ROLE.value(),
+                u.isJukeboxRole()));
+        command.setPodcastRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.PODCAST_ROLE.value(),
+                u.isPodcastRole()));
+        command.setSettingsRole(ServletRequestUtils.getBooleanParameter(request,
+                Attributes.Request.SETTINGS_ROLE.value(), u.isSettingsRole()));
+        command.setShareRole(ServletRequestUtils.getBooleanParameter(request, Attributes.Request.SHARE_ROLE.value(),
+                u.isShareRole()));
 
         UserSettings s = settingsService.getUserSettings(username);
-        int maxBitRate = getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
+        int maxBitRate = ServletRequestUtils.getIntParameter(request, Attributes.Request.MAX_BIT_RATE.value(),
                 s.getTranscodeScheme().getMaxBitRate());
         TranscodeScheme transcodeScheme = TranscodeScheme.fromMaxBitRate(maxBitRate);
         if (transcodeScheme != null) {
@@ -2304,11 +2435,12 @@ public class SubsonicRESTController {
         }
 
         if (hasParameter(request, Attributes.Request.PASSWORD.value())) {
-            command.setPassword(decrypt(getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
+            command.setPassword(decrypt(
+                    ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.PASSWORD.value())));
             command.setPasswordChange(true);
         }
 
-        int[] folderIds = getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
+        int[] folderIds = ServletRequestUtils.getIntParameters(request, Attributes.Request.MUSIC_FOLDER_ID.value());
         if (folderIds.length == 0) {
             folderIds = PlayerUtils.toIntArray(
                     org.airsonic.player.domain.MusicFolder.toIdList(settingsService.getMusicFoldersForUser(username)));
@@ -2324,7 +2456,7 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping("/deleteUser")
-    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void deleteUser(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
         User user = securityService.getCurrentUser(request);
         if (!user.isAdminRole()) {
@@ -2333,7 +2465,7 @@ public class SubsonicRESTController {
             return;
         }
 
-        String username = getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
+        String username = ServletRequestUtils.getRequiredStringParameter(request, Attributes.Request.USER_NAME.value());
         User u = securityService.getUserByName(username);
 
         if (u == null) {
@@ -2381,14 +2513,14 @@ public class SubsonicRESTController {
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @RequestMapping("/setRating")
-    public void setRating(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void setRating(HttpServletRequest req, HttpServletResponse response) throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
-        Integer rating = getRequiredIntParameter(request, Attributes.Request.RATING.value());
+        Integer rating = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.RATING.value());
         if (rating == 0) {
             rating = null;
         }
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile mediaFile = mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
             writeError(request, response, ErrorCode.NOT_FOUND, "File not found: " + id);
@@ -2402,10 +2534,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo")
-    public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumInfo(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
 
         MediaFile mediaFile = this.mediaFileService.getMediaFile(id);
         if (mediaFile == null) {
@@ -2421,10 +2554,11 @@ public class SubsonicRESTController {
     }
 
     @RequestMapping(path = "/getAlbumInfo2")
-    public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response) throws Exception {
+    public void getAlbumInfo2(HttpServletRequest req, HttpServletResponse response)
+            throws ServletRequestBindingException {
         HttpServletRequest request = wrapRequest(req);
 
-        int id = getRequiredIntParameter(request, Attributes.Request.ID.value());
+        int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
 
         Album album = this.albumDao.getAlbum(id);
         if (album == null) {
@@ -2505,7 +2639,7 @@ public class SubsonicRESTController {
         };
     }
 
-    final String mapId(String id) {
+    protected final String mapId(String id) {
 
         if (id == null || logic.isAlbum(id) || logic.isArtist(id) || StringUtils.isNumeric(id)) {
             return id;
@@ -2554,7 +2688,7 @@ public class SubsonicRESTController {
         }
 
         // Return the player ID.
-        return !players.isEmpty() ? String.valueOf(players.get(0).getId()) : null;
+        return players.isEmpty() ? null : String.valueOf(players.get(0).getId());
     }
 
     public enum ErrorCode {

@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.validator;
@@ -66,14 +67,21 @@ public class UserSettingsValidator implements Validator {
      * {@inheritDoc}
      */
     @Override
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
     public void validate(Object obj, Errors errors) {
         UserSettingsCommand command = (UserSettingsCommand) obj;
-        String username = command.getUsername();
-        String email = StringUtils.trimToNull(command.getEmail());
-        String password = StringUtils.trimToNull(command.getPassword());
-        String confirmPassword = command.getConfirmPassword();
+        validateNewUser(command, errors);
+        validatePassword(command, errors);
+        validateLdap(command, errors);
+        validateCurrentUser(command, errors);
+    }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive. Do not change the order.
+    private void validateNewUser(UserSettingsCommand command, Errors errors) {
         if (command.isNewUser()) {
+            String username = command.getUsername();
+            String email = StringUtils.trimToNull(command.getEmail());
+            String password = StringUtils.trimToNull(command.getPassword());
             if (username == null || username.isEmpty()) {
                 errors.rejectValue(REJECTED_FIELD_USERNAME, "usersettings.nousername");
             } else if (securityService.getUserByName(username) != null) {
@@ -86,19 +94,28 @@ public class UserSettingsValidator implements Validator {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
             }
         }
+    }
 
+    private void validatePassword(UserSettingsCommand command, Errors errors) {
         if ((command.isNewUser() || command.isPasswordChange()) && !command.isLdapAuthenticated()) {
+            String password = StringUtils.trimToNull(command.getPassword());
+            String confirmPassword = command.getConfirmPassword();
             if (password == null) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.nopassword");
             } else if (!password.equals(confirmPassword)) {
                 errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.wrongpassword");
             }
         }
+    }
 
+    private void validateLdap(UserSettingsCommand command, Errors errors) {
         if (command.isPasswordChange() && command.isLdapAuthenticated()) {
             errors.rejectValue(REJECTED_FIELD_PASSWORD, "usersettings.passwordnotsupportedforldap");
         }
+    }
 
+    private void validateCurrentUser(UserSettingsCommand command, Errors errors) {
+        String username = command.getUsername();
         if (securityService.getCurrentUser(request).getUsername().equals(username)) {
             if (command.isDeleteUser()) {
                 errors.rejectValue(REJECTED_FIELD_DELETEUSER, "usersettings.cantdeleteuser");
@@ -107,7 +124,6 @@ public class UserSettingsValidator implements Validator {
                 errors.rejectValue(REJECTED_FIELD_ADMINROLE, "usersettings.cantremoverole");
             }
         }
-
     }
 
 }

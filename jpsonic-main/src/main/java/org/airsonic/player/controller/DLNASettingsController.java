@@ -1,20 +1,22 @@
 /*
- * This file is part of Airsonic.
+ * This file is part of Jpsonic.
  *
- * Airsonic is free software: you can redistribute it and/or modify
+ * Jpsonic is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * Airsonic is distributed in the hope that it will be useful,
+ * Jpsonic is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2013 (C) Sindre Mehus
+ * (C) 2013 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -166,7 +168,7 @@ public class DLNASettingsController {
         settingsService.setDlnaArtistByFolderVisible(dlnaArtistByFolderVisible);
         settingsService.setDlnaAlbumByGenreVisible(dlnaAlbumByGenreVisible);
         settingsService.setDlnaSongByGenreVisible(dlnaSongByGenreVisible);
-        settingsService.setDlnaGenreCountVisible(dlnaGuestPublish ? false : dlnaGenreCountVisible);
+        settingsService.setDlnaGenreCountVisible(!dlnaGuestPublish && dlnaGenreCountVisible);
         settingsService.setDlnaFolderVisible(dlnaFolderVisible);
         settingsService.setDlnaPlaylistVisible(dlnaPlaylistVisible);
         settingsService.setDlnaRecentAlbumVisible(dlnaRecentAlbumVisible);

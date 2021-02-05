@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service.metadata;
 
@@ -30,7 +50,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals("Rock", metaData.getGenre());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
@@ -51,7 +71,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals("ロック", metaData.getGenre());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
         assertEquals(Integer.valueOf(2019), metaData.getYear());
         assertEquals(Integer.valueOf(1), metaData.getTrackNumber());
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
@@ -180,7 +200,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.3 v1.1 */
@@ -205,7 +225,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.3 */
@@ -230,7 +250,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
     /** v2.4 */
@@ -255,7 +275,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
         assertNull(metaData.getHeight());
         assertNull(metaData.getMusicBrainzReleaseId());
-        assertFalse(metaData.getVariableBitRate());
+        assertFalse(metaData.isVariableBitRate());
     }
 
 }

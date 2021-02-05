@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package com.tesshu.jpsonic.domain;
@@ -24,6 +24,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 
 import org.airsonic.player.domain.MediaFile;
@@ -43,76 +45,85 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
     private JapaneseReadingUtils utils;
 
     @Test
-    public void testCreateReading() {
-        assertEquals("アイウエオ", utils.createReading("あいうえお"));
-        assertEquals("アイウエオ", utils.createReading("アイウエオ"));
-        assertEquals("ァィゥェォ", utils.createReading("ァィゥェォ"));
-        assertEquals("ァィゥェォ", utils.createReading("ｧｨｩｪｫ"));
-        assertEquals("アイウエオ", utils.createReading("ｱｲｳｴｵ"));
-        assertEquals("アイウエオ", utils.createReading("亜伊鵜絵尾"));
-        assertEquals("ABCDE", utils.createReading("ABCDE"));
-        assertEquals("ABCDE", utils.createReading("ＡＢＣＤＥ"));
-        assertEquals("アルファベータガンマ", utils.createReading("αβγ"));
-        assertEquals("ツンク♂", utils.createReading("つんく♂"));
-        assertEquals("bad communication", utils.createReading("bad communication"));
-        assertEquals("BAD COMMUNICATION", utils.createReading("BAD COMMUNICATION"));
-        assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertEquals("イヌトネコ", utils.createReading("犬とネコ"));
-        assertEquals(" ｢｣()()[][];!!??##123", utils.createReading("　「」（）()［］[]；！!？?＃#１２３"));
-        assertEquals("Cæsar", utils.createReading("Cæsar"));
-        assertEquals("Alfee", utils.createReading("The Alfee"));
-        assertEquals("コンピューター", utils.createReading("コンピューター"));
-        assertEquals("アイ～ウエ", utils.createReading("あい～うえ"));
-        assertEquals("アイウエ～", utils.createReading("あいうえ～"));
-        assertEquals("～アイウエ", utils.createReading("～あいうえ"));
-        assertEquals("ア～イ～ウ～エ", utils.createReading("あ～い～う～え"));
-        assertEquals("     ", utils.createReading("　　　　　"));
-        assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
-        assertEquals("Best ～first things～", utils.createReading("Best ～first things～"));
+    public void testCreateReading() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method createReading = utils.getClass().getDeclaredMethod("createReading", String.class);
+        createReading.setAccessible(true);
+        assertEquals("アイウエオ", createReading.invoke(utils, "あいうえお"));
+        assertEquals("アイウエオ", createReading.invoke(utils, "アイウエオ"));
+        assertEquals("ァィゥェォ", createReading.invoke(utils, "ァィゥェォ"));
+        assertEquals("ァィゥェォ", createReading.invoke(utils, "ｧｨｩｪｫ"));
+        assertEquals("アイウエオ", createReading.invoke(utils, "ｱｲｳｴｵ"));
+        assertEquals("アイウエオ", createReading.invoke(utils, "亜伊鵜絵尾"));
+        assertEquals("ABCDE", createReading.invoke(utils, "ABCDE"));
+        assertEquals("ABCDE", createReading.invoke(utils, "ＡＢＣＤＥ"));
+        assertEquals("アルファベータガンマ", createReading.invoke(utils, "αβγ"));
+        assertEquals("ツンク♂", createReading.invoke(utils, "つんく♂"));
+        assertEquals("bad communication", createReading.invoke(utils, "bad communication"));
+        assertEquals("BAD COMMUNICATION", createReading.invoke(utils, "BAD COMMUNICATION"));
+        assertEquals("BAD COMMUNICATION", createReading.invoke(utils, "ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals("イヌトネコ", createReading.invoke(utils, "犬とネコ"));
+        assertEquals(" ｢｣()()[][];!!??##123", createReading.invoke(utils, "　「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", createReading.invoke(utils, "Cæsar"));
+        assertEquals("Alfee", createReading.invoke(utils, "The Alfee"));
+        assertEquals("コンピューター", createReading.invoke(utils, "コンピューター"));
+        assertEquals("アイ～ウエ", createReading.invoke(utils, "あい～うえ"));
+        assertEquals("アイウエ～", createReading.invoke(utils, "あいうえ～"));
+        assertEquals("～アイウエ", createReading.invoke(utils, "～あいうえ"));
+        assertEquals("ア～イ～ウ～エ", createReading.invoke(utils, "あ～い～う～え"));
+        assertEquals("     ", createReading.invoke(utils, "　　　　　"));
+        assertEquals("[Disc 3]", createReading.invoke(utils, "[Disc 3]"));
+        assertEquals("Best ～first things～", createReading.invoke(utils, "Best ～first things～"));
         assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
-                utils.createReading("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
-        assertEquals("Dvořák: Symphonies #7-9", utils.createReading("Dvořák: Symphonies #7-9"));
-        assertEquals("フクヤママサハル", utils.createReading("福山雅治")); // Readable case
-        assertEquals("サシハラ莉乃", utils.createReading("サシハラ莉乃")); // Unreadable case
-        assertEquals("倖タ來ヒツジ", utils.createReading("倖田來未")); // Unreadable case
-        assertEquals("オクダ ミンセイ", utils.createReading("奥田　民生")); // Unreadable case
+                createReading.invoke(utils, "B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("Dvořák: Symphonies #7-9", createReading.invoke(utils, "Dvořák: Symphonies #7-9"));
+        assertEquals("フクヤママサハル", createReading.invoke(utils, "福山雅治")); // Readable case
+        assertEquals("サシハラ莉乃", createReading.invoke(utils, "サシハラ莉乃")); // Unreadable case
+        assertEquals("倖タ來ヒツジ", createReading.invoke(utils, "倖田來未")); // Unreadable case
+        assertEquals("オクダ ミンセイ", createReading.invoke(utils, "奥田　民生")); // Unreadable case
     }
 
     @Test
-    public void testAnalyzeSort() {
-        assertEquals("あいうえお", utils.normalize("あいうえお"));
-        assertEquals("アイウエオ", utils.normalize("アイウエオ"));
-        assertEquals("ァィゥェォ", utils.normalize("ァィゥェォ"));
-        assertEquals("ァィゥェォ", utils.normalize("ｧｨｩｪｫ"));
-        assertEquals("アイウエオ", utils.normalize("ｱｲｳｴｵ"));
-        assertEquals("亜伊鵜絵尾", utils.normalize("亜伊鵜絵尾"));
-        assertEquals("ABCDE", utils.normalize("ABCDE"));
-        assertEquals("ABCDE", utils.normalize("ＡＢＣＤＥ"));
-        assertEquals("αβγ", utils.normalize("αβγ"));
-        assertEquals("つんく♂", utils.normalize("つんく♂"));
-        assertEquals("bad communication", utils.normalize("bad communication"));
-        assertEquals("BAD COMMUNICATION", utils.normalize("BAD COMMUNICATION"));
-        assertEquals("BAD COMMUNICATION", utils.normalize("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertEquals("犬とネコ", utils.normalize("犬とネコ"));
-        assertEquals("読み", utils.normalize("読み"));
-        assertEquals("(読み)", utils.normalize("(読み)"));
-        assertEquals(" ｢｣()()[][];!!??##123", utils.normalize("　「」（）()［］[]；！!？?＃#１２３"));
-        assertEquals("Cæsar", utils.normalize("Cæsar"));
-        assertEquals("The Alfee", utils.normalize("The Alfee"));
-        assertEquals("コンピューター", utils.normalize("コンピューター"));
-        assertEquals("あい～うえ", utils.normalize("あい～うえ"));
-        assertEquals("あいうえ～", utils.normalize("あいうえ～"));
-        assertEquals("～あいうえ", utils.normalize("～あいうえ"));
-        assertEquals("あ～い～う～え", utils.normalize("あ～い～う～え"));
-        assertEquals("     ", utils.normalize("　　　　　"));
-        assertEquals("[Disc 3]", utils.createReading("[Disc 3]"));
-        assertEquals("Best ～first things～", utils.normalize("Best ～first things～"));
+    public void testAnalyzeSort() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method normalize = JapaneseReadingUtils.class.getDeclaredMethod("normalize", String.class);
+        normalize.setAccessible(true);
+        assertEquals("あいうえお", normalize.invoke(utils, "あいうえお"));
+        assertEquals("アイウエオ", normalize.invoke(utils, "アイウエオ"));
+        assertEquals("ァィゥェォ", normalize.invoke(utils, "ァィゥェォ"));
+        assertEquals("ァィゥェォ", normalize.invoke(utils, "ｧｨｩｪｫ"));
+        assertEquals("アイウエオ", normalize.invoke(utils, "ｱｲｳｴｵ"));
+        assertEquals("亜伊鵜絵尾", normalize.invoke(utils, "亜伊鵜絵尾"));
+        assertEquals("ABCDE", normalize.invoke(utils, "ABCDE"));
+        assertEquals("ABCDE", normalize.invoke(utils, "ＡＢＣＤＥ"));
+        assertEquals("αβγ", normalize.invoke(utils, "αβγ"));
+        assertEquals("つんく♂", normalize.invoke(utils, "つんく♂"));
+        assertEquals("bad communication", normalize.invoke(utils, "bad communication"));
+        assertEquals("BAD COMMUNICATION", normalize.invoke(utils, "BAD COMMUNICATION"));
+        assertEquals("BAD COMMUNICATION", normalize.invoke(utils, "ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals("犬とネコ", normalize.invoke(utils, "犬とネコ"));
+        assertEquals("読み", normalize.invoke(utils, "読み"));
+        assertEquals("(読み)", normalize.invoke(utils, "(読み)"));
+        assertEquals(" ｢｣()()[][];!!??##123", normalize.invoke(utils, "　「」（）()［］[]；！!？?＃#１２３"));
+        assertEquals("Cæsar", normalize.invoke(utils, "Cæsar"));
+        assertEquals("The Alfee", normalize.invoke(utils, "The Alfee"));
+        assertEquals("コンピューター", normalize.invoke(utils, "コンピューター"));
+        assertEquals("あい～うえ", normalize.invoke(utils, "あい～うえ"));
+        assertEquals("あいうえ～", normalize.invoke(utils, "あいうえ～"));
+        assertEquals("～あいうえ", normalize.invoke(utils, "～あいうえ"));
+        assertEquals("あ～い～う～え", normalize.invoke(utils, "あ～い～う～え"));
+        assertEquals("     ", normalize.invoke(utils, "　　　　　"));
+        Method createReading = utils.getClass().getDeclaredMethod("createReading", String.class);
+        createReading.setAccessible(true);
+        assertEquals("[Disc 3]", createReading.invoke(utils, "[Disc 3]"));
+
+        assertEquals("Best ～first things～", normalize.invoke(utils, "Best ～first things～"));
         assertEquals("B'z The Best \"ULTRA Pleasure\" -The Second RUN-",
-                utils.normalize("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
-        assertEquals("Dvořák: Symphonies #7-9", utils.normalize("Dvořák: Symphonies #7-9"));
-        assertEquals("福山雅治", utils.normalize("福山雅治"));
-        assertEquals("サシハラ莉乃", utils.normalize("サシハラ莉乃"));
-        assertEquals("倖田來未", utils.normalize("倖田來未"));
+                normalize.invoke(utils, "B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertEquals("Dvořák: Symphonies #7-9", normalize.invoke(utils, "Dvořák: Symphonies #7-9"));
+        assertEquals("福山雅治", normalize.invoke(utils, "福山雅治"));
+        assertEquals("サシハラ莉乃", normalize.invoke(utils, "サシハラ莉乃"));
+        assertEquals("倖田來未", normalize.invoke(utils, "倖田來未"));
     }
 
     private BiFunction<String, String, MediaFile> toMediaFile = (artist, artistSort) -> {
@@ -370,48 +381,52 @@ public class JapaneseReadingUtilsTest extends AbstractAirsonicHomeTest {
     }
 
     @Test
-    public void testIsJapaneseReadable() {
-        assertTrue(utils.isJapaneseReadable("あいうえお"));
-        assertTrue(utils.isJapaneseReadable("アイウエオ"));
-        assertTrue(utils.isJapaneseReadable("ァィゥェォ"));
-        assertTrue(utils.isJapaneseReadable("ｧｨｩｪｫ"));
-        assertTrue(utils.isJapaneseReadable("ｱｲｳｴｵ"));
-        assertTrue(utils.isJapaneseReadable("亜伊鵜絵尾"));
-        assertFalse(utils.isJapaneseReadable("ABCDE"));
-        assertTrue(utils.isJapaneseReadable("ＡＢＣＤＥ"));
-        assertTrue(utils.isJapaneseReadable("αβγ"));
-        assertTrue(utils.isJapaneseReadable("つんく♂"));
-        assertFalse(utils.isJapaneseReadable("bad communication"));
-        assertFalse(utils.isJapaneseReadable("BAD COMMUNICATION"));
-        assertTrue(utils.isJapaneseReadable("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertTrue(utils.isJapaneseReadable("犬とネコ"));
-        assertTrue(utils.isJapaneseReadable("読み"));
-        assertTrue(utils.isJapaneseReadable("(読み)"));
-        assertTrue(utils.isJapaneseReadable("　「」（）()［］[]；！!？?＃#１２３"));
-        assertFalse(utils.isJapaneseReadable("Cæsar"));
-        assertFalse(utils.isJapaneseReadable("The Alfee"));
-        assertTrue(utils.isJapaneseReadable("コンピューター"));
-        assertTrue(utils.isJapaneseReadable("あい～うえ"));
-        assertTrue(utils.isJapaneseReadable("あいうえ～"));
-        assertTrue(utils.isJapaneseReadable("～あいうえ"));
-        assertTrue(utils.isJapaneseReadable("あ～い～う～え"));
-        assertTrue(utils.isJapaneseReadable("　　　　　"));
-        assertFalse(utils.isJapaneseReadable("[Disc 3]"));
-        assertTrue(utils.isJapaneseReadable("Best ～first things～"));
-        assertFalse(utils.isJapaneseReadable("B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
-        assertFalse(utils.isJapaneseReadable("Dvořák: Symphonies #7-9"));
-        assertTrue(utils.isJapaneseReadable("福山雅治"));
-        assertTrue(utils.isJapaneseReadable("サシハラ莉乃"));
-        assertTrue(utils.isJapaneseReadable("倖田來未"));
-        assertTrue(utils.isJapaneseReadable("奥田民生"));
+    public void testIsJapaneseReadable() throws NoSuchMethodException, SecurityException, IllegalAccessException,
+            IllegalArgumentException, InvocationTargetException {
+        Method isJapaneseReadable = utils.getClass().getDeclaredMethod("isJapaneseReadable", String.class);
+        isJapaneseReadable.setAccessible(true);
+        assertTrue((Boolean) (Boolean) isJapaneseReadable.invoke(utils, "あいうえお"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "アイウエオ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "ァィゥェォ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "ｧｨｩｪｫ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "ｱｲｳｴｵ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "亜伊鵜絵尾"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "ABCDE"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "ＡＢＣＤＥ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "αβγ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "つんく♂"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "bad communication"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "BAD COMMUNICATION"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "犬とネコ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "読み"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "(読み)"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "　「」（）()［］[]；！!？?＃#１２３"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "Cæsar"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "The Alfee"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "コンピューター"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "あい～うえ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "あいうえ～"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "～あいうえ"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "あ～い～う～え"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "　　　　　"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "[Disc 3]"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "Best ～first things～"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "B'z The Best \"ULTRA Pleasure\" -The Second RUN-"));
+        assertFalse((Boolean) isJapaneseReadable.invoke(utils, "Dvořák: Symphonies #7-9"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "福山雅治"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "サシハラ莉乃"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "倖田來未"));
+        assertTrue((Boolean) isJapaneseReadable.invoke(utils, "奥田民生"));
 
         /*
          * Some words are misjudged, but need not be complete. No problem if reading is generated correctly.
          */
-        assertEquals("ABCDE", utils.createReading("ＡＢＣＤＥ"));
-        assertEquals("BAD COMMUNICATION", utils.createReading("ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
-        assertEquals(" ｢｣()()[][];!!??##123", utils.createReading("　「」（）()［］[]；！!？?＃#１２３"));
-
+        Method createReading = utils.getClass().getDeclaredMethod("createReading", String.class);
+        createReading.setAccessible(true);
+        assertEquals("ABCDE", createReading.invoke(utils, "ＡＢＣＤＥ"));
+        assertEquals("BAD COMMUNICATION", createReading.invoke(utils, "ＢＡＤ　ＣＯＭＭＵＮＩＣＡＴＩＯＮ"));
+        assertEquals(" ｢｣()()[][];!!??##123", createReading.invoke(utils, "　「」（）()［］[]；！!？?＃#１２３"));
     }
 
     @Test

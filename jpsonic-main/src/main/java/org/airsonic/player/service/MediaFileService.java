@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -499,10 +500,8 @@ public class MediaFileService {
     @SuppressWarnings("PMD.UseLocaleWithCaseConversions")
     public boolean includeMediaFile(File candidate) {
         String suffix = FilenameUtils.getExtension(candidate.getName()).toLowerCase();
-        if (!isExcluded(candidate) && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix))) {
-            return true;
-        }
-        return false;
+        return !isExcluded(candidate)
+                && (FileUtil.isDirectory(candidate) || isAudioFile(suffix) || isVideoFile(suffix));
     }
 
     public List<File> filterMediaFiles(File... candidates) {
@@ -544,7 +543,7 @@ public class MediaFileService {
      * @return Whether the child file is excluded.
      */
     private boolean isExcluded(File file) {
-        if (settingsService.getIgnoreSymLinks() && Files.isSymbolicLink(file.toPath())) {
+        if (settingsService.isIgnoreSymLinks() && Files.isSymbolicLink(file.toPath())) {
             if (LOG.isInfoEnabled()) {
                 LOG.info("excluding symbolic link " + file.toPath());
             }
@@ -598,7 +597,7 @@ public class MediaFileService {
                 mediaFile.setYear(metaData.getYear());
                 mediaFile.setDurationSeconds(metaData.getDurationSeconds());
                 mediaFile.setBitRate(metaData.getBitRate());
-                mediaFile.setVariableBitRate(metaData.getVariableBitRate());
+                mediaFile.setVariableBitRate(metaData.isVariableBitRate());
                 mediaFile.setHeight(metaData.getHeight());
                 mediaFile.setWidth(metaData.getWidth());
                 mediaFile.setTitleSort(metaData.getTitleSort());
@@ -634,7 +633,9 @@ public class MediaFileService {
                     }
                 }
 
-                if (firstChild != null) {
+                if (firstChild == null) {
+                    mediaFile.setArtist(file.getName());
+                } else {
                     mediaFile.setMediaType(MediaFile.MediaType.ALBUM);
 
                     // Guess artist/album name, year and genre.
@@ -656,9 +657,6 @@ public class MediaFileService {
                     if (coverArt != null) {
                         mediaFile.setCoverArtPath(coverArt.getPath());
                     }
-
-                } else {
-                    mediaFile.setArtist(file.getName());
                 }
                 utils.analyze(mediaFile);
             }
@@ -742,7 +740,7 @@ public class MediaFileService {
         // Look for embedded images in audiofiles. (Only check first audio file encountered).
         for (File candidate : candidates) {
             if (parser.isApplicable(candidate)) {
-                return JaudiotaggerParser.getArtwork(getMediaFile(candidate)) != null ? candidate : null;
+                return JaudiotaggerParser.getArtwork(getMediaFile(candidate)) == null ? null : candidate;
             }
         }
         return null;

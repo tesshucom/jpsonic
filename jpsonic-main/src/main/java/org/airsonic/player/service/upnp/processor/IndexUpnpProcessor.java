@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.upnp.processor;
@@ -84,16 +84,16 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX);
     }
 
-    static final int getIDAndIncrement() {
+    protected static final int getIDAndIncrement() {
         return INDEX_IDS.getAndIncrement();
     }
 
     @Override
     public void addChild(DIDLContent didl, MediaFile child) {
-        if (!child.isFile()) {
-            didl.addContainer(createContainer(child));
-        } else {
+        if (child.isFile()) {
             didl.addItem(getDispatcher().getMediaFileProcessor().createItem(child));
+        } else {
+            didl.addContainer(createContainer(child));
         }
     }
 
@@ -114,6 +114,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         return createBrowseResult(didl, 1, 1);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void applyId(MediaFile item, Container container) {
         container.setId(UpnpProcessDispatcher.CONTAINER_ID_INDEX_PREFIX + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR
                 + item.getId());
@@ -209,7 +210,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         setRootTitleWithResource("dlna.title.index");
     }
 
-    private final void refreshIndex() {
+    private void refreshIndex() {
         Element element = indexCache.getQuiet(IndexCacheKey.FILE_STRUCTURE);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
@@ -227,15 +228,15 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         }
     }
 
-    private final boolean isIndex(int id) {
+    private boolean isIndex(int id) {
         return -1 > id;
     }
 
-    private final boolean isIndex(MediaFile item) {
+    private boolean isIndex(MediaFile item) {
         return isIndex(item.getId());
     }
 
-    private final int min(Integer... integers) {
+    private int min(Integer... integers) {
         int min = Integer.MAX_VALUE;
         for (int i : integers) {
             min = Integer.min(min, i);
@@ -249,6 +250,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
         private final int id;
 
         public MediaIndex(MusicIndex deligate) {
+            super();
             this.deligate = deligate;
             this.id = getIDAndIncrement();
         }

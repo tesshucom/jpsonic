@@ -1,4 +1,24 @@
 /*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
+/*
  * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -45,10 +65,10 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
     private String passwordAttributeName = "userPassword";
 
     @Autowired
-    SecurityService securityService;
+    private SecurityService securityService;
 
     @Autowired
-    SettingsService settingsService;
+    private SettingsService settingsService;
 
     // ~ Methods
     // ========================================================================================================
@@ -83,6 +103,11 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             throw new BadCredentialsException("LDAP authentication disabled for user.");
         }
 
+        LdapUserDetailsImpl.Essence essence = createEssence(ctx, dn, username);
+        return essence.createUserDetails();
+    }
+
+    private LdapUserDetailsImpl.Essence createEssence(DirContextOperations ctx, String dn, String userName) {
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
 
@@ -92,10 +117,10 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             essence.setPassword(mapPassword(passwordValue));
         }
 
-        essence.setUsername(user.getUsername());
+        essence.setUsername(userName);
 
         // Add the supplied authorities
-        for (GrantedAuthority authority : securityService.getGrantedAuthorities(user.getUsername())) {
+        for (GrantedAuthority authority : securityService.getGrantedAuthorities(userName)) {
             essence.addAuthority(authority);
         }
 
@@ -108,9 +133,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
             essence.setTimeBeforeExpiration(ppolicy.getTimeBeforeExpiration());
             essence.setGraceLoginsRemaining(ppolicy.getGraceLoginsRemaining());
         }
-
-        return essence.createUserDetails();
-
+        return essence;
     }
 
     @Override

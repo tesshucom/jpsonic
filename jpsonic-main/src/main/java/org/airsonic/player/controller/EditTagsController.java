@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -41,6 +42,7 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,7 +68,7 @@ public class EditTagsController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws ServletRequestBindingException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);
@@ -81,12 +83,12 @@ public class EditTagsController {
         }
         map.put("allGenres", JaudiotaggerParser.getID3V1Genres());
 
-        List<Song> songs = new ArrayList<>();
+        List<ParsedSong> parsedSongs = new ArrayList<>();
         for (int i = 0; i < files.size(); i++) {
-            songs.add(createSong(files.get(i), i));
+            parsedSongs.add(createParsedSong(files.get(i), i));
         }
         map.put("id", id);
-        map.put("songs", songs);
+        map.put("songs", parsedSongs);
         map.put("ancestors", getAncestors(dir));
 
         String username = securityService.getCurrentUsername(request);
@@ -115,27 +117,26 @@ public class EditTagsController {
         return result;
     }
 
-    private Song createSong(MediaFile file, int index) {
+    private ParsedSong createParsedSong(MediaFile file, int index) {
         MetaDataParser parser = metaDataParserFactory.getParser(file.getFile());
-
-        Song song = new Song();
-        song.setId(file.getId());
-        song.setFileName(FilenameUtils.getBaseName(file.getPath()));
-        song.setTrack(file.getTrackNumber());
-        song.setSuggestedTrack(index + 1);
-        song.setTitle(file.getTitle());
-        song.setSuggestedTitle(parser.guessTitle(file.getFile()));
-        song.setArtist(file.getArtist());
-        song.setAlbum(file.getAlbumName());
-        song.setYear(file.getYear());
-        song.setGenre(file.getGenre());
-        return song;
+        ParsedSong parsedSong = new ParsedSong();
+        parsedSong.setId(file.getId());
+        parsedSong.setFileName(FilenameUtils.getBaseName(file.getPath()));
+        parsedSong.setTrack(file.getTrackNumber());
+        parsedSong.setSuggestedTrack(index + 1);
+        parsedSong.setTitle(file.getTitle());
+        parsedSong.setSuggestedTitle(parser.guessTitle(file.getFile()));
+        parsedSong.setArtist(file.getArtist());
+        parsedSong.setAlbum(file.getAlbumName());
+        parsedSong.setYear(file.getYear());
+        parsedSong.setGenre(file.getGenre());
+        return parsedSong;
     }
 
     /**
      * Contains information about a single song.
      */
-    public static class Song {
+    public static class ParsedSong {
         private int id;
         private String fileName;
         private Integer suggestedTrack;

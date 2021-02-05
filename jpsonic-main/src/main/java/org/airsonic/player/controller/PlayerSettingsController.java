@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -45,6 +46,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -79,8 +81,10 @@ public class PlayerSettingsController {
     }
 
     @ModelAttribute
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     protected void formBackingObject(HttpServletRequest request, Model model,
-            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) throws Exception {
+            @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast)
+            throws ServletRequestBindingException {
 
         handleRequestParameters(request);
         List<Player> players = getPlayers(request);
@@ -148,7 +152,9 @@ public class PlayerSettingsController {
     protected ModelAndView doSubmitAction(@ModelAttribute(Attributes.Model.Command.VALUE) PlayerSettingsCommand command,
             RedirectAttributes redirectAttributes) {
         Player player = playerService.getPlayerById(command.getPlayerId());
-        if (player != null) {
+        if (player == null) {
+            return new ModelAndView(new RedirectView("notFound"));
+        } else {
             player.setAutoControlEnabled(command.isAutoControlEnabled());
             player.setM3uBomEnabled(command.isM3uBomEnabled());
             player.setDynamicIp(command.isDynamicIp());
@@ -163,8 +169,6 @@ public class PlayerSettingsController {
             redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
             redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
             return new ModelAndView(new RedirectView(ViewName.PLAYER_SETTINGS.value()));
-        } else {
-            return new ModelAndView(new RedirectView("notFound"));
         }
     }
 
@@ -183,7 +187,8 @@ public class PlayerSettingsController {
         return authorizedPlayers;
     }
 
-    private void handleRequestParameters(HttpServletRequest request) throws Exception {
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
+    private void handleRequestParameters(HttpServletRequest request) throws ServletRequestBindingException {
         if (request.getParameter(Attributes.Request.DELETE.value()) != null) {
             Integer delete = ServletRequestUtils.getIntParameter(request, Attributes.Request.DELETE.value());
             if (delete != null) {

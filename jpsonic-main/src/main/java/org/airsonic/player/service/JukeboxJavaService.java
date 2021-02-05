@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service;
 
@@ -100,7 +120,9 @@ public class JukeboxJavaService {
             LOG.info("use default mixer");
             audioPlayer = javaPlayerFactory.createJavaPlayer();
         }
-        if (audioPlayer != null) {
+        if (audioPlayer == null) {
+            throw new IllegalStateException("AudioPlayer has not been initialized properly");
+        } else {
             audioPlayer.setGain(DEFAULT_GAIN);
             audioPlayer.registerListener(new PlayerListener() {
                 @Override
@@ -129,8 +151,6 @@ public class JukeboxJavaService {
                 }
             });
             LOG.info("New audio player {} has been initialized.", audioPlayer.toString());
-        } else {
-            throw new IllegalStateException("AudioPlayer has not been initialized properly");
         }
         return audioPlayer;
     }
@@ -169,7 +189,7 @@ public class JukeboxJavaService {
         audioPlayer.setGain(gain);
     }
 
-    final void onSongStart(Player player) {
+    protected final void onSongStart(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(),
                 FileUtil.getShortPath(file.getFile()));
@@ -184,7 +204,7 @@ public class JukeboxJavaService {
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
-    final void onSongEnd(Player player) {
+    protected final void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
         LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(),
                 FileUtil.getShortPath(file.getFile()));
@@ -228,10 +248,10 @@ public class JukeboxJavaService {
                 @Override
                 public File getCurrentAudioFile() {
                     MediaFile current = airsonicPlayer.getPlayQueue().getCurrentFile();
-                    if (current != null) {
-                        return airsonicPlayer.getPlayQueue().getCurrentFile().getFile();
-                    } else {
+                    if (current == null) {
                         return null;
+                    } else {
+                        return airsonicPlayer.getPlayQueue().getCurrentFile().getFile();
                     }
                 }
 

@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.search;
@@ -121,7 +121,7 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private String upnpSearchQuery;
     private UPnPSearchCriteria result;
 
-    BiConsumer<Boolean, String> notice = (b, message) -> {
+    private BiConsumer<Boolean, String> notice = (b, message) -> {
         if (b) {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
         }
@@ -177,6 +177,12 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
         // Nothing is currently done.
     }
 
+    private void addMediaTypeQuery(String fieldName, String mediaType, Occur occur) {
+        if (!isEmpty(mediaTypeQueryBuilder)) {
+            mediaTypeQueryBuilder.add(new TermQuery(new Term(fieldName, mediaType)), occur);
+        }
+    }
+
     /**
      * 7. Appendix C - AV Working Committee Class Definitions
      */
@@ -197,117 +203,88 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
             mediaTypeQueryBuilder = new BooleanQuery.Builder();
         }
 
-        switch (verb) {
-        case "derivedfrom":
-            switch (complement) {
-
-            // artist
-            case "object.container.person":
-            case "object.container.person.musicArtist":
-                assignableClass = Artist.class;
-                break;
-
-            // album
-            case "object.container.album":
-            case "object.container.album.musicAlbum":
-                assignableClass = Album.class;
-                break;
-
-            // audio
-            case "object.item.audioItem":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
-                            Occur.SHOULD);
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
-                            Occur.SHOULD);
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
-                            Occur.SHOULD);
-                }
-                break;
-
-            // video
-            case "object.item.videoItem":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
-                            Occur.MUST);
-                }
-                break;
-
-            default:
-                throw createIllegal("An unknown class was specified.", subject, verb, complement);
-
-            }
-            break;
-        case "=":
-            switch (complement) {
-
-            // artist
-            case "object.container.person.musicArtist":
-                assignableClass = Artist.class;
-                break;
-
-            // album
-            case "object.container.album.musicAlbum":
-                assignableClass = Album.class;
-                break;
-
-            // audio
-            case "object.item.audioItem.musicTrack":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name())),
-                            Occur.SHOULD);
-                }
-                break;
-            case "object.item.audioItem.audioBroadcast":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name())),
-                            Occur.SHOULD);
-                }
-                break;
-            case "object.item.audioItem.audioBook":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name())),
-                            Occur.SHOULD);
-                }
-                break;
-
-            // video
-            case "object.item.videoItem.movie":
-            case "object.item.videoItem.videoBroadcast":
-            case "object.item.videoItem.musicVideoClip":
-                assignableClass = MediaFile.class;
-                if (!isEmpty(mediaTypeQueryBuilder)) {
-                    mediaTypeQueryBuilder.add(
-                            new TermQuery(new Term(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name())),
-                            Occur.MUST);
-                }
-                break;
-
-            default:
-                throw createIllegal(
-                        "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
-                        subject, verb, complement);
-
-            }
-            break;
-        default:
-            break;
+        if ("derivedfrom".equals(verb)) {
+            purseDerivedfrom(subject, verb, complement);
+        } else if ("=".equals(verb)) {
+            purseClass(subject, verb, complement);
         }
-
         includeComposer = settingsService.isSearchComposer() && MediaFile.class == assignableClass;
+    }
 
+    private void purseDerivedfrom(String subject, String verb, String complement) {
+        switch (complement) {
+
+        // artist
+        case "object.container.person":
+        case "object.container.person.musicArtist":
+            assignableClass = Artist.class;
+            break;
+
+        // album
+        case "object.container.album":
+        case "object.container.album.musicAlbum":
+            assignableClass = Album.class;
+            break;
+
+        // audio
+        case "object.item.audioItem":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+            break;
+
+        // video
+        case "object.item.videoItem":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            break;
+
+        default:
+            throw createIllegal("An unknown class was specified.", subject, verb, complement);
+        }
+    }
+
+    private void purseClass(String subject, String verb, String complement) {
+        switch (complement) {
+
+        // artist
+        case "object.container.person.musicArtist":
+            assignableClass = Artist.class;
+            break;
+
+        // album
+        case "object.container.album.musicAlbum":
+            assignableClass = Album.class;
+            break;
+
+        // audio
+        case "object.item.audioItem.musicTrack":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.MUSIC.name(), Occur.SHOULD);
+            break;
+        case "object.item.audioItem.audioBroadcast":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.PODCAST.name(), Occur.SHOULD);
+            break;
+        case "object.item.audioItem.audioBook":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.AUDIOBOOK.name(), Occur.SHOULD);
+            break;
+
+        // video
+        case "object.item.videoItem.movie":
+        case "object.item.videoItem.videoBroadcast":
+        case "object.item.videoItem.musicVideoClip":
+            assignableClass = MediaFile.class;
+            addMediaTypeQuery(FieldNamesConstants.MEDIA_TYPE, MediaType.VIDEO.name(), Occur.MUST);
+            break;
+
+        default:
+            throw createIllegal(
+                    "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified.",
+                    subject, verb, complement);
+        }
     }
 
     @Override

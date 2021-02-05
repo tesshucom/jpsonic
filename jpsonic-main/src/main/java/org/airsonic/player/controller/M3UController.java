@@ -1,25 +1,27 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
@@ -31,12 +33,13 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.JWTSecurityService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -58,13 +61,14 @@ public class M3UController {
     private JWTSecurityService jwtSecurityService;
 
     @GetMapping
-    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
         response.setContentType("audio/x-mpegurl");
         response.setCharacterEncoding(StringUtil.ENCODING_UTF8);
 
         Player player = playerService.getPlayer(request, response);
 
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         url = url + "ext/stream?";
 
         if (player.isExternalWithPlaylist()) {

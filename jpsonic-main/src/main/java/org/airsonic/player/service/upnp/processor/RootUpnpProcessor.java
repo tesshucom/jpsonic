@@ -1,22 +1,21 @@
 /*
-  This file is part of Airsonic.
-
-  Airsonic is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Airsonic is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
-  Copyright 2017 (C) Airsonic Authors
-  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
-*/
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service.upnp.processor;
 
@@ -85,22 +84,11 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
     @Override
     public List<Container> getItems(long offset, long maxResults) {
         containers.clear();
-
-        if (settingsService.isDlnaIndexVisible()) {
-            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
-        }
-        if (settingsService.isDlnaIndexId3Visible()) {
-            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
-        }
+        addIndexContainer(containers);
         if (settingsService.isDlnaFolderVisible()) {
             containers.add(getDispatcher().getMediaFileProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaArtistVisible()) {
-            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
-        }
-        if (settingsService.isDlnaArtistByFolderVisible()) {
-            containers.add(getDispatcher().getArtistByFolderProcessor().createRootContainer());
-        }
+        addArtistContainer(containers);
         if (settingsService.isDlnaAlbumVisible()) {
             containers.add(getDispatcher().getAlbumProcessor().createRootContainer());
         }
@@ -113,12 +101,43 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaSongByGenreVisible()) {
             containers.add(getDispatcher().getSongByGenreProcessor().createRootContainer());
         }
+        addRecentAlbumContainer(containers);
+        addRandomContainer(containers);
+        if (settingsService.isDlnaPodcastVisible()) {
+            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
+        }
+
+        return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
+    }
+
+    private void addIndexContainer(List<Container> containers) {
+        if (settingsService.isDlnaIndexVisible()) {
+            containers.add(getDispatcher().getIndexProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaIndexId3Visible()) {
+            containers.add(getDispatcher().getIndexId3Processor().createRootContainer());
+        }
+    }
+
+    private void addArtistContainer(List<Container> containers) {
+        if (settingsService.isDlnaArtistVisible()) {
+            containers.add(getDispatcher().getArtistProcessor().createRootContainer());
+        }
+        if (settingsService.isDlnaArtistByFolderVisible()) {
+            containers.add(getDispatcher().getArtistByFolderProcessor().createRootContainer());
+        }
+    }
+
+    private void addRecentAlbumContainer(List<Container> containers) {
         if (settingsService.isDlnaRecentAlbumVisible()) {
             containers.add(getDispatcher().getRecentAlbumProcessor().createRootContainer());
         }
         if (settingsService.isDlnaRecentAlbumId3Visible()) {
             containers.add(getDispatcher().getRecentAlbumId3Processor().createRootContainer());
         }
+    }
+
+    private void addRandomContainer(List<Container> containers) {
         if (settingsService.isDlnaRandomSongVisible()) {
             containers.add(getDispatcher().getRandomSongProcessor().createRootContainer());
         }
@@ -131,11 +150,6 @@ public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container
         if (settingsService.isDlnaRandomSongByFolderArtistVisible()) {
             containers.add(getDispatcher().getRandomSongByFolderArtistProcessor().createRootContainer());
         }
-        if (settingsService.isDlnaPodcastVisible()) {
-            containers.add(getDispatcher().getPodcastProcessor().createRootContainer());
-        }
-
-        return org.airsonic.player.util.PlayerUtils.subList(containers, offset, maxResults);
     }
 
     @Override

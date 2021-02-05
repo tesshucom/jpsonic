@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.dao;
@@ -88,6 +89,7 @@ public class UserDao extends AbstractDao {
 
     @Autowired
     public UserDao(String userTableQuote) {
+        super();
         this.userTableQuote = userTableQuote;
     }
 
@@ -278,7 +280,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    static final String decrypt(String s) {
+    protected static final String decrypt(String s) {
         if (s == null) {
             return null;
         }
@@ -326,43 +328,46 @@ public class UserDao extends AbstractDao {
         }
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // It's not particularly difficult, so you can leave it as it is.
     private void writeRoles(User user) {
-        String sql = "delete from user_role where username=?";
-        getJdbcTemplate().update(sql, user.getUsername());
-        sql = "insert into user_role (username, role_id) values(?, ?)";
+        getJdbcTemplate().update("delete from user_role where username=?", user.getUsername());
         if (user.isAdminRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_ADMIN);
+            updateRole(user.getUsername(), ROLE_ID_ADMIN);
         }
         if (user.isDownloadRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_DOWNLOAD);
+            updateRole(user.getUsername(), ROLE_ID_DOWNLOAD);
         }
         if (user.isUploadRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_UPLOAD);
+            updateRole(user.getUsername(), ROLE_ID_UPLOAD);
         }
         if (user.isPlaylistRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_PLAYLIST);
+            updateRole(user.getUsername(), ROLE_ID_PLAYLIST);
         }
         if (user.isCoverArtRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_COVER_ART);
+            updateRole(user.getUsername(), ROLE_ID_COVER_ART);
         }
         if (user.isCommentRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_COMMENT);
+            updateRole(user.getUsername(), ROLE_ID_COMMENT);
         }
         if (user.isPodcastRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_PODCAST);
+            updateRole(user.getUsername(), ROLE_ID_PODCAST);
         }
         if (user.isStreamRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_STREAM);
+            updateRole(user.getUsername(), ROLE_ID_STREAM);
         }
         if (user.isJukeboxRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_JUKEBOX);
+            updateRole(user.getUsername(), ROLE_ID_JUKEBOX);
         }
         if (user.isSettingsRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_SETTINGS);
+            updateRole(user.getUsername(), ROLE_ID_SETTINGS);
         }
         if (user.isShareRole()) {
-            getJdbcTemplate().update(sql, user.getUsername(), ROLE_ID_SHARE);
+            updateRole(user.getUsername(), ROLE_ID_SHARE);
         }
+    }
+
+    private void updateRole(String username, Integer role) {
+        getJdbcTemplate().update("insert into user_role (username, role_id) values(?, ?)", username, role);
     }
 
     private static class UserRowMapper implements RowMapper<User> {
@@ -469,7 +474,7 @@ public class UserDao extends AbstractDao {
         }
     }
 
-    String getUserTable() {
+    public String getUserTable() {
         return userTableQuote + "user" + userTableQuote;
     }
 }

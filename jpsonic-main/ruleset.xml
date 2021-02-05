@@ -5,23 +5,14 @@
     xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
 
     <description>
-        PMD 6.30.0 rulesets for Jpsonic.
+        This file is whitelist definition of rules for a PMD(6.x).
 
         [Priority level value controllable by Maven / Logical name in Eclipse plug-in]
-
         priority 1 / blocker   : Almost follow default rules
         priority 2 / critical  : Almost follow default rules
-        priority 3 / urgent    : only important rules
-        priority 4 / important : only important rules
-        priority 5 / warning   : only important rules
-
-        - There is a rule that is not an error but has an influence on the server operation.
-          Purpose is to triage such rules.
-        - Rules are expressed as exclusions rather than postscripts.
-          Because it is easy to re-evaluate new rules when upgrading PMD.
-        - Readability rules in priority 3 are basically discarded. Or postponed.
-          Readability rules for priority 1 and 2 are reasonable and should be followed.
-
+        priority 3 / urgent    : Exclude unnecessary rules
+        priority 4 / important : Exclude unnecessary rules
+        priority 5 / warning   : Exclude unnecessary rules
     </description>
 
     <exclude-pattern>.*/.*Test.java</exclude-pattern>
@@ -32,92 +23,104 @@
 
     <!-- Java Rules:Best Practices -->
     <rule ref="category/java/bestpractices.xml">
+
         <!-- Because currently contains bugs pmd/pmd/issues/2833. -->
-        <!-- 3 --><exclude name="UseCollectionIsEmpty" />
+        <exclude name="UseCollectionIsEmpty" />
+
         <!-- Because it is a single project and caller is guaranteed. -->
-        <!-- 3 --><exclude name="MethodReturnsInternalArray" />
+        <exclude name="MethodReturnsInternalArray" />
     </rule>
 
     <!-- Java Rules:Code Style -->
     <rule ref="category/java/codestyle.xml">
-        <!-- 3 --><exclude name="MethodArgumentCouldBeFinal" />
-        <!-- 3 --><exclude name="ShortVariable" />
-        <!-- 3 --><exclude name="LocalVariableCouldBeFinal" />
-        <!-- 3 --><exclude name="OnlyOneReturn" />
-        <!-- 3 --><exclude name="CallSuperInConstructor" />
-        <!-- 3 --><exclude name="CommentDefaultAccessModifier" />
-        <!-- 3 --><exclude name="AtLeastOneConstructor" />
-        <!-- 3 --><exclude name="LongVariable" />
-        <!-- 3 --><exclude name="ShortMethodName" />
-        <!-- 3 --><exclude name="ControlStatementBraces" />
-        <!-- 3 --><exclude name="FieldDeclarationsShouldBeAtStartOfClass" />
-        <!-- 3 --><exclude name="ConfusingTernary" />
-        <!-- 3 --><exclude name="LinguisticNaming" />
-        <!-- 3 --><exclude name="UnnecessaryModifier" />
-        <!-- 3 --><exclude name="DefaultPackage" />
-        <!-- 3 --><exclude name="UseUnderscoresInNumericLiterals" />
-        <!-- 3 --><exclude name="TooManyStaticImports" />
-        <!-- 3 --><exclude name="UseShortArrayInitializer" />
-        <!-- 4 --><exclude name="BooleanGetMethodName" />
-        <!-- 4 --><exclude name="ShortClassName" />
+
+        <!-- Because if you are too particular about it, it may be difficult to read. -->
+        <exclude name="ShortMethodName" />
+        <exclude name="ShortVariable" />
+        <exclude name="LongVariable" />
+
+        <!-- Because it's redundant. It also obscures Checkstyle:VariableDeclarationUsageDistance. -->
+        <exclude name="MethodArgumentCouldBeFinal" />
+        <exclude name="LocalVariableCouldBeFinal" />
+
+        <!-- Because it omits an empty constructor with no arguments. -->
+        <exclude name="AtLeastOneConstructor" />
+
+        <!-- Because it should not be managed by comments. -->
+        <exclude name="CommentDefaultAccessModifier" />
+
+        <!-- Rather recommended. -->
+        <exclude name="OnlyOneReturn" />
     </rule>
 
     <!-- Java Rules:Design -->
     <rule ref="category/java/design.xml">
-        <!-- 3 --><exclude name="TooManyMethods" />
-        <!-- 3 --><exclude name="GodClass" />
-        <!-- 3 --><exclude name="TooManyFields" />
-        <!-- 3 --><exclude name="LawOfDemeter" />
-        <!-- 3 --><exclude name="ExcessiveParameterList" />
-        <!-- 3 --><exclude name="ExcessivePublicCount" />
-        <!-- 3 Will be renamed in 7.0 --><exclude name="CyclomaticComplexity" />
-        <!-- 3 --><exclude name="DataClass" />
-        <!-- 3 --><exclude name="ExcessiveImports" />
-        <!-- 3 --><exclude name="CollapsibleIfStatements" />
-        <!-- 3 --><exclude name="SignatureDeclareThrowsException" />
-        <!-- 3 --><exclude name="ImmutableField" />
-        <!-- 3 --><exclude name="SimplifyBooleanReturns" />
-        <!-- 3 --><exclude name="AvoidCatchingGenericException" />
-        <!-- 3 --><exclude name="AvoidUncheckedExceptionsInSignatures" />
-        <!-- 3 --><exclude name="UseUtilityClass" />
-        <!-- 3 --><exclude name="LogicInversion" />
-        <!-- 3 --><exclude name="NPathComplexity" />
-        <!-- 3 --><exclude name="ExcessiveMethodLength" />
-        <!-- 3 --><exclude name="UseObjectForClearerAPI" />
-        <!-- 3 --><exclude name="SimplifiedTernary" />
-        <!-- 3 --><exclude name="NcssCount" />
-        <!-- 3 --><exclude name="AvoidDeeplyNestedIfStmts" />
-        <!-- 3 --><exclude name="ExcessiveClassLength" />
-        <!-- 3 --><exclude name="CouplingBetweenObjects" />
-        <!-- 3 --><exclude name="SwitchDensity" />
-        <!-- Because this rule traditionally causes an error that the class does not exist. -->
-        <!-- 3 --><exclude name="LoosePackageCoupling" />
+
+        <!-- Processing may be aggregated for performance reasons, and simple subdivision 
+            is not always a best practice. It may be changed from other specific design 
+            perspectives or by reviewing the rules. It does not judge errors based on 
+            simple thresholds. -->
+        <exclude name="GodClass" />
+        <exclude name="CouplingBetweenObjects" />
+        <exclude name="TooManyFields" />
+        <exclude name="TooManyMethods" />
+        <exclude name="ExcessiveImports" />
+        <exclude name="ExcessiveParameterList" />
+        <exclude name="ExcessivePublicCount" />
+        <exclude name="ExcessiveMethodLength" />
+        <exclude name="ExcessiveClassLength" />
+        <exclude name="NcssCount" />
+
+        <!-- Not required at this time. -->
+        <exclude name="ImmutableField" />
+
+        <!-- The rule flags any usage of objects not created locally received as 
+            parameters. This rule is ignored, as even standard notation is affected in 
+            this day and age. -->
+        <exclude name="LawOfDemeter" />
+
+        <!-- This rule mainly refers to the amount of branching. Ignore the pointed 
+            out point because it is mostly implemented according to the requirements. 
+            More important is NPathComplexity. It will be renamed in 7.0. -->
+        <exclude name="CyclomaticComplexity" />
+
+        <!-- This rule is intended to avoid the Anemic Domain Model anti-pattern 
+            in favor of using Domain-Driven Design. Not valid for this project. -->
+        <exclude name="DataClass" />
+
+        <!-- ****************************** Should be triaged (#824, v109.6.0 or later) ****************************** -->
+        <exclude name="AvoidCatchingGenericException" />
     </rule>
 
     <!-- Java Rules:Documentation -->
     <rule ref="category/java/documentation.xml">
-        <!-- 3 --><exclude name="UncommentedEmptyConstructor" />
-        <!-- 3 --><exclude name="CommentRequired" />
-        <!-- 3 --><exclude name="CommentSize" />
+
+        <!-- Comments on complex processes are recommended, but not required for all processes. -->
+        <exclude name="UncommentedEmptyConstructor" />
+        <exclude name="CommentRequired" />
+        <exclude name="CommentSize" />
     </rule>
 
     <!-- Java Rules:Error Prone -->
     <rule ref="category/java/errorprone.xml">
+
         <!-- ****************************** Should be triaged (#824, v109.6.0 or later) ****************************** -->
-        <!-- 3 --><exclude name="AvoidCatchingThrowable" />
+        <exclude name="AvoidCatchingThrowable" />
+
         <!-- Because not needed for this project. -->
-        <!-- 3 --><exclude name="MissingSerialVersionUID" />
+        <exclude name="MissingSerialVersionUID" />
+
         <!-- Because not needed for this project. -->
-        <!-- 3 --><exclude name="BeanMembersShouldSerialize" />
+        <exclude name="BeanMembersShouldSerialize" />
     </rule>
+
     <!-- Because annotations and Dao (literals for building SQL) are skipped. -->
-    <!-- 3 -->
     <rule ref="category/java/errorprone.xml/AvoidDuplicateLiterals">
         <properties>
             <property name="skipAnnotations" value="true" />
         </properties>
     </rule>
-    <!-- 3 -->
+    
     <!-- 0L was added. -->
     <rule ref="category/java/errorprone.xml/AvoidLiteralsInIfCondition">
         <properties>
@@ -127,14 +130,16 @@
 
     <!-- Java Rules:Multithreading -->
     <rule ref="category/java/multithreading.xml">
+
         <!-- ****************************** Should be triaged (#586, v109.6.0 or later) ****************************** -->
-        <!-- 3 --><exclude name="DoNotUseThreads" />
+        <exclude name="DoNotUseThreads" />
     </rule>
 
     <!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml">
+
         <!-- Because there is bug with the rules and it cannot be used. -->
-        <!-- 3 --><exclude name="UseIOStreamsWithApacheCommonsFileItem" />
+        <exclude name="UseIOStreamsWithApacheCommonsFileItem" />
     </rule>
 
     <!-- Java Rules:Security -->
@@ -142,8 +147,9 @@
 
     <!-- JSP Rules:Best Practices -->
     <rule ref="category/jsp/bestpractices.xml">
+
         <!-- Style is destroyed when applied. -->
-        <!-- 2 --><exclude name="NoClassAttribute" />
+        <exclude name="NoClassAttribute" />
     </rule>
 
     <!-- JSP Rules:Code Style -->
@@ -151,10 +157,12 @@
 
     <!-- JSP Rules:Design -->
     <rule ref="category/jsp/design.xml">
+
         <!-- Many include JSTL, and excessive partitioning reduces productivity and communication efficiency. -->
-        <!-- 2 --><exclude name="NoLongScripts" />
+        <exclude name="NoLongScripts" />
+
         <!-- Most of them have low reusability. -->
-        <!-- 3 --><exclude name="NoInlineScript" />
+        <exclude name="NoInlineScript" />
     </rule>
 
     <!-- JSP Rules:Error Prone -->
@@ -162,8 +170,9 @@
 
     <!-- JSP Rules:Security -->
     <rule ref="category/jsp/security.xml">
+
         <!-- *** Escape is applied to required items. #614 *** -->
-        <!-- 3 --><exclude name="NoUnsanitizedJSPExpression" />
+        <exclude name="NoUnsanitizedJSPExpression" />
     </rule>
 
     <!-- VM:Best Practices -->

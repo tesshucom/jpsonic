@@ -1,26 +1,28 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
 
 import java.awt.Dimension;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +45,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,7 +76,8 @@ public class HLSController {
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
 
         response.setHeader("Access-Control-Allow-Origin", "*");
 
@@ -111,7 +115,7 @@ public class HLSController {
         }
     }
 
-    private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) throws IllegalArgumentException {
+    private List<Pair<Integer, Dimension>> parseBitRates(HttpServletRequest request) {
         List<Pair<Integer, Dimension>> result = new ArrayList<>();
         String[] bitRates = request.getParameterValues("bitRate");
         if (bitRates != null) {
@@ -125,7 +129,7 @@ public class HLSController {
     /**
      * Parses a string containing the bitrate and an optional width/height, e.g., 1200@640x480
      */
-    protected Pair<Integer, Dimension> parseBitRate(String bitRate) throws IllegalArgumentException {
+    protected Pair<Integer, Dimension> parseBitRate(String bitRate) {
 
         Matcher matcher = BITRATE_PATTERN.matcher(bitRate);
         if (!matcher.matches()) {

@@ -1,25 +1,27 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -39,7 +41,7 @@ import org.airsonic.player.domain.Share;
 import org.airsonic.player.security.JWTAuthenticationToken;
 import org.airsonic.player.service.JWTSecurityService;
 import org.airsonic.player.service.MediaFileService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.ShareService;
@@ -84,7 +86,7 @@ public class ExternalPlayerController {
     @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws Exception {
+            throws IOException {
 
         String shareName = ControllerUtils.extractMatched(request);
         if (LOG.isDebugEnabled()) {
@@ -153,14 +155,14 @@ public class ExternalPlayerController {
             Date expires) {
         String prefix = "ext";
         String streamUrl = jwtSecurityService
-                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/stream")
+                .addJWTToken(UriComponentsBuilder.fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/stream")
                         .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                         .queryParam(Attributes.Request.PLAYER.value(), player.getId())
                         .queryParam(Attributes.Request.MAX_BIT_RATE.value(), MAX_BIT_RATE_VALUE), expires)
                 .build().toUriString();
 
         String coverArtUrl = jwtSecurityService.addJWTToken(UriComponentsBuilder
-                .fromHttpUrl(NetworkService.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
+                .fromHttpUrl(NetworkUtils.getBaseUrl(request) + prefix + "/" + ViewName.COVER_ART.value())
                 .queryParam(Attributes.Request.ID.value(), mediaFile.getId())
                 .queryParam(Attributes.Request.SIZE.value(), MAX_SIZE_VALUE), expires).build().toUriString();
         return new MediaFileWithUrlInfo(mediaFile, coverArtUrl, streamUrl);

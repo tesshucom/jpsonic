@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.search;
@@ -212,12 +213,12 @@ public class SearchServiceUtilities {
 
     public final String[] filterComposer(String[] fields, boolean includeComposer) {
         return Arrays.asList(fields).stream()
-                .filter(f -> includeComposer ? true
-                        : !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
+                .filter(f -> includeComposer
+                        || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
                 .collect(Collectors.toList()).toArray(new String[0]);
     }
 
-    private final String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
+    private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
         StringBuilder b = new StringBuilder();
         b.append(genres).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
@@ -225,7 +226,7 @@ public class SearchServiceUtilities {
         return b.toString();
     }
 
-    private final String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
+    private String createCacheKey(RandomCacheKey key, int casheMax, List<MusicFolder> musicFolders,
             String... additional) {
         StringBuilder b = new StringBuilder();
         b.append(key).append(',').append(casheMax).append('[');

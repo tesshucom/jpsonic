@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -78,6 +79,9 @@ public class VersionService {
 
     private String localBuildNumber;
     private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
+
+    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
+    private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
 
     /**
      * Time when latest version was fetched (in milliseconds).
@@ -252,9 +256,6 @@ public class VersionService {
         }
     }
 
-    private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
-    private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
-
     /**
      * Resolves the latest available Jpsonic version by inspecting github.
      */
@@ -266,7 +267,7 @@ public class VersionService {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Starting to read latest version");
             }
-            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10000).setSocketTimeout(10000)
+            RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(10_000).setSocketTimeout(10_000)
                     .build();
             HttpGet method = new HttpGet(VERSION_URL + "?v=" + getLocalVersion());
             method.setConfig(requestConfig);

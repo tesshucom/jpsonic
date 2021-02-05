@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -81,112 +82,6 @@ public class InternalHelpController {
 
     private static final int LOG_LINES_TO_SHOW = 50;
     private static final String TABLE_TYPE_TABLE = "table";
-
-    public static class IndexStatistics {
-        private String name;
-        private int count;
-        private int deletedCount;
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public int getCount() {
-            return count;
-        }
-
-        public void setCount(int count) {
-            this.count = count;
-        }
-
-        public int getDeletedCount() {
-            return deletedCount;
-        }
-
-        public void setDeletedCount(int deletedCount) {
-            this.deletedCount = deletedCount;
-        }
-    }
-
-    public static class FileStatistics {
-        private String name;
-        private String path;
-        private String freeFilesystemSizeBytes;
-        private String totalFilesystemSizeBytes;
-        private boolean readable;
-        private boolean writable;
-        private boolean executable;
-
-        public String getName() {
-            return name;
-        }
-
-        public String getFreeFilesystemSizeBytes() {
-            return freeFilesystemSizeBytes;
-        }
-
-        public boolean isReadable() {
-            return readable;
-        }
-
-        public boolean isWritable() {
-            return writable;
-        }
-
-        public boolean isExecutable() {
-            return executable;
-        }
-
-        public String getTotalFilesystemSizeBytes() {
-            return totalFilesystemSizeBytes;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public void setFreeFilesystemSizeBytes(String freeFilesystemSizeBytes) {
-            this.freeFilesystemSizeBytes = freeFilesystemSizeBytes;
-        }
-
-        public void setReadable(boolean readable) {
-            this.readable = readable;
-        }
-
-        public void setWritable(boolean writable) {
-            this.writable = writable;
-        }
-
-        public void setExecutable(boolean executable) {
-            this.executable = executable;
-        }
-
-        public void setTotalFilesystemSizeBytes(String totalFilesystemSizeBytes) {
-            this.totalFilesystemSizeBytes = totalFilesystemSizeBytes;
-        }
-
-        public void setPath(String path) {
-            this.path = path;
-        }
-
-        public void setFromFile(File file) {
-            this.setName(file.getName());
-            this.setPath(file.getAbsolutePath());
-            this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getUsableSpace()));
-            this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getTotalSpace()));
-            this.setReadable(Files.isReadable(file.toPath()));
-            this.setWritable(Files.isWritable(file.toPath()));
-            this.setExecutable(Files.isExecutable(file.toPath()));
-        }
-    }
 
     @Autowired
     private VersionService versionService;
@@ -281,14 +176,14 @@ public class InternalHelpController {
             IndexSearcher searcher = indexManager.getSearcher(indexType);
             stat.setName(indexType.name());
             indexStats.put(indexType.name(), stat);
-            if (searcher != null) {
+            if (searcher == null) {
+                stat.setCount(0);
+                stat.setDeletedCount(0);
+            } else {
                 IndexReader reader = searcher.getIndexReader();
                 stat.setCount(reader.numDocs());
                 stat.setDeletedCount(reader.numDeletedDocs());
                 indexManager.release(indexType, searcher);
-            } else {
-                stat.setCount(0);
-                stat.setDeletedCount(0);
             }
         }
         map.put("indexStatistics", indexStats);
@@ -385,6 +280,11 @@ public class InternalHelpController {
             }
         }
 
+        putDatabaseLegacyInfoTo(map);
+        putDatabaseTableInfoTo(map);
+    }
+
+    private void putDatabaseLegacyInfoTo(Map<String, Object> map) {
         if (environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))) {
             map.put("dbIsLegacy", true);
             File dbDirectory = new File(SettingsService.getJpsonicHome(), "db");
@@ -397,6 +297,9 @@ public class InternalHelpController {
             map.put("dbIsLegacy", false);
         }
 
+    }
+
+    private void putDatabaseTableInfoTo(Map<String, Object> map) {
         map.put("dbMediaFileMusicNonPresentCount", daoHelper.getJdbcTemplate()
                 .queryForObject("SELECT count(*) FROM media_file WHERE NOT present AND type = 'MUSIC'", Long.class));
         map.put("dbMediaFilePodcastNonPresentCount", daoHelper.getJdbcTemplate()
@@ -515,4 +418,109 @@ public class InternalHelpController {
         return executableStatistics;
     }
 
+    public static class IndexStatistics {
+        private String name;
+        private int count;
+        private int deletedCount;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public int getCount() {
+            return count;
+        }
+
+        public void setCount(int count) {
+            this.count = count;
+        }
+
+        public int getDeletedCount() {
+            return deletedCount;
+        }
+
+        public void setDeletedCount(int deletedCount) {
+            this.deletedCount = deletedCount;
+        }
+    }
+
+    public static class FileStatistics {
+        private String name;
+        private String path;
+        private String freeFilesystemSizeBytes;
+        private String totalFilesystemSizeBytes;
+        private boolean readable;
+        private boolean writable;
+        private boolean executable;
+
+        public String getName() {
+            return name;
+        }
+
+        public String getFreeFilesystemSizeBytes() {
+            return freeFilesystemSizeBytes;
+        }
+
+        public boolean isReadable() {
+            return readable;
+        }
+
+        public boolean isWritable() {
+            return writable;
+        }
+
+        public boolean isExecutable() {
+            return executable;
+        }
+
+        public String getTotalFilesystemSizeBytes() {
+            return totalFilesystemSizeBytes;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setFreeFilesystemSizeBytes(String freeFilesystemSizeBytes) {
+            this.freeFilesystemSizeBytes = freeFilesystemSizeBytes;
+        }
+
+        public void setReadable(boolean readable) {
+            this.readable = readable;
+        }
+
+        public void setWritable(boolean writable) {
+            this.writable = writable;
+        }
+
+        public void setExecutable(boolean executable) {
+            this.executable = executable;
+        }
+
+        public void setTotalFilesystemSizeBytes(String totalFilesystemSizeBytes) {
+            this.totalFilesystemSizeBytes = totalFilesystemSizeBytes;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public void setFromFile(File file) {
+            this.setName(file.getName());
+            this.setPath(file.getAbsolutePath());
+            this.setFreeFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getUsableSpace()));
+            this.setTotalFilesystemSizeBytes(FileUtils.byteCountToDisplaySize(file.getTotalSpace()));
+            this.setReadable(Files.isReadable(file.toPath()));
+            this.setWritable(Files.isWritable(file.toPath()));
+            this.setExecutable(Files.isExecutable(file.toPath()));
+        }
+    }
 }

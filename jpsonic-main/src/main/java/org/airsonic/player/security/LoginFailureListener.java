@@ -1,20 +1,22 @@
 /*
- * This file is part of Airsonic.
+ * This file is part of Jpsonic.
  *
- *  Airsonic is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Airsonic is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright 2015 (C) Sindre Mehus
+ * (C) 2015 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.security;
@@ -38,16 +40,23 @@ public class LoginFailureListener implements ApplicationListener<ApplicationEven
 
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof AbstractAuthenticationFailureEvent) {
-            if (event.getSource() instanceof AbstractAuthenticationToken) {
-                AbstractAuthenticationToken token = (AbstractAuthenticationToken) event.getSource();
-                Object details = token.getDetails();
-                if (details instanceof WebAuthenticationDetails) {
-                    if (LOG.isInfoEnabled()) {
-                        LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
-                    }
-                }
-            }
+        if (!(event instanceof AbstractAuthenticationFailureEvent)) {
+            return;
+        }
+
+        Object source = event.getSource();
+        if (!(source instanceof AbstractAuthenticationToken)) {
+            return;
+        }
+
+        AbstractAuthenticationToken token = (AbstractAuthenticationToken) source;
+        Object details = token.getDetails();
+        if (!(details instanceof WebAuthenticationDetails)) {
+            return;
+        }
+
+        if (LOG.isInfoEnabled()) {
+            LOG.info("Login failed from [" + ((WebAuthenticationDetails) details).getRemoteAddress() + "]");
         }
 
     }

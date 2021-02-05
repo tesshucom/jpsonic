@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2021 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package com.tesshu.jpsonic.controller;
@@ -42,7 +42,7 @@ public class Attributes {
 
             private String v;
 
-            private Command(String value) {
+            Command(String value) {
                 this.v = value;
             }
 
@@ -55,7 +55,7 @@ public class Attributes {
 
         private String v;
 
-        private Model(String value) {
+        Model(String value) {
             this.v = value;
         }
 
@@ -72,7 +72,7 @@ public class Attributes {
 
         private String v;
 
-        private Redirect(String value) {
+        Redirect(String value) {
             this.v = value;
         }
 
@@ -145,6 +145,16 @@ public class Attributes {
         USER_INDEX(NameConstants.USERINDEX), USER_NAME(NameConstants.USERNAME),
         USERNAME_OR_EMAIL(NameConstants.USERNAME_OR_EMAIL), V(NameConstants.V),
         VIEW_AS_LIST(NameConstants.VIEW_AS_LIST), X(NameConstants.X);
+
+        private String v;
+
+        Request(String value) {
+            this.v = value;
+        }
+
+        public String value() {
+            return v;
+        }
 
         public static class NameConstants { // Used from annotation
             public static final String ACTION = "action";
@@ -299,16 +309,6 @@ public class Attributes {
             private NameConstants() {
             }
         }
-
-        private String v;
-
-        private Request(String value) {
-            this.v = value;
-        }
-
-        public String value() {
-            return v;
-        }
     }
 
     public enum Session {
@@ -317,7 +317,7 @@ public class Attributes {
 
         private String v;
 
-        private Session(String value) {
+        Session(String value) {
             this.v = value;
         }
 

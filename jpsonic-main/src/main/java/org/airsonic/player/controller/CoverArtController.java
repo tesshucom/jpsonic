@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -77,6 +78,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -135,7 +137,8 @@ public class CoverArtController implements LastModified {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
 
         CoverArtRequest coverArtRequest = createCoverArtRequest(request);
         if (LOG.isTraceEnabled()) {
@@ -259,7 +262,7 @@ public class CoverArtController implements LastModified {
     }
 
     private File getCachedImage(CoverArtRequest request, int size) throws IOException {
-        String encoding = request.getCoverArt() != null ? "jpeg" : "png";
+        String encoding = request.getCoverArt() == null ? "png" : "jpeg";
         File cachedImage = new File(getImageCacheDirectory(size),
                 DigestUtils.md5Hex(request.getKey()) + "." + encoding);
         String lockKey = cachedImage.getPath();
@@ -338,7 +341,7 @@ public class CoverArtController implements LastModified {
     }
 
     private InputStream getImageInputStreamForVideo(MediaFile mediaFile, int width, int height, int offset)
-            throws Exception {
+            throws IOException {
         VideoTranscodingSettings videoSettings = new VideoTranscodingSettings(width, height, offset, 0, false);
         TranscodingService.Parameters parameters = new TranscodingService.Parameters(mediaFile, videoSettings);
         String command = settingsService.getVideoImageCommand();
@@ -453,12 +456,12 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return artist.getCoverArtPath() != null ? artist.getCoverArtPath() : logic.createKey(artist);
+            return artist.getCoverArtPath() == null ? logic.createKey(artist) : artist.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : artist.getLastScanned().getTime();
+            return coverArt == null ? artist.getLastScanned().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -483,12 +486,12 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getKey() {
-            return album.getCoverArtPath() != null ? album.getCoverArtPath() : logic.createKey(album);
+            return album.getCoverArtPath() == null ? logic.createKey(album) : album.getCoverArtPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : album.getLastScanned().getTime();
+            return coverArt == null ? album.getLastScanned().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -572,6 +575,7 @@ public class CoverArtController implements LastModified {
         private final PodcastChannel channel;
 
         PodcastCoverArtRequest(PodcastChannel channel) {
+            super(null);
             this.channel = channel;
         }
 
@@ -592,7 +596,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getArtist() {
-            return channel.getTitle() != null ? channel.getTitle() : channel.getUrl();
+            return channel.getTitle() == null ? channel.getUrl() : channel.getTitle();
         }
     }
 
@@ -601,18 +605,19 @@ public class CoverArtController implements LastModified {
         private final MediaFile dir;
 
         MediaFileCoverArtRequest(MediaFile mediaFile) {
+            super(mediaFile.getCoverArtPath());
             dir = mediaFile.isDirectory() ? mediaFile : mediaFileService.getParentOf(mediaFile);
             coverArt = mediaFileService.getCoverArt(mediaFile);
         }
 
         @Override
         public String getKey() {
-            return coverArt != null ? coverArt.getPath() : dir.getPath();
+            return coverArt == null ? dir.getPath() : coverArt.getPath();
         }
 
         @Override
         public long lastModified() {
-            return coverArt != null ? coverArt.lastModified() : dir.getChanged().getTime();
+            return coverArt == null ? dir.getChanged().getTime() : coverArt.lastModified();
         }
 
         @Override
@@ -622,7 +627,7 @@ public class CoverArtController implements LastModified {
 
         @Override
         public String getArtist() {
-            return dir.getAlbumArtist() != null ? dir.getAlbumArtist() : dir.getArtist();
+            return dir.getAlbumArtist() == null ? dir.getArtist() : dir.getAlbumArtist();
         }
     }
 
@@ -632,6 +637,7 @@ public class CoverArtController implements LastModified {
         private final int offset;
 
         VideoCoverArtRequest(MediaFile mediaFile, int offset) {
+            super(mediaFile.getCoverArtPath());
             this.mediaFile = mediaFile;
             this.offset = offset;
         }

@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.ajax;
@@ -33,7 +34,7 @@ import org.airsonic.player.domain.PlayStatus;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaScannerService;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.StatusService;
@@ -46,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.ServletRequestBindingException;
 
 /**
  * Provides AJAX-enabled services for retrieving the currently playing file and directory. This class is used by the DWR
@@ -73,8 +75,10 @@ public class NowPlayingService {
      * Returns details about what the current player is playing.
      *
      * @return Details about what the current player is playing, or <code>null</code> if not playing anything.
+     * 
+     * @throws ServletRequestBindingException
      */
-    public NowPlayingInfo getNowPlayingForCurrentPlayer() throws Exception {
+    public NowPlayingInfo getNowPlayingForCurrentPlayer() throws ServletRequestBindingException {
         WebContext webContext = WebContextFactory.get();
         Player player = playerService.getPlayer(webContext.getHttpServletRequest(),
                 webContext.getHttpServletResponse());
@@ -113,7 +117,7 @@ public class NowPlayingService {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (NowPlayingInfo) Not reusable
     private List<NowPlayingInfo> convert(List<PlayStatus> playStatuses) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
-        String url = NetworkService.getBaseUrl(request);
+        String url = NetworkUtils.getBaseUrl(request);
         List<NowPlayingInfo> result = new ArrayList<>();
         final StringBuilder builder = new StringBuilder();
         for (PlayStatus status : playStatuses) {

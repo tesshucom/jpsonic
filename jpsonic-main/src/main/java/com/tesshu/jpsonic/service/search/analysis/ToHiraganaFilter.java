@@ -1,3 +1,21 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
+ */
 
 package com.tesshu.jpsonic.service.search.analysis;
 
@@ -13,10 +31,52 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public final class ToHiraganaFilter extends TokenFilter {
 
+    private final Transliterator transform;
+
+    private final Transliterator.Position position = new Transliterator.Position();
+
+    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+
+    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
+
+    /**
+     * Create a Filter that transforms text on the given stream.
+     * 
+     * @param input
+     *            {@link TokenStream} to filter.
+     */
+    @SuppressWarnings("deprecation")
+    public ToHiraganaFilter(TokenStream input) {
+        super(input);
+        this.transform = Transliterator.getInstance("Katakana-Hiragana");
+        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
+            final UnicodeSet sourceSet = transform.getSourceSet();
+            if (sourceSet != null && !sourceSet.isEmpty()) {
+                transform.setFilter(sourceSet);
+            }
+        }
+    }
+
+    @Override
+    public boolean incrementToken() throws IOException {
+        if (input.incrementToken()) {
+            replaceableAttribute.setText(termAtt);
+            final int length = termAtt.length();
+            position.start = 0;
+            position.limit = length;
+            position.contextStart = 0;
+            position.contextLimit = length;
+            transform.filteredTransliterate(replaceableAttribute, position, false);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Wrap a {@link CharTermAttribute} with the Replaceable API.
      */
-    static final class ReplaceableTermAttribute implements Replaceable {
+    private static class ReplaceableTermAttribute implements Replaceable {
         private char[] buffer;
         private int unitLength;
         private CharTermAttribute token;
@@ -70,7 +130,7 @@ public final class ToHiraganaFilter extends TokenFilter {
             token.setLength(unitLength);
         }
 
-        void setText(final CharTermAttribute token) {
+        protected void setText(final CharTermAttribute token) {
             this.token = token;
             this.buffer = token.buffer();
             this.unitLength = token.length();
@@ -87,48 +147,6 @@ public final class ToHiraganaFilter extends TokenFilter {
                 System.arraycopy(buffer, limit, buffer, start + charsLen, unitLength - limit);
             }
             return newLength;
-        }
-    }
-
-    private final Transliterator transform;
-
-    private final Transliterator.Position position = new Transliterator.Position();
-
-    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
-
-    /**
-     * Create a Filter that transforms text on the given stream.
-     * 
-     * @param input
-     *            {@link TokenStream} to filter.
-     */
-    @SuppressWarnings("deprecation")
-    public ToHiraganaFilter(TokenStream input) {
-        super(input);
-        this.transform = Transliterator.getInstance("Katakana-Hiragana");
-        if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
-            final UnicodeSet sourceSet = transform.getSourceSet();
-            if (sourceSet != null && !sourceSet.isEmpty()) {
-                transform.setFilter(sourceSet);
-            }
-        }
-    }
-
-    @Override
-    public boolean incrementToken() throws IOException {
-        if (input.incrementToken()) {
-            replaceableAttribute.setText(termAtt);
-            final int length = termAtt.length();
-            position.start = 0;
-            position.limit = length;
-            position.contextStart = 0;
-            position.contextLimit = length;
-            transform.filteredTransliterate(replaceableAttribute, position, false);
-            return true;
-        } else {
-            return false;
         }
     }
 }

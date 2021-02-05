@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.ajax;
@@ -70,8 +71,9 @@ public class TagService {
      * @return "UPDATED" if the new tags were updated, "SKIPPED" if no update was necessary. Otherwise the error message
      *         is returned.
      */
-    public String setTags(int id, String trackStr, String artistStr, String albumStr, String titleStr, String yearStr,
-            String genreStr) {
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's ajax API
+    public String updateTags(int id, String trackStr, String artistStr, String albumStr, String titleStr,
+            String yearStr, String genreStr) {
 
         String track = StringUtils.trimToNull(trackStr);
         String artist = StringUtils.trimToNull(artistStr);
@@ -80,27 +82,8 @@ public class TagService {
         String year = StringUtils.trimToNull(yearStr);
         String genre = StringUtils.trimToNull(genreStr);
 
-        Integer trackNumber = null;
-        if (track != null) {
-            try {
-                trackNumber = Integer.valueOf(track);
-            } catch (NumberFormatException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Illegal track number: " + track, x);
-                }
-            }
-        }
-
-        Integer yearNumber = null;
-        if (year != null) {
-            try {
-                yearNumber = Integer.valueOf(year);
-            } catch (NumberFormatException x) {
-                if (LOG.isWarnEnabled()) {
-                    LOG.warn("Illegal year: " + year, x);
-                }
-            }
-        }
+        Integer trackNumber = getTrackNumber(track);
+        Integer yearNumber = getYearNumber(year);
 
         try {
 
@@ -139,6 +122,34 @@ public class TagService {
             }
             return x.getMessage();
         }
+    }
+
+    private Integer getTrackNumber(String track) {
+        Integer trackNumber = null;
+        if (track != null) {
+            try {
+                trackNumber = Integer.valueOf(track);
+            } catch (NumberFormatException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal track number: " + track, x);
+                }
+            }
+        }
+        return trackNumber;
+    }
+
+    private Integer getYearNumber(String year) {
+        Integer yearNumber = null;
+        if (year != null) {
+            try {
+                yearNumber = Integer.valueOf(year);
+            } catch (NumberFormatException x) {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Illegal year: " + year, x);
+                }
+            }
+        }
+        return yearNumber;
     }
 
     public void setMediaFileService(MediaFileService mediaFileService) {

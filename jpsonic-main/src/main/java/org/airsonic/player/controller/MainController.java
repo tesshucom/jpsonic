@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -82,7 +83,7 @@ public class MainController {
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
             @RequestParam(name = Attributes.Request.NameConstants.SHOW_ALL, required = false) Boolean showAll)
-            throws Exception {
+            throws IOException {
 
         List<MediaFile> mediaFiles = getMediaFiles(request);
         if (mediaFiles.isEmpty()) {
@@ -108,28 +109,23 @@ public class MainController {
 
         List<MediaFile> children = mediaFiles.size() == 1 ? mediaFileService.getChildrenOf(dir, true, true, true)
                 : getMultiFolderChildren(mediaFiles);
-        List<MediaFile> files = new ArrayList<>();
-        List<MediaFile> subDirs = new ArrayList<>();
-        for (MediaFile child : children) {
-            if (child.isFile()) {
-                files.add(child);
-            } else {
-                subDirs.add(child);
-            }
-        }
 
         int userPaginationPreference = userSettings.getPaginationSize();
 
-        boolean isShowAll = userPaginationPreference <= 0 ? true : null == showAll ? false : showAll;
-        boolean thereIsMoreSAlbums = false;
+        boolean isShowAll = userPaginationPreference <= 0 || null != showAll && showAll;
 
         mediaFileService.populateStarredDate(dir, username);
         mediaFileService.populateStarredDate(children, username);
 
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
+
+        List<MediaFile> files = children.stream().filter(f -> f.isFile()).collect(Collectors.toList());
         map.put("files", files);
+
+        List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());
         map.put("subDirs", subDirs);
+
         map.put("ancestors", getAncestors(dir));
         map.put("coverArtSizeMedium", CoverArtScheme.MEDIUM.getSize());
         map.put("coverArtSizeLarge", CoverArtScheme.LARGE.getSize());
@@ -156,10 +152,11 @@ public class MainController {
         map.put("simpleDisplay", userSettings.isSimpleDisplay());
         map.put("selectedMusicFolder", settingsService.getSelectedMusicFolder(username));
 
+        boolean thereIsMoreSiblingAlbums = false;
         if (dir.isAlbum()) {
             if (userSettings.isShowSibling()) {
                 List<MediaFile> siblingAlbums = getSiblingAlbums(dir);
-                thereIsMoreSAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
+                thereIsMoreSiblingAlbums = trimToSize(isShowAll, siblingAlbums, userPaginationPreference);
                 map.put("siblingAlbums", siblingAlbums);
             }
             map.put("artist", guessArtist(children));
@@ -174,24 +171,40 @@ public class MainController {
         } catch (SecurityException x) {
             // Happens if Podcast directory is outside music folder.
         }
+
+        map.put("thereIsMore", getThereIsMore(thereIsMoreSiblingAlbums, isShowAll, subDirs, userPaginationPreference));
+        map.put("userRating", getUserRating(username, dir));
+        map.put("averageRating", getAverageRating(dir));
+        map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
+        map.put("useRadio", settingsService.isUseRadio());
+
+        String view = getTargetView(dir, children);
+        return new ModelAndView(view, "model", map);
+    }
+
+    private boolean getThereIsMore(boolean thereIsMoreSiblingAlbums, boolean isShowAll, List<MediaFile> subDirs,
+            int userPaginationPreference) {
         boolean thereIsMoreSubDirs = trimToSize(isShowAll, subDirs, userPaginationPreference);
-        map.put("thereIsMore", (thereIsMoreSubDirs || thereIsMoreSAlbums) && !isShowAll);
+        return (thereIsMoreSubDirs || thereIsMoreSiblingAlbums) && !isShowAll;
+    }
 
+    private Integer getUserRating(String username, MediaFile dir) {
         Integer userRating = ratingService.getRatingForUser(username, dir);
-        Double averageRating = ratingService.getAverageRating(dir);
-
         if (userRating == null) {
             userRating = 0;
         }
+        return 10 * userRating;
+    }
 
+    private long getAverageRating(MediaFile dir) {
+        Double averageRating = ratingService.getAverageRating(dir);
         if (averageRating == null) {
             averageRating = 0.0D;
         }
+        return Math.round(10.0D * averageRating);
+    }
 
-        map.put("userRating", 10 * userRating);
-        map.put("averageRating", Math.round(10.0D * averageRating));
-        map.put("starred", mediaFileService.getMediaFileStarredDate(dir.getId(), username) != null);
-
+    private String getTargetView(MediaFile dir, List<MediaFile> children) {
         String view;
         if (isVideoOnly(children)) {
             view = "videoMain";
@@ -200,19 +213,14 @@ public class MainController {
         } else {
             view = "artistMain";
         }
-
-        map.put("useRadio", settingsService.isUseRadio());
-
-        return new ModelAndView(view, "model", map);
+        return view;
     }
 
     private <T> boolean trimToSize(Boolean showAll, List<T> list, int userPaginationPreference) {
         boolean trimmed = false;
-        if (!BooleanUtils.isTrue(showAll)) {
-            if (list.size() > userPaginationPreference) {
-                trimmed = true;
-                list.subList(userPaginationPreference, list.size()).clear();
-            }
+        if (!BooleanUtils.isTrue(showAll) && list.size() > userPaginationPreference) {
+            trimmed = true;
+            list.subList(userPaginationPreference, list.size()).clear();
         }
         return trimmed;
     }

@@ -1,20 +1,22 @@
 /*
- * This file is part of Airsonic.
+ * This file is part of Jpsonic.
  *
- *  Airsonic is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Airsonic is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright 2015 (C) Sindre Mehus
+ * (C) 2015 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
-import org.airsonic.player.service.NetworkService;
+import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.SonosService;
 import org.airsonic.player.util.LegacyMap;
@@ -82,8 +84,8 @@ public class SonosSettingsController {
         settingsService.setSonosServiceName(sonosServiceName);
         settingsService.save();
 
-        sonosService.setMusicServiceEnabled(false, NetworkService.getBaseUrl(request));
-        sonosService.setMusicServiceEnabled(sonosEnabled, NetworkService.getBaseUrl(request));
+        sonosService.setMusicServiceEnabled(false, NetworkUtils.getBaseUrl(request));
+        sonosService.setMusicServiceEnabled(sonosEnabled, NetworkUtils.getBaseUrl(request));
     }
 
     public void setSettingsService(SettingsService settingsService) {

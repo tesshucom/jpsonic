@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -109,7 +110,9 @@ public class DownloadController implements LastModified {
     }
 
     @GetMapping
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response)
+            throws ServletRequestBindingException, IOException {
 
         User user = securityService.getCurrentUser(request);
         TransferStatus status = null;
@@ -269,27 +272,12 @@ public class DownloadController implements LastModified {
 
             out.setMethod(ZipOutputStream.STORED); // No compression.
 
-            Set<MediaFile> filesToDownload = new HashSet<>();
-            if (indexes == null) {
-                filesToDownload.addAll(files);
-            } else {
-                for (int index : indexes) {
-                    try {
-                        filesToDownload.add(files.get(index));
-                    } catch (IndexOutOfBoundsException e) {
-                        if (LOG.isTraceEnabled()) {
-                            LOG.trace("Error in parse of filesToDownload#add", e);
-                        }
-                    }
-                }
-            }
-
+            Set<MediaFile> filesToDownload = createFilesToDownload(indexes, files);
             for (MediaFile mediaFile : filesToDownload) {
                 zip(out, mediaFile.getParentFile(), mediaFile.getFile(), status, range);
-                if (coverArtFile != null && coverArtFile.exists()) {
-                    if (mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
-                        coverEmbedded = true;
-                    }
+                if (coverArtFile != null && coverArtFile.exists()
+                        && mediaFile.getFile().getCanonicalPath().equals(coverArtFile.getCanonicalPath())) {
+                    coverEmbedded = true;
                 }
             }
             if (coverArtFile != null && coverArtFile.exists() && !coverEmbedded) {
@@ -298,6 +286,24 @@ public class DownloadController implements LastModified {
 
         }
         writeLog("Downloaded", zipFileName, status.getPlayer());
+    }
+
+    private Set<MediaFile> createFilesToDownload(int[] indexes, List<MediaFile> files) {
+        Set<MediaFile> filesToDownload = new HashSet<>();
+        if (indexes == null) {
+            filesToDownload.addAll(files);
+        } else {
+            for (int index : indexes) {
+                try {
+                    filesToDownload.add(files.get(index));
+                } catch (IndexOutOfBoundsException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Error in parse of filesToDownload#add", e);
+                    }
+                }
+            }
+        }
+        return filesToDownload;
     }
 
     /**

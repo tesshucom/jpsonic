@@ -1,9 +1,30 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -164,8 +185,15 @@ public class InternetRadioService {
      *            an internet radio
      * 
      * @return a list of internet radio sources
+     * 
+     * @throws Exception
+     * @throws PlaylistException
+     * @throws IOException
+     * @throws MalformedURLException
      */
-    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio) throws Exception {
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
+    private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio)
+            throws MalformedURLException, IOException, PlaylistException, Exception {
         return retrieveInternetRadioSources(radio, PLAYLIST_REMOTE_MAX_LENGTH, PLAYLIST_REMOTE_MAX_BYTE_SIZE,
                 PLAYLIST_REMOTE_MAX_REDIRECTS);
     }
@@ -183,9 +211,14 @@ public class InternetRadioService {
      *            maximum number of redirects, or 0 if unlimited
      * 
      * @return a list of internet radio sources
+     * 
+     * @throws PlaylistException
+     * @throws IOException
+     * @throws MalformedURLException
      */
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,
-            int maxRedirects) throws Exception {
+            int maxRedirects) throws MalformedURLException, IOException, PlaylistException, Exception {
         // Retrieve the remote playlist
         String playlistUrl = radio.getStreamUrl();
         if (LOG.isDebugEnabled()) {
@@ -211,8 +244,8 @@ public class InternetRadioService {
 
         private static final Logger LOG = LoggerFactory.getLogger(PlaylistVisitorImpl.class);
 
-        final int maxCount;
-        final List<InternetRadioSource> entries;
+        private final int maxCount;
+        private final List<InternetRadioSource> entries;
 
         public PlaylistVisitorImpl(int maxCount, List<InternetRadioSource> entries) {
             super();
@@ -359,10 +392,10 @@ public class InternetRadioService {
     protected HttpURLConnection connectToURL(URL url) throws IOException {
         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
         urlConnection.setAllowUserInteraction(false);
-        urlConnection.setConnectTimeout(10000);
+        urlConnection.setConnectTimeout(10_000);
         urlConnection.setDoInput(true);
         urlConnection.setDoOutput(false);
-        urlConnection.setReadTimeout(60000);
+        urlConnection.setReadTimeout(60_000);
         urlConnection.setUseCaches(true);
         urlConnection.connect();
         return urlConnection;

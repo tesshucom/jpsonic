@@ -1,20 +1,22 @@
 /*
- * This file is part of Airsonic.
+ * This file is part of Jpsonic.
  *
- *  Airsonic is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  *
- *  Airsonic is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
  *
- *  You should have received a copy of the GNU General Public License
- *  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- *  Copyright 2015 (C) Sindre Mehus
+ * (C) 2015 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -215,61 +217,11 @@ public class SonosService implements SonosSoap {
         if (ID_ROOT.equals(id)) {
             media = sonosHelper.forRoot();
         } else {
-            if (ID_SHUFFLE.equals(id)) {
-                media = sonosHelper.forShuffle(count, username, request);
-            } else if (ID_LIBRARY.equals(id)) {
-                media = sonosHelper.forLibrary(username, request);
-            } else if (ID_PLAYLISTS.equals(id)) {
-                media = sonosHelper.forPlaylists(username, request);
-            } else if (ID_ALBUMLISTS.equals(id)) {
-                media = sonosHelper.forAlbumLists();
-            } else if (ID_PODCASTS.equals(id)) {
-                media = sonosHelper.forPodcastChannels();
-            } else if (ID_STARRED.equals(id)) {
-                media = sonosHelper.forStarred();
-            } else if (ID_STARRED_ARTISTS.equals(id)) {
-                media = sonosHelper.forStarredArtists(username, request);
-            } else if (ID_STARRED_ALBUMS.equals(id)) {
-                media = sonosHelper.forStarredAlbums(username, request);
-            } else if (ID_STARRED_SONGS.equals(id)) {
-                media = sonosHelper.forStarredSongs(username, request);
-            } else if (ID_SEARCH.equals(id)) {
-                media = sonosHelper.forSearchCategories();
-            } else if (id.startsWith(ID_PLAYLIST_PREFIX)) {
-                int playlistId = Integer.parseInt(id.replace(ID_PLAYLIST_PREFIX, ""));
-                media = sonosHelper.forPlaylist(playlistId, username, request);
-            } else if (id.startsWith(ID_DECADE_PREFIX)) {
-                int decade = Integer.parseInt(id.replace(ID_DECADE_PREFIX, ""));
-                media = sonosHelper.forDecade(decade, username, request);
-            } else if (id.startsWith(ID_GENRE_PREFIX)) {
-                int genre = Integer.parseInt(id.replace(ID_GENRE_PREFIX, ""));
-                media = sonosHelper.forGenre(genre, username, request);
-            } else if (id.startsWith(ID_ALBUMLIST_PREFIX)) {
+            if (id.startsWith(ID_ALBUMLIST_PREFIX)) {
                 AlbumListType albumListType = AlbumListType.fromId(id.replace(ID_ALBUMLIST_PREFIX, ""));
                 mediaList = sonosHelper.forAlbumList(albumListType, index, count, username, request);
-            } else if (id.startsWith(ID_PODCAST_CHANNEL_PREFIX)) {
-                int channelId = Integer.parseInt(id.replace(ID_PODCAST_CHANNEL_PREFIX, ""));
-                media = sonosHelper.forPodcastChannel(channelId, username, request);
-            } else if (id.startsWith(ID_MUSICFOLDER_PREFIX)) {
-                int musicFolderId = Integer.parseInt(id.replace(ID_MUSICFOLDER_PREFIX, ""));
-                media = sonosHelper.forMusicFolder(musicFolderId, username, request);
-            } else if (id.startsWith(ID_SHUFFLE_MUSICFOLDER_PREFIX)) {
-                int musicFolderId = Integer.parseInt(id.replace(ID_SHUFFLE_MUSICFOLDER_PREFIX, ""));
-                media = sonosHelper.forShuffleMusicFolder(musicFolderId, count, username, request);
-            } else if (id.startsWith(ID_SHUFFLE_ARTIST_PREFIX)) {
-                int mediaFileId = Integer.parseInt(id.replace(ID_SHUFFLE_ARTIST_PREFIX, ""));
-                media = sonosHelper.forShuffleArtist(mediaFileId, count, username, request);
-            } else if (id.startsWith(ID_SHUFFLE_ALBUMLIST_PREFIX)) {
-                AlbumListType albumListType = AlbumListType.fromId(id.replace(ID_SHUFFLE_ALBUMLIST_PREFIX, ""));
-                media = sonosHelper.forShuffleAlbumList(albumListType, count, username, request);
-            } else if (id.startsWith(ID_RADIO_ARTIST_PREFIX)) {
-                int mediaFileId = Integer.parseInt(id.replace(ID_RADIO_ARTIST_PREFIX, ""));
-                media = sonosHelper.forRadioArtist(mediaFileId, count, username, request);
-            } else if (id.startsWith(ID_SIMILAR_ARTISTS_PREFIX)) {
-                int mediaFileId = Integer.parseInt(id.replace(ID_SIMILAR_ARTISTS_PREFIX, ""));
-                media = sonosHelper.forSimilarArtists(mediaFileId, username, request);
             } else {
-                media = sonosHelper.forDirectoryContent(Integer.parseInt(id), username, request);
+                media = getMedia(id, count, username, request);
             }
         }
 
@@ -283,6 +235,76 @@ public class SonosService implements SonosSoap {
         GetMetadataResponse response = new GetMetadataResponse();
         response.setGetMetadataResult(mediaList);
         return response;
+    }
+
+    private List<? extends AbstractMedia> getMedia(String id, int count, String username, HttpServletRequest request) {
+
+        List<? extends AbstractMedia> media = getMediaWithId(id, count, username, request);
+        if (media != null) {
+            return media;
+        }
+
+        if (id.startsWith(ID_PLAYLIST_PREFIX)) {
+            int playlistId = Integer.parseInt(id.replace(ID_PLAYLIST_PREFIX, ""));
+            media = sonosHelper.forPlaylist(playlistId, username, request);
+        } else if (id.startsWith(ID_DECADE_PREFIX)) {
+            int decade = Integer.parseInt(id.replace(ID_DECADE_PREFIX, ""));
+            media = sonosHelper.forDecade(decade, username, request);
+        } else if (id.startsWith(ID_GENRE_PREFIX)) {
+            int genre = Integer.parseInt(id.replace(ID_GENRE_PREFIX, ""));
+            media = sonosHelper.forGenre(genre, username, request);
+        } else if (id.startsWith(ID_PODCAST_CHANNEL_PREFIX)) {
+            int channelId = Integer.parseInt(id.replace(ID_PODCAST_CHANNEL_PREFIX, ""));
+            media = sonosHelper.forPodcastChannel(channelId, username, request);
+        } else if (id.startsWith(ID_MUSICFOLDER_PREFIX)) {
+            int musicFolderId = Integer.parseInt(id.replace(ID_MUSICFOLDER_PREFIX, ""));
+            media = sonosHelper.forMusicFolder(musicFolderId, username, request);
+        } else if (id.startsWith(ID_SHUFFLE_MUSICFOLDER_PREFIX)) {
+            int musicFolderId = Integer.parseInt(id.replace(ID_SHUFFLE_MUSICFOLDER_PREFIX, ""));
+            media = sonosHelper.forShuffleMusicFolder(musicFolderId, count, username, request);
+        } else if (id.startsWith(ID_SHUFFLE_ARTIST_PREFIX)) {
+            int mediaFileId = Integer.parseInt(id.replace(ID_SHUFFLE_ARTIST_PREFIX, ""));
+            media = sonosHelper.forShuffleArtist(mediaFileId, count, username, request);
+        } else if (id.startsWith(ID_SHUFFLE_ALBUMLIST_PREFIX)) {
+            AlbumListType albumListType = AlbumListType.fromId(id.replace(ID_SHUFFLE_ALBUMLIST_PREFIX, ""));
+            media = sonosHelper.forShuffleAlbumList(albumListType, count, username, request);
+        } else if (id.startsWith(ID_RADIO_ARTIST_PREFIX)) {
+            int mediaFileId = Integer.parseInt(id.replace(ID_RADIO_ARTIST_PREFIX, ""));
+            media = sonosHelper.forRadioArtist(mediaFileId, count, username, request);
+        } else if (id.startsWith(ID_SIMILAR_ARTISTS_PREFIX)) {
+            int mediaFileId = Integer.parseInt(id.replace(ID_SIMILAR_ARTISTS_PREFIX, ""));
+            media = sonosHelper.forSimilarArtists(mediaFileId, username, request);
+        } else {
+            media = sonosHelper.forDirectoryContent(Integer.parseInt(id), username, request);
+        }
+        return media;
+    }
+
+    private List<? extends AbstractMedia> getMediaWithId(String id, int count, String username,
+            HttpServletRequest request) {
+        List<? extends AbstractMedia> media = null;
+        if (ID_SHUFFLE.equals(id)) {
+            media = sonosHelper.forShuffle(count, username, request);
+        } else if (ID_LIBRARY.equals(id)) {
+            media = sonosHelper.forLibrary(username, request);
+        } else if (ID_PLAYLISTS.equals(id)) {
+            media = sonosHelper.forPlaylists(username, request);
+        } else if (ID_ALBUMLISTS.equals(id)) {
+            media = sonosHelper.forAlbumLists();
+        } else if (ID_PODCASTS.equals(id)) {
+            media = sonosHelper.forPodcastChannels();
+        } else if (ID_STARRED.equals(id)) {
+            media = sonosHelper.forStarred();
+        } else if (ID_STARRED_ARTISTS.equals(id)) {
+            media = sonosHelper.forStarredArtists(username, request);
+        } else if (ID_STARRED_ALBUMS.equals(id)) {
+            media = sonosHelper.forStarredAlbums(username, request);
+        } else if (ID_STARRED_SONGS.equals(id)) {
+            media = sonosHelper.forStarredSongs(username, request);
+        } else if (ID_SEARCH.equals(id)) {
+            media = sonosHelper.forSearchCategories();
+        }
+        return media;
     }
 
     @Override
@@ -314,8 +336,15 @@ public class SonosService implements SonosSoap {
 
     @Override
     public SearchResponse search(Search parameters) throws CustomFault {
-        String id = parameters.getId();
+        IndexType indexType = getIndexType(parameters.getId());
+        MediaList mediaList = sonosHelper.forSearch(parameters.getTerm(), parameters.getIndex(), parameters.getCount(),
+                indexType, getUsername(), getRequest());
+        SearchResponse response = new SearchResponse();
+        response.setSearchResult(mediaList);
+        return response;
+    }
 
+    private IndexType getIndexType(String id) {
         IndexType indexType;
         if (ID_SEARCH_ARTISTS.equals(id)) {
             indexType = IndexType.ARTIST;
@@ -326,12 +355,7 @@ public class SonosService implements SonosSoap {
         } else {
             throw new IllegalArgumentException("Invalid search category: " + id);
         }
-
-        MediaList mediaList = sonosHelper.forSearch(parameters.getTerm(), parameters.getIndex(), parameters.getCount(),
-                indexType, getUsername(), getRequest());
-        SearchResponse response = new SearchResponse();
-        response.setSearchResult(mediaList);
-        return response;
+        return indexType;
     }
 
     @Override
@@ -389,6 +413,7 @@ public class SonosService implements SonosSoap {
         }
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public CreateContainerResult createContainer(String containerType, String title, String parentId, String seedId)
             throws CustomFault {
@@ -463,14 +488,14 @@ public class SonosService implements SonosSoap {
         GetMetadataResponse metadata = getMetadata(parameters);
         List<MediaFile> newSongs = new ArrayList<>();
 
-        for (AbstractMedia media : metadata.getGetMetadataResult().getMediaCollectionOrMediaMetadata()) {
-            if (StringUtils.isNumeric(media.getId())) {
-                MediaFile mediaFile = mediaFileService.getMediaFile(Integer.parseInt(media.getId()));
-                if (mediaFile != null && mediaFile.isFile()) {
-                    newSongs.add(mediaFile);
-                }
-            }
-        }
+        metadata.getGetMetadataResult().getMediaCollectionOrMediaMetadata().stream()
+                .filter(media -> StringUtils.isNumeric(media.getId())).forEach(media -> {
+                    MediaFile mediaFile = mediaFileService.getMediaFile(Integer.parseInt(media.getId()));
+                    if (mediaFile != null && mediaFile.isFile()) {
+                        newSongs.add(mediaFile);
+                    }
+                });
+
         List<MediaFile> existingSongs = playlistService.getFilesInPlaylist(playlistId);
         int i = index;
         if (i == -1) {
@@ -487,27 +512,30 @@ public class SonosService implements SonosSoap {
             int playlistId = Integer.parseInt(id.replace(ID_PLAYLIST_PREFIX, ""));
             Playlist playlist = playlistService.getPlaylist(playlistId);
             if (playlist != null && playlist.getUsername().equals(getUsername())) {
-
-                SortedMap<Integer, MediaFile> indexToSong = new ConcurrentSkipListMap<>();
-                List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
-                for (int i = 0; i < songs.size(); i++) {
-                    indexToSong.put(i, songs.get(i));
-                }
-
-                List<MediaFile> movedSongs = new ArrayList<>();
-                for (Integer i : parsePlaylistIndices(from)) {
-                    movedSongs.add(indexToSong.remove(i));
-                }
-
-                List<MediaFile> updatedSongs = new ArrayList<>();
-                updatedSongs.addAll(indexToSong.headMap(to).values());
-                updatedSongs.addAll(movedSongs);
-                updatedSongs.addAll(indexToSong.tailMap(to).values());
-
-                playlistService.setFilesInPlaylist(playlistId, updatedSongs);
+                setFilesInPlaylist(playlistId, from, to);
             }
         }
         return new ReorderContainerResult();
+    }
+
+    private void setFilesInPlaylist(int playlistId, String from, int to) {
+        SortedMap<Integer, MediaFile> indexToSong = new ConcurrentSkipListMap<>();
+        List<MediaFile> songs = playlistService.getFilesInPlaylist(playlistId);
+        for (int i = 0; i < songs.size(); i++) {
+            indexToSong.put(i, songs.get(i));
+        }
+
+        List<MediaFile> movedSongs = new ArrayList<>();
+        for (Integer i : parsePlaylistIndices(from)) {
+            movedSongs.add(indexToSong.remove(i));
+        }
+
+        List<MediaFile> updatedSongs = new ArrayList<>();
+        updatedSongs.addAll(indexToSong.headMap(to).values());
+        updatedSongs.addAll(movedSongs);
+        updatedSongs.addAll(indexToSong.tailMap(to).values());
+
+        playlistService.setFilesInPlaylist(playlistId, updatedSongs);
     }
 
     @Override
@@ -573,65 +601,75 @@ public class SonosService implements SonosSoap {
     private String getUsername() {
         MessageContext messageContext = context.getMessageContext();
         if (!(messageContext instanceof WrappedMessageContext)) {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("Message context is null or not an instance of WrappedMessageContext.");
-            }
+            writeError("Message context is null or not an instance of WrappedMessageContext.");
             return null;
         }
-
         Message message = ((WrappedMessageContext) messageContext).getWrappedMessage();
+        return getUsername(message);
+    }
+
+    private String getUsername(Message message) {
         List<Header> headers = CastUtils.cast((List<?>) message.get(Header.HEADER_LIST));
-        if (headers != null) {
+        if (headers == null) {
+            writeError("No headers found");
+        } else {
             // Unwrap the node using JAXB
             JAXBContext jaxbContext = null;
             try {
                 jaxbContext = new JAXBDataBinding(Credentials.class).getContext();
             } catch (JAXBException e) {
                 // failed to get the credentials object from the headers
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("JAXB error trying to unwrap credentials", e);
-                }
+                writeError("JAXB error trying to unwrap credentials", e);
             }
             if (jaxbContext == null) {
                 return null;
             }
-            for (Header h : headers) {
-                Object o = h.getObject();
-                if (o instanceof Node) {
-                    try {
-                        Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-                        o = unmarshaller.unmarshal((Node) o);
-                    } catch (JAXBException e) {
-                        // failed to get the credentials object from the headers
-                        if (LOG.isErrorEnabled()) {
-                            LOG.error("JAXB error trying to unwrap credentials", e);
-                        }
-                    }
-                }
-                if (o instanceof Credentials) {
-                    Credentials c = (Credentials) o;
+            return getUsername(headers, jaxbContext);
+        }
+        return null;
+    }
 
-                    // Note: We're using the username as session ID.
-                    String username = c.getSessionId();
-                    if (username == null) {
-                        if (LOG.isDebugEnabled()) {
-                            LOG.debug("No session id in credentials object, get from login");
-                        }
-                        username = c.getLogin().getUsername();
-                    }
-                    return username;
-                } else {
-                    if (LOG.isErrorEnabled()) {
-                        LOG.error("No credentials object");
-                    }
+    private String getUsername(List<Header> headers, JAXBContext jaxbContext) {
+        for (Header h : headers) {
+            Object o = h.getObject();
+            if (o instanceof Node) {
+                try {
+                    Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+                    o = unmarshaller.unmarshal((Node) o);
+                } catch (JAXBException e) {
+                    // failed to get the credentials object from the headers
+                    writeError("JAXB error trying to unwrap credentials", e);
                 }
             }
-        } else {
-            if (LOG.isErrorEnabled()) {
-                LOG.error("No headers found");
+            if (o instanceof Credentials) {
+                Credentials c = (Credentials) o;
+
+                // Note: We're using the username as session ID.
+                String username = c.getSessionId();
+                if (username == null) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("No session id in credentials object, get from login");
+                    }
+                    username = c.getLogin().getUsername();
+                }
+                return username;
+            } else {
+                writeError("No credentials object");
             }
         }
         return null;
+    }
+
+    protected static void writeError(String msg, Throwable t) {
+        if (LOG.isErrorEnabled()) {
+            LOG.warn(msg, t);
+        }
+    }
+
+    protected static void writeError(String msg) {
+        if (LOG.isErrorEnabled()) {
+            LOG.warn(msg);
+        }
     }
 
     public void setSonosHelper(SonosHelper sonosHelper) {
@@ -660,6 +698,7 @@ public class SonosService implements SonosSoap {
         return null;
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public AppLinkResult getAppLink(String householdId, String hardware, String osVersion, String sonosAppName,
             String callbackPath) throws CustomFault {
@@ -683,6 +722,7 @@ public class SonosService implements SonosSoap {
         return null;
     }
 
+    @SuppressWarnings("PMD.UseObjectForClearerAPI") // Because it's jws API
     @Override
     public DeviceAuthTokenResult getDeviceAuthToken(String householdId, String linkCode, String linkDeviceId,
             String callbackPath) throws CustomFault {

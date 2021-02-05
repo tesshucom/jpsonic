@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.util;
 
@@ -18,9 +38,12 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileUtils {
+public final class FileUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(FileUtils.class);
+
+    private FileUtils() {
+    }
 
     public static boolean copyFile(final File toCopy, final File destFile) {
         try (OutputStream os = Files.newOutputStream(Paths.get(destFile.toURI()));
@@ -35,9 +58,7 @@ public class FileUtils {
     private static boolean copyFilesRecusively(final File toCopy, final File destDir) {
         assert destDir.isDirectory();
 
-        if (!toCopy.isDirectory()) {
-            return FileUtils.copyFile(toCopy, new File(destDir, toCopy.getName()));
-        } else {
+        if (toCopy.isDirectory()) {
             final File newDestDir = new File(destDir, toCopy.getName());
             if (!newDestDir.exists() && !newDestDir.mkdir()) {
                 return false;
@@ -47,6 +68,8 @@ public class FileUtils {
                     return false;
                 }
             }
+        } else {
+            return FileUtils.copyFile(toCopy, new File(destDir, toCopy.getName()));
         }
         return true;
     }
@@ -62,15 +85,15 @@ public class FileUtils {
                             jarConnection.getEntryName());
 
                     final File f = new File(destDir, filename);
-                    if (!entry.isDirectory()) {
+                    if (entry.isDirectory()) {
+                        if (!FileUtils.ensureDirectoryExists(f)) {
+                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
+                        }
+                    } else {
                         try (InputStream entryInputStream = jarFile.getInputStream(entry)) {
                             if (!FileUtils.copyStream(entryInputStream, f)) {
                                 return false;
                             }
-                        }
-                    } else {
-                        if (!FileUtils.ensureDirectoryExists(f)) {
-                            throw new IOException("Could not create directory: " + f.getAbsolutePath());
                         }
                     }
                 }

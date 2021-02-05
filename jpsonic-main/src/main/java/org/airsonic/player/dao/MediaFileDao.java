@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.dao;
@@ -28,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
@@ -529,100 +531,14 @@ public class MediaFileDao extends AbstractDao {
                 + "order by starred_media_file.created desc limit :count offset :offset", rowMapper, args);
     }
 
-    /*
-     * Detected by Ubuntu but not detected by Windows. The literal is too big, so split the append into multiple lines
-     * for readability.
-     */
+    @SuppressWarnings("PMD.NPathComplexity") // #862
     public List<MediaFile> getRandomSongs(RandomSearchCriteria criteria, final String username) {
+
         if (criteria.getMusicFolders().isEmpty()) {
             return Collections.emptyList();
         }
 
-        boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
-        boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
-
-        StringBuilder query = new StringBuilder(988);
-
-        query.append("select ").append(prefix(QUERY_COLUMNS, "media_file")).append(" from media_file ");
-
-        if (joinStarred) {
-            query.append(
-                    "left outer join starred_media_file on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username ");
-        }
-
-        if (joinAlbumRating) {
-            query.append(
-                    "left outer join media_file media_album on media_album.type = 'ALBUM' and media_album.album = media_file.album and media_album.artist = media_file.artist "
-                            + "left outer join user_rating on user_rating.path = media_album.path and user_rating.username = :username ");
-        }
-
-        query.append(" where media_file.present and media_file.type = 'MUSIC'");
-
-        if (!criteria.getMusicFolders().isEmpty()) {
-            query.append(" and media_file.folder in (:folders)");
-        }
-
-        if (criteria.getGenres() != null) { // TODO to be revert
-            query.append(" and media_file.genre in (:genres)");
-        }
-
-        if (criteria.getFormat() != null) {
-            query.append(" and media_file.format = :format");
-        }
-
-        if (criteria.getFromYear() != null) {
-            query.append(" and media_file.year >= :fromYear");
-        }
-
-        if (criteria.getToYear() != null) {
-            query.append(" and media_file.year <= :toYear");
-        }
-
-        if (criteria.getMinLastPlayedDate() != null) {
-            query.append(" and media_file.last_played >= :minLastPlayed");
-        }
-
-        if (criteria.getMaxLastPlayedDate() != null) {
-            if (criteria.getMinLastPlayedDate() == null) {
-                query.append(" and (media_file.last_played is null or media_file.last_played <= :maxLastPlayed)");
-            } else {
-                query.append(" and media_file.last_played <= :maxLastPlayed");
-            }
-        }
-
-        if (criteria.getMinAlbumRating() != null) {
-            query.append(" and user_rating.rating >= :minAlbumRating");
-        }
-
-        if (criteria.getMaxAlbumRating() != null) {
-            if (criteria.getMinAlbumRating() == null) {
-                query.append(" and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)");
-            } else {
-                query.append(" and user_rating.rating <= :maxAlbumRating");
-            }
-        }
-
-        if (criteria.getMinPlayCount() != null) {
-            query.append(" and media_file.play_count >= :minPlayCount");
-        }
-
-        if (criteria.getMaxPlayCount() != null) {
-            if (criteria.getMinPlayCount() == null) {
-                query.append(" and (media_file.play_count is null or media_file.play_count <= :maxPlayCount)");
-            } else {
-                query.append(" and media_file.play_count <= :maxPlayCount");
-            }
-        }
-
-        if (criteria.isShowStarredSongs() && !criteria.isShowUnstarredSongs()) {
-            query.append(" and starred_media_file.id is not null");
-        }
-
-        if (criteria.isShowUnstarredSongs() && !criteria.isShowStarredSongs()) {
-            query.append(" and starred_media_file.id is null");
-        }
-
-        query.append(" order by rand() limit ").append(criteria.getCount());
+        RandomSongsQueryBuilder queryBuilder = new RandomSongsQueryBuilder(criteria);
 
         Map<String, Object> args = LegacyMap.of("folders", MusicFolder.toPathList(criteria.getMusicFolders()),
                 "username", username, "fromYear", criteria.getFromYear(), "toYear", criteria.getToYear(), "genres",
@@ -633,7 +549,7 @@ public class MediaFileDao extends AbstractDao {
                 criteria.isShowStarredSongs(), "unstarred", criteria.isShowUnstarredSongs(), "format",
                 criteria.getFormat());
 
-        return namedQuery(query.toString(), rowMapper, args);
+        return namedQuery(queryBuilder.build(), rowMapper, args);
     }
 
     /**
@@ -787,6 +703,7 @@ public class MediaFileDao extends AbstractDao {
         }
     }
 
+    @SuppressWarnings("PMD.NPathComplexity") // #863
     private static class MediaFileMapper implements RowMapper<MediaFile> {
         @Override
         public MediaFile mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -805,6 +722,164 @@ public class MediaFileDao extends AbstractDao {
                     rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41), rs.getString(42),
                     rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46));
             // <<<< JP
+        }
+    }
+
+    private static class RandomSongsQueryBuilder {
+
+        private RandomSearchCriteria criteria;
+
+        public RandomSongsQueryBuilder(RandomSearchCriteria criteria) {
+            this.criteria = criteria;
+        }
+
+        public String build() {
+            StringBuilder query = new StringBuilder(1024); // 988 + param
+            query.append("select ").append(prefix(QUERY_COLUMNS, "media_file")).append(" from media_file");
+            getIfJoinStarred().ifPresent(s -> query.append(s));
+            getIfJoinAlbumRating().ifPresent(s -> query.append(s));
+            query.append(" where media_file.present and media_file.type = 'MUSIC'");
+            getFolderCondition().ifPresent(s -> query.append(s));
+            getGenreCondition().ifPresent(s -> query.append(s));
+            getFormatCondition().ifPresent(s -> query.append(s));
+            getFromYearCondition().ifPresent(s -> query.append(s));
+            getToYearCondition().ifPresent(s -> query.append(s));
+            getMinLastPlayedDateCondition().ifPresent(s -> query.append(s));
+            getMaxLastPlayedDateCondition().ifPresent(s -> query.append(s));
+            getMinAlbumRatingCondition().ifPresent(s -> query.append(s));
+            getMaxAlbumRatingCondition().ifPresent(s -> query.append(s));
+            getMinPlayCountCondition().ifPresent(s -> query.append(s));
+            getMaxPlayCountCondition().ifPresent(s -> query.append(s));
+            getShowStarredSongsCondition().ifPresent(s -> query.append(s));
+            getShowUnstarredSongsCondition().ifPresent(s -> query.append(s));
+            query.append(" order by rand() limit ").append(criteria.getCount());
+            return query.toString();
+        }
+
+        private Optional<String> getIfJoinStarred() {
+            boolean joinStarred = criteria.isShowStarredSongs() ^ criteria.isShowUnstarredSongs();
+            if (joinStarred) {
+                return Optional
+                        .of(" left outer join starred_media_file on media_file.id = starred_media_file.media_file_id"
+                                + " and starred_media_file.username = :username");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getIfJoinAlbumRating() {
+            boolean joinAlbumRating = criteria.getMinAlbumRating() != null || criteria.getMaxAlbumRating() != null;
+            if (joinAlbumRating) {
+                return Optional.of(" left outer join media_file media_album on media_album.type = 'ALBUM'"
+                        + " and media_album.album = media_file.album " + "and media_album.artist = media_file.artist "
+                        + "left outer join user_rating on user_rating.path = media_album.path"
+                        + " and user_rating.username = :username");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getFolderCondition() {
+            if (!criteria.getMusicFolders().isEmpty()) {
+                return Optional.of(" and media_file.folder in (:folders)");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getGenreCondition() {
+            if (criteria.getGenres() != null) {
+                return Optional.of(" and media_file.genre in (:genres)");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getFormatCondition() {
+            if (criteria.getFormat() != null) {
+                return Optional.of(" and media_file.format = :format");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getFromYearCondition() {
+            if (criteria.getFromYear() != null) {
+                return Optional.of(" and media_file.year >= :fromYear");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getToYearCondition() {
+            if (criteria.getToYear() != null) {
+                return Optional.of(" and media_file.year <= :toYear");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMinLastPlayedDateCondition() {
+            if (criteria.getMinLastPlayedDate() != null) {
+                return Optional.of(" and media_file.last_played >= :minLastPlayed");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMaxLastPlayedDateCondition() {
+            if (criteria.getMaxLastPlayedDate() != null) {
+                if (criteria.getMinLastPlayedDate() == null) {
+                    return Optional
+                            .of(" and (media_file.last_played is null or media_file.last_played <= :maxLastPlayed)");
+                } else {
+                    return Optional.of(" and media_file.last_played <= :maxLastPlayed");
+                }
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMinAlbumRatingCondition() {
+            if (criteria.getMinAlbumRating() != null) {
+                return Optional.of(" and user_rating.rating >= :minAlbumRating");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMaxAlbumRatingCondition() {
+            if (criteria.getMaxAlbumRating() != null) {
+                if (criteria.getMinAlbumRating() == null) {
+                    return Optional.of(" and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)");
+                } else {
+                    return Optional.of(" and user_rating.rating <= :maxAlbumRating");
+                }
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMinPlayCountCondition() {
+            if (criteria.getMinPlayCount() != null) {
+                return Optional.of(" and media_file.play_count >= :minPlayCount");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getMaxPlayCountCondition() {
+            if (criteria.getMaxPlayCount() != null) {
+                if (criteria.getMinPlayCount() == null) {
+                    return Optional
+                            .of(" and (media_file.play_count is null or media_file.play_count <= :maxPlayCount)");
+                } else {
+                    return Optional.of(" and media_file.play_count <= :maxPlayCount");
+                }
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getShowStarredSongsCondition() {
+            if (criteria.isShowStarredSongs() && !criteria.isShowUnstarredSongs()) {
+                return Optional.of(" and starred_media_file.id is not null");
+            }
+            return Optional.empty();
+        }
+
+        private Optional<String> getShowUnstarredSongsCondition() {
+            if (criteria.isShowUnstarredSongs() && !criteria.isShowStarredSongs()) {
+                return Optional.of(" and starred_media_file.id is null");
+            }
+            return Optional.empty();
         }
     }
 

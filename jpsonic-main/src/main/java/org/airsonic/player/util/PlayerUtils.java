@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.util;
@@ -54,6 +55,15 @@ public final class PlayerUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
+
+    private static Validator validator;
+
+    static {
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+    }
 
     /**
      * Disallow external instantiation.
@@ -123,8 +133,6 @@ public final class PlayerUtils {
         }
         return result;
     }
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -207,13 +215,6 @@ public final class PlayerUtils {
 
     public static <T> T stringMapToObject(Class<T> clazz, Map<String, String> data) {
         return objectMapper.convertValue(data, clazz);
-    }
-
-    private static Validator validator;
-
-    static {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
     }
 
     public static <T> T stringMapToValidObject(Class<T> clazz, Map<String, String> data) {

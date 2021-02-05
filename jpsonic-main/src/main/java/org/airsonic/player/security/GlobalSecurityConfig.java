@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.security;
 
@@ -43,19 +63,20 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
 
-    static final String FAILURE_URL = "/login?error=1";
+    private static final String FAILURE_URL = "/login?error=1";
 
-    static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
+    private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
     @Autowired
     private SecurityService securityService;
 
     @Autowired
-    SettingsService settingsService;
+    private SettingsService settingsService;
 
     @Autowired
-    CustomUserDetailsContextMapper customUserDetailsContextMapper;
+    private CustomUserDetailsContextMapper customUserDetailsContextMapper;
 
+    @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         if (settingsService.isLdapEnabled()) {
@@ -113,6 +134,7 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
             super(true);
         }
 
+        @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
         @Bean(name = "jwtAuthenticationFilter")
         public JWTRequestParameterProcessingFilter jwtAuthFilter() throws Exception {
             return new JWTRequestParameterProcessingFilter(authenticationManager(), FAILURE_URL);
@@ -143,13 +165,13 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
         private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
         @Autowired
-        ApplicationEventPublisher eventPublisher;
+        private ApplicationEventPublisher eventPublisher;
 
         @Autowired
         private SecurityService securityService;
 
         @Autowired
-        SettingsService settingsService;
+        private SettingsService settingsService;
 
         private String generateRememberMeKey() {
             byte[] array = new byte[32];

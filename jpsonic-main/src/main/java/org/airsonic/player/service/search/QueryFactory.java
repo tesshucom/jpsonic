@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.search;
@@ -86,10 +87,19 @@ public class QueryFactory {
      * XXX 3.x -> 8.x : "SpanOr" has been changed to "Or". - Path comparison is more appropriate with "Or". - If
      * "SpanOr" is maintained, the DOC design needs to be changed.
      */
-    final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3, folders) -> {
+    public final BiFunction<@NonNull Boolean, @NonNull List<MusicFolder>, @NonNull Query> toFolderQuery = (isId3,
+            folders) -> {
         BooleanQuery.Builder mfQuery = new BooleanQuery.Builder();
         folders.stream().map(isId3 ? toFolderIdQuery : toFolderPathQuery).forEach(t -> mfQuery.add(t, Occur.SHOULD));
         return mfQuery.build();
+    };
+
+    /*
+     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
+     */
+    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
+        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
+                isEmpty(to) ? Integer.MAX_VALUE : to);
     };
 
     /*
@@ -103,7 +113,7 @@ public class QueryFactory {
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (ArrayList, WildcardQuery, Term, BoostQuery,
     // BooleanQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    public final Query createMultiFieldWildQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         BooleanQuery.Builder mainQuery = new BooleanQuery.Builder();
@@ -152,7 +162,7 @@ public class QueryFactory {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PhraseQuery, Term, BoostQuery) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
-    final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
+    public final Query createPhraseQuery(@NonNull String[] fieldNames, @NonNull String queryString,
             @NonNull IndexType indexType) throws IOException {
 
         Analyzer analyzer = analyzerFactory.getQueryAnalyzer();
@@ -184,14 +194,6 @@ public class QueryFactory {
         return fieldQuerys.build();
 
     }
-
-    /*
-     * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
-     */
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
-        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
-                isEmpty(to) ? Integer.MAX_VALUE : to);
-    };
 
     /**
      * Query generation expression extracted from
@@ -260,14 +262,12 @@ public class QueryFactory {
         Analyzer queryAnalyzer = analyzerFactory.getQueryAnalyzer();
         if (!isEmpty(criteria.getGenres())) {
             for (String genre : criteria.getGenres()) {
-                if (!isEmpty(criteria.getGenres())) {
-                    if (!isEmpty(genre)) {
-                        try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
-                            stream.reset();
-                            while (stream.incrementToken()) {
-                                String token = stream.getAttribute(CharTermAttribute.class).toString();
-                                genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
-                            }
+                if (!isEmpty(criteria.getGenres()) && !isEmpty(genre)) {
+                    try (TokenStream stream = queryAnalyzer.tokenStream(FieldNamesConstants.GENRE, genre)) {
+                        stream.reset();
+                        while (stream.incrementToken()) {
+                            String token = stream.getAttribute(CharTermAttribute.class).toString();
+                            genreQuery.add(new TermQuery(new Term(FieldNamesConstants.GENRE, token)), Occur.SHOULD);
                         }
                     }
                 }

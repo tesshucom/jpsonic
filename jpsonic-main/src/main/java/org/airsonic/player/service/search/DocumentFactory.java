@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.search;
@@ -93,16 +94,6 @@ public class DocumentFactory {
 
     }
 
-    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
-        this.settingsService = settingsService;
-        this.readingUtils = readingUtils;
-    }
-
-    @FunctionalInterface
-    private interface Consumer<T, U, V> {
-        void accept(T t, U u, V v);
-    }
-
     private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
         doc.add(new StoredField(FieldNamesConstants.ID, Integer.toString(value), TYPE_ID));
     };
@@ -150,6 +141,11 @@ public class DocumentFactory {
         doc.add(new IntPoint(fieldName, value));
     };
 
+    public DocumentFactory(SettingsService settingsService, JapaneseReadingUtils readingUtils) {
+        this.settingsService = settingsService;
+        this.readingUtils = readingUtils;
+    }
+
     public final Term createPrimarykey(Integer id) {
         return new Term(FieldNamesConstants.ID, Integer.toString(id));
     }
@@ -164,6 +160,11 @@ public class DocumentFactory {
 
     public final Term createPrimarykey(MediaFile mediaFile) {
         return createPrimarykey(mediaFile.getId());
+    }
+
+    @FunctionalInterface
+    private interface Consumer<T, U, V> {
+        void accept(T t, U u, V v);
     }
 
     /**

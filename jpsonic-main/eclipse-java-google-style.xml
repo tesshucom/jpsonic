@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
     This file is a Jpsonic formatter definition. Based on Google style, 
-	it may be modified for compatibility with Sun rules, removal of malfunctions, 
-	and maintainability of Jpsonic.
-	It comes from the definition that comes with Google Style Guides.
-	https://github.com/google/styleguide
+    it may be modified for compatibility with Sun rules, removal of malfunctions, 
+    and maintainability of Jpsonic.This is a measure to make PMD, SpotBugs, CheckStyle, 
+    and Formatter work in harmony.
 
-	Author: tesshucom
+    It comes from the definition that comes with Google Style Guides.
+    https://github.com/google/styleguide
+
+    Author: tesshucom
 -->
 <profiles version="13">
 <profile kind="CodeFormatterProfile" name="GoogleStyle" version="13">

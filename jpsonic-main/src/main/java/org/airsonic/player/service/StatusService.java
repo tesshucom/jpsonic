@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service;
@@ -58,10 +59,6 @@ public class StatusService {
 
     private final MediaFileService mediaFileService;
 
-    public StatusService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
     private final List<TransferStatus> streamStatuses = new ArrayList<>();
     private final List<TransferStatus> downloadStatuses = new ArrayList<>();
     private final List<TransferStatus> uploadStatuses = new ArrayList<>();
@@ -75,14 +72,18 @@ public class StatusService {
     // Maps from player ID to latest inactive stream status.
     private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<>();
 
+    public StatusService(MediaFileService mediaFileService) {
+        this.mediaFileService = mediaFileService;
+    }
+
     public TransferStatus createStreamStatus(Player player) {
         synchronized (STREAM_LOCK) {
             // Reuse existing status, if possible.
             TransferStatus status = inactiveStreamStatuses.get(player.getId());
-            if (status != null) {
-                status.setActive(true);
-            } else {
+            if (status == null) {
                 status = createStatus(player, streamStatuses);
+            } else {
+                status.setActive(true);
             }
             return status;
         }

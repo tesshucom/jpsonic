@@ -1,22 +1,23 @@
 /*
-  This file is part of Airsonic.
-
-  Airsonic is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Airsonic is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
-  Copyright 2017 (C) Airsonic Authors
-  Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
-*/
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2017 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service.upnp.processor;
 
@@ -96,13 +97,13 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
                 + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
-        if (!mediaFileService.isRoot(item)) {
+        if (mediaFileService.isRoot(item)) {
+            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
+        } else {
             MediaFile parent = mediaFileService.getParentOf(item);
             if (parent != null) {
                 container.setParentID(String.valueOf(parent.getId()));
             }
-        } else {
-            container.setParentID(UpnpProcessDispatcher.CONTAINER_ID_FOLDER_PREFIX);
         }
     }
 

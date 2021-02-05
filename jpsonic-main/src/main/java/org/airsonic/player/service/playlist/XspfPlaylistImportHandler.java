@@ -1,3 +1,23 @@
+/*
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
+ */
 
 package org.airsonic.player.service.playlist;
 
@@ -26,7 +46,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
     private static final Logger LOG = LoggerFactory.getLogger(XspfPlaylistImportHandler.class);
 
     @Autowired
-    MediaFileService mediaFileService;
+    private MediaFileService mediaFileService;
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylist> playlistClass) {
@@ -59,9 +79,7 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
                     }
                 }
             }
-            if (mediaFile != null) {
-                mediaFiles.add(mediaFile);
-            } else {
+            if (mediaFile == null) {
                 StringBuilder errorMsg = new StringBuilder("Could not find media file matching ");
                 try {
                     errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
@@ -70,6 +88,8 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
                     LOG.error(errorMsg.toString(), e);
                 }
                 errors.add(errorMsg.toString());
+            } else {
+                mediaFiles.add(mediaFile);
             }
         });
         return Pair.of(mediaFiles, errors);

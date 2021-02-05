@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -50,6 +51,7 @@ import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -64,6 +66,9 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/top")
 public class TopController {
+
+    // Update this time if you want to force a refresh in clients.
+    private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
 
     @Autowired
     private SettingsService settingsService;
@@ -84,7 +89,7 @@ public class TopController {
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("mainView") Optional<String> mainView) throws Exception {
+            @RequestParam("mainView") Optional<String> mainView) throws ServletRequestBindingException {
 
         Map<String, Object> map = LegacyMap.of();
 
@@ -156,9 +161,6 @@ public class TopController {
         return new ModelAndView("top", "model", map);
     }
 
-    // Update this time if you want to force a refresh in clients.
-    private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
-
     static {
         LAST_COMPATIBILITY_TIME.set(2012, Calendar.MARCH, 6, 0, 0, 0);
         LAST_COMPATIBILITY_TIME.set(Calendar.MILLISECOND, 0);
@@ -169,10 +171,11 @@ public class TopController {
     }
 
     /**
-     * Note: This class intentionally does not implement org.springframework.web.servlet.mvc.LastModified as we don't
-     * need browser-side caching of left.jsp. This method is only used by RESTController.
+     * This method is only used by RESTController.
+     * 
+     * @throws ServletRequestBindingException
      */
-    long getLastModified(HttpServletRequest request) throws Exception {
+    public long getLastModified(HttpServletRequest request) throws ServletRequestBindingException {
         saveSelectedMusicFolder(request);
 
         if (mediaScannerService.isScanning()) {
@@ -188,14 +191,14 @@ public class TopController {
         // When was music folder(s) on disk last changed?
         List<MusicFolder> allMusicFolders = settingsService.getMusicFoldersForUser(username);
         MusicFolder selectedMusicFolder = settingsService.getSelectedMusicFolder(username);
-        if (selectedMusicFolder != null) {
-            File file = selectedMusicFolder.getPath();
-            lastModified = Math.max(lastModified, FileUtil.lastModified(file));
-        } else {
+        if (selectedMusicFolder == null) {
             for (MusicFolder musicFolder : allMusicFolders) {
                 File file = musicFolder.getPath();
                 lastModified = Math.max(lastModified, FileUtil.lastModified(file));
             }
+        } else {
+            File file = selectedMusicFolder.getPath();
+            lastModified = Math.max(lastModified, FileUtil.lastModified(file));
         }
 
         // When was music folder table last changed?
@@ -215,7 +218,7 @@ public class TopController {
         return lastModified;
     }
 
-    private boolean saveSelectedMusicFolder(HttpServletRequest request) throws Exception {
+    private boolean saveSelectedMusicFolder(HttpServletRequest request) throws ServletRequestBindingException {
         Integer musicFolderId = ServletRequestUtils.getIntParameter(request,
                 Attributes.Request.MUSIC_FOLDER_ID.value());
         if (musicFolderId == null) {

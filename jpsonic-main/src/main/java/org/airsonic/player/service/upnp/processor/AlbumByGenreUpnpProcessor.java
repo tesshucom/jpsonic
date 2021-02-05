@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.upnp.processor;
@@ -51,6 +51,17 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
     private final SearchService searchService;
 
     private final JMediaFileService mediaFileService;
+
+    private final Function<Genre, MediaFile> toMediaFile = (g) -> {
+        MediaFile m = new MediaFile();
+        m.setId(-1);
+        m.setTitle(g.getName());
+        if (0 != g.getAlbumCount()) {
+            m.setComment(Integer.toString(g.getAlbumCount()));
+        }
+        m.setGenre(g.getName());
+        return m;
+    };
 
     public AlbumByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             SearchService s) {
@@ -91,18 +102,18 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
                 + item.getId());
         container.setTitle(item.getName());
         container.setChildCount(getChildSizeOf(item));
-        if (!mediaFileService.isRoot(item)) {
+        if (mediaFileService.isRoot(item)) {
+            container.setParentID(getRootId());
+        } else {
             MediaFile parent = mediaFileService.getParentOf(item);
             if (parent != null) {
                 container.setParentID(String.valueOf(parent.getId()));
             }
-        } else {
-            container.setParentID(getRootId());
         }
         return container;
     }
 
-    private final Container createContainer(MediaFile item, String index) {
+    private Container createContainer(MediaFile item, String index) {
         GenreContainer container = new GenreContainer();
         container.setParentID(getRootId());
         container.setId(getRootId() + UpnpProcessDispatcher.OBJECT_ID_SEPARATOR + index);
@@ -116,17 +127,6 @@ public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, M
     public int getItemCount() {
         return searchService.getGenresCount(true);
     }
-
-    private final Function<Genre, MediaFile> toMediaFile = (g) -> {
-        MediaFile m = new MediaFile();
-        m.setId(-1);
-        m.setTitle(g.getName());
-        if (0 != g.getAlbumCount()) {
-            m.setComment(Integer.toString(g.getAlbumCount()));
-        }
-        m.setGenre(g.getName());
-        return m;
-    };
 
     @Override
     public List<MediaFile> getItems(long offset, long maxResults) {

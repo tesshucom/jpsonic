@@ -1,20 +1,20 @@
 /*
- This file is part of Jpsonic.
-
- Jpsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Jpsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2019 (C) tesshu.com
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2018 tesshucom
  */
 
 package com.tesshu.jpsonic.domain;
@@ -52,7 +52,7 @@ public class JpsonicComparators {
         TRACK, ARTIST, ALBUM
     }
 
-    private final Pattern isVarious = Pattern.compile("^various.*$");
+    private final Pattern various = Pattern.compile("^various.*$");
 
     private final SettingsService settingsService;
 
@@ -101,7 +101,7 @@ public class JpsonicComparators {
     /**
      * Returns Collator which is used as standard in Jpsonic.
      */
-    final Collator createCollator() {
+    protected final Collator createCollator() {
         Collator collator = Collator.getInstance(settingsService.getLocale());
         return settingsService.isSortAlphanum() ? new AlphanumWrapper(collator) : collator;
     }
@@ -115,13 +115,13 @@ public class JpsonicComparators {
         return new GenreComparator(utils, createCollator());
     }
 
-    private final boolean isSortAlbumsByYear(MediaFile parent) {
+    private boolean isSortAlbumsByYear(MediaFile parent) {
         return settingsService.isSortAlbumsByYear() && (isEmpty(parent) || isSortAlbumsByYear(parent.getArtist()));
     }
 
     public final boolean isSortAlbumsByYear(@Nullable String artist) {
         return settingsService.isSortAlbumsByYear() && (isEmpty(artist) || !(settingsService.isProhibitSortVarious()
-                && isVarious.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
+                && various.matcher(artist.toLowerCase(settingsService.getLocale())).matches()));
     }
 
     /**
@@ -196,8 +196,8 @@ public class JpsonicComparators {
     }
 
     private static class GenreComparator implements Comparator<Genre> {
-        final JapaneseReadingUtils utils;
-        final Collator collator;
+        private final JapaneseReadingUtils utils;
+        private final Collator collator;
 
         public GenreComparator(JapaneseReadingUtils utils, Collator collator) {
             super();
@@ -214,8 +214,8 @@ public class JpsonicComparators {
     }
 
     private static class PlaylistComparator implements Comparator<Playlist> {
-        final JapaneseReadingUtils utils;
-        final Collator collator;
+        private final JapaneseReadingUtils utils;
+        private final Collator collator;
 
         public PlaylistComparator(JapaneseReadingUtils utils, Collator collator) {
             super();

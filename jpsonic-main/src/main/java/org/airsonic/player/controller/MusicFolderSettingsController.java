@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.controller;
@@ -114,7 +115,7 @@ public class MusicFolderSettingsController {
         command.setMusicFolders(wrap(settingsService.getAllMusicFolders(true, true)));
         command.setNewMusicFolder(new MusicFolderSettingsCommand.MusicFolderInfo());
         command.setExcludePatternString(settingsService.getExcludePatternString());
-        command.setIgnoreSymLinks(settingsService.getIgnoreSymLinks());
+        command.setIgnoreSymLinks(settingsService.isIgnoreSymLinks());
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
@@ -127,6 +128,7 @@ public class MusicFolderSettingsController {
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void expunge() {
 
         if (isExpunging.get()) {
@@ -217,7 +219,7 @@ public class MusicFolderSettingsController {
         settingsService.setFastCacheEnabled(command.isFastCache());
         settingsService.setOrganizeByFolderStructure(command.isOrganizeByFolderStructure());
         settingsService.setExcludePatternString(command.getExcludePatternString());
-        settingsService.setIgnoreSymLinks(command.getIgnoreSymLinks());
+        settingsService.setIgnoreSymLinks(command.isIgnoreSymLinks());
         settingsService.setIndexEnglishPrior(command.isIndexEnglishPrior());
 
         settingsService.save();

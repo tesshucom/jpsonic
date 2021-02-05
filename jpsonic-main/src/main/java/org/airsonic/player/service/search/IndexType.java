@@ -1,21 +1,22 @@
 /*
- This file is part of Airsonic.
-
- Airsonic is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- Airsonic is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with Airsonic.  If not, see <http://www.gnu.org/licenses/>.
-
- Copyright 2016 (C) Airsonic Authors
- Based upon Subsonic, Copyright 2009 (C) Sindre Mehus
+ * This file is part of Jpsonic.
+ *
+ * Jpsonic is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Jpsonic is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * (C) 2009 Sindre Mehus
+ * (C) 2016 Airsonic Authors
+ * (C) 2018 tesshucom
  */
 
 package org.airsonic.player.service.search;
@@ -67,6 +68,10 @@ public enum IndexType {
 
     ;
 
+    private final Map<String, Float> boosts;
+
+    private final String[] fields;
+
     /**
      * Define the field's applied boost value when searching IndexType.
      * 
@@ -92,7 +97,7 @@ public enum IndexType {
      * 
      * @return
      */
-    private static final SimpleEntry<String, Float> entry(String k, float v) {
+    private static SimpleEntry<String, Float> entry(String k, float v) {
         return new AbstractMap.SimpleEntry<>(k, v);
     }
 
@@ -104,15 +109,11 @@ public enum IndexType {
      * 
      * @return
      */
-    private static final String[] fieldNames(String... names) {
+    private static String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);
     }
 
-    private final Map<String, Float> boosts;
-
-    private final String[] fields;
-
-    private IndexType(String[] fieldNames, Map<String, Float> boosts) {
+    IndexType(String[] fieldNames, Map<String, Float> boosts) {
         this.fields = fieldNames.clone();
         this.boosts = boosts;
     }
