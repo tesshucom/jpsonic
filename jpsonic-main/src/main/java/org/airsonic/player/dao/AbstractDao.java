@@ -67,7 +67,7 @@ public class AbstractDao {
         return StringUtils.repeat("?", ", ", numberOfColumns);
     }
 
-    protected String prefix(String columns, String prefix) {
+    protected static String prefix(String columns, String prefix) {
         List<String> l = Arrays.asList(columns.split(", "));
         l.replaceAll(s -> prefix + "." + s);
         return String.join(", ", l);
