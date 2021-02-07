@@ -212,7 +212,7 @@ public class AlbumDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        List<Integer> ids = musicFolders.stream().map(m -> m.getId()).collect(Collectors.toList());
+        List<Integer> ids = musicFolders.stream().map(MusicFolder::getId).collect(Collectors.toList());
         Map<String, Object> args = LegacyMap.of("folders", ids);
         Integer result = getNamedParameterJdbcTemplate().queryForObject(
                 "select count(*) from album where present and folder_id in (:folders)", args, Integer.class);

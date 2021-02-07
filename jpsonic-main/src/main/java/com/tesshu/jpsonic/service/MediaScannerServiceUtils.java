@@ -104,37 +104,37 @@ public class MediaScannerServiceUtils {
 
     private FixedIds compensateSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getSortForAlbumWithoutSorts();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
     private FixedIds compensateSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getSortForPersonWithoutSorts();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
 
     private FixedIds copySortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForAlbums();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
     private FixedIds copySortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.getCopyableSortForPersons();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
 
     private FixedIds mergeSortOfAlbum() {
         List<SortCandidate> candidates = mediaFileDao.guessAlbumSorts();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfAlbum(candidates);
     }
 
     private FixedIds mergeSortOfArtist() {
         List<SortCandidate> candidates = mediaFileDao.guessPersonsSorts();
-        candidates.forEach(c -> utils.analyze(c));
+        candidates.forEach(utils::analyze);
         return updateSortOfArtist(candidates);
     }
 

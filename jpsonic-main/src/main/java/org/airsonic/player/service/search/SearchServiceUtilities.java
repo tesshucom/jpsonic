@@ -32,7 +32,6 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -110,15 +109,11 @@ public class SearchServiceUtilities {
 
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
-    public final Function<Long, Integer> round = (i) -> {
-        // return
-        // NumericUtils.floatToSortableInt(i);
-        return i.intValue();
-    };
+    // return
+    // NumericUtils.floatToSortableInt(i);
+    public final Function<Long, Integer> round = Long::intValue;
 
-    public final Function<Document, Integer> getId = d -> {
-        return Integer.valueOf(d.get(FieldNamesConstants.ID));
-    };
+    public final Function<Document, Integer> getId = d -> Integer.valueOf(d.get(FieldNamesConstants.ID));
 
     public final BiConsumer<List<MediaFile>, Integer> addMediaFileIfAnyMatch = (dist, id) -> {
         if (!dist.stream().anyMatch(m -> id == m.getId())) {
@@ -212,10 +207,10 @@ public class SearchServiceUtilities {
     }
 
     public final String[] filterComposer(String[] fields, boolean includeComposer) {
-        return Arrays.asList(fields).stream()
+        return Arrays.stream(fields)
                 .filter(f -> includeComposer
                         || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
-                .collect(Collectors.toList()).toArray(new String[0]);
+                .toArray(String[]::new);
     }
 
     private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
@@ -232,7 +227,7 @@ public class SearchServiceUtilities {
         b.append(key).append(',').append(casheMax).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
         if (!isEmpty(additional)) {
-            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(','));
+            Arrays.asList(additional).forEach(s -> b.append(s).append(','));
         }
         b.append(']');
         return b.toString();

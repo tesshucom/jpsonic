@@ -70,14 +70,11 @@ public class JpsonicComparators {
      * @return Comparator
      */
     public Comparator<Album> albumOrderByAlpha() {
-        return new Comparator<Album>() {
-            @Override
-            public int compare(Album o1, Album o2) {
-                if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
-                    return o1.getOrder() - o2.getOrder();
-                }
-                return createCollator().compare(o1.getNameReading(), o2.getNameReading());
+        return (o1, o2) -> {
+            if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
+                return o1.getOrder() - o2.getOrder();
             }
+            return createCollator().compare(o1.getNameReading(), o2.getNameReading());
         };
     }
 
@@ -87,14 +84,11 @@ public class JpsonicComparators {
      * @return Comparator
      */
     public Comparator<Artist> artistOrderByAlpha() {
-        return new Comparator<Artist>() {
-            @Override
-            public int compare(Artist o1, Artist o2) {
-                if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
-                    return o1.getOrder() - o2.getOrder();
-                }
-                return createCollator().compare(o1.getReading(), o2.getReading());
+        return (o1, o2) -> {
+            if (-1 != o1.getOrder() && -1 != o2.getOrder()) {
+                return o1.getOrder() - o2.getOrder();
             }
+            return createCollator().compare(o1.getReading(), o2.getReading());
         };
     }
 
@@ -145,27 +139,24 @@ public class JpsonicComparators {
      * @return
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
-        return new Comparator<MediaFile>() {
-            @Override
-            public int compare(MediaFile a, MediaFile b) {
-                switch (orderBy) {
-                case TRACK:
-                    Integer trackA = a.getTrackNumber();
-                    Integer trackB = b.getTrackNumber();
-                    if (trackA == null) {
-                        trackA = 0;
-                    }
-                    if (trackB == null) {
-                        trackB = 0;
-                    }
-                    return trackA.compareTo(trackB);
-                case ARTIST:
-                    return createCollator().compare(a.getArtistReading(), b.getArtistReading());
-                case ALBUM:
-                    return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
-                default:
-                    return 0;
+        return (a, b) -> {
+            switch (orderBy) {
+            case TRACK:
+                Integer trackA = a.getTrackNumber();
+                Integer trackB = b.getTrackNumber();
+                if (trackA == null) {
+                    trackA = 0;
                 }
+                if (trackB == null) {
+                    trackB = 0;
+                }
+                return trackA.compareTo(trackB);
+            case ARTIST:
+                return createCollator().compare(a.getArtistReading(), b.getArtistReading());
+            case ALBUM:
+                return createCollator().compare(a.getAlbumReading(), b.getAlbumReading());
+            default:
+                return 0;
             }
         };
     }
@@ -186,13 +177,7 @@ public class JpsonicComparators {
     }
 
     public Comparator<SortableArtist> sortableArtistOrder() {
-
-        return new Comparator<SortableArtist>() {
-            @Override
-            public int compare(SortableArtist o1, SortableArtist o2) {
-                return createCollator().compare(o1.getSortableName(), o2.getSortableName());
-            }
-        };
+        return (o1, o2) -> createCollator().compare(o1.getSortableName(), o2.getSortableName());
     }
 
     private static class GenreComparator implements Comparator<Genre> {

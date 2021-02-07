@@ -229,10 +229,8 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
     }
 
     private void applyParentId(Id3Wrapper artist, MusicArtist container) {
-        indexesMap.entrySet()
-                .forEach(e -> indexesMap.get(e.getKey()).getIndexId3().getArtist().stream()
-                        .filter(a -> a.getId().equals(artist.getId())).findFirst()
-                        .ifPresent(a -> container.setParentID(e.getKey())));
+        indexesMap.forEach((key, value) -> indexesMap.get(key).getIndexId3().getArtist().stream()
+                .filter(a -> a.getId().equals(artist.getId())).findFirst().ifPresent(a -> container.setParentID(key)));
     }
 
     private void applyParentId(Id3Wrapper album, MusicAlbum container) {
@@ -247,7 +245,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         Element element = indexCache.getQuiet(IndexCacheKey.ID3);
         boolean expired = isEmpty(element) || indexCache.isExpired(element);
         synchronized (LOCK) {
-            if (isEmpty(content) || 0 == content.getIndex().stream().flatMap(i -> i.getArtist().stream()).count()
+            if (isEmpty(content) || 0 == content.getIndex().stream().mapToLong(i -> i.getArtist().size()).sum()
                     || expired) {
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = new ArtistsID3();
@@ -269,7 +267,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
                     entry.getValue().forEach(s -> index.getArtist().add(toId3.apply(s.getArtist())));
                 }
                 indexCache.put(new Element(IndexCacheKey.ID3, content));
-                topNodes = content.getIndex().stream().map(i -> new Id3Content(i)).collect(toList());
+                topNodes = content.getIndex().stream().map(Id3Content::new).collect(toList());
                 indexesMap = new ConcurrentHashMap<>();
                 topNodes.forEach(i -> indexesMap.put(i.getId(), i));
             }

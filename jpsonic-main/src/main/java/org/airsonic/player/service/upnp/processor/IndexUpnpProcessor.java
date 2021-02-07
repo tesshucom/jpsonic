@@ -218,7 +218,7 @@ public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFil
                 INDEX_IDS.set(Integer.MIN_VALUE);
                 content = musicIndexService.getMusicFolderContent(util.getAllMusicFolders(), true);
                 indexCache.put(new Element(IndexCacheKey.FILE_STRUCTURE, content));
-                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(mi -> new MediaIndex(mi))
+                List<MediaIndex> indexes = content.getIndexedArtists().keySet().stream().map(MediaIndex::new)
                         .collect(Collectors.toList());
                 indexesMap = new ConcurrentHashMap<>();
                 indexes.forEach(i -> indexesMap.put(i.getId(), i));

@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
@@ -102,7 +103,7 @@ public class CustomThemeResolver implements ThemeResolver {
     private boolean themeExists(String themeId) {
         synchronized (LOCK) {
             if (themeIds == null) {
-                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream().map(t -> t.getId())
+                themeIds = Arrays.stream(settingsService.getAvailableThemes()).map(Theme::getId)
                         .collect(Collectors.toSet());
             }
         }

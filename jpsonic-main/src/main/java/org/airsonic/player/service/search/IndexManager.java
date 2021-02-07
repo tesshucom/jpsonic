@@ -242,40 +242,40 @@ public class IndexManager {
 
     public void expunge() {
 
-        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m)).toArray(i -> new Term[i]);
+        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artist doc.", e);
         }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.SONG).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
 
-        primarykeys = artistDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = artistDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
 
-        primarykeys = albumDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = albumDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
@@ -561,7 +561,7 @@ public class IndexManager {
                 IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
-                    List<String> fieldValues = Arrays.stream(fields).map(f -> f.stringValue())
+                    List<String> fieldValues = Arrays.stream(fields).map(IndexableField::stringValue)
                             .collect(Collectors.toList());
                     fieldValues.forEach(v -> {
                         if (!result.contains(v)) {
@@ -644,7 +644,7 @@ public class IndexManager {
                                 e);
                         break mayBeInit;
                     }
-                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString())
+                    List<String> genreNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
                             .collect(Collectors.toList());
 
                     List<Genre> genres = new ArrayList<>();
@@ -661,7 +661,7 @@ public class IndexManager {
                     multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
 
                     List<Genre> genresByAlbum = new ArrayList<>();
-                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(g -> genresByAlbum.add(g));
+                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(genresByAlbum::add);
                     genresByAlbum.sort(comparators.genreOrder(true));
                     multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);
 

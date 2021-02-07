@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -123,7 +122,7 @@ public class PlaylistService {
     }
 
     private List<Playlist> sort(List<Playlist> playlists) {
-        Collections.sort(playlists, comparators.playlistOrder());
+        playlists.sort(comparators.playlistOrder());
         return playlists;
     }
 

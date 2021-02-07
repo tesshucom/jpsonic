@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.sound.sampled.Mixer;
 
 import com.github.biconou.AudioPlayer.AudioSystemUtils;
 import com.tesshu.jpsonic.controller.Attributes;
@@ -136,14 +137,14 @@ public class PlayerSettingsController {
         command.setAdmin(user.isAdminRole());
 
         command.setJavaJukeboxMixers(
-                Arrays.stream(AudioSystemUtils.listAllMixers()).map(info -> info.getName()).toArray(String[]::new));
+                Arrays.stream(AudioSystemUtils.listAllMixers()).map(Mixer.Info::getName).toArray(String[]::new));
         if (player != null) {
             command.setJavaJukeboxMixer(player.getJavaJukeboxMixer());
         }
 
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

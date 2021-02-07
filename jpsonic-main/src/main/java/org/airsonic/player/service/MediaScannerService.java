@@ -135,7 +135,7 @@ public class MediaScannerService {
             long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
 
             scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
+            scheduler.scheduleAtFixedRate(this::scanLibrary, initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
                     TimeUnit.MILLISECONDS);
 
             if (LOG.isInfoEnabled()) {

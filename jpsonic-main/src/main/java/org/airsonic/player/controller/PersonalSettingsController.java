@@ -163,7 +163,7 @@ public class PersonalSettingsController {
             command.setIetf(userSettings.getIetf());
         }
         WebFontUtils.setToCommand(userSettings, command);
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         Locale currentLocale = userSettings.getLocale();
         Locale[] locales = settingsService.getAvailableLocales();

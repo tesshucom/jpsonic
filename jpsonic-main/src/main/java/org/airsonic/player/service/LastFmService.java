@@ -422,8 +422,7 @@ public class LastFmService {
             }
 
             Collection<Album> matches = Album.search(query.toString(), LAST_FM_KEY);
-            return FluentIterable.from(matches).transform(album1 -> convert(album1)).filter(Predicates.notNull())
-                    .toList();
+            return FluentIterable.from(matches).transform(this::convert).filter(Predicates.notNull()).toList();
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);

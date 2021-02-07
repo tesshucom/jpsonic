@@ -652,7 +652,7 @@ public class MediaFile {
     }
 
     public static Function<MediaFile, Integer> toId() {
-        return from -> from.getId();
+        return MediaFile::getId;
     }
 
     public enum MediaType {

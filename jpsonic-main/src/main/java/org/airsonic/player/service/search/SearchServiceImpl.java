@@ -479,7 +479,7 @@ public class SearchServiceImpl implements SearchService {
         List<Album> result = new ArrayList<>();
         try {
             SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(i -> new SortField[i]);
+                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new);
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
             TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
 

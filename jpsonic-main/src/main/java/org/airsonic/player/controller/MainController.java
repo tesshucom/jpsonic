@@ -120,7 +120,7 @@ public class MainController {
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
 
-        List<MediaFile> files = children.stream().filter(f -> f.isFile()).collect(Collectors.toList());
+        List<MediaFile> files = children.stream().filter(MediaFile::isFile).collect(Collectors.toList());
         map.put("files", files);
 
         List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());

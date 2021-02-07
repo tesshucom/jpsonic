@@ -194,7 +194,7 @@ public class MusicFolder implements Serializable {
     }
 
     public static Function<MusicFolder, Integer> toId() {
-        return from -> from.getId();
+        return MusicFolder::getId;
     }
 
     public static Function<MusicFolder, String> toPath() {

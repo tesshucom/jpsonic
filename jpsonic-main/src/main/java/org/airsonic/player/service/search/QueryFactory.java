@@ -97,10 +97,9 @@ public class QueryFactory {
     /*
      * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
      */
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
-        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
-                isEmpty(to) ? Integer.MAX_VALUE : to);
-    };
+    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from,
+            to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
+                    isEmpty(to) ? Integer.MAX_VALUE : to);
 
     /*
      * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
@@ -142,7 +141,7 @@ public class QueryFactory {
         }
 
         /* If Field's Tokenizer is different, token's length may not match. **/
-        int maxTermLength = fieldsQuerys.stream().map(l -> l.size()).max(Integer::compare).orElse(0);
+        int maxTermLength = fieldsQuerys.stream().map(List::size).max(Integer::compare).orElse(0);
 
         if (0 < fieldsQuerys.size()) {
             for (int i = 0; i < maxTermLength; i++) {

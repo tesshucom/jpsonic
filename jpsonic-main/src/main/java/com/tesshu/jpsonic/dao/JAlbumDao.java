@@ -100,24 +100,26 @@ public class JAlbumDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery("select id from album " + "where present and name in (:names) "
-                + "and (name_sort is null or name_sort not in(:sotes)) order by id", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
+        return namedQuery(
+                "select id from album " + "where present and name in (:names) "
+                        + "and (name_sort is null or name_sort not in(:sotes)) order by id",
+                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery("select id from album " + "where present and artist in (:names) "
-                + "    and (artist_sort is null or artist_sort not in(:sotes)) order by id", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
+        return namedQuery(
+                "select id from album " + "where present and artist in (:names) "
+                        + "    and (artist_sort is null or artist_sort not in(:sotes)) order by id",
+                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public void updateAlbumSort(SortCandidate candidate) {

@@ -113,7 +113,7 @@ public class UserSettingsController {
         command.setAllMusicFolders(settingsService.getAllMusicFolders());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "userSettings";
     }

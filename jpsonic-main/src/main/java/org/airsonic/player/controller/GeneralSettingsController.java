@@ -112,7 +112,7 @@ public class GeneralSettingsController {
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
 
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         Theme[] themes = settingsService.getAvailableThemes();
         command.setThemes(themes);

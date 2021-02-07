@@ -498,7 +498,7 @@ public class PlayQueue {
     public long length() {
         long length;
         synchronized (SEQUENCE_LOCK) {
-            length = files.stream().mapToLong(m -> m.getFileSize()).sum();
+            length = files.stream().mapToLong(MediaFile::getFileSize).sum();
         }
         return length;
     }

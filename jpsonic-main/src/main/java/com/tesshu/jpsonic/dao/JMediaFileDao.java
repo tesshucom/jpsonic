@@ -62,9 +62,7 @@ public class JMediaFileDao extends AbstractDao {
         rowMapper = deligate.getMediaFileMapper();
         genreRowMapper = deligate.getGenreMapper();
         iRowMapper = new MediaFileInternalRowMapper(rowMapper);
-        sortCandidateMapper = (rs, rowNum) -> {
-            return new SortCandidate(rs.getString(1), rs.getString(2));
-        };
+        sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1), rs.getString(2));
     }
 
     public void clearOrder() {
@@ -294,32 +292,32 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
         return namedQuery("select distinct id from media_file "
                 + "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  "
-                + "order by id ", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+                + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery("select distinct id " + "from (select id " + "   from media_file " + "   where present "
-                + "   and artist in (:names) " + "   and (artist_sort is null "
-                + "       or artist_sort not in(:sotes)) " + "   union " + "   select id " + "   from media_file "
-                + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
-                + "   and album_artist in (:names) " + "   and (album_artist_sort is null "
-                + "       or album_artist_sort not in(:sotes)) " + "   union " + "   select id " + "   from media_file "
-                + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') " + "   and composer in (:names) "
-                + "   and (composer_sort is null " + "       or composer_sort not in(:sotes))) to_be_fixed "
-                + "order by id", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
+        return namedQuery(
+                "select distinct id " + "from (select id " + "   from media_file " + "   where present "
+                        + "   and artist in (:names) " + "   and (artist_sort is null "
+                        + "       or artist_sort not in(:sotes)) " + "   union " + "   select id "
+                        + "   from media_file " + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
+                        + "   and album_artist in (:names) " + "   and (album_artist_sort is null "
+                        + "       or album_artist_sort not in(:sotes)) " + "   union " + "   select id "
+                        + "   from media_file " + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
+                        + "   and composer in (:names) " + "   and (composer_sort is null "
+                        + "       or composer_sort not in(:sotes))) to_be_fixed " + "order by id",
+                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<SortCandidate> getSortForAlbumWithoutSorts() {

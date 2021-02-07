@@ -191,8 +191,8 @@ public class StreamController {
 
     private void closeAllStreamFor(Player player, boolean isPodcast, boolean isSingleFile) {
         if (!isPodcast && !isSingleFile) {
-            statusService.getStreamStatusesForPlayer(player).stream().filter(t -> t.isActive())
-                    .forEach(t -> t.terminate());
+            statusService.getStreamStatusesForPlayer(player).stream().filter(TransferStatus::isActive)
+                    .forEach(TransferStatus::terminate);
         }
     }
 

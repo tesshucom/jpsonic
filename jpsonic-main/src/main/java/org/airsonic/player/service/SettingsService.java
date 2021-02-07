@@ -89,7 +89,7 @@ public class SettingsService {
 
     static {
         Map<LocksKeys, Object> m = new ConcurrentHashMap<>();
-        Arrays.asList(LocksKeys.values()).stream().forEach(k -> m.put(k, new Object()));
+        Arrays.stream(LocksKeys.values()).forEach(k -> m.put(k, new Object()));
         LOCKS = Collections.unmodifiableMap(m);
     }
 
@@ -436,7 +436,7 @@ public class SettingsService {
     }
 
     public static boolean isScanOnBoot() {
-        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s))
+        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(Boolean::parseBoolean)
                 .orElse(DEFAULT_SCAN_ON_BOOT);
     }
 
@@ -470,8 +470,7 @@ public class SettingsService {
     }
 
     public static int getDefaultUPnPPort() {
-        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x))
-                .orElse(DEFAULT_UPNP_PORT);
+        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(Integer::parseInt).orElse(DEFAULT_UPNP_PORT);
     }
 
     public static File getLogFile() {

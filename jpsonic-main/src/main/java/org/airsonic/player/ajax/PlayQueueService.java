@@ -303,7 +303,7 @@ public class PlayQueueService {
         files.removeIf(file -> !file.isPresent());
 
         // Add to the play queue
-        int[] ids = files.stream().mapToInt(f -> f.getId()).toArray();
+        int[] ids = files.stream().mapToInt(MediaFile::getId).toArray();
         return doAdd(request, response, ids, null);
     }
 

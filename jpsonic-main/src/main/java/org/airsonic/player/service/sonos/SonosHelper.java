@@ -30,10 +30,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.AbstractMedia;
 import com.sonos.services._1.AlbumArtUrl;
@@ -700,7 +700,8 @@ public class SonosHelper {
     }
 
     private List<MediaFile> filterMusic(List<MediaFile> files) {
-        return Lists.newArrayList(Iterables.filter(files, input -> input.getMediaType() == MediaFile.MediaType.MUSIC));
+        return Lists.newArrayList(files.stream().filter(input -> input.getMediaType() == MediaFile.MediaType.MUSIC)
+                .collect(Collectors.toList()));
     }
 
     public void setPlaylistService(PlaylistService playlistService) {

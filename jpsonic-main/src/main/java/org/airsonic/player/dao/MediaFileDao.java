@@ -736,22 +736,22 @@ public class MediaFileDao extends AbstractDao {
         public String build() {
             StringBuilder query = new StringBuilder(1024); // 988 + param
             query.append("select ").append(prefix(QUERY_COLUMNS, "media_file")).append(" from media_file");
-            getIfJoinStarred().ifPresent(s -> query.append(s));
-            getIfJoinAlbumRating().ifPresent(s -> query.append(s));
+            getIfJoinStarred().ifPresent(query::append);
+            getIfJoinAlbumRating().ifPresent(query::append);
             query.append(" where media_file.present and media_file.type = 'MUSIC'");
-            getFolderCondition().ifPresent(s -> query.append(s));
-            getGenreCondition().ifPresent(s -> query.append(s));
-            getFormatCondition().ifPresent(s -> query.append(s));
-            getFromYearCondition().ifPresent(s -> query.append(s));
-            getToYearCondition().ifPresent(s -> query.append(s));
-            getMinLastPlayedDateCondition().ifPresent(s -> query.append(s));
-            getMaxLastPlayedDateCondition().ifPresent(s -> query.append(s));
-            getMinAlbumRatingCondition().ifPresent(s -> query.append(s));
-            getMaxAlbumRatingCondition().ifPresent(s -> query.append(s));
-            getMinPlayCountCondition().ifPresent(s -> query.append(s));
-            getMaxPlayCountCondition().ifPresent(s -> query.append(s));
-            getShowStarredSongsCondition().ifPresent(s -> query.append(s));
-            getShowUnstarredSongsCondition().ifPresent(s -> query.append(s));
+            getFolderCondition().ifPresent(query::append);
+            getGenreCondition().ifPresent(query::append);
+            getFormatCondition().ifPresent(query::append);
+            getFromYearCondition().ifPresent(query::append);
+            getToYearCondition().ifPresent(query::append);
+            getMinLastPlayedDateCondition().ifPresent(query::append);
+            getMaxLastPlayedDateCondition().ifPresent(query::append);
+            getMinAlbumRatingCondition().ifPresent(query::append);
+            getMaxAlbumRatingCondition().ifPresent(query::append);
+            getMinPlayCountCondition().ifPresent(query::append);
+            getMaxPlayCountCondition().ifPresent(query::append);
+            getShowStarredSongsCondition().ifPresent(query::append);
+            getShowUnstarredSongsCondition().ifPresent(query::append);
             query.append(" order by rand() limit ").append(criteria.getCount());
             return query.toString();
         }

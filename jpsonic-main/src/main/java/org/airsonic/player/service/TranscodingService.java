@@ -492,7 +492,7 @@ public class TranscodingService {
                 }
                 return transcoding;
             }
-            Arrays.asList(transcoding.getSourceFormatsAsArray()).stream()
+            Arrays.stream(transcoding.getSourceFormatsAsArray())
                     .filter(sourceFormat -> sourceFormat.equalsIgnoreCase(suffix))
                     .filter(sourceFormat -> isTranscodingInstalled(transcoding))
                     .forEach(s -> applicableTranscodings.add(transcoding));

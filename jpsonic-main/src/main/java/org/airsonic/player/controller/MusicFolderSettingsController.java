@@ -119,7 +119,7 @@ public class MusicFolderSettingsController {
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
