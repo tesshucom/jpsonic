@@ -94,6 +94,7 @@ public class UtilTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void stringMapToValidObjectWithNoData() {
+        @SuppressWarnings("unused")
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
                 LegacyMap.of());
     }

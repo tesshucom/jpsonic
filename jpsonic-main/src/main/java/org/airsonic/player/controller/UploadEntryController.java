@@ -30,7 +30,6 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -40,10 +39,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/uploadEntry")
 public class UploadEntryController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+
+    public UploadEntryController(SettingsService settingsService, SecurityService securityService) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {

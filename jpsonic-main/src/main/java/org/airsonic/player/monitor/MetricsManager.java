@@ -27,7 +27,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.jmx.JmxReporter;
 import org.airsonic.player.service.ApacheCommonsConfigurationService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,9 +34,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MetricsManager {
-
-    @Autowired
-    private ApacheCommonsConfigurationService configurationService;
 
     // Main metrics registry
     private static final MetricRegistry METRICS = new MetricRegistry();
@@ -54,6 +50,13 @@ public class MetricsManager {
     private static final NullTimer NULL_TIMER_SINGLETON = new NullTimer(null);
     private static final NullTimerBuilder CONDITION_FALSE_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
     private static final NullTimerBuilder NULL_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
+
+    private final ApacheCommonsConfigurationService configurationService;
+
+    public MetricsManager(ApacheCommonsConfigurationService configurationService) {
+        super();
+        this.configurationService = configurationService;
+    }
 
     private void configureMetricsActivation() {
         if (configurationService.containsKey("Metrics")) {
@@ -110,10 +113,6 @@ public class MetricsManager {
         } else {
             return NULL_TIMER_BUILDER_SINGLETON;
         }
-    }
-
-    public void setConfigurationService(ApacheCommonsConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 
     /**

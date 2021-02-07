@@ -29,20 +29,19 @@ import java.util.Map;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
 
 @Repository("jalbumDao")
-@DependsOn({ "albumDao" })
 public class JAlbumDao extends AbstractDao {
 
     private final AlbumDao deligate;
 
-    public JAlbumDao(AlbumDao deligate) {
-        super();
+    public JAlbumDao(DaoHelper daoHelper, AlbumDao deligate) {
+        super(daoHelper);
         this.deligate = deligate;
     }
 

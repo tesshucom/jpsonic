@@ -49,10 +49,12 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class MediaFileDao extends AbstractDao {
+
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileDao.class);
+
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, "
             + "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, "
             + "parent_path, play_count, last_played, comment, created, changed, last_scanned, children_last_updated, present, "
@@ -62,16 +64,18 @@ public class MediaFileDao extends AbstractDao {
             + "artist_reading, album_reading, album_artist_reading, "
             + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " + "media_file_order";
     // <<<< JP
-
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
-
     private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
 
     private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
     private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
     private final RowMapper<Genre> genreRowMapper = new GenreMapper();
+
+    public MediaFileDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     /**
      * Returns the media file for the given path.

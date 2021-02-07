@@ -39,7 +39,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -60,14 +59,19 @@ public class VideoPlayerController {
     public static final int DEFAULT_BIT_RATE = 2000;
     private static final int[] BIT_RATES = { 200, 300, 400, 500, 700, 1000, 1200, 1500, 2000, 3000, 5000 };
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final MediaFileService mediaFileService;
+    private final PlayerService playerService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public VideoPlayerController(MediaFileService mediaFileService, PlayerService playerService,
+            SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.playerService = playerService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping

@@ -25,15 +25,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 
 @Component
 public class OutlineHelpSelector {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public OutlineHelpSelector(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     public boolean isShowOutlineHelp(HttpServletRequest request, String username) {
         UserSettings userSettings = settingsService.getUserSettings(username);

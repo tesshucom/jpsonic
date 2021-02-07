@@ -44,7 +44,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,20 +57,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomUserDetailsContextMapper implements UserDetailsContextMapper {
-    // ~ Instance fields
-    // ================================================================================================
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomUserDetailsContextMapper.class);
+
     private String passwordAttributeName = "userPassword";
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
 
-    @Autowired
-    private SettingsService settingsService;
+    public CustomUserDetailsContextMapper(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
-    // ~ Methods
-    // ========================================================================================================
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
             Collection<? extends GrantedAuthority> authorities) {

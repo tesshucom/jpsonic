@@ -36,7 +36,6 @@ import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,14 +51,19 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 @RequestMapping("/status")
 public class StatusController {
 
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
+
+    private final StatusService statusService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+
+    public StatusController(StatusService statusService, SettingsService settingsService,
+            SecurityService securityService) {
+        super();
+        this.statusService = statusService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping

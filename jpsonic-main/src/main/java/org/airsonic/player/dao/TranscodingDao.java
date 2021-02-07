@@ -41,9 +41,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class TranscodingDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingDao.class);
+
     private static final String INSERT_COLUMNS = "name, source_formats, target_format, step1, step2, step3, default_active";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
+
     private TranscodingRowMapper rowMapper = new TranscodingRowMapper();
+
+    public TranscodingDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     /**
      * Returns all transcodings.

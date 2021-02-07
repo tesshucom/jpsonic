@@ -60,7 +60,6 @@ import org.airsonic.player.util.PlayerUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -81,20 +80,25 @@ public class DownloadController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(DownloadController.class);
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaFileService mediaFileService;
-
     private static final int BITRATE_LIMIT_UPDATE_INTERVAL = 5000;
+
+    private final PlayerService playerService;
+    private final StatusService statusService;
+    private final SecurityService securityService;
+    private final PlaylistService playlistService;
+    private final SettingsService settingsService;
+    private final MediaFileService mediaFileService;
+
+    public DownloadController(PlayerService playerService, StatusService statusService, SecurityService securityService,
+            PlaylistService playlistService, SettingsService settingsService, MediaFileService mediaFileService) {
+        super();
+        this.playerService = playerService;
+        this.statusService = statusService;
+        this.securityService = securityService;
+        this.playlistService = playlistService;
+        this.settingsService = settingsService;
+        this.mediaFileService = mediaFileService;
+    }
 
     @Override
     public long getLastModified(HttpServletRequest request) {

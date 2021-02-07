@@ -59,7 +59,6 @@ import org.fourthline.cling.support.model.dlna.DLNAProfiles;
 import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -73,18 +72,21 @@ public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
 
-    @Autowired
-    private SettingsService settingsService;
+    private static final Object LOCK = new Object();
+
+    private final SettingsService settingsService;
+    private final CustomContentDirectory dispatchingContentDirectory;
 
     private UpnpService deligate;
 
-    @Autowired
-    @Qualifier("dispatchingContentDirectory")
-    private CustomContentDirectory dispatchingContentDirectory;
-
     private AtomicReference<Boolean> running = new AtomicReference<>(false);
 
-    private static final Object LOCK = new Object();
+    public UPnPService(SettingsService settingsService,
+            @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory) {
+        super();
+        this.settingsService = settingsService;
+        this.dispatchingContentDirectory = dispatchingContentDirectory;
+    }
 
     @PostConstruct
     public void init() {
@@ -260,14 +262,6 @@ public class UPnPService {
 
     public UpnpService getUpnpService() {
         return deligate;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setCustomContentDirectory(CustomContentDirectory customContentDirectory) {
-        this.dispatchingContentDirectory = customContentDirectory;
     }
 
     private static class ServiceManager extends DefaultServiceManager<CustomContentDirectory> {

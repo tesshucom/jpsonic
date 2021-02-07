@@ -31,7 +31,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -45,10 +44,14 @@ public class TagService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TagService.class);
 
-    @Autowired
-    private MetaDataParserFactory metaDataParserFactory;
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final MetaDataParserFactory metaDataParserFactory;
+    private final MediaFileService mediaFileService;
+
+    public TagService(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService) {
+        super();
+        this.metaDataParserFactory = metaDataParserFactory;
+        this.mediaFileService = mediaFileService;
+    }
 
     /**
      * Updated tags for a given music file.
@@ -150,13 +153,5 @@ public class TagService {
             }
         }
         return yearNumber;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setMetaDataParserFactory(MetaDataParserFactory metaDataParserFactory) {
-        this.metaDataParserFactory = metaDataParserFactory;
     }
 }

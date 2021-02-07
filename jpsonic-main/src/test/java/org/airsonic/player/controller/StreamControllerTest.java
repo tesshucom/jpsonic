@@ -26,7 +26,9 @@ import static org.junit.Assert.assertNull;
 
 import java.awt.Dimension;
 
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -35,11 +37,13 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @version $Id$
  */
 @SpringBootTest
-public class StreamControllerTest {
+public class StreamControllerTest extends AbstractAirsonicHomeTest {
+
+    @Autowired
+    private StreamController controller;
 
     @Test
     public void testGetRequestedVideoSize() {
-        StreamController controller = new StreamController();
 
         // Valid spec.
         assertEquals("Wrong size.", new Dimension(123, 456), controller.getRequestedVideoSize("123x456"));
@@ -124,7 +128,6 @@ public class StreamControllerTest {
 
     private void doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
             int expectedWidth, int expectedHeight) {
-        StreamController controller = new StreamController();
         Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
         assertEquals("Wrong width.", expectedWidth, dimension.width);
         assertEquals("Wrong height.", expectedHeight, dimension.height);

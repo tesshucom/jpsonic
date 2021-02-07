@@ -24,6 +24,7 @@ package org.airsonic.player.service;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -40,23 +42,22 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PlaylistServiceExportTest {
 
     PlaylistService playlistService;
 
     @InjectMocks
     DefaultPlaylistExportHandler defaultPlaylistExportHandler;
+
+    @Mock
+    DaoHelper daoHelper;
 
     @Mock
     MediaFileDao mediaFileDao;
@@ -73,9 +74,6 @@ public class PlaylistServiceExportTest {
     @Mock
     SecurityService securityService;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Captor
     ArgumentCaptor<Playlist> actual;
 
@@ -84,21 +82,24 @@ public class PlaylistServiceExportTest {
 
     @Before
     public void setup() {
-        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao), new JPlaylistDao(playlistDao),
-                securityService, settingsService, Lists.newArrayList(defaultPlaylistExportHandler),
-                Collections.emptyList());
+        MockitoAnnotations.initMocks(this);
+        JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
+        JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
+        playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
+                Lists.newArrayList(defaultPlaylistExportHandler), Collections.emptyList(), null);
     }
 
     @Test
     public void testExportToM3U() throws Exception {
-
         when(mediaFileDao.getFilesInPlaylist(eq(23))).thenReturn(getPlaylistFiles());
         when(settingsService.getPlaylistExportFormat()).thenReturn("m3u");
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             playlistService.exportPlaylist(23, outputStream);
-            String actual = outputStream.toString();
-            Assert.assertEquals(IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u")), actual);
+            String expected = IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"),
+                    StandardCharsets.UTF_8);
+            String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "");
+            Assert.assertEquals(expected, actual);
         }
     }
 

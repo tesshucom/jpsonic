@@ -40,7 +40,6 @@ import org.springframework.ui.context.support.UiApplicationContextUtils;
 @Component(UiApplicationContextUtils.THEME_SOURCE_BEAN_NAME)
 public class CustomThemeSource extends ResourceBundleThemeSource {
 
-    private SettingsService settingsService;
     private String basenamePrefix;
 
     @Override
@@ -48,7 +47,7 @@ public class CustomThemeSource extends ResourceBundleThemeSource {
         ResourceBundleMessageSource messageSource = (ResourceBundleMessageSource) super.createMessageSource(basename);
 
         // Create parent theme recursively.
-        for (Theme theme : settingsService.getAvailableThemes()) {
+        for (Theme theme : SettingsService.getAvailableThemes()) {
             String maybeBasename = basenamePrefix + theme.getId();
             if (maybeBasename.equals(basename) && theme.getParent() != null) {
                 String parent = basenamePrefix + theme.getParent();
@@ -67,8 +66,4 @@ public class CustomThemeSource extends ResourceBundleThemeSource {
         super.setBasenamePrefix(basenamePrefix);
     }
 
-    @Autowired
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
 }

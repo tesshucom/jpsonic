@@ -44,6 +44,10 @@ public class InternetRadioDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private final InternetRadioRowMapper rowMapper = new InternetRadioRowMapper();
 
+    public InternetRadioDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
+
     /**
      * Returns the internet radio station with the given ID.
      *

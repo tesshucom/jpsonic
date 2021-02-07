@@ -47,7 +47,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -69,16 +68,21 @@ public class RandomPlayQueueController {
 
     private static final String REQUEST_VALUE_ANY = "any";
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private IndexManager indexManager;
+    private final PlayerService playerService;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final IndexManager indexManager;
+
+    public RandomPlayQueueController(PlayerService playerService, MediaFileService mediaFileService,
+            SecurityService securityService, SettingsService settingsService, IndexManager indexManager) {
+        super();
+        this.playerService = playerService;
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.indexManager = indexManager;
+    }
 
     @SuppressWarnings("PMD.NullAssignment")
     /*

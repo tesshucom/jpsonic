@@ -26,7 +26,6 @@ import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PodcastSettingsCommand;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,10 +45,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/podcastSettings")
 public class PodcastSettingsController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PodcastService podcastService;
+    private final SettingsService settingsService;
+    private final PodcastService podcastService;
+
+    public PodcastSettingsController(SettingsService settingsService, PodcastService podcastService) {
+        super();
+        this.settingsService = settingsService;
+        this.podcastService = podcastService;
+    }
 
     @GetMapping
     protected String formBackingObject(Model model) {

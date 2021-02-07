@@ -24,7 +24,7 @@ package org.airsonic.player.spring;
 import java.util.Properties;
 
 import org.airsonic.player.controller.PodcastController;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.airsonic.player.i18n.AirsonicLocaleResolver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.LocaleResolver;
@@ -39,8 +39,12 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 public class ServletConfiguration implements WebMvcConfigurer {
 
-    @Autowired
-    private org.airsonic.player.i18n.AirsonicLocaleResolver airsonicLocaleResolver;
+    private final AirsonicLocaleResolver airsonicLocaleResolver;
+
+    public ServletConfiguration(AirsonicLocaleResolver airsonicLocaleResolver) {
+        super();
+        this.airsonicLocaleResolver = airsonicLocaleResolver;
+    }
 
     @Bean
     public SimpleUrlHandlerMapping podcastUrlMapping(PodcastController podcastController) {

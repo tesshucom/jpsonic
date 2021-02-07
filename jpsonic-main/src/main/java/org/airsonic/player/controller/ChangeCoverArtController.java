@@ -35,7 +35,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -52,12 +51,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/changeCoverArt")
 public class ChangeCoverArtController {
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public ChangeCoverArtController(MediaFileService mediaFileService, SecurityService securityService,
+            SettingsService settingsService) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

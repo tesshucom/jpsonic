@@ -50,7 +50,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -63,23 +62,30 @@ public class MediaFileService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileService.class);
 
-    @Autowired
-    private Ehcache mediaFileMemoryCache;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private AlbumDao albumDao;
-    @Autowired
-    private JaudiotaggerParser parser;
-    @Autowired
-    private MetaDataParserFactory metaDataParserFactory;
+    private final Ehcache mediaFileMemoryCache;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final MediaFileDao mediaFileDao;
+    private final AlbumDao albumDao;
+    private final JaudiotaggerParser parser;
+    private final MetaDataParserFactory metaDataParserFactory;
+    private final MediaFileServiceUtils utils;
+
     private boolean memoryCacheEnabled = true;
-    @Autowired
-    private MediaFileServiceUtils utils;
+
+    public MediaFileService(Ehcache mediaFileMemoryCache, SecurityService securityService,
+            SettingsService settingsService, MediaFileDao mediaFileDao, AlbumDao albumDao, JaudiotaggerParser parser,
+            MetaDataParserFactory metaDataParserFactory, MediaFileServiceUtils utils) {
+        super();
+        this.mediaFileMemoryCache = mediaFileMemoryCache;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.mediaFileDao = mediaFileDao;
+        this.albumDao = albumDao;
+        this.parser = parser;
+        this.metaDataParserFactory = metaDataParserFactory;
+        this.utils = utils;
+    }
 
     /**
      * Returns a media file instance for the given file. If possible, a cached value is returned.
@@ -746,22 +752,6 @@ public class MediaFileService {
         return null;
     }
 
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setMediaFileMemoryCache(Ehcache mediaFileMemoryCache) {
-        this.mediaFileMemoryCache = mediaFileMemoryCache;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
     /**
      * Returns all media files that are children, grand-children etc of a given media file. Directories are not included
      * in the result.
@@ -787,10 +777,6 @@ public class MediaFileService {
             }
         }
         return result;
-    }
-
-    public void setMetaDataParserFactory(MetaDataParserFactory metaDataParserFactory) {
-        this.metaDataParserFactory = metaDataParserFactory;
     }
 
     public void updateMediaFile(MediaFile mediaFile) {
@@ -835,13 +821,5 @@ public class MediaFileService {
 
     public void clearMemoryCache() {
         mediaFileMemoryCache.removeAll();
-    }
-
-    public void setAlbumDao(AlbumDao albumDao) {
-        this.albumDao = albumDao;
-    }
-
-    public void setParser(JaudiotaggerParser parser) {
-        this.parser = parser;
     }
 }

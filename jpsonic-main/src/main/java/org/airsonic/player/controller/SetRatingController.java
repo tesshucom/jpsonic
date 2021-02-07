@@ -29,7 +29,6 @@ import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.RatingService;
 import org.airsonic.player.service.SecurityService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -47,12 +46,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/setRating")
 public class SetRatingController {
 
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final RatingService ratingService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+
+    public SetRatingController(RatingService ratingService, SecurityService securityService,
+            MediaFileService mediaFileService) {
+        super();
+        this.ratingService = ratingService;
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+    }
 
     @SuppressWarnings("PMD.NullAssignment") // (rating) Intentional allocation to register null
     @GetMapping

@@ -31,7 +31,6 @@ import org.airsonic.player.domain.Avatar;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,8 +46,12 @@ import org.springframework.web.servlet.mvc.LastModified;
 @RequestMapping("/avatar")
 public class AvatarController implements LastModified {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public AvatarController(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     @Override
     public long getLastModified(HttpServletRequest request) {

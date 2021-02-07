@@ -31,7 +31,6 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.spring.DataSourceConfigType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -48,12 +47,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/databaseSettings")
 public class DatabaseSettingsController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private OutlineHelpSelector outlineHelpSelector;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final OutlineHelpSelector outlineHelpSelector;
+
+    public DatabaseSettingsController(SettingsService settingsService, SecurityService securityService,
+            OutlineHelpSelector outlineHelpSelector) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.outlineHelpSelector = outlineHelpSelector;
+    }
 
     @GetMapping
     protected String displayForm() {

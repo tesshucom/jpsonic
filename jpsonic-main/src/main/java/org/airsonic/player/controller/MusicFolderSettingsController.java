@@ -47,7 +47,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,22 +69,28 @@ public class MusicFolderSettingsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderSettingsController.class);
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private IndexManager indexManager;
-    @Autowired
-    private SecurityService securityService;
+    private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final MediaFileDao mediaFileDao;
+    private final IndexManager indexManager;
+    private final SecurityService securityService;
 
     private static AtomicBoolean isExpunging = new AtomicBoolean();
+
+    public MusicFolderSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService,
+            ArtistDao artistDao, AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager,
+            SecurityService securityService) {
+        super();
+        this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.mediaFileDao = mediaFileDao;
+        this.indexManager = indexManager;
+        this.securityService = securityService;
+    }
 
     @GetMapping
     protected String displayForm() {

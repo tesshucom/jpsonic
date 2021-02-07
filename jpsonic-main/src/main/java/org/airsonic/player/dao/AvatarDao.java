@@ -41,6 +41,10 @@ public class AvatarDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private final AvatarRowMapper rowMapper = new AvatarRowMapper();
 
+    public AvatarDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
+
     /**
      * Returns all system avatars.
      *

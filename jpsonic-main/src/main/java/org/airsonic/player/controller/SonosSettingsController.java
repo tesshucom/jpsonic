@@ -30,7 +30,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.SonosService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -50,10 +49,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/sonosSettings")
 public class SonosSettingsController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SonosService sonosService;
+    private final SettingsService settingsService;
+    private final SonosService sonosService;
+
+    public SonosSettingsController(SettingsService settingsService, SonosService sonosService) {
+        super();
+        this.settingsService = settingsService;
+        this.sonosService = sonosService;
+    }
 
     @GetMapping
     public String doGet(Model model) {
@@ -86,13 +89,5 @@ public class SonosSettingsController {
 
         sonosService.setMusicServiceEnabled(false, NetworkUtils.getBaseUrl(request));
         sonosService.setMusicServiceEnabled(sonosEnabled, NetworkUtils.getBaseUrl(request));
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setSonosService(SonosService sonosService) {
-        this.sonosService = sonosService;
     }
 }

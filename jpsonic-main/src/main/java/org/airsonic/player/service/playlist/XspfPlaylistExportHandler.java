@@ -33,17 +33,19 @@ import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class XspfPlaylistExportHandler implements PlaylistExportHandler {
 
-    @Autowired
-    private MediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
+    private final PlaylistDao playlistDao;
 
-    @Autowired
-    private PlaylistDao playlistDao;
+    public XspfPlaylistExportHandler(MediaFileDao mediaFileDao, PlaylistDao playlistDao) {
+        super();
+        this.mediaFileDao = mediaFileDao;
+        this.playlistDao = playlistDao;
+    }
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass) {

@@ -98,7 +98,6 @@ import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
@@ -144,18 +143,12 @@ public class SonosService implements SonosSoap {
     public static final String ID_SEARCH_ALBUMS = "search-albums";
     public static final String ID_SEARCH_SONGS = "search-songs";
 
-    @Autowired
-    private SonosHelper sonosHelper;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private UPnPService upnpService;
+    private final SonosHelper sonosHelper;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final PlaylistService playlistService;
+    private final UPnPService upnpService;
 
     /**
      * The context for the request. This is used to get the Auth information form the headers as well as using the
@@ -163,6 +156,17 @@ public class SonosService implements SonosSoap {
      */
     @Resource
     private WebServiceContext context;
+
+    public SonosService(SonosHelper sonosHelper, MediaFileService mediaFileService, SecurityService securityService,
+            SettingsService settingsService, PlaylistService playlistService, UPnPService upnpService) {
+        super();
+        this.sonosHelper = sonosHelper;
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.playlistService = playlistService;
+        this.upnpService = upnpService;
+    }
 
     public void setMusicServiceEnabled(boolean enabled, String baseUrl) {
         List<String> sonosControllers = upnpService.getSonosControllerHosts();
@@ -672,10 +676,6 @@ public class SonosService implements SonosSoap {
         }
     }
 
-    public void setSonosHelper(SonosHelper sonosHelper) {
-        this.sonosHelper = sonosHelper;
-    }
-
     @Override
     public RateItemResponse rateItem(RateItem parameters) throws CustomFault {
         return null;
@@ -747,25 +747,5 @@ public class SonosService implements SonosSoap {
     @Override
     public ContentKey getContentKey(String id, String uri, String deviceSessionToken) throws CustomFault {
         return null;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setUpnpService(UPnPService upnpService) {
-        this.upnpService = upnpService;
-    }
-
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
     }
 }

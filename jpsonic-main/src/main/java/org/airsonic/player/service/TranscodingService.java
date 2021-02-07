@@ -49,7 +49,6 @@ import org.apache.commons.io.filefilter.PrefixFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -65,15 +64,20 @@ import org.springframework.stereotype.Service;
 public class TranscodingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
+
     public static final String FORMAT_RAW = "raw";
 
-    @Autowired
-    private TranscodingDao transcodingDao;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    @Lazy // used to deal with circular dependencies between PlayerService and TranscodingService
-    private PlayerService playerService;
+    private final TranscodingDao transcodingDao;
+    private final SettingsService settingsService;
+    private final PlayerService playerService;
+
+    public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
+            @Lazy PlayerService playerService) {
+        super();
+        this.transcodingDao = transcodingDao;
+        this.settingsService = settingsService;
+        this.playerService = playerService;
+    }
 
     /**
      * Returns all transcodings.
@@ -623,18 +627,6 @@ public class TranscodingService {
             }
         }
         return dir;
-    }
-
-    public void setTranscodingDao(TranscodingDao transcodingDao) {
-        this.transcodingDao = transcodingDao;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
     }
 
     public static class Parameters {

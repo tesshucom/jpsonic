@@ -39,7 +39,6 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,10 +55,14 @@ public class ImportPlaylistController {
     private static final String FIELD_NAME_FILE = "file";
     private static final long MAX_PLAYLIST_SIZE_MB = 5L;
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlaylistService playlistService;
+    private final SecurityService securityService;
+    private final PlaylistService playlistService;
+
+    public ImportPlaylistController(SecurityService securityService, PlaylistService playlistService) {
+        super();
+        this.securityService = securityService;
+        this.playlistService = playlistService;
+    }
 
     private void playListSizeCheck(FileItem item) throws ExecutionException {
         if (item.getSize() > MAX_PLAYLIST_SIZE_MB * 1024L * 1024L) {

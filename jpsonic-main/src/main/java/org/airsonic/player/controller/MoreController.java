@@ -36,7 +36,6 @@ import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,14 +51,19 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/more")
 public class MoreController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private SearchService searchService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final PlayerService playerService;
+    private final SearchService searchService;
+
+    public MoreController(SettingsService settingsService, SecurityService securityService, PlayerService playerService,
+            SearchService searchService) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.playerService = playerService;
+        this.searchService = searchService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

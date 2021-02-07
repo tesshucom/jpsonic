@@ -30,8 +30,10 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -40,8 +42,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
-public class SettingsServiceTest {
+public class SettingsServiceTest extends AbstractAirsonicHomeTest {
 
+    @Autowired
     private SettingsService settingsService;
 
     @Before
@@ -49,13 +52,6 @@ public class SettingsServiceTest {
         String jpsonicHome = TestCaseUtils.jpsonicHomePathForTest();
         System.setProperty("jpsonic.home", jpsonicHome);
         new File(jpsonicHome, "jpsonic.properties").delete();
-        settingsService = newSettingsService();
-    }
-
-    private SettingsService newSettingsService() {
-        SettingsService settingsService = new SettingsService();
-        settingsService.setConfigurationService(new ApacheCommonsConfigurationService());
-        return settingsService;
     }
 
     @Test
@@ -116,8 +112,6 @@ public class SettingsServiceTest {
 
         settingsService.save();
         verifySettings(settingsService);
-
-        verifySettings(newSettingsService());
     }
 
     private void verifySettings(SettingsService ss) {

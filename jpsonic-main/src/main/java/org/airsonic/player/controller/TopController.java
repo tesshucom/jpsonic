@@ -49,7 +49,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.VersionService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -70,22 +69,28 @@ public class TopController {
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-    @Autowired
-    private MusicIndexService musicIndexService;
-    @Autowired
-    private VersionService versionService;
-    @Autowired
-    private AirsonicLocaleResolver localeResolver;
-
     private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(ViewName.MUSIC_FOLDER_SETTINGS.value(),
             ViewName.GENERAL_SETTINGS.value(), ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
             ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());
+
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final MediaScannerService mediaScannerService;
+    private final MusicIndexService musicIndexService;
+    private final VersionService versionService;
+    private final AirsonicLocaleResolver localeResolver;
+
+    public TopController(SettingsService settingsService, SecurityService securityService,
+            MediaScannerService mediaScannerService, MusicIndexService musicIndexService, VersionService versionService,
+            AirsonicLocaleResolver localeResolver) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.mediaScannerService = mediaScannerService;
+        this.musicIndexService = musicIndexService;
+        this.versionService = versionService;
+        this.localeResolver = localeResolver;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,

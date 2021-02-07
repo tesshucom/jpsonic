@@ -35,7 +35,13 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+@SpringBootTest
 public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     private static List<MusicFolder> musicFolders;

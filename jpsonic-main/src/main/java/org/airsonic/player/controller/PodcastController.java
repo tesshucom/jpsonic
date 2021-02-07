@@ -40,7 +40,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,17 +54,23 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/podcast")
 public class PodcastController {
 
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    private static final Object DATE_LOCK = new Object();
+
+    private final PlaylistService playlistService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
     // Locale is changed by Setting, but restart is required.
     private DateFormat rssDateFormat;
     private String lang;
-    private static final Object DATE_LOCK = new Object();
+
+    public PodcastController(PlaylistService playlistService, SettingsService settingsService,
+            SecurityService securityService) {
+        super();
+        this.playlistService = playlistService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     public DateFormat getRssDateFormat() {
         synchronized (DATE_LOCK) {

@@ -40,7 +40,6 @@ import org.airsonic.player.service.metadata.MetaDataParser;
 import org.airsonic.player.service.metadata.MetaDataParserFactory;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -57,14 +56,19 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/editTags")
 public class EditTagsController {
 
-    @Autowired
-    private MetaDataParserFactory metaDataParserFactory;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final MetaDataParserFactory metaDataParserFactory;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public EditTagsController(MetaDataParserFactory metaDataParserFactory, MediaFileService mediaFileService,
+            SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.metaDataParserFactory = metaDataParserFactory;
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

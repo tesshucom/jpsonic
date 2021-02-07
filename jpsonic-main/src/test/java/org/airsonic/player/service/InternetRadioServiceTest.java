@@ -40,7 +40,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @RunWith(MockitoJUnitRunner.class)
 public class InternetRadioServiceTest {
 
@@ -100,13 +104,13 @@ public class InternetRadioServiceTest {
 
         // Prepare the mocked URL connection for the redirection to simple playlist
         HttpURLConnection mockURLConnectionMove = Mockito.mock(HttpURLConnection.class);
-        InputStream mockURLInputStreamMove = new ByteArrayInputStream("".getBytes());
+        // InputStream mockURLInputStreamMove = new ByteArrayInputStream("".getBytes());
         doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMove).getResponseCode();
         doReturn(TEST_PLAYLIST_URL_2).when(mockURLConnectionMove).getHeaderField(eq("Location"));
 
         // Prepare the mocked URL connection for the redirection loop
         HttpURLConnection mockURLConnectionMoveLoop = Mockito.mock(HttpURLConnection.class);
-        InputStream mockURLInputStreamMoveLoop = new ByteArrayInputStream("".getBytes());
+        // InputStream mockURLInputStreamMoveLoop = new ByteArrayInputStream("".getBytes());
         doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMoveLoop).getResponseCode();
         doReturn(TEST_PLAYLIST_URL_MOVE_LOOP).when(mockURLConnectionMoveLoop).getHeaderField(eq("Location"));
 
@@ -127,7 +131,7 @@ public class InternetRadioServiceTest {
         // (return a single entry with 'aaaa...' running infinitely long).
         HttpURLConnection mockURLConnectionLarge2 = Mockito.mock(HttpURLConnection.class);
         InputStream mockURLInputStreamLarge2 = new InputStream() {
-            private long pos = 0;
+            // private long pos = 0;
 
             @Override
             public int read() {

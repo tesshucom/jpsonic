@@ -31,7 +31,6 @@ import org.airsonic.player.domain.PodcastStatus;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -49,8 +48,12 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/podcastReceiverAdmin")
 public class PodcastReceiverAdminController {
 
-    @Autowired
-    private PodcastService podcastService;
+    private final PodcastService podcastService;
+
+    public PodcastReceiverAdminController(PodcastService podcastService) {
+        super();
+        this.podcastService = podcastService;
+    }
 
     @RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

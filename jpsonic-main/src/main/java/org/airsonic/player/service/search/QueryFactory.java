@@ -47,7 +47,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -67,11 +66,8 @@ public class QueryFactory {
 
     private static final String ASTERISK = "*";
 
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private SearchServiceUtilities util;
+    private final AnalyzerFactory analyzerFactory;
+    private final SearchServiceUtilities util;
 
     private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
         // Unanalyzed field
@@ -100,6 +96,12 @@ public class QueryFactory {
     private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from,
             to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
                     isEmpty(to) ? Integer.MAX_VALUE : to);
+
+    public QueryFactory(AnalyzerFactory analyzerFactory, SearchServiceUtilities util) {
+        super();
+        this.analyzerFactory = analyzerFactory;
+        this.util = util;
+    }
 
     /*
      * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.

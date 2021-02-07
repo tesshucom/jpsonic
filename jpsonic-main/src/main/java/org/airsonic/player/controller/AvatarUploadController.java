@@ -47,7 +47,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,10 +65,14 @@ public class AvatarUploadController {
 
     private static final int MAX_AVATAR_SIZE = 64;
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+
+    public AvatarUploadController(SettingsService settingsService, SecurityService securityService) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Exception) Not reusable
     @PostMapping

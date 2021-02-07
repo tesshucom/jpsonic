@@ -43,6 +43,10 @@ public class BookmarkDao extends AbstractDao {
 
     private BookmarkRowMapper bookmarkRowMapper = new BookmarkRowMapper();
 
+    public BookmarkDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
+
     /**
      * Returns all bookmarks.
      *

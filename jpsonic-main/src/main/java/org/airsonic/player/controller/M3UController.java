@@ -37,7 +37,6 @@ import org.airsonic.player.service.NetworkUtils;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -53,12 +52,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/play.m3u")
 public class M3UController {
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private JWTSecurityService jwtSecurityService;
+    private final PlayerService playerService;
+    private final TranscodingService transcodingService;
+    private final JWTSecurityService jwtSecurityService;
+
+    public M3UController(PlayerService playerService, TranscodingService transcodingService,
+            JWTSecurityService jwtSecurityService) {
+        super();
+        this.playerService = playerService;
+        this.transcodingService = transcodingService;
+        this.jwtSecurityService = jwtSecurityService;
+    }
 
     @GetMapping
     public ModelAndView handleRequest(HttpServletRequest request, HttpServletResponse response)

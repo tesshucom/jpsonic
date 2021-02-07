@@ -40,7 +40,12 @@ public class PlayQueueDao extends AbstractDao {
 
     private static final String INSERT_COLUMNS = "username, \"CURRENT\", position_millis, changed, changed_by";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
+
     private final RowMapper<SavedPlayQueue> rowMapper = new PlayQueueMapper();
+
+    public PlayQueueDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     @Transactional
     public SavedPlayQueue getPlayQueue(String username) {

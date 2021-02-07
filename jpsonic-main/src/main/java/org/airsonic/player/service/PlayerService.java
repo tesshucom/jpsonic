@@ -41,7 +41,6 @@ import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -58,20 +57,24 @@ import org.springframework.web.bind.ServletRequestUtils;
 @DependsOn("liquibase")
 public class PlayerService {
 
+    private static final Object LOCK = new Object();
     private static final String COOKIE_NAME = "player";
     private static final String ATTRIBUTE_SESSION_KEY = "player";
     private static final int COOKIE_EXPIRY = 365 * 24 * 3600; // One year
 
-    @Autowired
-    private PlayerDao playerDao;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private TranscodingService transcodingService;
+    private final PlayerDao playerDao;
+    private final StatusService statusService;
+    private final SecurityService securityService;
+    private final TranscodingService transcodingService;
 
-    private static final Object LOCK = new Object();
+    public PlayerService(PlayerDao playerDao, StatusService statusService, SecurityService securityService,
+            TranscodingService transcodingService) {
+        super();
+        this.playerDao = playerDao;
+        this.statusService = statusService;
+        this.securityService = securityService;
+        this.transcodingService = transcodingService;
+    }
 
     @PostConstruct
     public void init() {
@@ -409,21 +412,5 @@ public class PlayerService {
         createPlayer(player);
 
         return player;
-    }
-
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setPlayerDao(PlayerDao playerDao) {
-        this.playerDao = playerDao;
-    }
-
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
     }
 }

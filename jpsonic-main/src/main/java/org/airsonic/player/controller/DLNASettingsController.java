@@ -36,7 +36,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.UPnPService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -56,13 +55,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/dlnaSettings")
 public class DLNASettingsController {
 
-    @Autowired
-    private UPnPService upnpService;
+    private final UPnPService upnpService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    public DLNASettingsController(UPnPService upnpService, SettingsService settingsService,
+            SecurityService securityService) {
+        super();
+        this.upnpService = upnpService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     @GetMapping
     public String handleGet(HttpServletRequest request, Model model) {
@@ -192,13 +195,5 @@ public class DLNASettingsController {
             upnpService.setMediaServerEnabled(dlnaEnabled);
         }
 
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setUpnpService(UPnPService upnpService) {
-        this.upnpService = upnpService;
     }
 }

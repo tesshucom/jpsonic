@@ -32,7 +32,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,10 +46,14 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/login")
 public class LoginController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public LoginController(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {

@@ -37,8 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class PodcastDao extends AbstractDao {
 
     private static final String CHANNEL_INSERT_COLUMNS = "url, title, description, image_url, status, error_message";
@@ -49,6 +49,10 @@ public class PodcastDao extends AbstractDao {
 
     private PodcastChannelRowMapper channelRowMapper = new PodcastChannelRowMapper();
     private PodcastEpisodeRowMapper episodeRowMapper = new PodcastEpisodeRowMapper();
+
+    public PodcastDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     /**
      * Creates a new Podcast channel.

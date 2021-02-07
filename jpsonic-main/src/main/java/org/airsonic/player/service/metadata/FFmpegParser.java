@@ -34,7 +34,6 @@ import org.airsonic.player.service.TranscodingService;
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -50,14 +49,19 @@ import org.springframework.stereotype.Service;
 public class FFmpegParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
+
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
             "-show_streams" };
 
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private SettingsService settingsService;
+    private final TranscodingService transcodingService;
+    private final SettingsService settingsService;
+
+    public FFmpegParser(TranscodingService transcodingService, SettingsService settingsService) {
+        super();
+        this.transcodingService = transcodingService;
+        this.settingsService = settingsService;
+    }
 
     /**
      * Parses meta data for the given music file. No guessing or reformatting is done.
@@ -160,13 +164,5 @@ public class FFmpegParser extends MetaDataParser {
             }
         }
         return false;
-    }
-
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
     }
 }

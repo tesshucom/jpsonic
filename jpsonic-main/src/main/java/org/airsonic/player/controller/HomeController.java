@@ -51,7 +51,6 @@ import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,20 +69,26 @@ public class HomeController {
 
     private static final int LIST_SIZE = 40;
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private MusicIndexService musicIndexService;
+    private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
+    private final RatingService ratingService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final SearchService searchService;
+    private final MusicIndexService musicIndexService;
+
+    public HomeController(SettingsService settingsService, MediaScannerService mediaScannerService,
+            RatingService ratingService, SecurityService securityService, MediaFileService mediaFileService,
+            SearchService searchService, MusicIndexService musicIndexService) {
+        super();
+        this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
+        this.ratingService = ratingService;
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+        this.searchService = searchService;
+        this.musicIndexService = musicIndexService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {

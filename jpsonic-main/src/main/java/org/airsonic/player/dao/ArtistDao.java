@@ -40,8 +40,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class ArtistDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, "
             // JP >>>>
@@ -51,6 +51,10 @@ public class ArtistDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Artist> rowMapper = new ArtistMapper();
+
+    public ArtistDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     /**
      * Returns the artist with the given name.

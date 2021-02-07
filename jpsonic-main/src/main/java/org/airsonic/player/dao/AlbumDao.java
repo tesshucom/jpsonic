@@ -44,9 +44,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class AlbumDao extends AbstractDao {
+
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, "
             + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
             + "folder_id, mb_release_id, "
@@ -57,6 +58,10 @@ public class AlbumDao extends AbstractDao {
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
     private final RowMapper<Album> rowMapper = new AlbumMapper();
+
+    public AlbumDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     public Album getAlbum(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from album where id=?", rowMapper, id);

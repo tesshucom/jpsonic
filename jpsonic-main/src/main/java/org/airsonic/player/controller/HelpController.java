@@ -42,7 +42,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,14 +60,19 @@ public class HelpController {
 
     private static final int LOG_LINES_TO_SHOW = 50;
 
-    @Autowired
-    private VersionService versionService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private AirsonicLocaleResolver airsonicLocaleResolver;
+    private final VersionService versionService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final AirsonicLocaleResolver airsonicLocaleResolver;
+
+    public HelpController(VersionService versionService, SettingsService settingsService,
+            SecurityService securityService, AirsonicLocaleResolver airsonicLocaleResolver) {
+        super();
+        this.versionService = versionService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.airsonicLocaleResolver = airsonicLocaleResolver;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {

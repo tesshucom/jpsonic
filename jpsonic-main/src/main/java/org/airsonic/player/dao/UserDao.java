@@ -33,7 +33,6 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,12 +42,13 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 @Repository
 @Transactional
-@SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class UserDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDao.class);
+
     private static final String USER_COLUMNS = "username, password, email, ldap_authenticated, bytes_streamed, bytes_downloaded, bytes_uploaded";
     private static final String USER_SETTINGS_COLUMNS = "username, locale, theme_id, final_version_notification, beta_version_notification, "
             + "song_notification, main_track_number, main_artist, main_album, main_genre, "
@@ -67,7 +67,6 @@ public class UserDao extends AbstractDao {
             + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "
             + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, font_family, font_size";
     // <<<< JP
-
     private static final Integer ROLE_ID_ADMIN = 1;
     private static final Integer ROLE_ID_DOWNLOAD = 2;
     private static final Integer ROLE_ID_UPLOAD = 3;
@@ -79,7 +78,6 @@ public class UserDao extends AbstractDao {
     private static final Integer ROLE_ID_SETTINGS = 9;
     private static final Integer ROLE_ID_JUKEBOX = 10;
     private static final Integer ROLE_ID_SHARE = 11;
-
     private static final int SINGLE_USER = 1;
 
     private UserRowMapper userRowMapper = new UserRowMapper();
@@ -87,9 +85,8 @@ public class UserDao extends AbstractDao {
 
     private final String userTableQuote;
 
-    @Autowired
-    public UserDao(String userTableQuote) {
-        super();
+    public UserDao(DaoHelper daoHelper, String userTableQuote) {
+        super(daoHelper);
         this.userTableQuote = userTableQuote;
     }
 

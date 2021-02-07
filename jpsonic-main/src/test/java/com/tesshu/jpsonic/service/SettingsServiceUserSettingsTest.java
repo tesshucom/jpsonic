@@ -32,13 +32,20 @@ import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Test the initial value of user data in the display order of Web pages.
  */
-public class SettingsServiceUserSettingsTest {
+@SpringBootTest
+public class SettingsServiceUserSettingsTest extends AbstractAirsonicHomeTest {
+
+    @Autowired
+    private SettingsService settingsService;
 
     private UserSettings userSettings;
     private UserSettings tabletSettings;
@@ -46,7 +53,6 @@ public class SettingsServiceUserSettingsTest {
 
     @Before
     public void before() throws ReflectiveOperationException, IllegalArgumentException {
-        SettingsService settingsService = new SettingsService();
         Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
         method.setAccessible(true);
         userSettings = (UserSettings) method.invoke(settingsService, "");

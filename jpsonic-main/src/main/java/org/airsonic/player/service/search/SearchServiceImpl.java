@@ -52,7 +52,6 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -60,20 +59,21 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
-    @Autowired
-    private QueryFactory queryFactory;
+    private final QueryFactory queryFactory;
+    private final IndexManager indexManager;
+    private final SearchServiceUtilities util;
+    private final SettingsService settingsService;
+    private final JMediaFileDao mediaFileDao;
 
-    @Autowired
-    private IndexManager indexManager;
-
-    @Autowired
-    private SearchServiceUtilities util;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
-    private JMediaFileDao mediaFileDao;
+    public SearchServiceImpl(QueryFactory queryFactory, IndexManager indexManager, SearchServiceUtilities util,
+            SettingsService settingsService, JMediaFileDao mediaFileDao) {
+        super();
+        this.queryFactory = queryFactory;
+        this.indexManager = indexManager;
+        this.util = util;
+        this.settingsService = settingsService;
+        this.mediaFileDao = mediaFileDao;
+    }
 
     @Override
     public SearchResult search(SearchCriteria criteria) {
@@ -489,7 +489,7 @@ public class SearchServiceImpl implements SearchService {
 
             for (int i = start; i < end; i++) {
                 Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addAlbumId3IfAnyMatch.accept(result, util.getId.apply(doc));
+                util.addAlbumId3IfAnyMatch(result, util.getId.apply(doc));
             }
 
         } catch (IOException e) {

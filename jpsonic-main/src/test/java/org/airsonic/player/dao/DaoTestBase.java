@@ -49,9 +49,9 @@ public class DaoTestBase {
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
-    private GenericDaoHelper genericDaoHelper;
+    private GenericDaoHelper daoHelper;
 
     protected JdbcTemplate getJdbcTemplate() {
-        return genericDaoHelper.getJdbcTemplate();
+        return daoHelper.getJdbcTemplate();
     }
 }

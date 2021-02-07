@@ -30,7 +30,6 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -43,8 +42,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 public class AbstractDao {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDao.class);
 
-    @Autowired
-    private DaoHelper daoHelper;
+    private final DaoHelper daoHelper;
+
+    public AbstractDao(DaoHelper daoHelper) {
+        super();
+        this.daoHelper = daoHelper;
+    }
 
     /**
      * Returns a JDBC template for performing database operations.
@@ -166,10 +169,6 @@ public class AbstractDao {
     protected <T> T namedQueryOne(String sql, RowMapper<T> rowMapper, Map<String, Object> args) {
         List<T> list = namedQuery(sql, rowMapper, args);
         return list.isEmpty() ? null : list.get(0);
-    }
-
-    public void setDaoHelper(DaoHelper daoHelper) {
-        this.daoHelper = daoHelper;
     }
 
     public void checkpoint() {

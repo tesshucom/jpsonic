@@ -30,7 +30,6 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,10 +41,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/index")
 public class IndexController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public IndexController(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     private Map<String, Object> createDefaultModel(HttpServletRequest request) {
         UserSettings userSettings = settingsService.getUserSettings(securityService.getCurrentUsername(request));

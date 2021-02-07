@@ -48,6 +48,10 @@ public class ShareDao extends AbstractDao {
     private ShareRowMapper shareRowMapper = new ShareRowMapper();
     private ShareFileRowMapper shareFileRowMapper = new ShareFileRowMapper();
 
+    public ShareDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
+
     /**
      * Creates a new share.
      *

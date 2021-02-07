@@ -35,7 +35,6 @@ import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -53,14 +52,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/playlist")
 public class PlaylistController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlayerService playerService;
+    private final SecurityService securityService;
+    private final PlaylistService playlistService;
+    private final SettingsService settingsService;
+    private final PlayerService playerService;
+
+    public PlaylistController(SecurityService securityService, PlaylistService playlistService,
+            SettingsService settingsService, PlayerService playerService) {
+        super();
+        this.securityService = securityService;
+        this.playlistService = playlistService;
+        this.settingsService = settingsService;
+        this.playerService = playerService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

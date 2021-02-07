@@ -39,6 +39,10 @@ import org.springframework.stereotype.Repository;
 @Repository("musicFileInfoDao")
 public class RatingDao extends AbstractDao {
 
+    public RatingDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
+
     /**
      * Returns paths for the highest rated albums.
      *

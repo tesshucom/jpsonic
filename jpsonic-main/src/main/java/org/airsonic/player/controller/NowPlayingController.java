@@ -34,7 +34,6 @@ import org.airsonic.player.domain.TransferStatus;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.StatusService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,12 +50,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/nowPlaying")
 public class NowPlayingController {
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final PlayerService playerService;
+    private final StatusService statusService;
+    private final MediaFileService mediaFileService;
+
+    public NowPlayingController(PlayerService playerService, StatusService statusService,
+            MediaFileService mediaFileService) {
+        super();
+        this.playerService = playerService;
+        this.statusService = statusService;
+        this.mediaFileService = mediaFileService;
+    }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @GetMapping

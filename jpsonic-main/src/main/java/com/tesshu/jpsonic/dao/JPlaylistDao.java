@@ -22,20 +22,19 @@ package com.tesshu.jpsonic.dao;
 import java.util.List;
 
 import org.airsonic.player.dao.AbstractDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.Playlist;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
 
 @Repository("jplaylistDao")
-@DependsOn({ "playlistDao" })
 public class JPlaylistDao extends AbstractDao {
 
     private final PlaylistDao deligate;
 
-    public JPlaylistDao(PlaylistDao deligate) {
-        super();
+    public JPlaylistDao(DaoHelper daoHelper, PlaylistDao deligate) {
+        super(daoHelper);
         this.deligate = deligate;
     }
 

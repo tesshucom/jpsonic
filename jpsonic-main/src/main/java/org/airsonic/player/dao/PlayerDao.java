@@ -35,7 +35,6 @@ import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +44,8 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class PlayerDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerDao.class);
@@ -54,10 +53,14 @@ public class PlayerDao extends AbstractDao {
             + "last_seen, cover_art_scheme, transcode_scheme, dynamic_ip, technology, client_id, mixer";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    @Autowired
     private PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
 
     private Map<Integer, PlayQueue> playlists = new ConcurrentHashMap<>();
+
+    public PlayerDao(DaoHelper daoHelper, PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
+        super(daoHelper);
+        this.playerDaoPlayQueueFactory = playerDaoPlayQueueFactory;
+    }
 
     /**
      * Returns all players.

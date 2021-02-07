@@ -26,7 +26,6 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -39,10 +38,14 @@ import org.springframework.stereotype.Service;
 @Service("ajaxStarService")
 public class StarService {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
+    private final SecurityService securityService;
+    private final MediaFileDao mediaFileDao;
+
+    public StarService(SecurityService securityService, MediaFileDao mediaFileDao) {
+        super();
+        this.securityService = securityService;
+        this.mediaFileDao = mediaFileDao;
+    }
 
     public void star(int id) {
         mediaFileDao.starMediaFile(id, getUser());
@@ -56,13 +59,5 @@ public class StarService {
         WebContext webContext = WebContextFactory.get();
         User user = securityService.getCurrentUser(webContext.getHttpServletRequest());
         return user.getUsername();
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
     }
 }

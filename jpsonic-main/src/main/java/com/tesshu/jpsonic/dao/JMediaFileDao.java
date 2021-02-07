@@ -36,17 +36,16 @@ import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository("jmediaFileDao")
-@DependsOn({ "mediaFileDao" })
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class JMediaFileDao extends AbstractDao {
 
@@ -56,8 +55,8 @@ public class JMediaFileDao extends AbstractDao {
     private final RowMapper<MediaFile> iRowMapper;
     private final RowMapper<SortCandidate> sortCandidateMapper;
 
-    public JMediaFileDao(MediaFileDao deligate) {
-        super();
+    public JMediaFileDao(DaoHelper daoHelper, MediaFileDao deligate) {
+        super(daoHelper);
         this.deligate = deligate;
         rowMapper = deligate.getMediaFileMapper();
         genreRowMapper = deligate.getGenreMapper();

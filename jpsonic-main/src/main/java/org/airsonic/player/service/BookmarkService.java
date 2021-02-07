@@ -27,7 +27,6 @@ import java.util.Objects;
 import org.airsonic.player.dao.BookmarkDao;
 import org.airsonic.player.domain.Bookmark;
 import org.airsonic.player.domain.MediaFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,7 +34,6 @@ public class BookmarkService {
 
     private final BookmarkDao dao;
 
-    @Autowired
     public BookmarkService(BookmarkDao dao) {
         this.dao = dao;
     }

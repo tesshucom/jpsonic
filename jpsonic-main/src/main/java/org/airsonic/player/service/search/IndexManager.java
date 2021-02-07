@@ -71,7 +71,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -101,6 +100,18 @@ public class IndexManager {
      */
     private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
+    private static final Object GENRE_LOCK = new Object();
+
+    private final AnalyzerFactory analyzerFactory;
+    private final DocumentFactory documentFactory;
+    private final MediaFileDao mediaFileDao;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final QueryFactory queryFactory;
+    private final SearchServiceUtilities util;
+    private final JpsonicComparators comparators;
+    private final SettingsService settingsService;
+
     /**
      * File supplier for index directory.
      */
@@ -117,33 +128,6 @@ public class IndexManager {
     private Function<IndexType, File> getIndexDirectory = (indexType) -> new File(rootIndexDirectory.get(),
             indexType.toString().toLowerCase());
 
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private DocumentFactory documentFactory;
-
-    @Autowired
-    private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private ArtistDao artistDao;
-
-    @Autowired
-    private AlbumDao albumDao;
-
-    @Autowired
-    private QueryFactory queryFactory;
-
-    @Autowired
-    private SearchServiceUtilities util;
-
-    @Autowired
-    private JpsonicComparators comparators;
-
-    @Autowired
-    private SettingsService settingsService;
-
     private Map<IndexType, SearcherManager> searchers = new ConcurrentHashMap<>();
 
     private Map<IndexType, IndexWriter> writers = new ConcurrentHashMap<>();
@@ -152,11 +136,22 @@ public class IndexManager {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
-    ;
-
     private Map<GenreSort, List<Genre>> multiGenreMaster = new ConcurrentHashMap<>();
 
-    private static final Object GENRE_LOCK = new Object();
+    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
+            JpsonicComparators comparators, SettingsService settingsService) {
+        super();
+        this.analyzerFactory = analyzerFactory;
+        this.documentFactory = documentFactory;
+        this.mediaFileDao = mediaFileDao;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.queryFactory = queryFactory;
+        this.util = util;
+        this.comparators = comparators;
+        this.settingsService = settingsService;
+    }
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);

@@ -40,13 +40,19 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class PlaylistDao extends AbstractDao {
+
     private static final String INSERT_COLUMNS = "username, is_public, name, comment, file_count, duration_seconds, "
             + "created, changed, imported_from";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
+
     private final RowMapper<Playlist> rowMapper = new PlaylistMapper();
+
+    public PlaylistDao(DaoHelper daoHelper) {
+        super(daoHelper);
+    }
 
     public List<Playlist> getReadablePlaylistsForUser(String username) {
 

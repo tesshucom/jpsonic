@@ -34,7 +34,6 @@ import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -54,8 +53,12 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/internetRadioSettings")
 public class InternetRadioSettingsController {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public InternetRadioSettingsController(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     public String doGet(Model model, @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast) {

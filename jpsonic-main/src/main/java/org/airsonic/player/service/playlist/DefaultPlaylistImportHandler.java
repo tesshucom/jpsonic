@@ -35,15 +35,18 @@ import chameleon.playlist.SpecificPlaylist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultPlaylistImportHandler implements PlaylistImportHandler {
 
-    @Autowired
-    protected MediaFileService mediaFileService;
+    protected final MediaFileService mediaFileService;
+
+    public DefaultPlaylistImportHandler(MediaFileService mediaFileService) {
+        super();
+        this.mediaFileService = mediaFileService;
+    }
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylist> playlistClass) {
