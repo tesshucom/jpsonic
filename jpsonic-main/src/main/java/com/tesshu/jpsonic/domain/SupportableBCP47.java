@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.checkerframework.checker.nullness.qual.Nullable;
+
 /**
  * BCP47 enumeration of speech recognition supported by Jpsonic. Currently, there are languages such as Norwegian that
  * cannot be simply replaced with Language Tags (for google). Therefore, it is used to replace the user locale of
@@ -78,7 +80,10 @@ public enum SupportableBCP47 {
         return this.value;
     }
 
-    public static SupportableBCP47 valueOf(Locale locale) {
+    public static SupportableBCP47 valueOf(@Nullable Locale locale) {
+        if (locale == null) {
+            return EN;
+        }
         SupportableBCP47 supportable = supportableLocales.get(locale.toLanguageTag());
         if (supportable == null) {
             return EN;
