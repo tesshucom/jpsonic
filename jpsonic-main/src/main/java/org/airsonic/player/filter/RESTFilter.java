@@ -49,7 +49,11 @@ public class RESTFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(RESTFilter.class);
 
-    private final JAXBWriter jaxbWriter = new JAXBWriter();
+    private final JAXBWriter jaxbWriter;
+
+    public RESTFilter() {
+        jaxbWriter = new JAXBWriter();
+    }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) {

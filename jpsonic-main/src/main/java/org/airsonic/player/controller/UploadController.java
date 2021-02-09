@@ -71,10 +71,10 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/upload")
 public class UploadController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
-
     public static final String FIELD_NAME_DIR = "dir";
     public static final String FIELD_NAME_UNZIP = "unzip";
+
+    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
 
     private final SecurityService securityService;
     private final PlayerService playerService;
@@ -163,8 +163,8 @@ public class UploadController {
 
     private static class UnzipResult {
 
-        private List<File> uploadedFiles;
-        private List<File> unzippedFiles;
+        private final List<File> uploadedFiles;
+        private final List<File> unzippedFiles;
 
         public UnzipResult(List<File> uploadedFiles, List<File> unzippedFiles) {
             super();
@@ -289,18 +289,18 @@ public class UploadController {
      */
     private static class UploadListenerImpl implements UploadListener {
 
-        private TransferStatus status;
-        private long startTime;
+        private final TransferStatus status;
         private final StatusService statusService;
         private final SettingsService settingsService;
+        private final long startTime;
 
         private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
 
         UploadListenerImpl(TransferStatus status, StatusService statusService, SettingsService settingsService) {
             this.status = status;
-            startTime = System.currentTimeMillis();
             this.statusService = statusService;
             this.settingsService = settingsService;
+            this.startTime = System.currentTimeMillis();
         }
 
         @Override

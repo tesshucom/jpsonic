@@ -62,10 +62,10 @@ public class JapaneseReadingUtils {
     private static final char WAVY_LINE = '\u007e'; // ~
 
     private final SettingsService settingsService;
-    private final Tokenizer tokenizer = new Tokenizer();
+    private final Tokenizer tokenizer;
+    private final Map<String, String> readingMap;
+    private final Map<String, String> truncatedReadingMap;
 
-    private Map<String, String> readingMap = new ConcurrentHashMap<>();
-    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
     private List<String> ignoredArticles;
 
     public static boolean isPunctuation(char ch) {
@@ -95,6 +95,9 @@ public class JapaneseReadingUtils {
     public JapaneseReadingUtils(SettingsService settingsService) {
         super();
         this.settingsService = settingsService;
+        tokenizer = new Tokenizer();
+        readingMap = new ConcurrentHashMap<>();
+        truncatedReadingMap = new ConcurrentHashMap<>();
     }
 
     public void analyze(Genre g) {

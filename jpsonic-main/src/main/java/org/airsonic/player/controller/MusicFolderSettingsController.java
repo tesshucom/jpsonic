@@ -68,6 +68,7 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MusicFolderSettingsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderSettingsController.class);
+    private static final AtomicBoolean IS_EXPUNGING = new AtomicBoolean();
 
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
@@ -76,8 +77,6 @@ public class MusicFolderSettingsController {
     private final MediaFileDao mediaFileDao;
     private final IndexManager indexManager;
     private final SecurityService securityService;
-
-    private static AtomicBoolean isExpunging = new AtomicBoolean();
 
     public MusicFolderSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService,
             ArtistDao artistDao, AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager,
@@ -136,13 +135,13 @@ public class MusicFolderSettingsController {
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void expunge() {
 
-        if (isExpunging.get()) {
+        if (IS_EXPUNGING.get()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Cleanup is already running.");
             }
             return;
         }
-        isExpunging.set(true);
+        IS_EXPUNGING.set(true);
 
         MediaLibraryStatistics statistics = indexManager.getStatistics();
 
@@ -190,7 +189,7 @@ public class MusicFolderSettingsController {
                     "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
 
-        isExpunging.set(false);
+        IS_EXPUNGING.set(false);
 
     }
 

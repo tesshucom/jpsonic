@@ -35,7 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Genres {
 
-    private final Map<String, Genre> genreMap = new ConcurrentHashMap<>();
+    private final Map<String, Genre> genreMap;
+
+    public Genres() {
+        super();
+        genreMap = new ConcurrentHashMap<>();
+    }
 
     public void incrementAlbumCount(String genreName) {
         Genre genre = getOrCreateGenre(genreName);

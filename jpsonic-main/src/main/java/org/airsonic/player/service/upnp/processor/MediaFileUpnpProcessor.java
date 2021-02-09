@@ -60,13 +60,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
-    private final UpnpProcessorUtil util;
-
-    private final JMediaFileService mediaFileService;
-
-    private final PlayerService playerService;
-
     public static final int SINGLE_MUSIC_FOLDER = 1;
+
+    private final UpnpProcessorUtil util;
+    private final JMediaFileService mediaFileService;
+    private final PlayerService playerService;
 
     public MediaFileUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             PlayerService p) {

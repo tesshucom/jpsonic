@@ -65,7 +65,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
-
     private static final String REQUEST_VALUE_ANY = "any";
 
     private final PlayerService playerService;
@@ -157,8 +156,8 @@ public class RandomPlayQueueController {
     }
 
     private static class InceptionYear {
-        private Integer fromYear;
-        private Integer toYear;
+        private final Integer fromYear;
+        private final Integer toYear;
 
         public InceptionYear(Integer fromYear, Integer toYear) {
             super();
@@ -228,8 +227,8 @@ public class RandomPlayQueueController {
     }
 
     private static class LastPlayed {
-        private Date minLastPlayedDate;
-        private Date maxLastPlayedDate;
+        private final Date minLastPlayedDate;
+        private final Date maxLastPlayedDate;
 
         public LastPlayed(Date minLastPlayedDate, Date maxLastPlayedDate) {
             super();
@@ -276,8 +275,8 @@ public class RandomPlayQueueController {
     }
 
     private static class AlbumRating {
-        private Integer minAlbumRating;
-        private Integer maxAlbumRating;
+        private final Integer minAlbumRating;
+        private final Integer maxAlbumRating;
 
         public AlbumRating(Integer minAlbumRating, Integer maxAlbumRating) {
             super();
@@ -324,8 +323,8 @@ public class RandomPlayQueueController {
     }
 
     private static class PlayCount {
-        private Integer minPlayCount;
-        private Integer maxPlayCount;
+        private final Integer minPlayCount;
+        private final Integer maxPlayCount;
 
         public PlayCount(Integer minPlayCount, Integer maxPlayCount) {
             super();
@@ -360,8 +359,8 @@ public class RandomPlayQueueController {
     }
 
     private static class SongRating {
-        private boolean doesShowStarredSongs;
-        private boolean doesShowUnstarredSongs;
+        private final boolean doesShowStarredSongs;
+        private final boolean doesShowUnstarredSongs;
 
         public SongRating(boolean doesShowStarredSongs, boolean doesShowUnstarredSongs) {
             super();

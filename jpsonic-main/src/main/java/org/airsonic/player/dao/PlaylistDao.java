@@ -48,10 +48,11 @@ public class PlaylistDao extends AbstractDao {
             + "created, changed, imported_from";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final RowMapper<Playlist> rowMapper = new PlaylistMapper();
+    private final RowMapper<Playlist> rowMapper;
 
     public PlaylistDao(DaoHelper daoHelper) {
         super(daoHelper);
+        rowMapper = new PlaylistMapper();
     }
 
     public List<Playlist> getReadablePlaylistsForUser(String username) {

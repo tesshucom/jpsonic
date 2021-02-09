@@ -88,9 +88,7 @@ import org.springframework.stereotype.Service;
 public class SonosHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosHelper.class);
-
     public static final String JPSONIC_CLIENT_ID = "sonos";
-
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
     private final MediaFileService mediaFileService;

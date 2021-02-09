@@ -58,7 +58,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class RecoverController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecoverController.class);
-
     private static final String SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
     private static final int PASSWORD_LENGTH = 32;
     private static final String SESSION_KEY_MAIL_PREF = "mail.";
@@ -66,13 +65,13 @@ public class RecoverController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
-
-    private final SecureRandom random = new SecureRandom();
+    private final SecureRandom random;
 
     public RecoverController(SettingsService settingsService, SecurityService securityService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.random = new SecureRandom();
     }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive

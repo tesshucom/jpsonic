@@ -38,6 +38,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @version $Id$
  */
 public class CacheFactory implements InitializingBean {
+
     private CacheManager cacheManager;
 
     @Override

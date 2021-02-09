@@ -39,10 +39,12 @@ public class AvatarDao extends AbstractDao {
 
     private static final String INSERT_COLUMNS = "name, created_date, mime_type, width, height, data";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
-    private final AvatarRowMapper rowMapper = new AvatarRowMapper();
+
+    private final AvatarRowMapper rowMapper;
 
     public AvatarDao(DaoHelper daoHelper) {
         super(daoHelper);
+        rowMapper = new AvatarRowMapper();
     }
 
     /**

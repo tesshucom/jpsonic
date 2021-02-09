@@ -31,6 +31,7 @@ public class LyricsInfo {
     private final String lyrics;
     private final String artist;
     private final String title;
+
     private boolean tryLater;
 
     public LyricsInfo() {

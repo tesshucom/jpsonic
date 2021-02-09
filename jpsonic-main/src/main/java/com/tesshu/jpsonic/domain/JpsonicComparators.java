@@ -52,16 +52,15 @@ public class JpsonicComparators {
         TRACK, ARTIST, ALBUM
     }
 
-    private final Pattern various = Pattern.compile("^various.*$");
-
     private final SettingsService settingsService;
-
     private final JapaneseReadingUtils utils;
+    private final Pattern various;
 
     public JpsonicComparators(SettingsService settingsService, JapaneseReadingUtils utils) {
         super();
         this.settingsService = settingsService;
         this.utils = utils;
+        various = Pattern.compile("^various.*$");
     }
 
     /**

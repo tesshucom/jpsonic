@@ -34,6 +34,7 @@ import org.airsonic.player.domain.User;
  * @author Sindre Mehus
  */
 public class UserSettingsCommand {
+
     private String username;
     private boolean adminRole;
     private boolean downloadRole;

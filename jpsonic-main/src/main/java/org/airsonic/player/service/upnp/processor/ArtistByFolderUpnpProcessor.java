@@ -53,6 +53,7 @@ public class ArtistByFolderUpnpProcessor
     private static final String TYPE_PREFIX_MUSIC_FOLDER = "mf:";
     private static final String TYPE_PREFIX_ARTIST = "ar:";
     private static final String TYPE_PREFIX_ALBUM = "al:";
+
     private final UpnpProcessorUtil util;
     private final JArtistDao artistDao;
     private final JAlbumDao albumDao;

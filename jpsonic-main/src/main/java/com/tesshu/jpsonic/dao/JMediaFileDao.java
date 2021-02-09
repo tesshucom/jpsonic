@@ -339,7 +339,7 @@ public class JMediaFileDao extends AbstractDao {
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
-            if (!result.stream().anyMatch(r -> r.getName().equals(candidate.getName()))) {
+            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
             }
         });
@@ -388,7 +388,7 @@ public class JMediaFileDao extends AbstractDao {
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
-            if (!result.stream().anyMatch(r -> r.getName().equals(candidate.getName()))) {
+            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
             }
         });
@@ -428,7 +428,7 @@ public class JMediaFileDao extends AbstractDao {
 
     private static class MediaFileInternalRowMapper implements RowMapper<MediaFile> {
 
-        private RowMapper<MediaFile> deligate;
+        private final RowMapper<MediaFile> deligate;
 
         public MediaFileInternalRowMapper(RowMapper<MediaFile> m) {
             super();

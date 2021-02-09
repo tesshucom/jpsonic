@@ -56,22 +56,16 @@ import org.springframework.stereotype.Service;
 public class IndexUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
     private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
-
-    private final UpnpProcessorUtil util;
-
-    private final JMediaFileService mediaFileService;
-
-    private final MusicIndexService musicIndexService;
-
-    private final Ehcache indexCache;
-
     // Only on write (because it can be explicitly reloaded on the client and is less risky)
     private static final Object LOCK = new Object();
 
+    private final UpnpProcessorUtil util;
+    private final JMediaFileService mediaFileService;
+    private final MusicIndexService musicIndexService;
+    private final Ehcache indexCache;
+
     private MusicFolderContent content;
-
     private Map<Integer, MediaIndex> indexesMap;
-
     private List<MediaFile> topNodes;
 
     public IndexUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,

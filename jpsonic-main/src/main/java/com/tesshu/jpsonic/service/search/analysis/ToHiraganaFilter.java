@@ -32,12 +32,9 @@ import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 public final class ToHiraganaFilter extends TokenFilter {
 
     private final Transliterator transform;
-
-    private final Transliterator.Position position = new Transliterator.Position();
-
-    private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-    private final ReplaceableTermAttribute replaceableAttribute = new ReplaceableTermAttribute();
+    private final Transliterator.Position position;
+    private final CharTermAttribute termAtt;
+    private final ReplaceableTermAttribute replaceableAttribute;
 
     /**
      * Create a Filter that transforms text on the given stream.
@@ -49,6 +46,9 @@ public final class ToHiraganaFilter extends TokenFilter {
     public ToHiraganaFilter(TokenStream input) {
         super(input);
         this.transform = Transliterator.getInstance("Katakana-Hiragana");
+        this.position = new Transliterator.Position();
+        this.termAtt = addAttribute(CharTermAttribute.class);
+        this.replaceableAttribute = new ReplaceableTermAttribute();
         if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
             final UnicodeSet sourceSet = transform.getSourceSet();
             if (sourceSet != null && !sourceSet.isEmpty()) {

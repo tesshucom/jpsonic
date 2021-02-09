@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 public class MediaFileServiceUtils {
 
     private final JapaneseReadingUtils utils;
-
     private final JpsonicComparators jpsonicComparator;
 
     public MediaFileServiceUtils(JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {

@@ -58,13 +58,12 @@ import org.springframework.web.bind.ServletRequestBindingException;
 public class NowPlayingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NowPlayingService.class);
+    private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     private final PlayerService playerService;
     private final StatusService statusService;
     private final SettingsService settingsService;
     private final MediaScannerService mediaScannerService;
-
-    private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
 
     public NowPlayingService(PlayerService playerService, StatusService statusService, SettingsService settingsService,
             MediaScannerService mediaScannerService) {

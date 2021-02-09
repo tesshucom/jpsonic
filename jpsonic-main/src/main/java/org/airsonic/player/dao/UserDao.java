@@ -48,7 +48,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDao extends AbstractDao {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDao.class);
-
     private static final String USER_COLUMNS = "username, password, email, ldap_authenticated, bytes_streamed, bytes_downloaded, bytes_uploaded";
     private static final String USER_SETTINGS_COLUMNS = "username, locale, theme_id, final_version_notification, beta_version_notification, "
             + "song_notification, main_track_number, main_artist, main_album, main_genre, "
@@ -65,8 +64,8 @@ public class UserDao extends AbstractDao {
             + "open_detail_index, open_detail_setting, open_detail_star, show_index, "
             + "simple_display, show_sibling, show_rate, show_album_search, show_last_play, show_download, show_tag, show_comment, show_share, "
             + "show_change_coverart, show_top_songs, show_similar, show_album_actions, breadcrumb_index, put_menu_in_drawer, font_scheme_name, "
-            + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, font_family, font_size";
-    // <<<< JP
+            + "show_outline_help, force_bio2eng, voice_input_enabled, show_current_song_info, speech_lang_scheme_name, ietf, "
+            + "font_family, font_size"; // <<<< JP
     private static final Integer ROLE_ID_ADMIN = 1;
     private static final Integer ROLE_ID_DOWNLOAD = 2;
     private static final Integer ROLE_ID_UPLOAD = 3;
@@ -80,14 +79,15 @@ public class UserDao extends AbstractDao {
     private static final Integer ROLE_ID_SHARE = 11;
     private static final int SINGLE_USER = 1;
 
-    private UserRowMapper userRowMapper = new UserRowMapper();
-    private UserSettingsRowMapper userSettingsRowMapper = new UserSettingsRowMapper();
-
     private final String userTableQuote;
+    private final UserRowMapper userRowMapper;
+    private final UserSettingsRowMapper userSettingsRowMapper;
 
     public UserDao(DaoHelper daoHelper, String userTableQuote) {
         super(daoHelper);
         this.userTableQuote = userTableQuote;
+        userRowMapper = new UserRowMapper();
+        userSettingsRowMapper = new UserSettingsRowMapper();
     }
 
     /**
@@ -262,8 +262,7 @@ public class UserDao extends AbstractDao {
                 settings.isBreadcrumbIndex(), settings.isPutMenuInDrawer(), settings.getFontSchemeName(),
                 settings.isShowOutlineHelp(), settings.isForceBio2Eng(), settings.isVoiceInputEnabled(),
                 settings.isShowCurrentSongInfo(), settings.getSpeechLangSchemeName(), settings.getIetf(),
-                settings.getFontFamily(), settings.getFontSize());
-        // <<<< JP
+                settings.getFontFamily(), settings.getFontSize()); // <<<< JP
     }
 
     private static String encrypt(String s) {
@@ -465,8 +464,7 @@ public class UserDao extends AbstractDao {
             settings.setSpeechLangSchemeName(rs.getString(col++));
             settings.setIetf(rs.getString(col++));
             settings.setFontFamily(rs.getString(col++));
-            settings.setFontSize(rs.getInt(col));
-            // <<<< JP
+            settings.setFontSize(rs.getInt(col)); // <<<< JP
             return settings;
         }
     }

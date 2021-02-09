@@ -47,11 +47,13 @@ public class PodcastDao extends AbstractDao {
             + "duration, bytes_total, bytes_downloaded, status, error_message";
     private static final String EPISODE_QUERY_COLUMNS = "id, " + EPISODE_INSERT_COLUMNS;
 
-    private PodcastChannelRowMapper channelRowMapper = new PodcastChannelRowMapper();
-    private PodcastEpisodeRowMapper episodeRowMapper = new PodcastEpisodeRowMapper();
+    private final PodcastChannelRowMapper channelRowMapper;
+    private final PodcastEpisodeRowMapper episodeRowMapper;
 
     public PodcastDao(DaoHelper daoHelper) {
         super(daoHelper);
+        channelRowMapper = new PodcastChannelRowMapper();
+        episodeRowMapper = new PodcastEpisodeRowMapper();
     }
 
     /**

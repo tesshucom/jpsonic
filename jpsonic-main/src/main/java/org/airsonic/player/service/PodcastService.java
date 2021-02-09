@@ -87,7 +87,6 @@ import org.springframework.stereotype.Service;
 public class PodcastService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodcastService.class);
-
     private static final DateFormat[] RSS_DATE_FORMATS = {
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
             new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US) };
@@ -104,10 +103,10 @@ public class PodcastService {
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
-
     private final ExecutorService refreshExecutor;
     private final ExecutorService downloadExecutor;
     private final ScheduledExecutorService scheduledExecutor;
+
     private ScheduledFuture<?> scheduledRefresh;
 
     public PodcastService(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,

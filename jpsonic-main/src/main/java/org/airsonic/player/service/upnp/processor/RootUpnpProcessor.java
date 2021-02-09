@@ -34,9 +34,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RootUpnpProcessor extends UpnpContentProcessor<Container, Container> {
 
-    private List<Container> containers = new ArrayList<>();
-
-    private SettingsService settingsService;
+    private final List<Container> containers = new ArrayList<>();
+    private final SettingsService settingsService;
 
     public RootUpnpProcessor(@Lazy UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util,
             SettingsService settingsService) {

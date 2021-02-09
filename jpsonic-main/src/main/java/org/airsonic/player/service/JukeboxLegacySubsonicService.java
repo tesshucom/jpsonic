@@ -50,7 +50,6 @@ import org.springframework.stereotype.Service;
 public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxLegacySubsonicService.class);
-
     private static final Object PLAYER_LOCK = new Object();
 
     private final AudioScrobblerService audioScrobblerService;
@@ -60,12 +59,12 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
     private final SettingsService settingsService;
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
+    private final AtomicInteger gain;
 
     private AudioPlayer audioPlayer;
     private Player player;
     private TransferStatus status;
     private MediaFile currentPlayingFile;
-    private AtomicInteger gain = new AtomicInteger(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
     private int offset;
 
     public JukeboxLegacySubsonicService(AudioScrobblerService audioScrobblerService, StatusService statusService,
@@ -79,6 +78,7 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
+        gain = new AtomicInteger(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
     }
 
     /**

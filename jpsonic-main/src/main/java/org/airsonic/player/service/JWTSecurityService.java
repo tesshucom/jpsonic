@@ -39,13 +39,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Service("jwtSecurityService")
 public class JWTSecurityService {
-    private static final Logger LOG = LoggerFactory.getLogger(JWTSecurityService.class);
 
+    private static final Logger LOG = LoggerFactory.getLogger(JWTSecurityService.class);
     public static final String JWT_PARAM_NAME = "jwt";
     public static final String CLAIM_PATH = "path";
-    // TODO make this configurable
-    public static final int DEFAULT_DAYS_VALID_FOR = 7;
-    private static SecureRandom secureRandom = new SecureRandom();
+    public static final int DEFAULT_DAYS_VALID_FOR = 7; // TODO make this configurable
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final SettingsService settingsService;
 
@@ -54,7 +53,7 @@ public class JWTSecurityService {
     }
 
     public static String generateKey() {
-        BigInteger randomInt = new BigInteger(130, secureRandom);
+        BigInteger randomInt = new BigInteger(130, SECURE_RANDOM);
         return randomInt.toString(32);
     }
 

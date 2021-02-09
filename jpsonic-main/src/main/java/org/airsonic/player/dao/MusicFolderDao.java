@@ -43,13 +43,14 @@ public class MusicFolderDao extends AbstractDao {
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderDao.class);
     private static final String INSERT_COLUMNS = "path, name, enabled, changed";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
-    private final MusicFolderRowMapper rowMapper = new MusicFolderRowMapper();
 
+    private final MusicFolderRowMapper rowMapper;
     private final UserDao userDao;
 
     public MusicFolderDao(DaoHelper daoHelper, UserDao userDao) {
         super(daoHelper);
         this.userDao = userDao;
+        rowMapper = new MusicFolderRowMapper();
     }
 
     /**

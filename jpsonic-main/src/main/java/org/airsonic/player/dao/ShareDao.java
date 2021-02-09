@@ -45,11 +45,13 @@ public class ShareDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "name, description, username, created, expires, last_visited, visit_count";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private ShareRowMapper shareRowMapper = new ShareRowMapper();
-    private ShareFileRowMapper shareFileRowMapper = new ShareFileRowMapper();
+    private final ShareRowMapper shareRowMapper;
+    private final ShareFileRowMapper shareFileRowMapper;
 
     public ShareDao(DaoHelper daoHelper) {
         super(daoHelper);
+        shareRowMapper = new ShareRowMapper();
+        shareFileRowMapper = new ShareFileRowMapper();
     }
 
     /**

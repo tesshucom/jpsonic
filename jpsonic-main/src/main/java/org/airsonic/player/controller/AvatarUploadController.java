@@ -62,7 +62,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class AvatarUploadController {
 
     private static final Logger LOG = LoggerFactory.getLogger(AvatarUploadController.class);
-
     private static final int MAX_AVATAR_SIZE = 64;
 
     private final SettingsService settingsService;

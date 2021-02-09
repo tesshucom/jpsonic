@@ -36,6 +36,7 @@ import org.airsonic.player.domain.Transcoding;
  * @author Sindre Mehus
  */
 public class PlayerSettingsCommand {
+
     private Integer playerId;
     private String name;
     private String description;
@@ -273,8 +274,8 @@ public class PlayerSettingsCommand {
      * Holds the transcoding and whether it is active for the given player.
      */
     public static class TranscodingHolder {
-        private Transcoding transcoding;
-        private boolean active;
+        private final Transcoding transcoding;
+        private final boolean active;
 
         public TranscodingHolder(Transcoding transcoding, boolean isActive) {
             this.transcoding = transcoding;

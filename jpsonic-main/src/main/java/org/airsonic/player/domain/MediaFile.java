@@ -136,8 +136,8 @@ public class MediaFile {
             // JP >>>>
             String composer, String artistSort, String albumSort, String titleSort, String albumArtistSort,
             String composerSort, String artistReading, String albumReading, String albumArtistReading,
-            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order
-    // <<<< JP
+            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order // <<<<
+                                                                                                                    // JP
     ) {
         this.id = id;
         this.path = path;

@@ -69,17 +69,22 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 public class RESTRequestParameterProcessingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(RESTRequestParameterProcessingFilter.class);
+    private static final RequestMatcher REQUIRES_AUTHENTICATION_REQUEST_MATCHER = new RegexRequestMatcher("/rest/.+",
+            null);
 
     private final JAXBWriter jaxbWriter = new JAXBWriter();
+    private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
+
     private AuthenticationManager authenticationManager;
     private SecurityService securityService;
-    private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
     private ApplicationEventPublisher eventPublisher;
 
-    private static RequestMatcher requiresAuthenticationRequestMatcher = new RegexRequestMatcher("/rest/.+", null);
-
     protected boolean requiresAuthentication(HttpServletRequest request, HttpServletResponse response) {
-        return requiresAuthenticationRequestMatcher.matches(request);
+        return REQUIRES_AUTHENTICATION_REQUEST_MATCHER.matches(request);
+    }
+
+    public RESTRequestParameterProcessingFilter() {
+        authenticationDetailsSource = new WebAuthenticationDetailsSource();
     }
 
     @Override

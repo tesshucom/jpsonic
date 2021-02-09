@@ -79,7 +79,6 @@ import org.springframework.web.servlet.mvc.LastModified;
 public class DownloadController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(DownloadController.class);
-
     private static final int BITRATE_LIMIT_UPDATE_INTERVAL = 5000;
 
     private final PlayerService playerService;

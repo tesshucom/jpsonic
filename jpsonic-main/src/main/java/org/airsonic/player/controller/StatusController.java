@@ -96,12 +96,12 @@ public class StatusController {
     }
 
     public static class TransferStatusHolder {
-        private TransferStatus transferStatus;
-        private boolean stream;
-        private boolean download;
-        private boolean upload;
-        private int index;
-        private Locale locale;
+        private final TransferStatus transferStatus;
+        private final boolean stream;
+        private final boolean download;
+        private final boolean upload;
+        private final int index;
+        private final Locale locale;
 
         TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
                 int index, Locale locale) {

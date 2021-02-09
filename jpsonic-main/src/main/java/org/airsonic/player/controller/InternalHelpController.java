@@ -78,7 +78,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class InternalHelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
-
     private static final int LOG_LINES_TO_SHOW = 50;
     private static final String TABLE_TYPE_TABLE = "table";
 

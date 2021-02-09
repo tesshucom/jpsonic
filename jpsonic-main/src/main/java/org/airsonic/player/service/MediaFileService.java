@@ -71,7 +71,7 @@ public class MediaFileService {
     private final MetaDataParserFactory metaDataParserFactory;
     private final MediaFileServiceUtils utils;
 
-    private boolean memoryCacheEnabled = true;
+    private boolean memoryCacheEnabled;
 
     public MediaFileService(Ehcache mediaFileMemoryCache, SecurityService securityService,
             SettingsService settingsService, MediaFileDao mediaFileDao, AlbumDao albumDao, JaudiotaggerParser parser,
@@ -85,6 +85,7 @@ public class MediaFileService {
         this.parser = parser;
         this.metaDataParserFactory = metaDataParserFactory;
         this.utils = utils;
+        memoryCacheEnabled = true;
     }
 
     /**

@@ -57,7 +57,6 @@ import org.springframework.web.servlet.ModelAndView;
 public class HelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(HelpController.class);
-
     private static final int LOG_LINES_TO_SHOW = 50;
 
     private final VersionService versionService;

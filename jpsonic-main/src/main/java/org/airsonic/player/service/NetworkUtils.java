@@ -36,12 +36,11 @@ import org.springframework.web.util.UrlPathHelper;
 
 public final class NetworkUtils {
 
-    private static UrlPathHelper urlPathHelper = new UrlPathHelper();
+    private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
     private static final String X_FORWARDED_SERVER = "X-Forwarded-Server";
     private static final String X_FORWARDED_PROTO = "X-Forwarded-Proto";
     private static final String X_FORWARDED_HOST = "X-Forwarded-Host";
-
-    private static final Logger LOG = LoggerFactory.getLogger(NetworkUtils.class);
+    private static final UrlPathHelper URL_PATH_HELPER = new UrlPathHelper();
 
     private NetworkUtils() {
     }
@@ -99,7 +98,7 @@ public final class NetworkUtils {
         URI proxyHost = new URI("ignored://" + xForardedHost);
         String host = proxyHost.getHost();
         int port = proxyHost.getPort();
-        return new URI(scheme, null, host, port, urlPathHelper.getContextPath(request), null, null);
+        return new URI(scheme, null, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
     }
 
     private static boolean isValidXForwardedHost(String xForardedHost) {
@@ -113,7 +112,7 @@ public final class NetworkUtils {
         String scheme = url.getProtocol();
         int port = url.getPort();
         String userInfo = url.getUserInfo();
-        return new URI(scheme, userInfo, host, port, urlPathHelper.getContextPath(request), null, null);
+        return new URI(scheme, userInfo, host, port, URL_PATH_HELPER.getContextPath(request), null, null);
     }
 
 }

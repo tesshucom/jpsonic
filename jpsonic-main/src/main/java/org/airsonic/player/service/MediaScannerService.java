@@ -64,7 +64,6 @@ import org.springframework.stereotype.Service;
 public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
-
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
     private static final Object SCHEDULE_LOCK = new Object();
     private static final Object SCAN_LOCK = new Object();
@@ -79,8 +78,7 @@ public class MediaScannerService {
     private final Ehcache indexCache;
     private final MediaScannerServiceUtils utils;
 
-    // for debug
-    private boolean jpsonicCleansingProcess = true;
+    private boolean jpsonicCleansingProcess = true; // for debug
     private int scanCount;
     private ScheduledExecutorService scheduler;
 

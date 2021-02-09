@@ -68,7 +68,6 @@ public class TopController {
 
     // Update this time if you want to force a refresh in clients.
     private static final Calendar LAST_COMPATIBILITY_TIME = Calendar.getInstance();
-
     private static final List<String> RELOADABLE_MAIN_VIEW_NAME = Arrays.asList(ViewName.MUSIC_FOLDER_SETTINGS.value(),
             ViewName.GENERAL_SETTINGS.value(), ViewName.PERSONAL_SETTINGS.value(), ViewName.USER_SETTINGS.value(),
             ViewName.PLAYER_SETTINGS.value(), ViewName.INTERNET_RADIO_SETTINGS.value(), ViewName.MORE.value());

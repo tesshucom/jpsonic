@@ -39,9 +39,7 @@ import org.springframework.stereotype.Service;
 public class RandomSongUpnpProcessor extends MediaFileUpnpProcessor {
 
     private final UpnpProcessorUtil util;
-
     private final SearchService searchService;
-
     private final SettingsService settingsService;
 
     public RandomSongUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,

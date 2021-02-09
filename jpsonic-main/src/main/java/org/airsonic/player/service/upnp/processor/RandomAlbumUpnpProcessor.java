@@ -40,9 +40,7 @@ import org.springframework.stereotype.Service;
 public class RandomAlbumUpnpProcessor extends AlbumUpnpProcessor {
 
     private final UpnpProcessorUtil util;
-
     private final SearchService searchService;
-
     private final SettingsService settingsService;
 
     public RandomAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,

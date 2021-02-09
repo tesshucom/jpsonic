@@ -31,7 +31,7 @@ public enum TranscodeScheme {
     OFF(0), MAX_32(32), MAX_40(40), MAX_48(48), MAX_56(56), MAX_64(64), MAX_80(80), MAX_96(96), MAX_112(112),
     MAX_128(128), MAX_160(160), MAX_192(192), MAX_224(224), MAX_256(256), MAX_320(320);
 
-    private int maxBitRate;
+    private final int maxBitRate;
 
     TranscodeScheme(int maxBitRate) {
         this.maxBitRate = maxBitRate;

@@ -62,9 +62,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
-
     private static final String FAILURE_URL = "/login?error=1";
-
     private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
     private final SecurityService securityService;

@@ -48,17 +48,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class AlbumUpnpProcessor extends UpnpContentProcessor<Album, MediaFile> {
 
-    private final UpnpProcessorUtil util;
-
-    private final JMediaFileService mediaFileService;
-
-    private final JAlbumDao albumDao;
-
-    private final CoverArtLogic coverArtLogic;
-
     public static final String ALL_BY_ARTIST = "allByArtist";
-
     public static final String ALL_RECENT_ID3 = "allRecentId3";
+
+    private final UpnpProcessorUtil util;
+    private final JMediaFileService mediaFileService;
+    private final JAlbumDao albumDao;
+    private final CoverArtLogic coverArtLogic;
 
     public AlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m, JAlbumDao a,
             CoverArtLogic c) {

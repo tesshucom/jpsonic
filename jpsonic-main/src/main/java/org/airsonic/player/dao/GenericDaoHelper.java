@@ -33,9 +33,7 @@ import org.springframework.stereotype.Component;
 public class GenericDaoHelper implements DaoHelper {
 
     private final JdbcTemplate jdbcTemplate;
-
     private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
     private final DataSource dataSource;
 
     public GenericDaoHelper(DataSource dataSource) {

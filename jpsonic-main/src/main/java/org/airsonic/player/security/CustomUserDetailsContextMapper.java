@@ -60,7 +60,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomUserDetailsContextMapper.class);
 
-    private String passwordAttributeName = "userPassword";
+    private static final String ATTRIBUTE_NAME_PASSWORD = "userPassword";
 
     private final SecurityService securityService;
     private final SettingsService settingsService;
@@ -110,7 +110,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
 
-        Object passwordValue = ctx.getObjectAttribute(passwordAttributeName);
+        Object passwordValue = ctx.getObjectAttribute(ATTRIBUTE_NAME_PASSWORD);
 
         if (passwordValue != null) {
             essence.setPassword(mapPassword(passwordValue));

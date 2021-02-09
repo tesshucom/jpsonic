@@ -80,8 +80,6 @@ import org.springframework.stereotype.Service;
  */
 public class SettingsService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
-
     private enum LocksKeys {
         HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES;
     }
@@ -94,6 +92,7 @@ public class SettingsService {
         LOCKS = Collections.unmodifiableMap(m);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
     private static final int ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME = 2;
     private static final int ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME = 3;
 
@@ -384,8 +383,7 @@ public class SettingsService {
     private final AvatarDao avatarDao;
     private final ApacheCommonsConfigurationService configurationService;
     private final Ehcache indexCache;
-
-    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser;
 
     private List<MusicFolder> cachedMusicFolders;
     private Pattern excludePattern;
@@ -400,6 +398,7 @@ public class SettingsService {
         this.avatarDao = avatarDao;
         this.configurationService = configurationService;
         this.indexCache = indexCache;
+        cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
     }
 
     private void removeObsoleteProperties() {

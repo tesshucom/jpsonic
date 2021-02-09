@@ -67,7 +67,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ExternalPlayerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalPlayerController.class);
-
     private static final String MAX_BIT_RATE_VALUE = "1200";
     private static final String MAX_SIZE_VALUE = "500";
 

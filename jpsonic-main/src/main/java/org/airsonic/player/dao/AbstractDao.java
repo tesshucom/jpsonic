@@ -40,6 +40,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
  * @author Sindre Mehus
  */
 public class AbstractDao {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDao.class);
 
     private final DaoHelper daoHelper;

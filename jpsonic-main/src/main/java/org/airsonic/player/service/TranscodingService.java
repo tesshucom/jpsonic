@@ -64,7 +64,6 @@ import org.springframework.stereotype.Service;
 public class TranscodingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodingService.class);
-
     public static final String FORMAT_RAW = "raw";
 
     private final TranscodingDao transcodingDao;

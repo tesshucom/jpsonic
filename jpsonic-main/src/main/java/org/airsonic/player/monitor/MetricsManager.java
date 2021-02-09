@@ -37,19 +37,17 @@ public class MetricsManager {
 
     // Main metrics registry
     private static final MetricRegistry METRICS = new MetricRegistry();
-
-    private static AtomicBoolean metricsActivatedByConfiguration = new AtomicBoolean(false);
-    private static Object lock = new Object();
-
-    // Potential metrics reporters
-    private static JmxReporter reporter;
-
+    private static final AtomicBoolean METRICS_ACTIVATED_BY_CONFIGURATION = new AtomicBoolean(false);
+    private static final Object LOCK = new Object();
     // -----------------------------------------------------------------
     // Convenient singletons to avoid creating useless objects instances
     // -----------------------------------------------------------------
     private static final NullTimer NULL_TIMER_SINGLETON = new NullTimer(null);
     private static final NullTimerBuilder CONDITION_FALSE_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
     private static final NullTimerBuilder NULL_TIMER_BUILDER_SINGLETON = new NullTimerBuilder();
+
+    // Potential metrics reporters
+    private static JmxReporter reporter;
 
     private final ApacheCommonsConfigurationService configurationService;
 
@@ -60,26 +58,26 @@ public class MetricsManager {
 
     private void configureMetricsActivation() {
         if (configurationService.containsKey("Metrics")) {
-            metricsActivatedByConfiguration.set(true);
+            METRICS_ACTIVATED_BY_CONFIGURATION.set(true);
 
             // Start a Metrics JMX reporter
             reporter = JmxReporter.forRegistry(METRICS).convertRatesTo(TimeUnit.SECONDS)
                     .convertDurationsTo(TimeUnit.MILLISECONDS).build();
             reporter.start();
         } else {
-            metricsActivatedByConfiguration.set(false);
+            METRICS_ACTIVATED_BY_CONFIGURATION.set(false);
         }
     }
 
     private boolean isMetricsActivatedByConfiguration() {
-        if (!metricsActivatedByConfiguration.get()) {
-            synchronized (lock) {
-                if (!metricsActivatedByConfiguration.get()) {
+        if (!METRICS_ACTIVATED_BY_CONFIGURATION.get()) {
+            synchronized (LOCK) {
+                if (!METRICS_ACTIVATED_BY_CONFIGURATION.get()) {
                     configureMetricsActivation();
                 }
             }
         }
-        return metricsActivatedByConfiguration.get();
+        return METRICS_ACTIVATED_BY_CONFIGURATION.get();
     }
 
     /**
@@ -138,7 +136,7 @@ public class MetricsManager {
      */
     public static class Timer implements AutoCloseable {
 
-        private com.codahale.metrics.Timer.Context timerContext;
+        private final com.codahale.metrics.Timer.Context timerContext;
 
         protected Timer(com.codahale.metrics.Timer.Context timerContext) {
             this.timerContext = timerContext;

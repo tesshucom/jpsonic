@@ -29,10 +29,10 @@ import org.springframework.security.core.GrantedAuthority;
 @SuppressWarnings("serial")
 public class JWTAuthenticationToken extends AbstractAuthenticationToken {
 
-    private final String token;
-    private String requestedPath;
-
     public static final String USERNAME_ANONYMOUS = "anonymous";
+
+    private final String token;
+    private final String requestedPath;
 
     public JWTAuthenticationToken(Collection<? extends GrantedAuthority> authorities, String token,
             String requestedPath) {

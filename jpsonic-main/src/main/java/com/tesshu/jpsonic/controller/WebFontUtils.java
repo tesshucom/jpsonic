@@ -32,17 +32,11 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class WebFontUtils {
 
     public static final int DEFAULT_FONT_SIZE = 14;
-
     public static final int DEFAULT_JP_FONT_SIZE = 15;
-
     public static final String DEFAULT_FONT_FAMILY = "-apple-system, blinkMacSystemFont, \"Helvetica Neue\", \"Segoe UI\", \"Noto Sans JP\", YuGothicM, YuGothic, Meiryo, sans-serif";
-
     public static final String JP_FONT_NAME = "Kazesawa-Regular";
-
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
-
     private static final String FONT_FAMILY_KEY = "viewhint.fontFamily";
-
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
     public static String formatFontFamily(String raw) {

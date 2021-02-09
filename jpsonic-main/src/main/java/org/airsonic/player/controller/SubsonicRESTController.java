@@ -169,7 +169,6 @@ import org.subsonic.restapi.Videos;
 public class SubsonicRESTController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubsonicRESTController.class);
-
     private static final String NOT_YET_IMPLEMENTED = "Not yet implemented";
     private static final String NO_LONGER_SUPPORTED = "No longer supported";
     private static final String MSG_PLAYLIST_NOT_FOUND = "Playlist not found: ";
@@ -211,7 +210,7 @@ public class SubsonicRESTController {
     private final CoverArtLogic logic;
     private final SearchCriteriaDirector director;
 
-    private final JAXBWriter jaxbWriter = new JAXBWriter();
+    private final JAXBWriter jaxbWriter;
 
     public SubsonicRESTController(SettingsService settingsService, SecurityService securityService,
             PlayerService playerService, MediaFileService mediaFileService, LastFmService lastFmService,
@@ -259,6 +258,7 @@ public class SubsonicRESTController {
         this.airsonicLocaleResolver = airsonicLocaleResolver;
         this.logic = logic;
         this.director = director;
+        jaxbWriter = new JAXBWriter();
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -1081,11 +1081,11 @@ public class SubsonicRESTController {
     }
 
     private static class JukeboxControlResponseParam {
-        private boolean returnPlaylist;
-        private int currentIndex;
-        private boolean playing;
-        private float gain;
-        private Integer position;
+        private final boolean returnPlaylist;
+        private final int currentIndex;
+        private final boolean playing;
+        private final float gain;
+        private final Integer position;
 
         public JukeboxControlResponseParam(boolean returnPlaylist, int currentIndex, boolean playing, float gain,
                 Integer position) {

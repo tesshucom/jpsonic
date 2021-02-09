@@ -64,34 +64,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class VersionService {
 
-    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
     private static final Logger LOG = LoggerFactory.getLogger(VersionService.class);
-
-    private Version latestFinalVersion;
-    private Version latestBetaVersion;
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd", Locale.US);
     private static final Object LATEST_LOCK = new Object();
-
-    private Version localVersion;
     private static final Object LOCAL_VERSION_LOCK = new Object();
-
-    private Date localBuildDate;
     private static final Object LOCAL_BUILD_DATE = new Object();
-
-    private String localBuildNumber;
     private static final Object LOCAL_BUILD_NUMBER_LOCK = new Object();
-
     private static final Pattern VERSION_REGEX = Pattern.compile("^v(.*)");
     private static final String VERSION_URL = "https://api.github.com/repos/jpsonic/jpsonic/releases";
-
-    /**
-     * Time when latest version was fetched (in milliseconds).
-     */
-    private long lastVersionFetched;
 
     /**
      * Only fetch last version this often (in milliseconds.).
      */
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
+
+    private Version latestFinalVersion;
+    private Version latestBetaVersion;
+    private Version localVersion;
+    private Date localBuildDate;
+    private String localBuildNumber;
+
+    /**
+     * Time when latest version was fetched (in milliseconds).
+     */
+    private long lastVersionFetched;
 
     /**
      * Returns the version number for the locally installed Jpsonic version.

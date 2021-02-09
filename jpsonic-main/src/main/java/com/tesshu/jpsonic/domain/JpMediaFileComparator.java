@@ -33,7 +33,6 @@ import org.airsonic.player.domain.MediaFileComparator;
 class JpMediaFileComparator implements MediaFileComparator {
 
     private final boolean sortAlbumsByYear;
-
     private final Comparator<Object> comparator;
 
     JpMediaFileComparator(boolean sortAlbumsByYear, Collator collator) {

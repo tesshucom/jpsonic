@@ -41,7 +41,6 @@ import org.airsonic.player.service.upnp.processor.UpnpContentProcessor;
 public interface UpnpProcessDispatcher {
 
     String OBJECT_ID_SEPARATOR = "/";
-
     String CONTAINER_ID_ROOT = "0";
     String CONTAINER_ID_PLAYLIST_PREFIX = "playlist";
     String CONTAINER_ID_FOLDER_PREFIX = "folder";

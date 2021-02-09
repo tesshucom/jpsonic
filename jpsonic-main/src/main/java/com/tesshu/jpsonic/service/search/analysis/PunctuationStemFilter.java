@@ -30,10 +30,11 @@ import org.apache.lucene.analysis.util.StemmerUtil;
 
 public class PunctuationStemFilter extends TokenFilter {
 
-    private CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+    private final CharTermAttribute termAtt;
 
     public PunctuationStemFilter(TokenStream in) {
         super(in);
+        termAtt = addAttribute(CharTermAttribute.class);
     }
 
     @SuppressWarnings("PMD.AvoidReassigningLoopVariables")

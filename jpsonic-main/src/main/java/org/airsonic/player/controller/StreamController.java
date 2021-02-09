@@ -78,7 +78,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
-
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL1 = 400;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL2 = 600;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL3 = 1800;
@@ -245,10 +244,10 @@ public class StreamController {
     }
 
     private static class PrepareResponseResult {
-        private boolean folderAccessNotAllowed;
-        private HttpRange range;
-        private Long fileLengthExpected;
-        private VideoTranscodingSettings videoTranscodingSettings;
+        private final boolean folderAccessNotAllowed;
+        private final HttpRange range;
+        private final Long fileLengthExpected;
+        private final VideoTranscodingSettings videoTranscodingSettings;
 
         public PrepareResponseResult(boolean authenticationFailed, HttpRange range, Long fileLengthExpected,
                 VideoTranscodingSettings videoTranscodingSettings) {

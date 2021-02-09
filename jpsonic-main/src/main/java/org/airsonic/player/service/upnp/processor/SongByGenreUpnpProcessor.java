@@ -40,8 +40,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SongByGenreUpnpProcessor extends UpnpContentProcessor<Genre, MediaFile> {
 
-    private SearchService searchService;
-
+    private final SearchService searchService;
     private final UpnpProcessorUtil util;
 
     public SongByGenreUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, SearchService s) {

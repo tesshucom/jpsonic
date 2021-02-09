@@ -27,15 +27,12 @@ import org.apache.lucene.search.Query;
  */
 public class LuceneSearchCriteria {
 
-    private Query parsedQuery;
-
     private final String query;
-
     private final int offset;
-
     private final int count;
-
     private final boolean includeComposer;
+
+    private Query parsedQuery;
 
     protected LuceneSearchCriteria(String query, int offset, int count, boolean includeComposer) {
         this.query = query;

@@ -99,29 +99,21 @@ public class UPnPSearchCriteriaDirector implements UPnPSearchCriteriaListener {
     private static final Logger LOG = LoggerFactory.getLogger(UPnPSearchCriteriaDirector.class);
 
     private final QueryFactory queryFactory;
-
     private final UpnpProcessorUtil upnpUtil;
-
     private final SettingsService settingsService;
-
     private final SearchServiceUtilities searchUtil;
 
     private BooleanQuery.Builder mediaTypeQueryBuilder;
-
     private BooleanQuery.Builder propExpQueryBuilder;
-
     private Occur lastLogOp;
-
     private boolean includeComposer;
-
     private Class<?> assignableClass;
-
     private int offset;
     private int count;
     private String upnpSearchQuery;
     private UPnPSearchCriteria result;
 
-    private BiConsumer<Boolean, String> notice = (b, message) -> {
+    private final BiConsumer<Boolean, String> notice = (b, message) -> {
         if (b) {
             LOG.warn("The entered query may have a grammatical error. Reason:{}", message);
         }

@@ -56,7 +56,6 @@ import org.springframework.stereotype.Service;
 public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
-
     private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
     private final UserDao userDao;

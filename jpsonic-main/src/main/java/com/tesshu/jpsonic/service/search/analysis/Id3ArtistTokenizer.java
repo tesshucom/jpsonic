@@ -31,7 +31,6 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      * see http://id3.org/ ; v2.2 / v2.3 \0 v2.4 (Required for security)
      */
     private static final int ID3_DELIM = ';' | '/' | '\0';
-
     private static final int SPACE_SEPARATOR = (int) Character.SPACE_SEPARATOR;
 
     /**

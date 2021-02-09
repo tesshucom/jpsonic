@@ -68,7 +68,7 @@ public class MainController {
     private final JpsonicComparators jpsonicComparator;
     private final RatingService ratingService;
     private final MediaFileService mediaFileService;
-    private ViewAsListSelector viewSelector;
+    private final ViewAsListSelector viewSelector;
 
     public MainController(SecurityService securityService, SettingsService settingsService,
             JpsonicComparators jpsonicComparator, RatingService ratingService, MediaFileService mediaFileService,

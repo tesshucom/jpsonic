@@ -50,8 +50,13 @@ import org.slf4j.LoggerFactory;
 public class BootstrapVerificationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootstrapVerificationFilter.class);
+
     private boolean jpsonicHomeVerified;
-    private final AtomicBoolean serverInfoLogged = new AtomicBoolean();
+    private final AtomicBoolean serverInfoLogged;
+
+    public BootstrapVerificationFilter() {
+        serverInfoLogged = new AtomicBoolean();
+    }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @Override

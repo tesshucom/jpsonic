@@ -40,6 +40,7 @@ import org.airsonic.player.domain.UserSettings;
  * @author Sindre Mehus
  */
 public class PersonalSettingsCommand {
+
     private User user;
     private UserSettings defaultSettings;
     private UserSettings tabletSettings;

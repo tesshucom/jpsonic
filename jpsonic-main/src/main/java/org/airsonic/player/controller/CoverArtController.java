@@ -94,9 +94,7 @@ import org.springframework.web.servlet.mvc.LastModified;
 public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
-
     private static final Object DIRS_LOCK = new Object();
-
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
 
     private final MediaFileService mediaFileService;

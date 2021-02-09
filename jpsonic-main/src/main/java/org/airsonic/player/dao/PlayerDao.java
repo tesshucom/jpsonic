@@ -53,13 +53,13 @@ public class PlayerDao extends AbstractDao {
             + "last_seen, cover_art_scheme, transcode_scheme, dynamic_ip, technology, client_id, mixer";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
-
-    private Map<Integer, PlayQueue> playlists = new ConcurrentHashMap<>();
+    private final PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory;
+    private final Map<Integer, PlayQueue> playlists;
 
     public PlayerDao(DaoHelper daoHelper, PlayerDaoPlayQueueFactory playerDaoPlayQueueFactory) {
         super(daoHelper);
         this.playerDaoPlayQueueFactory = playerDaoPlayQueueFactory;
+        playlists = new ConcurrentHashMap<>();
     }
 
     /**

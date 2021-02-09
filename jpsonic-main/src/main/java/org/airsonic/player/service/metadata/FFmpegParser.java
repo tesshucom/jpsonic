@@ -49,7 +49,6 @@ import org.springframework.stereotype.Service;
 public class FFmpegParser extends MetaDataParser {
 
     private static final Logger LOG = LoggerFactory.getLogger(FFmpegParser.class);
-
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private static final String[] FFPROBE_OPTIONS = { "-v", "quiet", "-print_format", "json", "-show_format",
             "-show_streams" };

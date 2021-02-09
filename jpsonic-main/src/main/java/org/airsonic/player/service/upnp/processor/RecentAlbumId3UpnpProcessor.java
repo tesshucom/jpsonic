@@ -37,11 +37,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RecentAlbumId3UpnpProcessor extends AlbumUpnpProcessor {
 
-    private final UpnpProcessorUtil util;
-
-    private final JAlbumDao albumDao;
-
     private static final int RECENT_COUNT = 51;
+
+    private final UpnpProcessorUtil util;
+    private final JAlbumDao albumDao;
 
     public RecentAlbumId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             JAlbumDao a, CoverArtLogic c) {

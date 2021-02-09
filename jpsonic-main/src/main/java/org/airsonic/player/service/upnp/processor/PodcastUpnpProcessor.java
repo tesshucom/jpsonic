@@ -56,15 +56,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Service
 public class PodcastUpnpProcessor extends UpnpContentProcessor<PodcastChannel, PodcastEpisode> {
 
-    private final UpnpProcessorUtil util;
-
-    private final MediaFileService mediaFileService;
-
-    private final PodcastService podcastService;
-
-    private final CoverArtLogic coverArtLogic;
-
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+
+    private final UpnpProcessorUtil util;
+    private final MediaFileService mediaFileService;
+    private final PodcastService podcastService;
+    private final CoverArtLogic coverArtLogic;
 
     public PodcastUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, MediaFileService m,
             PodcastService p, CoverArtLogic c) {

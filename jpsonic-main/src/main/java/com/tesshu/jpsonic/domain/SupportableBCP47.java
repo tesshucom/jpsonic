@@ -37,40 +37,42 @@ public enum SupportableBCP47 {
     ZH_TW("zh-TW"), JA_JP("ja-JP"), KO("ko-KR"), NL("nl-NL"), NO("no-NO"), NN("no-NO"), SV("sv-SE"), DA("da-DK"),
     FI("fi-FI"), IS("is-IS"), ET("et-EE");
 
-    private static Map<String, SupportableBCP47> supportableLocales = new ConcurrentHashMap<>();
+    private static final Map<String, SupportableBCP47> SUPPORTABLE_LOCALES;
 
     static {
+        SUPPORTABLE_LOCALES = new ConcurrentHashMap<>();
+
         // Add as needed
-        supportableLocales.put("en-US", EN_US);
-        supportableLocales.put("en-GB", EN_GB);
-        supportableLocales.put("fr", FR);
-        supportableLocales.put("es", ES);
-        supportableLocales.put("ca", CA);
-        supportableLocales.put("pt", PT);
-        supportableLocales.put("de", DE);
-        supportableLocales.put("it", IT);
-        supportableLocales.put("el", EL);
-        supportableLocales.put("ru", RU);
-        supportableLocales.put("sl", SL);
-        supportableLocales.put("mk", MK);
-        supportableLocales.put("pl", PL);
-        supportableLocales.put("bg", BG);
-        supportableLocales.put("cs", CS);
-        supportableLocales.put("zh-CN", ZH_CN);
-        supportableLocales.put("zh-TW", ZH_TW);
-        supportableLocales.put("ja-JP", JA_JP);
-        supportableLocales.put("ko", KO);
-        supportableLocales.put("nl", NL);
-        supportableLocales.put("no", NO);
-        supportableLocales.put("nn", NN);
-        supportableLocales.put("sv", SV);
-        supportableLocales.put("da", DA);
-        supportableLocales.put("fi", FI);
-        supportableLocales.put("is", IS);
-        supportableLocales.put("et", ET);
+        SUPPORTABLE_LOCALES.put("en-US", EN_US);
+        SUPPORTABLE_LOCALES.put("en-GB", EN_GB);
+        SUPPORTABLE_LOCALES.put("fr", FR);
+        SUPPORTABLE_LOCALES.put("es", ES);
+        SUPPORTABLE_LOCALES.put("ca", CA);
+        SUPPORTABLE_LOCALES.put("pt", PT);
+        SUPPORTABLE_LOCALES.put("de", DE);
+        SUPPORTABLE_LOCALES.put("it", IT);
+        SUPPORTABLE_LOCALES.put("el", EL);
+        SUPPORTABLE_LOCALES.put("ru", RU);
+        SUPPORTABLE_LOCALES.put("sl", SL);
+        SUPPORTABLE_LOCALES.put("mk", MK);
+        SUPPORTABLE_LOCALES.put("pl", PL);
+        SUPPORTABLE_LOCALES.put("bg", BG);
+        SUPPORTABLE_LOCALES.put("cs", CS);
+        SUPPORTABLE_LOCALES.put("zh-CN", ZH_CN);
+        SUPPORTABLE_LOCALES.put("zh-TW", ZH_TW);
+        SUPPORTABLE_LOCALES.put("ja-JP", JA_JP);
+        SUPPORTABLE_LOCALES.put("ko", KO);
+        SUPPORTABLE_LOCALES.put("nl", NL);
+        SUPPORTABLE_LOCALES.put("no", NO);
+        SUPPORTABLE_LOCALES.put("nn", NN);
+        SUPPORTABLE_LOCALES.put("sv", SV);
+        SUPPORTABLE_LOCALES.put("da", DA);
+        SUPPORTABLE_LOCALES.put("fi", FI);
+        SUPPORTABLE_LOCALES.put("is", IS);
+        SUPPORTABLE_LOCALES.put("et", ET);
     }
 
-    private String value;
+    private final String value;
 
     SupportableBCP47(String n) {
         this.value = n;
@@ -84,7 +86,7 @@ public enum SupportableBCP47 {
         if (locale == null) {
             return EN;
         }
-        SupportableBCP47 supportable = supportableLocales.get(locale.toLanguageTag());
+        SupportableBCP47 supportable = SUPPORTABLE_LOCALES.get(locale.toLanguageTag());
         if (supportable == null) {
             return EN;
         }

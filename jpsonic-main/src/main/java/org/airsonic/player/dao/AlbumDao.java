@@ -52,15 +52,14 @@ public class AlbumDao extends AbstractDao {
             + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
             + "folder_id, mb_release_id, "
             // JP >>>>
-            + "artist_sort, name_sort, artist_reading, name_reading, album_order";
-    // <<<< JP
-
+            + "artist_sort, name_sort, artist_reading, name_reading, album_order"; // <<<< JP
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final RowMapper<Album> rowMapper = new AlbumMapper();
+    private final RowMapper<Album> rowMapper;
 
     public AlbumDao(DaoHelper daoHelper) {
         super(daoHelper);
+        rowMapper = new AlbumMapper();
     }
 
     public Album getAlbum(int id) {
@@ -139,8 +138,8 @@ public class AlbumDao extends AbstractDao {
                 + "year=?," + "genre=?," + "play_count=?," + "last_played=?," + "comment=?," + "created=?,"
                 + "last_scanned=?," + "present=?, " + "folder_id=?, " + "mb_release_id=?, "
                 // JP >>>>
-                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? "
-                // <<<< JP
+                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? " // <<<<
+                                                                                                                     // JP
                 + "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(),
@@ -149,8 +148,7 @@ public class AlbumDao extends AbstractDao {
                 album.getMusicBrainzReleaseId(),
                 // JP >>>>
                 album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(),
-                album.getOrder(),
-                // <<<< JP
+                album.getOrder(), // <<<< JP
                 album.getArtist(), album.getName());
 
         if (n == 0) {
@@ -161,8 +159,8 @@ public class AlbumDao extends AbstractDao {
                     album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
                     album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
                     // JP >>>>
-                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(), -1);
-            // <<<< JP
+                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(), -1); // <<<<
+                                                                                                                       // JP
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(),
@@ -433,8 +431,7 @@ public class AlbumDao extends AbstractDao {
                     rs.getInt(10), rs.getTimestamp(11), rs.getString(12), rs.getTimestamp(13), rs.getTimestamp(14),
                     rs.getBoolean(15), rs.getInt(16), rs.getString(17),
                     // JP >>>>
-                    rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22));
-            // <<<< JP
+                    rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22)); // <<<< JP
         }
     }
 

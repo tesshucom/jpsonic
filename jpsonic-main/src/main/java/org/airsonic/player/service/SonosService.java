@@ -114,7 +114,6 @@ import org.w3c.dom.Node;
 public class SonosService implements SonosSoap {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosService.class);
-
     public static final String ID_ROOT = "root";
     public static final String ID_SHUFFLE = "shuffle";
     public static final String ID_ALBUMLISTS = "albumlists";
@@ -137,7 +136,6 @@ public class SonosService implements SonosSoap {
     public static final String ID_DECADE_PREFIX = "decade:";
     public static final String ID_GENRE_PREFIX = "genre:";
     public static final String ID_SIMILAR_ARTISTS_PREFIX = "similarartists:";
-
     // Note: These must match the values in presentationMap.xml
     public static final String ID_SEARCH_ARTISTS = "search-artists";
     public static final String ID_SEARCH_ALBUMS = "search-albums";

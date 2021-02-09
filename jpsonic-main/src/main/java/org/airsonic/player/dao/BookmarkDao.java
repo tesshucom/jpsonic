@@ -41,10 +41,11 @@ public class BookmarkDao extends AbstractDao {
     private static final String INSERT_COLUMNS = "media_file_id, position_millis, username, comment, created, changed";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private BookmarkRowMapper bookmarkRowMapper = new BookmarkRowMapper();
+    private final BookmarkRowMapper bookmarkRowMapper;
 
     public BookmarkDao(DaoHelper daoHelper) {
         super(daoHelper);
+        bookmarkRowMapper = new BookmarkRowMapper();
     }
 
     /**

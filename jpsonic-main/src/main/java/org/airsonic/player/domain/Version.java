@@ -33,6 +33,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
  * @version $Revision: 1.3 $ $Date: 2006/01/20 21:25:16 $
  */
 public class Version implements Comparable<Version> {
+
     private final DefaultArtifactVersion internalVersion;
 
     /**

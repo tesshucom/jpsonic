@@ -71,21 +71,20 @@ import org.springframework.stereotype.Service;
 public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
-
     private static final Object LOCK = new Object();
 
     private final SettingsService settingsService;
     private final CustomContentDirectory dispatchingContentDirectory;
+    private final AtomicReference<Boolean> running;
 
     private UpnpService deligate;
-
-    private AtomicReference<Boolean> running = new AtomicReference<>(false);
 
     public UPnPService(SettingsService settingsService,
             @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory) {
         super();
         this.settingsService = settingsService;
         this.dispatchingContentDirectory = dispatchingContentDirectory;
+        running = new AtomicReference<>(false);
     }
 
     @PostConstruct

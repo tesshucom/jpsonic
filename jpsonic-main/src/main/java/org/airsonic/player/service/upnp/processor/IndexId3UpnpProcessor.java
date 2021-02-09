@@ -64,26 +64,21 @@ import org.subsonic.restapi.IndexID3;
 public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3Wrapper> {
 
     private static final AtomicInteger INDEX_IDS = new AtomicInteger(Integer.MIN_VALUE);
+    // Only on write (because it can be explicitly reloaded on the client and is less risky)
+    private static final Object LOCK = new Object();
+    private static final String TYPE_PREFIX_ARTIST = "artist:";
+    private static final String TYPE_PREFIX_ALBUM = "album:";
 
     private final UpnpProcessorUtil util;
     private final JMediaFileService mediaFileService;
     private final MusicIndexService musicIndexService;
     private final ArtistDao artistDao;
     private final JAlbumDao albumDao;
-
     private final Ehcache indexCache;
 
-    // Only on write (because it can be explicitly reloaded on the client and is less risky)
-    private static final Object LOCK = new Object();
-
     private ArtistsID3 content;
-
     private Map<String, Id3Wrapper> indexesMap;
-
     private List<Id3Wrapper> topNodes;
-
-    private static final String TYPE_PREFIX_ARTIST = "artist:";
-    private static final String TYPE_PREFIX_ALBUM = "album:";
 
     public IndexId3UpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             MusicIndexService mi, ArtistDao ad, JAlbumDao ald, Ehcache indexCache) {
@@ -318,7 +313,7 @@ public class IndexId3UpnpProcessor extends UpnpContentProcessor<Id3Wrapper, Id3W
         private IndexID3 index;
         private MediaFile song;
 
-        private String name;
+        private final String name;
         private String artist;
         private String comment;
         private int childCount;
