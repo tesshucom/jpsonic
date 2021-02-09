@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayStatus;
@@ -215,7 +214,7 @@ public class StatusService {
                     Date time = new Date(System.currentTimeMillis() - streamStatus.getMillisSinceLastUpdate());
                     result.put(player.getId(), new PlayStatus(mediaFile, player, time));
                 }
-                return unmodifiableList(result.values().stream().collect(Collectors.toList()));
+                return unmodifiableList(new ArrayList<>(result.values()));
             }
         }
     }

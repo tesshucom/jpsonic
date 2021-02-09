@@ -427,8 +427,7 @@ public class PlayQueue {
             files = filesBackup;
             indexBackup = indexTmp;
 
-            List<MediaFile> filesTmp = new ArrayList<>(files);
-            filesBackup = filesTmp;
+            filesBackup = new ArrayList<>(files);
         }
     }
 

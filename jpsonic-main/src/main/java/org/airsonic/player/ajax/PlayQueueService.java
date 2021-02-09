@@ -33,11 +33,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.InternetRadioDao;
@@ -126,8 +126,6 @@ public class PlayQueueService {
      * Returns the play queue for the player of the current user.
      *
      * @return The play queue.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo getPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -286,8 +284,6 @@ public class PlayQueueService {
      * @param startIndex
      *            Start playing at this index in the list of radio streams, or play whole radio playlist if
      *            {@code null}.
-     * 
-     * @throws ExecutionException
      */
     public PlayQueueInfo playInternetRadio(int id, Integer startIndex)
             throws ServletRequestBindingException, ExecutionException {
@@ -318,8 +314,6 @@ public class PlayQueueService {
     /**
      * @param startIndex
      *            Start playing at this index, or play whole playlist if {@code null}.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -348,8 +342,6 @@ public class PlayQueueService {
     /**
      * @param startIndex
      *            Start playing at this index, or play all top songs if {@code null}.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo playTopSong(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -419,8 +411,8 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
         List<PodcastEpisode> episodes = podcastService.getNewestEpisodes(10);
-        List<MediaFile> files = Lists.transform(episodes,
-                episode -> mediaFileService.getMediaFile(episode.getMediaFileId()));
+        List<MediaFile> files = episodes.stream()
+                .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId())).collect(Collectors.toList());
 
         String username = securityService.getCurrentUsername(request);
         boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();

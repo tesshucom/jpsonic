@@ -82,13 +82,13 @@ public class SearchController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model) {
+    protected void formBackingObject(Model model) {
         model.addAttribute(Attributes.Model.Command.VALUE, new SearchCommand());
     }
 
     @PostMapping
     protected String onSubmit(HttpServletRequest request, HttpServletResponse response,
-            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command, Model model)
+            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command)
             throws ServletRequestBindingException, IOException {
 
         User user = securityService.getCurrentUser(request);

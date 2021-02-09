@@ -23,8 +23,6 @@ package org.airsonic.player.service.upnp;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public interface Router {
 

@@ -23,8 +23,6 @@ package org.airsonic.player.service.sonos;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class SonosSoapFault extends RuntimeException {

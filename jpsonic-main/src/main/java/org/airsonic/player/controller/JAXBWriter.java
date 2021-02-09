@@ -55,8 +55,6 @@ import org.subsonic.restapi.ResponseStatus;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class JAXBWriter {
 

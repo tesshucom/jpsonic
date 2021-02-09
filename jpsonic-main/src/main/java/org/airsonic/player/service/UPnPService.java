@@ -64,8 +64,6 @@ import org.springframework.stereotype.Service;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class UPnPService {

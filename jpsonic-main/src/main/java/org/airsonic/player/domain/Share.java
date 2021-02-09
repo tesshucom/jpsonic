@@ -27,8 +27,6 @@ import java.util.Date;
  * A collection of media files that is shared with someone, and accessible via a direct URL.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class Share {
 

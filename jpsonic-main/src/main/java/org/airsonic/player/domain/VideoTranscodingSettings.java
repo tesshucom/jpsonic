@@ -25,8 +25,6 @@ package org.airsonic.player.domain;
  * Parameters used when transcoding videos.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class VideoTranscodingSettings {
 

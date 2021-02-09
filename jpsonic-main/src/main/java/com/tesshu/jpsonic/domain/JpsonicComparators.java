@@ -123,8 +123,6 @@ public class JpsonicComparators {
      *
      * @param parent
      *            The common parent of the list to sort. Null for hierarchy-independent or top-level sorting.
-     * 
-     * @return
      */
     public MediaFileComparator mediaFileOrder(@Nullable MediaFile parent) {
         return new JpMediaFileComparator(isSortAlbumsByYear(parent), createCollator());
@@ -132,10 +130,6 @@ public class JpsonicComparators {
 
     /**
      * Returns a comparator for sorting MediaFiles by specifying a field regardless of MediaType.
-     *
-     * @param orderBy
-     * 
-     * @return
      */
     public Comparator<MediaFile> mediaFileOrderBy(@NonNull OrderBy orderBy) {
         return (a, b) -> {

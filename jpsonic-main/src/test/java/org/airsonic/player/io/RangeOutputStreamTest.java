@@ -35,8 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @SpringBootTest
 public class RangeOutputStreamTest {

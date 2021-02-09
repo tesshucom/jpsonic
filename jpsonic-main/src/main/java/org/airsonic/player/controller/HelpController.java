@@ -31,7 +31,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.User;
 import org.airsonic.player.i18n.AirsonicLocaleResolver;
@@ -74,7 +73,7 @@ public class HelpController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         if (versionService.isNewFinalVersionAvailable()) {

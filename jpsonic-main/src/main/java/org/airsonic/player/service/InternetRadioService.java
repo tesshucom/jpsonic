@@ -185,11 +185,6 @@ public class InternetRadioService {
      *            an internet radio
      * 
      * @return a list of internet radio sources
-     * 
-     * @throws Exception
-     * @throws PlaylistException
-     * @throws IOException
-     * @throws MalformedURLException
      */
     @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio)
@@ -211,10 +206,6 @@ public class InternetRadioService {
      *            maximum number of redirects, or 0 if unlimited
      * 
      * @return a list of internet radio sources
-     * 
-     * @throws PlaylistException
-     * @throws IOException
-     * @throws MalformedURLException
      */
     @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     private List<InternetRadioSource> retrieveInternetRadioSources(InternetRadio radio, int maxCount, long maxByteSize,

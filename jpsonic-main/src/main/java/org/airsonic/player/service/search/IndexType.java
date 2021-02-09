@@ -81,7 +81,7 @@ public enum IndexType {
      * @return Map of boost values ​​to be applied to the field
      */
     @SafeVarargs
-    private static final Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
+    private static Map<String, Float> boosts(SimpleEntry<String, Float>... entry) {
         Map<String, Float> m = LegacyMap.of();
         Arrays.stream(entry).forEach(kv -> m.put(kv.getKey(), kv.getValue()));
         return Collections.unmodifiableMap(m);
@@ -94,8 +94,6 @@ public enum IndexType {
      *            Field name defined by FieldNames
      * @param v
      *            Boost value
-     * 
-     * @return
      */
     private static SimpleEntry<String, Float> entry(String k, float v) {
         return new AbstractMap.SimpleEntry<>(k, v);
@@ -104,10 +102,6 @@ public enum IndexType {
     /**
      * Defines the field that the input value is to search for when searching IndexType. If you specify multiple values,
      * list the field names.
-     * 
-     * @param names
-     * 
-     * @return
      */
     private static String[] fieldNames(String... names) {
         return Arrays.stream(names).toArray(String[]::new);

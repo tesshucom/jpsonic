@@ -115,13 +115,9 @@ public final class ComplementaryFilter extends TokenFilter {
             if (Mode.STOP_WORDS_ONLY != mode && isHiraKataOnly(term)) {
                 return true;
             }
-
-            input.end();
-            return false;
-        } else {
-            input.end();
-            return false;
         }
+        input.end();
+        return false;
     }
 
     private boolean isHiraKataOnly(String str) {

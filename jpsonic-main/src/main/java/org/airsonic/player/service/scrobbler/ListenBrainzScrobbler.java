@@ -155,7 +155,7 @@ public class ListenBrainzScrobbler {
         Map<String, Object> content = LegacyMap.of();
 
         if (registrationData.submission) {
-            payload.put("listened_at", Long.valueOf(registrationData.getTime().getTime() / 1000L));
+            payload.put("listened_at", registrationData.getTime().getTime() / 1000L);
             content.put("listen_type", "single");
         } else {
             content.put("listen_type", "playing_now");

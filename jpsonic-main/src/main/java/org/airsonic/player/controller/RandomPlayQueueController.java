@@ -350,9 +350,7 @@ public class RandomPlayQueueController {
             doesShowUnstarredSongs = true;
         } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
             doesShowStarredSongs = true;
-            doesShowUnstarredSongs = false;
         } else if (StringUtils.equalsIgnoreCase("unstarred", songRating)) {
-            doesShowStarredSongs = false;
             doesShowUnstarredSongs = true;
         }
         return new SongRating(doesShowStarredSongs, doesShowUnstarredSongs);

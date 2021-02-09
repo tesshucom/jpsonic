@@ -37,7 +37,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.DaoHelper;
@@ -110,7 +109,7 @@ public class InternalHelpController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         map.put("admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()));

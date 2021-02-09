@@ -34,8 +34,6 @@ import org.springframework.beans.factory.InitializingBean;
  * Initializes Ehcache and creates caches.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class CacheFactory implements InitializingBean {
 

@@ -31,8 +31,6 @@ import java.util.List;
  * apps.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class SavedPlayQueue {
 

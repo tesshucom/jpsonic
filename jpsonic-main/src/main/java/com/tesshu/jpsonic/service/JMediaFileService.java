@@ -57,8 +57,6 @@ public class JMediaFileService {
     /**
      * Returns the number of child elements of the specified mediaFile.
      * 
-     * @param mediaFile
-     * 
      * @return the number of child elements
      */
     public int getChildSizeOf(MediaFile mediaFile) {
@@ -67,8 +65,6 @@ public class JMediaFileService {
 
     /**
      * Returns the number of child elements of the specified musicFolder.
-     * 
-     * @param musicFolder
      * 
      * @return the number of child elements
      */
@@ -134,7 +130,7 @@ public class JMediaFileService {
      *            Number of songs to skip.
      * @param count
      *            Maximum number of songs to return.
-     * @param album
+     * @param albumArtist
      *            album-artist
      * @param album
      *            name of album

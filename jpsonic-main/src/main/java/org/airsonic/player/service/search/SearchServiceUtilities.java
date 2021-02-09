@@ -141,7 +141,7 @@ public class SearchServiceUtilities {
     }
 
     public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {
-        if (!dist.stream().anyMatch(m -> id == m.getId())) {
+        if (dist.stream().noneMatch(m -> id == m.getId())) {
             MediaFile mediaFile = mediaFileService.getMediaFile(id);
             if (!isEmpty(mediaFile)) {
                 dist.add(mediaFile);
@@ -150,7 +150,7 @@ public class SearchServiceUtilities {
     }
 
     public final void addArtistId3IfAnyMatch(List<Artist> dist, Integer id) {
-        if (!dist.stream().anyMatch(a -> id == a.getId())) {
+        if (dist.stream().noneMatch(a -> id == a.getId())) {
             Artist artist = artistDao.getArtist(id);
             if (!isEmpty(artist)) {
                 dist.add(artist);
@@ -159,7 +159,7 @@ public class SearchServiceUtilities {
     }
 
     public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer subjectId) {
-        if (!dist.stream().anyMatch(a -> subjectId == a.getId())) {
+        if (dist.stream().noneMatch(a -> subjectId == a.getId())) {
             Album album = albumDao.getAlbum(subjectId);
             if (!isEmpty(album)) {
                 dist.add(album);

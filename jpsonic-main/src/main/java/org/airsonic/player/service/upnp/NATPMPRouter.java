@@ -26,8 +26,6 @@ import com.hoodcomputing.natpmp.NatPmpDevice;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public final class NATPMPRouter implements Router {
 

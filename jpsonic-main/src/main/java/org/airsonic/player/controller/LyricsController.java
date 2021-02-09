@@ -22,7 +22,6 @@
 package org.airsonic.player.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.util.LegacyMap;
@@ -41,7 +40,7 @@ import org.springframework.web.servlet.ModelAndView;
 public class LyricsController {
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         return new ModelAndView("lyrics", "model",
                 LegacyMap.of("artist", request.getParameter(Attributes.Request.ARTIST.value()), "song",
                         request.getParameter(Attributes.Request.SONG.value())));

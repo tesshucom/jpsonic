@@ -43,11 +43,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.PodcastDao;
 import org.airsonic.player.domain.MediaFile;
@@ -258,14 +257,14 @@ public class PodcastService {
     public List<PodcastEpisode> getNewestEpisodes(int count) {
         List<PodcastEpisode> episodes = addMediaFileIdToEpisodes(podcastDao.getNewestEpisodes(count));
 
-        return Lists.newArrayList(Iterables.filter(episodes, episode -> {
+        return episodes.stream().filter(episode -> {
             Integer mediaFileId = episode.getMediaFileId();
             if (mediaFileId == null) {
                 return false;
             }
             MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
             return mediaFile != null && mediaFile.isPresent();
-        }));
+        }).collect(Collectors.toList());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable

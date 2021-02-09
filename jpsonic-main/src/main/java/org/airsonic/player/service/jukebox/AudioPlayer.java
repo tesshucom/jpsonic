@@ -46,8 +46,6 @@ import org.slf4j.LoggerFactory;
  * Supports pause and resume, but not restarting.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class AudioPlayer {
 

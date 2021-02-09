@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
@@ -85,8 +84,7 @@ public class PodcastController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ExecutionException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ExecutionException {
 
         if (!settingsService.isPublishPodcast()) {
             throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));

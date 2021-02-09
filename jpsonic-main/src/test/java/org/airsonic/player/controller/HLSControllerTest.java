@@ -35,8 +35,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id: StreamControllerTestCase.java 3307 2013-01-04 13:48:49Z sindre_mehus $
  */
 @SpringBootTest
 public class HLSControllerTest extends AbstractAirsonicHomeTest {

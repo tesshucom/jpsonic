@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
@@ -67,7 +66,7 @@ public class StatusController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 
         List<TransferStatus> streamStatuses = statusService.getAllStreamStatuses();
         List<TransferStatus> downloadStatuses = statusService.getAllDownloadStatuses();

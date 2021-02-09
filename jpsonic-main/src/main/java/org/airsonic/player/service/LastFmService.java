@@ -29,13 +29,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
@@ -58,8 +58,6 @@ import org.springframework.stereotype.Service;
  * Provides services from the Last.fm REST API.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class LastFmService {
@@ -425,7 +423,7 @@ public class LastFmService {
             }
 
             Collection<Album> matches = Album.search(query.toString(), LAST_FM_KEY);
-            return FluentIterable.from(matches).transform(this::convert).filter(Predicates.notNull()).toList();
+            return matches.stream().map(this::convert).filter(Objects::nonNull).collect(Collectors.toList());
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);

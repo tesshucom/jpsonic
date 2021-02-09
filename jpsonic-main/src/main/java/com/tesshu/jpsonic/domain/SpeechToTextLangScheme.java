@@ -29,7 +29,7 @@ public enum SpeechToTextLangScheme {
      */
     DEFAULT,
 
-    /**
+    /*
      * Unspecified explicitly. (For the browser's Javascript speech recognition engine, unspecified means the browser
      * agent's language.)
      */

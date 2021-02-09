@@ -22,7 +22,6 @@
 package org.airsonic.player.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -56,8 +55,7 @@ public class PodcastReceiverAdminController {
     }
 
     @RequestMapping(method = { RequestMethod.POST, RequestMethod.GET })
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
         if (request.getParameter(Attributes.Request.ADD.value()) != null) {
             String url = StringUtils.trim(request.getParameter(Attributes.Request.ADD.value()));

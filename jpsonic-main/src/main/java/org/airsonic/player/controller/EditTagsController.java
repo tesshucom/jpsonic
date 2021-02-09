@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
@@ -71,8 +70,7 @@ public class EditTagsController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
         int id = ServletRequestUtils.getRequiredIntParameter(request, Attributes.Request.ID.value());
         MediaFile dir = mediaFileService.getMediaFile(id);

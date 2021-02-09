@@ -286,10 +286,6 @@ public class JapaneseReadingUtils {
     /**
      * There is no easy way to normalize Japanese words. Uses relatively natural NFKC, eliminates over-processing and
      * adds under-processing.
-     *
-     * @param s
-     * 
-     * @return
      */
     private String normalize(@Nullable String s) {
         if (isEmpty(s)) {
@@ -299,17 +295,15 @@ public class JapaneseReadingUtils {
         StringBuilder excluded = new StringBuilder();
         int start = 0;
         int i = s.indexOf(TILDE);
-        if (-1 == i) {
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
-        } else {
+        if (-1 != i) {
             while (-1 != i) {
                 excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
                 excluded.append(TILDE);
                 start = i + 1;
                 i = s.indexOf(TILDE, i + 1);
             }
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
         }
+        excluded.append(Normalizer.normalize(s.substring(start), Normalizer.Form.NFKC));
 
         // Convert certain strings additionally
         String expanded = excluded.toString();
@@ -323,8 +317,6 @@ public class JapaneseReadingUtils {
      * 
      * @param japaneseReading
      *            string after analysis
-     * 
-     * @return
      */
     public String removePunctuationFromJapaneseReading(String japaneseReading) {
         if (isJapaneseReading(japaneseReading)) {

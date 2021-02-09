@@ -121,7 +121,7 @@ public class MusicIndexService {
 
         for (T artist : artists) {
             MusicIndex index = getIndex(artist, indexes);
-            List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<T>());
+            List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<>());
             artistSet.add(artist);
         }
 

@@ -246,7 +246,7 @@ public class MediaFileUpnpProcessor extends UpnpContentProcessor<MediaFile, Medi
         if (seconds == null) {
             return null;
         }
-        return StringUtil.formatDurationHMMSS((int) seconds) + ".0";
+        return StringUtil.formatDurationHMMSS(seconds) + ".0";
     }
 
     public final URI createArtistArtURI(MediaFile artist) {

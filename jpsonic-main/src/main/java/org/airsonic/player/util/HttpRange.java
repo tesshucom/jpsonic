@@ -28,8 +28,6 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class HttpRange {
 

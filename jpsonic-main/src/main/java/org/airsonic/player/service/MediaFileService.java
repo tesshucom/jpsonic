@@ -283,7 +283,7 @@ public class MediaFileService {
      * 
      * @return Sorted list of genres.
      * 
-     * @Deprecated Use {@link SearchService}{@link #getGenres(boolean)}.
+     * @Deprecated Use {@link SearchService} {@link #getGenres(boolean)}.
      */
     @Deprecated
     public List<Genre> getGenres(boolean sortByAlbum) {

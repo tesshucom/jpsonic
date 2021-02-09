@@ -81,7 +81,7 @@ import org.springframework.stereotype.Service;
 public class SettingsService {
 
     private enum LocksKeys {
-        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES;
+        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES
     }
 
     private static final Map<LocksKeys, Object> LOCKS;

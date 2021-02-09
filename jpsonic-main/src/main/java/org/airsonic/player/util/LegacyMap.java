@@ -37,7 +37,7 @@ public final class LegacyMap {
      * The part that calls this may simply not be replaced.
      */
     public static <K, V> java.util.Map<K, V> of() {
-        return new HashMap<K, V>();
+        return new HashMap<>();
     }
 
     public static <K, V> java.util.Map<K, V> of(K k1, V v1, K k2, V v2) {
@@ -113,11 +113,7 @@ public final class LegacyMap {
 
     public static <K, V> java.util.Map<K, V> of(K key, V value) {
         java.util.Map<K, V> result = new HashMap<>(1);
-        @SuppressWarnings("unchecked")
-        K k = (K) key;
-        @SuppressWarnings("unchecked")
-        V v = (V) value;
-        result.put(k, v);
+        result.put(key, value);
         return result;
     }
 

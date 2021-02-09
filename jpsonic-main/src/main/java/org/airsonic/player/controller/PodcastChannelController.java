@@ -22,7 +22,6 @@
 package org.airsonic.player.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.CoverArtScheme;
@@ -55,8 +54,7 @@ public class PodcastChannelController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
         ModelAndView result = new ModelAndView();
 

@@ -26,8 +26,6 @@ package org.airsonic.player.domain;
  * should be.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.3 $ $Date: 2005/06/15 18:10:40 $
  */
 public enum CoverArtScheme {
 

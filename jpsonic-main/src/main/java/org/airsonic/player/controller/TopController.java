@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
@@ -92,7 +91,7 @@ public class TopController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response,
+    protected ModelAndView handleRequestInternal(HttpServletRequest request,
             @RequestParam("mainView") Optional<String> mainView) throws ServletRequestBindingException {
 
         Map<String, Object> map = LegacyMap.of();
@@ -176,8 +175,6 @@ public class TopController {
 
     /**
      * This method is only used by RESTController.
-     * 
-     * @throws ServletRequestBindingException
      */
     public long getLastModified(HttpServletRequest request) throws ServletRequestBindingException {
         saveSelectedMusicFolder(request);

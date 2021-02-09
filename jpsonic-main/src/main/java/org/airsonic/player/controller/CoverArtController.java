@@ -273,10 +273,9 @@ public class CoverArtController implements LastModified {
         String lockKey = cachedImage.getPath();
 
         Object lock = new Object();
-        synchronized (lock) {
+        IMG_LOCKS.putIfAbsent(lockKey, lock);
 
-            IMG_LOCKS.putIfAbsent(lockKey, lock);
-
+        synchronized (IMG_LOCKS.get(lockKey)) {
             if (lock.equals(IMG_LOCKS.get(lockKey))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {

@@ -30,8 +30,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * Represents a list of genres.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.2 $ $Date: 2005/12/25 13:48:46 $
  */
 public class Genres {
 
@@ -62,6 +60,6 @@ public class Genres {
     }
 
     public List<Genre> getGenres() {
-        return new ArrayList<Genre>(genreMap.values());
+        return new ArrayList<>(genreMap.values());
     }
 }

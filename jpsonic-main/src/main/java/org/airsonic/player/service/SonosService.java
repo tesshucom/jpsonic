@@ -107,8 +107,6 @@ import org.w3c.dom.Node;
  * --format -
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class SonosService implements SonosSoap {

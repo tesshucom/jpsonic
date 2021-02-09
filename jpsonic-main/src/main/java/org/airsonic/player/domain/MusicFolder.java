@@ -25,17 +25,15 @@ import java.io.File;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
 import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
 
 /**
  * Represents a top level directory in which music or other media is stored.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.1 $ $Date: 2005/11/27 14:32:05 $
  */
 @SuppressWarnings("serial")
 public class MusicFolder implements Serializable {
@@ -186,11 +184,11 @@ public class MusicFolder implements Serializable {
     }
 
     public static List<Integer> toIdList(List<MusicFolder> from) {
-        return Lists.transform(from, toId());
+        return from.stream().map(toId()).collect(Collectors.toList());
     }
 
     public static List<String> toPathList(List<MusicFolder> from) {
-        return Lists.transform(from, toPath());
+        return from.stream().map(toPath()).collect(Collectors.toList());
     }
 
     public static Function<MusicFolder, Integer> toId() {

@@ -23,7 +23,6 @@ import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.User;
@@ -49,7 +48,7 @@ public class UploadEntryController {
     }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 
         User user = securityService.getCurrentUser(request);
 

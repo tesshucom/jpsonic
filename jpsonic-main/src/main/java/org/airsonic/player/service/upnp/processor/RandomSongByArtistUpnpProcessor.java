@@ -102,8 +102,7 @@ public class RandomSongByArtistUpnpProcessor extends UpnpContentProcessor<Artist
         int randomMax = settingsService.getDlnaRandomMax();
         int offset = (int) first;
         int count = (offset + (int) maxResults) > randomMax ? randomMax - offset : (int) maxResults;
-        return searchService.getRandomSongsByArtist(artist, (int) count, (int) offset, randomMax,
-                util.getAllMusicFolders());
+        return searchService.getRandomSongsByArtist(artist, count, offset, randomMax, util.getAllMusicFolders());
     }
 
     @Override

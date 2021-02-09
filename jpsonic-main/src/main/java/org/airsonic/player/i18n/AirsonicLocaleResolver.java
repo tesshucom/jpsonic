@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -64,7 +65,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
      * @return The current locale.
      */
     @Override
-    public Locale resolveLocale(HttpServletRequest request) {
+    public @NonNull Locale resolveLocale(HttpServletRequest request) {
         Locale locale = (Locale) request.getAttribute("airsonic.locale");
         if (locale != null) {
             return locale;

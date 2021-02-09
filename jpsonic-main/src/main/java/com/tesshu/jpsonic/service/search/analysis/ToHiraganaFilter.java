@@ -51,7 +51,7 @@ public final class ToHiraganaFilter extends TokenFilter {
         this.replaceableAttribute = new ReplaceableTermAttribute();
         if (transform.getFilter() == null && transform instanceof com.ibm.icu.text.RuleBasedTransliterator) {
             final UnicodeSet sourceSet = transform.getSourceSet();
-            if (sourceSet != null && !sourceSet.isEmpty()) {
+            if (!sourceSet.isEmpty()) {
                 transform.setFilter(sourceSet);
             }
         }

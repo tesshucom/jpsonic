@@ -116,11 +116,7 @@ public class PlayQueueInputStream extends InputStream {
             populateRandomPlaylist(playQueue);
         }
 
-        MediaFile result;
-        synchronized (playQueue) {
-            result = playQueue.getCurrentFile();
-        }
-        MediaFile file = result;
+        MediaFile file = playQueue.getCurrentFile();
         if (file == null) {
             close();
         } else if (!file.equals(currentFile)) {

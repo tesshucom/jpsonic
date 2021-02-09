@@ -83,8 +83,6 @@ public class PlayerService {
 
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
-     * 
-     * @throws ServletRequestBindingException
      */
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response)
             throws ServletRequestBindingException {
@@ -104,8 +102,6 @@ public class PlayerService {
      *            Whether the HTTP request is a request for streaming data.
      * 
      * @return The player associated with the given HTTP request.
-     * 
-     * @throws ServletRequestBindingException
      */
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
             boolean isStreamRequest) throws ServletRequestBindingException {

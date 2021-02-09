@@ -22,7 +22,6 @@
 package org.airsonic.player.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class AccessDeniedController {
     private static final Logger LOG = LoggerFactory.getLogger(AccessDeniedController.class);
 
     @GetMapping
-    public ModelAndView accessDenied(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView accessDenied(HttpServletRequest request) {
         if (LOG.isInfoEnabled()) {
             LOG.info("The IP {} tried to access the forbidden url {}.", request.getRemoteAddr(),
                     request.getRequestURL());

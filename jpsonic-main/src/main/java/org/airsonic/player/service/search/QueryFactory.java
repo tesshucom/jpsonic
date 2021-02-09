@@ -305,7 +305,7 @@ public class QueryFactory {
      * {@link org.airsonic.player.service.SearchService#searchByName( String, String, int, int, List, Class)}.
      * 
      * @param fieldName
-     *            {@link FieldNames}
+     *            {@link FieldNamesConstants}
      * 
      * @return Query
      * 
@@ -377,8 +377,6 @@ public class QueryFactory {
     /**
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
-     * 
-     * @param musicFolders
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
@@ -416,10 +414,6 @@ public class QueryFactory {
      * {@link org.airsonic.player.service.SearchService#getSongsByGenre(String, int, int, List)} Query generation
      * expression extracted from
      * {@link org.airsonic.player.service.SearchService#getAlbumsByGenre(int, int, String, List)}
-     * 
-     * @param musicFolders
-     * 
-     * @return
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")

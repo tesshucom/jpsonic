@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
@@ -72,8 +71,7 @@ public class ShareManagementController {
     }
 
     @GetMapping
-    public ModelAndView createShare(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    public ModelAndView createShare(HttpServletRequest request) throws ServletRequestBindingException {
 
         List<MediaFile> files = getMediaFiles(request);
         MediaFile dir = null;

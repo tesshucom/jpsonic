@@ -33,7 +33,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
@@ -76,7 +75,7 @@ public class RecoverController {
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
-    public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView recover(HttpServletRequest request) {
 
         Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils

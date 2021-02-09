@@ -27,8 +27,6 @@ import java.util.Date;
  * Represents the playback of a track, possibly remote (e.g., a cached song on a mobile phone).
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class PlayStatus {
 

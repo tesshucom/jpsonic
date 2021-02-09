@@ -25,8 +25,6 @@ import java.util.Date;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class Artist {
 

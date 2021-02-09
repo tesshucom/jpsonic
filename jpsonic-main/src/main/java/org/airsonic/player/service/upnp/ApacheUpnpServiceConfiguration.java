@@ -36,8 +36,6 @@ import org.fourthline.cling.transport.spi.StreamServer;
  * UPnP configuration which uses Apache HttpComponents. Needed to make UPnP work when deploying on Tomcat.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class ApacheUpnpServiceConfiguration extends DefaultUpnpServiceConfiguration {
 

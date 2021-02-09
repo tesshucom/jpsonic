@@ -74,7 +74,7 @@ public class PlaylistDao extends AbstractDao {
         for (Playlist playlist : result3) {
             map.put(playlist.getId(), playlist);
         }
-        return new ArrayList<Playlist>(map.values());
+        return new ArrayList<>(map.values());
     }
 
     public List<Playlist> getWritablePlaylistsForUser(String username) {
