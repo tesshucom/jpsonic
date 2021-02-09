@@ -291,8 +291,10 @@ public class LastFMScrobbler {
                     scrobble(registrationData);
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
+                    break;
                 } catch (Exception x) {
                     writeWarn("Error in Last.fm registration: " + x.toString());
+                    break;
                 }
             }
         }

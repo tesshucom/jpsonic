@@ -216,12 +216,15 @@ public class ListenBrainzScrobbler {
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("Error in ListenBrainz registration.", e);
                     }
+                    break;
                 } catch (IOException e) {
                     handleNetworkError(registrationData, e.toString());
+                    break;
                 } catch (Exception e) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Error in ListenBrainz registration.", e);
                     }
+                    break;
                 }
             }
         }
