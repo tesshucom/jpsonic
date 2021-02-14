@@ -90,6 +90,7 @@ public class SettingsServiceUserSettingsTest extends AbstractAirsonicHomeTest {
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
+        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
     }
 
     @Test
@@ -117,6 +118,7 @@ public class SettingsServiceUserSettingsTest extends AbstractAirsonicHomeTest {
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
+        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
     }
 
     @Test
@@ -144,6 +146,7 @@ public class SettingsServiceUserSettingsTest extends AbstractAirsonicHomeTest {
         assertEquals(FontScheme.DEFAULT.name(), userSettings.getFontSchemeName());
         assertEquals(WebFontUtils.DEFAULT_FONT_FAMILY, userSettings.getFontFamily());
         assertEquals(WebFontUtils.DEFAULT_FONT_SIZE, userSettings.getFontSize());
+        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId());
     }
 
     @Test

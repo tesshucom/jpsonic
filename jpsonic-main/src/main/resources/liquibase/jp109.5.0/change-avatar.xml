@@ -1,0 +1,595 @@
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <changeSet id="add_default_avatar" author="tesshucom">
+        <validCheckSum>8:470ee0b5013580e46656eafa1d7ffc7f</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar01'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <!-- fixed id -->
+            <column name="id" valueNumeric="101" />
+            <column name="name" value="avatar01" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar01.png" />
+        </insert>
+        <rollback></rollback>
+    </changeSet>
+
+    <changeSet id="delete_legacy_avatar" author="tesshucom">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="1">select count(*) from system_avatar where id = 101</sqlCheck>
+        </preConditions>
+        <sql>update user_settings set system_avatar_id = 101</sql>
+        <sql>
+            delete from system_avatar
+            where name in('Formal', 'Engineer', 'Footballer', 'Green-Boy', 'Linux-Zealot',
+                'Mac-Zealot', 'Windows-Zealot', 'Army-Officer', 'Beatnik', 'All-Caps',
+                'Clown', 'Commie-Pinko', 'Forum-Flirt', 'Gamer', 'Hopelessly-Addicted',
+                'Jekyll-And-Hyde', 'Joker', 'Lurker', 'Moderator', 'Newbie', 'No-Dissent',
+                'Performer', 'Push-My-Button', 'Ray-Of-Sunshine', 'Red-Hot-Chili-Peppers-1'
+                , 'Red-Hot-Chili-Peppers-2', 'Red-Hot-Chili-Peppers-3',
+                'Red-Hot-Chili-Peppers-4', 'Ringmaster', 'Rumor-Junkie', 'Sozzled-Surfer',
+                'Statistician', 'Tech-Support', 'The-Guru' , 'The-Referee', 'Troll',
+                'Uptight', 'Fire-Guitar', 'Drum', 'Headphones', 'Mic', 'Turntable', 'Vinyl',
+                'Cool', 'Laugh', 'Study')
+        </sql>
+        <rollback></rollback>
+    </changeSet>
+
+    <changeSet id="add_avatar02" author="tesshucom">
+        <validCheckSum>8:1bd8573206d3a5b81b48f590654a0cca</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar02'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="102" />
+            <column name="name" value="avatar02" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar02.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar02'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar03" author="tesshucom">
+        <validCheckSum>8:dc116f02bab71925be9751b315873183</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar03'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="103" />
+            <column name="name" value="avatar03" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar03.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar03'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar04" author="tesshucom">
+        <validCheckSum>8:68a79afb152045d64e05c759baf430c6</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar04'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="104" />
+            <column name="name" value="avatar04" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar04.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar04'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar05" author="tesshucom">
+        <validCheckSum>8:eceda18c33c12e3ee5889555c1fedc57</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar05'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="105" />
+            <column name="name" value="avatar05" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar05.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar05'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar06" author="tesshucom">
+        <validCheckSum>8:912e01899ca250f1394f88f337211a9c</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar06'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="106" />
+            <column name="name" value="avatar06" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar06.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar06'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar07" author="tesshucom">
+        <validCheckSum>8:239d15d8cb6e24779efc913605ba2aaa</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar07'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="107" />
+            <column name="name" value="avatar07" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar07.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar07'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar08" author="tesshucom">
+        <validCheckSum>8:2198621dece8a9c5a7d03c433d6fe059</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar08'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="108" />
+            <column name="name" value="avatar08" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar08.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar08'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar09" author="tesshucom">
+        <validCheckSum>8:415c627d0e2bc522b8c09dff68e1084a</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar09'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="109" />
+            <column name="name" value="avatar09" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar09.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar09'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar10" author="tesshucom">
+        <validCheckSum>8:41644eebc78d1f1a5e7484c4290da2f7</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar10'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="110" />
+            <column name="name" value="avatar10" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar10.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar10'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar11" author="tesshucom">
+        <validCheckSum>8:ffd255b78a7f89d1590c7f83decd0429</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar11'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="111" />
+            <column name="name" value="avatar11" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar11.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar11'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar12" author="tesshucom">
+        <validCheckSum>8:831c6e63c10a288f1baa015813dc0188</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar12'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="112" />
+            <column name="name" value="avatar12" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar12.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar12'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar13" author="tesshucom">
+        <validCheckSum>8:0c33693ee3d3f75ace366f7a6e287072</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar13'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="113" />
+            <column name="name" value="avatar13" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar13.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar13'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar14" author="tesshucom">
+        <validCheckSum>8:2eb532659ca5aefab4582177b71fcbda</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar14'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="114" />
+            <column name="name" value="avatar14" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar14.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar14'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar15" author="tesshucom">
+        <validCheckSum>8:36879210567d45617ff3116351a521ec</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar15'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="115" />
+            <column name="name" value="avatar15" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar15.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar15'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar16" author="tesshucom">
+        <validCheckSum>8:1ad1ac3e6b51c4ae9157a0d895f29dc1</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar16'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="116" />
+            <column name="name" value="avatar16" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar16.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar16'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar17" author="tesshucom">
+        <validCheckSum>8:1a0e32e44dc88f0d0701c275ecd92a7b</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar17'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="117" />
+            <column name="name" value="avatar17" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar17.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar17'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar18" author="tesshucom">
+        <validCheckSum>8:84e5f626b60a791ee61484367826342e</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar18'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="118" />
+            <column name="name" value="avatar18" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar18.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar18'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar19" author="tesshucom">
+        <validCheckSum>8:8aa067a83a9e307d43173eeeaf33585c</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar19'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="119" />
+            <column name="name" value="avatar19" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar19.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar19'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar20" author="tesshucom">
+        <validCheckSum>8:cbd463b0d8bf0cebc079ec3b76ad42f0</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar20'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="120" />
+            <column name="name" value="avatar20" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar20.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar20'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar21" author="tesshucom">
+        <validCheckSum>8:7be5108ed10a9224f2dac323e7fb4a94</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar21'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="121" />
+            <column name="name" value="avatar21" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar21.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar21'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar22" author="tesshucom">
+        <validCheckSum>8:e4700109eaad092a481ef17c4eedb2a5</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar22'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="122" />
+            <column name="name" value="avatar22" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar22.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar22'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar23" author="tesshucom">
+        <validCheckSum>8:1ea395e770f6f9b1b29e9a4e2181fbe3</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar23'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="123" />
+            <column name="name" value="avatar23" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar23.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar23'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar24" author="tesshucom">
+        <validCheckSum>8:f9d75349cf9fb007d6cd501fc6dcb91e</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar24'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="124" />
+            <column name="name" value="avatar24" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar24.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar24'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar25" author="tesshucom">
+        <validCheckSum>8:e6495c04d177930921b3e56c2dcdbe30</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar25'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="125" />
+            <column name="name" value="avatar25" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar25.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar25'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar26" author="tesshucom">
+        <validCheckSum>8:b223c6f967fe9659265d6d3f1dd69199</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar26'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="126" />
+            <column name="name" value="avatar26" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar26.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar26'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar27" author="tesshucom">
+        <validCheckSum>8:b203a115fe0b0c642a7cc78637ddca67</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar27'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="127" />
+            <column name="name" value="avatar27" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar27.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar27'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar28" author="tesshucom">
+        <validCheckSum>8:0f362314c9fd1a961221700dd470c0c7</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar28'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="128" />
+            <column name="name" value="avatar28" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar28.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar28'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar29" author="tesshucom">
+        <validCheckSum>8:260d4654c64ba3b0e6448df6d95090cc</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar29'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="129" />
+            <column name="name" value="avatar29" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar29.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar29'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+    <changeSet id="add_avatar30" author="tesshucom">
+        <validCheckSum>8:9fbb0a837c0e3f82533b0fa0b9d297cc</validCheckSum>
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">select count(*) from system_avatar where name = 'avatar30'</sqlCheck>
+        </preConditions>
+        <insert tableName="system_avatar">
+            <column name="id" valueNumeric="130" />
+            <column name="name" value="avatar30" />
+            <column name="mime_type" value="img/png" />
+            <column name="width" valueNumeric="128" />
+            <column name="height" valueNumeric="128" />
+            <column name="data" valueBlobFile="../../org/airsonic/player/dao/schema/avatar30.png" />
+        </insert>
+        <rollback>
+            <delete tableName="system_avatar">
+                <where>name = 'avatar30'</where>
+            </delete>
+        </rollback>
+    </changeSet>
+</databaseChangeLog>

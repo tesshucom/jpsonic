@@ -25,4 +25,5 @@
     <include file="jp109.1.0/changelog.xml" relativeToChangelogFile="true"/>
     <include file="jp109.3.0/changelog.xml" relativeToChangelogFile="true"/>
     <include file="jp109.4.0/changelog.xml" relativeToChangelogFile="true"/>
+    <include file="jp109.5.0/changelog.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

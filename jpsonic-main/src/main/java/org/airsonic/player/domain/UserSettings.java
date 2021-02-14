@@ -52,7 +52,7 @@ public class UserSettings {
     private String lastFmPassword;
     private String listenBrainzToken;
     private TranscodeScheme transcodeScheme;
-    private int selectedMusicFolderId = -1;
+    private int selectedMusicFolderId;
     private boolean partyModeEnabled;
     private boolean nowPlayingAllowed;
     private AvatarScheme avatarScheme;
@@ -100,7 +100,9 @@ public class UserSettings {
         mainVisibility = new Visibility();
         playlistVisibility = new Visibility();
         transcodeScheme = TranscodeScheme.OFF;
+        selectedMusicFolderId = -1;
         avatarScheme = AvatarScheme.NONE;
+        systemAvatarId = 101;
     }
 
     public UserSettings(String username) {
