@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     </c:url>
                     <span class="avatar">
                         <form:radiobutton id="avatar-${avatar.id}" path="avatarId" value="${avatar.id}"/>
-                        <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${fn:escapeXml(avatar.name)}" width="${avatar.width}" height="${avatar.height}"/></label>
+                        <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${fn:escapeXml(avatar.name)}"/></label>
                     </span>
                 </c:forEach>
             </dd>

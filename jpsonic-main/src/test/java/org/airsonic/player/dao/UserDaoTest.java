@@ -231,7 +231,7 @@ public class UserDaoTest extends DaoTestBase {
         assertFalse("Error in getUserSettings().", userSettings.isPartyModeEnabled());
         assertFalse("Error in getUserSettings().", userSettings.isNowPlayingAllowed());
         assertSame("Error in getUserSettings().", AvatarScheme.NONE, userSettings.getAvatarScheme());
-        assertNull("Error in getUserSettings().", userSettings.getSystemAvatarId());
+        assertEquals("Error in getUserSettings().", Integer.valueOf(101), userSettings.getSystemAvatarId());
         assertTrue("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
         assertEquals("Error in getUserSettings().", 40, userSettings.getPaginationSize());
 
@@ -260,7 +260,7 @@ public class UserDaoTest extends DaoTestBase {
         settings.setPartyModeEnabled(true);
         settings.setNowPlayingAllowed(true);
         settings.setAvatarScheme(AvatarScheme.SYSTEM);
-        settings.setSystemAvatarId(1);
+        settings.setSystemAvatarId(102);
         settings.setChanged(new Date(9412L));
         settings.setKeyboardShortcutsEnabled(true);
         settings.setPaginationSize(120);
@@ -294,7 +294,7 @@ public class UserDaoTest extends DaoTestBase {
         assertTrue("Error in getUserSettings().", userSettings.isPartyModeEnabled());
         assertTrue("Error in getUserSettings().", userSettings.isNowPlayingAllowed());
         assertSame("Error in getUserSettings().", AvatarScheme.SYSTEM, userSettings.getAvatarScheme());
-        assertEquals("Error in getUserSettings().", 1, userSettings.getSystemAvatarId().intValue());
+        assertEquals("Error in getUserSettings().", 102, userSettings.getSystemAvatarId().intValue());
         assertEquals("Error in getUserSettings().", new Date(9412L), userSettings.getChanged());
         assertTrue("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
         assertEquals("Error in getUserSettings().", 120, userSettings.getPaginationSize());
