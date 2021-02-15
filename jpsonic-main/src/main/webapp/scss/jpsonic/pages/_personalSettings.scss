@@ -118,6 +118,7 @@
         img {
           width: 80px;
           height: 80px;
+          -webkit-backface-visibility: hidden;
         }
       }
     }
