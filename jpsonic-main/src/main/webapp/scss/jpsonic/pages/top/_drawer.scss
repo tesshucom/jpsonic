@@ -260,21 +260,68 @@ input[type="checkbox"].jps-input-toggler {
     bottom: 0;
     width: $jp-drawer-width - 20px;
     margin: 0 10px 10px 10px;
-    > nav > ul.menu {
-      display: flex;
-      flex-flow: row wrap;
-      margin: 0;
-      padding: 10px 0 0 4px;
-      @include border;
-      @include borderRadius;
-      background-color: $jp-color-white;
-      //align-items: center;
-      //justify-content: space-around;
-      li {
-        width: 30px;
-        height: 30px;
-        margin-left: 20px;
-        margin-right: 20px;
+    > nav {
+      > .userInfo {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        margin: 0;
+        padding: 5px 15px 5px 15px;
+        @include border;
+        @include borderRadius(upper);
+        background-color: $jp-color-base4;
+        img.avatar {
+          width: 48px;
+          height: 48px;
+          margin: 6px 10px 6px 0;
+          background-color: $jp-color-white;
+          border-radius: 50%;
+          -webkit-backface-visibility: hidden;
+        }
+        .name {
+          display: inline-block;
+          font-size: 1.14rem;
+          font-weight: 500;
+          color: $jp-color-white;
+          height: 1.8em;
+          max-width: 130px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        a {
+          outline: none;
+          &:link,
+          &:active,
+          &:visited,
+          &:link *,
+          &:active *,
+          &:visited * {
+            color: $jp-color-white;
+          }
+          &:hover,
+          &:hover * {
+            color: $jp-color-complementary3;
+          }
+        }
+      }
+
+      > ul.menu {
+        display: flex;
+        flex-flow: row wrap;
+        margin: 0;
+        padding: 10px 0 0 4px;
+        @include border;
+        @include borderRadius(lower);
+        background-color: $jp-color-white;
+        //align-items: center;
+        //justify-content: space-around;
+        li {
+          width: 30px;
+          height: 30px;
+          margin-left: 20px;
+          margin-right: 20px;
+        }
       }
     }
   }

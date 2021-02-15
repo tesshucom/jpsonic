@@ -9,4 +9,13 @@
       margin: 34px 20px 3px calc((100vw - (50vw - 60px)) / 2);
     }
   }
+
+  div.titledSelector.username {
+    select {
+      max-width: 140px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
 }
