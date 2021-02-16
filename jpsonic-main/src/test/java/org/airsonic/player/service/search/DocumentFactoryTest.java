@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.util.Date;
 
-import org.airsonic.player.dao.MusicFolderTestData;
+import org.airsonic.player.dao.MusicFolderTestDataUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -108,7 +108,7 @@ public class DocumentFactoryTest {
         artist.setName("name");
         artist.setSort("sort");
         artist.setFolderId(10);
-        File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
+        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         assertEquals("fields.size", 8, document.getFields().size());
@@ -221,7 +221,7 @@ public class DocumentFactoryTest {
 
     @Test
     public void testCreateNullArtist() {
-        File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
+        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(new Artist(), musicFolder);
         assertEquals("fields.size", 2, document.getFields().size());

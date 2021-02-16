@@ -25,10 +25,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -81,8 +81,7 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
     }
 
     @Test
-    public void testCopySortOfArtist() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    public void testCopySortOfArtist() throws ExecutionException {
 
         invokeUtils(utils, "mergeSortOfArtist");
 

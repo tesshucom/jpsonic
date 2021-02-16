@@ -21,7 +21,6 @@
 
 package org.airsonic.player.theme;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -110,8 +109,7 @@ public class CustomThemeResolver implements ThemeResolver {
     private boolean themeExists(String themeId) {
         synchronized (LOCK) {
             if (themeIds == null) {
-                themeIds = Arrays.stream(settingsService.getAvailableThemes()).map(Theme::getId)
-                        .collect(Collectors.toSet());
+                themeIds = SettingsService.getAvailableThemes().stream().map(Theme::getId).collect(Collectors.toSet());
             }
         }
         return themeIds.contains(themeId);

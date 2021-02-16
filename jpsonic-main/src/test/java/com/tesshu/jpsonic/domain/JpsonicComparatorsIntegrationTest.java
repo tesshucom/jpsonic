@@ -148,7 +148,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
         populateDatabaseOnlyOnce(() -> {
             if (0 == playlistDao.getAllPlaylists().size()) {
                 List<String> shallow = new ArrayList<>();
-                shallow.addAll(JpsonicComparatorsTestUtils.jPSonicNaturalList);
+                shallow.addAll(JpsonicComparatorsTestUtils.JPSONIC_NATURAL_LIST);
                 Collections.shuffle(shallow);
                 shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
             }
@@ -159,7 +159,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
          * Should be more than 30 elements.
          */
         assertEquals(32, indexList.size());
-        assertEquals(32, JpsonicComparatorsTestUtils.jPSonicNaturalList.size());
+        assertEquals(32, JpsonicComparatorsTestUtils.JPSONIC_NATURAL_LIST.size());
     }
 
     /**

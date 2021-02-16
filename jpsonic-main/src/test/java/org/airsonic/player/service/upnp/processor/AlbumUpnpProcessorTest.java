@@ -79,18 +79,18 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<Album> items = albumUpnpProcessor.getItems(0, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
         }
 
         items = albumUpnpProcessor.getItems(10, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 10), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
         }
 
         items = albumUpnpProcessor.getItems(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 20), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
         }
 
     }
@@ -103,18 +103,18 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<Album> items = albumUpnpProcessor.getItems(0, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), items.get(i).getName());
         }
 
         items = albumUpnpProcessor.getItems(10, 10);
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 10), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), items.get(i).getName());
         }
 
         items = albumUpnpProcessor.getItems(20, 100);
         assertEquals(11, items.size());
         for (int i = 0; i < items.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 20), items.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), items.get(i).getName());
         }
 
     }
@@ -136,18 +136,18 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<MediaFile> children = albumUpnpProcessor.getChildren(albums.get(0), 0, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.childrenList.get(i), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.CHILDREN_LIST.get(i), children.get(i).getName());
         }
 
         children = albumUpnpProcessor.getChildren(albums.get(0), 10, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.childrenList.get(i + 10), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.CHILDREN_LIST.get(i + 10), children.get(i).getName());
         }
 
         children = albumUpnpProcessor.getChildren(albums.get(0), 20, 100);
         assertEquals(11, children.size());
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.childrenList.get(i + 20), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.CHILDREN_LIST.get(i + 20), children.get(i).getName());
         }
 
     }

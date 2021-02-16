@@ -48,7 +48,7 @@ import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.ClassRule;
@@ -133,7 +133,7 @@ public class MediaScannerServiceTest {
     public void testScanLibrary() {
         musicFolderDao.getAllMusicFolders()
                 .forEach(musicFolder -> musicFolderDao.deleteMusicFolder(musicFolder.getId()));
-        MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
+        MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
         settingsService.clearMusicFolderCache();
 
         Timer globalTimer = metrics.timer(MetricRegistry.name(MediaScannerServiceTest.class, "Timer.global"));
@@ -158,11 +158,11 @@ public class MediaScannerServiceTest {
 
         // Music Folder Music must have 3 children
         List<MediaFile> listeMusicChildren = mediaFileDao
-                .getChildrenOf(new File(MusicFolderTestData.resolveMusicFolderPath()).getPath());
+                .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusicFolderPath()).getPath());
         Assert.assertEquals(3, listeMusicChildren.size());
         // Music Folder Music2 must have 1 children
         List<MediaFile> listeMusic2Children = mediaFileDao
-                .getChildrenOf(new File(MusicFolderTestData.resolveMusic2FolderPath()).getPath());
+                .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusic2FolderPath()).getPath());
         Assert.assertEquals(1, listeMusic2Children.size());
 
         if (LOG.isInfoEnabled()) {
@@ -244,7 +244,7 @@ public class MediaScannerServiceTest {
     public void testMusicBrainzReleaseIdTag() {
 
         // Add the "Music3" folder to the database
-        File musicFolderFile = new File(MusicFolderTestData.resolveMusic3FolderPath());
+        File musicFolderFile = new File(MusicFolderTestDataUtils.resolveMusic3FolderPath());
         MusicFolder musicFolder = new MusicFolder(1, musicFolderFile, "Music3", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
         settingsService.clearMusicFolderCache();

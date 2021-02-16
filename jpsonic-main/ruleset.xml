@@ -16,8 +16,6 @@
     </description>
 
     <exclude-pattern>.*/.*Test.java</exclude-pattern>
-    <exclude-pattern>.*/.*TestData.java</exclude-pattern>
-    <exclude-pattern>.*/.*TestUtils.java</exclude-pattern>
     <include-pattern>.*/src/main/java/.*.java</include-pattern>
     <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
 
