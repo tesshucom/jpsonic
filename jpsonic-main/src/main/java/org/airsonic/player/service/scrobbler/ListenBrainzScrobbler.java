@@ -49,15 +49,20 @@ public class ListenBrainzScrobbler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ListenBrainzScrobbler.class);
     private static final int MAX_PENDING_REGISTRATION = 2000;
+    private static final Object REGISTRATION_LOCK = new Object();
+
+    private final LinkedBlockingQueue<RegistrationData> queue;
 
     private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
+
     // private final RequestConfig requestConfig = RequestConfig.custom()
     // .setConnectTimeout(15000)
     // .setSocketTimeout(15000)
     // .build();
 
-    private static final Object REGISTRATION_LOCK = new Object();
+    public ListenBrainzScrobbler() {
+        queue = new LinkedBlockingQueue<>();
+    }
 
     /**
      * Registers the given media file at listenbrainz.org. This method returns immediately, the actual registration is
@@ -150,7 +155,7 @@ public class ListenBrainzScrobbler {
         Map<String, Object> content = LegacyMap.of();
 
         if (registrationData.submission) {
-            payload.put("listened_at", Long.valueOf(registrationData.getTime().getTime() / 1000L));
+            payload.put("listened_at", registrationData.getTime().getTime() / 1000L);
             content.put("listen_type", "single");
         } else {
             content.put("listen_type", "playing_now");
@@ -211,12 +216,15 @@ public class ListenBrainzScrobbler {
                     if (LOG.isTraceEnabled()) {
                         LOG.trace("Error in ListenBrainz registration.", e);
                     }
+                    break;
                 } catch (IOException e) {
                     handleNetworkError(registrationData, e.toString());
+                    break;
                 } catch (Exception e) {
                     if (LOG.isWarnEnabled()) {
                         LOG.warn("Error in ListenBrainz registration.", e);
                     }
+                    break;
                 }
             }
         }
@@ -247,15 +255,15 @@ public class ListenBrainzScrobbler {
     }
 
     private static class RegistrationData {
-        private String token;
-        private String artist;
-        private String album;
-        private String title;
-        private String musicBrainzReleaseId;
-        private String musicBrainzRecordingId;
-        private Integer trackNumber;
+        private final String token;
+        private final String artist;
+        private final String album;
+        private final String title;
+        private final String musicBrainzReleaseId;
+        private final String musicBrainzRecordingId;
+        private final Integer trackNumber;
         // private int duration;
-        private Date time;
+        private final Date time;
         public boolean submission;
 
         public RegistrationData(MediaFile mediaFile, String token, boolean submission, Date time) {

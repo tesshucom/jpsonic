@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
@@ -36,7 +35,6 @@ import org.airsonic.player.service.StatusService;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,18 +50,23 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 @RequestMapping("/status")
 public class StatusController {
 
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60L;
+
+    private final StatusService statusService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+
+    public StatusController(StatusService statusService, SettingsService settingsService,
+            SecurityService securityService) {
+        super();
+        this.statusService = statusService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TransferStatusHolder) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
 
         List<TransferStatus> streamStatuses = statusService.getAllStreamStatuses();
         List<TransferStatus> downloadStatuses = statusService.getAllDownloadStatuses();
@@ -92,12 +95,12 @@ public class StatusController {
     }
 
     public static class TransferStatusHolder {
-        private TransferStatus transferStatus;
-        private boolean stream;
-        private boolean download;
-        private boolean upload;
-        private int index;
-        private Locale locale;
+        private final TransferStatus transferStatus;
+        private final boolean stream;
+        private final boolean download;
+        private final boolean upload;
+        private final int index;
+        private final Locale locale;
 
         TransferStatusHolder(TransferStatus transferStatus, boolean isStream, boolean isDownload, boolean isUpload,
                 int index, Locale locale) {

@@ -42,7 +42,13 @@ public class InternetRadioDao extends AbstractDao {
     private static final Logger LOG = LoggerFactory.getLogger(InternetRadioDao.class);
     private static final String INSERT_COLUMNS = "name, stream_url, homepage_url, enabled, changed";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
-    private final InternetRadioRowMapper rowMapper = new InternetRadioRowMapper();
+
+    private final InternetRadioRowMapper rowMapper;
+
+    public InternetRadioDao(DaoHelper daoHelper) {
+        super(daoHelper);
+        rowMapper = new InternetRadioRowMapper();
+    }
 
     /**
      * Returns the internet radio station with the given ID.

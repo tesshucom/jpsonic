@@ -24,9 +24,9 @@ package org.airsonic.player.domain;
 import java.io.File;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import org.airsonic.player.util.FileUtil;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.io.FilenameUtils;
@@ -35,8 +35,6 @@ import org.apache.commons.io.FilenameUtils;
  * A media file (audio, video or directory) with an assortment of its meta data.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class MediaFile {
 
@@ -136,8 +134,8 @@ public class MediaFile {
             // JP >>>>
             String composer, String artistSort, String albumSort, String titleSort, String albumArtistSort,
             String composerSort, String artistReading, String albumReading, String albumArtistReading,
-            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order
-    // <<<< JP
+            String artistSortRaw, String albumSortRaw, String albumArtistSortRaw, String composerSortRaw, int order // <<<<
+                                                                                                                    // JP
     ) {
         this.id = id;
         this.path = path;
@@ -648,11 +646,11 @@ public class MediaFile {
     }
 
     public static List<Integer> toIdList(List<MediaFile> from) {
-        return Lists.transform(from, toId());
+        return from.stream().map(toId()).collect(Collectors.toList());
     }
 
     public static Function<MediaFile, Integer> toId() {
-        return from -> from.getId();
+        return MediaFile::getId;
     }
 
     public enum MediaType {

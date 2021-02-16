@@ -31,8 +31,7 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      * see http://id3.org/ ; v2.2 / v2.3 \0 v2.4 (Required for security)
      */
     private static final int ID3_DELIM = ';' | '/' | '\0';
-
-    private static final int SPACE_SEPARATOR = (int) Character.SPACE_SEPARATOR;
+    private static final int SPACE_SEPARATOR = Character.SPACE_SEPARATOR;
 
     /**
      * Construct a new Id3ArtistTokenizer.
@@ -45,7 +44,7 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
      *
      * @param factory
-     *            the attribute factory to use for this {@link Tokenizer}
+     *            the attribute factory to use for this {@link org.apache.lucene.analysis.Tokenizer}
      */
     public Id3ArtistTokenizer(AttributeFactory factory) {
         super(factory);
@@ -55,7 +54,7 @@ public class Id3ArtistTokenizer extends CharTokenizer {
      * Construct a new Id3ArtistTokenizer using a given {@link org.apache.lucene.util.AttributeFactory}.
      *
      * @param factory
-     *            the attribute factory to use for this {@link Tokenizer}
+     *            the attribute factory to use for this {@link org.apache.lucene.analysis.Tokenizer}
      * @param maxTokenLen
      *            maximum token length the tokenizer will emit. Must be greater than 0 and less than
      *            MAX_TOKEN_LENGTH_LIMIT (1024*1024)

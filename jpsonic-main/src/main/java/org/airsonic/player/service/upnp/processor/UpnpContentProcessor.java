@@ -34,11 +34,9 @@ import org.fourthline.cling.support.model.container.StorageFolder;
 public abstract class UpnpContentProcessor<T extends Object, U extends Object> {
 
     private final UpnpProcessDispatcher dispatcher;
-
     private final UpnpProcessorUtil util;
 
     private String rootTitle;
-
     private String rootId;
 
     public UpnpContentProcessor(UpnpProcessDispatcher dispatcher, UpnpProcessorUtil util) {

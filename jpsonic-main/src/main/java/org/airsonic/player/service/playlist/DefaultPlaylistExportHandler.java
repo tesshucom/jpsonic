@@ -30,15 +30,18 @@ import chameleon.playlist.SpecificPlaylist;
 import chameleon.playlist.SpecificPlaylistProvider;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.MediaFile;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DefaultPlaylistExportHandler implements PlaylistExportHandler {
 
-    @Autowired
-    private MediaFileDao mediaFileDao;
+    private final MediaFileDao mediaFileDao;
+
+    public DefaultPlaylistExportHandler(MediaFileDao mediaFileDao) {
+        super();
+        this.mediaFileDao = mediaFileDao;
+    }
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylistProvider> providerClass) {

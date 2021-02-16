@@ -77,25 +77,17 @@ import org.springframework.stereotype.Component;
 @DependsOn({ "settingsService" })
 public final class AnalyzerFactory {
 
-    private Analyzer analyzer;
-
-    private Analyzer queryAnalyzer;
-
-    private String stopTags;
-
     private static final String STOP_WARDS_FOR_ARTIST = "com/tesshu/jpsonic/service/stopwords4artist.txt";
-
-    private String stopWords;
-
-    private boolean isSearchMethodLegacy;
-
     private static final String FILTER_ATTR_PATTERN = "pattern";
-
     private static final String FILTER_ATTR_REPLACEMENT = "replacement";
-
     private static final String FILTER_ATTR_REPLACE = "replace";
-
     private static final String FILTER_ATTR_ALL = "all";
+
+    private Analyzer analyzer;
+    private Analyzer queryAnalyzer;
+    private String stopTags;
+    private String stopWords;
+    private boolean isSearchMethodLegacy;
 
     @SuppressWarnings("PMD.NullAssignment")
     /*

@@ -31,8 +31,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetails;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class LoginFailureListener implements ApplicationListener<ApplicationEvent> {
 

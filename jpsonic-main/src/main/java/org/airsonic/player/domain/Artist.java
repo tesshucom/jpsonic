@@ -25,8 +25,6 @@ import java.util.Date;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class Artist {
 
@@ -57,8 +55,7 @@ public class Artist {
     public Artist(int id, String name, String coverArtPath, int albumCount, Date lastScanned, boolean present,
             Integer folderId,
             // JP >>>>
-            String sort, String reading, int order
-    // <<<< JP
+            String sort, String reading, int order // <<<< JP
     ) {
         this.id = id;
         this.name = name;

@@ -40,7 +40,7 @@ public class Attributes {
 
             public static final String VALUE = "command";
 
-            private String v;
+            private final String v;
 
             Command(String value) {
                 this.v = value;
@@ -53,7 +53,7 @@ public class Attributes {
 
         public static final String VALUE = "model";
 
-        private String v;
+        private final String v;
 
         Model(String value) {
             this.v = value;
@@ -70,7 +70,7 @@ public class Attributes {
         MODEL("model"), NEW_TRANSCODING("newTranscoding"), RELOAD_FLAG("settings_reload"), TOAST_FLAG("settings_toast"),
         USER_INDEX("userIndex");
 
-        private String v;
+        private final String v;
 
         Redirect(String value) {
             this.v = value;
@@ -146,7 +146,7 @@ public class Attributes {
         USERNAME_OR_EMAIL(NameConstants.USERNAME_OR_EMAIL), V(NameConstants.V),
         VIEW_AS_LIST(NameConstants.VIEW_AS_LIST), X(NameConstants.X);
 
-        private String v;
+        private final String v;
 
         Request(String value) {
             this.v = value;
@@ -315,7 +315,7 @@ public class Attributes {
 
         PLAYER("player"), UPLOAD_STATUS("uploadStatus");
 
-        private String v;
+        private final String v;
 
         Session(String value) {
             this.v = value;

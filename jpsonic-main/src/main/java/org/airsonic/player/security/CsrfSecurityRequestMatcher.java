@@ -40,8 +40,10 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class CsrfSecurityRequestMatcher implements RequestMatcher {
-    private static List<String> allowedMethods = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
-    private List<RegexRequestMatcher> whiteListedMatchers;
+
+    private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS");
+
+    private final List<RegexRequestMatcher> whiteListedMatchers;
 
     public CsrfSecurityRequestMatcher() {
         this.whiteListedMatchers = Arrays.asList(new RegexRequestMatcher("/dwr/.*\\.dwr", "POST"),
@@ -51,7 +53,7 @@ public class CsrfSecurityRequestMatcher implements RequestMatcher {
 
     @Override
     public boolean matches(HttpServletRequest request) {
-        return !(allowedMethods.contains(request.getMethod())
+        return !(ALLOWED_METHODS.contains(request.getMethod())
                 || whiteListedMatchers.stream().anyMatch(matcher -> matcher.matches(request)));
     }
 }

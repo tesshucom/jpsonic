@@ -32,7 +32,6 @@ import org.springframework.stereotype.Component;
 public class SearchCriteriaDirector {
 
     private final QueryFactory queryFactory;
-
     private final SettingsService settingsService;
 
     public SearchCriteriaDirector(QueryFactory queryFactory, SettingsService settingsService) {

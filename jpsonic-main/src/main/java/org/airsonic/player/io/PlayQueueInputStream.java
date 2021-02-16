@@ -58,7 +58,7 @@ public class PlayQueueInputStream extends InputStream {
     private final MediaFileService mediaFileService;
     private MediaFile currentFile;
     private InputStream currentInputStream;
-    private SearchService searchService;
+    private final SearchService searchService;
 
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
@@ -116,11 +116,7 @@ public class PlayQueueInputStream extends InputStream {
             populateRandomPlaylist(playQueue);
         }
 
-        MediaFile result;
-        synchronized (playQueue) {
-            result = playQueue.getCurrentFile();
-        }
-        MediaFile file = result;
+        MediaFile file = playQueue.getCurrentFile();
         if (file == null) {
             close();
         } else if (!file.equals(currentFile)) {

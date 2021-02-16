@@ -27,6 +27,7 @@ package org.airsonic.player.domain;
  * @author Sindre Mehus
  */
 public class Theme {
+
     private final String id;
     private final String name;
     private final String parent;

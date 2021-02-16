@@ -27,8 +27,6 @@ import org.airsonic.player.domain.ArtistBio;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class ArtistInfo {
 

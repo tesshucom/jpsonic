@@ -41,8 +41,6 @@ import org.slf4j.LoggerFactory;
  * directives).
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class LastFmCache extends Cache {
 

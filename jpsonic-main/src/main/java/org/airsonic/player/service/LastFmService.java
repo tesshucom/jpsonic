@@ -29,13 +29,13 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import de.umass.lastfm.Album;
 import de.umass.lastfm.Artist;
@@ -52,15 +52,12 @@ import org.airsonic.player.domain.MusicFolder;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * Provides services from the Last.fm REST API.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class LastFmService {
@@ -69,12 +66,16 @@ public class LastFmService {
     private static final long CACHE_TIME_TO_LIVE_MILLIS = 6 * 30 * 24 * 3600 * 1000L; // 6 months
     private static final Logger LOG = LoggerFactory.getLogger(LastFmService.class);
 
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private ArtistDao artistDao;
+    private final MediaFileDao mediaFileDao;
+    private final MediaFileService mediaFileService;
+    private final ArtistDao artistDao;
+
+    public LastFmService(MediaFileDao mediaFileDao, MediaFileService mediaFileService, ArtistDao artistDao) {
+        super();
+        this.mediaFileDao = mediaFileDao;
+        this.mediaFileService = mediaFileService;
+        this.artistDao = artistDao;
+    }
 
     @PostConstruct
     public void init() {
@@ -422,8 +423,7 @@ public class LastFmService {
             }
 
             Collection<Album> matches = Album.search(query.toString(), LAST_FM_KEY);
-            return FluentIterable.from(matches).transform(album1 -> convert(album1)).filter(Predicates.notNull())
-                    .toList();
+            return matches.stream().map(this::convert).filter(Objects::nonNull).collect(Collectors.toList());
         } catch (Throwable x) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Failed to search for cover art for " + artist + " - " + album, x);
@@ -522,17 +522,5 @@ public class LastFmService {
             artistName = mediaFile.getAlbumArtist() == null ? mediaFile.getArtist() : mediaFile.getAlbumArtist();
         }
         return artistName;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setArtistDao(ArtistDao artistDao) {
-        this.artistDao = artistDao;
     }
 }

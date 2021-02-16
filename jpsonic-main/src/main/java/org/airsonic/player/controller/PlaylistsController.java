@@ -33,7 +33,6 @@ import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,17 +47,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/playlists")
 public class PlaylistsController {
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final PlaylistService playlistService;
+    private final ViewAsListSelector viewSelector;
 
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
-    private PlaylistService playlistService;
-
-    @Autowired
-    private ViewAsListSelector viewSelector;
+    public PlaylistsController(SecurityService securityService, SettingsService settingsService,
+            PlaylistService playlistService, ViewAsListSelector viewSelector) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.playlistService = playlistService;
+        this.viewSelector = viewSelector;
+    }
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {

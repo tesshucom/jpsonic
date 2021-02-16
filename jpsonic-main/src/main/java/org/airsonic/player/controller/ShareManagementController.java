@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.MediaFile;
@@ -39,7 +38,6 @@ import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.ShareService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -56,20 +54,24 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/createShare")
 public class ShareManagementController {
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private ShareService shareService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final ShareService shareService;
+    private final PlayerService playerService;
+    private final PlaylistService playlistService;
+    private final SecurityService securityService;
+
+    public ShareManagementController(MediaFileService mediaFileService, ShareService shareService,
+            PlayerService playerService, PlaylistService playlistService, SecurityService securityService) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.shareService = shareService;
+        this.playerService = playerService;
+        this.playlistService = playlistService;
+        this.securityService = securityService;
+    }
 
     @GetMapping
-    public ModelAndView createShare(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    public ModelAndView createShare(HttpServletRequest request) throws ServletRequestBindingException {
 
         List<MediaFile> files = getMediaFiles(request);
         MediaFile dir = null;

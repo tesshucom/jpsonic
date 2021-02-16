@@ -29,7 +29,6 @@ import org.airsonic.player.command.PasswordSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.validator.PasswordSettingsValidator;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -51,10 +50,15 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/passwordSettings")
 public class PasswordSettingsController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PasswordSettingsValidator passwordSettingsValidator;
+    private final SecurityService securityService;
+    private final PasswordSettingsValidator passwordSettingsValidator;
+
+    public PasswordSettingsController(SecurityService securityService,
+            PasswordSettingsValidator passwordSettingsValidator) {
+        super();
+        this.securityService = securityService;
+        this.passwordSettingsValidator = passwordSettingsValidator;
+    }
 
     @InitBinder
     protected void initBinder(WebDataBinder binder) {

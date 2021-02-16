@@ -36,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
  * encoding when reading request parameters with non-Latin content.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.1 $ $Date: 2006/03/01 16:58:08 $
  */
 public class RequestEncodingFilter implements Filter {
 

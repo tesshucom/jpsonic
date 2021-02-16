@@ -41,9 +41,9 @@ public final class TranscodeInputStream extends InputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodeInputStream.class);
 
-    private InputStream processInputStream;
-    private OutputStream processOutputStream;
-    private Process process;
+    private final InputStream processInputStream;
+    private final OutputStream processOutputStream;
+    private final Process process;
     private final File tmpFile;
 
     /**

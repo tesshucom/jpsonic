@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.springframework.stereotype.Service;
 
 /**
@@ -43,12 +43,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class AirsonicLocaleResolver implements org.springframework.web.servlet.LocaleResolver {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    private Set<Locale> locales;
     private static final Object LOCK = new Object();
+
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    private Set<Locale> locales;
+
+    public AirsonicLocaleResolver(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     /**
      * Resolve the current locale via the given request.
@@ -59,7 +65,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
      * @return The current locale.
      */
     @Override
-    public Locale resolveLocale(HttpServletRequest request) {
+    public @NonNull Locale resolveLocale(HttpServletRequest request) {
         Locale locale = (Locale) request.getAttribute("airsonic.locale");
         if (locale != null) {
             return locale;
@@ -104,7 +110,7 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     private boolean localeExists(Locale locale) {
         synchronized (LOCK) {
             if (locales == null) {
-                locales = Arrays.asList(settingsService.getAvailableLocales()).stream().collect(Collectors.toSet());
+                locales = Arrays.stream(settingsService.getAvailableLocales()).collect(Collectors.toSet());
             }
         }
         return locales.contains(locale);
@@ -113,13 +119,5 @@ public class AirsonicLocaleResolver implements org.springframework.web.servlet.L
     @Override
     public void setLocale(HttpServletRequest request, HttpServletResponse response, Locale locale) {
         throw new UnsupportedOperationException("Cannot change locale - use a different locale resolution strategy");
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
     }
 }

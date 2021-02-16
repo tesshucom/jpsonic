@@ -38,6 +38,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import com.tesshu.jpsonic.dao.JPlaylistDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -50,22 +51,19 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-@RunWith(MockitoJUnitRunner.class)
 public class PlaylistServiceImportTest {
 
     PlaylistService playlistService;
 
-    @InjectMocks
-    DefaultPlaylistImportHandler defaultPlaylistImportHandler;
+    @Mock
+    DaoHelper daoHelper;
 
     @Mock
     MediaFileDao mediaFileDao;
@@ -93,10 +91,12 @@ public class PlaylistServiceImportTest {
 
     @Before
     public void setup() {
-        playlistService = new PlaylistService(new JMediaFileDao(mediaFileDao), new JPlaylistDao(playlistDao),
-                securityService, settingsService, Collections.emptyList(),
-                Lists.newArrayList(defaultPlaylistImportHandler));
-
+        MockitoAnnotations.initMocks(this);
+        JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
+        JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
+        DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
+        playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
+                Collections.emptyList(), Lists.newArrayList(importHandler), null);
     }
 
     @Test
@@ -111,15 +111,20 @@ public class PlaylistServiceImportTest {
         FileUtils.touch(mf2);
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
-        builder.append(mf1.getAbsolutePath()).append('\n').append(mf2.getAbsolutePath()).append('\n')
-                .append(mf3.getAbsolutePath()).append('\n');
+        builder.append(mf1.toURI().toString()).append('\n').append(mf2.toURI().toString()).append('\n')
+                .append(mf3.toURI().toString()).append('\n');
+
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
+
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-        String path = "/path/to/" + playlistName + ".m3u";
+        String path = new File("/path/to/" + playlistName + ".m3u").toURI().toString();
+
         playlistService.importPlaylist(username, playlistName, path, inputStream, null);
+
         verify(playlistDao).createPlaylist(actual.capture());
         verify(playlistDao).setFilesInPlaylist(eq(23), medias.capture());
+
         Playlist expected = new Playlist();
         expected.setUsername(username);
         expected.setName(playlistName);
@@ -127,6 +132,7 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
+
         assertTrue(
                 "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
                         + ToStringBuilder.reflectionToString(expected),
@@ -147,15 +153,21 @@ public class PlaylistServiceImportTest {
         FileUtils.touch(mf2);
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
-        builder.append("File1=").append(mf1.getAbsolutePath()).append('\n').append("File2=")
-                .append(mf2.getAbsolutePath()).append('\n').append("File3=").append(mf3.getAbsolutePath()).append('\n');
+        builder.append("File1=").append(mf1.toURI().toString()).append('\n').append("File2=")
+                .append(mf2.toURI().toString()).append('\n').append("File3=").append(mf3.toURI().toString())
+                .append('\n');
+
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
+
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-        String path = "/path/to/" + playlistName + ".pls";
+        String path = new File("/path/to/" + playlistName + ".pls").toURI().toString();
+
         playlistService.importPlaylist(username, playlistName, path, inputStream, null);
+
         verify(playlistDao).createPlaylist(actual.capture());
         verify(playlistDao).setFilesInPlaylist(eq(23), medias.capture());
+
         Playlist expected = new Playlist();
         expected.setUsername(username);
         expected.setName(playlistName);
@@ -163,6 +175,7 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
+
         assertTrue(
                 "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
                         + ToStringBuilder.reflectionToString(expected),
@@ -184,17 +197,22 @@ public class PlaylistServiceImportTest {
         FileUtils.touch(mf2);
         File mf3 = folder.newFile();
         FileUtils.touch(mf3);
-        builder.append("<track><location>file://").append(mf1.getAbsolutePath()).append("</location></track>\n")
-                .append("<track><location>file://").append(mf2.getAbsolutePath()).append("</location></track>\n")
-                .append("<track><location>file://").append(mf3.getAbsolutePath()).append("</location></track>\n")
-                .append("    </trackList>\n" + "</playlist>\n");
+        builder.append("<track><location>").append(mf1.toURI().toString()).append("</location></track>\n")
+                .append("<track><location>").append(mf2.toURI().toString()).append("</location></track>\n")
+                .append("<track><location>").append(mf3.toURI().toString()).append("</location></track>\n")
+                .append("</trackList>\n" + "</playlist>\n");
+
         doAnswer(new PersistPlayList(23)).when(playlistDao).createPlaylist(any());
         doAnswer(new MediaFileHasEverything()).when(mediaFileService).getMediaFile(any(File.class));
+
         InputStream inputStream = new ByteArrayInputStream(builder.toString().getBytes(StandardCharsets.UTF_8));
-        String path = "/path/to/" + playlistName + ".xspf";
+        String path = new File("/path/to/" + playlistName + ".xspf").toURI().toString();
+
         playlistService.importPlaylist(username, playlistName, path, inputStream, null);
+
         verify(playlistDao).createPlaylist(actual.capture());
         verify(playlistDao).setFilesInPlaylist(eq(23), medias.capture());
+
         Playlist expected = new Playlist();
         expected.setUsername(username);
         expected.setName(playlistName);
@@ -210,7 +228,7 @@ public class PlaylistServiceImportTest {
         assertEquals(3, mediaFiles.size());
     }
 
-    private static class PersistPlayList implements Answer {
+    private static class PersistPlayList implements Answer<Object> {
         private final int id;
 
         public PersistPlayList(int id) {
@@ -225,7 +243,7 @@ public class PlaylistServiceImportTest {
         }
     }
 
-    private static class MediaFileHasEverything implements Answer {
+    private static class MediaFileHasEverything implements Answer<Object> {
 
         @Override
         public Object answer(InvocationOnMock invocationOnMock) {

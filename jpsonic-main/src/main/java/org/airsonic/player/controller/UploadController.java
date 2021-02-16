@@ -58,7 +58,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -72,19 +71,24 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/upload")
 public class UploadController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
-
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SettingsService settingsService;
-
     public static final String FIELD_NAME_DIR = "dir";
     public static final String FIELD_NAME_UNZIP = "unzip";
+
+    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
+
+    private final SecurityService securityService;
+    private final PlayerService playerService;
+    private final StatusService statusService;
+    private final SettingsService settingsService;
+
+    public UploadController(SecurityService securityService, PlayerService playerService, StatusService statusService,
+            SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.playerService = playerService;
+        this.statusService = statusService;
+        this.settingsService = settingsService;
+    }
 
     @SuppressWarnings({ "PMD.AvoidInstantiatingObjectsInLoops", "PMD.UseLocaleWithCaseConversions" })
     /*
@@ -159,8 +163,8 @@ public class UploadController {
 
     private static class UnzipResult {
 
-        private List<File> uploadedFiles;
-        private List<File> unzippedFiles;
+        private final List<File> uploadedFiles;
+        private final List<File> unzippedFiles;
 
         public UnzipResult(List<File> uploadedFiles, List<File> unzippedFiles) {
             super();
@@ -285,18 +289,18 @@ public class UploadController {
      */
     private static class UploadListenerImpl implements UploadListener {
 
-        private TransferStatus status;
-        private long startTime;
+        private final TransferStatus status;
         private final StatusService statusService;
         private final SettingsService settingsService;
+        private final long startTime;
 
         private static final Logger LOG = LoggerFactory.getLogger(UploadListenerImpl.class);
 
         UploadListenerImpl(TransferStatus status, StatusService statusService, SettingsService settingsService) {
             this.status = status;
-            startTime = System.currentTimeMillis();
             this.statusService = statusService;
             this.settingsService = settingsService;
+            this.startTime = System.currentTimeMillis();
         }
 
         @Override

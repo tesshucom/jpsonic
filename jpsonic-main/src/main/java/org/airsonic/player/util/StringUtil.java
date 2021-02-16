@@ -56,15 +56,12 @@ import org.apache.commons.lang.StringUtils;
 public final class StringUtil {
 
     public static final String ENCODING_UTF8 = "UTF-8";
-
     private static final Pattern SPLIT_PATTERN = Pattern.compile("\"([^\"]*)\"|(\\S+)");
-
     private static final String MP4 = "audio/mp4";
-
     private static final long BINARY_1KB = 1024L;
-
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
-
+    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*", "|" };
+    public static final Object FORMAT_LOCK = new Object();
     private static final String[][] MIME_TYPES = { { "mp3", "audio/mpeg" }, { "ogg", "audio/ogg" },
             { "oga", "audio/ogg" }, { "opus", "audio/ogg" }, { "ogx", "application/ogg" }, { "aac", MP4 },
             { "m4a", MP4 }, { "m4b", MP4 }, { "flac", "audio/flac" }, { "wav", "audio/x-wav" },
@@ -78,10 +75,6 @@ public final class StringUtil {
 
             { "gif", "image/gif" }, { "jpg", "image/jpeg" }, { "jpeg", "image/jpeg" }, { "png", "image/png" },
             { "bmp", "image/bmp" }, };
-
-    private static final String[] FILE_SYSTEM_UNSAFE = { "/", "\\", "..", ":", "\"", "?", "*", "|" };
-
-    public static final Object FORMAT_LOCK = new Object();
 
     /**
      * Disallow external instantiation.

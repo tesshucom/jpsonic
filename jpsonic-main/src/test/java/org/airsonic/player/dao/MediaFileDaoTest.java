@@ -60,8 +60,7 @@ public class MediaFileDaoTest {
             + "on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username";
     private final String conditionJoin2 = " left outer join media_file media_album "
             + "on media_album.type = 'ALBUM' and media_album.album = media_file.album "
-            + "and media_album.artist = media_file.artist "
-            + "left outer join user_rating "
+            + "and media_album.artist = media_file.artist " + "left outer join user_rating "
             + "on user_rating.path = media_album.path and user_rating.username = :username";
     private final String where = " where media_file.present and media_file.type = 'MUSIC'";
     private final String orderLimit = " order by rand() limit 0";

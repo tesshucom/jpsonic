@@ -41,7 +41,6 @@ import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -61,16 +60,21 @@ public class SearchController {
 
     private static final int MATCH_COUNT = 25;
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private SearchCriteriaDirector director;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final PlayerService playerService;
+    private final SearchService searchService;
+    private final SearchCriteriaDirector director;
+
+    public SearchController(SecurityService securityService, SettingsService settingsService,
+            PlayerService playerService, SearchService searchService, SearchCriteriaDirector director) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.playerService = playerService;
+        this.searchService = searchService;
+        this.director = director;
+    }
 
     @GetMapping
     protected String displayForm() {
@@ -78,13 +82,13 @@ public class SearchController {
     }
 
     @ModelAttribute
-    protected void formBackingObject(HttpServletRequest request, Model model) {
+    protected void formBackingObject(Model model) {
         model.addAttribute(Attributes.Model.Command.VALUE, new SearchCommand());
     }
 
     @PostMapping
     protected String onSubmit(HttpServletRequest request, HttpServletResponse response,
-            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command, Model model)
+            @ModelAttribute(Attributes.Model.Command.VALUE) SearchCommand command)
             throws ServletRequestBindingException, IOException {
 
         User user = securityService.getCurrentUser(request);
@@ -123,5 +127,4 @@ public class SearchController {
 
         return "search";
     }
-
 }

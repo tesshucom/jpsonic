@@ -28,7 +28,6 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -50,9 +49,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 /**
  * Provides services for loading and saving playlists to and from persistent storage.
@@ -65,36 +62,25 @@ import org.springframework.util.Assert;
 public class PlaylistService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlaylistService.class);
-    @Autowired
-    private JMediaFileDao mediaFileDao;
-    @Autowired
-    private JPlaylistDao playlistDao;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private List<PlaylistExportHandler> exportHandlers;
-    @Autowired
-    private List<PlaylistImportHandler> importHandlers;
-    @Autowired
-    private JpsonicComparators comparators;
+
+    private final JMediaFileDao mediaFileDao;
+    private final JPlaylistDao playlistDao;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final List<PlaylistExportHandler> exportHandlers;
+    private final List<PlaylistImportHandler> importHandlers;
+    private final JpsonicComparators comparators;
 
     public PlaylistService(JMediaFileDao mediaFileDao, JPlaylistDao playlistDao, SecurityService securityService,
             SettingsService settingsService, List<PlaylistExportHandler> exportHandlers,
-            List<PlaylistImportHandler> importHandlers) {
-        Assert.notNull(mediaFileDao, "mediaFileDao must not be null");
-        Assert.notNull(playlistDao, "playlistDao must not be null");
-        Assert.notNull(securityService, "securityservice must not be null");
-        Assert.notNull(settingsService, "settingsService must not be null");
-        Assert.notNull(exportHandlers, "exportHandlers must not be null");
-        Assert.notNull(importHandlers, "importHandlers must not be null");
+            List<PlaylistImportHandler> importHandlers, JpsonicComparators comparators) {
         this.mediaFileDao = mediaFileDao;
         this.playlistDao = playlistDao;
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.exportHandlers = exportHandlers;
         this.importHandlers = importHandlers;
+        this.comparators = comparators;
     }
 
     public int getCountAll() {
@@ -123,7 +109,7 @@ public class PlaylistService {
     }
 
     private List<Playlist> sort(List<Playlist> playlists) {
-        Collections.sort(playlists, comparators.playlistOrder());
+        playlists.sort(comparators.playlistOrder());
         return playlists;
     }
 

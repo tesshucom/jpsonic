@@ -30,8 +30,6 @@ import javax.validation.constraints.NotNull;
  * Contains media libaray statistics, including the number of artists, albums and songs.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.1 $ $Date: 2005/11/17 18:29:03 $
  */
 public class MediaLibraryStatistics {
 

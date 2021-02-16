@@ -28,12 +28,11 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class HttpRange {
 
     private static final Pattern PATTERN = Pattern.compile("bytes=(\\d+)-(\\d*)");
+
     private final Long firstBytePos;
     private final Long lastBytePos;
 

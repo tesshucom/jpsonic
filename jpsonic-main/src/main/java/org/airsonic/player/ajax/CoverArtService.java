@@ -45,7 +45,6 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -60,12 +59,17 @@ public class CoverArtService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtService.class);
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private LastFmService lastFmService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final LastFmService lastFmService;
+
+    public CoverArtService(SecurityService securityService, MediaFileService mediaFileService,
+            LastFmService lastFmService) {
+        super();
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+        this.lastFmService = lastFmService;
+    }
 
     public List<LastFmCoverArt> searchCoverArt(String artist, String album) {
         return lastFmService.searchCoverArt(artist, album);
@@ -184,17 +188,5 @@ public class CoverArtService {
                 LOG.warn("Failed to create image file backup " + backup);
             }
         }
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setLastFmService(LastFmService lastFmService) {
-        this.lastFmService = lastFmService;
     }
 }

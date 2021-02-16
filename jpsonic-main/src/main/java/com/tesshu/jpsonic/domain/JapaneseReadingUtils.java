@@ -62,10 +62,10 @@ public class JapaneseReadingUtils {
     private static final char WAVY_LINE = '\u007e'; // ~
 
     private final SettingsService settingsService;
-    private final Tokenizer tokenizer = new Tokenizer();
+    private final Tokenizer tokenizer;
+    private final Map<String, String> readingMap;
+    private final Map<String, String> truncatedReadingMap;
 
-    private Map<String, String> readingMap = new ConcurrentHashMap<>();
-    private Map<String, String> truncatedReadingMap = new ConcurrentHashMap<>();
     private List<String> ignoredArticles;
 
     public static boolean isPunctuation(char ch) {
@@ -95,6 +95,9 @@ public class JapaneseReadingUtils {
     public JapaneseReadingUtils(SettingsService settingsService) {
         super();
         this.settingsService = settingsService;
+        tokenizer = new Tokenizer();
+        readingMap = new ConcurrentHashMap<>();
+        truncatedReadingMap = new ConcurrentHashMap<>();
     }
 
     public void analyze(Genre g) {
@@ -283,10 +286,6 @@ public class JapaneseReadingUtils {
     /**
      * There is no easy way to normalize Japanese words. Uses relatively natural NFKC, eliminates over-processing and
      * adds under-processing.
-     *
-     * @param s
-     * 
-     * @return
      */
     private String normalize(@Nullable String s) {
         if (isEmpty(s)) {
@@ -296,17 +295,15 @@ public class JapaneseReadingUtils {
         StringBuilder excluded = new StringBuilder();
         int start = 0;
         int i = s.indexOf(TILDE);
-        if (-1 == i) {
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
-        } else {
+        if (-1 != i) {
             while (-1 != i) {
                 excluded.append(Normalizer.normalize(s.substring(start, i), Normalizer.Form.NFKC));
                 excluded.append(TILDE);
                 start = i + 1;
                 i = s.indexOf(TILDE, i + 1);
             }
-            excluded.append(Normalizer.normalize(s.substring(start, s.length()), Normalizer.Form.NFKC));
         }
+        excluded.append(Normalizer.normalize(s.substring(start), Normalizer.Form.NFKC));
 
         // Convert certain strings additionally
         String expanded = excluded.toString();
@@ -320,8 +317,6 @@ public class JapaneseReadingUtils {
      * 
      * @param japaneseReading
      *            string after analysis
-     * 
-     * @return
      */
     public String removePunctuationFromJapaneseReading(String japaneseReading) {
         if (isJapaneseReading(japaneseReading)) {

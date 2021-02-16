@@ -22,14 +22,12 @@
 package org.airsonic.player.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.Attributes;
 import org.airsonic.player.domain.CoverArtScheme;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -46,14 +44,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/podcastChannel")
 public class PodcastChannelController {
 
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private SecurityService securityService;
+    private final PodcastService podcastService;
+    private final SecurityService securityService;
+
+    public PodcastChannelController(PodcastService podcastService, SecurityService securityService) {
+        super();
+        this.podcastService = podcastService;
+        this.securityService = securityService;
+    }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
 
         ModelAndView result = new ModelAndView();
 

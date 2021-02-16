@@ -27,12 +27,10 @@ import java.util.Date;
  * Represents an internet radio station.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.2 $ $Date: 2005/12/25 13:48:46 $
  */
 public class InternetRadio {
 
-    private Integer id;
+    private final Integer id;
     private String name;
     private String streamUrl;
     private String homepageUrl;

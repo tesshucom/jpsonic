@@ -61,10 +61,16 @@ public class UrlTag extends BodyTagSupport {
     private static final String DEFAULT_ENCODING = "Utf8Hex";
     private static final Logger LOG = LoggerFactory.getLogger(UrlTag.class);
 
+    private final List<Pair<String, String>> parameters;
+
     private String var;
     private String value;
     private String encoding = DEFAULT_ENCODING;
-    private List<Pair<String, String>> parameters = new ArrayList<>();
+
+    public UrlTag() {
+        super();
+        parameters = new ArrayList<>();
+    }
 
     @Override
     public int doStartTag() {

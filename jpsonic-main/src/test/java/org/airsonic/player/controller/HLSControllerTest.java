@@ -27,21 +27,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.Dimension;
 
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id: StreamControllerTestCase.java 3307 2013-01-04 13:48:49Z sindre_mehus $
  */
 @SpringBootTest
-public class HLSControllerTest {
+public class HLSControllerTest extends AbstractAirsonicHomeTest {
+
+    @Autowired
+    private HLSController controller;
 
     @Test
     public void testParseBitRate() {
-        HLSController controller = new HLSController();
 
         Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
         assertEquals(1000, pair.getLeft().intValue());

@@ -40,7 +40,6 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.directwebremoting.WebContextFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -53,16 +52,21 @@ import org.springframework.stereotype.Service;
 @Service("ajaxMultiService")
 public class MultiService {
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private LastFmService lastFmService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private AirsonicLocaleResolver airsonicLocaleResolver;
+    private final MediaFileService mediaFileService;
+    private final LastFmService lastFmService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final AirsonicLocaleResolver airsonicLocaleResolver;
+
+    public MultiService(MediaFileService mediaFileService, LastFmService lastFmService, SecurityService securityService,
+            SettingsService settingsService, AirsonicLocaleResolver airsonicLocaleResolver) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.lastFmService = lastFmService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.airsonicLocaleResolver = airsonicLocaleResolver;
+    }
 
     public ArtistInfo getArtistInfo(int mediaFileId, int maxSimilarArtists, int maxTopSongs) {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -118,21 +122,5 @@ public class MultiService {
         userSettings.setCloseDrawer(b);
         userSettings.setChanged(new Date());
         settingsService.updateUserSettings(userSettings);
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setLastFmService(LastFmService lastFmService) {
-        this.lastFmService = lastFmService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
     }
 }

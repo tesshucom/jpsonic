@@ -45,7 +45,6 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,12 +65,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/personalSettings")
 public class PersonalSettingsController {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private OutlineHelpSelector outlineHelpSelector;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final OutlineHelpSelector outlineHelpSelector;
+
+    public PersonalSettingsController(SettingsService settingsService, SecurityService securityService,
+            OutlineHelpSelector outlineHelpSelector) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.outlineHelpSelector = outlineHelpSelector;
+    }
 
     @ModelAttribute
     protected void formBackingObject(HttpServletRequest request, Model model,
@@ -163,7 +167,7 @@ public class PersonalSettingsController {
             command.setIetf(userSettings.getIetf());
         }
         WebFontUtils.setToCommand(userSettings, command);
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         Locale currentLocale = userSettings.getLocale();
         Locale[] locales = settingsService.getAvailableLocales();

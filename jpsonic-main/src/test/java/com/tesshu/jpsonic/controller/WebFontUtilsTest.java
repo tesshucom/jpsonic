@@ -30,13 +30,19 @@ import com.tesshu.jpsonic.domain.FontScheme;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.apache.catalina.connector.Request;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
-public class WebFontUtilsTest {
+public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
 
@@ -44,11 +50,13 @@ public class WebFontUtilsTest {
 
     private static final String FONT_SIZE_KEY = "viewhint.fontSize";
 
+    @Autowired
+    private SettingsService settingsService;
+
     @Test
     @Order(1)
     public void testSetToRequest() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
-        SettingsService settingsService = new SettingsService();
         Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
         method.setAccessible(true);
         UserSettings settings = (UserSettings) method.invoke(settingsService, "");
@@ -117,7 +125,6 @@ public class WebFontUtilsTest {
     @Order(2)
     public void testSetToCommand() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
-        SettingsService settingsService = new SettingsService();
         Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
         method.setAccessible(true);
         UserSettings from = (UserSettings) method.invoke(settingsService, "");
@@ -168,7 +175,6 @@ public class WebFontUtilsTest {
         WebFontUtils.setToCommand(new UserSettings(""), command);
 
         // DEFAULT
-        SettingsService settingsService = new SettingsService();
         Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
         method.setAccessible(true);
         UserSettings to = (UserSettings) method.invoke(settingsService, "");

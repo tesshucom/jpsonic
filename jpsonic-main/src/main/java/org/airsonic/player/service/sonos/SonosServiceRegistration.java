@@ -43,8 +43,6 @@ import org.slf4j.LoggerFactory;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class SonosServiceRegistration {
 

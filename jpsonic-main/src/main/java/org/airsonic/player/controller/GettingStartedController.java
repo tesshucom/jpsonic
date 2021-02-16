@@ -27,7 +27,6 @@ import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,8 +37,12 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/gettingStarted")
 public class GettingStartedController {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public GettingStartedController(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     public ModelAndView gettingStarted(HttpServletRequest request) {

@@ -49,9 +49,10 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class MediaFileDao extends AbstractDao {
+
     private static final Logger LOG = LoggerFactory.getLogger(MediaFileDao.class);
     private static final String INSERT_COLUMNS = "path, folder, type, format, title, album, artist, album_artist, disc_number, "
             + "track_number, year, genre, bit_rate, variable_bit_rate, duration_seconds, file_size, width, height, cover_art_path, "
@@ -60,18 +61,23 @@ public class MediaFileDao extends AbstractDao {
             // JP >>>>
             + ", " + "composer, artist_sort, album_sort, title_sort, album_artist_sort, composer_sort, "
             + "artist_reading, album_reading, album_artist_reading, "
-            + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " + "media_file_order";
-    // <<<< JP
-
+            + "artist_sort_raw, album_sort_raw, album_artist_sort_raw, composer_sort_raw, " + "media_file_order"; // <<<<
+                                                                                                                  // JP
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
     private static final String GENRE_COLUMNS = "name, song_count, album_count";
-
     private static final int JP_VERSION = 8;
     public static final int VERSION = 4 + JP_VERSION;
 
-    private final RowMapper<MediaFile> rowMapper = new MediaFileMapper();
-    private final RowMapper<MediaFile> musicFileInfoRowMapper = new MusicFileInfoMapper();
-    private final RowMapper<Genre> genreRowMapper = new GenreMapper();
+    private final RowMapper<MediaFile> rowMapper;
+    private final RowMapper<MediaFile> musicFileInfoRowMapper;
+    private final RowMapper<Genre> genreRowMapper;
+
+    public MediaFileDao(DaoHelper daoHelper) {
+        super(daoHelper);
+        rowMapper = new MediaFileMapper();
+        musicFileInfoRowMapper = new MusicFileInfoMapper();
+        genreRowMapper = new GenreMapper();
+    }
 
     /**
      * Returns the media file for the given path.
@@ -164,8 +170,7 @@ public class MediaFileDao extends AbstractDao {
                 + ", " + "composer=?, " + "artist_sort=?, " + "album_sort=?, " + "title_sort=?, "
                 + "album_artist_sort=?, " + "composer_sort=?, " + "artist_reading=?, " + "album_reading=?, "
                 + "album_artist_reading=?, " + "artist_sort_raw=?, " + "album_sort_raw=?, "
-                + "album_artist_sort_raw=?, " + "composer_sort_raw=?, " + "media_file_order=? "
-                // <<<< JP
+                + "album_artist_sort_raw=?, " + "composer_sort_raw=?, " + "media_file_order=? " // <<<< JP
                 + "where path=?";
 
         LOG.trace("Updating media file {}", PlayerUtils.debugObject(file));
@@ -181,8 +186,7 @@ public class MediaFileDao extends AbstractDao {
                 file.getComposer(), file.getArtistSort(), file.getAlbumSort(), file.getTitleSort(),
                 file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(), file.getAlbumReading(),
                 file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(),
-                // <<<< JP
+                file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), file.getOrder(), // <<<< JP
                 file.getPath());
         if (n == 0) {
 
@@ -207,8 +211,7 @@ public class MediaFileDao extends AbstractDao {
                     file.getComposer(), file.getArtistSort(), file.getAlbumSort(), file.getTitleSort(),
                     file.getAlbumArtistSort(), file.getComposerSort(), file.getArtistReading(), file.getAlbumReading(),
                     file.getAlbumArtistReading(), file.getArtistSortRaw(), file.getAlbumSortRaw(),
-                    file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), -1);
-            // <<<< JP
+                    file.getAlbumArtistSortRaw(), file.getComposerSortRaw(), -1); // <<<< JP
         }
 
         int id = queryForInt("select id from media_file where path=?", null, file.getPath());
@@ -720,14 +723,13 @@ public class MediaFileDao extends AbstractDao {
                     // JP >>>>
                     rs.getString(33), rs.getString(34), rs.getString(35), rs.getString(36), rs.getString(37),
                     rs.getString(38), rs.getString(39), rs.getString(40), rs.getString(41), rs.getString(42),
-                    rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46));
-            // <<<< JP
+                    rs.getString(43), rs.getString(44), rs.getString(45), rs.getInt(46)); // <<<< JP
         }
     }
 
     private static class RandomSongsQueryBuilder {
 
-        private RandomSearchCriteria criteria;
+        private final RandomSearchCriteria criteria;
 
         public RandomSongsQueryBuilder(RandomSearchCriteria criteria) {
             this.criteria = criteria;
@@ -736,22 +738,22 @@ public class MediaFileDao extends AbstractDao {
         public String build() {
             StringBuilder query = new StringBuilder(1024); // 988 + param
             query.append("select ").append(prefix(QUERY_COLUMNS, "media_file")).append(" from media_file");
-            getIfJoinStarred().ifPresent(s -> query.append(s));
-            getIfJoinAlbumRating().ifPresent(s -> query.append(s));
+            getIfJoinStarred().ifPresent(query::append);
+            getIfJoinAlbumRating().ifPresent(query::append);
             query.append(" where media_file.present and media_file.type = 'MUSIC'");
-            getFolderCondition().ifPresent(s -> query.append(s));
-            getGenreCondition().ifPresent(s -> query.append(s));
-            getFormatCondition().ifPresent(s -> query.append(s));
-            getFromYearCondition().ifPresent(s -> query.append(s));
-            getToYearCondition().ifPresent(s -> query.append(s));
-            getMinLastPlayedDateCondition().ifPresent(s -> query.append(s));
-            getMaxLastPlayedDateCondition().ifPresent(s -> query.append(s));
-            getMinAlbumRatingCondition().ifPresent(s -> query.append(s));
-            getMaxAlbumRatingCondition().ifPresent(s -> query.append(s));
-            getMinPlayCountCondition().ifPresent(s -> query.append(s));
-            getMaxPlayCountCondition().ifPresent(s -> query.append(s));
-            getShowStarredSongsCondition().ifPresent(s -> query.append(s));
-            getShowUnstarredSongsCondition().ifPresent(s -> query.append(s));
+            getFolderCondition().ifPresent(query::append);
+            getGenreCondition().ifPresent(query::append);
+            getFormatCondition().ifPresent(query::append);
+            getFromYearCondition().ifPresent(query::append);
+            getToYearCondition().ifPresent(query::append);
+            getMinLastPlayedDateCondition().ifPresent(query::append);
+            getMaxLastPlayedDateCondition().ifPresent(query::append);
+            getMinAlbumRatingCondition().ifPresent(query::append);
+            getMaxAlbumRatingCondition().ifPresent(query::append);
+            getMinPlayCountCondition().ifPresent(query::append);
+            getMaxPlayCountCondition().ifPresent(query::append);
+            getShowStarredSongsCondition().ifPresent(query::append);
+            getShowUnstarredSongsCondition().ifPresent(query::append);
             query.append(" order by rand() limit ").append(criteria.getCount());
             return query.toString();
         }

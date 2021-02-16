@@ -49,7 +49,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -68,20 +67,24 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class ExternalPlayerController {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalPlayerController.class);
-
     private static final String MAX_BIT_RATE_VALUE = "1200";
     private static final String MAX_SIZE_VALUE = "500";
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private ShareService shareService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private JWTSecurityService jwtSecurityService;
+    private final SettingsService settingsService;
+    private final PlayerService playerService;
+    private final ShareService shareService;
+    private final MediaFileService mediaFileService;
+    private final JWTSecurityService jwtSecurityService;
+
+    public ExternalPlayerController(SettingsService settingsService, PlayerService playerService,
+            ShareService shareService, MediaFileService mediaFileService, JWTSecurityService jwtSecurityService) {
+        super();
+        this.settingsService = settingsService;
+        this.playerService = playerService;
+        this.shareService = shareService;
+        this.mediaFileService = mediaFileService;
+        this.jwtSecurityService = jwtSecurityService;
+    }
 
     @SuppressWarnings("PMD.NullAssignment") // (share) Intentional allocation to register null
     @GetMapping

@@ -44,19 +44,23 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class AlbumDao extends AbstractDao {
+
     private static final String INSERT_COLUMNS = "path, name, artist, song_count, duration_seconds, cover_art_path, "
             + "year, genre, play_count, last_played, comment, created, last_scanned, present, "
             + "folder_id, mb_release_id, "
             // JP >>>>
-            + "artist_sort, name_sort, artist_reading, name_reading, album_order";
-    // <<<< JP
-
+            + "artist_sort, name_sort, artist_reading, name_reading, album_order"; // <<<< JP
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final RowMapper<Album> rowMapper = new AlbumMapper();
+    private final RowMapper<Album> rowMapper;
+
+    public AlbumDao(DaoHelper daoHelper) {
+        super(daoHelper);
+        rowMapper = new AlbumMapper();
+    }
 
     public Album getAlbum(int id) {
         return queryOne("select " + QUERY_COLUMNS + " from album where id=?", rowMapper, id);
@@ -134,8 +138,8 @@ public class AlbumDao extends AbstractDao {
                 + "year=?," + "genre=?," + "play_count=?," + "last_played=?," + "comment=?," + "created=?,"
                 + "last_scanned=?," + "present=?, " + "folder_id=?, " + "mb_release_id=?, "
                 // JP >>>>
-                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? "
-                // <<<< JP
+                + "artist_sort=?, " + "name_sort=?, " + "artist_reading=?, " + "name_reading=?, " + "album_order=? " // <<<<
+                                                                                                                     // JP
                 + "where artist=? and name=?";
 
         int n = update(sql, album.getPath(), album.getSongCount(), album.getDurationSeconds(), album.getCoverArtPath(),
@@ -144,8 +148,7 @@ public class AlbumDao extends AbstractDao {
                 album.getMusicBrainzReleaseId(),
                 // JP >>>>
                 album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(),
-                album.getOrder(),
-                // <<<< JP
+                album.getOrder(), // <<<< JP
                 album.getArtist(), album.getName());
 
         if (n == 0) {
@@ -156,8 +159,8 @@ public class AlbumDao extends AbstractDao {
                     album.getPlayCount(), album.getLastPlayed(), album.getComment(), album.getCreated(),
                     album.getLastScanned(), album.isPresent(), album.getFolderId(), album.getMusicBrainzReleaseId(),
                     // JP >>>>
-                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(), -1);
-            // <<<< JP
+                    album.getArtistSort(), album.getNameSort(), album.getArtistReading(), album.getNameReading(), -1); // <<<<
+                                                                                                                       // JP
         }
 
         int id = queryForInt("select id from album where artist=? and name=?", null, album.getArtist(),
@@ -212,7 +215,7 @@ public class AlbumDao extends AbstractDao {
         if (musicFolders.isEmpty()) {
             return 0;
         }
-        List<Integer> ids = musicFolders.stream().map(m -> m.getId()).collect(Collectors.toList());
+        List<Integer> ids = musicFolders.stream().map(MusicFolder::getId).collect(Collectors.toList());
         Map<String, Object> args = LegacyMap.of("folders", ids);
         Integer result = getNamedParameterJdbcTemplate().queryForObject(
                 "select count(*) from album where present and folder_id in (:folders)", args, Integer.class);
@@ -428,8 +431,7 @@ public class AlbumDao extends AbstractDao {
                     rs.getInt(10), rs.getTimestamp(11), rs.getString(12), rs.getTimestamp(13), rs.getTimestamp(14),
                     rs.getBoolean(15), rs.getInt(16), rs.getString(17),
                     // JP >>>>
-                    rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22));
-            // <<<< JP
+                    rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getInt(22)); // <<<< JP
         }
     }
 

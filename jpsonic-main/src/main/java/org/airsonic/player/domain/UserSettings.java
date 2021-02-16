@@ -43,19 +43,19 @@ public class UserSettings {
     private boolean autoHidePlayQueue;
     private boolean viewAsList;
     private boolean queueFollowingSongs;
-    private AlbumListType defaultAlbumList = AlbumListType.RANDOM;
-    private Visibility mainVisibility = new Visibility();
-    private Visibility playlistVisibility = new Visibility();
+    private AlbumListType defaultAlbumList;
+    private Visibility mainVisibility;
+    private Visibility playlistVisibility;
     private boolean lastFmEnabled;
     private boolean listenBrainzEnabled;
     private String lastFmUsername;
     private String lastFmPassword;
     private String listenBrainzToken;
-    private TranscodeScheme transcodeScheme = TranscodeScheme.OFF;
+    private TranscodeScheme transcodeScheme;
     private int selectedMusicFolderId = -1;
     private boolean partyModeEnabled;
     private boolean nowPlayingAllowed;
-    private AvatarScheme avatarScheme = AvatarScheme.NONE;
+    private AvatarScheme avatarScheme;
     private Integer systemAvatarId;
     private Date changed = new Date();
     private int paginationSize;
@@ -95,7 +95,16 @@ public class UserSettings {
     private int fontSize;
     // <<<< JP
 
+    public UserSettings() {
+        defaultAlbumList = AlbumListType.RANDOM;
+        mainVisibility = new Visibility();
+        playlistVisibility = new Visibility();
+        transcodeScheme = TranscodeScheme.OFF;
+        avatarScheme = AvatarScheme.NONE;
+    }
+
     public UserSettings(String username) {
+        this();
         this.username = username;
     }
 
@@ -614,8 +623,7 @@ public class UserSettings {
                 boolean yearVisible, boolean bitRateVisible, boolean durationVisible, boolean formatVisible,
                 boolean fileSizeVisible,
                 // JP >>>>
-                boolean composerVisible
-        // <<<< JP
+                boolean composerVisible // <<<< JP
         ) {
             this.trackNumberVisible = trackNumberVisible;
             this.artistVisible = artistVisible;

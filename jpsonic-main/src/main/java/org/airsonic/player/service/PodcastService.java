@@ -43,11 +43,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.PodcastDao;
 import org.airsonic.player.domain.MediaFile;
@@ -76,7 +75,6 @@ import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -91,34 +89,32 @@ public class PodcastService {
     private static final DateFormat[] RSS_DATE_FORMATS = {
             new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z", Locale.US),
             new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z", Locale.US) };
-
     private static final Namespace[] ITUNES_NAMESPACES = {
             Namespace.getNamespace("http://www.itunes.com/DTDs/Podcast-1.0.dtd"),
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
-
     private static final Object EPISODES_LOCK = new Object();
     private static final Object FILE_LOCK = new Object();
     private static final Object SCHEDULE_LOCK = new Object();
+    private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
+    private final PodcastDao podcastDao;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final MetaDataParserFactory metaDataParserFactory;
     private final ExecutorService refreshExecutor;
     private final ExecutorService downloadExecutor;
     private final ScheduledExecutorService scheduledExecutor;
+
     private ScheduledFuture<?> scheduledRefresh;
 
-    private static final long DURATION_FORMAT_THRESHOLD = 3600;
-
-    @Autowired
-    private PodcastDao podcastDao;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private MetaDataParserFactory metaDataParserFactory;
-
-    public PodcastService() {
+    public PodcastService(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
+            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory) {
+        this.podcastDao = podcastDao;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+        this.metaDataParserFactory = metaDataParserFactory;
         ThreadFactory threadFactory = r -> {
             Thread t = Executors.defaultThreadFactory().newThread(r);
             t.setDaemon(true);
@@ -261,14 +257,14 @@ public class PodcastService {
     public List<PodcastEpisode> getNewestEpisodes(int count) {
         List<PodcastEpisode> episodes = addMediaFileIdToEpisodes(podcastDao.getNewestEpisodes(count));
 
-        return Lists.newArrayList(Iterables.filter(episodes, episode -> {
+        return episodes.stream().filter(episode -> {
             Integer mediaFileId = episode.getMediaFileId();
             if (mediaFileId == null) {
                 return false;
             }
             MediaFile mediaFile = mediaFileService.getMediaFile(mediaFileId);
             return mediaFile != null && mediaFile.isPresent();
-        }));
+        }).collect(Collectors.toList());
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (File) Not reusable
@@ -846,25 +842,5 @@ public class PodcastService {
         } else {
             podcastDao.deleteEpisode(episodeId);
         }
-    }
-
-    public void setPodcastDao(PodcastDao podcastDao) {
-        this.podcastDao = podcastDao;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setMetaDataParserFactory(MetaDataParserFactory metaDataParserFactory) {
-        this.metaDataParserFactory = metaDataParserFactory;
     }
 }

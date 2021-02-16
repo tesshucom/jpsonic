@@ -28,7 +28,6 @@ import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -46,8 +45,12 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/setMusicFileInfo")
 public class SetMusicFileInfoController {
 
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
+
+    public SetMusicFileInfoController(MediaFileService mediaFileService) {
+        super();
+        this.mediaFileService = mediaFileService;
+    }
 
     @PostMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ServletRequestBindingException {
@@ -65,5 +68,4 @@ public class SetMusicFileInfoController {
         String url = ViewName.MAIN.value() + "?" + Attributes.Request.ID.value() + "=" + id;
         return new ModelAndView(new RedirectView(url));
     }
-
 }

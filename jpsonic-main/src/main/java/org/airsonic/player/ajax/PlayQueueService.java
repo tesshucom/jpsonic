@@ -33,11 +33,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.google.common.collect.Lists;
 import com.tesshu.jpsonic.controller.ViewName;
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.dao.InternetRadioDao;
@@ -67,7 +67,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.StringUtil;
 import org.directwebremoting.WebContextFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -81,45 +80,52 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 @Service("ajaxPlayQueueService")
 public class PlayQueueService {
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private JukeboxService jukeboxService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private JpsonicComparators comparators;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private LastFmService lastFmService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private PlayQueueDao playQueueDao;
-    @Autowired
-    private InternetRadioDao internetRadioDao;
-    @Autowired
-    private JWTSecurityService jwtSecurityService;
-    @Autowired
-    private InternetRadioService internetRadioService;
+    private final PlayerService playerService;
+    private final JukeboxService jukeboxService;
+    private final SettingsService settingsService;
+    private final JpsonicComparators comparators;
+    private final MediaFileService mediaFileService;
+    private final LastFmService lastFmService;
+    private final SecurityService securityService;
+    private final SearchService searchService;
+    private final RatingService ratingService;
+    private final PodcastService podcastService;
+    private final PlaylistService playlistService;
+    private final MediaFileDao mediaFileDao;
+    private final PlayQueueDao playQueueDao;
+    private final InternetRadioDao internetRadioDao;
+    private final JWTSecurityService jwtSecurityService;
+    private final InternetRadioService internetRadioService;
+
+    public PlayQueueService(PlayerService playerService, JukeboxService jukeboxService, SettingsService settingsService,
+            JpsonicComparators comparators, MediaFileService mediaFileService, LastFmService lastFmService,
+            SecurityService securityService, SearchService searchService, RatingService ratingService,
+            PodcastService podcastService, PlaylistService playlistService, MediaFileDao mediaFileDao,
+            PlayQueueDao playQueueDao, InternetRadioDao internetRadioDao, JWTSecurityService jwtSecurityService,
+            InternetRadioService internetRadioService) {
+        super();
+        this.playerService = playerService;
+        this.jukeboxService = jukeboxService;
+        this.settingsService = settingsService;
+        this.comparators = comparators;
+        this.mediaFileService = mediaFileService;
+        this.lastFmService = lastFmService;
+        this.securityService = securityService;
+        this.searchService = searchService;
+        this.ratingService = ratingService;
+        this.podcastService = podcastService;
+        this.playlistService = playlistService;
+        this.mediaFileDao = mediaFileDao;
+        this.playQueueDao = playQueueDao;
+        this.internetRadioDao = internetRadioDao;
+        this.jwtSecurityService = jwtSecurityService;
+        this.internetRadioService = internetRadioService;
+    }
 
     /**
      * Returns the play queue for the player of the current user.
      *
      * @return The play queue.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo getPlayQueue() throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -278,8 +284,6 @@ public class PlayQueueService {
      * @param startIndex
      *            Start playing at this index in the list of radio streams, or play whole radio playlist if
      *            {@code null}.
-     * 
-     * @throws ExecutionException
      */
     public PlayQueueInfo playInternetRadio(int id, Integer startIndex)
             throws ServletRequestBindingException, ExecutionException {
@@ -303,15 +307,13 @@ public class PlayQueueService {
         files.removeIf(file -> !file.isPresent());
 
         // Add to the play queue
-        int[] ids = files.stream().mapToInt(f -> f.getId()).toArray();
+        int[] ids = files.stream().mapToInt(MediaFile::getId).toArray();
         return doAdd(request, response, ids, null);
     }
 
     /**
      * @param startIndex
      *            Start playing at this index, or play whole playlist if {@code null}.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo playPlaylist(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -340,8 +342,6 @@ public class PlayQueueService {
     /**
      * @param startIndex
      *            Start playing at this index, or play all top songs if {@code null}.
-     * 
-     * @throws ServletRequestBindingException
      */
     public PlayQueueInfo playTopSong(int id, Integer startIndex) throws ServletRequestBindingException {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -411,8 +411,8 @@ public class PlayQueueService {
         HttpServletResponse response = WebContextFactory.get().getHttpServletResponse();
 
         List<PodcastEpisode> episodes = podcastService.getNewestEpisodes(10);
-        List<MediaFile> files = Lists.transform(episodes,
-                episode -> mediaFileService.getMediaFile(episode.getMediaFileId()));
+        List<MediaFile> files = episodes.stream()
+                .map(episode -> mediaFileService.getMediaFile(episode.getMediaFileId())).collect(Collectors.toList());
 
         String username = securityService.getCurrentUsername(request);
         boolean queueFollowingSongs = settingsService.getUserSettings(username).isQueueFollowingSongs();
@@ -880,65 +880,5 @@ public class PlayQueueService {
     public void setJukeboxPosition(int positionInSeconds) throws ServletRequestBindingException {
         Player player = resolvePlayer();
         jukeboxService.setPosition(player, positionInSeconds);
-    }
-
-    //
-    // End : Methods dedicated to jukebox
-    //
-
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setLastFmService(LastFmService lastFmService) {
-        this.lastFmService = lastFmService;
-    }
-
-    public void setJukeboxService(JukeboxService jukeboxService) {
-        this.jukeboxService = jukeboxService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public void setRatingService(RatingService ratingService) {
-        this.ratingService = ratingService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setPodcastService(PodcastService podcastService) {
-        this.podcastService = podcastService;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
-    public void setPlayQueueDao(PlayQueueDao playQueueDao) {
-        this.playQueueDao = playQueueDao;
-    }
-
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
-    }
-
-    public void setJwtSecurityService(JWTSecurityService jwtSecurityService) {
-        this.jwtSecurityService = jwtSecurityService;
-    }
-
-    public void setInternetRadioDao(InternetRadioDao internetRadioDao) {
-        this.internetRadioDao = internetRadioDao;
     }
 }

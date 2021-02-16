@@ -46,9 +46,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class PlaylistUpnpProcessor extends UpnpContentProcessor<Playlist, MediaFile> {
 
     private final UpnpProcessorUtil util;
-
     private final PlaylistService playlistService;
-
     private final CoverArtLogic coverArtLogic;
 
     public PlaylistUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, PlaylistService p,

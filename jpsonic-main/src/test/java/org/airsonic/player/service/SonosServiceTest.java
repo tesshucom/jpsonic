@@ -23,15 +23,19 @@ package org.airsonic.player.service;
 
 import static org.junit.Assert.assertEquals;
 
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class SonosServiceTest {
+public class SonosServiceTest extends AbstractAirsonicHomeTest {
+
+    @Autowired
+    private SonosService sonosService;
 
     @Test
     public void testParsePlaylistIndices() {
-        SonosService sonosService = new SonosService();
         assertEquals("[]", sonosService.parsePlaylistIndices("").toString());
         assertEquals("[999]", sonosService.parsePlaylistIndices("999").toString());
         assertEquals("[1, 2, 3]", sonosService.parsePlaylistIndices("1,2,3").toString());

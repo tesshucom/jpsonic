@@ -62,19 +62,20 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(GlobalSecurityConfig.class);
-
     private static final String FAILURE_URL = "/login?error=1";
-
     private static final String DEVELOPMENT_REMEMBER_ME_KEY = "jpsonic";
 
-    @Autowired
-    private SecurityService securityService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final CustomUserDetailsContextMapper customUserDetailsContextMapper;
 
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
-    private CustomUserDetailsContextMapper customUserDetailsContextMapper;
+    public GlobalSecurityConfig(SecurityService securityService, SettingsService settingsService,
+            CustomUserDetailsContextMapper customUserDetailsContextMapper) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.customUserDetailsContextMapper = customUserDetailsContextMapper;
+    }
 
     @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
     @Autowired
@@ -127,11 +128,11 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
     @Order(1)
     public static class ExtSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-        @Autowired
-        private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
+        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
 
-        public ExtSecurityConfiguration() {
+        public ExtSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher) {
             super(true);
+            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
         }
 
         @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 springframework
@@ -161,17 +162,20 @@ public class GlobalSecurityConfig extends GlobalAuthenticationConfigurerAdapter 
 
         private static final Logger LOG = LoggerFactory.getLogger(WebSecurityConfiguration.class);
 
-        @Autowired
-        private CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
+        private final CsrfSecurityRequestMatcher csrfSecurityRequestMatcher;
+        private final ApplicationEventPublisher eventPublisher;
+        private final SecurityService securityService;
+        private final SettingsService settingsService;
 
-        @Autowired
-        private ApplicationEventPublisher eventPublisher;
-
-        @Autowired
-        private SecurityService securityService;
-
-        @Autowired
-        private SettingsService settingsService;
+        public WebSecurityConfiguration(CsrfSecurityRequestMatcher csrfSecurityRequestMatcher,
+                ApplicationEventPublisher eventPublisher, SecurityService securityService,
+                SettingsService settingsService) {
+            super();
+            this.csrfSecurityRequestMatcher = csrfSecurityRequestMatcher;
+            this.eventPublisher = eventPublisher;
+            this.securityService = securityService;
+            this.settingsService = settingsService;
+        }
 
         private String generateRememberMeKey() {
             byte[] array = new byte[32];

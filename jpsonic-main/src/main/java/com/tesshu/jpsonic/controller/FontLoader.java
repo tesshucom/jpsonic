@@ -35,7 +35,6 @@ import org.springframework.stereotype.Component;
 public class FontLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(FontLoader.class);
-
     private static final Object FONT_LOCK = new Object();
 
     private final Ehcache fontCache;

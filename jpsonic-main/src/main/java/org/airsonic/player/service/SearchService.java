@@ -39,8 +39,6 @@ import org.airsonic.player.service.search.UPnPSearchCriteria;
  *
  * @author Sindre Mehus
  * 
- * @version $Id$
- * 
  * @see MediaScannerService
  */
 public interface SearchService {

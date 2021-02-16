@@ -46,25 +46,23 @@ import org.slf4j.LoggerFactory;
  * Supports pause and resume, but not restarting.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class AudioPlayer {
 
-    public static final float DEFAULT_GAIN = 0.75f;
     private static final Logger LOG = LoggerFactory.getLogger(AudioPlayer.class);
+    public static final float DEFAULT_GAIN = 0.75f;
+    private static final Object LINE_LOCK = new Object();
 
     private final InputStream in;
     private final Listener listener;
     private final SourceDataLine line;
-    private final AtomicReference<State> state = new AtomicReference<>(PAUSED);
+    private final AtomicReference<State> state;
     private FloatControl gainControl;
-
-    private static final Object LINE_LOCK = new Object();
 
     public AudioPlayer(InputStream in, Listener listener) throws LineUnavailableException {
         this.in = in;
         this.listener = listener;
+        state = new AtomicReference<>(PAUSED);
 
         AudioFormat format = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 44_100.0F, 16, 2, 4, 44_100.0F, true);
         line = AudioSystem.getSourceDataLine(format);

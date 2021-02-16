@@ -48,7 +48,9 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.util.StringUtils;
 
 public class JWTRequestParameterProcessingFilter implements Filter {
+
     private static final Logger LOG = LoggerFactory.getLogger(JWTRequestParameterProcessingFilter.class);
+
     private final AuthenticationManager authenticationManager;
     private final AuthenticationFailureHandler failureHandler;
 

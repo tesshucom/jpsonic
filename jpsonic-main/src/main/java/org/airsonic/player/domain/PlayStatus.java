@@ -27,16 +27,14 @@ import java.util.Date;
  * Represents the playback of a track, possibly remote (e.g., a cached song on a mobile phone).
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class PlayStatus {
+
+    private static final long TTL_MILLIS = 6L * 60L * 60L * 1000L; // 6 hours
 
     private final MediaFile mediaFile;
     private final Player player;
     private final Date time;
-
-    private static final long TTL_MILLIS = 6L * 60L * 60L * 1000L; // 6 hours
 
     public PlayStatus(MediaFile mediaFile, Player player, Date time) {
         this.mediaFile = mediaFile;

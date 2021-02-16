@@ -36,11 +36,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RecentAlbumUpnpProcessor extends MediaFileUpnpProcessor {
 
-    private final UpnpProcessorUtil util;
-
-    private final JMediaFileService mediaFileService;
-
     private static final int RECENT_COUNT = 50;
+
+    private final UpnpProcessorUtil util;
+    private final JMediaFileService mediaFileService;
 
     public RecentAlbumUpnpProcessor(@Lazy UpnpProcessDispatcher d, UpnpProcessorUtil u, JMediaFileService m,
             PlayerService p) {

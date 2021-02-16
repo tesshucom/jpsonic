@@ -96,7 +96,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.MissingServletRequestParameterException;
@@ -170,84 +169,97 @@ import org.subsonic.restapi.Videos;
 public class SubsonicRESTController {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubsonicRESTController.class);
-
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private LastFmService lastFmService;
-    @Autowired
-    private MusicIndexService musicIndexService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private DownloadController downloadController;
-    @Autowired
-    private CoverArtController coverArtController;
-    @Autowired
-    private AvatarController avatarController;
-    @Autowired
-    private UserSettingsController userSettingsController;
-    @Autowired
-    private TopController topController;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private StreamController streamController;
-    @Autowired
-    private HLSController hlsController;
-    @Autowired
-    private ShareService shareService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private LyricsService lyricsService;
-    @Autowired
-    private PlayQueueService playQueueService;
-    @Autowired
-    private JukeboxService jukeboxService;
-    @Autowired
-    private AudioScrobblerService audioScrobblerService;
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
-    @Autowired
-    private BookmarkService bookmarkService;
-    @Autowired
-    private PlayQueueDao playQueueDao;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-    @Autowired
-    private AirsonicLocaleResolver airsonicLocaleResolver;
-    @Autowired
-    private CoverArtLogic logic;
-    @Autowired
-    private SearchCriteriaDirector director;
-
-    private final JAXBWriter jaxbWriter = new JAXBWriter();
-
     private static final String NOT_YET_IMPLEMENTED = "Not yet implemented";
     private static final String NO_LONGER_SUPPORTED = "No longer supported";
-
     private static final String MSG_PLAYLIST_NOT_FOUND = "Playlist not found: ";
     private static final String MSG_PLAYLIST_DENIED = "Permission denied for playlist: ";
     private static final String MSG_PODCAST_NOT_AUTHORIZED = " is not authorized to administrate podcasts.";
-
     private static final long LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final PlayerService playerService;
+    private final MediaFileService mediaFileService;
+    private final LastFmService lastFmService;
+    private final MusicIndexService musicIndexService;
+    private final TranscodingService transcodingService;
+    private final DownloadController downloadController;
+    private final CoverArtController coverArtController;
+    private final AvatarController avatarController;
+    private final UserSettingsController userSettingsController;
+    private final TopController topController;
+    private final StatusService statusService;
+    private final StreamController streamController;
+    private final HLSController hlsController;
+    private final ShareService shareService;
+    private final PlaylistService playlistService;
+    private final LyricsService lyricsService;
+    private final PlayQueueService playQueueService;
+    private final JukeboxService jukeboxService;
+    private final AudioScrobblerService audioScrobblerService;
+    private final PodcastService podcastService;
+    private final RatingService ratingService;
+    private final SearchService searchService;
+    private final MediaFileDao mediaFileDao;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final BookmarkService bookmarkService;
+    private final PlayQueueDao playQueueDao;
+    private final MediaScannerService mediaScannerService;
+    private final AirsonicLocaleResolver airsonicLocaleResolver;
+    private final CoverArtLogic logic;
+    private final SearchCriteriaDirector director;
+
+    private final JAXBWriter jaxbWriter;
+
+    public SubsonicRESTController(SettingsService settingsService, SecurityService securityService,
+            PlayerService playerService, MediaFileService mediaFileService, LastFmService lastFmService,
+            MusicIndexService musicIndexService, TranscodingService transcodingService,
+            DownloadController downloadController, CoverArtController coverArtController,
+            AvatarController avatarController, UserSettingsController userSettingsController,
+            TopController topController, StatusService statusService, StreamController streamController,
+            HLSController hlsController, ShareService shareService, PlaylistService playlistService,
+            LyricsService lyricsService, PlayQueueService playQueueService, JukeboxService jukeboxService,
+            AudioScrobblerService audioScrobblerService, PodcastService podcastService, RatingService ratingService,
+            SearchService searchService, MediaFileDao mediaFileDao, ArtistDao artistDao, AlbumDao albumDao,
+            BookmarkService bookmarkService, PlayQueueDao playQueueDao, MediaScannerService mediaScannerService,
+            AirsonicLocaleResolver airsonicLocaleResolver, CoverArtLogic logic, SearchCriteriaDirector director) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.playerService = playerService;
+        this.mediaFileService = mediaFileService;
+        this.lastFmService = lastFmService;
+        this.musicIndexService = musicIndexService;
+        this.transcodingService = transcodingService;
+        this.downloadController = downloadController;
+        this.coverArtController = coverArtController;
+        this.avatarController = avatarController;
+        this.userSettingsController = userSettingsController;
+        this.topController = topController;
+        this.statusService = statusService;
+        this.streamController = streamController;
+        this.hlsController = hlsController;
+        this.shareService = shareService;
+        this.playlistService = playlistService;
+        this.lyricsService = lyricsService;
+        this.playQueueService = playQueueService;
+        this.jukeboxService = jukeboxService;
+        this.audioScrobblerService = audioScrobblerService;
+        this.podcastService = podcastService;
+        this.ratingService = ratingService;
+        this.searchService = searchService;
+        this.mediaFileDao = mediaFileDao;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.bookmarkService = bookmarkService;
+        this.playQueueDao = playQueueDao;
+        this.mediaScannerService = mediaScannerService;
+        this.airsonicLocaleResolver = airsonicLocaleResolver;
+        this.logic = logic;
+        this.director = director;
+        jaxbWriter = new JAXBWriter();
+    }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public void handleMissingRequestParam(HttpServletRequest request, HttpServletResponse response,
@@ -1069,11 +1081,11 @@ public class SubsonicRESTController {
     }
 
     private static class JukeboxControlResponseParam {
-        private boolean returnPlaylist;
-        private int currentIndex;
-        private boolean playing;
-        private float gain;
-        private Integer position;
+        private final boolean returnPlaylist;
+        private final int currentIndex;
+        private final boolean playing;
+        private final float gain;
+        private final Integer position;
 
         public JukeboxControlResponseParam(boolean returnPlaylist, int currentIndex, boolean playing, float gain,
                 Integer position) {

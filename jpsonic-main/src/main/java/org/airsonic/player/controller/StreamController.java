@@ -59,7 +59,6 @@ import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -79,31 +78,36 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class StreamController {
 
     private static final Logger LOG = LoggerFactory.getLogger(StreamController.class);
-
-    private static final int BUFFER_SIZE = 2048;
-
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private AudioScrobblerService audioScrobblerService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SearchService searchService;
-
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL1 = 400;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL2 = 600;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL3 = 1800;
+    private static final int BUFFER_SIZE = 2048;
+
+    private final StatusService statusService;
+    private final PlayerService playerService;
+    private final PlaylistService playlistService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final TranscodingService transcodingService;
+    private final AudioScrobblerService audioScrobblerService;
+    private final MediaFileService mediaFileService;
+    private final SearchService searchService;
+
+    public StreamController(StatusService statusService, PlayerService playerService, PlaylistService playlistService,
+            SecurityService securityService, SettingsService settingsService, TranscodingService transcodingService,
+            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
+            SearchService searchService) {
+        super();
+        this.statusService = statusService;
+        this.playerService = playerService;
+        this.playlistService = playlistService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.transcodingService = transcodingService;
+        this.audioScrobblerService = audioScrobblerService;
+        this.mediaFileService = mediaFileService;
+        this.searchService = searchService;
+    }
 
     @SuppressWarnings("PMD.NullAssignment") // (maxBitRate)Intentional allocation to register null
     @GetMapping
@@ -191,8 +195,8 @@ public class StreamController {
 
     private void closeAllStreamFor(Player player, boolean isPodcast, boolean isSingleFile) {
         if (!isPodcast && !isSingleFile) {
-            statusService.getStreamStatusesForPlayer(player).stream().filter(t -> t.isActive())
-                    .forEach(t -> t.terminate());
+            statusService.getStreamStatusesForPlayer(player).stream().filter(TransferStatus::isActive)
+                    .forEach(TransferStatus::terminate);
         }
     }
 
@@ -240,10 +244,10 @@ public class StreamController {
     }
 
     private static class PrepareResponseResult {
-        private boolean folderAccessNotAllowed;
-        private HttpRange range;
-        private Long fileLengthExpected;
-        private VideoTranscodingSettings videoTranscodingSettings;
+        private final boolean folderAccessNotAllowed;
+        private final HttpRange range;
+        private final Long fileLengthExpected;
+        private final VideoTranscodingSettings videoTranscodingSettings;
 
         public PrepareResponseResult(boolean authenticationFailed, HttpRange range, Long fileLengthExpected,
                 VideoTranscodingSettings videoTranscodingSettings) {

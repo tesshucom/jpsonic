@@ -29,6 +29,7 @@ import org.airsonic.player.controller.PasswordSettingsController;
  * @author Sindre Mehus
  */
 public class PasswordSettingsCommand {
+
     private String username;
     private String password;
     private String confirmPassword;

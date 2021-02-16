@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class ServletMappingDef {
+
     @XmlElement(name = "servlet-name")
     private String name;
 

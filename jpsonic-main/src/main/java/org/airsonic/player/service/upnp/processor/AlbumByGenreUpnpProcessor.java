@@ -47,9 +47,7 @@ import org.springframework.stereotype.Service;
 public class AlbumByGenreUpnpProcessor extends UpnpContentProcessor<MediaFile, MediaFile> {
 
     private final UpnpProcessorUtil util;
-
     private final SearchService searchService;
-
     private final JMediaFileService mediaFileService;
 
     private final Function<Genre, MediaFile> toMediaFile = (g) -> {

@@ -38,7 +38,6 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -57,15 +56,18 @@ import org.springframework.stereotype.Service;
 public class SecurityService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityService.class);
-
     private static final Pattern NO_TRAVERSAL = Pattern.compile("^(?!.*(\\.\\./|\\.\\.\\\\)).*$");
 
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private Ehcache userCache;
+    private final UserDao userDao;
+    private final SettingsService settingsService;
+    private final Ehcache userCache;
+
+    public SecurityService(UserDao userDao, SettingsService settingsService, Ehcache userCache) {
+        super();
+        this.userDao = userDao;
+        this.settingsService = settingsService;
+        this.userCache = userCache;
+    }
 
     /**
      * Locates the user based on the username.
@@ -413,17 +415,5 @@ public class SecurityService implements UserDetailsService {
         // Convert slashes.
         return file.replace('\\', '/').toUpperCase(settingsService.getLocale())
                 .startsWith(folder.replace('\\', '/').toUpperCase(settingsService.getLocale()));
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    public void setUserCache(Ehcache userCache) {
-        this.userCache = userCache;
     }
 }

@@ -94,47 +94,45 @@ public class DocumentFactory {
 
     }
 
-    private BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> {
-        doc.add(new StoredField(FieldNamesConstants.ID, Integer.toString(value), TYPE_ID));
-    };
+    private final BiConsumer<@NonNull Document, @NonNull Integer> fieldId = (doc, value) -> doc
+            .add(new StoredField(FieldNamesConstants.ID, Integer.toString(value), TYPE_ID));
 
-    private BiConsumer<@NonNull Document, @NonNull Integer> fieldFolderId = (doc, value) -> {
-        doc.add(new StoredField(FieldNamesConstants.FOLDER_ID, Integer.toString(value), TYPE_ID_NO_STORE));
-    };
+    private final BiConsumer<@NonNull Document, @NonNull Integer> fieldFolderId = (doc, value) -> doc
+            .add(new StoredField(FieldNamesConstants.FOLDER_ID, Integer.toString(value), TYPE_ID_NO_STORE));
 
-    private Consumer<@NonNull Document, @NonNull String, @NonNull String> fieldKey = (doc, field, value) -> {
-        doc.add(new StoredField(field, value, TYPE_KEY));
-    };
+    private final Consumer<@NonNull Document, @NonNull String, @NonNull String> fieldKey = (doc, field, value) -> doc
+            .add(new StoredField(field, value, TYPE_KEY));
 
-    private BiConsumer<@NonNull Document, @NonNull String> fieldMediatype = (doc, value) -> fieldKey.accept(doc,
+    private final BiConsumer<@NonNull Document, @NonNull String> fieldMediatype = (doc, value) -> fieldKey.accept(doc,
             FieldNamesConstants.MEDIA_TYPE, value);
 
-    private BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> fieldKey.accept(doc,
+    private final BiConsumer<@NonNull Document, @NonNull String> fieldFolderPath = (doc, value) -> fieldKey.accept(doc,
             FieldNamesConstants.FOLDER, value);
 
-    public BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName, value) -> Arrays
-            .asList(new TextField(fieldName, value, Store.NO),
+    public final BiFunction<@NonNull String, @Nullable String, List<Field>> createWordsFields = (fieldName,
+            value) -> Arrays.asList(new TextField(fieldName, value, Store.NO),
                     new SortedDocValuesField(fieldName, new BytesRef(value)));
 
-    private Consumer<@NonNull Document, @NonNull String, @Nullable String> fieldWords = (doc, fieldName, value) -> {
+    private final Consumer<@NonNull Document, @NonNull String, @Nullable String> fieldWords = (doc, fieldName,
+            value) -> {
         if (isEmpty(value)) {
             return;
         }
-        createWordsFields.apply(fieldName, value).forEach(f -> doc.add(f));
+        createWordsFields.apply(fieldName, value).forEach(doc::add);
     };
 
-    private BiConsumer<@NonNull Document, @Nullable String> fieldGenre = (doc, value) -> {
+    private final BiConsumer<@NonNull Document, @Nullable String> fieldGenre = (doc, value) -> {
         if (isEmpty(value)) {
             return;
         }
         fieldWords.accept(doc, FieldNamesConstants.GENRE, value);
     };
 
-    private Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> {
-        doc.add(new TextField(fieldName, value, Store.YES));
-    };
+    private final Consumer<Document, String, String> fieldGenreKey = (doc, fieldName, value) -> doc
+            .add(new TextField(fieldName, value, Store.YES));
 
-    private Consumer<@NonNull Document, @NonNull String, @Nullable Integer> fieldYear = (doc, fieldName, value) -> {
+    private final Consumer<@NonNull Document, @NonNull String, @Nullable Integer> fieldYear = (doc, fieldName,
+            value) -> {
         if (isEmpty(value)) {
             return;
         }

@@ -22,7 +22,8 @@
 package org.airsonic.player.domain;
 
 public class InternetRadioSource {
-    private String streamUrl;
+
+    private final String streamUrl;
 
     public InternetRadioSource(String streamUrl) {
         this.streamUrl = streamUrl;

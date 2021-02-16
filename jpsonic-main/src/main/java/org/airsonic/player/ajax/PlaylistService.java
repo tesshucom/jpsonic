@@ -43,7 +43,6 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.directwebremoting.WebContextFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -57,21 +56,27 @@ import org.springframework.web.bind.ServletRequestBindingException;
 @Service("ajaxPlaylistService")
 public class PlaylistService {
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    @Qualifier("playlistService")
-    private org.airsonic.player.service.PlaylistService deligate;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private AirsonicLocaleResolver airsonicLocaleResolver;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final org.airsonic.player.service.PlaylistService deligate;
+    private final MediaFileDao mediaFileDao;
+    private final SettingsService settingsService;
+    private final PlayerService playerService;
+    private final AirsonicLocaleResolver airsonicLocaleResolver;
+
+    public PlaylistService(MediaFileService mediaFileService, SecurityService securityService,
+            @Qualifier("playlistService") org.airsonic.player.service.PlaylistService deligate,
+            MediaFileDao mediaFileDao, SettingsService settingsService, PlayerService playerService,
+            AirsonicLocaleResolver airsonicLocaleResolver) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.deligate = deligate;
+        this.mediaFileDao = mediaFileDao;
+        this.settingsService = settingsService;
+        this.playerService = playerService;
+        this.airsonicLocaleResolver = airsonicLocaleResolver;
+    }
 
     public List<Playlist> getReadablePlaylists() {
         HttpServletRequest request = WebContextFactory.get().getHttpServletRequest();
@@ -253,33 +258,5 @@ public class PlaylistService {
         playlist.setShared(shared);
         deligate.updatePlaylist(playlist);
         return getPlaylist(id);
-    }
-
-    public void setPlaylistService(org.airsonic.player.service.PlaylistService playlistService) {
-        this.deligate = playlistService;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-    }
-
-    public void setAirsonicLocaleResolver(AirsonicLocaleResolver localeResolver) {
-        this.airsonicLocaleResolver = localeResolver;
     }
 }

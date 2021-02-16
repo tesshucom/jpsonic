@@ -26,7 +26,6 @@ import org.airsonic.player.domain.MusicFolder;
 public class SearchCriteria extends LuceneSearchCriteria {
 
     private final List<MusicFolder> musicFolders;
-
     private final IndexType indexType;
 
     SearchCriteria(String searchInput, int offset, int count, boolean includeComposer, List<MusicFolder> musicFolders,

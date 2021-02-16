@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "web-app")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class WebApp {
+
     @XmlElement(name = "servlet")
     private List<ServletDef> servletDefs;
 

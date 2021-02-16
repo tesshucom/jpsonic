@@ -38,15 +38,15 @@ import org.springframework.validation.Validator;
  */
 public class UserSettingsValidator implements Validator {
 
-    private SecurityService securityService;
-    private SettingsService settingsService;
-    private HttpServletRequest request;
-
     private static final String REJECTED_FIELD_USERNAME = "username";
     private static final String REJECTED_FIELD_EMAIL = "email";
     private static final String REJECTED_FIELD_PASSWORD = "password";
     private static final String REJECTED_FIELD_DELETEUSER = "deleteUser";
     private static final String REJECTED_FIELD_ADMINROLE = "adminRole";
+
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final HttpServletRequest request;
 
     public UserSettingsValidator(SecurityService securityService, SettingsService settingsService,
             HttpServletRequest request) {

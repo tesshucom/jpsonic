@@ -107,7 +107,7 @@ public class MusicIndexServiceUtils {
             }
         }
 
-        return new ArrayList<MusicIndex.SortableArtistWithMediaFiles>(artistMap.values());
+        return new ArrayList<>(artistMap.values());
     }
 
     private String createSortableName(String name, String... ignoredArticles) {

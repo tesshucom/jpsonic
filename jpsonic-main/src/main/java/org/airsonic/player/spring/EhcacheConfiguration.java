@@ -56,8 +56,6 @@ public class EhcacheConfiguration {
         ALBUM, SONG, SONG_BY_ARTIST
     }
 
-    ;
-
     @Bean
     public Ehcache randomCache(CacheFactory cacheFactory) {
         return cacheFactory.getCache("randomCache");
@@ -66,8 +64,6 @@ public class EhcacheConfiguration {
     public enum IndexCacheKey {
         FILE_STRUCTURE, ID3
     }
-
-    ;
 
     @Bean
     public Ehcache indexCache(CacheFactory cacheFactory) {

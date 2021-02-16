@@ -47,7 +47,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -69,23 +68,28 @@ import org.springframework.web.servlet.view.RedirectView;
 public class MusicFolderSettingsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderSettingsController.class);
+    private static final AtomicBoolean IS_EXPUNGING = new AtomicBoolean();
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private IndexManager indexManager;
-    @Autowired
-    private SecurityService securityService;
+    private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final MediaFileDao mediaFileDao;
+    private final IndexManager indexManager;
+    private final SecurityService securityService;
 
-    private static AtomicBoolean isExpunging = new AtomicBoolean();
+    public MusicFolderSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService,
+            ArtistDao artistDao, AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager,
+            SecurityService securityService) {
+        super();
+        this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.mediaFileDao = mediaFileDao;
+        this.indexManager = indexManager;
+        this.securityService = securityService;
+    }
 
     @GetMapping
     protected String displayForm() {
@@ -119,7 +123,7 @@ public class MusicFolderSettingsController {
         command.setIndexEnglishPrior(settingsService.isIndexEnglishPrior());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
@@ -131,13 +135,13 @@ public class MusicFolderSettingsController {
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     private void expunge() {
 
-        if (isExpunging.get()) {
+        if (IS_EXPUNGING.get()) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Cleanup is already running.");
             }
             return;
         }
-        isExpunging.set(true);
+        IS_EXPUNGING.set(true);
 
         MediaLibraryStatistics statistics = indexManager.getStatistics();
 
@@ -185,7 +189,7 @@ public class MusicFolderSettingsController {
                     "Index hasn't been created yet or during scanning. Plese execute clean up after scan is completed.");
         }
 
-        isExpunging.set(false);
+        IS_EXPUNGING.set(false);
 
     }
 

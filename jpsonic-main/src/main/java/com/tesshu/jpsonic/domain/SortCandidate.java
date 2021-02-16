@@ -31,7 +31,6 @@ public class SortCandidate {
      * composer, etc.
      */
     private String name;
-
     private String reading;
 
     /**

@@ -27,8 +27,6 @@ import java.util.Date;
  * A bookmark within a media file, for a given user.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class Bookmark {
 

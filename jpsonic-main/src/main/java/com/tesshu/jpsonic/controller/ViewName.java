@@ -47,7 +47,7 @@ public enum ViewName {
     TRANSCODING_SETTINGS(ViewNameConstants.TRANSCODING_SETTINGS), USER_CHART(ViewNameConstants.USER_CHART),
     USER_SETTINGS(ViewNameConstants.USER_SETTINGS);
 
-    private String v;
+    private final String v;
 
     ViewName(String value) {
         this.v = value;

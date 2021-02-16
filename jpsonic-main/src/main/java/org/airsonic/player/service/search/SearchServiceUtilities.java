@@ -30,9 +30,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
@@ -51,7 +49,6 @@ import org.apache.lucene.document.Document;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
@@ -67,29 +64,6 @@ import org.springframework.stereotype.Component;
 public class SearchServiceUtilities {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceUtilities.class);
-
-    /* Search by id only. */
-    @Autowired
-    private ArtistDao artistDao;
-
-    /* Search by id only. */
-    @Autowired
-    private AlbumDao albumDao;
-
-    @Autowired
-    @Qualifier("searchCache")
-    private Ehcache searchCache;
-
-    @Autowired
-    @Qualifier("randomCache")
-    private Ehcache randomCache;
-
-    /*
-     * Search by id only. Although there is no influence at present, mediaFileService has a caching mechanism. Service
-     * is used instead of Dao until you are sure you need to use mediaFileDao.
-     */
-    @Autowired
-    private MediaFileService mediaFileService;
 
     private static Random random;
 
@@ -108,35 +82,29 @@ public class SearchServiceUtilities {
         }
     }
 
+    /* Search by id only. */
+    private final ArtistDao artistDao;
+
+    /* Search by id only. */
+    private final AlbumDao albumDao;
+    @Qualifier("searchCache")
+    private final Ehcache searchCache;
+    @Qualifier("randomCache")
+    private final Ehcache randomCache;
+
+    /*
+     * Search by id only. Although there is no influence at present, mediaFileService has a caching mechanism. Service
+     * is used instead of Dao until you are sure you need to use mediaFileDao.
+     */
+    private final MediaFileService mediaFileService;
+
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
-    public final Function<Long, Integer> round = (i) -> {
-        // return
-        // NumericUtils.floatToSortableInt(i);
-        return i.intValue();
-    };
+    // return
+    // NumericUtils.floatToSortableInt(i);
+    public final Function<Long, Integer> round = Long::intValue;
 
-    public final Function<Document, Integer> getId = d -> {
-        return Integer.valueOf(d.get(FieldNamesConstants.ID));
-    };
-
-    public final BiConsumer<List<MediaFile>, Integer> addMediaFileIfAnyMatch = (dist, id) -> {
-        if (!dist.stream().anyMatch(m -> id == m.getId())) {
-            MediaFile mediaFile = mediaFileService.getMediaFile(id);
-            if (!isEmpty(mediaFile)) {
-                dist.add(mediaFile);
-            }
-        }
-    };
-
-    public final BiConsumer<List<Artist>, Integer> addArtistId3IfAnyMatch = (dist, id) -> {
-        if (!dist.stream().anyMatch(a -> id == a.getId())) {
-            Artist artist = artistDao.getArtist(id);
-            if (!isEmpty(artist)) {
-                dist.add(artist);
-            }
-        }
-    };
+    public final Function<Document, Integer> getId = d -> Integer.valueOf(d.get(FieldNamesConstants.ID));
 
     public final Function<Class<?>, @Nullable IndexType> getIndexType = (assignableClass) -> {
         IndexType indexType = null;
@@ -162,14 +130,42 @@ public class SearchServiceUtilities {
         return fieldName;
     };
 
-    public final BiConsumer<List<Album>, Integer> addAlbumId3IfAnyMatch = (dist, subjectId) -> {
-        if (!dist.stream().anyMatch(a -> subjectId == a.getId())) {
+    public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, Ehcache searchCache, Ehcache randomCache,
+            MediaFileService mediaFileService) {
+        super();
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.searchCache = searchCache;
+        this.randomCache = randomCache;
+        this.mediaFileService = mediaFileService;
+    }
+
+    public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {
+        if (dist.stream().noneMatch(m -> id == m.getId())) {
+            MediaFile mediaFile = mediaFileService.getMediaFile(id);
+            if (!isEmpty(mediaFile)) {
+                dist.add(mediaFile);
+            }
+        }
+    }
+
+    public final void addArtistId3IfAnyMatch(List<Artist> dist, Integer id) {
+        if (dist.stream().noneMatch(a -> id == a.getId())) {
+            Artist artist = artistDao.getArtist(id);
+            if (!isEmpty(artist)) {
+                dist.add(artist);
+            }
+        }
+    }
+
+    public final void addAlbumId3IfAnyMatch(List<Album> dist, Integer subjectId) {
+        if (dist.stream().noneMatch(a -> subjectId == a.getId())) {
             Album album = albumDao.getAlbum(subjectId);
             if (!isEmpty(album)) {
                 dist.add(album);
             }
         }
-    };
+    }
 
     @SuppressWarnings("unchecked")
     public final boolean addIgnoreNull(@SuppressWarnings("rawtypes") Collection collection, Object object) {
@@ -203,19 +199,19 @@ public class SearchServiceUtilities {
         int documentId = getId.apply(subject);
         if (subjectIndexType == IndexType.ARTIST || subjectIndexType == IndexType.ALBUM
                 || subjectIndexType == IndexType.SONG) {
-            addMediaFileIfAnyMatch.accept(dist.getMediaFiles(), documentId);
+            addMediaFileIfAnyMatch(dist.getMediaFiles(), documentId);
         } else if (subjectIndexType == IndexType.ARTIST_ID3) {
-            addArtistId3IfAnyMatch.accept(dist.getArtists(), documentId);
+            addArtistId3IfAnyMatch(dist.getArtists(), documentId);
         } else if (subjectIndexType == IndexType.ALBUM_ID3) {
-            addAlbumId3IfAnyMatch.accept(dist.getAlbums(), documentId);
+            addAlbumId3IfAnyMatch(dist.getAlbums(), documentId);
         }
     }
 
     public final String[] filterComposer(String[] fields, boolean includeComposer) {
-        return Arrays.asList(fields).stream()
+        return Arrays.stream(fields)
                 .filter(f -> includeComposer
                         || !(FieldNamesConstants.COMPOSER.equals(f) || FieldNamesConstants.COMPOSER_READING.equals(f)))
-                .collect(Collectors.toList()).toArray(new String[0]);
+                .toArray(String[]::new);
     }
 
     private String createCacheKey(String genres, List<MusicFolder> musicFolders, IndexType indexType) {
@@ -232,7 +228,7 @@ public class SearchServiceUtilities {
         b.append(key).append(',').append(casheMax).append('[');
         musicFolders.forEach(m -> b.append(m.getId()).append(','));
         if (!isEmpty(additional)) {
-            Arrays.asList(additional).stream().forEach(s -> b.append(s).append(','));
+            Arrays.asList(additional).forEach(s -> b.append(s).append(','));
         }
         b.append(']');
         return b.toString();

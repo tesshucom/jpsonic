@@ -36,7 +36,6 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,13 +50,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/podcastChannels")
 public class PodcastChannelsController {
 
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private SecurityService securityService;
+    private final PodcastService podcastService;
+    private final SecurityService securityService;
+    private final ViewAsListSelector viewSelector;
 
-    @Autowired
-    private ViewAsListSelector viewSelector;
+    public PodcastChannelsController(PodcastService podcastService, SecurityService securityService,
+            ViewAsListSelector viewSelector) {
+        super();
+        this.podcastService = podcastService;
+        this.securityService = securityService;
+        this.viewSelector = viewSelector;
+    }
 
     @GetMapping
     @SuppressWarnings("PMD.UseConcurrentHashMap")

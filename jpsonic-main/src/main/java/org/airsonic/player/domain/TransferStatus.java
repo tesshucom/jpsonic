@@ -36,20 +36,28 @@ public class TransferStatus {
     private static final int HISTORY_LENGTH = 200;
     private static final long SAMPLE_INTERVAL_MILLIS = 5000;
 
-    private Player player;
-    private File file;
-    private AtomicLong bytesTransfered = new AtomicLong();
-    private AtomicLong bytesSkipped = new AtomicLong();
-    private AtomicLong bytesTotal = new AtomicLong();
-    private final SampleHistory history = new SampleHistory(HISTORY_LENGTH);
-    private boolean terminated;
-    private boolean active = true;
-
     /*
      * History-only locking is sufficient on this class of legacy design. If have problems with synchronization
      * restrictions, the constructor design should be reviewed. Signed-off-by: tesshucom <webmaster@tesshu.com>
      */
     private static final Object HISTORY_LOCK = new Object();
+
+    private Player player;
+    private File file;
+    private final AtomicLong bytesTransfered;
+    private final AtomicLong bytesSkipped;
+    private final AtomicLong bytesTotal;
+    private final SampleHistory history;
+    private boolean terminated;
+    private boolean active;
+
+    public TransferStatus() {
+        bytesTransfered = new AtomicLong();
+        bytesSkipped = new AtomicLong();
+        bytesTotal = new AtomicLong();
+        history = new SampleHistory(HISTORY_LENGTH);
+        active = true;
+    }
 
     /**
      * Return the number of bytes transferred.
@@ -267,8 +275,8 @@ public class TransferStatus {
      * A sample containing a timestamp and the number of bytes transferred up to that point in time.
      */
     public static class Sample {
-        private long bytesTransfered;
-        private long timestamp;
+        private final long bytesTransfered;
+        private final long timestamp;
 
         /**
          * Creates a new sample.

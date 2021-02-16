@@ -42,26 +42,26 @@ import org.slf4j.LoggerFactory;
 
 public final class ComplementaryFilter extends TokenFilter {
 
+    private static final AtomicBoolean STOPWORD_LOADED = new AtomicBoolean();
+    private static final Object LOCK = new Object();
+
     private static Pattern onlyStopWords;
 
-    private static AtomicBoolean stopWordLoaded = new AtomicBoolean();
-
-    private static Object lock = new Object();
-
-    private CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
-
-    private String stopwards;
-
-    private Mode mode;
+    private final Mode mode;
+    private final String stopwards;
+    private final CharTermAttribute termAtt;
 
     private Reader getReafer(Class<?> clazz) {
-        return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
+        if (stopwards != null) {
+            return IOUtils.getDecodingReader(clazz.getResourceAsStream("/".concat(stopwards)), UTF_8);
+        }
+        return null;
     }
 
     public enum Mode {
         STOP_WORDS_ONLY("swo"), STOP_WORDS_ONLY_AND_HIRA_KATA_ONLY("swoahka"), HIRA_KATA_ONLY("hko");
 
-        private String value;
+        private final String value;
 
         Mode(String value) {
             this.value = value;
@@ -71,7 +71,7 @@ public final class ComplementaryFilter extends TokenFilter {
             return value;
         }
 
-        public static final Optional<Mode> fromValue(final String value) {
+        public static Optional<Mode> fromValue(final String value) {
             return Stream.of(Mode.values()).filter(m -> m.value.equals(value)).findFirst();
         }
 
@@ -81,9 +81,7 @@ public final class ComplementaryFilter extends TokenFilter {
         super(in);
         this.mode = mode;
         this.stopwards = stopwards;
-        if (null == mode) {
-            throw new IllegalArgumentException("Mode not specified.");
-        }
+        termAtt = addAttribute(CharTermAttribute.class);
         if (mode != Mode.HIRA_KATA_ONLY && null == this.stopwards) {
             throw new IllegalArgumentException("Stopwards not specified.");
         }
@@ -91,8 +89,8 @@ public final class ComplementaryFilter extends TokenFilter {
 
     @Override
     public boolean incrementToken() throws IOException {
-        if (!stopWordLoaded.get() && Mode.HIRA_KATA_ONLY != mode) {
-            synchronized (lock) {
+        if (!STOPWORD_LOADED.get() && Mode.HIRA_KATA_ONLY != mode) {
+            synchronized (LOCK) {
                 try (Reader reader = getReafer(getClass())) {
                     CharArraySet stops = WordlistLoader.getWordSet(reader, "#", new CharArraySet(16, true));
                     StringBuffer buffer = new StringBuffer();
@@ -104,7 +102,7 @@ public final class ComplementaryFilter extends TokenFilter {
                 } catch (IOException e) {
                     LoggerFactory.getLogger(ComplementaryFilter.class).error("Initialization error.", e);
                 }
-                stopWordLoaded.set(true);
+                STOPWORD_LOADED.set(true);
             }
         }
 
@@ -117,13 +115,9 @@ public final class ComplementaryFilter extends TokenFilter {
             if (Mode.STOP_WORDS_ONLY != mode && isHiraKataOnly(term)) {
                 return true;
             }
-
-            input.end();
-            return false;
-        } else {
-            input.end();
-            return false;
         }
+        input.end();
+        return false;
     }
 
     private boolean isHiraKataOnly(String str) {

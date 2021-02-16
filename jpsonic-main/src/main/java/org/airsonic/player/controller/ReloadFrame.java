@@ -26,6 +26,7 @@ package org.airsonic.player.controller;
  * @author Sindre Mehus
  */
 public class ReloadFrame {
+
     private String frame;
     private String view;
 

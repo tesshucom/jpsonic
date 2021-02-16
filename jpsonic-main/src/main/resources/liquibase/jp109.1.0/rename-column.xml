@@ -3,26 +3,26 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-	<changeSet id="rename-media_file_order" author="tesshucom">
-		<renameColumn
-		    tableName="media_file" 
-		    oldColumnName="_order"
-		    newColumnName="media_file_order"
-		    columnDataType="int" />
-	</changeSet>
-	<changeSet id="rename-artist_order" author="tesshucom">
-		<renameColumn
-		    tableName="artist" 
-		    oldColumnName="_order"
-		    newColumnName="artist_order"
-		    columnDataType="int" />
-	</changeSet>
-	<changeSet id="rename-album_order" author="tesshucom">
-		<renameColumn
-		    tableName="album" 
-		    oldColumnName="_order"
-		    newColumnName="album_order"
-		    columnDataType="int" />
-	</changeSet>
+    <changeSet id="rename-media_file_order" author="tesshucom">
+        <renameColumn
+            tableName="media_file" 
+            oldColumnName="_order"
+            newColumnName="media_file_order"
+            columnDataType="int" />
+    </changeSet>
+    <changeSet id="rename-artist_order" author="tesshucom">
+        <renameColumn
+            tableName="artist" 
+            oldColumnName="_order"
+            newColumnName="artist_order"
+            columnDataType="int" />
+    </changeSet>
+    <changeSet id="rename-album_order" author="tesshucom">
+        <renameColumn
+            tableName="album" 
+            oldColumnName="_order"
+            newColumnName="album_order"
+            columnDataType="int" />
+    </changeSet>
 
 </databaseChangeLog>

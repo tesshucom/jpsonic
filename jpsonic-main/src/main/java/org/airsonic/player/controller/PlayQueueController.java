@@ -32,7 +32,6 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,12 +47,17 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/playQueue")
 public class PlayQueueController {
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
+    private final PlayerService playerService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    public PlayQueueController(PlayerService playerService, SecurityService securityService,
+            SettingsService settingsService) {
+        super();
+        this.playerService = playerService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

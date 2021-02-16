@@ -39,7 +39,6 @@ import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -55,18 +54,23 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/starred")
 public class StarredController {
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private ViewAsListSelector viewSelector;
+    private final PlayerService playerService;
+    private final MediaFileDao mediaFileDao;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final MediaFileService mediaFileService;
+    private final ViewAsListSelector viewSelector;
+
+    public StarredController(PlayerService playerService, MediaFileDao mediaFileDao, SecurityService securityService,
+            SettingsService settingsService, MediaFileService mediaFileService, ViewAsListSelector viewSelector) {
+        super();
+        this.playerService = playerService;
+        this.mediaFileDao = mediaFileDao;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.mediaFileService = mediaFileService;
+        this.viewSelector = viewSelector;
+    }
 
     @GetMapping
     protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)

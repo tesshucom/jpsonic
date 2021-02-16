@@ -64,7 +64,6 @@ import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -72,9 +71,9 @@ import org.springframework.stereotype.Service;
  *
  * @author Sindre Mehus
  */
-@Service
 @SuppressFBWarnings(value = "DMI_HARDCODED_ABSOLUTE_FILENAME", justification = "Literal value for which OS is assumed.")
 @SuppressWarnings("PMD.DefaultPackage")
+@Service
 /*
  * [DefaultPackage] A remnant of legacy, some methods are implemented in package private. This is intended not to be
  * used by other than Service. Little bad practices. Design improvements can be made by resolving Godclass.
@@ -82,17 +81,18 @@ import org.springframework.stereotype.Service;
 public class SettingsService {
 
     private enum LocksKeys {
-        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES;
+        HOME, MUSIC_FILE, VIDEO_FILE, COVER_ART, THEMES, LOCALES
     }
 
     private static final Map<LocksKeys, Object> LOCKS;
 
     static {
         Map<LocksKeys, Object> m = new ConcurrentHashMap<>();
-        Arrays.asList(LocksKeys.values()).stream().forEach(k -> m.put(k, new Object()));
+        Arrays.stream(LocksKeys.values()).forEach(k -> m.put(k, new Object()));
         LOCKS = Collections.unmodifiableMap(m);
     }
 
+    private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
     private static final int ELEMENT_COUNT_IN_LINE_OF_DEFAULT_THEME = 2;
     private static final int ELEMENT_COUNT_IN_LINE_OF_EXTENDS_THEME = 3;
 
@@ -371,33 +371,35 @@ public class SettingsService {
     private static final String LOCALES_FILE = "/org/airsonic/player/i18n/locales.txt";
     private static final String THEMES_FILE = "/org/airsonic/player/theme/themes.txt";
 
-    private static final Logger LOG = LoggerFactory.getLogger(SettingsService.class);
-
     private static Theme[] themes;
     private static Locale[] locales;
     private static String[] coverArtFileTypes;
     private static String[] musicFileTypes;
     private static String[] videoFileTypes;
 
-    @Autowired
-    private InternetRadioDao internetRadioDao;
-    @Autowired
-    private MusicFolderDao musicFolderDao;
-    @Autowired
-    private UserDao userDao;
-    @Autowired
-    private AvatarDao avatarDao;
-    @Autowired
-    private ApacheCommonsConfigurationService configurationService;
-    @Autowired
-    private Ehcache indexCache;
+    private final InternetRadioDao internetRadioDao;
+    private final MusicFolderDao musicFolderDao;
+    private final UserDao userDao;
+    private final AvatarDao avatarDao;
+    private final ApacheCommonsConfigurationService configurationService;
+    private final Ehcache indexCache;
+    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser;
 
     private List<MusicFolder> cachedMusicFolders;
-    private final ConcurrentMap<String, List<MusicFolder>> cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
-
     private Pattern excludePattern;
-
     private Locale locale;
+
+    public SettingsService(InternetRadioDao internetRadioDao, MusicFolderDao musicFolderDao, UserDao userDao,
+            AvatarDao avatarDao, ApacheCommonsConfigurationService configurationService, Ehcache indexCache) {
+        super();
+        this.internetRadioDao = internetRadioDao;
+        this.musicFolderDao = musicFolderDao;
+        this.userDao = userDao;
+        this.avatarDao = avatarDao;
+        this.configurationService = configurationService;
+        this.indexCache = indexCache;
+        cachedMusicFoldersPerUser = new ConcurrentHashMap<>();
+    }
 
     private void removeObsoleteProperties() {
 
@@ -436,7 +438,7 @@ public class SettingsService {
     }
 
     public static boolean isScanOnBoot() {
-        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(s -> Boolean.parseBoolean(s))
+        return Optional.ofNullable(System.getProperty("jpsonic.scan.onboot")).map(Boolean::parseBoolean)
                 .orElse(DEFAULT_SCAN_ON_BOOT);
     }
 
@@ -470,8 +472,7 @@ public class SettingsService {
     }
 
     public static int getDefaultUPnPPort() {
-        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(x -> Integer.parseInt(x))
-                .orElse(DEFAULT_UPNP_PORT);
+        return Optional.ofNullable(System.getProperty(KEY_UPNP_PORT)).map(Integer::parseInt).orElse(DEFAULT_UPNP_PORT);
     }
 
     public static File getLogFile() {
@@ -1139,7 +1140,7 @@ public class SettingsService {
      */
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Theme) Cannot be reused but is cached
-    public Theme[] getAvailableThemes() {
+    public static Theme[] getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
             if (themes == null) {
                 List<Theme> l = new ArrayList<>();
@@ -1805,22 +1806,6 @@ public class SettingsService {
         return result.toArray(new String[0]);
     }
 
-    public void setInternetRadioDao(InternetRadioDao internetRadioDao) {
-        this.internetRadioDao = internetRadioDao;
-    }
-
-    public void setMusicFolderDao(MusicFolderDao musicFolderDao) {
-        this.musicFolderDao = musicFolderDao;
-    }
-
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
-
-    public void setAvatarDao(AvatarDao avatarDao) {
-        this.avatarDao = avatarDao;
-    }
-
     public String getSmtpServer() {
         return getProperty(KEY_SMTP_SERVER, DEFAULT_SMTP_SERVER);
     }
@@ -2016,10 +2001,6 @@ public class SettingsService {
 
     public boolean isDefaultSortStrict() {
         return DEFAULT_SORT_STRICT;
-    }
-
-    public void setConfigurationService(ApacheCommonsConfigurationService configurationService) {
-        this.configurationService = configurationService;
     }
 
     public void resetDatabaseToDefault() {

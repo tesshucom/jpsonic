@@ -39,7 +39,6 @@ import org.airsonic.player.domain.MusicFolderContent;
 import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.util.FileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -50,12 +49,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class MusicIndexService {
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private MusicIndexServiceUtils utils;
+    private final SettingsService settingsService;
+    private final MediaFileService mediaFileService;
+    private final MusicIndexServiceUtils utils;
+
+    public MusicIndexService(SettingsService settingsService, MediaFileService mediaFileService,
+            MusicIndexServiceUtils utils) {
+        super();
+        this.settingsService = settingsService;
+        this.mediaFileService = mediaFileService;
+        this.utils = utils;
+    }
 
     /**
      * Returns a map from music indexes to sorted lists of artists that are direct children of the given music folders.
@@ -117,7 +121,7 @@ public class MusicIndexService {
 
         for (T artist : artists) {
             MusicIndex index = getIndex(artist, indexes);
-            List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<T>());
+            List<T> artistSet = result.computeIfAbsent(index, k -> new ArrayList<>());
             artistSet.add(artist);
         }
 
@@ -220,18 +224,10 @@ public class MusicIndexService {
         return MusicIndex.OTHER;
     }
 
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
     @SuppressWarnings("serial")
     private static class MusicIndexComparator implements Comparator<MusicIndex>, Serializable {
 
-        private List<MusicIndex> indexes;
+        private final List<MusicIndex> indexes;
 
         public MusicIndexComparator(List<MusicIndex> indexes) {
             this.indexes = indexes;

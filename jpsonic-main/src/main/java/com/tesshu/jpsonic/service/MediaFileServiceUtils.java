@@ -34,7 +34,6 @@ import org.springframework.stereotype.Component;
 public class MediaFileServiceUtils {
 
     private final JapaneseReadingUtils utils;
-
     private final JpsonicComparators jpsonicComparator;
 
     public MediaFileServiceUtils(JapaneseReadingUtils utils, JpsonicComparators jpsonicComparator) {
@@ -45,8 +44,6 @@ public class MediaFileServiceUtils {
 
     /**
      * Compensate for missing properties when initial creation of MediaFile (when performing meta-analysis).
-     * 
-     * @param m
      */
     public void analyze(MediaFile m) {
         utils.analyze(m);
@@ -55,10 +52,6 @@ public class MediaFileServiceUtils {
     /**
      * Returns the sorting rules for the child elements of the specified MediaFile. MediaFile's sorting rules depend on
      * the hierarchy to which it belongs.
-     *
-     * @param parent
-     * 
-     * @return
      */
     public MediaFileComparator mediaFileOrder(MediaFile parent) {
         return jpsonicComparator.mediaFileOrder(parent);

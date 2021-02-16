@@ -28,6 +28,7 @@ import liquibase.exception.DatabaseException;
 import liquibase.precondition.CustomPrecondition;
 
 public class DbmsVersionPrecondition implements CustomPrecondition {
+
     private Integer major;
     private Integer minor;
 

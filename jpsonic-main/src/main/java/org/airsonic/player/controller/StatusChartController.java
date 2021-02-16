@@ -51,7 +51,6 @@ import org.jfree.data.time.MovingAverage;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -67,16 +66,18 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/statusChart")
 public class StatusChartController extends AbstractChartController {
 
-    @Autowired
-    private StatusService statusService;
-
-    @Autowired
-    private FontLoader fontLoader;
-
     public static final int IMAGE_WIDTH = 240;
     public static final int IMAGE_HEIGHT = 150;
-
     public static final Object LOCK = new Object();
+
+    private final StatusService statusService;
+    private final FontLoader fontLoader;
+
+    public StatusChartController(StatusService statusService, FontLoader fontLoader) {
+        super();
+        this.statusService = statusService;
+        this.fontLoader = fontLoader;
+    }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Millisecond, Date) Not reusable
     @Override

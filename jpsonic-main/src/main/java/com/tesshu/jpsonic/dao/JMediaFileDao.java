@@ -36,17 +36,16 @@ import java.util.function.BiFunction;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository("jmediaFileDao")
-@DependsOn({ "mediaFileDao" })
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
 public class JMediaFileDao extends AbstractDao {
 
@@ -56,15 +55,13 @@ public class JMediaFileDao extends AbstractDao {
     private final RowMapper<MediaFile> iRowMapper;
     private final RowMapper<SortCandidate> sortCandidateMapper;
 
-    public JMediaFileDao(MediaFileDao deligate) {
-        super();
+    public JMediaFileDao(DaoHelper daoHelper, MediaFileDao deligate) {
+        super(daoHelper);
         this.deligate = deligate;
         rowMapper = deligate.getMediaFileMapper();
         genreRowMapper = deligate.getGenreMapper();
         iRowMapper = new MediaFileInternalRowMapper(rowMapper);
-        sortCandidateMapper = (rs, rowNum) -> {
-            return new SortCandidate(rs.getString(1), rs.getString(2));
-        };
+        sortCandidateMapper = (rs, rowNum) -> new SortCandidate(rs.getString(1), rs.getString(2));
     }
 
     public void clearOrder() {
@@ -294,32 +291,32 @@ public class JMediaFileDao extends AbstractDao {
     }
 
     public List<Integer> getSortOfAlbumToBeFixed(List<SortCandidate> candidates) {
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
         return namedQuery("select distinct id from media_file "
                 + "where present and album in (:names) and (album_sort is null or album_sort not in(:sotes))  "
-                + "order by id ", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+                + "order by id ", (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<Integer> getSortOfArtistToBeFixed(List<SortCandidate> candidates) {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
-        return namedQuery("select distinct id " + "from (select id " + "   from media_file " + "   where present "
-                + "   and artist in (:names) " + "   and (artist_sort is null "
-                + "       or artist_sort not in(:sotes)) " + "   union " + "   select id " + "   from media_file "
-                + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
-                + "   and album_artist in (:names) " + "   and (album_artist_sort is null "
-                + "       or album_artist_sort not in(:sotes)) " + "   union " + "   select id " + "   from media_file "
-                + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') " + "   and composer in (:names) "
-                + "   and (composer_sort is null " + "       or composer_sort not in(:sotes))) to_be_fixed "
-                + "order by id", (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
+        return namedQuery(
+                "select distinct id " + "from (select id " + "   from media_file " + "   where present "
+                        + "   and artist in (:names) " + "   and (artist_sort is null "
+                        + "       or artist_sort not in(:sotes)) " + "   union " + "   select id "
+                        + "   from media_file " + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
+                        + "   and album_artist in (:names) " + "   and (album_artist_sort is null "
+                        + "       or album_artist_sort not in(:sotes)) " + "   union " + "   select id "
+                        + "   from media_file " + "   where present " + "   and type not in ('DIERECTORY', 'ALBUM') "
+                        + "   and composer in (:names) " + "   and (composer_sort is null "
+                        + "       or composer_sort not in(:sotes))) to_be_fixed " + "order by id",
+                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public List<SortCandidate> getSortForAlbumWithoutSorts() {
@@ -342,7 +339,7 @@ public class JMediaFileDao extends AbstractDao {
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
-            if (!result.stream().anyMatch(r -> r.getName().equals(candidate.getName()))) {
+            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
             }
         });
@@ -391,7 +388,7 @@ public class JMediaFileDao extends AbstractDao {
 
         List<SortCandidate> result = new ArrayList<>();
         candidates.forEach((candidate) -> {
-            if (!result.stream().anyMatch(r -> r.getName().equals(candidate.getName()))) {
+            if (result.stream().noneMatch(r -> r.getName().equals(candidate.getName()))) {
                 result.add(candidate);
             }
         });
@@ -431,7 +428,7 @@ public class JMediaFileDao extends AbstractDao {
 
     private static class MediaFileInternalRowMapper implements RowMapper<MediaFile> {
 
-        private RowMapper<MediaFile> deligate;
+        private final RowMapper<MediaFile> deligate;
 
         public MediaFileInternalRowMapper(RowMapper<MediaFile> m) {
             super();

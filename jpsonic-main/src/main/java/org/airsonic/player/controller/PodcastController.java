@@ -30,7 +30,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.domain.MediaFile;
@@ -40,7 +39,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,17 +53,23 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/podcast")
 public class PodcastController {
 
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    private static final Object DATE_LOCK = new Object();
+
+    private final PlaylistService playlistService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
 
     // Locale is changed by Setting, but restart is required.
     private DateFormat rssDateFormat;
     private String lang;
-    private static final Object DATE_LOCK = new Object();
+
+    public PodcastController(PlaylistService playlistService, SettingsService settingsService,
+            SecurityService securityService) {
+        super();
+        this.playlistService = playlistService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+    }
 
     public DateFormat getRssDateFormat() {
         synchronized (DATE_LOCK) {
@@ -80,8 +84,7 @@ public class PodcastController {
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Podcast) Not reusable
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response)
-            throws ExecutionException {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) throws ExecutionException {
 
         if (!settingsService.isPublishPodcast()) {
             throw new ExecutionException(new GeneralSecurityException("Podcast not allowed to publish."));
@@ -126,11 +129,11 @@ public class PodcastController {
      * Contains information about a single Podcast.
      */
     public static class Podcast {
-        private String name;
-        private String publishDate;
-        private String enclosureUrl;
-        private long length;
-        private String type;
+        private final String name;
+        private final String publishDate;
+        private final String enclosureUrl;
+        private final long length;
+        private final String type;
 
         public Podcast(String name, String publishDate, String enclosureUrl, long length, String type) {
             this.name = name;

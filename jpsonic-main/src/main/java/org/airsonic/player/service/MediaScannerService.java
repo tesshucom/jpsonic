@@ -53,7 +53,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,37 +64,38 @@ import org.springframework.stereotype.Service;
 public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
-
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
-
     private static final Object SCHEDULE_LOCK = new Object();
-
     private static final Object SCAN_LOCK = new Object();
 
-    // for debug
-    private boolean jpsonicCleansingProcess = true;
+    private final SettingsService settingsService;
+    private final IndexManager indexManager;
+    private final PlaylistService playlistService;
+    private final MediaFileService mediaFileService;
+    private final MediaFileDao mediaFileDao;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final Ehcache indexCache;
+    private final MediaScannerServiceUtils utils;
 
+    private boolean jpsonicCleansingProcess = true; // for debug
+    private int scanCount;
     private ScheduledExecutorService scheduler;
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private IndexManager indexManager;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
-    private int scanCount;
-    @Autowired
-    private Ehcache indexCache;
-    @Autowired
-    private MediaScannerServiceUtils utils;
+    public MediaScannerService(SettingsService settingsService, IndexManager indexManager,
+            PlaylistService playlistService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils) {
+        super();
+        this.settingsService = settingsService;
+        this.indexManager = indexManager;
+        this.playlistService = playlistService;
+        this.mediaFileService = mediaFileService;
+        this.mediaFileDao = mediaFileDao;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.indexCache = indexCache;
+        this.utils = utils;
+    }
 
     @PostConstruct
     public void init() {
@@ -135,7 +135,7 @@ public class MediaScannerService {
             long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
 
             scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(() -> scanLibrary(), initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
+            scheduler.scheduleAtFixedRate(this::scanLibrary, initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
                     TimeUnit.MILLISECONDS);
 
             if (LOG.isInfoEnabled()) {
@@ -485,29 +485,5 @@ public class MediaScannerService {
 
     public void setJpsonicCleansingProcess(boolean isJpsonicCleansingProcess) {
         this.jpsonicCleansingProcess = isJpsonicCleansingProcess;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
-    public void setArtistDao(ArtistDao artistDao) {
-        this.artistDao = artistDao;
-    }
-
-    public void setAlbumDao(AlbumDao albumDao) {
-        this.albumDao = albumDao;
-    }
-
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
     }
 }

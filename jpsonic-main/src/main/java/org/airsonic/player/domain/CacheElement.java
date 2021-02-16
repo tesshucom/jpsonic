@@ -23,8 +23,6 @@ package org.airsonic.player.domain;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class CacheElement {
 

@@ -31,8 +31,6 @@ import org.fourthline.cling.support.model.SortCriterion;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id: TagBasedContentDirectory.java 3739 2013-12-03 11:55:01Z sindre_mehus $
  */
 public abstract class CustomContentDirectory extends AbstractContentDirectoryService {
 

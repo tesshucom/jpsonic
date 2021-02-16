@@ -44,7 +44,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -58,20 +57,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomUserDetailsContextMapper implements UserDetailsContextMapper {
-    // ~ Instance fields
-    // ================================================================================================
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomUserDetailsContextMapper.class);
-    private String passwordAttributeName = "userPassword";
 
-    @Autowired
-    private SecurityService securityService;
+    private static final String ATTRIBUTE_NAME_PASSWORD = "userPassword";
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
 
-    // ~ Methods
-    // ========================================================================================================
+    public CustomUserDetailsContextMapper(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
+
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
             Collection<? extends GrantedAuthority> authorities) {
@@ -111,7 +110,7 @@ public class CustomUserDetailsContextMapper implements UserDetailsContextMapper 
         LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
         essence.setDn(dn);
 
-        Object passwordValue = ctx.getObjectAttribute(passwordAttributeName);
+        Object passwordValue = ctx.getObjectAttribute(ATTRIBUTE_NAME_PASSWORD);
 
         if (passwordValue != null) {
             essence.setPassword(mapPassword(passwordValue));

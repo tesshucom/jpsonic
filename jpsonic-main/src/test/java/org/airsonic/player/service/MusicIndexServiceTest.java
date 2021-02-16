@@ -26,7 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.List;
 
 import org.airsonic.player.domain.MusicIndex;
+import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
@@ -35,9 +37,10 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
-public class MusicIndexServiceTest {
+public class MusicIndexServiceTest extends AbstractAirsonicHomeTest {
 
-    private final MusicIndexService musicIndexService = new MusicIndexService();
+    @Autowired
+    private MusicIndexService musicIndexService;
 
     @Test
     public void testCreateIndexFromExpression() {

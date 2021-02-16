@@ -47,7 +47,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.ServletRequestBindingException;
@@ -66,19 +65,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class RandomPlayQueueController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RandomPlayQueueController.class);
-
     private static final String REQUEST_VALUE_ANY = "any";
 
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private IndexManager indexManager;
+    private final PlayerService playerService;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final IndexManager indexManager;
+
+    public RandomPlayQueueController(PlayerService playerService, MediaFileService mediaFileService,
+            SecurityService securityService, SettingsService settingsService, IndexManager indexManager) {
+        super();
+        this.playerService = playerService;
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.indexManager = indexManager;
+    }
 
     @SuppressWarnings("PMD.NullAssignment")
     /*
@@ -153,8 +156,8 @@ public class RandomPlayQueueController {
     }
 
     private static class InceptionYear {
-        private Integer fromYear;
-        private Integer toYear;
+        private final Integer fromYear;
+        private final Integer toYear;
 
         public InceptionYear(Integer fromYear, Integer toYear) {
             super();
@@ -224,8 +227,8 @@ public class RandomPlayQueueController {
     }
 
     private static class LastPlayed {
-        private Date minLastPlayedDate;
-        private Date maxLastPlayedDate;
+        private final Date minLastPlayedDate;
+        private final Date maxLastPlayedDate;
 
         public LastPlayed(Date minLastPlayedDate, Date maxLastPlayedDate) {
             super();
@@ -272,8 +275,8 @@ public class RandomPlayQueueController {
     }
 
     private static class AlbumRating {
-        private Integer minAlbumRating;
-        private Integer maxAlbumRating;
+        private final Integer minAlbumRating;
+        private final Integer maxAlbumRating;
 
         public AlbumRating(Integer minAlbumRating, Integer maxAlbumRating) {
             super();
@@ -320,8 +323,8 @@ public class RandomPlayQueueController {
     }
 
     private static class PlayCount {
-        private Integer minPlayCount;
-        private Integer maxPlayCount;
+        private final Integer minPlayCount;
+        private final Integer maxPlayCount;
 
         public PlayCount(Integer minPlayCount, Integer maxPlayCount) {
             super();
@@ -347,17 +350,15 @@ public class RandomPlayQueueController {
             doesShowUnstarredSongs = true;
         } else if (StringUtils.equalsIgnoreCase("starred", songRating)) {
             doesShowStarredSongs = true;
-            doesShowUnstarredSongs = false;
         } else if (StringUtils.equalsIgnoreCase("unstarred", songRating)) {
-            doesShowStarredSongs = false;
             doesShowUnstarredSongs = true;
         }
         return new SongRating(doesShowStarredSongs, doesShowUnstarredSongs);
     }
 
     private static class SongRating {
-        private boolean doesShowStarredSongs;
-        private boolean doesShowUnstarredSongs;
+        private final boolean doesShowStarredSongs;
+        private final boolean doesShowUnstarredSongs;
 
         public SongRating(boolean doesShowStarredSongs, boolean doesShowUnstarredSongs) {
             super();

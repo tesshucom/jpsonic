@@ -59,15 +59,18 @@ public class LastFMScrobbler {
 
     private static final Logger LOG = LoggerFactory.getLogger(LastFMScrobbler.class);
     private static final int MAX_PENDING_REGISTRATION = 2000;
-
-    private RegistrationThread thread;
-    private final LinkedBlockingQueue<RegistrationData> queue = new LinkedBlockingQueue<>();
     private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setConnectTimeout(15_000)
             .setSocketTimeout(15_000).build();
-
     private static final Object REGISTRATION_LOCK = new Object();
-
     private static final String MSG_PREF_ON_FAIL = "Failed to scrobble song '";
+
+    private final LinkedBlockingQueue<RegistrationData> queue;
+
+    private RegistrationThread thread;
+
+    public LastFMScrobbler() {
+        queue = new LinkedBlockingQueue<>();
+    }
 
     /**
      * Registers the given media file at www.last.fm. This method returns immediately, the actual registration is done
@@ -288,8 +291,10 @@ public class LastFMScrobbler {
                     scrobble(registrationData);
                 } catch (IOException x) {
                     handleNetworkError(registrationData, x.toString());
+                    break;
                 } catch (Exception x) {
                     writeWarn("Error in Last.fm registration: " + x.toString());
+                    break;
                 }
             }
         }
@@ -321,13 +326,13 @@ public class LastFMScrobbler {
 
     private static class RegistrationData {
 
-        private String username;
-        private String password;
-        private String artist;
-        private String album;
-        private String title;
-        private int duration;
-        private Date time;
+        private final String username;
+        private final String password;
+        private final String artist;
+        private final String album;
+        private final String title;
+        private final int duration;
+        private final Date time;
         public boolean submission;
 
         public RegistrationData(MediaFile mediaFile, String username, String password, boolean submission, Date time) {

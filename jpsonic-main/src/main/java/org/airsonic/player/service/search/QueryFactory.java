@@ -47,7 +47,6 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.WildcardQuery;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -67,11 +66,8 @@ public class QueryFactory {
 
     private static final String ASTERISK = "*";
 
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private SearchServiceUtilities util;
+    private final AnalyzerFactory analyzerFactory;
+    private final SearchServiceUtilities util;
 
     private final Function<MusicFolder, Query> toFolderIdQuery = (folder) -> {
         // Unanalyzed field
@@ -97,10 +93,15 @@ public class QueryFactory {
     /*
      * XXX 3.x -> 8.x : RangeQuery has been changed to not allow null.
      */
-    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from, to) -> {
-        return IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
-                isEmpty(to) ? Integer.MAX_VALUE : to);
-    };
+    private final BiFunction<@Nullable Integer, @Nullable Integer, @NonNull Query> toYearRangeQuery = (from,
+            to) -> IntPoint.newRangeQuery(FieldNamesConstants.YEAR, isEmpty(from) ? Integer.MIN_VALUE : from,
+                    isEmpty(to) ? Integer.MAX_VALUE : to);
+
+    public QueryFactory(AnalyzerFactory analyzerFactory, SearchServiceUtilities util) {
+        super();
+        this.analyzerFactory = analyzerFactory;
+        this.util = util;
+    }
 
     /*
      * XXX 3.x -> 8.x : In order to support wildcards, MultiFieldQueryParser has been replaced by the following process.
@@ -142,7 +143,7 @@ public class QueryFactory {
         }
 
         /* If Field's Tokenizer is different, token's length may not match. **/
-        int maxTermLength = fieldsQuerys.stream().map(l -> l.size()).max(Integer::compare).orElse(0);
+        int maxTermLength = fieldsQuerys.stream().map(List::size).max(Integer::compare).orElse(0);
 
         if (0 < fieldsQuerys.size()) {
             for (int i = 0; i < maxTermLength; i++) {
@@ -304,7 +305,7 @@ public class QueryFactory {
      * {@link org.airsonic.player.service.SearchService#searchByName( String, String, int, int, List, Class)}.
      * 
      * @param fieldName
-     *            {@link FieldNames}
+     *            {@link FieldNamesConstants}
      * 
      * @return Query
      * 
@@ -376,8 +377,6 @@ public class QueryFactory {
     /**
      * Query generation expression extracted from
      * {@link org.airsonic.player.service.SearchService#getAlbumId3sByGenre(String, int, int, List)}
-     * 
-     * @param musicFolders
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
@@ -415,10 +414,6 @@ public class QueryFactory {
      * {@link org.airsonic.player.service.SearchService#getSongsByGenre(String, int, int, List)} Query generation
      * expression extracted from
      * {@link org.airsonic.player.service.SearchService#getAlbumsByGenre(int, int, String, List)}
-     * 
-     * @param musicFolders
-     * 
-     * @return
      */
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TermQuery, Term) Not reusable
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")

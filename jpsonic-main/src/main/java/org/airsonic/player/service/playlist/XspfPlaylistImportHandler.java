@@ -37,7 +37,6 @@ import org.airsonic.player.service.MediaFileService;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -45,8 +44,12 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(XspfPlaylistImportHandler.class);
 
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final MediaFileService mediaFileService;
+
+    public XspfPlaylistImportHandler(MediaFileService mediaFileService) {
+        super();
+        this.mediaFileService = mediaFileService;
+    }
 
     @Override
     public boolean canHandle(Class<? extends SpecificPlaylist> playlistClass) {

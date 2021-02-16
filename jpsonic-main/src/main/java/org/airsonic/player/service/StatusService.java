@@ -31,7 +31,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayStatus;
@@ -57,23 +56,27 @@ import org.springframework.stereotype.Service;
 @DependsOn("mediaFileService")
 public class StatusService {
 
-    private final MediaFileService mediaFileService;
-
-    private final List<TransferStatus> streamStatuses = new ArrayList<>();
-    private final List<TransferStatus> downloadStatuses = new ArrayList<>();
-    private final List<TransferStatus> uploadStatuses = new ArrayList<>();
-    private final List<PlayStatus> remotePlays = new ArrayList<>();
-
     private static final Object STREAM_LOCK = new Object();
     private static final Object DOWNLOAD_LOCK = new Object();
     private static final Object UPLOAD_LOCK = new Object();
     private static final Object REMOTE_LOCK = new Object();
 
+    private final MediaFileService mediaFileService;
+    private final List<TransferStatus> streamStatuses;
+    private final List<TransferStatus> downloadStatuses;
+    private final List<TransferStatus> uploadStatuses;
+    private final List<PlayStatus> remotePlays;
+
     // Maps from player ID to latest inactive stream status.
-    private final Map<Integer, TransferStatus> inactiveStreamStatuses = new LinkedHashMap<>();
+    private final Map<Integer, TransferStatus> inactiveStreamStatuses;
 
     public StatusService(MediaFileService mediaFileService) {
         this.mediaFileService = mediaFileService;
+        streamStatuses = new ArrayList<>();
+        downloadStatuses = new ArrayList<>();
+        uploadStatuses = new ArrayList<>();
+        remotePlays = new ArrayList<>();
+        inactiveStreamStatuses = new LinkedHashMap<>();
     }
 
     public TransferStatus createStreamStatus(Player player) {
@@ -211,7 +214,7 @@ public class StatusService {
                     Date time = new Date(System.currentTimeMillis() - streamStatus.getMillisSinceLastUpdate());
                     result.put(player.getId(), new PlayStatus(mediaFile, player, time));
                 }
-                return unmodifiableList(result.values().stream().collect(Collectors.toList()));
+                return unmodifiableList(new ArrayList<>(result.values()));
             }
         }
     }

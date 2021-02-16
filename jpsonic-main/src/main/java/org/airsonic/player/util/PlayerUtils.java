@@ -34,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -55,14 +54,11 @@ public final class PlayerUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(PlayerUtils.class);
     private static final String URL_SENSITIVE_REPLACEMENT_STRING = "<hidden>";
-
-    private static ObjectMapper objectMapper = new ObjectMapper();
-
-    private static Validator validator;
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Validator VALIDATOR;
 
     static {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+        VALIDATOR = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     /**
@@ -135,12 +131,12 @@ public final class PlayerUtils {
     }
 
     static {
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     public static String debugObject(Object object) {
         try {
-            return objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(object);
+            return OBJECT_MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(object);
         } catch (JsonProcessingException e) {
             LOG.warn("Cant output debug object", e);
             return "";
@@ -210,16 +206,16 @@ public final class PlayerUtils {
     public static Map<String, String> objectToStringMap(Object object) {
         TypeReference<HashMap<String, String>> typeReference = new TypeReference<HashMap<String, String>>() {
         };
-        return objectMapper.convertValue(object, typeReference);
+        return OBJECT_MAPPER.convertValue(object, typeReference);
     }
 
     public static <T> T stringMapToObject(Class<T> clazz, Map<String, String> data) {
-        return objectMapper.convertValue(data, clazz);
+        return OBJECT_MAPPER.convertValue(data, clazz);
     }
 
     public static <T> T stringMapToValidObject(Class<T> clazz, Map<String, String> data) {
         T object = stringMapToObject(clazz, data);
-        Set<ConstraintViolation<T>> validate = validator.validate(object);
+        Set<ConstraintViolation<T>> validate = VALIDATOR.validate(object);
         if (validate.isEmpty()) {
             return object;
         } else {

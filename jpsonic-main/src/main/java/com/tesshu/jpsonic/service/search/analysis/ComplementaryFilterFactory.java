@@ -27,8 +27,9 @@ import org.apache.lucene.analysis.util.TokenFilterFactory;
 
 public class ComplementaryFilterFactory extends TokenFilterFactory {
 
+    private final String stopwards;
+
     private Mode mode;
-    private String stopwards;
 
     public ComplementaryFilterFactory(Map<String, String> args) {
         super(args);

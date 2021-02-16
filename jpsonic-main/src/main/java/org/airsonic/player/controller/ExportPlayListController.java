@@ -27,7 +27,6 @@ import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.StringUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -42,10 +41,14 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/exportPlaylist")
 public class ExportPlayListController {
 
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private SecurityService securityService;
+    private final PlaylistService playlistService;
+    private final SecurityService securityService;
+
+    public ExportPlayListController(PlaylistService playlistService, SecurityService securityService) {
+        super();
+        this.playlistService = playlistService;
+        this.securityService = securityService;
+    }
 
     @SuppressWarnings("PMD.SignatureDeclareThrowsException") // #857 chameleon
     @GetMapping

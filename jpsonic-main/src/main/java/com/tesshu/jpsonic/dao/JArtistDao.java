@@ -29,20 +29,19 @@ import java.util.Map;
 import com.tesshu.jpsonic.domain.SortCandidate;
 import org.airsonic.player.dao.AbstractDao;
 import org.airsonic.player.dao.ArtistDao;
+import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.LegacyMap;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Repository;
 
 @Repository("jartistDao")
-@DependsOn({ "artistDao" })
 public class JArtistDao extends AbstractDao {
 
     private final ArtistDao deligate;
 
-    public JArtistDao(ArtistDao deligate) {
-        super();
+    public JArtistDao(DaoHelper daoHelper, ArtistDao deligate) {
+        super(daoHelper);
         this.deligate = deligate;
     }
 
@@ -79,14 +78,13 @@ public class JArtistDao extends AbstractDao {
         if (isEmpty(candidates) || 0 == candidates.size()) {
             return Collections.emptyList();
         }
-        Map<String, Object> args = LegacyMap.of("names", candidates.stream().map(c -> c.getName()).collect(toList()),
-                "sotes", candidates.stream().map(c -> c.getSort()).collect(toList()));
+        Map<String, Object> args = LegacyMap.of("names",
+                candidates.stream().map(SortCandidate::getName).collect(toList()), "sotes",
+                candidates.stream().map(SortCandidate::getSort).collect(toList()));
         return namedQuery(
                 "select id from artist "
                         + "where present and name in (:names) and (sort is null or sort not in(:sotes)) order by id",
-                (rs, rowNum) -> {
-                    return rs.getInt(1);
-                }, args);
+                (rs, rowNum) -> rs.getInt(1), args);
     }
 
     public void updateArtistSort(SortCandidate candidate) {

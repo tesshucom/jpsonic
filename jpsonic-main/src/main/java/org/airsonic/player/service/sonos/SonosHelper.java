@@ -30,10 +30,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletionException;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.sonos.services._1.AbstractMedia;
 import com.sonos.services._1.AlbumArtUrl;
@@ -77,49 +77,52 @@ import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class SonosHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(SonosHelper.class);
-
     public static final String JPSONIC_CLIENT_ID = "sonos";
-
     public static final int SINGLE_MUSIC_FOLDER = 1;
 
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MusicIndexService musicIndexService;
-    @Autowired
-    private SearchService searchService;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private LastFmService lastFmService;
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private CoverArtLogic coverArtLogic;
-    @Autowired
-    private SearchCriteriaDirector director;
+    private final MediaFileService mediaFileService;
+    private final PlaylistService playlistService;
+    private final PlayerService playerService;
+    private final TranscodingService transcodingService;
+    private final SettingsService settingsService;
+    private final MusicIndexService musicIndexService;
+    private final SearchService searchService;
+    private final MediaFileDao mediaFileDao;
+    private final RatingService ratingService;
+    private final LastFmService lastFmService;
+    private final PodcastService podcastService;
+    private final CoverArtLogic coverArtLogic;
+    private final SearchCriteriaDirector director;
+
+    public SonosHelper(MediaFileService mediaFileService, PlaylistService playlistService, PlayerService playerService,
+            TranscodingService transcodingService, SettingsService settingsService, MusicIndexService musicIndexService,
+            SearchService searchService, MediaFileDao mediaFileDao, RatingService ratingService,
+            LastFmService lastFmService, PodcastService podcastService, CoverArtLogic coverArtLogic,
+            SearchCriteriaDirector director) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.playlistService = playlistService;
+        this.playerService = playerService;
+        this.transcodingService = transcodingService;
+        this.settingsService = settingsService;
+        this.musicIndexService = musicIndexService;
+        this.searchService = searchService;
+        this.mediaFileDao = mediaFileDao;
+        this.ratingService = ratingService;
+        this.lastFmService = lastFmService;
+        this.podcastService = podcastService;
+        this.coverArtLogic = coverArtLogic;
+        this.director = director;
+    }
 
     public List<AbstractMedia> forRoot() {
         MediaMetadata shuffle = new MediaMetadata();
@@ -700,19 +703,8 @@ public class SonosHelper {
     }
 
     private List<MediaFile> filterMusic(List<MediaFile> files) {
-        return Lists.newArrayList(Iterables.filter(files, input -> input.getMediaType() == MediaFile.MediaType.MUSIC));
-    }
-
-    public void setPlaylistService(PlaylistService playlistService) {
-        this.playlistService = playlistService;
-    }
-
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-    }
-
-    public void setTranscodingService(TranscodingService transcodingService) {
-        this.transcodingService = transcodingService;
+        return Lists.newArrayList(files.stream().filter(input -> input.getMediaType() == MediaFile.MediaType.MUSIC)
+                .collect(Collectors.toList()));
     }
 
     public String getMediaURI(int mediaFileId, String username, HttpServletRequest request) {
@@ -738,41 +730,4 @@ public class SonosHelper {
 
         return players.get(0);
     }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setMusicIndexService(MusicIndexService musicIndexService) {
-        this.musicIndexService = musicIndexService;
-    }
-
-    public void setMediaFileDao(MediaFileDao mediaFileDao) {
-        this.mediaFileDao = mediaFileDao;
-    }
-
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public void setRatingService(RatingService ratingService) {
-        this.ratingService = ratingService;
-    }
-
-    public void setLastFmService(LastFmService lastFmService) {
-        this.lastFmService = lastFmService;
-    }
-
-    public void setPodcastService(PodcastService podcastService) {
-        this.podcastService = podcastService;
-    }
-
-    public void setCoverArtLogic(CoverArtLogic coverArtLogic) {
-        this.coverArtLogic = coverArtLogic;
-    }
-
 }

@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.airsonic.player.domain.Theme;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ThemeResolver;
 
@@ -43,10 +43,18 @@ import org.springframework.web.servlet.ThemeResolver;
 @Component("themeResolver")
 public class CustomThemeResolver implements ThemeResolver {
 
-    private SecurityService securityService;
-    private SettingsService settingsService;
-    private Set<String> themeIds;
     private static final Object LOCK = new Object();
+
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+
+    private Set<String> themeIds;
+
+    public CustomThemeResolver(SecurityService securityService, SettingsService settingsService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+    }
 
     /**
      * Resolve the current theme name via the given request.
@@ -102,7 +110,7 @@ public class CustomThemeResolver implements ThemeResolver {
     private boolean themeExists(String themeId) {
         synchronized (LOCK) {
             if (themeIds == null) {
-                themeIds = Arrays.asList(settingsService.getAvailableThemes()).stream().map(t -> t.getId())
+                themeIds = Arrays.stream(settingsService.getAvailableThemes()).map(Theme::getId)
                         .collect(Collectors.toSet());
             }
         }
@@ -125,15 +133,5 @@ public class CustomThemeResolver implements ThemeResolver {
     @Override
     public void setThemeName(HttpServletRequest request, HttpServletResponse response, String themeName) {
         throw new UnsupportedOperationException("Cannot change theme - use a different theme resolution strategy");
-    }
-
-    @Autowired
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    @Autowired
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
     }
 }

@@ -39,8 +39,6 @@ import org.airsonic.player.service.jukebox.AudioPlayerFactory;
 import org.airsonic.player.util.FileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
@@ -49,39 +47,38 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service
-
-@DependsOn({ "settingsService", "securityService", "transcodingService" })
 public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
 
     private static final Logger LOG = LoggerFactory.getLogger(JukeboxLegacySubsonicService.class);
+    private static final Object PLAYER_LOCK = new Object();
 
-    @Autowired
-    private AudioScrobblerService audioScrobblerService;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private AudioPlayerFactory audioPlayerFactory;
+    private final AudioScrobblerService audioScrobblerService;
+    private final StatusService statusService;
+    private final MediaFileService mediaFileService;
+    private final AudioPlayerFactory audioPlayerFactory;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final TranscodingService transcodingService;
+    private final AtomicInteger gain;
 
     private AudioPlayer audioPlayer;
     private Player player;
     private TransferStatus status;
     private MediaFile currentPlayingFile;
-    private AtomicInteger gain = new AtomicInteger(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
     private int offset;
 
-    private final SettingsService settingsService;
-    private final SecurityService securityService;
-    private final TranscodingService transcodingService;
-
-    private static final Object PLAYER_LOCK = new Object();
-
-    public JukeboxLegacySubsonicService(SettingsService settings, SecurityService security,
-            TranscodingService transcoding) {
-        this.settingsService = settings;
-        this.securityService = security;
-        this.transcodingService = transcoding;
+    public JukeboxLegacySubsonicService(AudioScrobblerService audioScrobblerService, StatusService statusService,
+            MediaFileService mediaFileService, AudioPlayerFactory audioPlayerFactory, SettingsService settingsService,
+            SecurityService securityService, TranscodingService transcodingService) {
+        super();
+        this.audioScrobblerService = audioScrobblerService;
+        this.statusService = statusService;
+        this.mediaFileService = mediaFileService;
+        this.audioPlayerFactory = audioPlayerFactory;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.transcodingService = transcodingService;
+        gain = new AtomicInteger(floatToIntBits(AudioPlayer.DEFAULT_GAIN));
     }
 
     /**
@@ -234,17 +231,5 @@ public class JukeboxLegacySubsonicService implements AudioPlayer.Listener {
                 audioPlayer.setGain(gain);
             }
         }
-    }
-
-    public void setAudioScrobblerService(AudioScrobblerService audioScrobblerService) {
-        this.audioScrobblerService = audioScrobblerService;
-    }
-
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
     }
 }

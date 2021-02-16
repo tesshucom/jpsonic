@@ -36,16 +36,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PlayQueue {
 
-    private List<MediaFile> files = new ArrayList<>();
-    private AtomicBoolean repeatEnabled = new AtomicBoolean();
-    private String name = "(unnamed)";
-    private Status status = Status.PLAYING;
-
-    private RandomSearchCriteria randomSearchCriteria;
-    private InternetRadio internetRadio;
-
     private static final Object STATUS_LOCK = new Object();
     private static final Object SEQUENCE_LOCK = new Object();
+
+    private final AtomicBoolean repeatEnabled;
+
+    private List<MediaFile> files;
+    private String name;
+    private Status status;
+    private RandomSearchCriteria randomSearchCriteria;
+    private InternetRadio internetRadio;
+    private int indexBackup;
 
     /**
      * The index of the current song, or -1 is the end of the playlist is reached. Note that both the index and the
@@ -56,8 +57,15 @@ public class PlayQueue {
     /**
      * Used for undo functionality.
      */
-    private List<MediaFile> filesBackup = new ArrayList<>();
-    private int indexBackup;
+    private List<MediaFile> filesBackup;
+
+    public PlayQueue() {
+        repeatEnabled = new AtomicBoolean();
+        files = new ArrayList<>();
+        name = "(unnamed)";
+        status = Status.PLAYING;
+        filesBackup = new ArrayList<>();
+    }
 
     /**
      * Returns the user-defined name of the playlist.
@@ -419,8 +427,7 @@ public class PlayQueue {
             files = filesBackup;
             indexBackup = indexTmp;
 
-            List<MediaFile> filesTmp = new ArrayList<>(files);
-            filesBackup = filesTmp;
+            filesBackup = new ArrayList<>(files);
         }
     }
 
@@ -498,7 +505,7 @@ public class PlayQueue {
     public long length() {
         long length;
         synchronized (SEQUENCE_LOCK) {
-            length = files.stream().mapToLong(m -> m.getFileSize()).sum();
+            length = files.stream().mapToLong(MediaFile::getFileSize).sum();
         }
         return length;
     }

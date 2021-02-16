@@ -37,12 +37,13 @@ import org.springframework.stereotype.Service;
 @DependsOn("settingsService")
 public class AudioScrobblerService {
 
-    private LastFMScrobbler lastFMScrobbler;
-    private ListenBrainzScrobbler listenBrainzScrobbler;
-    private final SettingsService settingsService;
-
     private static final Object FM_LOCK = new Object();
     private static final Object BRAINZ_LOCK = new Object();
+
+    private final SettingsService settingsService;
+
+    private LastFMScrobbler lastFMScrobbler;
+    private ListenBrainzScrobbler listenBrainzScrobbler;
 
     public AudioScrobblerService(SettingsService settingsService) {
         this.settingsService = settingsService;

@@ -76,7 +76,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.jaudiotagger.tag.images.Artwork;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -95,32 +94,38 @@ import org.springframework.web.servlet.mvc.LastModified;
 public class CoverArtController implements LastModified {
 
     private static final Logger LOG = LoggerFactory.getLogger(CoverArtController.class);
-
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private PlaylistService playlistService;
-    @Autowired
-    private PodcastService podcastService;
-    @Autowired
-    private ArtistDao artistDao;
-    @Autowired
-    private AlbumDao albumDao;
-    @Autowired
-    private JaudiotaggerParser jaudiotaggerParser;
-    private Semaphore semaphore;
-    @Autowired
-    private CoverArtLogic logic;
-    @Autowired
-    private FontLoader fontLoader;
-
     private static final Object DIRS_LOCK = new Object();
-
     private static final Map<String, Object> IMG_LOCKS = new ConcurrentHashMap<>();
+
+    private final MediaFileService mediaFileService;
+    private final TranscodingService transcodingService;
+    private final SettingsService settingsService;
+    private final PlaylistService playlistService;
+    private final PodcastService podcastService;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final JaudiotaggerParser jaudiotaggerParser;
+    private final CoverArtLogic logic;
+    private final FontLoader fontLoader;
+
+    private Semaphore semaphore;
+
+    public CoverArtController(MediaFileService mediaFileService, TranscodingService transcodingService,
+            SettingsService settingsService, PlaylistService playlistService, PodcastService podcastService,
+            ArtistDao artistDao, AlbumDao albumDao, JaudiotaggerParser jaudiotaggerParser, CoverArtLogic logic,
+            FontLoader fontLoader) {
+        super();
+        this.mediaFileService = mediaFileService;
+        this.transcodingService = transcodingService;
+        this.settingsService = settingsService;
+        this.playlistService = playlistService;
+        this.podcastService = podcastService;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.jaudiotaggerParser = jaudiotaggerParser;
+        this.logic = logic;
+        this.fontLoader = fontLoader;
+    }
 
     @PostConstruct
     public void init() {
@@ -268,10 +273,9 @@ public class CoverArtController implements LastModified {
         String lockKey = cachedImage.getPath();
 
         Object lock = new Object();
-        synchronized (lock) {
+        IMG_LOCKS.putIfAbsent(lockKey, lock);
 
-            IMG_LOCKS.putIfAbsent(lockKey, lock);
-
+        synchronized (IMG_LOCKS.get(lockKey)) {
             if (lock.equals(IMG_LOCKS.get(lockKey))
                     && (!cachedImage.exists() || request.lastModified() > cachedImage.lastModified())) {
                 try (OutputStream out = Files.newOutputStream(Paths.get(cachedImage.toURI()))) {

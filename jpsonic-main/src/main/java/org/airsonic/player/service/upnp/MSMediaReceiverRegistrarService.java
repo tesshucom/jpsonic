@@ -25,8 +25,6 @@ import org.fourthline.cling.support.xmicrosoft.AbstractMediaReceiverRegistrarSer
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class MSMediaReceiverRegistrarService extends AbstractMediaReceiverRegistrarService {
 }

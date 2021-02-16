@@ -37,10 +37,9 @@ import javax.servlet.http.HttpServletResponse;
  * certain resources.
  *
  * @author Sindre Mehus
- * 
- * @version $Revision: 1.1 $ $Date: 2005/08/14 13:14:47 $
  */
 public class ResponseHeaderFilter implements Filter {
+
     private FilterConfig filterConfig;
 
     @Override

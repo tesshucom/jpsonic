@@ -59,32 +59,31 @@ import org.fourthline.cling.support.model.dlna.DLNAProfiles;
 import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Service
 public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
+    private static final Object LOCK = new Object();
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+    private final CustomContentDirectory dispatchingContentDirectory;
+    private final AtomicReference<Boolean> running;
 
     private UpnpService deligate;
 
-    @Autowired
-    @Qualifier("dispatchingContentDirectory")
-    private CustomContentDirectory dispatchingContentDirectory;
-
-    private AtomicReference<Boolean> running = new AtomicReference<>(false);
-
-    private static final Object LOCK = new Object();
+    public UPnPService(SettingsService settingsService,
+            @Qualifier("dispatchingContentDirectory") CustomContentDirectory dispatchingContentDirectory) {
+        super();
+        this.settingsService = settingsService;
+        this.dispatchingContentDirectory = dispatchingContentDirectory;
+        running = new AtomicReference<>(false);
+    }
 
     @PostConstruct
     public void init() {
@@ -95,7 +94,7 @@ public class UPnPService {
                 setMediaServerEnabled(true);
             }
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> ensureServiceStopped()));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::ensureServiceStopped));
     }
 
     public void ensureServiceStarted() {
@@ -260,14 +259,6 @@ public class UPnPService {
 
     public UpnpService getUpnpService() {
         return deligate;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setCustomContentDirectory(CustomContentDirectory customContentDirectory) {
-        this.dispatchingContentDirectory = customContentDirectory;
     }
 
     private static class ServiceManager extends DefaultServiceManager<CustomContentDirectory> {

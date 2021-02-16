@@ -46,7 +46,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,20 +63,24 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/main")
 public class MainController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private JpsonicComparators jpsonicComparator;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final JpsonicComparators jpsonicComparator;
+    private final RatingService ratingService;
+    private final MediaFileService mediaFileService;
+    private final ViewAsListSelector viewSelector;
 
-    @Autowired
-    private RatingService ratingService;
-    @Autowired
-    private MediaFileService mediaFileService;
-
-    @Autowired
-    private ViewAsListSelector viewSelector;
+    public MainController(SecurityService securityService, SettingsService settingsService,
+            JpsonicComparators jpsonicComparator, RatingService ratingService, MediaFileService mediaFileService,
+            ViewAsListSelector viewSelector) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.jpsonicComparator = jpsonicComparator;
+        this.ratingService = ratingService;
+        this.mediaFileService = mediaFileService;
+        this.viewSelector = viewSelector;
+    }
 
     @SuppressWarnings("PMD.EmptyCatchBlock") // Triage in #824
     @GetMapping
@@ -120,7 +123,7 @@ public class MainController {
         Map<String, Object> map = LegacyMap.of();
         map.put("dir", dir);
 
-        List<MediaFile> files = children.stream().filter(f -> f.isFile()).collect(Collectors.toList());
+        List<MediaFile> files = children.stream().filter(MediaFile::isFile).collect(Collectors.toList());
         map.put("files", files);
 
         List<MediaFile> subDirs = children.stream().filter(f -> !f.isFile()).collect(Collectors.toList());

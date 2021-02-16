@@ -25,15 +25,18 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.ServletRequestUtils;
 
 @Component
 public class ViewAsListSelector {
 
-    @Autowired
-    private SettingsService settingsService;
+    private final SettingsService settingsService;
+
+    public ViewAsListSelector(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
 
     public boolean isViewAsList(HttpServletRequest request, String username) {
         UserSettings userSettings = settingsService.getUserSettings(username);

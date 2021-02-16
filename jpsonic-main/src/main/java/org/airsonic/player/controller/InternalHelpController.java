@@ -37,7 +37,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import org.airsonic.player.dao.DaoHelper;
@@ -61,7 +60,6 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.search.IndexSearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.env.Profiles;
 import org.springframework.stereotype.Controller;
@@ -79,33 +77,39 @@ import org.springframework.web.servlet.ModelAndView;
 public class InternalHelpController {
 
     private static final Logger LOG = LoggerFactory.getLogger(InternalHelpController.class);
-
     private static final int LOG_LINES_TO_SHOW = 50;
     private static final String TABLE_TYPE_TABLE = "table";
 
-    @Autowired
-    private VersionService versionService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private IndexManager indexManager;
-    @Autowired
-    private DaoHelper daoHelper;
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-    @Autowired
-    private MusicFolderDao musicFolderDao;
-    @Autowired
-    private MediaFileDao mediaFileDao;
-    @Autowired
-    private TranscodingService transcodingService;
-    @Autowired
-    private Environment environment;
+    private final VersionService versionService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final IndexManager indexManager;
+    private final DaoHelper daoHelper;
+    private final AnalyzerFactory analyzerFactory;
+    private final MusicFolderDao musicFolderDao;
+    private final MediaFileDao mediaFileDao;
+    private final TranscodingService transcodingService;
+    private final Environment environment;
+
+    public InternalHelpController(VersionService versionService, SettingsService settingsService,
+            SecurityService securityService, IndexManager indexManager, DaoHelper daoHelper,
+            AnalyzerFactory analyzerFactory, MusicFolderDao musicFolderDao, MediaFileDao mediaFileDao,
+            TranscodingService transcodingService, Environment environment) {
+        super();
+        this.versionService = versionService;
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.indexManager = indexManager;
+        this.daoHelper = daoHelper;
+        this.analyzerFactory = analyzerFactory;
+        this.musicFolderDao = musicFolderDao;
+        this.mediaFileDao = mediaFileDao;
+        this.transcodingService = transcodingService;
+        this.environment = environment;
+    }
 
     @GetMapping
-    protected ModelAndView handleRequestInternal(HttpServletRequest request, HttpServletResponse response) {
+    protected ModelAndView handleRequestInternal(HttpServletRequest request) {
         Map<String, Object> map = LegacyMap.of();
 
         map.put("admin", securityService.isAdmin(securityService.getCurrentUser(request).getUsername()));

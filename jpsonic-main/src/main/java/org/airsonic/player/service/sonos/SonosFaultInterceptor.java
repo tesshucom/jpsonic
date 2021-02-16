@@ -38,8 +38,6 @@ import org.w3c.dom.Element;
  * Intercepts all SonosSoapFault exceptions and builds a SOAP Fault.
  *
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @Component
 public class SonosFaultInterceptor extends AbstractSoapInterceptor {
@@ -60,7 +58,7 @@ public class SonosFaultInterceptor extends AbstractSoapInterceptor {
     public void handleMessage(SoapMessage message) {
         Fault fault = (Fault) message.getContent(Exception.class);
         if (LOG.isWarnEnabled()) {
-            LOG.warn("Error: {}", fault);
+            LOG.warn("Error: {}", fault.toString());
         }
 
         if (fault.getCause() instanceof SonosSoapFault) {

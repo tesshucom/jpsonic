@@ -27,6 +27,7 @@ package org.airsonic.player.upload;
  * @author Pierre-Alexandre Losson -- http://www.telio.be/blog -- plosson@users.sourceforge.net
  */
 public interface UploadListener {
+
     void start(String fileName);
 
     void bytesRead(long bytesRead);

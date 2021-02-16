@@ -27,8 +27,6 @@ import org.airsonic.player.domain.MediaFile;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 class AlbumList {
 

@@ -26,8 +26,6 @@ import java.util.SortedMap;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 public class MusicFolderContent {
 

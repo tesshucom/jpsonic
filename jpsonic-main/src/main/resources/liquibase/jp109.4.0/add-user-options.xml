@@ -38,7 +38,7 @@
             </column>
         </addColumn>
     </changeSet>
-	<changeSet id="add-ietf" author="tesshucom">
+    <changeSet id="add-ietf" author="tesshucom">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_settings" columnName="ietf" />
@@ -50,7 +50,7 @@
             </column>
         </addColumn>
     </changeSet>
-	<changeSet id="add-font-family" author="tesshucom">
+    <changeSet id="add-font-family" author="tesshucom">
         <preConditions onFail="MARK_RAN">
             <not>
                 <columnExists tableName="user_settings" columnName="font_family" />

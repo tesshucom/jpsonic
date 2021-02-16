@@ -50,6 +50,7 @@ public class RandomSongByFolderArtistUpnpProcessor
 
     private static final String TYPE_PREFIX_MUSIC_FOLDER = "MusicFolder:";
     private static final String TYPE_PREFIX_ARTIST = "artist:";
+
     private final UpnpProcessorUtil util;
     private final JArtistDao artistDao;
     private final MusicFolderDao musicFolderDao;

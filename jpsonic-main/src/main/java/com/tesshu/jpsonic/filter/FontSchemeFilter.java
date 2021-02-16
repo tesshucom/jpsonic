@@ -48,7 +48,11 @@ public class FontSchemeFilter implements Filter {
     private SettingsService settingsService;
     private SecurityService securityService;
 
-    private final List<String> excludes = Arrays.asList("/".concat(ViewName.COVER_ART.value()));
+    private final List<String> excludes;
+
+    public FontSchemeFilter() {
+        excludes = Arrays.asList("/".concat(ViewName.COVER_ART.value()));
+    }
 
     @Override
     public void init(FilterConfig filterConfig) {

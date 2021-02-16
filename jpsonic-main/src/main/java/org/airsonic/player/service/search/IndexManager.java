@@ -71,7 +71,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -101,10 +100,12 @@ public class IndexManager {
      */
     private static final String INDEX_ROOT_DIR_NAME = "index-JP";
 
+    private static final Object GENRE_LOCK = new Object();
+
     /**
      * File supplier for index directory.
      */
-    private Supplier<File> rootIndexDirectory = () -> new File(SettingsService.getJpsonicHome(),
+    private static final Supplier<File> ROOT_INDEX_DIRECTORY = () -> new File(SettingsService.getJpsonicHome(),
             INDEX_ROOT_DIR_NAME.concat(Integer.toString(INDEX_VERSION)));
 
     /**
@@ -114,49 +115,43 @@ public class IndexManager {
     /*
      * The locale doesn't matter because just converting the literal.
      */
-    private Function<IndexType, File> getIndexDirectory = (indexType) -> new File(rootIndexDirectory.get(),
-            indexType.toString().toLowerCase());
-
-    @Autowired
-    private AnalyzerFactory analyzerFactory;
-
-    @Autowired
-    private DocumentFactory documentFactory;
-
-    @Autowired
-    private MediaFileDao mediaFileDao;
-
-    @Autowired
-    private ArtistDao artistDao;
-
-    @Autowired
-    private AlbumDao albumDao;
-
-    @Autowired
-    private QueryFactory queryFactory;
-
-    @Autowired
-    private SearchServiceUtilities util;
-
-    @Autowired
-    private JpsonicComparators comparators;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    private Map<IndexType, SearcherManager> searchers = new ConcurrentHashMap<>();
-
-    private Map<IndexType, IndexWriter> writers = new ConcurrentHashMap<>();
+    private static final Function<IndexType, File> GET_INDEX_DIRECTORY = (indexType) -> new File(
+            ROOT_INDEX_DIRECTORY.get(), indexType.toString().toLowerCase());
 
     private enum GenreSort {
         ALBUM_COUNT, SONG_COUNT, ALBUM_ALPHABETICAL, SONG_ALPHABETICAL
     }
 
-    ;
+    private final AnalyzerFactory analyzerFactory;
+    private final DocumentFactory documentFactory;
+    private final MediaFileDao mediaFileDao;
+    private final ArtistDao artistDao;
+    private final AlbumDao albumDao;
+    private final QueryFactory queryFactory;
+    private final SearchServiceUtilities util;
+    private final JpsonicComparators comparators;
+    private final SettingsService settingsService;
+    private final Map<IndexType, SearcherManager> searchers;
+    private final Map<IndexType, IndexWriter> writers;
+    private final Map<GenreSort, List<Genre>> multiGenreMaster;
 
-    private Map<GenreSort, List<Genre>> multiGenreMaster = new ConcurrentHashMap<>();
-
-    private static final Object GENRE_LOCK = new Object();
+    public IndexManager(AnalyzerFactory analyzerFactory, DocumentFactory documentFactory, MediaFileDao mediaFileDao,
+            ArtistDao artistDao, AlbumDao albumDao, QueryFactory queryFactory, SearchServiceUtilities util,
+            JpsonicComparators comparators, SettingsService settingsService) {
+        super();
+        this.analyzerFactory = analyzerFactory;
+        this.documentFactory = documentFactory;
+        this.mediaFileDao = mediaFileDao;
+        this.artistDao = artistDao;
+        this.albumDao = albumDao;
+        this.queryFactory = queryFactory;
+        this.util = util;
+        this.comparators = comparators;
+        this.settingsService = settingsService;
+        searchers = new ConcurrentHashMap<>();
+        writers = new ConcurrentHashMap<>();
+        multiGenreMaster = new ConcurrentHashMap<>();
+    }
 
     public void index(Album album) {
         Term primarykey = documentFactory.createPrimarykey(album);
@@ -219,7 +214,7 @@ public class IndexManager {
     }
 
     private IndexWriter createIndexWriter(IndexType indexType) throws IOException {
-        File indexDirectory = getIndexDirectory.apply(indexType);
+        File indexDirectory = GET_INDEX_DIRECTORY.apply(indexType);
         IndexWriterConfig config = new IndexWriterConfig(analyzerFactory.getAnalyzer());
         return new IndexWriter(FSDirectory.open(indexDirectory.toPath()), config);
     }
@@ -242,40 +237,40 @@ public class IndexManager {
 
     public void expunge() {
 
-        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream()
-                .map(m -> documentFactory.createPrimarykey(m)).toArray(i -> new Term[i]);
+        Term[] primarykeys = mediaFileDao.getArtistExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artist doc.", e);
         }
 
-        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = mediaFileDao.getAlbumExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete album doc.", e);
         }
 
-        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = mediaFileDao.getSongExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.SONG).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete song doc.", e);
         }
 
-        primarykeys = artistDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = artistDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ARTIST_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
             LOG.error("Failed to delete artistId3 doc.", e);
         }
 
-        primarykeys = albumDao.getExpungeCandidates().stream().map(m -> documentFactory.createPrimarykey(m))
-                .toArray(i -> new Term[i]);
+        primarykeys = albumDao.getExpungeCandidates().stream().map(documentFactory::createPrimarykey)
+                .toArray(Term[]::new);
         try {
             writers.get(IndexType.ALBUM_ID3).deleteDocuments(primarykeys);
         } catch (IOException e) {
@@ -394,7 +389,7 @@ public class IndexManager {
      */
     public @Nullable IndexSearcher getSearcher(IndexType indexType) {
         if (!searchers.containsKey(indexType)) {
-            File indexDirectory = getIndexDirectory.apply(indexType);
+            File indexDirectory = GET_INDEX_DIRECTORY.apply(indexType);
             try {
                 if (indexDirectory.exists()) {
                     SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
@@ -471,7 +466,7 @@ public class IndexManager {
         // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                .filter(dir -> !dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
+                .filter(dir -> !dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
                         LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
                         try {
@@ -490,7 +485,7 @@ public class IndexManager {
         if (settingsService.isSearchMethodChanged()) {
             Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                     (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
-                    .filter(dir -> dir.getName().equals(rootIndexDirectory.get().getName())).forEach(old -> {
+                    .filter(dir -> dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
                         if (FileUtil.exists(old)) {
                             LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
                             try {
@@ -516,11 +511,11 @@ public class IndexManager {
      */
     public void initializeIndexDirectory() {
         // Check if Index is current version
-        if (rootIndexDirectory.get().exists()) {
+        if (ROOT_INDEX_DIRECTORY.get().exists()) {
             // Index of current version already exists
             LOG.info("Index was found (index version {}). ", INDEX_VERSION);
         } else {
-            if (rootIndexDirectory.get().mkdir()) {
+            if (ROOT_INDEX_DIRECTORY.get().mkdir()) {
                 LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);
             } else {
                 LOG.warn("Failed to create index directory :  (index version {}). ", INDEX_VERSION);
@@ -561,7 +556,7 @@ public class IndexManager {
                 IndexableField[] fields = searcher.doc(topDocs.scoreDocs[i].doc)
                         .getFields(FieldNamesConstants.GENRE_KEY);
                 if (!isEmpty(fields)) {
-                    List<String> fieldValues = Arrays.stream(fields).map(f -> f.stringValue())
+                    List<String> fieldValues = Arrays.stream(fields).map(IndexableField::stringValue)
                             .collect(Collectors.toList());
                     fieldValues.forEach(v -> {
                         if (!result.contains(v)) {
@@ -644,7 +639,7 @@ public class IndexManager {
                                 e);
                         break mayBeInit;
                     }
-                    List<String> genreNames = Arrays.asList(stats).stream().map(t -> t.termtext.utf8ToString())
+                    List<String> genreNames = Arrays.stream(stats).map(t -> t.termtext.utf8ToString())
                             .collect(Collectors.toList());
 
                     List<Genre> genres = new ArrayList<>();
@@ -661,7 +656,7 @@ public class IndexManager {
                     multiGenreMaster.put(GenreSort.SONG_COUNT, genres);
 
                     List<Genre> genresByAlbum = new ArrayList<>();
-                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(g -> genresByAlbum.add(g));
+                    genres.stream().filter(g -> 0 != g.getAlbumCount()).forEach(genresByAlbum::add);
                     genresByAlbum.sort(comparators.genreOrder(true));
                     multiGenreMaster.put(GenreSort.ALBUM_COUNT, genresByAlbum);
 

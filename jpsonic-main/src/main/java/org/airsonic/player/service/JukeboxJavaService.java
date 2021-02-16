@@ -48,19 +48,18 @@ import org.springframework.stereotype.Service;
 public class JukeboxJavaService {
 
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(JukeboxJavaService.class);
-
     private static final float DEFAULT_GAIN = 0.75f;
+    private static final String DEFAULT_MIXER_ENTRY_KEY = "_default";
 
-    private AudioScrobblerService audioScrobblerService;
-    private StatusService statusService;
-    private SecurityService securityService;
-    private MediaFileService mediaFileService;
-    private JavaPlayerFactory javaPlayerFactory;
+    private final AudioScrobblerService audioScrobblerService;
+    private final StatusService statusService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final JavaPlayerFactory javaPlayerFactory;
+    private final Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers;
+    private final Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer;
 
     private TransferStatus status;
-    private Map<Integer, com.github.biconou.AudioPlayer.api.Player> activeAudioPlayers = new ConcurrentHashMap<>();
-    private Map<String, List<com.github.biconou.AudioPlayer.api.Player>> activeAudioPlayersPerMixer = new ConcurrentHashMap<>();
-    private static final String DEFAULT_MIXER_ENTRY_KEY = "_default";
 
     public JukeboxJavaService(AudioScrobblerService audioScrobblerService, StatusService statusService,
             SecurityService securityService, MediaFileService mediaFileService, JavaPlayerFactory javaPlayerFactory) {
@@ -69,6 +68,8 @@ public class JukeboxJavaService {
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.javaPlayerFactory = javaPlayerFactory;
+        activeAudioPlayers = new ConcurrentHashMap<>();
+        activeAudioPlayersPerMixer = new ConcurrentHashMap<>();
     }
 
     /**

@@ -29,7 +29,6 @@ import java.util.List;
 import org.airsonic.player.domain.MusicFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -44,10 +43,15 @@ public class MusicFolderDao extends AbstractDao {
     private static final Logger LOG = LoggerFactory.getLogger(MusicFolderDao.class);
     private static final String INSERT_COLUMNS = "path, name, enabled, changed";
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
-    private final MusicFolderRowMapper rowMapper = new MusicFolderRowMapper();
 
-    @Autowired
-    private UserDao userDao;
+    private final MusicFolderRowMapper rowMapper;
+    private final UserDao userDao;
+
+    public MusicFolderDao(DaoHelper daoHelper, UserDao userDao) {
+        super(daoHelper);
+        this.userDao = userDao;
+        rowMapper = new MusicFolderRowMapper();
+    }
 
     /**
      * Returns all music folders.
@@ -135,7 +139,4 @@ public class MusicFolderDao extends AbstractDao {
         }
     }
 
-    public void setUserDao(UserDao userDao) {
-        this.userDao = userDao;
-    }
 }

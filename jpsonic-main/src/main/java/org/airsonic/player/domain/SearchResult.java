@@ -35,12 +35,18 @@ import org.airsonic.player.service.SearchService;
  */
 public class SearchResult {
 
-    private final List<MediaFile> mediaFiles = new ArrayList<>();
-    private final List<Artist> artists = new ArrayList<>();
-    private final List<Album> albums = new ArrayList<>();
+    private final List<MediaFile> mediaFiles;
+    private final List<Artist> artists;
+    private final List<Album> albums;
 
     private int offset;
     private int totalHits;
+
+    public SearchResult() {
+        mediaFiles = new ArrayList<>();
+        artists = new ArrayList<>();
+        albums = new ArrayList<>();
+    }
 
     public List<MediaFile> getMediaFiles() {
         return mediaFiles;

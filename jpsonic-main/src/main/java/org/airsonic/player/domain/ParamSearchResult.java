@@ -35,10 +35,15 @@ import org.airsonic.player.service.SearchService;
  */
 public class ParamSearchResult<T> {
 
-    private final List<T> items = new ArrayList<>();
+    private final List<T> items;
 
     private int offset;
     private int totalHits;
+
+    public ParamSearchResult() {
+        super();
+        items = new ArrayList<>();
+    }
 
     public List<T> getItems() {
         return items;

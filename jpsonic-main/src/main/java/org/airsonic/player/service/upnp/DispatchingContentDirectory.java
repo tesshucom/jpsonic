@@ -65,7 +65,6 @@ import org.springframework.stereotype.Service;
 public class DispatchingContentDirectory extends CustomContentDirectory implements UpnpProcessDispatcher {
 
     private static final Logger LOG = LoggerFactory.getLogger(DispatchingContentDirectory.class);
-
     private static final int COUNT_MAX = 50;
 
     private final RootUpnpProcessor rootProcessor;
@@ -85,7 +84,6 @@ public class DispatchingContentDirectory extends CustomContentDirectory implemen
     private final RandomSongUpnpProcessor randomSongProcessor;
     private final RandomSongByArtistUpnpProcessor randomSongByArtistProcessor;
     private final RandomSongByFolderArtistUpnpProcessor randomSongByFolderArtistProcessor;
-
     private final UPnPSearchCriteriaDirector director;
     private final SearchService searchService;
 

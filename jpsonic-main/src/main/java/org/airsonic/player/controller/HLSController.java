@@ -43,7 +43,6 @@ import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -62,17 +61,21 @@ public class HLSController {
 
     private static final int SEGMENT_DURATION = 10;
     private static final Pattern BITRATE_PATTERN = Pattern.compile("(\\d+)(@(\\d+)x(\\d+))?");
-
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private JWTSecurityService jwtSecurityService;
-
     private static final int SINGLE_ELEMENT = 1;
+
+    private final PlayerService playerService;
+    private final MediaFileService mediaFileService;
+    private final SecurityService securityService;
+    private final JWTSecurityService jwtSecurityService;
+
+    public HLSController(PlayerService playerService, MediaFileService mediaFileService,
+            SecurityService securityService, JWTSecurityService jwtSecurityService) {
+        super();
+        this.playerService = playerService;
+        this.mediaFileService = mediaFileService;
+        this.securityService = securityService;
+        this.jwtSecurityService = jwtSecurityService;
+    }
 
     @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
     @GetMapping

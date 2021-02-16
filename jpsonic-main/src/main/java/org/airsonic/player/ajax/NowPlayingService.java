@@ -45,7 +45,6 @@ import org.directwebremoting.WebContext;
 import org.directwebremoting.WebContextFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
 
@@ -59,17 +58,21 @@ import org.springframework.web.bind.ServletRequestBindingException;
 public class NowPlayingService {
 
     private static final Logger LOG = LoggerFactory.getLogger(NowPlayingService.class);
-
-    @Autowired
-    private PlayerService playerService;
-    @Autowired
-    private StatusService statusService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private MediaScannerService mediaScannerService;
-
     private static final int LIMIT_OF_HISTORY_TO_BE_PRESENTED = 60;
+
+    private final PlayerService playerService;
+    private final StatusService statusService;
+    private final SettingsService settingsService;
+    private final MediaScannerService mediaScannerService;
+
+    public NowPlayingService(PlayerService playerService, StatusService statusService, SettingsService settingsService,
+            MediaScannerService mediaScannerService) {
+        super();
+        this.playerService = playerService;
+        this.statusService = statusService;
+        this.settingsService = settingsService;
+        this.mediaScannerService = mediaScannerService;
+    }
 
     /**
      * Returns details about what the current player is playing.
@@ -170,21 +173,5 @@ public class NowPlayingService {
             }
         }
         return result;
-    }
-
-    public void setPlayerService(PlayerService playerService) {
-        this.playerService = playerService;
-    }
-
-    public void setStatusService(StatusService statusService) {
-        this.statusService = statusService;
-    }
-
-    public void setSettingsService(SettingsService settingsService) {
-        this.settingsService = settingsService;
-    }
-
-    public void setMediaScannerService(MediaScannerService mediaScannerService) {
-        this.mediaScannerService = mediaScannerService;
     }
 }

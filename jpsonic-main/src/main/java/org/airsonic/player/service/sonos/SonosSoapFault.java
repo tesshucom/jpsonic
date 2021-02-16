@@ -23,15 +23,11 @@ package org.airsonic.player.service.sonos;
 
 /**
  * @author Sindre Mehus
- * 
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class SonosSoapFault extends RuntimeException {
 
     private final String faultCode;
-
-    // Must match values in strings.xml
     private final int sonosError;
 
     protected SonosSoapFault(String faultCode, int sonosError) {
@@ -44,6 +40,9 @@ public class SonosSoapFault extends RuntimeException {
         return faultCode;
     }
 
+    /*
+     * Must match values in strings.xml
+     */
     public int getSonosError() {
         return sonosError;
     }

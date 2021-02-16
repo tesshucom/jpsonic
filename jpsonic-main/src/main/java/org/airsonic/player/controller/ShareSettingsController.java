@@ -40,7 +40,6 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.ShareService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.ServletRequestUtils;
@@ -60,14 +59,19 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/shareSettings")
 public class ShareSettingsController {
 
-    @Autowired
-    private ShareService shareService;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
-    @Autowired
-    private SettingsService settingsService;
+    private final ShareService shareService;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+    private final SettingsService settingsService;
+
+    public ShareSettingsController(ShareService shareService, SecurityService securityService,
+            MediaFileService mediaFileService, SettingsService settingsService) {
+        super();
+        this.shareService = shareService;
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+        this.settingsService = settingsService;
+    }
 
     @GetMapping
     public String doGet(HttpServletRequest request, Model model) {

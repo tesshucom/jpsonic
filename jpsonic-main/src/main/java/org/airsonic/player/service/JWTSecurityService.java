@@ -33,30 +33,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Service("jwtSecurityService")
 public class JWTSecurityService {
-    private static final Logger LOG = LoggerFactory.getLogger(JWTSecurityService.class);
 
+    private static final Logger LOG = LoggerFactory.getLogger(JWTSecurityService.class);
     public static final String JWT_PARAM_NAME = "jwt";
     public static final String CLAIM_PATH = "path";
-    // TODO make this configurable
-    public static final int DEFAULT_DAYS_VALID_FOR = 7;
-    private static SecureRandom secureRandom = new SecureRandom();
+    public static final int DEFAULT_DAYS_VALID_FOR = 7; // TODO make this configurable
+    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final SettingsService settingsService;
 
-    @Autowired
     public JWTSecurityService(SettingsService settingsService) {
         this.settingsService = settingsService;
     }
 
     public static String generateKey() {
-        BigInteger randomInt = new BigInteger(130, secureRandom);
+        BigInteger randomInt = new BigInteger(130, SECURE_RANDOM);
         return randomInt.toString(32);
     }
 

@@ -41,7 +41,6 @@ import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.validator.UserSettingsValidator;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -68,12 +67,17 @@ import org.springframework.web.servlet.view.RedirectView;
 @RequestMapping("/userSettings")
 public class UserSettingsController {
 
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private TranscodingService transcodingService;
+    private final SecurityService securityService;
+    private final SettingsService settingsService;
+    private final TranscodingService transcodingService;
+
+    public UserSettingsController(SecurityService securityService, SettingsService settingsService,
+            TranscodingService transcodingService) {
+        super();
+        this.securityService = securityService;
+        this.settingsService = settingsService;
+        this.transcodingService = transcodingService;
+    }
 
     @InitBinder
     protected void initBinder(WebDataBinder binder, HttpServletRequest request) {
@@ -113,7 +117,7 @@ public class UserSettingsController {
         command.setAllMusicFolders(settingsService.getAllMusicFolders());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
-        toast.ifPresent(b -> command.setShowToast(b));
+        toast.ifPresent(command::setShowToast);
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "userSettings";
     }

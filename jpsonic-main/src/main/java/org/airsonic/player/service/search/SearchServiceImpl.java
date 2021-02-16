@@ -52,7 +52,6 @@ import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TopDocs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -60,20 +59,21 @@ public class SearchServiceImpl implements SearchService {
 
     private static final Logger LOG = LoggerFactory.getLogger(SearchServiceImpl.class);
 
-    @Autowired
-    private QueryFactory queryFactory;
+    private final QueryFactory queryFactory;
+    private final IndexManager indexManager;
+    private final SearchServiceUtilities util;
+    private final SettingsService settingsService;
+    private final JMediaFileDao mediaFileDao;
 
-    @Autowired
-    private IndexManager indexManager;
-
-    @Autowired
-    private SearchServiceUtilities util;
-
-    @Autowired
-    private SettingsService settingsService;
-
-    @Autowired
-    private JMediaFileDao mediaFileDao;
+    public SearchServiceImpl(QueryFactory queryFactory, IndexManager indexManager, SearchServiceUtilities util,
+            SettingsService settingsService, JMediaFileDao mediaFileDao) {
+        super();
+        this.queryFactory = queryFactory;
+        this.indexManager = indexManager;
+        this.util = util;
+        this.settingsService = settingsService;
+        this.mediaFileDao = mediaFileDao;
+    }
 
     @Override
     public SearchResult search(SearchCriteria criteria) {
@@ -250,8 +250,7 @@ public class SearchServiceImpl implements SearchService {
     public List<MediaFile> getRandomSongs(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<MediaFile> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids
-                .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
                 .forEach(id -> util.addIgnoreNull(result, IndexType.SONG, id));
         util.getCache(RandomCacheKey.SONG, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
@@ -305,7 +304,7 @@ public class SearchServiceImpl implements SearchService {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (files) -> {
-            List<MediaFile> sub = files.subList((int) offset, min(files.size(), (int) (offset + count), casheMax));
+            List<MediaFile> sub = files.subList(offset, min(files.size(), offset + count, casheMax));
             result.addAll(sub);
         };
 
@@ -385,8 +384,7 @@ public class SearchServiceImpl implements SearchService {
     public List<Album> getRandomAlbumsId3(int count, int offset, int casheMax, List<MusicFolder> musicFolders) {
 
         final List<Album> result = new ArrayList<>();
-        Consumer<List<Integer>> addSubToResult = (ids) -> ids
-                .subList((int) offset, Math.min(ids.size(), (int) (offset + count)))
+        Consumer<List<Integer>> addSubToResult = (ids) -> ids.subList(offset, Math.min(ids.size(), offset + count))
                 .forEach(id -> util.addIgnoreNull(result, IndexType.ALBUM_ID3, id));
         util.getCache(RandomCacheKey.ALBUM, casheMax, musicFolders).ifPresent(addSubToResult);
         if (0 < result.size()) {
@@ -450,7 +448,7 @@ public class SearchServiceImpl implements SearchService {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
-                .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+                .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.ALBUM).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;
@@ -479,7 +477,7 @@ public class SearchServiceImpl implements SearchService {
         List<Album> result = new ArrayList<>();
         try {
             SortField[] sortFields = Arrays.stream(IndexType.ALBUM_ID3.getFields())
-                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(i -> new SortField[i]);
+                    .map(n -> new SortField(n, SortField.Type.STRING)).toArray(SortField[]::new);
             Query query = queryFactory.getAlbumId3sByGenres(genres, musicFolders);
             TopDocs topDocs = searcher.search(query, offset + count, new Sort(sortFields));
 
@@ -489,7 +487,7 @@ public class SearchServiceImpl implements SearchService {
 
             for (int i = start; i < end; i++) {
                 Document doc = searcher.doc(topDocs.scoreDocs[i].doc);
-                util.addAlbumId3IfAnyMatch.accept(result, util.getId.apply(doc));
+                util.addAlbumId3IfAnyMatch(result, util.getId.apply(doc));
             }
 
         } catch (IOException e) {
@@ -509,7 +507,7 @@ public class SearchServiceImpl implements SearchService {
 
         final List<MediaFile> result = new ArrayList<>();
         Consumer<List<MediaFile>> addSubToResult = (mediaFiles) -> result
-                .addAll(mediaFiles.subList((int) offset, Math.min(mediaFiles.size(), (int) (offset + count))));
+                .addAll(mediaFiles.subList(offset, Math.min(mediaFiles.size(), offset + count)));
         util.getCache(genres, musicFolders, IndexType.SONG).ifPresent(addSubToResult);
         if (0 < result.size()) {
             return result;

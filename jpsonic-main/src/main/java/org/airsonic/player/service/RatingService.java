@@ -29,7 +29,6 @@ import org.airsonic.player.dao.RatingDao;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.FileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -40,12 +39,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class RatingService {
 
-    @Autowired
-    private RatingDao ratingDao;
-    @Autowired
-    private SecurityService securityService;
-    @Autowired
-    private MediaFileService mediaFileService;
+    private final RatingDao ratingDao;
+    private final SecurityService securityService;
+    private final MediaFileService mediaFileService;
+
+    public RatingService(RatingDao ratingDao, SecurityService securityService, MediaFileService mediaFileService) {
+        super();
+        this.ratingDao = ratingDao;
+        this.securityService = securityService;
+        this.mediaFileService = mediaFileService;
+    }
 
     /**
      * Returns the highest rated albums.
@@ -114,17 +117,5 @@ public class RatingService {
 
     public int getRatedAlbumCount(String username, List<MusicFolder> musicFolders) {
         return ratingDao.getRatedAlbumCount(username, musicFolders);
-    }
-
-    public void setRatingDao(RatingDao ratingDao) {
-        this.ratingDao = ratingDao;
-    }
-
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    public void setMediaFileService(MediaFileService mediaFileService) {
-        this.mediaFileService = mediaFileService;
     }
 }

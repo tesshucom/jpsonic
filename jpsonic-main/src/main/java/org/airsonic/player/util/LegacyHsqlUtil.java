@@ -51,7 +51,6 @@ import org.springframework.core.io.support.PropertiesLoaderUtils;
 public final class LegacyHsqlUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(LegacyHsqlUtil.class);
-
     public static final String UPGRADE_NEEDED_VERSION1 = "1.8.0";
     public static final String UPGRADE_NEEDED_VERSION2 = "1.8.1";
 
@@ -283,13 +282,11 @@ public final class LegacyHsqlUtil {
             } catch (Exception e) {
                 throw new CompletionException("Failed to backup HSQLDB database before upgrade", e);
             }
-            if (null != backupDir) {
-                try {
-                    performAdditionOfScript(backupDir);
-                } catch (Exception e) {
-                    throw new CompletionException(
-                            "Script verification/addition of HSQLDB database failed before upgrade", e);
-                }
+            try {
+                performAdditionOfScript(backupDir);
+            } catch (Exception e) {
+                throw new CompletionException("Script verification/addition of HSQLDB database failed before upgrade",
+                        e);
             }
             try {
                 performHsqldbDatabaseUpgrade();

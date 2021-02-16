@@ -40,17 +40,21 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sindre Mehus
  */
-@Repository
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // Only DAO is allowed to exclude this rule #827
+@Repository
 public class ArtistDao extends AbstractDao {
+
     private static final String INSERT_COLUMNS = "name, cover_art_path, album_count, last_scanned, present, folder_id, "
             // JP >>>>
-            + "sort, reading, artist_order";
-    // <<<< JP
-
+            + "sort, reading, artist_order"; // <<<< JP
     private static final String QUERY_COLUMNS = "id, " + INSERT_COLUMNS;
 
-    private final RowMapper<Artist> rowMapper = new ArtistMapper();
+    private final RowMapper<Artist> rowMapper;
+
+    public ArtistDao(DaoHelper daoHelper) {
+        super(daoHelper);
+        rowMapper = new ArtistMapper();
+    }
 
     /**
      * Returns the artist with the given name.
@@ -107,15 +111,13 @@ public class ArtistDao extends AbstractDao {
         String sql = "update artist set " + "cover_art_path=?," + "album_count=?," + "last_scanned=?," + "present=?,"
                 + "folder_id=?,"
                 // JP >>>>
-                + "sort=?, " + "reading=?," + "artist_order=? "
-                // <<<< JP
+                + "sort=?, " + "reading=?," + "artist_order=? " // <<<< JP
                 + "where name=?";
 
         int n = update(sql, artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                 artist.isPresent(), artist.getFolderId(),
                 // JP >>>>
-                artist.getSort(), artist.getReading(), artist.getOrder(),
-                // <<<< JP
+                artist.getSort(), artist.getReading(), artist.getOrder(), // <<<< JP
                 artist.getName());
 
         if (n == 0) {
@@ -123,8 +125,7 @@ public class ArtistDao extends AbstractDao {
                     artist.getName(), artist.getCoverArtPath(), artist.getAlbumCount(), artist.getLastScanned(),
                     artist.isPresent(), artist.getFolderId(),
                     // JP >>>>
-                    artist.getSort(), artist.getReading(), -1);
-            // <<<< JP
+                    artist.getSort(), artist.getReading(), -1); // <<<< JP
         }
 
         int id = queryForInt("select id from artist where name=?", null, artist.getName());
@@ -232,8 +233,7 @@ public class ArtistDao extends AbstractDao {
             return new Artist(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4), rs.getTimestamp(5),
                     rs.getBoolean(6), rs.getInt(7),
                     // JP >>>>
-                    rs.getString(8), rs.getString(9), rs.getInt(10));
-            // <<<< JP
+                    rs.getString(8), rs.getString(9), rs.getInt(10)); // <<<< JP
         }
     }
 

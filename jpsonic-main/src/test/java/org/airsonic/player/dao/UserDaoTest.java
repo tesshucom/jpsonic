@@ -52,7 +52,10 @@ import org.springframework.dao.DataIntegrityViolationException;
 public class UserDaoTest extends DaoTestBase {
 
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
+
+    @Autowired
+    private SettingsService settingsService;
 
     @Before
     public void setUp() {
@@ -197,7 +200,6 @@ public class UserDaoTest extends DaoTestBase {
             IllegalArgumentException, InvocationTargetException {
         assertNull("Error in getUserSettings.", userDao.getUserSettings("sindre"));
 
-        SettingsService settingsService = new SettingsService();
         Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
         method.setAccessible(true);
         try {

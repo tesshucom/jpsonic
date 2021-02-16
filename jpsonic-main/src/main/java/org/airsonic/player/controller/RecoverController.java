@@ -33,7 +33,6 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
 import com.tesshu.jpsonic.controller.Attributes;
@@ -45,7 +44,6 @@ import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -59,22 +57,25 @@ import org.springframework.web.servlet.ModelAndView;
 public class RecoverController {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecoverController.class);
-
     private static final String SYMBOLS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-    private final SecureRandom random = new SecureRandom();
     private static final int PASSWORD_LENGTH = 32;
-
     private static final String SESSION_KEY_MAIL_PREF = "mail.";
     private static final String SESSION_VALUE_TRUE = "true";
 
-    @Autowired
-    private SettingsService settingsService;
-    @Autowired
-    private SecurityService securityService;
+    private final SettingsService settingsService;
+    private final SecurityService securityService;
+    private final SecureRandom random;
+
+    public RecoverController(SettingsService settingsService, SecurityService securityService) {
+        super();
+        this.settingsService = settingsService;
+        this.securityService = securityService;
+        this.random = new SecureRandom();
+    }
 
     @SuppressWarnings("PMD.ConfusingTernary") // false positive
     @RequestMapping(method = { RequestMethod.GET, RequestMethod.POST })
-    public ModelAndView recover(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView recover(HttpServletRequest request) {
 
         Map<String, Object> map = LegacyMap.of();
         String usernameOrEmail = StringUtils
