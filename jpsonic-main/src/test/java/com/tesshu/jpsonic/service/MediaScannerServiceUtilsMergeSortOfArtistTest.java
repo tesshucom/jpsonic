@@ -25,10 +25,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import com.ibm.icu.util.GregorianCalendar;
@@ -105,8 +105,7 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
     }
 
     @Test
-    public void testMergeSortOfArtist() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    public void testMergeSortOfArtist() throws ExecutionException {
 
         invokeUtils(utils, "mergeSortOfArtist");
 

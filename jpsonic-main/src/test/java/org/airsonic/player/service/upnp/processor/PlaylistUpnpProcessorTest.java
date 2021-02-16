@@ -95,7 +95,7 @@ public class PlaylistUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         if (0 == playlistDao.getAllPlaylists().size()) {
             List<String> shallow = new ArrayList<>();
-            shallow.addAll(UpnpProcessorTestUtils.jPSonicNaturalList);
+            shallow.addAll(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
             Collections.shuffle(shallow);
             shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
         }

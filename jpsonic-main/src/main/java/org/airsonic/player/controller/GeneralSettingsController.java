@@ -21,6 +21,7 @@
 
 package org.airsonic.player.controller;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -118,11 +119,11 @@ public class GeneralSettingsController {
 
         toast.ifPresent(command::setShowToast);
 
-        Theme[] themes = settingsService.getAvailableThemes();
-        command.setThemes(themes);
+        List<Theme> themes = SettingsService.getAvailableThemes();
+        command.setThemes(themes.toArray(new Theme[0]));
         String currentThemeId = settingsService.getThemeId();
-        for (int i = 0; i < themes.length; i++) {
-            if (currentThemeId.equals(themes[i].getId())) {
+        for (int i = 0; i < themes.size(); i++) {
+            if (currentThemeId.equals(themes.get(i).getId())) {
                 command.setThemeIndex(String.valueOf(i));
                 break;
             }
@@ -152,7 +153,7 @@ public class GeneralSettingsController {
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
-        Theme theme = settingsService.getAvailableThemes()[themeIndex];
+        Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = settingsService.getAvailableLocales()[localeIndex];

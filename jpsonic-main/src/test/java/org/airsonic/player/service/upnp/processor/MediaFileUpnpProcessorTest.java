@@ -106,18 +106,18 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<MediaFile> children = mediaFileUpnpProcessor.getChildren(artists.get(0), 0, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i), children.get(i).getName());
         }
 
         children = mediaFileUpnpProcessor.getChildren(artists.get(0), 10, 10);
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 10), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 10), children.get(i).getName());
         }
 
         children = mediaFileUpnpProcessor.getChildren(artists.get(0), 20, 100);
         assertEquals(11, children.size());
         for (int i = 0; i < children.size(); i++) {
-            assertEquals(UpnpProcessorTestUtils.jPSonicNaturalList.get(i + 20), children.get(i).getName());
+            assertEquals(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST.get(i + 20), children.get(i).getName());
         }
 
     }
@@ -146,7 +146,7 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
-        List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.jPSonicNaturalList);
+        List<String> reversedByYear = new ArrayList<>(UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST);
         Collections.reverse(reversedByYear);
 
         List<MediaFile> artists = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> "10".equals(a.getName()))

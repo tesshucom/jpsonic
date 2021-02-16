@@ -23,10 +23,10 @@ import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invok
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
@@ -92,8 +92,7 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
     }
 
     @Test
-    public void testUpdateSortOfAlbum() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    public void testUpdateSortOfAlbum() throws ExecutionException {
 
         List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
         assertEquals(5, albums.size());

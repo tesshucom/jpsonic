@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 
 /**
  * Test case interface for scanning MusicFolder.
@@ -38,7 +38,7 @@ public interface AirsonicHomeTest {
      * @return MusicFolder used by test class
      */
     default List<MusicFolder> getMusicFolders() {
-        return MusicFolderTestData.getTestMusicFolders();
+        return MusicFolderTestDataUtils.getTestMusicFolders();
     }
 
     /**

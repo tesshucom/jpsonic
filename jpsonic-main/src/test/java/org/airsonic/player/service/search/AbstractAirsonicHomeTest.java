@@ -34,7 +34,7 @@ import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -84,7 +84,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     private static AtomicBoolean dataBaseReady = new AtomicBoolean();
 
     protected static final Function<String, String> resolveBaseMediaPath = (childPath) -> {
-        return MusicFolderTestData.resolveBaseMediaPath().concat(childPath);
+        return MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath);
     };
 
     @Autowired

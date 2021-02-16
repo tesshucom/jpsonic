@@ -24,6 +24,7 @@ package org.airsonic.player.controller;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -181,10 +182,10 @@ public class PersonalSettingsController {
         command.setLocales(localeStrings);
 
         String currentThemeId = userSettings.getThemeId();
-        Theme[] themes = settingsService.getAvailableThemes();
-        command.setThemes(themes);
-        for (int i = 0; i < themes.length; i++) {
-            if (themes[i].getId().equals(currentThemeId)) {
+        List<Theme> themes = SettingsService.getAvailableThemes();
+        command.setThemes(themes.toArray(new Theme[0]));
+        for (int i = 0; i < themes.size(); i++) {
+            if (themes.get(i).getId().equals(currentThemeId)) {
                 command.setThemeIndex(String.valueOf(i));
                 break;
             }
@@ -215,7 +216,7 @@ public class PersonalSettingsController {
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         String themeId = null;
         if (themeIndex != -1) {
-            themeId = settingsService.getAvailableThemes()[themeIndex].getId();
+            themeId = SettingsService.getAvailableThemes().get(themeIndex).getId();
         }
 
         String username = command.getUser().getUsername();

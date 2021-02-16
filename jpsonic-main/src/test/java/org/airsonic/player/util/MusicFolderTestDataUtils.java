@@ -28,33 +28,36 @@ import java.util.List;
 
 import org.airsonic.player.domain.MusicFolder;
 
-public class MusicFolderTestData {
+public final class MusicFolderTestDataUtils {
 
     private static String baseResources = "/MEDIAS/";
 
+    private MusicFolderTestDataUtils() {
+    }
+
     public static String resolveBaseMediaPath() {
-        return MusicFolderTestData.class.getResource(baseResources).toString().replace("file:", "");
+        return MusicFolderTestDataUtils.class.getResource(baseResources).toString().replace("file:", "");
     }
 
     public static String resolveMusicFolderPath() {
-        return (MusicFolderTestData.resolveBaseMediaPath() + "Music");
+        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music";
     }
 
     public static String resolveMusic2FolderPath() {
-        return (MusicFolderTestData.resolveBaseMediaPath() + "Music2");
+        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music2";
     }
 
     public static String resolveMusic3FolderPath() {
-        return (MusicFolderTestData.resolveBaseMediaPath() + "Music3");
+        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music3";
     }
 
     public static List<MusicFolder> getTestMusicFolders() {
         List<MusicFolder> liste = new ArrayList<>();
-        File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
+        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(1, musicDir, "Music", true, new Date());
         liste.add(musicFolder);
 
-        File music2Dir = new File(MusicFolderTestData.resolveMusic2FolderPath());
+        File music2Dir = new File(MusicFolderTestDataUtils.resolveMusic2FolderPath());
         MusicFolder musicFolder2 = new MusicFolder(2, music2Dir, "Music2", true, new Date());
         liste.add(musicFolder2);
         return liste;

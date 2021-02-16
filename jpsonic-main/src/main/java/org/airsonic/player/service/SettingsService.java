@@ -371,7 +371,7 @@ public class SettingsService {
     private static final String LOCALES_FILE = "/org/airsonic/player/i18n/locales.txt";
     private static final String THEMES_FILE = "/org/airsonic/player/theme/themes.txt";
 
-    private static Theme[] themes;
+    private static List<Theme> themes;
     private static Locale[] locales;
     private static String[] coverArtFileTypes;
     private static String[] musicFileTypes;
@@ -1138,9 +1138,10 @@ public class SettingsService {
      *
      * @return A list of available themes.
      */
-    @SuppressFBWarnings(value = "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE", justification = "False positive by try with resources.")
+    @SuppressFBWarnings(value = { "RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE",
+            "MS_EXPOSE_REP" }, justification = "False positive by try with resources. Returns an immutable list without unnecessary copying.")
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (Theme) Cannot be reused but is cached
-    public static Theme[] getAvailableThemes() {
+    public static List<Theme> getAvailableThemes() {
         synchronized (LOCKS.get(LocksKeys.THEMES)) {
             if (themes == null) {
                 List<Theme> l = new ArrayList<>();
@@ -1164,7 +1165,7 @@ public class SettingsService {
                     }
                     l.add(new Theme("default", "Jpsonic default"));
                 }
-                themes = l.toArray(new Theme[0]);
+                themes = Collections.unmodifiableList(l);
             }
         }
         return themes;
