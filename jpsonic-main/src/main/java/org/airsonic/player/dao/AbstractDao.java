@@ -97,7 +97,7 @@ public class AbstractDao {
 
     protected <T> List<T> query(String sql, RowMapper<T> rowMapper, Object... args) {
         long t = System.nanoTime();
-        List<T> result = getJdbcTemplate().query(sql, args, rowMapper);
+        List<T> result = getJdbcTemplate().query(sql, rowMapper, args);
         writeLog(sql, t);
         return result;
     }
@@ -111,14 +111,14 @@ public class AbstractDao {
 
     protected List<String> queryForStrings(String sql, Object... args) {
         long t = System.nanoTime();
-        List<String> result = getJdbcTemplate().queryForList(sql, args, String.class);
+        List<String> result = getJdbcTemplate().queryForList(sql, String.class, args);
         writeLog(sql, t);
         return result;
     }
 
     protected List<Integer> queryForInts(String sql, Object... args) {
         long t = System.nanoTime();
-        List<Integer> result = getJdbcTemplate().queryForList(sql, args, Integer.class);
+        List<Integer> result = getJdbcTemplate().queryForList(sql, Integer.class, args);
         writeLog(sql, t);
         return result;
     }
@@ -132,7 +132,7 @@ public class AbstractDao {
 
     protected Integer queryForInt(String sql, Integer defaultValue, Object... args) {
         long t = System.nanoTime();
-        List<Integer> list = getJdbcTemplate().queryForList(sql, args, Integer.class);
+        List<Integer> list = getJdbcTemplate().queryForList(sql, Integer.class, args);
         Integer result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
@@ -148,7 +148,7 @@ public class AbstractDao {
 
     protected Date queryForDate(String sql, Date defaultValue, Object... args) {
         long t = System.nanoTime();
-        List<Date> list = getJdbcTemplate().queryForList(sql, args, Date.class);
+        List<Date> list = getJdbcTemplate().queryForList(sql, Date.class, args);
         Date result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;
@@ -156,7 +156,7 @@ public class AbstractDao {
 
     protected Long queryForLong(String sql, Long defaultValue, Object... args) {
         long t = System.nanoTime();
-        List<Long> list = getJdbcTemplate().queryForList(sql, args, Long.class);
+        List<Long> list = getJdbcTemplate().queryForList(sql, Long.class, args);
         Long result = list.isEmpty() ? defaultValue : list.get(0) == null ? defaultValue : list.get(0);
         writeLog(sql, t);
         return result;

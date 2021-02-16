@@ -21,8 +21,6 @@
 
 package org.airsonic.player.controller;
 
-import static org.springframework.util.StringUtils.isEmpty;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -103,11 +102,11 @@ public class MusicFolderSettingsController {
             @RequestParam(Attributes.Request.NameConstants.TOAST) Optional<Boolean> toast, Model model) {
 
         MusicFolderSettingsCommand command = new MusicFolderSettingsCommand();
-        if (!isEmpty(scanNow)) {
+        if (!ObjectUtils.isEmpty(scanNow)) {
             settingsService.clearMusicFolderCache();
             mediaScannerService.scanLibrary();
         }
-        if (!isEmpty(expunge)) {
+        if (!ObjectUtils.isEmpty(expunge)) {
             expunge();
         }
 
