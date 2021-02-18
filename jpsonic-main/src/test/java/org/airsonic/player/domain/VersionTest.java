@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class VersionTest {
 
     /**
@@ -36,23 +37,23 @@ public class VersionTest {
      */
     @Test
     public void testVersion() {
-        doTestVersion("0.0", "0.1");
-        doTestVersion("1.5", "2.3");
-        doTestVersion("2.3", "2.34");
+        assertTrue(doTestVersion("0.0", "0.1"));
+        assertTrue(doTestVersion("1.5", "2.3"));
+        assertTrue(doTestVersion("2.3", "2.34"));
 
-        doTestVersion("1.5", "1.5.1");
-        doTestVersion("1.5.1", "1.5.2");
-        doTestVersion("1.5.2", "1.5.11");
+        assertTrue(doTestVersion("1.5", "1.5.1"));
+        assertTrue(doTestVersion("1.5.1", "1.5.2"));
+        assertTrue(doTestVersion("1.5.2", "1.5.11"));
 
-        doTestVersion("1.4", "1.5.beta1");
-        doTestVersion("1.4.1", "1.5.beta1");
-        doTestVersion("1.5.beta1", "1.5");
-        doTestVersion("1.5.beta1", "1.5.1");
-        doTestVersion("1.5.beta1", "1.6");
-        doTestVersion("1.5.beta1", "1.5.beta2");
-        doTestVersion("1.5.beta2", "1.5.beta11");
+        assertTrue(doTestVersion("1.4", "1.5.beta1"));
+        assertTrue(doTestVersion("1.4.1", "1.5.beta1"));
+        assertTrue(doTestVersion("1.5.beta1", "1.5"));
+        assertTrue(doTestVersion("1.5.beta1", "1.5.1"));
+        assertTrue(doTestVersion("1.5.beta1", "1.6"));
+        assertTrue(doTestVersion("1.5.beta1", "1.5.beta2"));
+        assertTrue(doTestVersion("1.5.beta2", "1.5.beta11"));
 
-        doTestVersion("6.2-SNAPSHOT", "6.11-SNAPSHOT");
+        assertTrue(doTestVersion("6.2-SNAPSHOT", "6.11-SNAPSHOT"));
     }
 
     @Test
@@ -78,7 +79,7 @@ public class VersionTest {
      * @param v2
      *            A higher version.
      */
-    private void doTestVersion(String v1, String v2) {
+    private boolean doTestVersion(String v1, String v2) {
         Version ver1 = new Version(v1);
         Version ver2 = new Version(v2);
 
@@ -91,5 +92,6 @@ public class VersionTest {
         assertEquals("Error in compareTo().", 0, ver2.compareTo(ver2));
         assertTrue("Error in compareTo().", ver1.compareTo(ver2) < 0);
         assertTrue("Error in compareTo().", ver2.compareTo(ver1) > 0);
+        return true;
     }
 }

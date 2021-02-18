@@ -24,7 +24,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
@@ -52,10 +54,16 @@ public class SettingsServiceUserSettingsTest extends AbstractAirsonicHomeTest {
     private UserSettings smartphoneSettings;
 
     @Before
-    public void before() throws ReflectiveOperationException, IllegalArgumentException {
-        Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-        method.setAccessible(true);
-        userSettings = (UserSettings) method.invoke(settingsService, "");
+    public void before() throws ExecutionException {
+        Method method;
+        try {
+            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method.setAccessible(true);
+            userSettings = (UserSettings) method.invoke(settingsService, "");
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
         tabletSettings = settingsService.createDefaultTabletUserSettings("");
         smartphoneSettings = settingsService.createDefaultSmartphoneUserSettings("");
     }

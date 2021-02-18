@@ -47,8 +47,24 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 public class MetaDataFactoryTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    private static File someMp3;
+    private static File someFlv;
+    private static File someJunk;
+
+    @Rule
+    public final SpringMethodRule springMethodRule = new SpringMethodRule();
+
+    @Autowired
+    private MetaDataParserFactory metaDataParserFactory;
+
+    @Autowired
+    private SettingsService settingsService;
+
+    @ClassRule
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -57,28 +73,12 @@ public class MetaDataFactoryTest {
         }
     };
 
-    @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-    private static File someMp3;
-    private static File someFlv;
-    private static File someJunk;
-
     @BeforeClass
     public static void createTestFiles() throws IOException {
         someMp3 = temporaryFolder.newFile("some.mp3");
         someFlv = temporaryFolder.newFile("some.flv");
         someJunk = temporaryFolder.newFile("some.junk");
     }
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
-
-    @Autowired
-    MetaDataParserFactory metaDataParserFactory;
-
-    @Autowired
-    SettingsService settingsService;
 
     @Test
     public void testorder() {

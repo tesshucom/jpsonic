@@ -62,7 +62,7 @@ public class SearchServiceStartWithStopwardsLegacyTest extends AbstractAirsonicH
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath.apply("Search/StartWithStopwards"));
+            File musicDir = new File(resolveBaseMediaPath("Search/StartWithStopwards"));
             musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
         }
         return musicFolders;
@@ -79,26 +79,24 @@ public class SearchServiceStartWithStopwardsLegacyTest extends AbstractAirsonicH
 
         int offset = 0;
         int count = Integer.MAX_VALUE;
-        boolean includeComposer = false;
         List<MusicFolder> folders = getMusicFolders();
 
-        SearchCriteria criteria = director.construct("will", offset, count, includeComposer, folders,
-                IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct("will", offset, count, false, folders, IndexType.ARTIST_ID3);
         SearchResult result = searchService.search(criteria);
         // Will hit because Airsonic's stopword is defined(#1235)
         Assert.assertEquals("Williams hit by \"will\" ", 1, result.getTotalHits());
 
-        criteria = director.construct("the", offset, count, includeComposer, folders, IndexType.SONG);
+        criteria = director.construct("the", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : The filter is properly applied to the input(Stopward)
         Assert.assertEquals("Theater hit by \"the\" ", 0, result.getTotalHits());
 
-        criteria = director.construct("willi", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
+        criteria = director.construct("willi", offset, count, false, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching
         Assert.assertEquals("Williams hit by \"Williams\" ", 1, result.getTotalHits());
 
-        criteria = director.construct("thea", offset, count, includeComposer, folders, IndexType.SONG);
+        criteria = director.construct("thea", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching
         Assert.assertEquals("Theater hit by \"thea\" ", 1, result.getTotalHits());

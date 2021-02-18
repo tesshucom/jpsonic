@@ -244,8 +244,8 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     }
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {

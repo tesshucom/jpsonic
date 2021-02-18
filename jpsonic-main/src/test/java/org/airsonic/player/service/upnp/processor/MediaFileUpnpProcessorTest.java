@@ -22,6 +22,7 @@
 package org.airsonic.player.service.upnp.processor;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,12 +40,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Artists"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
     @Autowired
@@ -52,11 +53,11 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
@@ -83,8 +84,8 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         items = mediaFileUpnpProcessor.getItems(0, 100).stream().filter(a -> !a.getName().startsWith("single"))
                 .collect(Collectors.toList());
-        UpnpProcessorTestUtils
-                .validateJPSonicNaturalList(items.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertTrue(UpnpProcessorTestUtils
+                .validateJPSonicNaturalList(items.stream().map(MediaFile::getName).collect(Collectors.toList())));
     }
 
     @Test
@@ -136,8 +137,8 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         List<MediaFile> albums = mediaFileUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
-        UpnpProcessorTestUtils
-                .validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertTrue(UpnpProcessorTestUtils
+                .validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList())));
 
     }
 

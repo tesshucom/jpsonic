@@ -53,11 +53,11 @@ public class MediaScannerServiceUpdateAlbumTest extends AbstractAirsonicHomeTest
     public List<MusicFolder> getMusicFolders() {
         if (ObjectUtils.isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
-            File musicDir1 = new File(resolveBaseMediaPath.apply("Scan/Id3LIFO"));
+            File musicDir1 = new File(resolveBaseMediaPath("Scan/Id3LIFO"));
             musicFolders.add(new MusicFolder(1, musicDir1, "alphaBeticalProps", true, new Date()));
-            File musicDir2 = new File(resolveBaseMediaPath.apply("Scan/Null"));
+            File musicDir2 = new File(resolveBaseMediaPath("Scan/Null"));
             musicFolders.add(new MusicFolder(2, musicDir2, "noTagFirstChild", true, new Date()));
-            File musicDir3 = new File(resolveBaseMediaPath.apply("Scan/Reverse"));
+            File musicDir3 = new File(resolveBaseMediaPath("Scan/Reverse"));
             musicFolders.add(new MusicFolder(3, musicDir3, "fileAndPropsNameInReverse", true, new Date()));
         }
         return musicFolders;

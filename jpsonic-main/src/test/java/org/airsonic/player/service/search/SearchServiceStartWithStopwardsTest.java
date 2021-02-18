@@ -62,7 +62,7 @@ public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTes
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath.apply("Search/StartWithStopwards"));
+            File musicDir = new File(resolveBaseMediaPath("Search/StartWithStopwards"));
             musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
         }
         return musicFolders;
@@ -79,33 +79,31 @@ public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTes
 
         int offset = 0;
         int count = Integer.MAX_VALUE;
-        boolean includeComposer = false;
         List<MusicFolder> folders = getMusicFolders();
 
-        SearchCriteria criteria = director.construct("will", offset, count, includeComposer, folders,
-                IndexType.ARTIST_ID3);
+        SearchCriteria criteria = director.construct("will", offset, count, false, folders, IndexType.ARTIST_ID3);
         SearchResult result = searchService.search(criteria);
         // Will hit because Airsonic's stopword is defined(#1235) => This case does not hit because it is a phrase
         // search rather than a term prefix match.
         Assert.assertEquals("Williams hit by \"will\" ", 0, result.getTotalHits());
 
         // XXX legacy -> phrase
-        criteria = director.construct("williams", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
+        criteria = director.construct("williams", offset, count, false, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
         Assert.assertEquals("Williams hit by \"williams\" ", 1, result.getTotalHits());
 
-        criteria = director.construct("the", offset, count, includeComposer, folders, IndexType.SONG);
+        criteria = director.construct("the", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : The filter is properly applied to the input(Stopward)
         Assert.assertEquals("Theater hit by \"the\" ", 0, result.getTotalHits());
 
-        criteria = director.construct("willi", offset, count, includeComposer, folders, IndexType.ARTIST_ID3);
+        criteria = director.construct("willi", offset, count, false, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching => This case does not hit because it is a phrase search rather than
         // a term prefix match.
         Assert.assertEquals("Williams hit by \"Williams\" ", 0, result.getTotalHits());
 
-        criteria = director.construct("thea", offset, count, includeComposer, folders, IndexType.SONG);
+        criteria = director.construct("thea", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching
         Assert.assertEquals("Theater hit by \"thea\" ", 0, result.getTotalHits()); // => This case does not hit because
@@ -113,7 +111,7 @@ public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTes
                                                                                    // a term prefix match.
 
         // XXX legacy -> phrase
-        criteria = director.construct("theater", offset, count, includeComposer, folders, IndexType.SONG);
+        criteria = director.construct("theater", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         Assert.assertEquals("Theater hit by \"theater\" ", 1, result.getTotalHits());
 

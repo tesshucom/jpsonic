@@ -15,9 +15,10 @@
         priority 5 / warning   : Exclude unnecessary rules
     </description>
 
-    <exclude-pattern>.*/.*Test.java</exclude-pattern>
-    <include-pattern>.*/src/main/java/.*.java</include-pattern>
-    <include-pattern>.*/src/main/webapp/WEB-INF/jsp/.*.jsp</include-pattern>
+    <!-- Because it is impossible to analyze with the current PMD, and TokenMgrError occurs. -->
+    <exclude-pattern>.*/.*Id3ArtistTokenizerTest.java</exclude-pattern>
+    <exclude-pattern>.*/.*UPnPSearchCriteriaDirectorLegacyTest.java</exclude-pattern>
+    <exclude-pattern>.*/.*UPnPSearchCriteriaDirectorTest.java</exclude-pattern>
 
     <!-- Java Rules:Best Practices -->
     <rule ref="category/java/bestpractices.xml">
@@ -27,6 +28,12 @@
 
         <!-- Because it is a single project and caller is guaranteed. -->
         <exclude name="MethodReturnsInternalArray" />
+
+        <!-- Messages on complex test are recommended, but not required for all processes. -->
+        <exclude name="JUnitAssertionsShouldIncludeMessage" />
+
+        <!-- It is also possible to organize, after improving coverage. -->
+        <exclude name="JUnitTestContainsTooManyAsserts" />
     </rule>
 
     <!-- Java Rules:Code Style -->

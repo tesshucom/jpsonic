@@ -59,13 +59,13 @@ public class SearchServiceSpecialPathTest extends AbstractAirsonicHomeTest {
         if (isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
 
-            File musicDir = new File(resolveBaseMediaPath.apply("Search/SpecialPath/accessible"));
+            File musicDir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible"));
             musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
 
-            File music2Dir = new File(resolveBaseMediaPath.apply("Search/SpecialPath/accessible's"));
+            File music2Dir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible's"));
             musicFolders.add(new MusicFolder(2, music2Dir, "accessible's", true, new Date()));
 
-            File music3Dir = new File(resolveBaseMediaPath.apply("Search/SpecialPath/accessible+s"));
+            File music3Dir = new File(resolveBaseMediaPath("Search/SpecialPath/accessible+s"));
             musicFolders.add(new MusicFolder(3, music3Dir, "accessible+s", true, new Date()));
         }
         return musicFolders;
@@ -101,7 +101,7 @@ public class SearchServiceSpecialPathTest extends AbstractAirsonicHomeTest {
         List<MusicFolder> folder03 = folders.stream().filter(m -> "accessible+s".equals(m.getName()))
                 .collect(Collectors.toList());
         randomAlbums = searchService.getRandomAlbums(Integer.MAX_VALUE, folder03);
-        Assert.assertEquals("Albums in \"accessible+s\" ", 1, folder03.size());
+        Assert.assertEquals("Albums in \"accessible+s\" ", 1, randomAlbums.size());
 
     }
 

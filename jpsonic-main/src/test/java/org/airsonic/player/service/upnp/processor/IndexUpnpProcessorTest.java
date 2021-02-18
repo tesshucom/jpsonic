@@ -23,8 +23,8 @@ package org.airsonic.player.service.upnp.processor;
 
 import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.INDEX_LIST;
 import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST;
-import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.validateJPSonicNaturalList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,12 +42,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Artists"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
     @Autowired
@@ -55,11 +55,11 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
@@ -175,7 +175,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
     public void testgetChildren() {
 
         List<String> artistNames = indexUpnpProcessor.getItems(0, 100).stream()
-                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(m -> m.getName())
+                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(MediaFile::getName)
                 .collect(Collectors.toList());
         assertEquals(INDEX_LIST, artistNames);
 
@@ -243,7 +243,8 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
 
-        validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertTrue(UpnpProcessorTestUtils
+                .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
 
     }
 
@@ -269,7 +270,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
 
-        assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertEquals(reversedByYear, albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
 
     }
 

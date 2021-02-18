@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,12 +40,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Compare"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
     @Autowired
@@ -51,11 +53,11 @@ public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortAlphanum(true);
         setSortStrict(true);
         populateDatabaseOnlyOnce();
@@ -63,9 +65,8 @@ public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabetialArtists() {
-        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(musicFolders.get(0)));
-        JpsonicComparatorsTestUtils
-                .validateNaturalList(all.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(MUSIC_FOLDERS.get(0)));
+        List<String> names = all.stream().map(Artist::getName).collect(Collectors.toList());
+        assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));
     }
-
 }

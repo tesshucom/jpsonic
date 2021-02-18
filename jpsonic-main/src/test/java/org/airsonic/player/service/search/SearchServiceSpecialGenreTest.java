@@ -53,14 +53,14 @@ public class SearchServiceSpecialGenreTest extends AbstractAirsonicHomeTest {
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
             musicFolders = new ArrayList<>();
-            File musicDir = new File(resolveBaseMediaPath.apply("Search/SpecialGenre"));
+            File musicDir = new File(resolveBaseMediaPath("Search/SpecialGenre"));
             musicFolders.add(new MusicFolder(1, musicDir, "accessible", true, new Date()));
         }
         return musicFolders;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         populateDatabaseOnlyOnce();
     }
 

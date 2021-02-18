@@ -20,7 +20,6 @@
 package org.airsonic.player.dao;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,17 +32,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.assertj.core.util.Arrays;
+import org.checkerframework.checker.signedness.qual.Unsigned;
+import org.junit.Assert;
 import org.junit.Test;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MediaFileDaoTest {
 
     // Below is a test of MediaFileDao#RandomSongsQueryBuilder
 
-    private final String select = "select media_file.id, media_file.path, media_file.folder, media_file.type, "
+    private String select = "select media_file.id, media_file.path, media_file.folder, media_file.type, "
             + "media_file.format, media_file.title, media_file.album, media_file.artist, media_file.album_artist, "
             + "media_file.disc_number, media_file.track_number, media_file.year, media_file.genre, "
             + "media_file.bit_rate, media_file.variable_bit_rate, media_file.duration_seconds, "
@@ -56,33 +59,34 @@ public class MediaFileDaoTest {
             + "media_file.album_reading, media_file.album_artist_reading, media_file.artist_sort_raw, "
             + "media_file.album_sort_raw, media_file.album_artist_sort_raw, media_file.composer_sort_raw, "
             + "media_file.media_file_order from media_file";
-    private final String conditionJoin1 = " left outer join starred_media_file "
+    private String conditionJoin1 = " left outer join starred_media_file "
             + "on media_file.id = starred_media_file.media_file_id and starred_media_file.username = :username";
-    private final String conditionJoin2 = " left outer join media_file media_album "
+    private String conditionJoin2 = " left outer join media_file media_album "
             + "on media_album.type = 'ALBUM' and media_album.album = media_file.album "
             + "and media_album.artist = media_file.artist " + "left outer join user_rating "
             + "on user_rating.path = media_album.path and user_rating.username = :username";
-    private final String where = " where media_file.present and media_file.type = 'MUSIC'";
-    private final String orderLimit = " order by rand() limit 0";
-    private final String conditionShowStarredSongs = " and starred_media_file.id is not null";
-    private final String conditionMinAlbumRating = " and user_rating.rating >= :minAlbumRating";
+    private String where = " where media_file.present and media_file.type = 'MUSIC'";
+    private String orderLimit = " order by rand() limit 0";
+    private String conditionShowStarredSongs = " and starred_media_file.id is not null";
+    private String conditionMinAlbumRating = " and user_rating.rating >= :minAlbumRating";
 
-    private Object createRandomSongsQueryBuilder(RandomSearchCriteria criteria) {
+    private Object createRandomSongsQueryBuilder(RandomSearchCriteria criteria) throws ExecutionException {
         Optional<Object> builderClazz = Arrays.asList(MediaFileDao.class.getDeclaredClasses()).stream()
                 .filter(o -> "RandomSongsQueryBuilder".equals(((Class<?>) o).getSimpleName())).findFirst();
-        Class<?> c = ((Class<?>) builderClazz.get());
+        Class<?> c = (Class<?>) builderClazz.get();
         Constructor<?> constructor = c.getDeclaredConstructors()[0];
         constructor.setAccessible(true);
         try {
             return constructor.newInstance(criteria);
         } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
-            throw new IllegalArgumentException(e);
+            throw new ExecutionException(e);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private Optional<String> invokeGetCondition(Object randomSongsQueryBuilder, String methodName) {
+    private Optional<String> invokeGetCondition(Object randomSongsQueryBuilder, String methodName)
+            throws ExecutionException {
         Method method;
         try {
             method = randomSongsQueryBuilder.getClass().getDeclaredMethod(methodName);
@@ -90,12 +94,12 @@ public class MediaFileDaoTest {
             return (Optional<String>) method.invoke(randomSongsQueryBuilder);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
-            throw new IllegalArgumentException(e);
+            throw new ExecutionException(e);
         }
     }
 
     @Test
-    public void testGetIfJoinStarred() {
+    public void testGetIfJoinStarred() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -123,7 +127,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetIfJoinAlbumRating() {
+    public void testGetIfJoinAlbumRating() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -131,22 +135,22 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getIfJoinAlbumRating");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, Integer.valueOf(1), null, null, null,
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null, null, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getIfJoinAlbumRating");
         assertEquals(conditionJoin2, op.get());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, Integer.valueOf(1), null, null,
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1, null, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getIfJoinAlbumRating");
         assertEquals(conditionJoin2, op.get());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, Integer.valueOf(1),
-                Integer.valueOf(1), null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 1, null, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
         assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
@@ -155,7 +159,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFolderCondition() {
+    public void testGetFolderCondition() throws ExecutionException {
 
         final String condition = " and media_file.folder in (:folders)";
 
@@ -175,7 +179,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetGenreCondition() {
+    public void testGetGenreCondition() throws ExecutionException {
 
         final String condition = " and media_file.genre in (:genres)";
 
@@ -195,7 +199,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFormatCondition() {
+    public void testGetFormatCondition() throws ExecutionException {
 
         final String condition = " and media_file.format = :format";
 
@@ -213,7 +217,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetFromYearCondition() {
+    public void testGetFromYearCondition() throws ExecutionException {
 
         final String condition = " and media_file.year >= :fromYear";
 
@@ -223,8 +227,8 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getFromYearCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, Integer.valueOf(1900), null, null, null, null, null, null, null,
-                null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, 1900, null, null, null, null, null, null, null, null, false, false,
+                null);
         assertEquals(1900, criteria.getFromYear());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getFromYearCondition");
@@ -232,7 +236,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetToYearCondition() {
+    public void testGetToYearCondition() throws ExecutionException {
 
         final String condition = " and media_file.year <= :toYear";
 
@@ -242,8 +246,8 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getToYearCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, Integer.valueOf(2020), null, null, null, null, null, null,
-                null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, 2020, null, null, null, null, null, null, null, false, false,
+                null);
         assertEquals(2020, criteria.getToYear());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getToYearCondition");
@@ -251,7 +255,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMinLastPlayedCondition() {
+    public void testGetMinLastPlayedCondition() throws ExecutionException {
 
         final String condition = " and media_file.last_played >= :minLastPlayed";
 
@@ -263,14 +267,14 @@ public class MediaFileDaoTest {
 
         criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), null, null, null, null, null, false,
                 false, null);
-        assertNotNull(criteria.getMinLastPlayedDate());
+        Assert.assertNotNull(criteria.getMinLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMinLastPlayedDateCondition");
         assertEquals(condition, op.get());
     }
 
     @Test
-    public void testGetMaxLastPlayedCondition() {
+    public void testGetMaxLastPlayedCondition() throws ExecutionException {
 
         final String condition1 = " and media_file.last_played <= :maxLastPlayed";
         final String condition2 = " and (media_file.last_played is null or media_file.last_played <= :maxLastPlayed)";
@@ -285,8 +289,8 @@ public class MediaFileDaoTest {
 
         criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), new Date(), null, null, null, null,
                 false, false, null);
-        assertNotNull(criteria.getMinLastPlayedDate());
-        assertNotNull(criteria.getMaxLastPlayedDate());
+        Assert.assertNotNull(criteria.getMinLastPlayedDate());
+        Assert.assertNotNull(criteria.getMaxLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxLastPlayedDateCondition");
         assertEquals(condition1, op.get());
@@ -294,14 +298,14 @@ public class MediaFileDaoTest {
         criteria = new RandomSearchCriteria(0, null, null, null, null, null, new Date(), null, null, null, null, false,
                 false, null);
         assertNull(criteria.getMinLastPlayedDate());
-        assertNotNull(criteria.getMaxLastPlayedDate());
+        Assert.assertNotNull(criteria.getMaxLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxLastPlayedDateCondition");
         assertEquals(condition2, op.get());
     }
 
     @Test
-    public void testGetMinAlbumRatingCondition() {
+    public void testGetMinAlbumRatingCondition() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -309,8 +313,8 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getMinAlbumRatingCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, Integer.valueOf(1), null, null, null,
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, null, null, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMinAlbumRatingCondition");
@@ -318,7 +322,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMaxAlbumRatingCondition() {
+    public void testGetMaxAlbumRatingCondition() throws ExecutionException {
 
         final String condition1 = " and user_rating.rating <= :maxAlbumRating";
         final String condition2 = " and (user_rating.rating is null or user_rating.rating <= :maxAlbumRating)";
@@ -331,16 +335,16 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getMaxAlbumRatingCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, Integer.valueOf(1),
-                Integer.valueOf(2), null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, 1, 2, null, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinAlbumRating());
         assertEquals(Integer.valueOf(2), criteria.getMaxAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxAlbumRatingCondition");
         assertEquals(condition1, op.get());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, Integer.valueOf(1), null, null,
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, 1, null, null, false, false,
+                null);
         assertNull(criteria.getMinAlbumRating());
         assertEquals(Integer.valueOf(1), criteria.getMaxAlbumRating());
         builder = createRandomSongsQueryBuilder(criteria);
@@ -349,7 +353,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMinPlayCountCondition() {
+    public void testGetMinPlayCountCondition() throws ExecutionException {
 
         final String condition = " and media_file.play_count >= :minPlayCount";
 
@@ -359,8 +363,8 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getMinPlayCountCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, Integer.valueOf(1), null,
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, 1, null, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinPlayCount());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMinPlayCountCondition");
@@ -368,7 +372,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetMaxPlayCountCondition() {
+    public void testGetMaxPlayCountCondition() throws ExecutionException {
 
         final String condition1 = " and media_file.play_count <= :maxPlayCount";
         final String condition2 = " and (media_file.play_count is null or media_file.play_count <= :maxPlayCount)";
@@ -381,16 +385,16 @@ public class MediaFileDaoTest {
         Optional<String> op = invokeGetCondition(builder, "getMaxPlayCountCondition");
         assertFalse(op.isPresent());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, Integer.valueOf(1),
-                Integer.valueOf(2), false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, 1, 2, false, false,
+                null);
         assertEquals(Integer.valueOf(1), criteria.getMinPlayCount());
         assertEquals(Integer.valueOf(2), criteria.getMaxPlayCount());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxPlayCountCondition");
         assertEquals(condition1, op.get());
 
-        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, Integer.valueOf(1),
-                false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null, null, 1, false, false,
+                null);
         assertNull(criteria.getMinPlayCount());
         assertEquals(Integer.valueOf(1), criteria.getMaxPlayCount());
         builder = createRandomSongsQueryBuilder(criteria);
@@ -399,7 +403,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetShowStarredSongsCondition() {
+    public void testGetShowStarredSongsCondition() throws ExecutionException {
 
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, null, null, null, null, null,
                 null, null, false, false, null);
@@ -427,7 +431,7 @@ public class MediaFileDaoTest {
     }
 
     @Test
-    public void testGetShowUnstarredSongsCondition() {
+    public void testGetShowUnstarredSongsCondition() throws ExecutionException {
 
         final String condition = " and starred_media_file.id is null";
 
@@ -456,22 +460,23 @@ public class MediaFileDaoTest {
         assertFalse(op.isPresent());
     }
 
-    private String invokeBuild(Object builder) {
+    private String invokeBuild(Object builder) throws ExecutionException {
         Method method;
-        Object result = null;
+        @Unsigned
+        Object result;
         try {
             method = builder.getClass().getDeclaredMethod("build");
             method.setAccessible(true);
             result = method.invoke(builder);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
-            throw new IllegalArgumentException(e);
+            throw new ExecutionException(e);
         }
         return result.toString();
     }
 
     @Test
-    public void testBuild() {
+    public void testBuild() throws ExecutionException {
 
         final String noOp = select + where + orderLimit;
         RandomSearchCriteria criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null,
@@ -488,23 +493,23 @@ public class MediaFileDaoTest {
         assertEquals(ifJoinStarred, query);
 
         final String ifJoinAlbumRating = select + conditionJoin2 + where + conditionMinAlbumRating + orderLimit;
-        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null,
-                Integer.valueOf(1), null, null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, 1, null, null,
+                null, false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertEquals(ifJoinAlbumRating, query);
 
         final String ifJoinStarredAndRating = select + conditionJoin1 + conditionJoin2 + where + conditionMinAlbumRating
                 + conditionShowStarredSongs + orderLimit;
-        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null,
-                Integer.valueOf(1), null, null, null, true, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, 1, null, null,
+                null, true, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertEquals(ifJoinStarredAndRating, query);
 
         final Function<String, Boolean> assertWithCondition = (q) -> {
             String suffix = select + where;
-            return Boolean.valueOf(q.startsWith(suffix) && q.endsWith(orderLimit) && suffix.length() < q.length());
+            return q.startsWith(suffix) && q.endsWith(orderLimit) && suffix.length() < q.length();
         };
 
         // folder
@@ -533,15 +538,15 @@ public class MediaFileDaoTest {
         assertTrue(assertWithCondition.apply(query));
 
         // fromYear
-        criteria = new RandomSearchCriteria(0, null, Integer.valueOf(1900), null, Collections.emptyList(), null, null,
-                null, null, null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, 1900, null, Collections.emptyList(), null, null, null, null, null,
+                null, false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertTrue(assertWithCondition.apply(query));
 
         // toYear
-        criteria = new RandomSearchCriteria(0, null, null, Integer.valueOf(2021), Collections.emptyList(), null, null,
-                null, null, null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, 2021, Collections.emptyList(), null, null, null, null, null,
+                null, false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertTrue(assertWithCondition.apply(query));
@@ -561,8 +566,8 @@ public class MediaFileDaoTest {
         assertTrue(assertWithCondition.apply(query));
 
         // maxAlbumRatingCondition
-        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null,
-                Integer.valueOf(1), Integer.valueOf(2), null, null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, 1, 2, null, null,
+                false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         String suffix = select + conditionJoin2 + where;
@@ -571,15 +576,15 @@ public class MediaFileDaoTest {
         assertTrue(suffix.length() < query.length());
 
         // minPlayCountCondition
-        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, null, null,
-                Integer.valueOf(1), null, false, false, null);
+        criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, null, null, 1,
+                null, false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertTrue(assertWithCondition.apply(query));
 
         // maxPlayCountCondition
         criteria = new RandomSearchCriteria(0, null, null, null, Collections.emptyList(), null, null, null, null, null,
-                Integer.valueOf(1), false, false, null);
+                1, false, false, null);
         builder = createRandomSongsQueryBuilder(criteria);
         query = invokeBuild(builder);
         assertTrue(assertWithCondition.apply(query));

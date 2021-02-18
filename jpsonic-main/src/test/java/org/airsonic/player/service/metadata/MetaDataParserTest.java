@@ -35,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 @SpringBootTest
 public class MetaDataParserTest {
 
@@ -42,13 +43,17 @@ public class MetaDataParserTest {
     public void testRemoveTrackNumberFromTitle() {
 
         MetaDataParser parser = new MetaDataParser() {
+            @Override
             public MetaData getRawMetaData(File file) {
                 return null;
             }
 
+            @Override
             public void setMetaData(MediaFile file, MetaData metaData) {
+                // to be none
             }
 
+            @Override
             public boolean isEditingSupported() {
                 return false;
             }
@@ -58,6 +63,7 @@ public class MetaDataParserTest {
                 return null;
             }
 
+            @Override
             public boolean isApplicable(File file) {
                 return false;
             }

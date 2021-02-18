@@ -46,14 +46,15 @@ import org.springframework.boot.test.context.SpringBootTest;
  * If SORT exists for one name and null-sort data exists, unify it to SORT.
  */
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Cleansing/ArtistSort/Copy"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Copy"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
 
     @Autowired
@@ -70,11 +71,11 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         mediaScannerService.setJpsonicCleansingProcess(false);
         populateDatabaseOnlyOnce();
         mediaScannerService.setJpsonicCleansingProcess(true);
@@ -85,14 +86,14 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
 
         invokeUtils(utils, "mergeSortOfArtist");
 
-        List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
+        List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         assertEquals(1, artists.size());
         List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
         assertEquals(1, albums.size());
         MediaFile album = albums.get(0);
         List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
         assertEquals(2, files.size());
-        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
         assertEquals(1, artistID3s.size());
 
         assertEquals("file1", files.get(0).getName());
@@ -108,7 +109,7 @@ public class MediaScannerServiceUtilsCopySortOfArtistTest extends AbstractAirson
         invokeUtils(utils, "copySortOfArtist");
 
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, album.getPath(), false);
-        artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
 
         assertEquals(2, files.size());
         files.forEach(f -> {

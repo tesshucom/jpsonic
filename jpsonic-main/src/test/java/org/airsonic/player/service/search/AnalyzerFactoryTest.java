@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
@@ -53,11 +54,16 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  * upgrading Lucene.
  */
 @SpringBootTest
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
+/*
+ * [AvoidDuplicateLiterals] In the testing class, it may be less readable. [JUnitTestsShouldIncludeAssert] dalse
+ * positive
+ */
 public class AnalyzerFactoryTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -76,15 +82,21 @@ public class AnalyzerFactoryTest {
     private SettingsService settingsService;
 
     @Before
-    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
-                boolean.class);
-        setSearchMethodLegacy.setAccessible(true);
-        setSearchMethodLegacy.invoke(analyzerFactory, false);
+    public void setup() throws ExecutionException {
+        Method setSearchMethodLegacy;
+        try {
+            setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
+                    boolean.class);
+            setSearchMethodLegacy.setAccessible(true);
+            setSearchMethodLegacy.invoke(analyzerFactory, false);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
         settingsService.setSearchMethodLegacy(false);
     }
 
+    @Test
     public void testTokenCounts() {
 
         String queryEng = "The quick brown fox jumps over the lazy dog.";
@@ -112,12 +124,14 @@ public class AnalyzerFactoryTest {
         });
         Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryHira);
-            assertEquals("oneTokenHira(Hira) : " + n, 1, terms.size());
+            // Because different from legacy, which is a prefix match of tokens, and bigram is used.
+            assertEquals("bigram(Hira) : " + n, 7, terms.size());
         });
         String queryStopsOnly = "La La La";
         Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryStopsOnly);
-            assertEquals("oneTokenHira(Eng) : " + n, 1, terms.size());
+            // Because the Stopward-only case is currently omitted as rare-case
+            assertEquals("Cut off : " + n, 0, terms.size());
         });
 
         // 1
@@ -128,11 +142,13 @@ public class AnalyzerFactoryTest {
         });
         Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryHira);
-            assertEquals("oneTokenHira(Hira) : " + n, 0, terms.size());
+            // Because different from legacy, which is a prefix match of tokens, and bigram is used.
+            assertEquals("bigram(Hira) : " + n, 7, terms.size());
         });
         Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryStopsOnly);
-            assertEquals("oneTokenHira(Eng) : " + n, 1, terms.size());
+            // Because the Stopward-only case is currently omitted as rare-case
+            assertEquals("Cut off :" + n, 0, terms.size());
         });
 
     }
@@ -226,6 +242,7 @@ public class AnalyzerFactoryTest {
 
             default:
                 assertEquals("removed : " + n, 0, terms.size());
+                break;
             }
         });
     }
@@ -959,13 +976,11 @@ public class AnalyzerFactoryTest {
 
     private List<String> toTermString(String field, String str) {
         List<String> result = new ArrayList<>();
-        try {
-            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str));
+        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
-            stream.close();
         } catch (IOException e) {
             LoggerFactory.getLogger(AnalyzerFactoryTest.class).error("Error during Token processing.", e);
         }
@@ -975,13 +990,11 @@ public class AnalyzerFactoryTest {
     @SuppressWarnings("unused")
     private List<String> toQueryTermString(String field, String str) {
         List<String> result = new ArrayList<>();
-        try {
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field, new StringReader(str));
+        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
-            stream.close();
         } catch (IOException e) {
             LoggerFactory.getLogger(AnalyzerFactoryTest.class).error("Error during Token processing.", e);
         }

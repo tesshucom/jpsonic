@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,6 +33,7 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.apache.catalina.connector.Request;
+import org.checkerframework.checker.signedness.qual.Unsigned;
 import org.junit.Test;
 import org.junit.jupiter.api.Order;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +44,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
 
     private static final String FONT_FACE_KEY = "viewhint.fontFace";
@@ -55,11 +58,21 @@ public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
 
     @Test
     @Order(1)
-    public void testSetToRequest() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-        method.setAccessible(true);
-        UserSettings settings = (UserSettings) method.invoke(settingsService, "");
+    public void testSetToRequest() throws ExecutionException {
+
+        @Unsigned
+        Method method;
+        @Unsigned
+        UserSettings settings;
+
+        try {
+            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method.setAccessible(true);
+            settings = (UserSettings) method.invoke(settingsService, "");
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
 
         // DEFAULT
         HttpServletRequest request = new Request(null);
@@ -92,7 +105,11 @@ public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
         // CUSTOM
         request = new Request(null);
         command = new PersonalSettingsCommand();
-        WebFontUtils.setToCommand((UserSettings) method.invoke(settingsService, ""), command);
+        try {
+            WebFontUtils.setToCommand((UserSettings) method.invoke(settingsService, ""), command);
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
 
         command.setFontSchemeName(FontScheme.CUSTOM.name());
         WebFontUtils.setToSettings(command, settings);
@@ -123,11 +140,22 @@ public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
 
     @Test
     @Order(2)
-    public void testSetToCommand() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-        method.setAccessible(true);
-        UserSettings from = (UserSettings) method.invoke(settingsService, "");
+    public void testSetToCommand() throws ExecutionException {
+
+        @Unsigned
+        Method method;
+
+        @Unsigned
+        UserSettings from;
+
+        try {
+            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method.setAccessible(true);
+            from = (UserSettings) method.invoke(settingsService, "");
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
         PersonalSettingsCommand to = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(from, to);
 
@@ -169,15 +197,24 @@ public class WebFontUtilsTest extends AbstractAirsonicHomeTest {
 
     @Test
     @Order(4)
-    public void testSetToSettings() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
+    public void testSetToSettings() throws ExecutionException {
         PersonalSettingsCommand command = new PersonalSettingsCommand();
         WebFontUtils.setToCommand(new UserSettings(""), command);
 
-        // DEFAULT
-        Method method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
-        method.setAccessible(true);
-        UserSettings to = (UserSettings) method.invoke(settingsService, "");
+        @Unsigned
+        Method method;
+
+        @Unsigned
+        UserSettings to;
+
+        try {
+            method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
+            method.setAccessible(true);
+            to = (UserSettings) method.invoke(settingsService, "");
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
 
         WebFontUtils.setToSettings(command, to);
         assertEquals(FontScheme.DEFAULT.name(), to.getFontSchemeName());

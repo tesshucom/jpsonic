@@ -31,7 +31,7 @@ final class MediaScannerServiceUtilsTestUtils {
         try {
             method = utils.getClass().getDeclaredMethod(methodName);
             method.setAccessible(true);
-            method.invoke(utils, new Object[0]);
+            method.invoke(utils);
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
                 | InvocationTargetException e) {
             throw new ExecutionException(e);

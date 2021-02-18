@@ -42,13 +42,13 @@ public class UtilTest {
 
     @Test
     public void objectToStringMap() {
-        Date date = new Date(1568350960725L);
+        Date date = new Date(1_568_350_960_725L);
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(date);
         statistics.incrementAlbums(5);
         statistics.incrementSongs(4);
-        statistics.incrementArtists(910823);
+        statistics.incrementArtists(910_823);
         statistics.incrementTotalDurationInSeconds(30);
-        statistics.incrementTotalLengthInBytes(2930491082L);
+        statistics.incrementTotalLengthInBytes(2_930_491_082L);
         Map<String, String> stringStringMap = PlayerUtils.objectToStringMap(statistics);
         assertEquals("5", stringStringMap.get("albumCount"));
         assertEquals("4", stringStringMap.get("songCount"));
@@ -66,10 +66,10 @@ public class UtilTest {
                 stringStringMap);
         assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
         assertEquals(Integer.valueOf(4), statistics.getSongCount());
-        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
+        assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
         assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(Long.valueOf(2930491082L), statistics.getTotalLengthInBytes());
-        assertEquals(new Date(1568350960725L), statistics.getScanDate());
+        assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
+        assertEquals(new Date(1_568_350_960_725L), statistics.getScanDate());
     }
 
     @Test
@@ -81,12 +81,13 @@ public class UtilTest {
                 stringStringMap);
         assertEquals(Integer.valueOf(5), statistics.getAlbumCount());
         assertEquals(Integer.valueOf(4), statistics.getSongCount());
-        assertEquals(Integer.valueOf(910823), statistics.getArtistCount());
+        assertEquals(Integer.valueOf(910_823), statistics.getArtistCount());
         assertEquals(Long.valueOf(30L), statistics.getTotalDurationInSeconds());
-        assertEquals(Long.valueOf(2930491082L), statistics.getTotalLengthInBytes());
-        assertEquals(new Date(1568350960725L), statistics.getScanDate());
+        assertEquals(Long.valueOf(2_930_491_082L), statistics.getTotalLengthInBytes());
+        assertEquals(new Date(1_568_350_960_725L), statistics.getScanDate());
     }
 
+    @Test
     public void stringMapToObjectWithNoData() {
         MediaLibraryStatistics statistics = PlayerUtils.stringMapToObject(MediaLibraryStatistics.class, LegacyMap.of());
         assertNotNull(statistics);

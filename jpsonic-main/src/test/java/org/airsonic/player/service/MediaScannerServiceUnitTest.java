@@ -37,10 +37,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class MediaScannerServiceUnitTest {
 
     @InjectMocks
-    MediaScannerService mediaScannerService;
+    private MediaScannerService mediaScannerService;
 
     @Mock
-    IndexManager indexManager;
+    private IndexManager indexManager;
 
     @Test
     public void neverScanned() {

@@ -36,10 +36,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MusicFolderDaoTest extends DaoTestBase {
 
     @Autowired
-    MusicFolderDao musicFolderDao;
+    private MusicFolderDao musicFolderDao;
 
     @Before
     public void setUp() {
@@ -64,7 +65,7 @@ public class MusicFolderDaoTest extends DaoTestBase {
         musicFolder.setPath(new File("newPath"));
         musicFolder.setName("newName");
         musicFolder.setEnabled(false);
-        musicFolder.setChanged(new Date(234234L));
+        musicFolder.setChanged(new Date(234_234L));
         musicFolderDao.updateMusicFolder(musicFolder);
 
         MusicFolder newMusicFolder = musicFolderDao.getAllMusicFolders().get(0);
