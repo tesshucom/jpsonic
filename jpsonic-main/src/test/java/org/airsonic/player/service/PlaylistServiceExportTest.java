@@ -76,7 +76,7 @@ public class PlaylistServiceExportTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
         JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
         playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,

@@ -90,7 +90,7 @@ public class PlaylistServiceImportTest {
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
         JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
         DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
