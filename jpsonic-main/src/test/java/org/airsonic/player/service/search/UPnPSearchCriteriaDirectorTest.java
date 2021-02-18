@@ -24,6 +24,7 @@ package org.airsonic.player.service.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
@@ -39,7 +40,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -257,9 +257,6 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @Rule
     public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
-    @Rule
-    public ExpectedException exceptionCase = ExpectedException.none();
-
     @Autowired
     private SettingsService settingsService;
 
@@ -368,11 +365,11 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e01() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.album.photoAlbum");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.album.photoAlbum");
+
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerPlaylistContainer
@@ -380,11 +377,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e02() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.playlistContainer");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.playlistContainer");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenre
@@ -392,10 +388,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e03() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre");
-        director.construct(0, 50, "(upnp:class derivedfrom \"object.container.genre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.genre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenreMusicGenre
@@ -403,11 +399,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e04() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.musicGenre");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.musicGenre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerGenreMovieGenre
@@ -415,11 +410,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e05() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.movieGenre");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.genre.movieGenre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageSystem
@@ -427,11 +421,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e06() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageSystem");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.storageSystem\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.storageSystem\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageSystem");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageVolume
@@ -439,11 +432,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e07() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageVolume");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.storageVolume\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.storageVolume\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageVolume");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.derivedFrom.objectContainerStorageFolder
@@ -451,11 +443,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e08() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageFolder");
-        director.construct(0, 50,
-                "(upnp:class derivedfrom \"object.container.storageFolder\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class derivedfrom \"object.container.storageFolder\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class derivedfrom object.container.storageFolder");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPersonMusicArtist
@@ -557,11 +548,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e09() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.album.photoAlbum");
-        director.construct(0, 50,
-                "(upnp:class = \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.album.photoAlbum\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.album.photoAlbum");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerPlaylistContainer
@@ -569,11 +559,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e10() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.playlistContainer");
-        director.construct(0, 50,
-                "(upnp:class = \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.playlistContainer\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.playlistContainer");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenre
@@ -581,10 +570,9 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e11() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.genre");
-        director.construct(0, 50, "(upnp:class = \"object.container.genre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50, "(upnp:class = \"object.container.genre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.genre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenreMusicGenre
@@ -592,11 +580,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e12() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.genre.musicGenre");
-        director.construct(0, 50,
-                "(upnp:class = \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.genre.musicGenre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.genre.musicGenre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerGenreMovieGenre
@@ -604,11 +591,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e13() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.genre.movieGenre");
-        director.construct(0, 50,
-                "(upnp:class = \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.genre.movieGenre\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.genre.movieGenre");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageSystem
@@ -616,10 +602,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e14() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.storageSystem");
-        director.construct(0, 50, "(upnp:class = \"object.container.storageSystem\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.storageSystem\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.storageSystem");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageVolume
@@ -627,10 +613,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e15() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
-        director.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectContainerStorageFolder
@@ -638,10 +624,10 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void e16() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
-        director.construct(0, 50, "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50,
+                    "(upnp:class = \"object.container.storageVolume\" and dc:title contains \"test\")");
+        }, "The current version does not support searching for this class. : upnp:class = object.container.storageVolume");
     }
 
     // testAmbiguousCase
@@ -650,10 +636,9 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void a01() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.container.album");
-        director.construct(0, 50, "(upnp:class = \"object.container.album\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50, "(upnp:class = \"object.container.album\" and dc:title contains \"test\")");
+        }, "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.container.album");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemAudioItem
@@ -661,10 +646,9 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void a02() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.audioItem");
-        director.construct(0, 50, "(upnp:class = \"object.item.audioItem\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50, "(upnp:class = \"object.item.audioItem\" and dc:title contains \"test\")");
+        }, "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.audioItem");
     }
 
     @DirectorDecisions.Conditions.Params.upnpSearchQuery.Class.equal.objectItemVideoItem
@@ -672,10 +656,9 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     @DirectorDecisions.Result.IllegalArgument
     @Test
     public void a03() {
-        exceptionCase.expect(IllegalArgumentException.class);
-        exceptionCase.expectMessage(
-                "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.videoItem");
-        director.construct(0, 50, "(upnp:class = \"object.item.videoItem\" and dc:title contains \"test\")");
+        assertThrows(IllegalArgumentException.class, () -> {
+            director.construct(0, 50, "(upnp:class = \"object.item.videoItem\" and dc:title contains \"test\")");
+        }, "An insufficient class hierarchy from derivedfrom or a class not supported by the server was specified. : upnp:class = object.item.videoItem");
     }
 
     // Typical case of Bubble UPnP
