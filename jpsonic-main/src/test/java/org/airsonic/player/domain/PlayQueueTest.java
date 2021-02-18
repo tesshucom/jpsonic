@@ -21,9 +21,6 @@
 
 package org.airsonic.player.domain;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -34,15 +31,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
@@ -53,36 +52,31 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class PlayQueueTest extends AbstractAirsonicHomeTest {
 
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final PlayQueue COMMON = new PlayQueue();
+    private static final Object LOCK = new Object();
+    protected static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     @Autowired
     private JpsonicComparators jpsonicComparators;
 
-    public JpsonicComparators getJpsonicComparators() {
-        return jpsonicComparators;
-    }
-
-    public void setJpsonicComparators(JpsonicComparators jpsonicComparators) {
-        this.jpsonicComparators = jpsonicComparators;
-    }
-
     @Rule
     public ThreadRule r = new ThreadRule(100);
 
-    @AfterClass
+    @AfterAll
     public static void tearDown() {
-        executor.shutdownNow();
+        EXECUTOR.shutdownNow();
     }
 
-    private static final PlayQueue common = new PlayQueue();
-
     @Test
-    public synchronized void testName() {
-        String name = Thread.currentThread().toString();
-        common.setName(name);
-        assertEquals(name, common.getName());
+    public void testName() {
+        synchronized (LOCK) {
+            String name = Thread.currentThread().toString();
+            COMMON.setName(name);
+            assertEquals(name, COMMON.getName());
+        }
     }
 
     @Test
@@ -174,6 +168,7 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         assertPlaylistEquals(playQueue, -1);
     }
 
+    @Test
     public void testNext() {
         PlayQueue playQueue = createPlaylist(0, "A", "B", "C");
         assertFalse(playQueue.isRepeatEnabled());
@@ -273,20 +268,16 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         playQueue.setIndex(2);
         assertEquals("Error in sort.", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
-        if (jpsonicComparators == null) {
-            System.err.println("null!");
-        }
-
         // Order by track.
-        playQueue.sort(jpsonicComparators.mediaFileOrderBy(TRACK));
-        assertEquals("Error in sort().", null, playQueue.getFile(0).getTrackNumber());
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
+        assertNull("Error in sort().", playQueue.getFile(0).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(1), playQueue.getFile(1).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(2), playQueue.getFile(2).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getFile(3).getTrackNumber());
         assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
         // Order by artist.
-        playQueue.sort(jpsonicComparators.mediaFileOrderBy(ARTIST));
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
         assertEquals("Error in sort().", "Artist A", playQueue.getFile(0).getArtist());
         assertEquals("Error in sort().", "Artist B", playQueue.getFile(1).getArtist());
         assertEquals("Error in sort().", "Artist C", playQueue.getFile(2).getArtist());
@@ -294,7 +285,7 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
         // Order by album.
-        playQueue.sort(jpsonicComparators.mediaFileOrderBy(ALBUM));
+        playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
         assertEquals("Error in sort().", "Album A", playQueue.getFile(0).getAlbumName());
         assertEquals("Error in sort().", "Album B", playQueue.getFile(1).getAlbumName());
         assertEquals("Error in sort().", "Album C", playQueue.getFile(2).getAlbumName());
@@ -315,6 +306,7 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         }
     }
 
+    @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (TestMediaFile) Not reusable.
     private PlayQueue createPlaylist(int index, String... songs) {
         PlayQueue playQueue = new PlayQueue();
         for (String song : songs) {
@@ -332,13 +324,16 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         private String artist;
 
         TestMediaFile() {
+            super();
         }
 
         TestMediaFile(String name) {
+            super();
             this.name = name;
         }
 
         TestMediaFile(Integer track, String artist, String album) {
+            super();
             this.track = track;
             this.album = album;
             this.artist = artist;
@@ -405,9 +400,9 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         }
     }
 
-    public class ThreadRule implements MethodRule {
+    public static class ThreadRule implements MethodRule {
 
-        private final int count;
+        protected final int count;
 
         public ThreadRule(int count) {
             this.count = count;
@@ -420,13 +415,15 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
                 public void evaluate() throws Throwable {
                     List<Future<?>> futures = new ArrayList<>(count);
                     for (int i = 0; i < count; i++) {
-                        futures.add(i, executor.submit(() -> {
+                        Callable<Boolean> task = () -> {
                             try {
                                 base.evaluate();
                             } catch (Throwable t) {
-                                throw new RuntimeException(t);
+                                throw new ExecutionException("Test replication or asynchronous execution failed", t);
                             }
-                        }));
+                            return Boolean.TRUE;
+                        };
+                        futures.add(i, EXECUTOR.submit(task));
                     }
                     for (Future<?> f : futures) {
                         f.get();

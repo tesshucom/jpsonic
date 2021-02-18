@@ -36,7 +36,8 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 public class DaoTestBase {
     @ClassRule
     public static final SpringClassRule CLASSRULE = new SpringClassRule() {
-        HomeRule airsonicRule = new HomeRule();
+
+        final HomeRule airsonicRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {

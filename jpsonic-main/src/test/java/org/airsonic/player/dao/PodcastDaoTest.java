@@ -41,10 +41,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class PodcastDaoTest extends DaoTestBase {
 
     @Autowired
-    PodcastDao podcastDao;
+    private PodcastDao podcastDao;
 
     @Before
     public void setUp() {
@@ -137,7 +138,7 @@ public class PodcastDaoTest extends DaoTestBase {
 
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
-                new Date(), "12:34", 3276213L, 2341234L, PodcastStatus.NEW, "error");
+                new Date(), "12:34", 3_276_213L, 2_341_234L, PodcastStatus.NEW, "error");
         podcastDao.createEpisode(episode);
 
         int episodeId = podcastDao.getEpisodes(channelId).get(0).getId();
@@ -183,7 +184,7 @@ public class PodcastDaoTest extends DaoTestBase {
         episode.setDescription("Description");
         episode.setPublishDate(new Date());
         episode.setDuration("1:20");
-        episode.setBytesTotal(87628374612L);
+        episode.setBytesTotal(87_628_374_612L);
         episode.setBytesDownloaded(9086L);
         episode.setStatus(PodcastStatus.DOWNLOADING);
         episode.setErrorMessage("Some error");

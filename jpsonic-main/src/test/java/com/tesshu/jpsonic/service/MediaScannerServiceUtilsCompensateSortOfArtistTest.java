@@ -50,14 +50,15 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Cleansing/ArtistSort/Compensation"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Compensation"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
 
     @Autowired
@@ -74,11 +75,11 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         mediaScannerService.setJpsonicCleansingProcess(false);
         populateDatabaseOnlyOnce();
         mediaScannerService.setJpsonicCleansingProcess(true);
@@ -90,7 +91,7 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         invokeUtils(utils, "mergeSortOfArtist");
         invokeUtils(utils, "copySortOfArtist");
 
-        List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
+        List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         List<MediaFile> albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
         List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPath(), false);
         assertEquals(3, files.size());
@@ -131,7 +132,7 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
         assertEquals("山田耕筰", files.get(0).getArtist());
         assertNull(files.get(0).getArtistSort());
 
-        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {
@@ -147,7 +148,7 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
 
         invokeUtils(utils, "compensateSortOfArtist");
 
-        artists = mediaFileDao.getArtistAll(musicFolders);
+        artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         albums = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, artists.get(0).getPath(), false);
         files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, albums.get(0).getPath(), false);
         assertEquals(3, files.size());
@@ -181,7 +182,7 @@ public class MediaScannerServiceUtilsCompensateSortOfArtistTest extends Abstract
             }
         });
 
-        artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
         assertEquals(2, artistID3s.size());
         artistID3s.forEach(a -> {
             switch (a.getName()) {

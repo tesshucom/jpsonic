@@ -51,11 +51,12 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class DocumentFactoryLegacyTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -188,7 +189,7 @@ public class DocumentFactoryLegacyTest {
         assertEquals("FieldNamesConstants.TITLE_EX", "title", document.get(FieldNamesConstants.TITLE_EX));
         assertEquals("FieldNamesConstants.MEDIA_TYPE", "MUSIC", document.get(FieldNamesConstants.MEDIA_TYPE));
         assertEquals("FieldNamesConstants.GENRE", "genre", document.get(FieldNamesConstants.GENRE));
-        assertEquals("FieldNamesConstants.YEAR", null, document.get(FieldNamesConstants.YEAR));
+        assertNull("FieldNamesConstants.YEAR", document.get(FieldNamesConstants.YEAR));
         // assertEquals("FieldNamesConstants.YEAR", "2000", document.get(FieldNamesConstants.YEAR));
         assertEquals("FieldNamesConstants.FOLDER", "folder", document.get(FieldNamesConstants.FOLDER));
     }

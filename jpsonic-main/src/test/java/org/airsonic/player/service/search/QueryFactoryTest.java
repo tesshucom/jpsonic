@@ -52,11 +52,12 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class QueryFactoryTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -71,26 +72,26 @@ public class QueryFactoryTest {
     @Autowired
     private QueryFactory queryFactory;
 
-    private final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
-    private final String QUERY_PATTERN_ALPHANUMERIC_ONLY = "ABC 123";
-    private final String QUERY_PATTERN_HIRAGANA_ONLY = "ねこ いぬ";
-    private final String QUERY_PATTERN_OTHERS = "ABC ねこ";
+    private static final String QUERY_PATTERN_INCLUDING_KATAKANA = "ネコ ABC";
+    private static final String QUERY_PATTERN_ALPHANUMERIC_ONLY = "ABC 123";
+    private static final String QUERY_PATTERN_HIRAGANA_ONLY = "ねこ いぬ";
+    private static final String QUERY_PATTERN_OTHERS = "ABC ねこ";
 
     private static final String SEPA = System.getProperty("file.separator");
 
-    private final String PATH1 = SEPA + "var" + SEPA + "music1";
-    private final String PATH2 = SEPA + "var" + SEPA + "music2";
+    private static final String PATH1 = SEPA + "var" + SEPA + "music1";
+    private static final String PATH2 = SEPA + "var" + SEPA + "music2";
 
-    private final int FID1 = 10;
-    private final int FID2 = 20;
+    private static final int FID1 = 10;
+    private static final int FID2 = 20;
 
-    private final MusicFolder MUSIC_FOLDER1 = new MusicFolder(Integer.valueOf(FID1), new File(PATH1), "music1", true,
+    private static final MusicFolder MUSIC_FOLDER1 = new MusicFolder(FID1, new File(PATH1), "music1", true,
             new java.util.Date());
-    private final MusicFolder MUSIC_FOLDER2 = new MusicFolder(Integer.valueOf(FID2), new File(PATH2), "music2", true,
+    private static final MusicFolder MUSIC_FOLDER2 = new MusicFolder(FID2, new File(PATH2), "music2", true,
             new java.util.Date());
 
-    List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
-    List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
+    private static final List<MusicFolder> SINGLE_FOLDERS = Arrays.asList(MUSIC_FOLDER1);
+    private static final List<MusicFolder> MULTI_FOLDERS = Arrays.asList(MUSIC_FOLDER1, MUSIC_FOLDER2);
 
     @Test
     public void testSearchByNameArtist() throws IOException {
@@ -130,13 +131,12 @@ public class QueryFactoryTest {
 
     @Test
     public void testGetRandomSongs() throws IOException {
-        RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"),
-                Integer.valueOf(1900), Integer.valueOf(2000), SINGLE_FOLDERS);
+        RandomSearchCriteria criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, 2000,
+                SINGLE_FOLDERS);
         Query query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria),
                 "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + ")", query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), Integer.valueOf(1900),
-                Integer.valueOf(2000), MULTI_FOLDERS);
+        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, 2000, MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria),
                 "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2000] +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
@@ -144,21 +144,19 @@ public class QueryFactoryTest {
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria),
                 "+m:MUSIC +(g:Classic Rock) +(f:" + PATH1 + " f:" + PATH2 + ")", query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), Integer.valueOf(1900), null,
-                MULTI_FOLDERS);
+        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), 1900, null, MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria),
                 "+m:MUSIC +(g:Classic Rock) +y:[1900 TO 2147483647] +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, Integer.valueOf(2000),
-                MULTI_FOLDERS);
+        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock"), null, 2000, MULTI_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals(ToStringBuilder.reflectionToString(criteria),
                 "+m:MUSIC +(g:Classic Rock) +y:[-2147483648 TO 2000] +(f:" + PATH1 + " f:" + PATH2 + ")",
                 query.toString());
 
-        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock", "Rock & Roll"), Integer.valueOf(1900),
-                Integer.valueOf(2000), SINGLE_FOLDERS);
+        criteria = new RandomSearchCriteria(50, Arrays.asList("Classic Rock", "Rock & Roll"), 1900, 2000,
+                SINGLE_FOLDERS);
         query = queryFactory.getRandomSongs(criteria);
         assertEquals("multi genre", "+m:MUSIC +(g:Classic Rock g:Rock & Roll) +y:[1900 TO 2000] +(f:" + PATH1 + ")",
                 query.toString());

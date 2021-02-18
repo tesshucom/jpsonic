@@ -34,13 +34,14 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
+@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // pmd/pmd/issues/1084
 public class InternalHelpControllerIntTest extends AbstractAirsonicHomeTest {
 
     @Autowired
     private MockMvc mvc;
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         populateDatabaseOnlyOnce();
     }
 

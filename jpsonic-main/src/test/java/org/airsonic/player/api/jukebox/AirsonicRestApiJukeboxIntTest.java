@@ -24,6 +24,8 @@ package org.airsonic.player.api.jukebox;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.util.concurrent.ExecutionException;
+
 import com.github.biconou.AudioPlayer.JavaPlayer;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -38,7 +40,7 @@ public class AirsonicRestApiJukeboxIntTest extends AbstractAirsonicRestApiJukebo
 
     @Before
     @Override
-    public void setup() throws Exception {
+    public void setup() throws ExecutionException {
         super.setup();
         JavaPlayer mockJavaPlayer = mock(JavaPlayer.class);
         when(mockJavaPlayer.getPlayingInfos()).thenReturn(() -> 0);

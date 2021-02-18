@@ -19,6 +19,8 @@
 
 package com.tesshu.jpsonic.dao;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,12 +44,12 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Compare"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
@@ -55,11 +57,11 @@ public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         populateDatabaseOnlyOnce();
@@ -67,10 +69,10 @@ public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
 
     @Test
     public void testGetAlphabeticalAlbums() {
-        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, musicFolders);
-        List<String> names = albums.stream().filter(a -> !"☆彡ALBUM".equals(a.getName())).map(a -> a.getName())
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, MUSIC_FOLDERS);
+        List<String> names = albums.stream().map(Album::getName).filter(name -> !"☆彡ALBUM".equals(name))
                 .collect(Collectors.toList());
-        JpsonicComparatorsTestUtils.validateNaturalList(names);
+        assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));
     }
 
 }

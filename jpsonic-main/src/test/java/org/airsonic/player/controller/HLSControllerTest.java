@@ -22,7 +22,6 @@
 package org.airsonic.player.controller;
 
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.awt.Dimension;
@@ -43,32 +42,28 @@ public class HLSControllerTest extends AbstractAirsonicHomeTest {
     private HLSController controller;
 
     @Test
-    public void testParseBitRate() {
-
+    public void testParseBitRateSuccess() {
         Pair<Integer, Dimension> pair = controller.parseBitRate("1000");
         assertEquals(1000, pair.getLeft().intValue());
         assertNull(pair.getRight());
-
         pair = controller.parseBitRate("1000@400x300");
         assertEquals(1000, pair.getLeft().intValue());
         assertEquals(400, pair.getRight().width);
         assertEquals(300, pair.getRight().height);
-
-        try {
-            controller.parseBitRate("asdfl");
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            controller.parseBitRate("1000@300");
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
-        try {
-            controller.parseBitRate("1000@300x400ZZ");
-            fail();
-        } catch (IllegalArgumentException ignored) {
-        }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseBitRateParseError1() {
+        controller.parseBitRate("asdfl");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseBitRateParseError2() {
+        controller.parseBitRate("1000@300");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testParseBitRateParseError3() {
+        controller.parseBitRate("1000@300x400ZZ");
+    }
 }

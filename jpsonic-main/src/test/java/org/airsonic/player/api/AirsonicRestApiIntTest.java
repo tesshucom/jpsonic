@@ -26,8 +26,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.concurrent.ExecutionException;
+
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.util.HomeRule;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -49,24 +52,29 @@ public class AirsonicRestApiIntTest {
     private static final String AIRSONIC_PASSWORD = "admin";
     private static final String EXPECTED_FORMAT = "json";
 
-    private static String AIRSONIC_API_VERSION;
+    private static String apiVerion;
 
     @Autowired
     private MockMvc mvc;
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule(); // sets jpsonic.home to a temporary dir
+    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
 
     @BeforeClass
     public static void setupClass() {
-        AIRSONIC_API_VERSION = TestCaseUtils.restApiVersion();
+        apiVerion = TestCaseUtils.restApiVersion();
     }
 
     @Test
-    public void pingTest() throws Exception {
-        mvc.perform(get("/rest/ping").param("v", AIRSONIC_API_VERSION).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)
-                .param("p", AIRSONIC_PASSWORD).param("f", EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.version").value(AIRSONIC_API_VERSION)).andDo(print());
+    public void pingTest() throws ExecutionException {
+        try {
+            mvc.perform(get("/rest/ping").param("v", apiVerion).param("c", CLIENT_NAME).param("u", AIRSONIC_USER)
+                    .param("p", AIRSONIC_PASSWORD).param("f", EXPECTED_FORMAT).contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(jsonPath("$.subsonic-response.version").value(apiVerion)).andDo(print());
+        } catch (Exception e) {
+            Assert.fail();
+            throw new ExecutionException(e);
+        }
     }
 }

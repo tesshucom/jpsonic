@@ -43,7 +43,7 @@ public class TranscodingServiceIntTest {
     private PlayerService playerService;
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule(); // sets jpsonic.home to a temporary dir
+    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
 
     @Test
     public void createTranscodingTest() {

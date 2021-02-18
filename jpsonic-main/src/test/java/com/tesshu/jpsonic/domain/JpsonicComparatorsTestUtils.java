@@ -121,9 +121,7 @@ public class JpsonicComparatorsTestUtils {
         return file;
     };
 
-    private final BiFunction<String, Integer, Genre> toGenre = (name, count) -> {
-        return new Genre(name, count, count);
-    };
+    private final BiFunction<String, Integer, Genre> toGenre = (name, count) -> new Genre(name, count, count);
 
     private final Function<String, Playlist> toPlaylist = (name) -> {
         Playlist playlist = new Playlist();
@@ -252,13 +250,14 @@ public class JpsonicComparatorsTestUtils {
         }
     }
 
-    public static void assertAlphanumArtistOrder(List<Artist> artists, Integer... ignores) {
+    public static boolean assertAlphanumArtistOrder(List<Artist> artists, Integer... ignores) {
         assertEquals(ALPHA_NUM_LIST.size(), artists.size());
         for (int i = 0; i < ALPHA_NUM_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
                 assertEquals("(" + i + ") -> ", ALPHA_NUM_LIST.get(i), artists.get(i).getName());
             }
         }
+        return true;
     }
 
     public static void assertArtistOrder(List<Artist> artists, Integer... ignores) {
@@ -306,13 +305,14 @@ public class JpsonicComparatorsTestUtils {
         }
     }
 
-    public static void validateNaturalList(List<String> l, Integer... ignores) {
+    public static boolean validateNaturalList(List<String> l, Integer... ignores) {
         assertEquals(JPSONIC_NATURAL_LIST.size(), l.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
                 assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), l.get(i));
             }
         }
+        return true;
     }
 
     public List<Album> createReversedAlbums() {

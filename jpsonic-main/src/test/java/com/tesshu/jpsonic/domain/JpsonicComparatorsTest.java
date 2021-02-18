@@ -19,23 +19,16 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ALBUM;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
-import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.TRACK;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlbumOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertAlphanumArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertArtistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertGenreOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertMediafileOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertPlaylistOrder;
-import static com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils.assertSortableArtistOrder;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -70,17 +63,25 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JpsonicComparatorsTest {
 
-    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    @ClassRule
+    public static final HomeRule CLASS_RULE = new HomeRule();
+
+    protected static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
 
     @Rule
     public ThreadRule r = new ThreadRule(100);
 
-    @AfterAll
-    public static void tearDown() {
-        EXECUTOR.shutdownNow();
-    }
+    @Autowired
+    private JpsonicComparatorsTestUtils testUtils;
+
+    @Autowired
+    private JpsonicComparators comparators;
+
+    @Autowired
+    private SettingsService settingsService;
 
     @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
@@ -182,9 +183,9 @@ public class JpsonicComparatorsTest {
      * Copyright 2020 (C) tesshu.com Based upon Airsonic, Copyright 2016 (C) Airsonic Authors Based upon Subsonic,
      * Copyright 2009 (C) Sindre Mehus
      */
-    private class TestSortableArtist extends MusicIndex.SortableArtist {
+    private static class TestSortableArtist extends MusicIndex.SortableArtist {
 
-        public TestSortableArtist(String sortableName) {
+        public TestSortableArtist(String sortableName, JpsonicComparators comparators) {
             super(sortableName, sortableName, comparators.sortableArtistOrder());
         }
 
@@ -194,17 +195,10 @@ public class JpsonicComparatorsTest {
         }
     }
 
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule();
-
-    @Autowired
-    private JpsonicComparatorsTestUtils testUtils;
-
-    @Autowired
-    private JpsonicComparators comparators;
-
-    @Autowired
-    private SettingsService settingsService;
+    @AfterAll
+    public static void tearDown() {
+        EXECUTOR.shutdownNow();
+    }
 
     @ComparatorsDecisions.Actions.artistOrderByAlpha
     @ComparatorsDecisions.Conditions.Target.Artist
@@ -214,8 +208,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedArtists();
-        Collections.sort(artists, comparators.artistOrderByAlpha());
-        assertArtistOrder(artists, 14, 15, 16);
+        artists.sort(comparators.artistOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 19", artists.get(15).getName());
         assertEquals("episode 2", artists.get(16).getName());
@@ -230,8 +224,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedArtists();
-        Collections.sort(artists, comparators.artistOrderByAlpha());
-        assertArtistOrder(artists, 14, 15, 16);
+        artists.sort(comparators.artistOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 2", artists.get(15).getName());
         assertEquals("episode 19", artists.get(16).getName());
@@ -245,8 +239,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrderByAlpha());
-        assertAlbumOrder(albums, 14, 15, 16);
+        albums.sort(comparators.albumOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertAlbumOrder(albums, 14, 15, 16);
         assertEquals("episode 1", albums.get(14).getName());
         assertEquals("episode 19", albums.get(15).getName());
         assertEquals("episode 2", albums.get(16).getName());
@@ -261,8 +255,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<Album> albums = testUtils.createReversedAlbums();
-        Collections.sort(albums, comparators.albumOrderByAlpha());
-        assertAlbumOrder(albums, 14, 15, 16);
+        albums.sort(comparators.albumOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertAlbumOrder(albums, 14, 15, 16);
         assertEquals("episode 1", albums.get(14).getName());
         assertEquals("episode 2", albums.get(15).getName());
         assertEquals("episode 19", albums.get(16).getName());
@@ -279,8 +273,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -298,8 +292,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -317,8 +311,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -337,8 +331,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -355,8 +349,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -374,8 +368,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -393,8 +387,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -413,8 +407,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -431,8 +425,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -450,8 +444,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -469,7 +463,7 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
         assertEquals("98", files.get(0).getName());
         assertEquals("99", files.get(1).getName());
         assertEquals("10", files.get(2).getName());
@@ -488,7 +482,7 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(new MediaFile()));
+        files.sort(comparators.mediaFileOrder(new MediaFile()));
         assertEquals("98", files.get(0).getName());
         assertEquals("99", files.get(1).getName());
         assertEquals("10", files.get(2).getName());
@@ -505,8 +499,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -524,8 +518,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -543,8 +537,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -563,8 +557,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(true);
         settingsService.setProhibitSortVarious(true);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
-        Collections.sort(files, comparators.mediaFileOrder(testUtils.createVariousMedifile()));
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrder(testUtils.createVariousMedifile()));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -579,8 +573,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -596,8 +590,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediArtists();
-        Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        files.sort(comparators.mediaFileOrderByAlpha());
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -614,7 +608,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediArtists();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -632,7 +626,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediArtists();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -648,7 +642,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -665,7 +659,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -682,7 +676,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -700,7 +694,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediAlbums();
         Collections.sort(files, comparators.mediaFileOrderByAlpha());
-        assertMediafileOrder(files, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -715,8 +709,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(ARTIST));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -732,8 +726,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(ARTIST));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -748,8 +742,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(ALBUM));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -765,8 +759,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(ALBUM));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -781,8 +775,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(TRACK));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 19", files.get(15).getName());
         assertEquals("episode 2", files.get(16).getName());
@@ -798,8 +792,8 @@ public class JpsonicComparatorsTest {
         settingsService.setSortAlbumsByYear(false);
         settingsService.setProhibitSortVarious(false);
         List<MediaFile> files = testUtils.createReversedMediaSongs();
-        Collections.sort(files, comparators.mediaFileOrderBy(TRACK));
-        assertMediafileOrder(files, 14, 15, 16);
+        Collections.sort(files, comparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
+        JpsonicComparatorsTestUtils.assertMediafileOrder(files, 14, 15, 16);
         assertEquals("episode 1", files.get(14).getName());
         assertEquals("episode 2", files.get(15).getName());
         assertEquals("episode 19", files.get(16).getName());
@@ -814,7 +808,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Playlist> playlists = testUtils.createReversedPlaylists();
         Collections.sort(playlists, comparators.playlistOrder());
-        assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
 
         // Playlist can not be specified reading with tag (so alphabetical)
         assertEquals("abc亜伊鵜絵尾", playlists.get(8).getName());
@@ -835,7 +829,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Playlist> playlists = testUtils.createReversedPlaylists();
         Collections.sort(playlists, comparators.playlistOrder());
-        assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertPlaylistOrder(playlists, 8, 9, 14, 15, 16);
 
         // Playlist can not be specified reading with tag (so alphabetical)
         assertEquals("abc亜伊鵜絵尾", playlists.get(8).getName());
@@ -856,7 +850,7 @@ public class JpsonicComparatorsTest {
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrder(false));
 
-        assertGenreOrder(genres, 8, 9);
+        JpsonicComparatorsTestUtils.assertGenreOrder(genres, 8, 9);
 
         // Genre can not be specified reading with tag (so count)
         assertEquals("abcいうえおあ", genres.get(8).getName());
@@ -874,7 +868,7 @@ public class JpsonicComparatorsTest {
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrder(true));
 
-        assertGenreOrder(genres, 8, 9);
+        JpsonicComparatorsTestUtils.assertGenreOrder(genres, 8, 9);
         // Genre can not be specified reading with tag (so count)
         assertEquals("abcいうえおあ", genres.get(8).getName());
         assertEquals("abc亜伊鵜絵尾", genres.get(9).getName());
@@ -890,7 +884,7 @@ public class JpsonicComparatorsTest {
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrderByAlpha());
 
-        assertGenreOrder(genres, 8, 9, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertGenreOrder(genres, 8, 9, 14, 15, 16);
 
         // Genre can not be specified reading with tag (so alphabetical)
         assertEquals("abc亜伊鵜絵尾", genres.get(8).getName());
@@ -911,7 +905,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Genre> genres = testUtils.createReversedGenres();
         Collections.sort(genres, comparators.genreOrderByAlpha());
-        assertGenreOrder(genres, 8, 9, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertGenreOrder(genres, 8, 9, 14, 15, 16);
 
         // Genre can not be specified reading with tag (so alphabetical)
         assertEquals("abc亜伊鵜絵尾", genres.get(8).getName());
@@ -931,7 +925,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<SortableArtist> artists = testUtils.createReversedSortableArtists();
         Collections.sort(artists);
-        assertSortableArtistOrder(artists, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertSortableArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 19", artists.get(15).getName());
         assertEquals("episode 2", artists.get(16).getName());
@@ -947,7 +941,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<SortableArtist> artists = testUtils.createReversedSortableArtists();
         Collections.sort(artists);
-        assertSortableArtistOrder(artists, 14, 15, 16);
+        JpsonicComparatorsTestUtils.assertSortableArtistOrder(artists, 14, 15, 16);
         assertEquals("episode 1", artists.get(14).getName());
         assertEquals("episode 2", artists.get(15).getName());
         assertEquals("episode 19", artists.get(16).getName());
@@ -964,7 +958,7 @@ public class JpsonicComparatorsTest {
         settingsService.setProhibitSortVarious(false);
         List<Artist> artists = testUtils.createReversedAlphanum();
         Collections.sort(artists, comparators.artistOrderByAlpha());
-        assertAlphanumArtistOrder(artists);
+        assertTrue(JpsonicComparatorsTestUtils.assertAlphanumArtistOrder(artists));
     }
 
     /*
@@ -977,9 +971,9 @@ public class JpsonicComparatorsTest {
     public void testCollation() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
-        artists.add(new TestSortableArtist("p\u00e9ch\u00e9")); // péché
-        artists.add(new TestSortableArtist("peach"));
-        artists.add(new TestSortableArtist("p\u00eache")); // pêche
+        artists.add(new TestSortableArtist("p\u00e9ch\u00e9", comparators)); // péché
+        artists.add(new TestSortableArtist("peach", comparators));
+        artists.add(new TestSortableArtist("p\u00eache", comparators)); // pêche
 
         Collections.sort(artists);
         assertEquals("[peach, p\u00e9ch\u00e9, p\u00eache]", artists.toString()); // péché, pêche
@@ -1109,14 +1103,14 @@ public class JpsonicComparatorsTest {
     public void testSorting() {
         List<TestSortableArtist> artists = new ArrayList<>();
 
-        artists.add(new TestSortableArtist("ABBA"));
-        artists.add(new TestSortableArtist("Abba"));
-        artists.add(new TestSortableArtist("abba"));
-        artists.add(new TestSortableArtist("ACDC"));
-        artists.add(new TestSortableArtist("acdc"));
-        artists.add(new TestSortableArtist("ACDC"));
-        artists.add(new TestSortableArtist("abc"));
-        artists.add(new TestSortableArtist("ABC"));
+        artists.add(new TestSortableArtist("ABBA", comparators));
+        artists.add(new TestSortableArtist("Abba", comparators));
+        artists.add(new TestSortableArtist("abba", comparators));
+        artists.add(new TestSortableArtist("ACDC", comparators));
+        artists.add(new TestSortableArtist("acdc", comparators));
+        artists.add(new TestSortableArtist("ACDC", comparators));
+        artists.add(new TestSortableArtist("abc", comparators));
+        artists.add(new TestSortableArtist("ABC", comparators));
 
         Collections.sort(artists);
         assertEquals("[abba, Abba, ABBA, abc, ABC, acdc, ACDC, ACDC]", artists.toString());
@@ -1132,14 +1126,14 @@ public class JpsonicComparatorsTest {
     @Test
     public void testSortingWithAccents() {
 
-        final TestSortableArtist a1 = new TestSortableArtist("Sea");
-        final TestSortableArtist a2 = new TestSortableArtist("SEB");
-        final TestSortableArtist a3 = new TestSortableArtist("Seb");
-        final TestSortableArtist a4 = new TestSortableArtist("S\u00e9b"); // Séb
-        final TestSortableArtist a5 = new TestSortableArtist("Sed");
-        final TestSortableArtist a6 = new TestSortableArtist("See");
+        final TestSortableArtist a1 = new TestSortableArtist("Sea", comparators);
+        final TestSortableArtist a2 = new TestSortableArtist("SEB", comparators);
+        final TestSortableArtist a3 = new TestSortableArtist("Seb", comparators);
+        final TestSortableArtist a4 = new TestSortableArtist("S\u00e9b", comparators); // Séb
+        final TestSortableArtist a5 = new TestSortableArtist("Sed", comparators);
+        final TestSortableArtist a6 = new TestSortableArtist("See", comparators);
 
-        assertTrue(a1.compareTo(a1) == 0);
+        assertSame(a1.compareTo(a1), 0);
         assertTrue(a1.compareTo(a2) < 0);
         assertTrue(a1.compareTo(a3) < 0);
         assertTrue(a1.compareTo(a4) < 0);
@@ -1155,7 +1149,7 @@ public class JpsonicComparatorsTest {
         assertTrue(a4.compareTo(a1) > 0);
         assertTrue(a4.compareTo(a2) > 0);
         assertTrue(a4.compareTo(a3) > 0);
-        assertTrue(a4.compareTo(a4) == 0);
+        assertSame(a4.compareTo(a4), 0);
         assertTrue(a4.compareTo(a5) < 0);
         assertTrue(a4.compareTo(a6) < 0);
 
@@ -1174,7 +1168,7 @@ public class JpsonicComparatorsTest {
 
     private class ThreadRule implements MethodRule {
 
-        private final int count;
+        protected final int count;
 
         public ThreadRule(int count) {
             this.count = count;
@@ -1187,13 +1181,15 @@ public class JpsonicComparatorsTest {
                 public void evaluate() throws Throwable {
                     List<Future<?>> futures = new ArrayList<>(count);
                     for (int i = 0; i < count; i++) {
-                        futures.add(i, EXECUTOR.submit(() -> {
+                        Callable<Boolean> task = () -> {
                             try {
                                 base.evaluate();
                             } catch (Throwable t) {
-                                throw new RuntimeException(t);
+                                throw new ExecutionException("Test replication or asynchronous execution failed", t);
                             }
-                        }));
+                            return Boolean.TRUE;
+                        };
+                        futures.add(i, EXECUTOR.submit(task));
                     }
                     for (Future<?> f : futures) {
                         f.get();

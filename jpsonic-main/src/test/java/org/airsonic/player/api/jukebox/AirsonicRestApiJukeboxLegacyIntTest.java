@@ -21,11 +21,15 @@
 
 package org.airsonic.player.api.jukebox;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
+import javax.sound.sampled.LineUnavailableException;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -34,6 +38,7 @@ import org.airsonic.player.service.jukebox.AudioPlayer;
 import org.airsonic.player.service.jukebox.AudioPlayerFactory;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,11 +54,16 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
 
     @Before
     @Override
-    public void setup() throws Exception {
+    public void setup() throws ExecutionException {
         super.setup();
         mockAudioPlayer = mock(AudioPlayer.class);
-        when(audioPlayerFactory.createAudioPlayer(any(), any())).thenReturn(mockAudioPlayer);
-        doReturn(null).when(transcodingService).getTranscodedInputStream(any());
+        try {
+            when(audioPlayerFactory.createAudioPlayer(ArgumentMatchers.any(), ArgumentMatchers.any()))
+                    .thenReturn(mockAudioPlayer);
+            doReturn(null).when(transcodingService).getTranscodedInputStream(ArgumentMatchers.any());
+        } catch (LineUnavailableException | IOException e) {
+            throw new ExecutionException(e);
+        }
     }
 
     @Override
@@ -69,7 +79,7 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
     @Test
     @WithMockUser(username = "admin")
     @Override
-    public void jukeboxStartActionTest() throws Exception {
+    public void jukeboxStartActionTest() throws ExecutionException {
         super.jukeboxStartActionTest();
         verify(mockAudioPlayer).play();
     }
@@ -77,7 +87,7 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
     @Test
     @WithMockUser(username = "admin")
     @Override
-    public void jukeboxStopActionTest() throws Exception {
+    public void jukeboxStopActionTest() throws ExecutionException {
         super.jukeboxStopActionTest();
         verify(mockAudioPlayer).play();
         verify(mockAudioPlayer).pause();

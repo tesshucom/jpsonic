@@ -30,13 +30,13 @@ import org.airsonic.player.domain.MusicFolder;
 
 public final class MusicFolderTestDataUtils {
 
-    private static String baseResources = "/MEDIAS/";
+    private static final String BASE_RESOURCES = "/MEDIAS/";
 
     private MusicFolderTestDataUtils() {
     }
 
     public static String resolveBaseMediaPath() {
-        return MusicFolderTestDataUtils.class.getResource(baseResources).toString().replace("file:", "");
+        return MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toString().replace("file:", "");
     }
 
     public static String resolveMusicFolderPath() {

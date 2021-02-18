@@ -44,12 +44,12 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootTest
 public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Albums"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
@@ -57,11 +57,11 @@ public class AlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         populateDatabaseOnlyOnce();

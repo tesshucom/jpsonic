@@ -23,8 +23,6 @@ package org.airsonic.player.dao;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -35,6 +33,7 @@ import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.TranscodeScheme;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +43,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class PlayerDaoTest extends DaoTestBase {
 
     @Autowired
-    PlayerDao playerDao;
+    private PlayerDao playerDao;
 
     @Before
     public void setUp() {
@@ -118,11 +118,11 @@ public class PlayerDaoTest extends DaoTestBase {
         Player player = new Player();
         playerDao.createPlayer(player);
         PlayQueue playQueue = player.getPlayQueue();
-        assertNotNull("Missing playlist.", playQueue);
+        Assert.assertNotNull("Missing playlist.", playQueue);
 
         playerDao.deletePlayer(player.getId());
         playerDao.createPlayer(player);
-        assertNotSame("Wrong playlist.", playQueue, player.getPlayQueue());
+        Assert.assertNotSame("Wrong playlist.", playQueue, player.getPlayQueue());
     }
 
     @Test

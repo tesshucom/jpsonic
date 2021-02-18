@@ -23,11 +23,13 @@ package org.airsonic.player.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Locale;
 
+import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,11 +40,12 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class StringUtilTest {
 
     @Test
     public void testToHtml() {
-        assertEquals(null, StringEscapeUtils.escapeHtml(null));
+        assertNull(StringEscapeUtils.escapeHtml(null));
         assertEquals("", StringEscapeUtils.escapeHtml(""));
         assertEquals(" ", StringEscapeUtils.escapeHtml(" "));
         assertEquals("q &amp; a", StringEscapeUtils.escapeHtml("q & a"));
@@ -63,25 +66,25 @@ public class StringUtilTest {
     public void testFormatBytes() {
         Locale locale = Locale.ENGLISH;
         assertEquals("Error in formatBytes().", "918 B", StringUtil.formatBytes(918, locale));
-        assertEquals("Error in formatBytes().", "1023 B", StringUtil.formatBytes(1023, locale));
-        assertEquals("Error in formatBytes().", "1 KB", StringUtil.formatBytes(1024, locale));
-        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98765, locale));
-        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1048575, locale));
-        assertEquals("Error in formatBytes().", "1.2 MB", StringUtil.formatBytes(1238476, locale));
-        assertEquals("Error in formatBytes().", "3.50 GB", StringUtil.formatBytes(3758096384L, locale));
-        assertEquals("Error in formatBytes().", "410.00 TB", StringUtil.formatBytes(450799767388160L, locale));
-        assertEquals("Error in formatBytes().", "4413.43 TB", StringUtil.formatBytes(4852617603375432L, locale));
+        assertEquals("Error in formatBytes().", "1023 B", StringUtil.formatBytes(1_023, locale));
+        assertEquals("Error in formatBytes().", "1 KB", StringUtil.formatBytes(1_024, locale));
+        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98_765, locale));
+        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1_048_575, locale));
+        assertEquals("Error in formatBytes().", "1.2 MB", StringUtil.formatBytes(1_238_476, locale));
+        assertEquals("Error in formatBytes().", "3.50 GB", StringUtil.formatBytes(3_758_096_384L, locale));
+        assertEquals("Error in formatBytes().", "410.00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale));
+        assertEquals("Error in formatBytes().", "4413.43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale));
 
         locale = new Locale("no", "", "");
         assertEquals("Error in formatBytes().", "918 B", StringUtil.formatBytes(918, locale));
         assertEquals("Error in formatBytes().", "1023 B", StringUtil.formatBytes(1023, locale));
         assertEquals("Error in formatBytes().", "1 KB", StringUtil.formatBytes(1024, locale));
-        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98765, locale));
-        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1048575, locale));
-        assertEquals("Error in formatBytes().", "1,2 MB", StringUtil.formatBytes(1238476, locale));
-        assertEquals("Error in formatBytes().", "3,50 GB", StringUtil.formatBytes(3758096384L, locale));
-        assertEquals("Error in formatBytes().", "410,00 TB", StringUtil.formatBytes(450799767388160L, locale));
-        assertEquals("Error in formatBytes().", "4413,43 TB", StringUtil.formatBytes(4852617603375432L, locale));
+        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98_765, locale));
+        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1_048_575, locale));
+        assertEquals("Error in formatBytes().", "1,2 MB", StringUtil.formatBytes(1_238_476, locale));
+        assertEquals("Error in formatBytes().", "3,50 GB", StringUtil.formatBytes(3_758_096_384L, locale));
+        assertEquals("Error in formatBytes().", "410,00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale));
+        assertEquals("Error in formatBytes().", "4413,43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale));
     }
 
     @Test
@@ -159,10 +162,10 @@ public class StringUtilTest {
         doTestParseInts("1 2 3", 1, 2, 3);
         doTestParseInts("10  20 \t\n 30", 10, 20, 30);
 
-        assertTrue("Error in parseInts().", StringUtil.parseInts(null).length == 0);
-        assertTrue("Error in parseInts().", StringUtil.parseInts("").length == 0);
-        assertTrue("Error in parseInts().", StringUtil.parseInts(" ").length == 0);
-        assertTrue("Error in parseInts().", StringUtil.parseInts("  ").length == 0);
+        assertSame("Error in parseInts().", StringUtil.parseInts(null).length, 0);
+        assertSame("Error in parseInts().", StringUtil.parseInts("").length, 0);
+        assertSame("Error in parseInts().", StringUtil.parseInts(" ").length, 0);
+        assertSame("Error in parseInts().", StringUtil.parseInts("  ").length, 0);
     }
 
     private void doTestParseInts(String s, int... expected) {
@@ -171,7 +174,6 @@ public class StringUtilTest {
 
     @Test
     public void testParseLocale() {
-        assertEquals("Error in parseLocale().", null, null);
         assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en"));
         assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en_"));
         assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en__"));
@@ -182,16 +184,17 @@ public class StringUtilTest {
 
     @Test
     public void testUtf8Hex() throws Exception {
-        doTestUtf8Hex(null);
-        doTestUtf8Hex("");
-        doTestUtf8Hex("a");
-        doTestUtf8Hex("abcdefg");
-        doTestUtf8Hex("abc������");
-        doTestUtf8Hex("NRK P3 � FK Fotball");
+        assertTrue(doTestUtf8Hex(null));
+        assertTrue(doTestUtf8Hex(""));
+        assertTrue(doTestUtf8Hex("a"));
+        assertTrue(doTestUtf8Hex("abcdefg"));
+        assertTrue(doTestUtf8Hex("abc������"));
+        assertTrue(doTestUtf8Hex("NRK P3 � FK Fotball"));
     }
 
-    private void doTestUtf8Hex(String s) throws Exception {
+    private boolean doTestUtf8Hex(String s) throws DecoderException {
         assertEquals("Error in utf8hex.", s, StringUtil.utf8HexDecode(StringUtil.utf8HexEncode(s)));
+        return true;
     }
 
     @Test
@@ -222,7 +225,7 @@ public class StringUtilTest {
         assertEquals("Error in removeMarkup()", "foobar", StringUtil.removeMarkup("<b>foo</b>bar"));
         assertEquals("Error in removeMarkup()", "foo", StringUtil.removeMarkup("foo"));
         assertEquals("Error in removeMarkup()", "foo", StringUtil.removeMarkup("<b>foo"));
-        assertEquals("Error in removeMarkup()", null, StringUtil.removeMarkup(null));
+        assertNull("Error in removeMarkup()", StringUtil.removeMarkup(null));
     }
 
 }

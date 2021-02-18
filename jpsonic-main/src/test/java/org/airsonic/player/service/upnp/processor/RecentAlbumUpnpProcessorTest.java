@@ -43,12 +43,12 @@ public class RecentAlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(RecentAlbumUpnpProcessorTest.class);
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Albums"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Albums"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
@@ -56,11 +56,11 @@ public class RecentAlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         populateDatabaseOnlyOnce();
@@ -111,10 +111,11 @@ public class RecentAlbumUpnpProcessorTest extends AbstractAirsonicHomeTest {
         List<MediaFile> albums = processor.getItems(1, 1);
         assertEquals(1, albums.size());
         int childSizeOf = processor.getChildSizeOf(albums.get(0));
-        if (childSizeOf == 31) {
+        int maxFilesLength = 31;
+        if (childSizeOf == maxFilesLength) {
             if (LOG.isInfoEnabled()) {
                 LOG.info(
-                        "In this environment, the order of recent-albums  may be partially different from other environments.");
+                        "In this environment, the order of recent-albums may be partially different from other environments.");
             }
         } else {
             assertEquals(1, childSizeOf);

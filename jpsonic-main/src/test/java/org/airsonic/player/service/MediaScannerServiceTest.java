@@ -22,6 +22,7 @@
 package org.airsonic.player.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
@@ -50,7 +51,6 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.util.HomeRule;
 import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -79,13 +79,14 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  */
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MediaScannerServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceTest.class);
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule airsonicRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule airsonicRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -138,52 +139,29 @@ public class MediaScannerServiceTest {
 
         Timer globalTimer = metrics.timer(MetricRegistry.name(MediaScannerServiceTest.class, "Timer.global"));
 
-        Timer.Context globalTimerContext = globalTimer.time();
-        TestCaseUtils.execScan(mediaScannerService);
-        globalTimerContext.stop();
-
-        if (LOG.isInfoEnabled()) {
-            LOG.info("--- Report of records count per table ---");
+        try (Timer.Context globalTimerContext = globalTimer.time()) {
+            TestCaseUtils.execScan(mediaScannerService);
+            globalTimerContext.stop();
         }
-        Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-        records.keySet().forEach(tableName -> {
-            if (LOG.isInfoEnabled()) {
-                LOG.info(tableName + " : " + records.get(tableName).toString());
-            }
-        });
 
-        if (LOG.isInfoEnabled()) {
-            LOG.info("--- *********************** ---");
-        }
+        logRecords(TestCaseUtils.recordsInAllTables(daoHelper));
 
         // Music Folder Music must have 3 children
         List<MediaFile> listeMusicChildren = mediaFileDao
                 .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusicFolderPath()).getPath());
-        Assert.assertEquals(3, listeMusicChildren.size());
+        assertEquals(3, listeMusicChildren.size());
         // Music Folder Music2 must have 1 children
         List<MediaFile> listeMusic2Children = mediaFileDao
                 .getChildrenOf(new File(MusicFolderTestDataUtils.resolveMusic2FolderPath()).getPath());
-        Assert.assertEquals(1, listeMusic2Children.size());
+        assertEquals(1, listeMusic2Children.size());
 
-        if (LOG.isInfoEnabled()) {
-            LOG.info("--- List of all artists ---");
-            LOG.info("artistName#albumCount");
-        }
-
-        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
-                musicFolderDao.getAllMusicFolders());
-        allArtists.forEach(artist -> {
-            if (LOG.isInfoEnabled()) {
-                LOG.info(artist.getName() + "#" + artist.getAlbumCount());
-            }
-        });
+        logArtistsAll();
 
         if (LOG.isInfoEnabled()) {
             LOG.info("--- *********************** ---");
             LOG.info("--- List of all albums ---");
             LOG.info("name#artist");
         }
-
         List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true,
                 musicFolderDao.getAllMusicFolders());
         allAlbums.forEach(album -> {
@@ -191,7 +169,7 @@ public class MediaScannerServiceTest {
                 LOG.info(album.getName() + "#" + album.getArtist());
             }
         });
-        Assert.assertEquals(5, allAlbums.size());
+        assertEquals(5, allAlbums.size());
 
         if (LOG.isInfoEnabled()) {
             LOG.info("--- *********************** ---");
@@ -199,12 +177,13 @@ public class MediaScannerServiceTest {
 
         List<MediaFile> listeSongs = mediaFileDao.getSongsByGenre("Baroque Instrumental", 0, 0,
                 musicFolderDao.getAllMusicFolders());
-        Assert.assertEquals(2, listeSongs.size());
+        assertEquals(2, listeSongs.size());
 
         // display out metrics report
-        ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
-                .convertDurationsTo(TimeUnit.MILLISECONDS).build();
-        reporter.report();
+        try (ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics).convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS).build()) {
+            reporter.report();
+        }
 
         if (LOG.isInfoEnabled()) {
             LOG.info("End");
@@ -212,15 +191,47 @@ public class MediaScannerServiceTest {
 
     }
 
+    private void logRecords(Map<String, Integer> records) {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- Report of records count per table ---");
+        }
+        records.keySet().forEach(tableName -> {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(tableName + " : " + records.get(tableName).toString());
+            }
+        });
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- *********************** ---");
+        }
+    }
+
+    private void logArtistsAll() {
+        if (LOG.isInfoEnabled()) {
+            LOG.info("--- List of all artists ---");
+            LOG.info("artistName#albumCount");
+        }
+        List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE,
+                musicFolderDao.getAllMusicFolders());
+        allArtists.forEach(artist -> {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(artist.getName() + "#" + artist.getAlbumCount());
+            }
+        });
+    }
+
     @Test
     public void testSpecialCharactersInFilename() throws Exception {
-        InputStream resource = MediaScannerServiceTest.class.getClassLoader().getResourceAsStream("MEDIAS/piano.mp3");
-        assert resource != null;
-        String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
-        String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
-        File artistDir = temporaryFolder.newFolder(directoryName);
-        File musicFile = artistDir.toPath().resolve(fileName).toFile();
-        IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
+
+        File musicFile;
+        try (InputStream resource = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("MEDIAS/piano.mp3")) {
+            assert resource != null;
+            String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
+            String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
+            File artistDir = temporaryFolder.newFolder(directoryName);
+            musicFile = artistDir.toPath().resolve(fileName).toFile();
+            IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
+        }
 
         MusicFolder musicFolder = new MusicFolder(1, temporaryFolder.getRoot(), "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
@@ -236,8 +247,7 @@ public class MediaScannerServiceTest {
 
     @Test
     public void testNeverScanned() {
-
-        mediaScannerService.neverScanned();
+        assertFalse(mediaScannerService.neverScanned());
     }
 
     @Test
@@ -259,35 +269,35 @@ public class MediaScannerServiceTest {
 
         // Test that the artist is correctly imported
         List<Artist> allArtists = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, folders);
-        Assert.assertEquals(1, allArtists.size());
+        assertEquals(1, allArtists.size());
         Artist artist = allArtists.get(0);
-        Assert.assertEquals("TestArtist", artist.getName());
-        Assert.assertEquals(1, artist.getAlbumCount());
+        assertEquals("TestArtist", artist.getName());
+        assertEquals(1, artist.getAlbumCount());
 
         // Test that the album is correctly imported, along with its MusicBrainz release ID
         List<Album> allAlbums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, true, true, folders);
-        Assert.assertEquals(1, allAlbums.size());
+        assertEquals(1, allAlbums.size());
         Album album = allAlbums.get(0);
-        Assert.assertEquals("TestAlbum", album.getName());
-        Assert.assertEquals("TestArtist", album.getArtist());
-        Assert.assertEquals(1, album.getSongCount());
-        Assert.assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", album.getMusicBrainzReleaseId());
-        Assert.assertEquals(musicFolderFile.toPath().resolve("TestAlbum").toString(), album.getPath());
+        assertEquals("TestAlbum", album.getName());
+        assertEquals("TestArtist", album.getArtist());
+        assertEquals(1, album.getSongCount());
+        assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", album.getMusicBrainzReleaseId());
+        assertEquals(musicFolderFile.toPath().resolve("TestAlbum").toString(), album.getPath());
 
         // Test that the music file is correctly imported, along with its MusicBrainz release ID and recording ID
         List<MediaFile> albumFiles = mediaFileDao.getChildrenOf(allAlbums.get(0).getPath());
-        Assert.assertEquals(1, albumFiles.size());
+        assertEquals(1, albumFiles.size());
         MediaFile file = albumFiles.get(0);
-        Assert.assertEquals("Aria", file.getTitle());
-        Assert.assertEquals("flac", file.getFormat());
-        Assert.assertEquals("TestAlbum", file.getAlbumName());
-        Assert.assertEquals("TestArtist", file.getArtist());
-        Assert.assertEquals("TestArtist", file.getAlbumArtist());
-        Assert.assertEquals(1, (long) file.getTrackNumber());
-        Assert.assertEquals(2001, (long) file.getYear());
-        Assert.assertEquals(album.getPath(), file.getParentPath());
-        Assert.assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPath());
-        Assert.assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
-        Assert.assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
+        assertEquals("Aria", file.getTitle());
+        assertEquals("flac", file.getFormat());
+        assertEquals("TestAlbum", file.getAlbumName());
+        assertEquals("TestArtist", file.getArtist());
+        assertEquals("TestArtist", file.getAlbumArtist());
+        assertEquals(1, (long) file.getTrackNumber());
+        assertEquals(2001, (long) file.getYear());
+        assertEquals(album.getPath(), file.getParentPath());
+        assertEquals(new File(album.getPath()).toPath().resolve("01 - Aria.flac").toString(), file.getPath());
+        assertEquals("0820752d-1043-4572-ab36-2df3b5cc15fa", file.getMusicBrainzReleaseId());
+        assertEquals("831586f4-56f9-4785-ac91-447ae20af633", file.getMusicBrainzRecordingId());
     }
 }

@@ -21,9 +21,12 @@
 
 package org.airsonic.player.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.File;
 
 import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.util.HomeRule;
 import org.apache.commons.io.FileUtils;
 import org.junit.ClassRule;
@@ -31,8 +34,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.rules.SpringClassRule;
 import org.springframework.test.context.junit4.rules.SpringMethodRule;
@@ -40,10 +42,11 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 @SpringBootTest
 public class LegacyDatabaseStartupTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(LegacyDatabaseStartupTest.class);
+    @Autowired
+    private MusicFolderDao musicFolderDao;
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
         HomeRule airsonicRule = new HomeRule() {
             @Override
             protected void before() throws Throwable {
@@ -70,9 +73,7 @@ public class LegacyDatabaseStartupTest {
 
     @Test
     public void testStartup() {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("Successful startup");
-        }
+        assertEquals(1, musicFolderDao.getAllMusicFolders().size());
     }
 
 }
