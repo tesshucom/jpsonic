@@ -641,7 +641,7 @@
                 <artifactId>formatter-maven-plugin</artifactId>
                 <version>2.13.0</version>
                 <configuration>
-                    <configLocation>${project.basedir}/jpsonic-main/eclipse-java-google-style.xml</configLocation>
+                    <configLocation>${project.basedir}/jpsonic-main/formatter.xml</configLocation>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
                     <consoleOutput>true</consoleOutput>
