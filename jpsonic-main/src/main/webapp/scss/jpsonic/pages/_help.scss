@@ -1,17 +1,17 @@
 .mainframe.help {
   .tabular.log {
-    background-color: $jp-color-base1;
-    font-size: 0.93rem;
-    white-space: nowrap;
-    line-height: 1.2rem;
-    table-layout: fixed;
     width: 100%;
     margin-top: 30px;
+    table-layout: fixed;
+    background-color: $jp-color-base1;
+    font-size: .93rem;
+    line-height: 1.2rem;
+    white-space: nowrap;
     word-wrap: break-word;
     tr {
       height: 1.2rem;
       td {
-        font-size: 0.8rem;
+        font-size: .8rem;
         white-space: normal;
         word-wrap: break-word;
       }

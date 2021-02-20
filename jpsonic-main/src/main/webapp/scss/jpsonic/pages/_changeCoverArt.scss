@@ -28,7 +28,6 @@
     display: none;
     width: 250px;
     height: 290px;
-
     margin: 0 20px 30px 0;
     .search-result-link {
       width: 250px;
@@ -37,17 +36,17 @@
       padding: 0;
     }
     .search-result-image {
-      max-width: 250px;
       width: 250px;
+      max-width: 250px;
       height: 250px;
     }
     .caption1,
     .caption2 {
-      max-width: 250px;
-      width: 250px;
       overflow: hidden;
-      white-space: nowrap;
+      width: 250px;
+      max-width: 250px;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 

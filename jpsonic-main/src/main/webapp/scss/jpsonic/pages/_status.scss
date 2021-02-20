@@ -16,29 +16,29 @@
       td {
         &:nth-child(1) {
           dl {
-            margin: 0 10px 0 10px;
             width: calc(100vw - 300px - 70px);
+            margin: 0 10px 0 10px;
             @media screen and (min-width: $jp-supplement-width-threshold) {
               width: calc(50vw - 300px - 70px);
             }
             dt {
-              padding: 0 3px 0 3px;
-              width: 10rem;
               overflow: hidden;
-              white-space: nowrap;
-              text-overflow: ellipsis;
+              width: 10rem;
+              padding: 0 3px 0 3px;
               line-height: 30px;
+              text-overflow: ellipsis;
+              white-space: nowrap;
             }
             dd {
-              padding: 0 3px 0 3px;
+              overflow: hidden;
               width: calc(100vw - 10rem - 300px - 70px);
+              padding: 0 3px 0 3px;
+              line-height: 30px;
+              text-overflow: ellipsis;
+              white-space: nowrap;
               @media screen and (min-width: $jp-supplement-width-threshold) {
                 width: calc(50vw - 10rem - 300px - 70px);
               }
-              overflow: hidden;
-              white-space: nowrap;
-              text-overflow: ellipsis;
-              line-height: 30px;
             }
           }
         }

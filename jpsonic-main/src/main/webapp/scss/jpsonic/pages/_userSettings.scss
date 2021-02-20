@@ -12,8 +12,8 @@
 
   div.titledSelector.username {
     select {
-      max-width: 140px;
       overflow: hidden;
+      max-width: 140px;
       text-overflow: ellipsis;
       white-space: nowrap;
     }

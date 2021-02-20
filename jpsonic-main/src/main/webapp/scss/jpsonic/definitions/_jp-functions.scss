@@ -84,37 +84,42 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
   &:active {
     top: $jp-shadow-pressed-offset;
     left: $jp-shadow-pressed-offset;
+
     filter: hue-rotate(180deg) contrast(120%) drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
   }
 }
 
 // Block used for the link is highlighted by hover.
 @mixin blockLink($background, $color) {
+  background: $background;
+  color: $color;
+
   filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
   &:focus {
     @include border;
   }
   &:hover {
-    @include transition;
-    text-decoration: none;
     background: $jp-color-complementary3;
+    text-decoration: none;
+
+    @include transition;
     filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
   }
   &:active {
     top: $jp-shadow-pressed-offset;
     left: $jp-shadow-pressed-offset;
     background: $jp-color-complementary3;
+
     filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
   }
-  background: $background;
-  color: $color;
 }
 
 @mixin dropShadow($state: "") {
   @if $state == "none" {
     -webkit-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
-    -moz-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
-    box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+       -moz-box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+            box-shadow: 0 0 0 rgba(255, 255, 255, 0);
+
     filter: none;
   } @else {
     filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
@@ -122,6 +127,7 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
       &:active {
         top: $jp-shadow-pressed-offset;
         left: $jp-shadow-pressed-offset;
+
         filter: drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
       }
     }
@@ -135,7 +141,7 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
 
 // Common transition applied to input etc.
 @mixin transition() {
-  transition: /* color 0.2s ease ,*/ background 0.2s ease;
+  transition: /* color 0.2s ease ,*/ background .2s ease;
 }
 
 @mixin subSection() {
@@ -145,13 +151,7 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
 }
 @mixin sectionContent() {
   width: calc(100% - 40px);
-  margin: 0 0 0 20px;
-  padding: 0;
-}
-
-@mixin subSectionContent() {
-  width: calc(100% - 30px);
-  margin: 30px 0 30px 30px;
+  margin: 30px 0 0 20px;
   padding: 0;
 }
 
@@ -165,23 +165,27 @@ $jp-shadow-pressed-offset: $jp-shadow-offset - 1px;
   padding: 0 0 3px 10px;
 }
 
+// used in dlInputWidth
+$baseWidth: 30px;
+$dlPadding: 3px;
+
 @mixin dlInputWidth($size) {
-  $baseWidth: 30px;
-  $dlPadding: 3px;
   width: calc((#{$baseWidth} * #{$size}) - #{$dlPadding});
 }
 
+//used in tabularInputWidth
+$baseWidth: 30px;
+$tabularPadding: 10px;
+
 @mixin tabularInputWidth($size) {
-  $baseWidth: 30px;
-  $tabularPadding: 10px;
   width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding} * 2);
   margin: 0 10px 0 10px;
 }
 
 @mixin tabularWithCoverArt() {
   width: calc(100vw - #{$album-page-cover-art-size} - 60px - #{$jp-scrollbar-size});
+  margin: 0 0 30px 20px;
   @media screen and (max-width: #{$jp-supplement-width-threshold}) {
     width: calc(100vw - 60px - #{$jp-scrollbar-size});
   }
-  margin: 0 0 30px 20px;
 }

@@ -75,10 +75,10 @@
           &.song,
           &.album,
           &.artist {
-            min-width: 10rem;
             overflow: hidden;
-            white-space: nowrap;
+            min-width: 10rem;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
           &.song.truncate {
             max-width: 20vw;
@@ -134,15 +134,15 @@
         }
         &.artist {
           &.truncate {
-            max-width: 25vw;
             overflow: hidden;
-            white-space: nowrap;
+            max-width: 25vw;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
         &.year {
-          padding: 0 10px 0 0;
           width: 30px;
+          padding: 0 10px 0 0;
           text-align: right;
         }
       }

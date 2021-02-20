@@ -12,19 +12,20 @@ div.coverart {
   .caption1,
   .caption2,
   .caption3 {
+    overflow: hidden;
     // display: flex;
     // flex-flow: row nowrap;
     // align-items: center;
     height: 20px;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     padding-right: 4px;
     padding-left: 4px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .caption1 {
-    font-size: 0.94rem;
+    font-size: .94rem;
     font-weight: 500;
+
     @include borderRadius;
     &:focus-within {
       background-color: $jp-color-complementary3;
@@ -37,20 +38,20 @@ div.coverart {
     }
   }
   .caption2 {
+    font-size: .86rem;
     font-weight: 400;
-    font-size: 0.86rem;
   }
   .caption3 {
+    font-size: .86rem;
     font-weight: 400;
-    font-size: 0.86rem;
   }
   ul.controls {
     height: 0;
     .control.play,
     .control.plus {
-      z-index: $jp-layer-5;
       display: none;
       position: relative;
+      z-index: $jp-layer-5;
       top: 20px;
     }
     .control.play {
@@ -64,9 +65,10 @@ div.coverart {
 
 .coverart,
 #nowPlaying img {
-  @include borderRadius;
   background-color: $jp-color-white;
   color: $jp-color-dark-gray;
+
+  @include borderRadius;
 }
 
 .coverart .caption1 a:link,
@@ -79,8 +81,8 @@ div.coverart {
   margin-top: 30px;
   > .albumThumb {
     display: flex;
-    flex-flow: row nowrap;
     align-items: start;
+    flex-flow: row nowrap;
     justify-content: center;
     width: #{$album-page-cover-art-size};
     height: #{$album-page-cover-art-size};

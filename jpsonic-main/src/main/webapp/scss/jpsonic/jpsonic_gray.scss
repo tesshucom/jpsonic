@@ -17,10 +17,10 @@
  Copyright 2020 (C) tesshu.com
  */
 
-@import "./jpsonic/definitions/jpsonic";
-@import "./jpsonic/definitions/subsets/_iris.scss"; // override jpsonic
-@import "./jpsonic/definitions/jp-reset";
-@import "./jpsonic/definitions/jp-functions";
-@import "./jpsonic/definitions/jp-icons";
-@import "./jpsonic/definitions/_jp-v109.3.0";
-@import "./jpsonic/pages/_all";
+@import "./definitions/jpsonic";
+@import "./definitions/subsets/_gray.scss"; // override jpsonic
+@import "./definitions/jp-reset";
+@import "./definitions/jp-functions";
+@import "./definitions/jp-icons";
+@import "./definitions/_jp-v109.3.0";
+@import "./pages/_all";

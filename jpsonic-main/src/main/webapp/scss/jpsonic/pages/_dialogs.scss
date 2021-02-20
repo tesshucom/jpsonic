@@ -2,13 +2,14 @@
   position: fixed;
   top: 50vw;
   left: 50vw;
-  transform: translate(-50%, -50%);
   outline: none;
+  background-color: $jp-color-white;
+  color: $jp-color-black;
+  transform: translate(-50%, -50%);
+
   @include border;
   @include borderRadius;
   @include dropShadow(non-clickable);
-  background-color: $jp-color-white;
-  color: $jp-color-black;
   .ui-dialog-titlebar.ui-corner-all.ui-widget-header {
     height: 30px;
     margin: 4px 4px 0 4px;
@@ -16,19 +17,19 @@
     background-color: $jp-color-base4;
     color: $jp-color-white;
     .ui-dialog-title {
-      position: relative;
       display: flex;
-      flex-flow: row nowrap;
       align-items: center;
+      flex-flow: row nowrap;
       justify-content: start;
+      position: relative;
       top: -8px;
       height: 30px;
       color: $jp-color-white;
-      font-size: 0.93rem;
+      font-size: .93rem;
     }
     button.ui-button.ui-dialog-titlebar-close {
       display: none;
-      font-size: 0.93rem;
+      font-size: .93rem;
     }
   }
   .ui-dialog-content {
@@ -40,10 +41,10 @@ div[id^="dialog"] {
   display: none;
   top: 0;
   left: 0;
-  margin: 0;
   width: 100% !important;
-  font-size: 1rem;
+  margin: 0;
   color: $jp-color-black;
+  font-size: 1rem;
 }
 
 #dialog-edit {
@@ -57,18 +58,20 @@ div[id^="dialog"] {
 
 ul#dialog-select-playlist-list {
   padding: 0;
+
   @include border;
   @include borderRadius;
   li {
-    padding: 4px;
     list-style-type: none;
-    background: $jp-color-white;
-    @include borderRadius;
-    border-collapse: separate;
+    padding: 4px;
     border-spacing: 0;
-    line-height: 30px;
-    font-size: 0.93rem;
+    border-collapse: separate;
+    background: $jp-color-white;
     color: $jp-color-black;
+    font-size: .93rem;
+    line-height: 30px;
+
+    @include borderRadius;
     a {
       outline: none;
     }
@@ -76,12 +79,12 @@ ul#dialog-select-playlist-list {
   li:hover,
   li:focus-within {
     padding: 2px;
-    a {
-      color: $jp-color-complementary3;
-    }
     background-color: $jp-color-mask-light-gray;
 
     @include border(input-focus);
     @include borderRadius;
+    a {
+      color: $jp-color-complementary3;
+    }
   }
 }

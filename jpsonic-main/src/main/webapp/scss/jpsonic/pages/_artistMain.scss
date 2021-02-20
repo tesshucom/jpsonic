@@ -11,15 +11,15 @@
         }
         &.album {
           &.truncate {
-            max-width: 25vw;
             overflow: hidden;
-            white-space: nowrap;
+            max-width: 25vw;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
         &.year {
-          padding: 0 10px 0 0;
           width: 30px;
+          padding: 0 10px 0 0;
           text-align: right;
         }
       }
@@ -46,15 +46,15 @@
             &.song,
             &.album {
               &.truncate {
-                max-width: 25vw;
                 overflow: hidden;
-                white-space: nowrap;
+                max-width: 25vw;
                 text-overflow: ellipsis;
+                white-space: nowrap;
               }
             }
             &.duration {
-              padding: 0 10px 0 0;
               width: 60px;
+              padding: 0 10px 0 0;
               text-align: right;
             }
           }
@@ -65,11 +65,11 @@
 
   h2 + span {
     ul.anchorList {
-      margin-top: 32px;
-      width: calc(100% - $jp-subsection-indent);
-      margin-left: $jp-subsection-indent;
       align-items: center;
       justify-content: start;
+      width: calc(100% - $jp-subsection-indent);
+      margin-top: 32px;
+      margin-left: $jp-subsection-indent;
     }
   }
 }

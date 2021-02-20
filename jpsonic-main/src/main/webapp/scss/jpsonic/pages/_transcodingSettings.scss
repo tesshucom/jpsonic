@@ -1,41 +1,46 @@
 .mainframe.settings.transcodingSettings {
+  $baseWidth: 30px;
+  $dlPadding: 3px;
+
   @mixin transcodingInputWidth($size, $maxWidth: "") {
-    $baseWidth: 30px;
-    $dlPadding: 3px;
-    min-width: calc((#{$baseWidth} * #{$size}) - #{$dlPadding});
     width: 100%;
+    min-width: calc((#{$baseWidth} * #{$size}) - #{$dlPadding});
   }
 
   input[name*="name"] {
     @include transcodingInputWidth(3);
   }
   input[name*="sourceFormats"] {
-    @include transcodingInputWidth(9);
     max-width: calc(100% - 100px);
+
+    @include transcodingInputWidth(9);
   }
   input[name*="targetFormat"] {
-    @include transcodingInputWidth(3);
     max-width: 90px;
+
+    @include transcodingInputWidth(3);
   }
 
   input[name*="step1"] {
-    @include transcodingInputWidth(9);
     max-width: 100%;
+
+    @include transcodingInputWidth(9);
   }
   input[name*="step2"] {
-    @include transcodingInputWidth(9);
     max-width: 100%;
+
+    @include transcodingInputWidth(9);
   }
   input[name*="hlsCommand"] {
-    min-width: calc(90px - 3px);
     width: calc(80% - 30px);
+    min-width: calc(90px - 3px);
     max-width: calc(80% - 30px);
   }
 
   table.tabular.transcoding {
-    margin-left: 0;
     width: calc(100% - 60px);
     margin: 30px 0 0 30px;
+    margin-left: 0;
     th {
       text-align: center;
     }

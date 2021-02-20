@@ -434,7 +434,7 @@
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
                         </archive>
-                        <warSourceExcludes>**/config.rb,**/koala-config.json</warSourceExcludes>
+                        <warSourceExcludes>**/config.rb, **/.csscomb.json</warSourceExcludes>
                     </configuration>
                 </plugin>
                 <plugin>

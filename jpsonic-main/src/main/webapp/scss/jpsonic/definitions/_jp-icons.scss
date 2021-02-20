@@ -21,29 +21,31 @@
 
 @font-face {
   font-family: "ionic";
-  src: url("../fonts/ionicons/ionicons.woff") format("woff"), url("../fonts/ionicons/ionicons.woff2") format("woff2"), url("../fonts/ionicons/ionicons.ttf") format("truetype");
+
+  src: url("../../fonts/ionicons/ionicons.woff") format("woff"), url("../../fonts/ionicons/ionicons.woff2") format("woff2"), url("../../fonts/ionicons/ionicons.ttf") format("truetype");
 }
 
 @mixin createButtonBase($icon-size: "", $content: "", $content-size: "", $content-top: "", $content-left: "") {
   outline: none !important;
-  user-select: none;
-  -moz-user-select: none;
   -webkit-user-select: none;
-  -ms-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
   @if $content == "" {
     display: inline-block;
     overflow: hidden;
     width: #{$icon-size};
     height: #{$icon-size};
     max-height: #{$icon-size};
+    border: 1.4px solid $jp-color-base3;
     border-radius: 50%;
     background: $jp-color-base2;
     line-height: #{$icon-size};
     text-decoration: none;
     text-align: center;
-    border: 1.4px solid $jp-color-base3;
-    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
     cursor: pointer;
+
+    filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
     &:focus,
     &:hover {
       filter: hue-rotate(175deg) contrast(110%) drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
@@ -51,6 +53,7 @@
     &:active {
       top: $jp-shadow-pressed-offset;
       left: $jp-shadow-pressed-offset;
+
       filter: hue-rotate(175deg) contrast(110%) drop-shadow($jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-shadow-pressed-offset $jp-color-mask-gray);
     }
     &::before {
@@ -61,14 +64,15 @@
     &::before {
       display: block;
       position: absolute;
-      top: -0.045em;
-      left: -0.075em;
+      top: -.045em;
+      left: -.075em;
       width: #{$icon-size};
       height: #{$icon-size};
       color: $jp-color-white;
       font-size: #{$content-size};
       text-align: center;
       content: "#{$content}";
+
       -webkit-font-smoothing: antialiased;
       @if $content-top != "" {
         top: #{$content-top};
@@ -91,21 +95,22 @@
 // The link text of the menu link button is a little complicated because it is created so that no filter-effect is applied.
 @mixin createMenuButtonBase($icon-size: "", $content: "", $content-size: "", $content-top: "", $content-left: "", $content-upside-down: "") {
   outline: none !important;
-  user-select: none;
-  -moz-user-select: none;
   -webkit-user-select: none;
-  -ms-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
   @if $content == "" {
     display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: center;
     overflow: visible;
+    align-items: center;
+    flex-flow: row wrap;
+    justify-content: center;
+    font-size: 11px;
     line-height: #{$icon-size};
     white-space: nowrap;
-    font-size: 11px;
-    filter: drop-shadow(0 0 0 transparent);
     cursor: pointer;
+
+    filter: drop-shadow(0 0 0 transparent);
     > a {
       text-align: center;
     }
@@ -115,19 +120,20 @@
       margin: 5px 15px 25px 15px;
       padding: 25px 15px 5px 15px;
       &::before {
-        border: 1.4px solid $jp-color-base3;
-        filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
         position: absolute;
         top: 0;
         left: 0;
         width: #{$icon-size};
         height: #{$icon-size};
+        border: 1.4px solid $jp-color-base3;
+        border: 1.4px solid $jp-color-base3;
         border-radius: 50%;
         background: $jp-color-base2;
         line-height: #{$icon-size};
         text-decoration: none;
-        border: 1.4px solid $jp-color-base3;
         content: "";
+
+        filter: drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
       }
     }
     &:focus,
@@ -135,6 +141,7 @@
     &:hover {
       &::before {
         color: $jp-color-base2;
+
         filter: hue-rotate(175deg) contrast(120%) drop-shadow($jp-shadow-offset $jp-shadow-offset $jp-shadow-offset $jp-color-mask-gray);
       }
       > a {
@@ -169,6 +176,7 @@
       font-size: #{$content-size};
       text-align: center;
       content: "#{$content}";
+
       -webkit-font-smoothing: antialiased;
       @if $content-top != "" {
         top: #{$content-top};
@@ -188,8 +196,9 @@
 }
 
 @mixin createTabularButton($content: "", $content-size: "", $content-top: "", $content-left: "") {
-  @include createButtonBase(20px, $content, $content-size, $content-top, $content-left);
   margin: 5px 0 0 0;
+
+  @include createButtonBase(20px, $content, $content-size, $content-top, $content-left);
   &::before {
     font-weight: 600;
   }
@@ -200,16 +209,17 @@
 }
 
 @mixin createTitleIcon($content: "", $content-size: "", $content-top: "", $content-upside-down: "") {
-  $icon-size: 30px;
-  user-select: none;
-  -moz-user-select: none;
   -webkit-user-select: none;
-  -ms-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+
+  $icon-size: 30px;
   @if $content == "" {
     &::before {
-      margin: 0 10px 0 0;
       width: $icon-size;
       height: $icon-size;
+      margin: 0 10px 0 0;
       border: 1.4px solid $jp-color-base3;
       border-radius: 50%;
       background: $jp-color-base2;
@@ -219,44 +229,48 @@
     }
   } @else {
     &::before {
-      -webkit-font-smoothing: antialiased;
-      line-height: calc(#{$icon-size} - 0.15em);
-      font-family: "ionic";
-      font-weight: 300;
-      font-size: #{$content-size};
-      @if $content-top != "" {
-        line-height: calc(#{$icon-size} - 0.1em + #{$content-top});
-      }
-      content: "#{$content}";
-      @if $content-upside-down != "" {
-        transform: rotate(#{$content-upside-down});
-      }
       display: block;
       width: #{$icon-size};
       height: #{$icon-size};
+      font-family: "ionic";
+      font-size: #{$content-size};
+      font-weight: 300;
+      line-height: calc(#{$icon-size} - .15em);
       text-align: center;
+      content: "#{$content}";
+
+      -webkit-font-smoothing: antialiased;
+      @if $content-top != "" {
+        line-height: calc(#{$icon-size} - .1em + #{$content-top});
+      }
+      @if $content-upside-down != "" {
+        transform: rotate(#{$content-upside-down});
+      }
     }
   }
 }
 
 .control,
 .control.disabled {
-  @include createButton;
   color: transparent !important;
+
+  @include createButton;
 }
 
 .home .ratings {
+  display: flex;
+  align-items: start;
+  flex-flow: row nowrap;
+  justify-content: space-evenly;
   height: 30px;
   color: transparent;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: start;
-  justify-content: space-evenly;
+
+  $icon-size: 20px;
+  $content-size: 20px;
   .rating {
-    $icon-size: 20px;
-    $content-size: 20px;
     width: #{$icon-size};
     height: #{$icon-size};
+
     &::before {
       position: relative;
       width: #{$icon-size};
@@ -265,6 +279,7 @@
       font-family: "ionic";
       font-size: #{$content-size};
       font-weight: 600;
+
       -webkit-font-smoothing: antialiased;
     }
     &.star {
@@ -291,9 +306,10 @@
 }
 
 .control.disabled {
+  border: 1.4px solid $jp-color-dark-gray;
   background: $jp-color-dark-gray;
   cursor: auto;
-  border: 1.4px solid $jp-color-dark-gray;
+
   filter: drop-shadow(0 0 0 $jp-color-mask-gray);
   &:focus,
   &:hover {
@@ -302,6 +318,7 @@
   &:active {
     top: 0;
     left: 0;
+
     filter: hue-rotate(0deg) contrast(100%) drop-shadow(0 0 0 $jp-color-mask-gray);
   }
 }
@@ -309,13 +326,14 @@
 .fileControls .control,
 .tabular .control,
 .jps-radio .control {
-  @include createTabularButton;
   color: transparent !important;
+
+  @include createTabularButton;
 }
 .fileControls {
-  height: 30px;
   display: flex;
   align-items: center;
+  height: 30px;
   div,
   a {
     margin: 0 2px 0 2px !important;
@@ -332,30 +350,30 @@ section > details > summary > h1 {
 }
 
 .control.play {
-  @include createButton("\f357", 15px, -0.06em);
+  @include createButton("\f357", 15px, -.06em);
 }
 .control.pause {
   @include createButton("\f478", 20px);
 }
 
 .jps-radio .control.play {
-  @include createButton("\f357", 12px, 0em, -0.24em);
+  @include createButton("\f357", 12px, 0em, -.24em);
 }
 .control.shuffle {
   @include createButton("\f4a9", 24px);
 }
 .control.plus {
-  @include createButton("\f102", 24px, -0.06em);
+  @include createButton("\f102", 24px, -.06em);
 }
 .control.download {
-  @include createButton("\f2e3", 20px, -0.06em);
+  @include createButton("\f2e3", 20px, -.06em);
 }
 .control.next {
-  @include createTabularButton("\f3d1", 20px, -0.06em, 0.1em);
+  @include createTabularButton("\f3d1", 20px, -.06em, .1em);
 }
 .control.edit,
 .control.comment {
-  @include createButton("\f2db", 20px, -0.08em, -0.05em);
+  @include createButton("\f2db", 20px, -.08em, -.05em);
 }
 .control.export {
   @include createButton("\f31f", 22px);
@@ -365,7 +383,7 @@ section > details > summary > h1 {
 }
 
 .control.cross {
-  @include createButton("\f406", 30px, -0.05em, -0.05em);
+  @include createButton("\f406", 30px, -.05em, -.05em);
 }
 .control.heart {
   @include createButton("\f1a1", 20px);
@@ -374,23 +392,24 @@ section > details > summary > h1 {
   @include createButton("\f308", 20px);
 }
 .control.heart-dislike {
-  @include createButton("\f167", 20px, -0.03em, -0.06em);
+  @include createButton("\f167", 20px, -.03em, -.06em);
 }
 .control.share {
-  @include createButton("\f379", 20px, -0.06em, -0.15em);
+  @include createButton("\f379", 20px, -.06em, -.15em);
 }
 .control.tag {
-  @include createButton("\f35B", 20px, -0.03em, -0.1em);
+  @include createButton("\f35B", 20px, -.03em, -.1em);
 }
 .control.up {
   @include createButton("\f28B", 20px);
 }
 .control.image {
-  @include createButton("\f19c", 18px, -0.09em);
+  @include createButton("\f19c", 18px, -.09em);
 }
 .control.refresh {
-  @include createButton("\f49c", 18px, -0.09em);
   font-weight: 600;
+
+  @include createButton("\f49c", 18px, -.09em);
 }
 .control.right {
   @include createButton("\f28a", 20px);
@@ -414,73 +433,80 @@ section > details > summary > h1 {
   @include createButton("\f215", 20px);
 }
 .control.repeat {
-  @include createButton("\f1fe", 24px, -0.05em);
   font-weight: 600;
+
+  @include createButton("\f1fe", 24px, -.05em);
 }
 .control.no-repeat {
-  @include createButton("\f203", 24px);
   font-weight: 600;
+
+  @include createButton("\f203", 24px);
 }
 .control.cast-active {
-  @include createButton("\f22f", 20px, -0.05em);
+  @include createButton("\f22f", 20px, -.05em);
 }
 .control.cast-idle {
-  @include createButton("\f22f", 20px, -0.05em);
+  @include createButton("\f22f", 20px, -.05em);
 }
 .control.maximize {
-  @include createButton("\f1d7", 20px, -0.05em);
   font-weight: 300;
+
+  @include createButton("\f1d7", 20px, -.05em);
 }
 .control.pip {
-  @include createButton("\f34f", 18px, -0.1em);
+  @include createButton("\f34f", 18px, -.1em);
 }
 .control.expand {
-  @include createButton("\f3d8", 22px, -0.05em);
   font-weight: 600;
+
+  @include createButton("\f3d8", 22px, -.05em);
 }
 .control.shrink {
-  @include createButton("\f3d0", 22px);
   font-weight: 600;
+
+  @include createButton("\f3d0", 22px);
 }
 .control.save-pq {
-  @include createButton("\f1b1", 20px, -0.08em);
   font-weight: 500;
+
+  @include createButton("\f1b1", 20px, -.08em);
 }
 .control.load-pq {
-  @include createButton("\f1b2", 20px, -0.08em);
   font-weight: 500;
+
+  @include createButton("\f1b2", 20px, -.08em);
 }
 .control.reset,
 .control.undo {
-  @include createButton("\f49c", 22px, -0.1em);
+  @include createButton("\f49c", 22px, -.1em);
   &::before {
     transform: scale(-1, 1) rotate(90deg);
   }
 }
 .control.volume {
-  @include createButton("\f3a1", 22px, -0.07em, -0.1em);
+  @include createButton("\f3a1", 22px, -.07em, -.1em);
 }
 .control.mute {
-  @include createButton("\f3a2", 22px, -0.05em);
+  @include createButton("\f3a2", 22px, -.05em);
 }
 .control.sort {
-  @include createButton("\f31b", 20px, -0.05em);
+  @include createButton("\f31b", 20px, -.05em);
 }
 
 .control.artist {
-  @include createButton("\f2d7", 20px, -0.05em);
+  @include createButton("\f2d7", 20px, -.05em);
 }
 .control.album {
-  @include createButton("\f2e0", 20px, -0.05em);
+  @include createButton("\f2e0", 20px, -.05em);
 }
 .control.track {
-  @include createButton("\f46b", 20px, -0.05em);
+  @include createButton("\f46b", 20px, -.05em);
 }
 .control.ratings {
-  @include createButton("\f392", 20px, -0.08em);
+  @include createButton("\f392", 20px, -.08em);
 }
 .control.outernal-link {
-  @include createButton("\f22a", 20px, -0.08em);
+  @include createButton("\f22a", 20px, -.08em);
   &::before {
     font-weight: 400;
   }
@@ -497,49 +523,53 @@ section > details > summary > h1 {
 }
 
 .control.star {
-  @include createButton("\f4b2", 18px, -0.12em, -0.08em);
+  @include createButton("\f4b2", 18px, -.12em, -.08em);
 }
 .control.star-fill {
-  @include createButton("\f4b3", 18px, -0.12em, -0.08em);
+  @include createButton("\f4b3", 18px, -.12em, -.08em);
 }
 .control.star-half {
-  @include createButton("\f4b1", 18px, -0.09em, -0.06em);
+  @include createButton("\f4b1", 18px, -.09em, -.06em);
 }
 .control.star-fill {
-  @include createButton("\f4b3", 18px, -0.09em, -0.06em);
+  @include createButton("\f4b3", 18px, -.09em, -.06em);
 }
 .control.elasticity {
-  @include createButton("\f36b", 18px, -0.09em, -0.06em);
+  @include createButton("\f36b", 18px, -.09em, -.06em);
 }
 .control.elasticity {
-  @include createButton("\f36b", 18px, -0.09em, -0.06em);
+  @include createButton("\f36b", 18px, -.09em, -.06em);
 }
 
+// used in createSearchButton
+$icon-height: 26px;
+$icon-width: 40px;
+
 @mixin createSearchButton($content: "", $content-size: "") {
-  $icon-height: 26px;
-  $icon-width: 40px;
-  margin-left: 1px;
-  height: $icon-height;
   width: $icon-width;
-  border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
+  height: $icon-height;
+  margin-left: 1px;
   border: 1.4px solid $jp-color-base3;
+  border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
+
   &::before {
     display: flex;
-    flex-flow: row wrap;
+    display: block;
     align-items: center;
+    flex-flow: row wrap;
     justify-content: center;
     width: #{$icon-height};
     height: #{$icon-height};
-    padding-left: 0.4em;
+    padding-left: .4em;
     background: $jp-color-base2;
     color: $jp-color-white;
-    -webkit-font-smoothing: antialiased;
-    line-height: calc(#{$icon-height} - 0.1em);
     font-family: "ionic";
-    font-weight: 300;
     font-size: #{$content-size};
+    font-weight: 300;
+    line-height: calc(#{$icon-height} - .1em);
     content: "#{$content}";
-    display: block;
+
+    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -551,26 +581,29 @@ form .control.microphone {
   @include createSearchButton("\f32c", 20px);
 }
 
-.popup.help {
-  $icon-size: 18px;
-  $content: "\f30b";
-  $content-size: 1.1rem;
-  $content-top: "";
-  $content-left: "";
+// used in .popup.help
 
-  outline: none;
+$icon-size: 18px;
+$content: "\f30b";
+$content-size: 1.1rem;
+$content-top: "";
+$content-left: "";
+
+.popup.help {
   display: inline-block;
   overflow: hidden;
-  margin: 0 0px 0 0px;
   width: #{$icon-size};
   height: #{$icon-size};
+  margin: 0 0 0 0;
+  outline: none;
+  border: 1.4px solid $jp-color-base3;
   border-radius: 50%;
   background: $jp-color-base2;
+  color: transparent;
   line-height: #{$content-size};
   text-decoration: none;
   text-align: center;
-  border: 1.4px solid $jp-color-base3;
-  color: transparent;
+
   filter: drop-shadow(0 0 0 transparent);
   &:hover {
     filter: hue-rotate(175deg) contrast(110%);
@@ -578,20 +611,23 @@ form .control.microphone {
   &::before {
     display: block;
     position: absolute;
-    top: -0.03em;
-    left: -0.075em;
+    top: -.03em;
+    left: -.075em;
     width: #{$icon-size};
     height: #{$icon-size};
-    font-family: "ionic";
     color: $jp-color-white;
+    font-family: "ionic";
     font-size: #{$content-size};
     text-align: center;
     content: "#{$content}";
+
     -webkit-font-smoothing: antialiased;
   }
 }
 
 @mixin createToggle($direction: "left", $content: "", $content-size: "", $content-top: "", $content-left: "") {
+  width: 30px;
+
   $icon-height: 26px;
   @include createButton($content, $content-size, $content-top, $content-left);
   @if $direction != "left" {
@@ -599,18 +635,17 @@ form .control.microphone {
   } @else if $direction != "right" {
     border-radius: calc(#{$icon-height} / 2) 0 0 calc(#{$icon-height} / 2);
   }
-  width: 30px;
 }
 
 // list or tile >>
 .control.list {
-  @include createToggle("left", "\f454", 22px, -0.05em, 0.1em);
+  @include createToggle("left", "\f454", 22px, -.05em, .1em);
   &::before {
     font-weight: 600;
   }
 }
 .control.list.disabled {
-  @include createButton("\f454", 22px, -0.05em, 0.1em);
+  @include createButton("\f454", 22px, -.05em, .1em);
   &::before {
     font-weight: 600;
   }
@@ -625,40 +660,42 @@ form .control.microphone {
 
 // outline or working-outline >>
 .control.outline {
-  @include createToggle("left", "\f2ce", 24px, -0.05em, 0.05em);
+  @include createToggle("left", "\f2ce", 24px, -.05em, .05em);
 }
 .control.outline.disabled {
-  @include createButton("\f2ce", 24px, -0.05em, 0.05em);
+  @include createButton("\f2ce", 24px, -.05em, .05em);
 }
 .control.working-outline {
-  @include createToggle("right", "\f2cd", 24px, -0.05em, 0.005em);
+  @include createToggle("right", "\f2cd", 24px, -.05em, .005em);
 }
 .control.working-outline.disabled {
-  @include createButton("\f2cd", 24px, -0.05em, 0.005em);
+  @include createButton("\f2cd", 24px, -.05em, .005em);
 }
 // outline or working-outline <<
 
 .pager {
   .control.previous {
-    $icon-height: 26px;
-    @include createButton("\f288", 22px, -0.05em, 0.1em);
-    border-radius: calc(#{$icon-height} / 2) 0 0 calc(#{$icon-height} / 2);
     width: 30px;
+    border-radius: calc(#{$icon-height} / 2) 0 0 calc(#{$icon-height} / 2);
+
+    $icon-height: 26px;
+    @include createButton("\f288", 22px, -.05em, .1em);
     &::before {
       font-weight: 600;
     }
   }
   .control.previous.disabled {
-    @include createButton("\f288", 22px, -0.05em, 0.1em);
+    @include createButton("\f288", 22px, -.05em, .1em);
   }
   .control.forward {
-    $icon-height: 26px;
-    @include createButton("\f28a", 22px, -0.05em);
-    border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
     width: 30px;
+    border-radius: 0 calc(#{$icon-height} / 2) calc(#{$icon-height} / 2) 0;
+
+    $icon-height: 26px;
+    @include createButton("\f28a", 22px, -.05em);
   }
   .control.forward.disabled {
-    @include createButton("\f28a", 22px, -0.05em);
+    @include createButton("\f28a", 22px, -.05em);
   }
 }
 
@@ -702,66 +739,66 @@ form .control.microphone {
   @include createMenuButton("\f2e3", 24px, 0, 0, 180deg);
 }
 .menu-item.connecting {
-  @include createMenuButton("\f186", 24px, 0, 0.08em);
+  @include createMenuButton("\f186", 24px, 0, .08em);
 }
 .rating.star {
-  @include createButton("\f4b2", 18px, -0.09em, -0.06em);
+  @include createButton("\f4b2", 18px, -.09em, -.06em);
 }
 .fileControls .control.play,
 .tabular .control.play {
-  @include createTabularButton("\f357", 11px, -0.12em);
+  @include createTabularButton("\f357", 11px, -.12em);
 }
 .fileControls .control.download,
 .tabular .control.download {
-  @include createTabularButton("\f2e3", 14px, -0.1em);
+  @include createTabularButton("\f2e3", 14px, -.1em);
 }
 .fileControls .control.next,
 .tabular .control.next {
-  @include createTabularButton("\f3d1", 14px, -0.1em);
+  @include createTabularButton("\f3d1", 14px, -.1em);
 }
 .fileControls .control.plus,
 .tabular .control.plus {
-  @include createTabularButton("\f102", 20px, -0.08em, -0.08em);
+  @include createTabularButton("\f102", 20px, -.08em, -.08em);
 }
 
 .tabular .control.suggest {
-  @include createTabularButton("\f2a7", 16px, -0.08em, -0.08em);
+  @include createTabularButton("\f2a7", 16px, -.08em, -.08em);
 }
 .tabular .control.apply-all {
-  @include createTabularButton("\f365", 16px, -0.08em, -0.08em);
+  @include createTabularButton("\f365", 16px, -.08em, -.08em);
   &::before {
     transform: rotate(90deg);
   }
 }
 .tabular .control.undo {
-  @include createTabularButton("\f49c", 16px, -0.08em, -0.08em);
+  @include createTabularButton("\f49c", 16px, -.08em, -.08em);
   &::before {
     transform: scale(-1, 1) rotate(90deg);
   }
 }
 
 .tabular .control.minus {
-  @include createTabularButton("\f1fc", 20px, -0.08em, -0.08em);
+  @include createTabularButton("\f1fc", 20px, -.08em, -.08em);
   &::before {
     font-weight: 600;
   }
 }
 .tabular .control.star {
-  @include createTabularButton("\f4b2", 16px, -0.13em, -0.1em);
+  @include createTabularButton("\f4b2", 16px, -.13em, -.1em);
   &::before {
     font-weight: 400;
   }
 }
 
 .tabular .control.star-fill {
-  @include createTabularButton("\f4b3", 16px, -0.13em, -0.1em);
+  @include createTabularButton("\f4b3", 16px, -.13em, -.1em);
   &::before {
     font-weight: 400;
   }
 }
 
 .tabular .control.outernal-link {
-  @include createTabularButton("\f22a", 16px, -0.08em, -0.08em);
+  @include createTabularButton("\f22a", 16px, -.08em, -.08em);
   &::before {
     font-weight: 400;
   }
@@ -783,10 +820,10 @@ h1.podcast {
   @include createTitleIcon("\f248", 24px);
 }
 h1.settings {
-  @include createTitleIcon("\f377", 24px, 0.05em);
+  @include createTitleIcon("\f377", 24px, .05em);
 }
 h1.info {
-  @include createTitleIcon("\f312", 36px, 0.05em);
+  @include createTitleIcon("\f312", 36px, .05em);
 }
 h1.upload {
   @include createTitleIcon("\f2e3", 24px, 0, 180deg);
@@ -798,43 +835,43 @@ h1.graph {
   @include createTitleIcon("\f1ed", 24px);
 }
 h1.share {
-  @include createTitleIcon("\f379", 24px, 0.05em);
+  @include createTitleIcon("\f379", 24px, .05em);
 }
 h1.error {
-  @include createTitleIcon("\f3a5", 24px, -0.2em);
+  @include createTitleIcon("\f3a5", 24px, -.2em);
 }
 
 h1.artist {
   @include createTitleIcon("\f2d7", 22px);
 }
 h1.album {
-  @include createTitleIcon("\f2e0", 22px, 0.05em);
+  @include createTitleIcon("\f2e0", 22px, .05em);
 }
 h1.keyboad {
-  @include createTitleIcon("\f2aa", 22px, 0.05em, 90deg);
+  @include createTitleIcon("\f2aa", 22px, .05em, 90deg);
 }
 h1.image {
-  @include createTitleIcon("\f19c", 22px, 0.05em);
+  @include createTitleIcon("\f19c", 22px, .05em);
 }
 h1.key {
-  @include createTitleIcon("\f1a7", 22px, 0.05em);
+  @include createTitleIcon("\f1a7", 22px, .05em);
 }
 h1.movie {
-  @include createTitleIcon("\f4cd", 22px, 0.05em);
+  @include createTitleIcon("\f4cd", 22px, .05em);
 }
 h1.playqueue {
   @include createTitleIcon("\f46c", 22px);
 }
 
 @mixin createIcon($content: "", $content-size: "", $content-top: "", $content-left: "", $content-upside-down: false) {
-  outline: none;
   display: inline;
-  user-select: none;
-  color: transparent !important;
   width: 30px;
   height: 30px;
   margin: 0;
   padding: 0;
+  outline: none;
+  color: transparent !important;
+  user-select: none;
   &::before {
     position: relative;
     color: $jp-color-dark-gray;
@@ -842,6 +879,7 @@ h1.playqueue {
     font-size: #{$content-size};
     text-align: center;
     content: "#{$content}";
+
     -webkit-font-smoothing: antialiased;
     @if $content-top != "" {
       top: #{$content-top};
@@ -853,33 +891,33 @@ h1.playqueue {
 }
 
 .icon.numberofsongs {
-  @include createIcon("\f46b", 24px, -0.2em);
+  @include createIcon("\f46b", 24px, -.2em);
 }
 .icon.duration {
-  @include createIcon("\f3c8", 24px, -0.2em);
+  @include createIcon("\f3c8", 24px, -.2em);
 }
 .icon.date {
-  @include createIcon("\f2ab", 24px, -0.2em);
+  @include createIcon("\f2ab", 24px, -.2em);
 }
 .icon.person {
-  @include createIcon("\f345", 24px, -0.2em);
+  @include createIcon("\f345", 24px, -.2em);
 }
 .icon.visibility {
-  @include createIcon("\f2e9", 24px, -0.2em);
+  @include createIcon("\f2e9", 24px, -.2em);
 }
 .icon.comment {
-  @include createIcon("\f2db", 24px, -0.2em);
+  @include createIcon("\f2db", 24px, -.2em);
 }
 .icon.facebook {
-  @include createIcon("\f236", 24px, -0.2em);
+  @include createIcon("\f236", 24px, -.2em);
 }
 .icon.twitter {
-  @include createIcon("\f2b0", 24px, -0.2em);
+  @include createIcon("\f2b0", 24px, -.2em);
 }
 
 @mixin playQueueCursol {
   position: relative;
-  top: 0.2em;
+  top: .2em;
   color: $jp-color-now-playing;
   font-family: "ionic";
   font-size: 20px;
@@ -896,11 +934,12 @@ h1.playqueue {
 
 .song.playing {
   &::before {
+    -webkit-animation: blink 1s ease-in-out infinite alternate;
+       -moz-animation: blink 1s ease-in-out infinite alternate;
+            animation: blink 1s ease-in-out infinite alternate;
+
     @include playQueueCursol;
     -webkit-font-smoothing: antialiased;
-    -webkit-animation: blink 1s ease-in-out infinite alternate;
-    -moz-animation: blink 1s ease-in-out infinite alternate;
-    animation: blink 1s ease-in-out infinite alternate;
   }
   @-webkit-keyframes blink {
     0% {
@@ -935,23 +974,24 @@ h1.playqueue {
 
 @mixin detailsIcon($content: "", $content-size: "", $content-url: "") {
   &::after {
+    display: flex;
+    align-items: center;
+    flex-flow: row wrap;
+    justify-content: center;
     position: absolute;
     right: 0;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: center;
     width: 30px;
     height: 30px;
     font-family: "ionic";
-    line-height: 30px;
     font-size: #{$content-size};
+    line-height: 30px;
+
+    -webkit-font-smoothing: antialiased;
     @if $content-url != "" {
       content: url(#{$content-url});
     } @else {
       content: "#{$content}";
     }
-    -webkit-font-smoothing: antialiased;
   }
 }
 
@@ -969,6 +1009,6 @@ details {
     }
   }
   summary[class~="jpsonic"] {
-    @include detailsIcon(null, 28px, "../icons/japanesque.svg");
+    @include detailsIcon(null, 28px, "../../icons/japanesque.svg");
   }
 }

@@ -3,14 +3,14 @@
     $baseWidth: 30px;
     $tabularPadding: 10px;
     @if $isAll {
-      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding} - 30px);
       width: calc(100% - 30px);
+      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding} - 30px);
       @if $maxWidth != "" {
         max-width: calc(#{$maxWidth} - 30px);
       }
     } @else {
-      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding});
       width: 100%;
+      min-width: calc((#{$baseWidth} * #{$size}) - #{$tabularPadding});
       @if $maxWidth != "" {
         max-width: $maxWidth;
       }
@@ -53,22 +53,22 @@
     margin-top: 30px;
     thead {
       tr {
-        white-space: nowrap;
         height: 30px;
+        white-space: nowrap;
         &:nth-child(1) {
           th {
             border-bottom-style: none;
-            vertical-align: middle;
             text-align: left;
+            vertical-align: middle;
           }
         }
         &:nth-child(2) {
           border-top-style: none;
           th {
             padding: 0 0 0 10px;
-            font-size: 0.93rem;
-            vertical-align: middle;
+            font-size: .93rem;
             text-align: left;
+            vertical-align: middle;
             &:first-child {
               @include border(left);
               @include borderRadius(none);

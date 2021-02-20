@@ -8,10 +8,11 @@
     }
     dd {
       input#file {
-        cursor: pointer;
-        @include dlInputWidth(10);
         padding: 0 0 0 10px;
         border: none;
+        cursor: pointer;
+
+        @include dlInputWidth(10);
       }
       input#dir {
         @include dlInputWidth(9);

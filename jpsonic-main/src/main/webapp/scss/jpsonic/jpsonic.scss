@@ -35,22 +35,21 @@
 //     │     ├ _jp-reset.scss        : Based upon 'A modern CSS reset'.
 //     │     ├ _jpsonic.scss         : Global variable declaration for 'Jpsonic' theme.
 //     │     └ _jp-v109.3.0          : Global definition, that directly extends HTML tags.
-//     └ pages
-//           └ pages                [Definition for each page of JSP. Global definition overrides and page-dependent definitions.]
-//                 ├ _all.scss       : There is no particular content. Links to all files in the pages directory.
-//                 ├ _global.scss    : Global definition, that depends on the CSS class used by Jpsonic's JSP.
-//                 ├ _dialogs.scss   : Definition that depends on the dialog class of jquery-ui. All dialogs are defined in one file.
-//                 └ *.scss          : CSS unique to each page. It corresponds to the web page (JSP).
+//     └ pages                      [Definition for each page of JSP. Global definition overrides and page-dependent definitions.]
+//           ├ _all.scss             : There is no particular content. Links to all files in the pages directory.
+//           ├ _global.scss          : Global definition, that depends on the CSS class used by Jpsonic's JSP.
+//           ├ _dialogs.scss         : Definition that depends on the dialog class of jquery-ui. All dialogs are defined in one file.
+//           └ *.scss                : CSS unique to each page. It corresponds to the web page (JSP).
 //
 
 $jp-font-absolute-small: 11px;
 
 // Read the 'definitions' directory.
-@import "./jpsonic/definitions/jpsonic";
-@import "./jpsonic/definitions/jp-reset";
-@import "./jpsonic/definitions/jp-functions";
-@import "./jpsonic/definitions/jp-icons";
-@import "./jpsonic/definitions/_jp-v109.3.0";
+@import "./definitions/jpsonic";
+@import "./definitions/jp-reset";
+@import "./definitions/jp-functions";
+@import "./definitions/jp-icons";
+@import "./definitions/_jp-v109.3.0";
 
 // Read the 'pages' directory.
-@import "./jpsonic/pages/_all";
+@import "./pages/_all";

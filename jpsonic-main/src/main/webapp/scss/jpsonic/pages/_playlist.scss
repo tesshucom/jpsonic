@@ -4,15 +4,15 @@ $playlists-page-cover-art-size: 330px;
   section {
     > .overview {
       position: absolute;
-      top: 0px;
+      top: 0;
       right: 10px;
       width: 300px;
-      background-color: transparent;
       border: none;
+      background-color: transparent;
       dt {
         display: flex;
-        flex-flow: row nowrap;
         align-items: center;
+        flex-flow: row nowrap;
         justify-content: center;
         width: 30px;
         height: 30px;
@@ -20,18 +20,18 @@ $playlists-page-cover-art-size: 330px;
         background-color: transparent;
       }
       dd {
-        max-width: 300px;
         display: flex;
-        flex-flow: row nowrap;
+        overflow: hidden;
         align-items: center;
+        flex-flow: row nowrap;
         justify-content: start;
         width: 120px;
+        max-width: 300px;
         height: 30px;
         border: none;
         background-color: transparent;
-        overflow: hidden;
-        white-space: nowrap;
         text-overflow: ellipsis;
+        white-space: nowrap;
         &:last-of-type {
           width: 270px;
         }
@@ -44,8 +44,9 @@ $playlists-page-cover-art-size: 330px;
     flex-flow: row wrap;
     justify-content: space-between;
     .tabular.playlist {
-      @include tabularWithCoverArt;
       margin-bottom: 30px;
+
+      @include tabularWithCoverArt;
       tbody {
         cursor: pointer;
         tr {
@@ -67,8 +68,8 @@ $playlists-page-cover-art-size: 330px;
               min-width: 10rem;
               &.truncate {
                 overflow: hidden;
-                white-space: nowrap;
                 text-overflow: ellipsis;
+                white-space: nowrap;
               }
             }
             &.song.truncate {
@@ -116,8 +117,8 @@ $playlists-page-cover-art-size: 330px;
             .playlist-missing {
               display: none;
               margin-right: 5px;
-              padding-left: 5px;
               padding-right: 5px;
+              padding-left: 5px;
               border: 1px solid red;
               color: red;
               font-size: 90%;
@@ -130,10 +131,10 @@ $playlists-page-cover-art-size: 330px;
 
   .tabular.sibling {
     width: calc(100vw - #{$playlists-page-cover-art-size} - 60px - #{$jp-subsection-indent});
+    margin: 0 0 0 28px;
     @media screen and (max-width: #{$jp-supplement-width-threshold}) {
       width: calc(100vw - 60px - #{$jp-subsection-indent});
     }
-    margin: 0 0 0 28px;
     tr {
       td {
         height: 30px;
@@ -144,15 +145,15 @@ $playlists-page-cover-art-size: 330px;
         }
         &.artist {
           &.truncate {
-            max-width: 25vw;
             overflow: hidden;
-            white-space: nowrap;
+            max-width: 25vw;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
         }
         &.year {
-          padding: 0 10px 0 0;
           width: 30px;
+          padding: 0 10px 0 0;
           text-align: right;
         }
       }
@@ -170,6 +171,7 @@ $playlists-page-cover-art-size: 330px;
 
   .row-drag {
     background-color: $jp-color-complementary1;
+
     @include border(top);
     @include border(bottom);
     @include dropShadow;
