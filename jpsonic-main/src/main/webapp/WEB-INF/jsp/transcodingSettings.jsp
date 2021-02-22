@@ -12,7 +12,7 @@
     <c:param name="toast" value="${settings_toast}" />
     <c:param name="useRadio" value="${model.useRadio}"/>
     <c:param name="useSonos" value="${model.useSonos}"/>
-	<c:param name="existsShare" value="${model.shareCount ne 0}"/>
+    <c:param name="existsShare" value="${model.shareCount ne 0}"/>
 </c:import>
 
 <c:import url="outlineHelpSelector.jsp">
@@ -101,10 +101,12 @@
 
     <details ${model.isOpenDetailSetting ? "open" : ""}>
         <summary><fmt:message key="advancedsettings.hlscommand" /></summary>
-        <input type="text" name="hlsCommand" value="${model.hlsCommand}" />
-        <c:import url="helpToolTip.jsp">
-            <c:param name="topic" value="hlscommand" />
-        </c:import>
+        <div class="hls">
+            <input type="text" name="hlsCommand" value="${model.hlsCommand}" />
+            <c:import url="helpToolTip.jsp">
+                <c:param name="topic" value="hlscommand" />
+            </c:import>
+        </div>
     </details>
 
     <div class="submits">

@@ -11,9 +11,8 @@
     @include transcodingInputWidth(3);
   }
   input[name*="sourceFormats"] {
+    width: 100%;
     max-width: calc(100% - 100px);
-
-    @include transcodingInputWidth(9);
   }
   input[name*="targetFormat"] {
     max-width: 90px;
@@ -38,9 +37,7 @@
   }
 
   table.tabular.transcoding {
-    width: calc(100% - 60px);
     margin: 30px 0 0 30px;
-    margin-left: 0;
     th {
       text-align: center;
     }
@@ -59,9 +56,21 @@
         }
         &:nth-child(3) {
           width: 60px;
+          padding: 0;
           text-align: center;
         }
+        input#defaultActive {
+          margin: 0 0 0 20px;
+        }
       }
+    }
+  }
+
+  div.hls {
+    margin: 30px 0 0 30px;
+    text-align: center;
+    div#looltop-hlscommand {
+      vertical-align: middle;
     }
   }
 }
