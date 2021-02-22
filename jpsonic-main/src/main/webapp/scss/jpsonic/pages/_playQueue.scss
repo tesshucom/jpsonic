@@ -348,7 +348,7 @@ $buttons-top: 20px;
   }
 
   > .playerView {
-    position: absolute;
+    position: fixed;
     z-index: $jp-layer-3;
     bottom: 0;
     width: 100%;
