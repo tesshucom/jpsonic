@@ -54,6 +54,7 @@ public class AdvancedSettingsCommand {
     private boolean openDetailSetting;
     private boolean useRadio;
     private boolean useSonos;
+    private int shareCount;
 
     public String getDownloadLimit() {
         return downloadLimit;
@@ -221,5 +222,13 @@ public class AdvancedSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public int getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(int shareCount) {
+        this.shareCount = shareCount;
     }
 }

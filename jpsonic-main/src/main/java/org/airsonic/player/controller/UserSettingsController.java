@@ -37,6 +37,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.validator.UserSettingsValidator;
@@ -70,13 +71,15 @@ public class UserSettingsController {
     private final SecurityService securityService;
     private final SettingsService settingsService;
     private final TranscodingService transcodingService;
+    private final ShareService shareService;
 
     public UserSettingsController(SecurityService securityService, SettingsService settingsService,
-            TranscodingService transcodingService) {
+            TranscodingService transcodingService, ShareService shareService) {
         super();
         this.securityService = securityService;
         this.settingsService = settingsService;
         this.transcodingService = transcodingService;
+        this.shareService = shareService;
     }
 
     @InitBinder
@@ -118,6 +121,8 @@ public class UserSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
+        command.setShareCount(shareService.getAllShares().size());
+
         model.addAttribute(Attributes.Model.Command.VALUE, command);
         return "userSettings";
     }

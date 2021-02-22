@@ -30,6 +30,7 @@ import org.airsonic.player.command.DatabaseSettingsCommand;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.spring.DataSourceConfigType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -49,13 +50,15 @@ public class DatabaseSettingsController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public DatabaseSettingsController(SettingsService settingsService, SecurityService securityService,
-            OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -77,6 +80,7 @@ public class DatabaseSettingsController {
         command.setUsertableQuote(settingsService.getDatabaseUsertableQuote());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
+        command.setShareCount(shareService.getAllShares().size());
         User user = securityService.getCurrentUser(request);
         command.setShowOutlineHelp(outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()));
         model.addAttribute(Attributes.Model.Command.VALUE, command);

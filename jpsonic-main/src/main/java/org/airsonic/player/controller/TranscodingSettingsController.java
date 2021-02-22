@@ -31,6 +31,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.util.LegacyMap;
 import org.apache.commons.lang.StringUtils;
@@ -55,14 +56,16 @@ public class TranscodingSettingsController {
     private final TranscodingService transcodingService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public TranscodingSettingsController(TranscodingService transcodingService, SettingsService settingsService,
-            SecurityService securityService, OutlineHelpSelector outlineHelpSelector) {
+            SecurityService securityService, ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.transcodingService = transcodingService;
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -77,7 +80,8 @@ public class TranscodingSettingsController {
                         transcodingService.getTranscodeDirectory(), "hlsCommand", settingsService.getHlsCommand(),
                         "brand", settingsService.getBrand(), "isOpenDetailSetting", userSettings.isOpenDetailSetting(),
                         "useRadio", settingsService.isUseRadio(), "useSonos", settingsService.isUseSonos(),
-                        "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername())));
+                        "showOutlineHelp", outlineHelpSelector.isShowOutlineHelp(request, user.getUsername()),
+                        "shareCount", shareService.getAllShares().size()));
         return "transcodingSettings";
     }
 

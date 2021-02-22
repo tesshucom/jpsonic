@@ -68,6 +68,7 @@ public class GeneralSettingsCommand {
     private Theme[] themes;
     private String simpleIndexString;
     private boolean showOutlineHelp;
+    private int shareCount;
 
     private String defaultIndexString;
     private boolean defaultSortAlbumsByYear;
@@ -372,6 +373,14 @@ public class GeneralSettingsCommand {
 
     public void setShowOutlineHelp(boolean showOutlineHelp) {
         this.showOutlineHelp = showOutlineHelp;
+    }
+
+    public int getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(int shareCount) {
+        this.shareCount = shareCount;
     }
 
     public String getDefaultIndexString() {

@@ -34,6 +34,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.service.UPnPService;
 import org.airsonic.player.util.LegacyMap;
 import org.springframework.stereotype.Controller;
@@ -58,13 +59,15 @@ public class DLNASettingsController {
     private final UPnPService upnpService;
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
 
     public DLNASettingsController(UPnPService upnpService, SettingsService settingsService,
-            SecurityService securityService) {
+            SecurityService securityService, ShareService shareService) {
         super();
         this.upnpService = upnpService;
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
     }
 
     @GetMapping
@@ -95,6 +98,7 @@ public class DLNASettingsController {
         map.put("dlnaPodcastVisible", settingsService.isDlnaPodcastVisible());
         map.put("dlnaRandomMax", settingsService.getDlnaRandomMax());
         map.put("dlnaGuestPublish", settingsService.isDlnaGuestPublish());
+        map.put("shareCount", shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

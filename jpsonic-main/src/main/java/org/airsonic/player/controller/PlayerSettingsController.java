@@ -42,6 +42,7 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.service.TranscodingService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -70,14 +71,16 @@ public class PlayerSettingsController {
     private final SecurityService securityService;
     private final TranscodingService transcodingService;
     private final SettingsService settingsService;
+    private final ShareService shareService;
 
     public PlayerSettingsController(PlayerService playerService, SecurityService securityService,
-            TranscodingService transcodingService, SettingsService settingsService) {
+            TranscodingService transcodingService, SettingsService settingsService, ShareService shareService) {
         super();
         this.playerService = playerService;
         this.securityService = securityService;
         this.transcodingService = transcodingService;
         this.settingsService = settingsService;
+        this.shareService = shareService;
     }
 
     @GetMapping
@@ -149,6 +152,7 @@ public class PlayerSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
+        command.setShareCount(shareService.getAllShares().size());
 
         model.addAttribute(Attributes.Model.Command.VALUE, command);
     }

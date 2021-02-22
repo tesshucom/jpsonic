@@ -15,6 +15,7 @@
         <c:param name="restricted" value="${not model.user.adminRole}" />
         <c:param name="useRadio" value="${model.useRadio}"/>
     	<c:param name="useSonos" value="${model.useSonos}"/>
+        <c:param name="existsShare" value="${model.shareCount ne 0}"/>
     </c:import>
 
     <form method="post" action="shareSettings.view">

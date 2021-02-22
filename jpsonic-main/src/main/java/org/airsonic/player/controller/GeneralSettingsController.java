@@ -36,6 +36,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -58,13 +59,15 @@ public class GeneralSettingsController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -140,6 +143,8 @@ public class GeneralSettingsController {
             }
         }
         command.setLocales(localeStrings);
+
+        command.setShareCount(shareService.getAllShares().size());
 
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());

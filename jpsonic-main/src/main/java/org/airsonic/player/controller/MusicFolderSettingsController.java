@@ -42,6 +42,7 @@ import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.airsonic.player.service.search.IndexManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,10 +77,11 @@ public class MusicFolderSettingsController {
     private final MediaFileDao mediaFileDao;
     private final IndexManager indexManager;
     private final SecurityService securityService;
+    private final ShareService shareService;
 
     public MusicFolderSettingsController(SettingsService settingsService, MediaScannerService mediaScannerService,
             ArtistDao artistDao, AlbumDao albumDao, MediaFileDao mediaFileDao, IndexManager indexManager,
-            SecurityService securityService) {
+            SecurityService securityService, ShareService shareService) {
         super();
         this.settingsService = settingsService;
         this.mediaScannerService = mediaScannerService;
@@ -88,6 +90,7 @@ public class MusicFolderSettingsController {
         this.mediaFileDao = mediaFileDao;
         this.indexManager = indexManager;
         this.securityService = securityService;
+        this.shareService = shareService;
     }
 
     @GetMapping
@@ -123,6 +126,7 @@ public class MusicFolderSettingsController {
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
         toast.ifPresent(command::setShowToast);
+        command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
