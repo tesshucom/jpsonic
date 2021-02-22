@@ -89,7 +89,7 @@ function resetSortSettings() {
         </dl>
     </details>
 
-    <details>
+    <details ${isOpen}>
         <summary class="jpsonic"><fmt:message key="generalsettings.sortsettings"/></summary>
 
         <div class="actions">

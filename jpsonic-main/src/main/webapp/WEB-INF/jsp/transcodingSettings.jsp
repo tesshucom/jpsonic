@@ -99,7 +99,7 @@
         </table>
     </details>
 
-    <details ${model.isOpenDetailSetting}>
+    <details ${model.isOpenDetailSetting ? "open" : ""}>
         <summary><fmt:message key="advancedsettings.hlscommand" /></summary>
         <input type="text" name="hlsCommand" value="${model.hlsCommand}" />
         <c:import url="helpToolTip.jsp">
