@@ -181,6 +181,19 @@ ul.anchorList {
       }
     }
   }
+  &:after {
+    display: block;
+    width: 100%;
+    height: 60px;
+    content: "";
+  }
+}
+.win {
+  .mainframe {
+    &:after {
+      height: 0;
+    }
+  }
 }
 
 // ******************** breadcrumb/home.jsp, albumMain.jsp ****************

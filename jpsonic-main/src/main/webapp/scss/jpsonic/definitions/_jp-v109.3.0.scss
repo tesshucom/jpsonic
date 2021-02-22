@@ -630,7 +630,14 @@ table.tabular {
 }
 
 ::-webkit-scrollbar-track {
+  margin-bottom: $jp-player-height;
   background: $jp-color-base1;
+}
+
+.win {
+  ::-webkit-scrollbar-track {
+    margin-bottom: 0;
+  }
 }
 
 ::-webkit-scrollbar-track-piece {
