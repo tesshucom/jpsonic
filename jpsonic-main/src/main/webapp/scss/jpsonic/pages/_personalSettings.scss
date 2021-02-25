@@ -128,4 +128,14 @@
       }
     }
   }
+  .lastfm {
+    display: inline-block;
+    width: 50px;
+    height: 18px;
+    margin-left: 4px;
+    background-image: url(../../icons/lastfm.gif);
+    background-size: contain;
+
+    -webkit-backface-visibility: hidden;
+  }
 }

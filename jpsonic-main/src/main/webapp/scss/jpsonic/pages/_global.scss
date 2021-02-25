@@ -439,7 +439,8 @@ div.albumThumb > div.coverart > div > a {
 // The component is a very diverse pattern. Narrow the width and arrange vertically for easy viewing for user.
 // The width that can be displayed on the iPad is recommended.
 
-.mainframe.settings {
+.mainframe.settings,
+.mainframe.help {
   details {
     width: calc(100vw - 60px);
     margin: 30px 20px 0 20px;
