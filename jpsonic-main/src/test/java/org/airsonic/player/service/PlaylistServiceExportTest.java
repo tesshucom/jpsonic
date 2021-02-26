@@ -90,9 +90,14 @@ public class PlaylistServiceExportTest {
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             playlistService.exportPlaylist(23, outputStream);
-            String expected = IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"),
-                    StandardCharsets.UTF_8);
-            String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "");
+            /*
+             * Since there is no problem in operation, blank lines are excluded from verification. (The trailing newline
+             * is not output on the Windows-"server")
+             */
+            String expected = IOUtils
+                    .toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"), StandardCharsets.UTF_8)
+                    .replaceAll("\\r", "").replaceAll("\\n+$", "");
+            String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "").replaceAll("\\n+$", "");
             Assert.assertEquals(expected, actual);
         }
     }
