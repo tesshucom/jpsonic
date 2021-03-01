@@ -146,10 +146,13 @@ Jpsonic is free software and licensed under the [GNU General Public License vers
 
 The [Subsonic source code](https://github.com/airsonic/subsonic-svn) was released under the GPLv3 through version 6.0-beta1. Beginning with 6.0-beta2, source is no longer provided. Binaries of Subsonic are only available under a commercial license. There is a [Subsonic Premium](http://www.subsonic.org/pages/premium.jsp) service which adds functionality not available in Airsonic. Subsonic also offers RPM, Deb, Exe, and other pre-built packages that Airsonic [currently does not](https://github.com/airsonic/airsonic/issues/65).
 
-The cover zooming feature is provided by [jquery.fancyzoom](https://github.com/keegnotrub/jquery.fancyzoom),
-released under [MIT License](http://www.opensource.org/licenses/mit-license.php).
-
-The icons are from the amazing [feather](https://feathericons.com/) project,
-and are licensed under [MIT license](https://github.com/feathericons/feather/blob/master/LICENSE).
-
-[Kazesawa font](https://kazesawa.github.io/) is used for Japanese fonts. Copyright (C) 2002-2015 M+ FONTS PROJECT.
+<dl>
+    <dt>Japanese morphological analyzer</dt>
+    <dd><a href="https://www.atilika.org/" target="_blank">Kuromoji</a> is an open source Japanese morphological analyzer written in Java. Licensed under the Apache License v2.0 and uses the MeCab-IPADIC dictionary/statistical model.<br>(C) 2011-2014 Atilika Inc.</dd>
+    <dt>Japanese font</dt>
+    <dd><a href="https://kazesawa.github.io/" target="_blank">Kazesawa</a> is Japanese TrueType font aims to achieve both visibility on the screen and appropriate information density. Provided under the SIL Open Font License.<br>(C) 2002-2015 M+ FONTS PROJECT.</dd>
+    <dt>Icon font</dt>
+    <dd><a href="https://ionicons.com/" target="_blank">Ionicons</a> is a completely open-source icon set with 1,300 icons crafted for web, iOS, Android, and desktop apps, are free to use and licensed under MIT.<br>(C) 2021 ionic-team</dd>
+    <dt>Avatar Icon</dt>
+    <dd>Created using Iconpon, a material site that provides image materials such as icons and related services.<br>Icon by <a href="https://www.iconpon.com/" target="_blank">iconpon.com</a></dd>
+</dl>
