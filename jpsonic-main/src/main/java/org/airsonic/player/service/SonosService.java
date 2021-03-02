@@ -185,8 +185,7 @@ public class SonosService implements SonosSoap {
                         sonosServiceId);
                 break;
             } catch (IOException x) {
-                LOG.warn(String.format("Failed to enable/disable music service in Sonos controller %s: %s",
-                        sonosController, x));
+                LOG.warn("Failed to enable/disable music service in Sonos controller {}: {}", sonosController, x);
             }
         }
     }
@@ -208,8 +207,7 @@ public class SonosService implements SonosSoap {
         String username = getUsername();
         HttpServletRequest request = getRequest();
 
-        LOG.debug(String.format("getMetadata: id=%s index=%s count=%s recursive=%s", id, index, count,
-                parameters.isRecursive()));
+        LOG.debug("getMetadata: id={} index={} count={} recursive={}", id, index, count, parameters.isRecursive());
 
         List<? extends AbstractMedia> media = null;
         MediaList mediaList = null;
@@ -229,8 +227,8 @@ public class SonosService implements SonosSoap {
             mediaList = SonosHelper.createSubList(index, count, media);
         }
 
-        LOG.debug(String.format("getMetadata result: id=%s index=%s count=%s total=%s", id, mediaList.getIndex(),
-                mediaList.getCount(), mediaList.getTotal()));
+        LOG.debug("getMetadata result: id={} index={} count={} total={}", id, mediaList.getIndex(),
+                mediaList.getCount(), mediaList.getTotal());
 
         GetMetadataResponse response = new GetMetadataResponse();
         response.setGetMetadataResult(mediaList);
