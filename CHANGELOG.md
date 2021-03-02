@@ -3,8 +3,18 @@
 # jpsonic/jpsonic
 # -->
 
-## v109.4.0
+## v109.5.0
 #### Based on *airsonic 11.0.0-SNAPSHOT 5c71659*
+
+#### Updates
+
+  * Update libs
+  * Minor web page fixes primarily for mobile and Firefox
+  * Replace avatar image with new image
+  * Add Special Thanks to About page
+
+<details>
+<summary>v109.4.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
 
 #### Fixes
 
@@ -28,6 +38,7 @@
   * Fix to display scan status regardless of settings
   * Add option to display information and links for the song being played
   * Minor fixes for CSS and messages
+</details>
 
 <details>
 <summary>v109.3.0 Based on airsonic 11.0.0-SNAPSHOT 5c71659</summary>
