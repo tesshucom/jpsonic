@@ -20,9 +20,9 @@
         <jackson.version>2.12.1</jackson.version>
         <tomcat.version>9.0.43</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.36.v20210114</jetty.version>
-        <jetty-jsp.version>9.4.36.v20210114</jetty-jsp.version>
-        <pmd.version>6.31.0</pmd.version>
+        <jetty.version>9.4.38.v20210224</jetty.version>
+        <jetty-jsp.version>9.4.38.v20210224</jetty-jsp.version>
+        <pmd.version>6.32.0</pmd.version>
         <log4j.version>2.14.0</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
@@ -88,7 +88,7 @@
                 <!-- Import dependency management from Spring Boot -->
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>2.4.2</version>
+                <version>2.4.3</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -434,7 +434,7 @@
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             </manifest>
                         </archive>
-                        <warSourceExcludes>**/config.rb,**/koala-config.json</warSourceExcludes>
+                        <warSourceExcludes>**/config.rb, **/.csscomb.json</warSourceExcludes>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -639,9 +639,9 @@
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
-                <version>2.13.0</version>
+                <version>2.14.0</version>
                 <configuration>
-                    <configLocation>${project.basedir}/jpsonic-main/eclipse-java-google-style.xml</configLocation>
+                    <configLocation>${project.basedir}/jpsonic-main/formatter.xml</configLocation>
                     <encoding>UTF-8</encoding>
                     <lineEnding>LF</lineEnding>
                     <consoleOutput>true</consoleOutput>

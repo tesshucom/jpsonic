@@ -21,6 +21,7 @@
 
 package org.airsonic.player.controller;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -57,13 +59,15 @@ public class GeneralSettingsController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public GeneralSettingsController(SettingsService settingsService, SecurityService securityService,
-            OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -118,11 +122,11 @@ public class GeneralSettingsController {
 
         toast.ifPresent(command::setShowToast);
 
-        Theme[] themes = settingsService.getAvailableThemes();
-        command.setThemes(themes);
+        List<Theme> themes = SettingsService.getAvailableThemes();
+        command.setThemes(themes.toArray(new Theme[0]));
         String currentThemeId = settingsService.getThemeId();
-        for (int i = 0; i < themes.length; i++) {
-            if (currentThemeId.equals(themes[i].getId())) {
+        for (int i = 0; i < themes.size(); i++) {
+            if (currentThemeId.equals(themes.get(i).getId())) {
                 command.setThemeIndex(String.valueOf(i));
                 break;
             }
@@ -140,6 +144,8 @@ public class GeneralSettingsController {
         }
         command.setLocales(localeStrings);
 
+        command.setShareCount(shareService.getAllShares().size());
+
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());
         command.setOpenDetailSetting(userSettings.isOpenDetailSetting());
 
@@ -152,7 +158,7 @@ public class GeneralSettingsController {
             RedirectAttributes redirectAttributes) {
 
         int themeIndex = Integer.parseInt(command.getThemeIndex());
-        Theme theme = settingsService.getAvailableThemes()[themeIndex];
+        Theme theme = SettingsService.getAvailableThemes().get(themeIndex);
 
         int localeIndex = Integer.parseInt(command.getLocaleIndex());
         Locale locale = settingsService.getAvailableLocales()[localeIndex];

@@ -14,35 +14,36 @@ div.welcome {
   section {
     > .controls {
       margin: -30px 0 10px calc((100% - #{$home-controls-width}) / 2);
-      padding: 8px 0px 5px 0px;
-      font-size: 0.86rem;
+      padding: 8px 0 5px 0;
+      font-size: .86rem;
     }
   }
 
   details {
     ul.anchorList {
       display: flex;
-      flex-flow: row wrap;
       align-items: center;
+      flex-flow: row wrap;
       justify-content: start;
-      min-height: 30px;
       width: calc(100% - 30px);
+      min-height: 30px;
       margin: 0;
       padding: 0 0 0 30px;
       li {
         display: flex;
         align-items: center;
-        margin: 0px 8px 0px 0px;
+        margin: 0 8px 0 0;
 
         a {
           height: 24px;
-          margin: 6px 8px 0px 0px;
+          margin: 6px 8px 0 0;
           padding: 1px 10px 1px 10px;
-          @include border;
           border-radius: 12px;
           font-size: 1rem;
           font-weight: 500;
           vertical-align: middle;
+
+          @include border;
           &:active {
             top: -1px;
           }
@@ -53,15 +54,15 @@ div.welcome {
 
   div.albums {
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
+    flex-flow: row wrap;
   }
 
   .albumThumb {
     > .ratings {
       display: flex;
-      flex-flow: row nowrap;
       align-items: center;
+      flex-flow: row nowrap;
       justify-content: space-evenly;
       width: 160px;
     }

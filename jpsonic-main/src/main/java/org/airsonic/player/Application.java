@@ -150,8 +150,8 @@ public class Application extends SpringBootServletInitializer
     public FilterRegistrationBean<Filter> cacheFilterRegistration() {
         FilterRegistrationBean<Filter> registration = new FilterRegistrationBean<>();
         registration.setFilter(cacheFilter());
-        registration.addUrlPatterns("/icons/*", "/style/*", "/script/*", "/dwr/*", "/icons/*",
-                "/" + ViewName.COVER_ART.value(), "/" + ViewName.AVATAR.value());
+        registration.addUrlPatterns("/fonts/*", "/icons/*", "/script/*", "/scss/*", "/style/*", "/dwr/*",
+                "/" + ViewName.COVER_ART.value());
         registration.addInitParameter("Cache-Control", "max-age=36000");
         registration.setName("CacheFilter");
         registration.setOrder(5);

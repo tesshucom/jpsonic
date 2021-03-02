@@ -1,0 +1,55 @@
+/*
+ This file is part of Jpsonic.
+
+ Jpsonic is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ Jpsonic is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with Jpsonic.  If not, see <http://www.gnu.org/licenses/>.
+
+ Copyright 2020 (C) tesshu.com
+ */
+
+//
+// CSS styleshet for the "Jpsonic" theme.
+//
+// [Constitution]
+//
+// The JSP is based on Airsonic, but the CSS configuration is very different.
+// SCSS is made into parts so that a large-scale design can be designed.
+//
+// Since there are dependencies, the order of reading is fixed.
+// The SCSS that stores the global definition is read first, and the SCSS for each page is read.
+//
+// jpsonic.scss                     [This file. The order in which the definitions are read is defined.]
+//     ├ definitions　               [Definitions used repeatedly, or theme-specific definitions]
+//     │     ├ _jp-functions.scss    : Common functions such as borders and effects.
+//     │     ├ _jp-icons.scss        : Definitions related to icons.
+//     │     ├ _jp-reset.scss        : Based upon 'A modern CSS reset'.
+//     │     ├ _jpsonic.scss         : Global variable declaration for 'Jpsonic' theme.
+//     │     └ _jp-v109.3.0          : Global definition, that directly extends HTML tags.
+//     └ pages                      [Definition for each page of JSP. Global definition overrides and page-dependent definitions.]
+//           ├ _all.scss             : There is no particular content. Links to all files in the pages directory.
+//           ├ _global.scss          : Global definition, that depends on the CSS class used by Jpsonic's JSP.
+//           ├ _dialogs.scss         : Definition that depends on the dialog class of jquery-ui. All dialogs are defined in one file.
+//           └ *.scss                : CSS unique to each page. It corresponds to the web page (JSP).
+//
+
+$jp-font-absolute-small: 11px;
+
+// Read the 'definitions' directory.
+@import "./definitions/jpsonic";
+@import "./definitions/jp-reset";
+@import "./definitions/jp-functions";
+@import "./definitions/jp-icons";
+@import "./definitions/_jp-v109.3.0";
+
+// Read the 'pages' directory.
+@import "./pages/_all";

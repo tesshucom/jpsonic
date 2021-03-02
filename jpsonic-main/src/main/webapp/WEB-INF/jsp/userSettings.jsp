@@ -42,6 +42,7 @@
     <c:param name="toast" value="${command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
+    <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
 <div class="titledSelector username">

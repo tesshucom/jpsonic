@@ -2,12 +2,12 @@
   height: 100%;
   .external .mejs-container.mejs-audio,
   .mejs__container.mejs__audio {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
     margin: auto;
     margin-top: 2%;
     margin-bottom: 2%;
-    flex-grow: 1;
-    flex-shrink: 1;
-    flex-basis: auto;
   }
   .external.box {
     display: flex;
@@ -15,16 +15,16 @@
     height: 100%;
   }
   .external > .header {
-    padding-top: 2em;
-    margin: auto;
-    width: 500px;
+    flex-basis: auto;
     flex-grow: 0;
     flex-shrink: 1;
-    flex-basis: auto;
+    width: 500px;
+    margin: auto;
+    padding-top: 2em;
   }
   .external > .detail {
+    flex-basis: 40px;
     flex-grow: 0;
     flex-shrink: 1;
-    flex-basis: 40px;
   }
 }

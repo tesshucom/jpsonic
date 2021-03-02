@@ -164,11 +164,11 @@ function onOpenDialogNowplayinginfos() {
     lazyOpenDialogNowplayinginfos("<fmt:message key='common.cancel'/>");
 }
 window.onShowKeyboardShortcuts = function() {
-	lazyOpenDialogKeyboardShortcuts("<fmt:message key='common.cancel'/>");
+    lazyOpenDialogKeyboardShortcuts("<fmt:message key='common.cancel'/>");
 }
 
 window.onOpenDialogVideoPlayer = function(videoUrl) {
-	openDialogVideoPlayer(videoUrl, "<fmt:message key='common.cancel'/>");
+    openDialogVideoPlayer(videoUrl, "<fmt:message key='common.cancel'/>");
 }
 
 </script>
@@ -245,6 +245,26 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
 
         <div class="jps-side-menu">
             <nav>
+                <div class="userInfo">
+                    <c:if test="${model.showAvatar}">
+                        <sub:url value="avatar.view" var="avatarUrl">
+                            <sub:param name="username" value="${model.user.username}" />
+                        </sub:url>
+                        <img src="${avatarUrl}" class="avatar">
+                    </c:if>
+                    <span class="name"> <c:choose>
+                            <c:when test="${model.user.settingsRole}">
+                                <a href="personalSettings.view" target="main"
+                                    title="<fmt:message key='settingsheader.personal'/>(<c:out value='${model.user.username}' escapeXml='true'/>)">
+                                    <span class="name">${model.user.username}</span>
+                                </a>
+                            </c:when>
+                            <c:otherwise>
+                                <span class="name">${model.user.username}</span>
+                            </c:otherwise>
+                        </c:choose>
+                    </span>
+                </div>
                 <ul class="menu">
                     <c:if test="${model.putMenuInDrawer}">
                         <li><a href="home.view?" target="main" title="${home}" class="menu-item home">${home}</a></li>
@@ -265,24 +285,6 @@ window.onOpenDialogVideoPlayer = function(videoUrl) {
                     </c:if>
                     <c:if test="${model.user.settingsRole}">
                         <li><a href="settings.view?" target="main" title="${settings}" class="menu-item settings">${settings}</a></li>
-                    </c:if>
-                    <c:if test="${model.user.settingsRole}">
-                        <a href="personalSettings.view" target="main"> <c:choose>
-                                <c:when test="${model.showAvatar}">
-                                    <sub:url value="avatar.view" var="avatarUrl">
-                                        <sub:param name="username" value="${model.user.username}" />
-                                    </sub:url>
-                                    <li class="avatar"><a href="personalSettings.view" target="main" title="<fmt:message key='settingsheader.personal'/>(<c:out value='${model.user.username}' escapeXml='true'/>)"> <img
-                                            src="${avatarUrl}">
-                                            <div>
-                                                <fmt:message key="settingsheader.personal" />
-                                            </div>
-                                    </a></li>
-                                </c:when>
-                                <c:otherwise>
-                                    <li><a href="personalSettings.view" target="main" title="<fmt:message key='settingsheader.personal'/>(<c:out value='${model.user.username}' escapeXml='true'/>)" class="menu-item personal"><fmt:message key="settingsheader.personal" /></a></li>
-                                </c:otherwise>
-                            </c:choose>
                     </c:if>
                     <c:if test="${model.user.uploadRole}">
                         <li><a href="uploadEntry.view?" target="main" title="${upload}" class="menu-item upload">${upload}</a></li>

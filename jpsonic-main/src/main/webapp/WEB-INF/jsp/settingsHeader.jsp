@@ -9,7 +9,10 @@
     </script>
 </c:if>
 
-<c:set var="categories" value="${param.restricted ? 'personal password player share' : 'musicFolder general advanced personal user player share dlna sonos transcoding internetRadio database'}"/>
+<c:set var="share" value="${param.existsShare ? 'share ' : ''}"/>
+<c:set var="categories" value="${param.restricted
+	? 'personal password player'.concat(share)
+	: 'musicFolder general advanced personal user player '.concat(share).concat('dlna sonos transcoding internetRadio database')}"/>
 
 <section>
 	<h1 class="settings"><fmt:message key="settingsheader.title"/></h1>

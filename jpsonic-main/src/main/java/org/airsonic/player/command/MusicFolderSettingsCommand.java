@@ -50,6 +50,7 @@ public class MusicFolderSettingsCommand {
     private boolean useRadio;
     private boolean useSonos;
     private boolean showToast;
+    private int shareCount;
 
     public String getInterval() {
         return interval;
@@ -161,6 +162,14 @@ public class MusicFolderSettingsCommand {
 
     public void setShowToast(boolean showToast) {
         this.showToast = showToast;
+    }
+
+    public int getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(int shareCount) {
+        this.shareCount = shareCount;
     }
 
     public static class MusicFolderInfo {

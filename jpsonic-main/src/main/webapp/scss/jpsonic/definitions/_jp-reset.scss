@@ -50,8 +50,9 @@ html {
 
 body {
   min-height: 100vh;
-  text-rendering: optimizeSpeed;
   line-height: 1.5;
+
+  text-rendering: optimizeSpeed;
 }
 
 ul[class],

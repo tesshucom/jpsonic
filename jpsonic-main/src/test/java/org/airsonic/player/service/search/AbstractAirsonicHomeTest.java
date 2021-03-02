@@ -25,7 +25,6 @@ import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.airsonic.player.TestCaseUtils;
@@ -34,7 +33,7 @@ import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.rules.TemporaryFolder;
@@ -55,37 +54,16 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  */
 public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
-    public interface BeforeScan extends Supplier<Boolean> {
-    }
-
-    public interface AfterScan extends Supplier<Boolean> {
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractAirsonicHomeTest.class);
-
-    @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
 
     /*
      * Currently, Maven is executing test classes in series, so this class can hold the state. When executing in
      * parallel, subclasses should override this.
      */
-    private static AtomicBoolean dataBasePopulated = new AtomicBoolean();
+    private static final AtomicBoolean DATA_BASE_POPULATED = new AtomicBoolean();
 
     // Above.
-    private static AtomicBoolean dataBaseReady = new AtomicBoolean();
-
-    protected static final Function<String, String> resolveBaseMediaPath = (childPath) -> {
-        return MusicFolderTestData.resolveBaseMediaPath().concat(childPath);
-    };
+    private static final AtomicBoolean DATABASE_READY = new AtomicBoolean();
 
     @Autowired
     protected DaoHelper daoHelper;
@@ -105,14 +83,35 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Override
-    public AtomicBoolean dataBasePopulated() {
-        return dataBasePopulated;
+    public interface BeforeScan extends Supplier<Boolean> {
+    }
+
+    public interface AfterScan extends Supplier<Boolean> {
+    }
+
+    @ClassRule
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
+
+        @Override
+        public Statement apply(Statement base, Description description) {
+            Statement spring = super.apply(base, description);
+            return homeRule.apply(spring, description);
+        }
+    };
+
+    protected static final String resolveBaseMediaPath(String childPath) {
+        return MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath);
     }
 
     @Override
-    public AtomicBoolean dataBaseReady() {
-        return dataBaseReady;
+    public boolean isDataBasePopulated() {
+        return DATA_BASE_POPULATED.get();
+    }
+
+    @Override
+    public boolean isDataBaseReady() {
+        return DATABASE_READY.get();
     }
 
     @Override
@@ -125,8 +124,19 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     }
 
     public final void populateDatabaseOnlyOnce(BeforeScan beforeScan, AfterScan afterscan) {
-        if (!dataBasePopulated().get()) {
-            dataBasePopulated().set(true);
+        if (isDataBasePopulated()) {
+            while (!isDataBaseReady()) {
+                try {
+                    // The subsequent test method waits while reading DB data.
+                    for (int i = 0; i < 10; i++) {
+                        Thread.sleep(500);
+                    }
+                } catch (InterruptedException e) {
+                    LOG.error("Database initialization was interrupted unexpectedly.", e);
+                }
+            }
+        } else {
+            DATA_BASE_POPULATED.set(true);
             getMusicFolders().forEach(musicFolderDao::createMusicFolder);
             settingsService.clearMusicFolderCache();
             try {
@@ -135,7 +145,7 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.error("Database initialization was interrupted unexpectedly.", e);
             }
 
             if (!isEmpty(beforeScan)) {
@@ -152,52 +162,51 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
 
             TestCaseUtils.execScan(mediaScannerService);
 
-            if (!isEmpty(afterscan)) {
-                if (afterscan.get()) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Post-processing of scan was called.");
-                    }
-                } else {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Post-scan processing may have a problem with the call.");
-                    }
-                }
-            }
+            supplyIfNotEmpty(afterscan);
 
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("--- Report of records count per table ---");
-            }
-            Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
-            records.keySet().stream().filter(s -> s.equals("MEDIA_FILE") | s.equals("ARTIST") | s.equals("MUSIC_FOLDER")
-                    | s.equals("ALBUM") | s.equals("GENRE")).forEach(tableName -> {
-                        if (LOG.isInfoEnabled()) {
-                            LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
-                        }
-                    });
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("--- *********************** ---");
-            }
+            logRecordsPerTables();
+
             try {
                 // Await for Lucene to finish writing(asynchronous).
                 for (int i = 0; i < 5; i++) {
                     Thread.sleep(100);
                 }
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                LOG.error("Database initialization was interrupted unexpectedly.", e);
             }
-            dataBaseReady().set(true);
-        } else {
-            while (!dataBaseReady().get()) {
-                try {
-                    // The subsequent test method waits while reading DB data.
-                    for (int i = 0; i < 10; i++) {
-                        Thread.sleep(500);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+            DATABASE_READY.set(true);
+        }
+    }
+
+    private void supplyIfNotEmpty(AfterScan afterscan) {
+        if (!isEmpty(afterscan)) {
+            if (afterscan.get()) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Post-processing of scan was called.");
+                }
+            } else {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Post-scan processing may have a problem with the call.");
                 }
             }
         }
+    }
+
+    private void logRecordsPerTables() {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("--- Report of records count per table ---");
+        }
+        Map<String, Integer> records = TestCaseUtils.recordsInAllTables(daoHelper);
+        records.keySet().stream().filter(s -> "MEDIA_FILE".equals(s) | "ARTIST".equals(s) | "MUSIC_FOLDER".equals(s)
+                | "ALBUM".equals(s) | "GENRE".equals(s)).forEach(tableName -> {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("\t" + tableName + " : " + records.get(tableName).toString());
+                    }
+                });
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("--- *********************** ---");
+        }
+
     }
 
     protected void setSortAlphanum(boolean isSortStrict) {

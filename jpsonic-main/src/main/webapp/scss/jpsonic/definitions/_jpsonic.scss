@@ -5,21 +5,17 @@ $jp-color-light-gray: #dddddd;
 $jp-color-medium-gray: #a9a9af;
 $jp-color-dark-gray: #706e75;
 $jp-color-black: #4f4f55;
-
 $jp-color-base1: #eaf4ff;
 $jp-color-base2: #a1c7fb; // primary color
 $jp-color-base3: #79a2d4;
 $jp-color-base4: #006699;
-
 $jp-color-complementary1: #ffe2d1; // double split complementary
 $jp-color-complementary2: #fff7d1; // double split complementary
 $jp-color-complementary3: #f6c079; // complementary
 
 $jp-color-alert: #ff4500;
-
-$jp-color-mask-light-gray: rgba($jp-color-medium-gray, 0.1);
-$jp-color-mask-gray: rgba($jp-color-dark-gray, 0.45);
-
+$jp-color-mask-light-gray: rgba($jp-color-medium-gray, .1);
+$jp-color-mask-gray: rgba($jp-color-dark-gray, .45);
 $jp-color-now-playing: #ff7bd9;
 
 // ## BORDER ######################################################################
@@ -42,14 +38,12 @@ $jp-drawer-width: 240px;
 $jp-right-width: 240px;
 $jp-header-height: 60px;
 $jp-player-height: 60px;
-
 $jp-layer-0: 0;
 $jp-layer-1: 1;
 $jp-layer-2: 2;
 $jp-layer-3: 3;
 $jp-layer-4: 4;
 $jp-layer-5: 5;
-
 $jp-scrollbar-size: 14px;
 
 // If the display width falls below this value, some elements will be simplified.

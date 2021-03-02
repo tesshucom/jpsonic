@@ -12,8 +12,8 @@ strong {
 }
 
 p {
-  line-height: 30px;
   margin: 30px 0 30px $jp-subsection-indent;
+  line-height: 30px;
 }
 
 a {
@@ -42,8 +42,9 @@ img {
   margin: 0;
   padding: 0;
   border-style: none;
-  @include border(zero);
   vertical-align: middle;
+
+  @include border(zero);
 }
 
 $jp-user-inputs-baseline: 30%;
@@ -60,13 +61,14 @@ dl.single {
     min-height: 30px;
   }
   dt {
-    padding: 5px 3px 1px 3px;
     width: $jp-user-inputs-baseline;
-    @include border(other-than-top);
+    padding: 5px 3px 1px 3px;
     background-color: $jp-color-base1;
     color: $jp-color-black;
-    font-size: 0.86rem;
+    font-size: .86rem;
     font-weight: 500;
+
+    @include border(other-than-top);
     &:first-child {
       @include border(top);
       @include borderRadius(upper-left);
@@ -79,7 +81,10 @@ dl.single {
     }
   }
   dd {
+    width: calc(100% - #{$jp-user-inputs-baseline});
     padding: 3px;
+    font-size: .86rem;
+
     @include border(right);
     @include border(bottom);
     &:first-of-type {
@@ -89,8 +94,6 @@ dl.single {
     &:last-of-type {
       @include borderRadius(lower-right);
     }
-    width: calc(100% - #{$jp-user-inputs-baseline});
-    font-size: 0.86rem;
     > input[type="checkbox"] {
       padding: 0;
       vertical-align: middle;
@@ -102,8 +105,8 @@ dl.single {
       }
     }
     > div {
-      vertical-align: middle;
       text-align: right;
+      vertical-align: middle;
     }
   }
 }
@@ -129,19 +132,21 @@ input,
 textarea,
 select,
 .ui-dialog-buttonpane button {
-  outline: none;
   padding: 1px;
+  outline: none;
+  background: $jp-color-white;
+  font-size: .93rem;
+  vertical-align: middle;
+
   @include border(input);
   @include borderRadius(input);
-  background: $jp-color-white;
-  font-size: 0.93rem;
-  vertical-align: middle;
   &:focus {
-    @include transition;
+    padding: 0;
     outline: none;
-    padding: 0px;
-    @include border(input-focus);
     background: $jp-color-complementary1;
+
+    @include transition;
+    @include border(input-focus);
   }
   &:disabled {
     background: $jp-color-medium-gray;
@@ -167,7 +172,7 @@ input[type="number"],
 select {
   height: 22px;
   color: $jp-color-black;
-  font-size: 0.86rem;
+  font-size: .86rem;
   text-align: justify;
 }
 
@@ -179,12 +184,6 @@ textarea {
 
 input[type="checkbox"],
 input[type="radio"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -ms-appearance: none;
-  -o-appearance: none;
-  appearance: none;
-  box-sizing: border-box;
   position: relative;
   top: 0;
   right: 0;
@@ -194,8 +193,15 @@ input[type="radio"] {
   height: 16px;
   margin: 0 0 0 0;
   padding: 0 0 0 0;
-  @include border(input);
+  box-sizing: border-box;
   background: $jp-color-white;
+
+  -webkit-appearance: none;
+     -moz-appearance: none;
+      -ms-appearance: none;
+       -o-appearance: none;
+          appearance: none;
+  @include border(input);
   &:checked,
   &:indeterminate {
     background: $jp-color-base3;
@@ -241,12 +247,12 @@ input[type="radio"] {
   }
   // 'check' >>
   &:before {
-    content: "";
     display: block;
     width: 8px;
     height: 8px;
     margin: 3px;
     border-radius: 50%;
+    content: "";
     transform: scale(0);
     // <
   }
@@ -266,17 +272,18 @@ input[type="button"],
 dd.input[type="text"],
 input[type="select"],
 .ui-dialog-buttonpane button {
-  outline: none;
   padding-top: 2px;
+  padding-right: 20px;
   padding-bottom: 2px;
   padding-left: 20px;
-  padding-right: 20px;
+  outline: none;
   &:focus,
   &:active {
     padding-top: 1px;
+    padding-right: 19px;
     padding-bottom: 1px;
     padding-left: 19px;
-    padding-right: 19px;
+
     @include border(input-focus);
   }
   &:disabled {
@@ -287,59 +294,61 @@ input[type="select"],
 input[type="submit"],
 input[type="button"],
 .ui-dialog-buttonpane button {
-  margin-left: 10px;
-  margin-right: 10px;
   min-width: 24px;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 // ******************** coverart-container/artistMain.jsp, albumMain.jsp, home.jsp *******************
 
 div.coverart-container {
-  @include sectionContent();
   display: flex;
   flex-flow: row wrap;
   justify-content: space-between;
-  margin-top: 30px;
+
+  @include sectionContent();
 }
 
 // ******************** details template **********************************
 
 details {
-  @include subSection;
   background-color: $jp-color-white;
   vertical-align: middle;
+
+  @include subSection;
   summary {
-    position: relative;
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
+    flex-flow: row wrap;
     justify-content: start;
+    position: relative;
     height: 30px;
     padding: 0 0 0 30px;
-    @include border;
     border-radius: 15px;
     background: $jp-color-white;
     font-size: 1.07rem;
-    @include dropShadow;
     cursor: pointer;
-    transition-duration: 0.5s;
+    transition-duration: .5s;
+
+    @include border;
+    @include dropShadow;
     &::-webkit-details-marker {
       display: none;
     }
     &:before {
       position: absolute;
-      left: 0px;
+      left: 0;
       width: 8px;
       height: 8px;
       margin-top: 2px;
       margin-left: 12px;
       border-top: solid 4px $jp-color-base3; // one-off-border
       border-right: solid 4px $jp-color-base3; // one-off-border
-      -ms-transform: rotate(45deg);
-      -webkit-transform: rotate(45deg);
-      transform: rotate(45deg);
-      transition: all 0.5s ease-out;
       content: "";
+      transition: all .5s ease-out;
+      -webkit-transform: rotate(45deg);
+          -ms-transform: rotate(45deg);
+              transform: rotate(45deg);
     }
   }
   > dl,
@@ -352,15 +361,16 @@ details {
 details[open] {
   summary {
     background: $jp-color-base1;
+
     @include border;
     @include dropShadow(none);
     &:before {
       border-top: solid 4px $jp-color-base1; // one-off-border
       border-right: solid 4px $jp-color-base1; // one-off-border
-      -ms-transform: rotate(135deg);
+      transition: all .5s ease-in;
       -webkit-transform: rotate(135deg);
-      transform: rotate(135deg);
-      transition: all 0.5s ease-in;
+          -ms-transform: rotate(135deg);
+              transform: rotate(135deg);
     }
   }
 }
@@ -402,17 +412,18 @@ section {
       width: calc(100vw - 480px);
       height: 180px;
       margin: 30px 0 30px calc(240px - 30px);
+      padding: 5px 10px 5px 10px;
+      background-color: $jp-color-complementary2;
+      color: $jp-color-black;
+      line-height: 30px;
+
+      @include border;
+      @include border;
+      @include borderRadius;
       @media screen and (max-width: #{$jp-supplement-width-threshold}) {
         width: calc(100vw - 120px);
         margin: 30px 0 30px calc(60px - 30px);
       }
-      padding: 5px 10px 5px 10px;
-      background-color: $jp-color-complementary2;
-      @include border;
-      @include border;
-      @include borderRadius;
-      color: $jp-color-black;
-      line-height: 30px;
     }
   }
   > details:not(.loading) {
@@ -431,6 +442,7 @@ section {
     > summary {
       padding-left: 0;
       border: $jp-border-width solid transparent;
+
       @include dropShadow(none);
       &:before {
         border-top: solid 4px transparent;
@@ -451,19 +463,20 @@ section + details {
 //}
 
 table.tabular {
-  @include sectionContent;
+  border-spacing: 0;
+  border-collapse: separate;
   background: $jp-color-white;
+
+  @include sectionContent;
   @include border(top);
   @include borderRadius(upper);
-  border-collapse: separate;
-  border-spacing: 0;
   caption {
     height: 30px;
     max-height: 30px;
     margin-top: 0;
     padding: 6px;
     color: $jp-color-dark-gray;
-    font-size: 0.93rem;
+    font-size: .93rem;
     font-weight: 600;
     text-align: left;
   }
@@ -473,9 +486,9 @@ table.tabular {
       &:first-child {
         th {
           padding: 0 0 0 10px;
-          font-size: 0.93rem;
-          vertical-align: middle;
+          font-size: .93rem;
           text-align: left;
+          vertical-align: middle;
           &:first-child {
             @include border(left);
             @include borderRadius(upper-left);
@@ -494,12 +507,13 @@ table.tabular {
       }
       th {
         padding: 0 0 0 10px;
-        font-size: 0.93rem;
-        @include border(bottom);
         background-color: $jp-color-base1;
         color: $jp-color-black;
-        vertical-align: middle;
+        font-size: .93rem;
         text-align: left;
+        vertical-align: middle;
+
+        @include border(bottom);
         &:first-child {
           @include borderRadius(upper-left);
         }
@@ -528,13 +542,15 @@ table.tabular {
     }
     tr {
       height: 30px;
+
       @include border(bottom-zero);
       td {
         padding: 0 0 0 10px;
-        font-size: 0.93rem;
-        white-space: nowrap;
-        vertical-align: middle;
+        font-size: .93rem;
         text-align: left;
+        vertical-align: middle;
+        white-space: nowrap;
+
         @include border(bottom);
         &:first-child {
           @include border(left);
@@ -598,14 +614,15 @@ table.tabular {
 }
 
 ::-webkit-scrollbar-button {
-  border: 0;
   height: 0;
+  border: 0;
   background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: $jp-color-base3;
   min-height: 60px;
+  background: $jp-color-base3;
+
   @include border(top);
   @include border(bottom);
   @include borderRadius;
@@ -613,11 +630,19 @@ table.tabular {
 }
 
 ::-webkit-scrollbar-track {
+  margin-bottom: $jp-player-height;
   background: $jp-color-base1;
+}
+
+.win {
+  ::-webkit-scrollbar-track {
+    margin-bottom: 0;
+  }
 }
 
 ::-webkit-scrollbar-track-piece {
   background: white;
+
   @include border;
   @include borderRadius;
   @include dropShadow;

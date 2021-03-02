@@ -21,6 +21,7 @@
 
 package org.airsonic.player.io;
 
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
@@ -40,45 +41,47 @@ import org.springframework.boot.test.context.SpringBootTest;
 public class RangeOutputStreamTest {
 
     @Test
-    public void testWrap() throws Exception {
-        doTestWrap(0, 99, 100, 1);
-        doTestWrap(0, 99, 100, 10);
-        doTestWrap(0, 99, 100, 13);
-        doTestWrap(0, 99, 100, 70);
-        doTestWrap(0, 99, 100, 100);
+    public void testWrap() throws IOException {
+        assertTrue(doTestWrap(0, 99, 100, 1));
+        assertTrue(doTestWrap(0, 99, 100, 10));
+        assertTrue(doTestWrap(0, 99, 100, 13));
+        assertTrue(doTestWrap(0, 99, 100, 70));
+        assertTrue(doTestWrap(0, 99, 100, 100));
 
-        doTestWrap(10, 99, 100, 1);
-        doTestWrap(10, 99, 100, 10);
-        doTestWrap(10, 99, 100, 13);
-        doTestWrap(10, 99, 100, 70);
-        doTestWrap(10, 99, 100, 100);
+        assertTrue(doTestWrap(10, 99, 100, 1));
+        assertTrue(doTestWrap(10, 99, 100, 10));
+        assertTrue(doTestWrap(10, 99, 100, 13));
+        assertTrue(doTestWrap(10, 99, 100, 70));
+        assertTrue(doTestWrap(10, 99, 100, 100));
 
-        doTestWrap(66, 66, 100, 1);
-        doTestWrap(66, 66, 100, 2);
+        assertTrue(doTestWrap(66, 66, 100, 1));
+        assertTrue(doTestWrap(66, 66, 100, 2));
 
-        doTestWrap(10, 20, 100, 1);
-        doTestWrap(10, 20, 100, 10);
-        doTestWrap(10, 20, 100, 13);
-        doTestWrap(10, 20, 100, 70);
-        doTestWrap(10, 20, 100, 100);
+        assertTrue(doTestWrap(10, 20, 100, 1));
+        assertTrue(doTestWrap(10, 20, 100, 10));
+        assertTrue(doTestWrap(10, 20, 100, 13));
+        assertTrue(doTestWrap(10, 20, 100, 70));
+        assertTrue(doTestWrap(10, 20, 100, 100));
 
         for (int start = 0; start < 10; start++) {
             for (int end = start; end < 10; end++) {
                 for (int bufferSize = 1; bufferSize < 10; bufferSize++) {
-                    doTestWrap(start, end, 10, bufferSize);
-                    doTestWrap(start, null, 10, bufferSize);
+                    assertTrue(doTestWrap(start, end, 10, bufferSize));
+                    assertTrue(doTestWrap(start, null, 10, bufferSize));
                 }
             }
         }
     }
 
-    private void doTestWrap(int first, Integer last, int sourceSize, int bufferSize) throws Exception {
+    private boolean doTestWrap(int first, Integer last, int sourceSize, int bufferSize) throws IOException {
         byte[] source = createSource(sourceSize);
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        OutputStream rangeOut = RangeOutputStream.wrap(out,
-                new HttpRange(first, last == null ? null : last.longValue()));
-        copy(source, rangeOut, bufferSize);
+        try (OutputStream rangeOut = RangeOutputStream.wrap(out,
+                new HttpRange(first, last == null ? null : last.longValue()))) {
+            copy(source, rangeOut, bufferSize);
+        }
         verify(out.toByteArray(), first, last, sourceSize);
+        return true;
     }
 
     private void verify(byte[] bytes, int first, Integer last, int sourceSize) {
@@ -95,11 +98,12 @@ public class RangeOutputStreamTest {
     private void copy(byte[] source, OutputStream out, int bufsz) throws IOException {
         InputStream in = new ByteArrayInputStream(source);
         byte[] buffer = new byte[bufsz];
-        int n;
-        while (-1 != (n = in.read(buffer))) {
+        int n = in.read(buffer);
+        while (-1 != n) {
             int split = n / 2;
             out.write(buffer, 0, split);
             out.write(buffer, split, n - split);
+            n = in.read(buffer);
         }
     }
 

@@ -116,6 +116,7 @@ public class PersonalSettingsCommand {
     private String ietf;
     private String fontFamily;
     private int fontSize;
+    private int shareCount;
 
     public User getUser() {
         return user;
@@ -719,5 +720,13 @@ public class PersonalSettingsCommand {
 
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
+    }
+
+    public int getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(int sharesCount) {
+        this.shareCount = sharesCount;
     }
 }

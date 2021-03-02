@@ -36,13 +36,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class TranscodingDaoTest extends DaoTestBase {
 
     @Autowired
-    TranscodingDao transcodingDao;
+    private TranscodingDao transcodingDao;
 
     @Autowired
-    PlayerDao playerDao;
+    private PlayerDao playerDao;
 
     @Before
     public void setUp() {

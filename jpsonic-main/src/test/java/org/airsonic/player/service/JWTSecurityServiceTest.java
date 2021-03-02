@@ -40,9 +40,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @SpringBootTest
 public class JWTSecurityServiceTest extends AbstractAirsonicHomeTest {
 
-    private final String key = "someKey";
-    private final Algorithm algorithm = JWTSecurityService.getAlgorithm(key);
-    private final JWTVerifier verifier = JWT.require(algorithm).build();
+    private static final String KAY = "someKey";
+    private static final Algorithm ALGORITHM = JWTSecurityService.getAlgorithm(KAY);
+    private static final JWTVerifier VERIFIER = JWT.require(ALGORITHM).build();
 
     @Autowired
     private SettingsService settingsService;
@@ -55,16 +55,17 @@ public class JWTSecurityServiceTest extends AbstractAirsonicHomeTest {
                 { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" }, });
     }
 
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive
     @Test
     public void addJWTToken() {
         data().forEach(o -> {
             UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(o[0].toString());
-            settingsService.setJWTKey(key);
+            settingsService.setJWTKey(KAY);
             JWTSecurityService service = new JWTSecurityService(settingsService);
             String actualUri = service.addJWTToken(builder).build().toUriString();
             String jwtToken = UriComponentsBuilder.fromUriString(actualUri).build().getQueryParams()
                     .getFirst(JWTSecurityService.JWT_PARAM_NAME);
-            DecodedJWT verify = verifier.verify(jwtToken);
+            DecodedJWT verify = VERIFIER.verify(jwtToken);
             Claim claim = verify.getClaim(JWTSecurityService.CLAIM_PATH);
             assertEquals(o[1], claim.asString());
         });

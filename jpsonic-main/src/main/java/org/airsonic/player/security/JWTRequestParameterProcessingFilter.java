@@ -45,7 +45,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
-import org.springframework.util.StringUtils;
+import org.springframework.util.ObjectUtils;
 
 public class JWTRequestParameterProcessingFilter implements Filter {
 
@@ -69,7 +69,7 @@ public class JWTRequestParameterProcessingFilter implements Filter {
 
     private static Optional<JWTAuthenticationToken> findToken(HttpServletRequest request) {
         String token = request.getParameter(JWTSecurityService.JWT_PARAM_NAME);
-        if (!StringUtils.isEmpty(token)) {
+        if (!ObjectUtils.isEmpty(token)) {
             return Optional.of(new JWTAuthenticationToken(AuthorityUtils.NO_AUTHORITIES, token,
                     request.getRequestURI() + "?" + request.getQueryString()));
         }

@@ -38,6 +38,7 @@ public class DatabaseSettingsCommand {
     private String usertableQuote;
     private boolean useRadio;
     private boolean useSonos;
+    private int shareCount;
     private boolean showOutlineHelp;
 
     public DataSourceConfigType getConfigType() {
@@ -118,6 +119,14 @@ public class DatabaseSettingsCommand {
 
     public void setUseSonos(boolean useSonos) {
         this.useSonos = useSonos;
+    }
+
+    public int getShareCount() {
+        return shareCount;
+    }
+
+    public void setShareCount(int shareCount) {
+        this.shareCount = shareCount;
     }
 
     public boolean isShowOutlineHelp() {

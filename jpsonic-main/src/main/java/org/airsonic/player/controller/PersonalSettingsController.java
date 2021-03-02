@@ -24,6 +24,7 @@ package org.airsonic.player.controller;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -67,13 +69,15 @@ public class PersonalSettingsController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
     private final OutlineHelpSelector outlineHelpSelector;
 
     public PersonalSettingsController(SettingsService settingsService, SecurityService securityService,
-            OutlineHelpSelector outlineHelpSelector) {
+            ShareService shareService, OutlineHelpSelector outlineHelpSelector) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
         this.outlineHelpSelector = outlineHelpSelector;
     }
 
@@ -181,14 +185,16 @@ public class PersonalSettingsController {
         command.setLocales(localeStrings);
 
         String currentThemeId = userSettings.getThemeId();
-        Theme[] themes = settingsService.getAvailableThemes();
-        command.setThemes(themes);
-        for (int i = 0; i < themes.length; i++) {
-            if (themes[i].getId().equals(currentThemeId)) {
+        List<Theme> themes = SettingsService.getAvailableThemes();
+        command.setThemes(themes.toArray(new Theme[0]));
+        for (int i = 0; i < themes.size(); i++) {
+            if (themes.get(i).getId().equals(currentThemeId)) {
                 command.setThemeIndex(String.valueOf(i));
                 break;
             }
         }
+
+        command.setShareCount(shareService.getAllShares().size());
 
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
@@ -215,7 +221,7 @@ public class PersonalSettingsController {
         int themeIndex = Integer.parseInt(command.getThemeIndex());
         String themeId = null;
         if (themeIndex != -1) {
-            themeId = settingsService.getAvailableThemes()[themeIndex].getId();
+            themeId = SettingsService.getAvailableThemes().get(themeIndex).getId();
         }
 
         String username = command.getUser().getUsername();

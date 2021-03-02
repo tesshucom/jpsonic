@@ -21,7 +21,8 @@
 
 package org.airsonic.player.domain;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import org.junit.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,23 +33,25 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class CacheElementTest {
 
     @Test
     public void testCreateId() {
+        long ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        long actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        assertEquals(Long.valueOf(ecpected), Long.valueOf(actual));
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") == CacheElement
-                .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        actual = CacheElement.createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        assertNotEquals(ecpected, actual);
 
-        assertTrue(CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
-                .createId(2, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        ecpected = CacheElement.createId(237_462_763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        actual = CacheElement.createId(28_374_922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        assertNotEquals(ecpected, actual);
 
-        assertTrue(
-                CacheElement.createId(237462763, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home") != CacheElement
-                        .createId(28374922, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
-
-        assertTrue(
-                CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla") != CacheElement
-                        .createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home"));
+        ecpected = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home bla bla");
+        actual = CacheElement.createId(1, "/Volumes/WD Passport/music/'Til Tuesday/Welcome Home");
+        assertNotEquals(ecpected, actual);
     }
 }

@@ -21,10 +21,10 @@
 
 package org.airsonic.player.service.upnp.processor;
 
-import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.indexList;
-import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.jPSonicNaturalList;
-import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.validateJPSonicNaturalList;
+import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.INDEX_LIST;
+import static org.airsonic.player.service.upnp.processor.UpnpProcessorTestUtils.JPSONIC_NATURAL_LIST;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,12 +42,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Pagination/Artists"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Pagination/Artists"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
     }
 
     @Autowired
@@ -55,11 +55,11 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
         settingsService.setSortAlbumsByYear(false);
@@ -175,9 +175,9 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
     public void testgetChildren() {
 
         List<String> artistNames = indexUpnpProcessor.getItems(0, 100).stream()
-                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(m -> m.getName())
+                .flatMap(m -> indexUpnpProcessor.getChildren(m, 0, 100).stream()).map(MediaFile::getName)
                 .collect(Collectors.toList());
-        assertEquals(indexList, artistNames);
+        assertEquals(INDEX_LIST, artistNames);
 
         List<MediaFile> items = indexUpnpProcessor.getItems(0, 100);
         assertEquals(31, items.size());
@@ -186,41 +186,41 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         assertEquals(15, indexUpnpProcessor.getChildSizeOf(items.get(8)));
 
         List<MediaFile> artist = indexUpnpProcessor.getChildren(items.get(5), 0, 3);
-        assertEquals(indexList.get(5), artist.get(0).getName());
-        assertEquals(indexList.get(6), artist.get(1).getName());
-        assertEquals(indexList.get(7), artist.get(2).getName());
+        assertEquals(INDEX_LIST.get(5), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(6), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(7), artist.get(2).getName());
         artist = indexUpnpProcessor.getChildren(items.get(5), 3, 100);
-        assertEquals(indexList.get(8), artist.get(0).getName());
-        assertEquals(indexList.get(9), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(8), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(9), artist.get(1).getName());
 
         artist = indexUpnpProcessor.getChildren(items.get(7), 0, 3);
-        assertEquals(indexList.get(11), artist.get(0).getName());
-        assertEquals(indexList.get(12), artist.get(1).getName());
-        assertEquals(indexList.get(13), artist.get(2).getName());
+        assertEquals(INDEX_LIST.get(11), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(12), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(13), artist.get(2).getName());
         artist = indexUpnpProcessor.getChildren(items.get(7), 3, 100);
-        assertEquals(indexList.get(14), artist.get(0).getName());
-        assertEquals(indexList.get(15), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(14), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(15), artist.get(1).getName());
 
         artist = indexUpnpProcessor.getChildren(items.get(8), 0, 3);
 
         assertEquals(3, artist.size());
-        assertEquals(indexList.get(16), artist.get(0).getName());
-        assertEquals(indexList.get(17), artist.get(1).getName());
-        assertEquals(indexList.get(18), artist.get(2).getName());
+        assertEquals(INDEX_LIST.get(16), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(17), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(18), artist.get(2).getName());
         artist = indexUpnpProcessor.getChildren(items.get(8), 3, 100);
         assertEquals(12, artist.size());
-        assertEquals(indexList.get(19), artist.get(0).getName());
-        assertEquals(indexList.get(20), artist.get(1).getName());
-        assertEquals(indexList.get(21), artist.get(2).getName());
-        assertEquals(indexList.get(22), artist.get(3).getName());
-        assertEquals(indexList.get(23), artist.get(4).getName());
-        assertEquals(indexList.get(24), artist.get(5).getName());
-        assertEquals(indexList.get(25), artist.get(6).getName());
-        assertEquals(indexList.get(26), artist.get(7).getName());
-        assertEquals(indexList.get(27), artist.get(8).getName());
-        assertEquals(indexList.get(28), artist.get(9).getName());
-        assertEquals(indexList.get(29), artist.get(10).getName());
-        assertEquals(indexList.get(30), artist.get(11).getName());
+        assertEquals(INDEX_LIST.get(19), artist.get(0).getName());
+        assertEquals(INDEX_LIST.get(20), artist.get(1).getName());
+        assertEquals(INDEX_LIST.get(21), artist.get(2).getName());
+        assertEquals(INDEX_LIST.get(22), artist.get(3).getName());
+        assertEquals(INDEX_LIST.get(23), artist.get(4).getName());
+        assertEquals(INDEX_LIST.get(24), artist.get(5).getName());
+        assertEquals(INDEX_LIST.get(25), artist.get(6).getName());
+        assertEquals(INDEX_LIST.get(26), artist.get(7).getName());
+        assertEquals(INDEX_LIST.get(27), artist.get(8).getName());
+        assertEquals(INDEX_LIST.get(28), artist.get(9).getName());
+        assertEquals(INDEX_LIST.get(29), artist.get(10).getName());
+        assertEquals(INDEX_LIST.get(30), artist.get(11).getName());
 
     }
 
@@ -243,7 +243,8 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
 
-        validateJPSonicNaturalList(albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertTrue(UpnpProcessorTestUtils
+                .validateJPSonicNaturalList(albums.stream().map(MediaFile::getName).collect(Collectors.toList())));
 
     }
 
@@ -252,7 +253,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
 
         // The result change depending on the setting
         settingsService.setSortAlbumsByYear(true);
-        List<String> reversedByYear = new ArrayList<>(jPSonicNaturalList);
+        List<String> reversedByYear = new ArrayList<>(JPSONIC_NATURAL_LIST);
         Collections.reverse(reversedByYear);
 
         List<MediaFile> indexes = indexUpnpProcessor.getItems(0, 100);
@@ -269,7 +270,7 @@ public class IndexUpnpProcessorTest extends AbstractAirsonicHomeTest {
         List<MediaFile> albums = indexUpnpProcessor.getChildren(artist, 0, Integer.MAX_VALUE);
         assertEquals(31, albums.size());
 
-        assertEquals(reversedByYear, albums.stream().map(a -> a.getName()).collect(Collectors.toList()));
+        assertEquals(reversedByYear, albums.stream().map(MediaFile::getName).collect(Collectors.toList()));
 
     }
 

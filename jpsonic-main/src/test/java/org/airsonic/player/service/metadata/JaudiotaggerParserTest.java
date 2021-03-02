@@ -32,6 +32,7 @@ import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
 
     @Autowired
@@ -230,7 +231,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
 
     /** v2.3 */
     @Test
-    public void testGetMetaDataFor2_3WithMp3TagJP() throws URISyntaxException {
+    public void testGetMetaDataForV23WithMp3TagJP() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.3/Mp3tag2.9.7.mp3"));
         assertEquals("MusicCenter～タイトル", metaData.getTitle());
         assertEquals("MusicCenter～タイトル(読み)", metaData.getTitleSort());
@@ -255,7 +256,7 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
 
     /** v2.4 */
     @Test
-    public void testGetMetaDataFor2_4WithMp3TagJP() throws URISyntaxException {
+    public void testGetMetaDataForv24WithMp3TagJP() throws URISyntaxException {
         MetaData metaData = parser.getRawMetaData(createFile("/MEDIAS/Metadata/v2.4/Mp3tag2.9.7.mp3"));
         assertEquals("MusicCenter～タイトル", metaData.getTitle());
         assertEquals("MusicCenter～タイトル(読み)", metaData.getTitleSort());

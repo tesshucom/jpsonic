@@ -25,13 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JArtistDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
@@ -50,14 +49,18 @@ import org.springframework.boot.test.context.SpringBootTest;
  * If two or more SORTs exist in one name, unify them into one SORT.
  */
 @SpringBootTest
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidLiteralsInIfCondition", "PMD.NPathComplexity" })
+/*
+ * In the testing class, it may be less readable.
+ */
 public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Cleansing/ArtistSort/Merge"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Cleansing/ArtistSort/Merge"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
 
     @Autowired
@@ -77,19 +80,19 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
-        Date now = GregorianCalendar.getInstance().getTime();
+    public void setup() {
+        Date now = new Date();
         mediaScannerService.setJpsonicCleansingProcess(false);
 
         populateDatabaseOnlyOnce(null, () -> {
-            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
             albums.forEach(a -> {
                 List<MediaFile> files = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
-                files.stream().forEach(m -> {
+                files.forEach(m -> {
                     if ("file10".equals(m.getName()) || "file12".equals(m.getName()) || "file14".equals(m.getName())
                             || "file17".equals(m.getName())) {
                         m.setChanged(now);
@@ -105,12 +108,11 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
     }
 
     @Test
-    public void testMergeSortOfArtist() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    public void testMergeSortOfArtist() throws ExecutionException {
 
         invokeUtils(utils, "mergeSortOfArtist");
 
-        List<MediaFile> artists = mediaFileDao.getArtistAll(musicFolders);
+        List<MediaFile> artists = mediaFileDao.getArtistAll(MUSIC_FOLDERS);
         assertEquals(3, artists.size());
 
         artists.forEach(m -> {
@@ -134,7 +136,7 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
             }
         });
 
-        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, musicFolders);
+        List<Artist> artistID3s = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, MUSIC_FOLDERS);
         assertEquals(10, artistID3s.size());
 
         assertEquals("ARTIST", artistID3s.get(0).getName());
@@ -415,7 +417,7 @@ public class MediaScannerServiceUtilsMergeSortOfArtistTest extends AbstractAirso
 
         });
 
-        List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+        List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
 
         assertEquals(11, albumId3s.size());
 

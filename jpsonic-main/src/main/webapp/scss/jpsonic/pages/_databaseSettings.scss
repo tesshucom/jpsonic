@@ -22,9 +22,9 @@
   }
 
   .methods {
-    width: 330px;
-    min-width: 330px;
-    max-width: 400px;
+    width: 430px;
+    min-width: 430px;
+    max-width: 500px;
     margin: 34px 20px 3px 20px;
     @media screen and (min-width: $jp-supplement-width-threshold) {
       width: calc(50vw - 60px);

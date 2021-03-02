@@ -28,6 +28,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class LegacyMapTest {
 
     @Test
@@ -41,7 +42,7 @@ public class LegacyMapTest {
         assertEquals(2, map.size());
         assertNull(map.get("String2"));
 
-        map = LegacyMap.of("String1", Integer.valueOf(1), "String2", Integer.valueOf(2));
+        map = LegacyMap.of("String1", 1, "String2", 2);
         assertEquals(2, map.size());
         assertEquals(Integer.valueOf(1), map.get("String1"));
         assertEquals(Integer.valueOf(2), map.get("String2"));

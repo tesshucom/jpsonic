@@ -4,12 +4,9 @@
     counter-reset: count 0;
     dt {
       &:before {
-        counter-increment: count;
         content: counter(count) ". ";
+        counter-increment: count;
       }
-    }
-
-    dd {
     }
   }
 }

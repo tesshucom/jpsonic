@@ -30,14 +30,15 @@
   }
   ul.indexPreset {
     display: flex;
-    flex-flow: row nowrap;
     align-items: center;
+    flex-flow: row nowrap;
     justify-content: start;
     height: 30px;
     a {
-      outline: none;
       top: -2px;
+      outline: none;
       background: $jp-color-base1;
+
       @include dropShadow;
     }
     .selected {
@@ -45,19 +46,21 @@
       background: $jp-color-dark-gray;
       color: $jp-color-white;
       font-weight: 600;
+
       @include dropShadow(none);
     }
     a,
     .selected {
       position: relative;
       height: 26px;
-      margin: 2px 8px 2px 0px;
+      margin: 2px 8px 2px 0;
       padding: 0 4px 0 4px;
-      @include border;
       border-radius: 10px;
-      font-size: 0.93rem;
+      font-size: .93rem;
       font-weight: 600;
       vertical-align: middle;
+
+      @include border;
       &:active {
         top: -1px;
       }

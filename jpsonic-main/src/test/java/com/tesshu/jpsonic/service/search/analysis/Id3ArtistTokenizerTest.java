@@ -26,7 +26,7 @@ import org.junit.Test;
 
 public class Id3ArtistTokenizerTest {
 
-    private Id3ArtistTokenizer tokenizer = new Id3ArtistTokenizer();
+    private final Id3ArtistTokenizer tokenizer = new Id3ArtistTokenizer();
 
     @Test
     public void testIsTokenChar() {

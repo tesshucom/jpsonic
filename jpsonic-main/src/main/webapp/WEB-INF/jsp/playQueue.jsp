@@ -976,7 +976,7 @@ window.onTryCloseQueue = function() {
             </c:if>
             <c:if test="${model.player.web}">
                 <span id="player">
-                    <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="max-width:100%"/>
+                    <audio id="audioPlayer" data-mejsoptions='{"alwaysShowControls": true, "enableKeyboard": false, "defaultAudioWidth": 400}' tabindex="-1" style="width:100%"/>
                 </span>
                 <span id="castPlayer">
                     <span>

@@ -1,23 +1,22 @@
 .mainframe.home {
   .pager {
+    display: flex;
+    align-items: center;
+    flex-flow: row wrap;
+    justify-content: space-around;
     top: 3px;
     width: 150px;
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    justify-content: space-around;
     .pages {
       display: flex;
-      flex-flow: row wrap;
       align-items: center;
+      flex-flow: row wrap;
+      justify-content: space-evenly;
       width: 90px;
       height: 26px;
-      @include border;
+      border: $jp-border-width solid $jp-color-base2;
       background-color: $jp-color-base4;
-      border-color: $jp-color-base2;
       color: $jp-color-white;
       font-weight: 600;
-      justify-content: space-evenly;
     }
   }
 
@@ -27,11 +26,11 @@
   }
 
   .coverart-container + .controls {
-    width: 100%;
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
+    flex-flow: row wrap;
     justify-content: center;
+    width: 100%;
   }
 
   .decade {

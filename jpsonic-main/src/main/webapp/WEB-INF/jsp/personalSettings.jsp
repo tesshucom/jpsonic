@@ -208,6 +208,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <c:param name="toast" value="${command.showToast}"/>
     <c:param name="useRadio" value="${command.useRadio}"/>
     <c:param name="useSonos" value="${command.useSonos}"/>
+    <c:param name="existsShare" value="${command.shareCount ne 0}"/>
 </c:import>
 
 <fmt:message key="common.default" var="defaultTitle"/>
@@ -544,6 +545,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <dd>
                 <form:checkbox path="showArtistInfoEnabled" id="artistInfo" />
                 <label for="artistInfo"><fmt:message key="personalsettings.showartistinfo"/></label>
+                <div class="lastfm" title="<fmt:message key='personalsettings.lastfmapi'/>"></div>
             </dd>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
@@ -555,11 +557,13 @@ document.addEventListener('DOMContentLoaded', function () {
             <dd>
                 <form:checkbox path="showTopSongs" id="showTopSongs" />
                 <label for="showTopSongs"><fmt:message key="personalsettings.showtopsongs"/></label>
+                <div class="lastfm" title="<fmt:message key='personalsettings.lastfmapi'/>"></div>
             </dd>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/></dt>
             <dd>
                 <form:checkbox path="showSimilar" id="showSimilar" />
                 <label for="showSimilar"><fmt:message key="personalsettings.showsimilar"/></label>
+                <div class="lastfm" title="<fmt:message key='personalsettings.lastfmapi'/>"></div>
             </dd>      
             <c:if test="${command.user.commentRole eq true}">
                 <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.artist"/> / <fmt:message key="personalsettings.pages.album"/></dt>
@@ -588,6 +592,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <dd>
                     <form:checkbox path="showChangeCoverArt" id="showChangeCoverArt" />
                     <label for="showChangeCoverArt"><fmt:message key="personalsettings.showchangecoverart"/></label>
+                    <div class="lastfm" title="<fmt:message key='personalsettings.lastfmapi'/>"></div>
                 </dd>  
             </c:if>
             <dt><fmt:message key="personalsettings.pages"/> : <fmt:message key="personalsettings.pages.album"/></dt>
@@ -637,6 +642,42 @@ document.addEventListener('DOMContentLoaded', function () {
     </details>
 
     <details ${isOpen}>
+        <summary class="jpsonic"><fmt:message key="personalsettings.avatar.title"/></summary>
+         <dl>
+            <dt></dt>
+            <dd>
+                <form:radiobutton id="noAvatar" path="avatarId" value="-1"/>
+                <label for="noAvatar"><fmt:message key="personalsettings.avatar.none"/></label>
+            </dd>
+            <dt></dt>
+            <dd>
+                <form:radiobutton id="customAvatar" path="avatarId" value="-2"/>
+                <label for="customAvatar"><fmt:message key="personalsettings.avatar.custom"/>
+                    <c:if test="${not empty command.customAvatar}">
+                        <sub:url value="avatar.view" var="avatarUrl">
+                            <sub:param name="username" value="${command.user.username}"/>
+                            <sub:param name="forceCustom" value="true"/>
+                        </sub:url>
+                        <img src="${avatarUrl}" alt="${fn:escapeXml(command.customAvatar.name)}" width="${command.customAvatar.width}" height="${command.customAvatar.height}"/>
+                    </c:if>
+                </label>
+            </dd>
+            <dt></dt>
+            <dd class="avatarContainer">
+                <c:forEach items="${command.avatars}" var="avatar">
+                    <c:url value="avatar.view" var="avatarUrl">
+                        <c:param name="id" value="${avatar.id}"/>
+                    </c:url>
+                    <span class="avatar">
+                        <form:radiobutton id="avatar-${avatar.id}" path="avatarId" value="${avatar.id}"/>
+                        <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${fn:escapeXml(avatar.name)}"/></label>
+                    </span>
+                </c:forEach>
+            </dd>
+        </dl>
+    </details>
+
+    <details ${isOpen}>
         <summary class="legacy"><fmt:message key="personalsettings.musicsns"/></summary>
         <dl>
             <dt></dt>
@@ -674,43 +715,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 <label for="beta"><fmt:message key="personalsettings.betaversionnotification"/></label>
             </dd>
         </dl>
-    </details>
-
-    <details ${isOpen}>
-        <summary class="legacy"><fmt:message key="personalsettings.avatar.title"/></summary>
-         <dl>
-            <dt></dt>
-            <dd>
-                <form:radiobutton id="noAvatar" path="avatarId" value="-1"/>
-                <label for="noAvatar"><fmt:message key="personalsettings.avatar.none"/></label>
-            </dd>
-            <dt></dt>
-            <dd>
-                <form:radiobutton id="customAvatar" path="avatarId" value="-2"/>
-                <label for="customAvatar"><fmt:message key="personalsettings.avatar.custom"/>
-                    <c:if test="${not empty command.customAvatar}">
-                        <sub:url value="avatar.view" var="avatarUrl">
-                            <sub:param name="username" value="${command.user.username}"/>
-                            <sub:param name="forceCustom" value="true"/>
-                        </sub:url>
-                        <img src="${avatarUrl}" alt="${fn:escapeXml(command.customAvatar.name)}" width="${command.customAvatar.width}" height="${command.customAvatar.height}"/>
-                    </c:if>
-                </label>
-            </dd>
-            <dt></dt>
-            <dd class="avatarContainer">
-                <c:forEach items="${command.avatars}" var="avatar">
-                    <c:url value="avatar.view" var="avatarUrl">
-                        <c:param name="id" value="${avatar.id}"/>
-                    </c:url>
-                    <span class="avatar">
-                        <form:radiobutton id="avatar-${avatar.id}" path="avatarId" value="${avatar.id}"/>
-                        <label for="avatar-${avatar.id}"><img src="${avatarUrl}" alt="${fn:escapeXml(avatar.name)}" width="${avatar.width}" height="${avatar.height}"/></label>
-                    </span>
-                </c:forEach>
-            </dd>
-        </dl>
-
     </details>
 
     <div class="submits">

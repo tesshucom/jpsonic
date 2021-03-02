@@ -22,10 +22,9 @@
 package org.airsonic.player.service.search;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 
 /**
  * Test case interface for scanning MusicFolder.
@@ -38,7 +37,7 @@ public interface AirsonicHomeTest {
      * @return MusicFolder used by test class
      */
     default List<MusicFolder> getMusicFolders() {
-        return MusicFolderTestData.getTestMusicFolders();
+        return MusicFolderTestDataUtils.getTestMusicFolders();
     }
 
     /**
@@ -46,14 +45,14 @@ public interface AirsonicHomeTest {
      *
      * @return Static AtomicBoolean indicating whether the data injection has been completed
      */
-    abstract AtomicBoolean dataBasePopulated();
+    boolean isDataBasePopulated();
 
     /**
      * Whether the data input has been completed.
      *
      * @return Static AtomicBoolean indicating whether the data injection has been completed
      */
-    abstract AtomicBoolean dataBaseReady();
+    boolean isDataBaseReady();
 
     /**
      * Populate the database only once. It is called in the @Before granted method.

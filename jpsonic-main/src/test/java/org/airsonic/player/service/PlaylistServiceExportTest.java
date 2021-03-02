@@ -36,53 +36,47 @@ import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
-import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.playlist.DefaultPlaylistExportHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 public class PlaylistServiceExportTest {
 
-    PlaylistService playlistService;
+    private PlaylistService playlistService;
 
     @InjectMocks
-    DefaultPlaylistExportHandler defaultPlaylistExportHandler;
+    private DefaultPlaylistExportHandler defaultPlaylistExportHandler;
 
     @Mock
-    DaoHelper daoHelper;
+    private DaoHelper daoHelper;
 
     @Mock
-    MediaFileDao mediaFileDao;
+    private MediaFileDao mediaFileDao;
 
     @Mock
-    PlaylistDao playlistDao;
+    private PlaylistDao playlistDao;
 
     @Mock
-    MediaFileService mediaFileService;
+    private SettingsService settingsService;
 
     @Mock
-    SettingsService settingsService;
+    private SecurityService securityService;
 
-    @Mock
-    SecurityService securityService;
+    // @Captor
+    // private ArgumentCaptor<Playlist> actual;
 
-    @Captor
-    ArgumentCaptor<Playlist> actual;
-
-    @Captor
-    ArgumentCaptor<List<MediaFile>> medias;
+    // @Captor
+    // private ArgumentCaptor<List<MediaFile>> medias;
 
     @Before
     public void setup() {
-        MockitoAnnotations.initMocks(this);
+        MockitoAnnotations.openMocks(this);
         JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
         JPlaylistDao jPlaylistDao = new JPlaylistDao(daoHelper, playlistDao);
         playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
@@ -96,9 +90,14 @@ public class PlaylistServiceExportTest {
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             playlistService.exportPlaylist(23, outputStream);
-            String expected = IOUtils.toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"),
-                    StandardCharsets.UTF_8);
-            String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "");
+            /*
+             * Since there is no problem in operation, blank lines are excluded from verification. (The trailing newline
+             * is not output on the Windows-"server")
+             */
+            String expected = IOUtils
+                    .toString(getClass().getResourceAsStream("/PLAYLISTS/23.m3u"), StandardCharsets.UTF_8)
+                    .replaceAll("\\r", "").replaceAll("\\n+$", "");
+            String actual = outputStream.toString(StandardCharsets.UTF_8).replaceAll("\\r", "").replaceAll("\\n+$", "");
             Assert.assertEquals(expected, actual);
         }
     }
@@ -119,7 +118,7 @@ public class PlaylistServiceExportTest {
         mediaFiles.add(mf2);
 
         MediaFile mf3 = new MediaFile();
-        mf3.setId(198403);
+        mf3.setId(198_403);
         mf3.setPath("/some/path/to_album2/to_artist/another song2.mp3");
         mf3.setPresent(false);
         mediaFiles.add(mf3);

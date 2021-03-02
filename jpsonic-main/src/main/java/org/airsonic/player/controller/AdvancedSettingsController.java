@@ -30,6 +30,7 @@ import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SecurityService;
 import org.airsonic.player.service.SettingsService;
+import org.airsonic.player.service.ShareService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,11 +57,14 @@ public class AdvancedSettingsController {
 
     private final SettingsService settingsService;
     private final SecurityService securityService;
+    private final ShareService shareService;
 
-    public AdvancedSettingsController(SettingsService settingsService, SecurityService securityService) {
+    public AdvancedSettingsController(SettingsService settingsService, SecurityService securityService,
+            ShareService shareService) {
         super();
         this.settingsService = settingsService;
         this.securityService = securityService;
+        this.shareService = shareService;
     }
 
     @GetMapping
@@ -85,6 +89,7 @@ public class AdvancedSettingsController {
         command.setRecaptchaSiteKey(settingsService.getRecaptchaSiteKey());
         command.setUseRadio(settingsService.isUseRadio());
         command.setUseSonos(settingsService.isUseSonos());
+        command.setShareCount(shareService.getAllShares().size());
 
         User user = securityService.getCurrentUser(request);
         UserSettings userSettings = settingsService.getUserSettings(user.getUsername());

@@ -21,10 +21,10 @@
           &.song,
           &.album,
           &.artist {
-            min-width: 10rem;
             overflow: hidden;
-            white-space: nowrap;
+            min-width: 10rem;
             text-overflow: ellipsis;
+            white-space: nowrap;
           }
 
           &.song.truncate {

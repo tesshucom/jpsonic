@@ -21,16 +21,17 @@
 
 package org.airsonic.player.service;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Locale;
 
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,14 +74,14 @@ public class SettingsServiceTest extends AbstractAirsonicHomeTest {
                 settingsService.getPodcastEpisodeDownloadCount());
         assertTrue("Wrong default Podcast folder.", settingsService.getPodcastFolder().endsWith("Podcast"));
         assertEquals("Wrong default Podcast update interval.", 24, settingsService.getPodcastUpdateInterval());
-        assertEquals("Wrong default LDAP enabled.", false, settingsService.isLdapEnabled());
+        assertFalse("Wrong default LDAP enabled.", settingsService.isLdapEnabled());
         assertEquals("Wrong default LDAP URL.", "ldap://host.domain.com:389/cn=Users,dc=domain,dc=com",
                 settingsService.getLdapUrl());
-        assertNull("Wrong default LDAP manager DN.", settingsService.getLdapManagerDn());
-        assertNull("Wrong default LDAP manager password.", settingsService.getLdapManagerPassword());
+        Assert.assertNull("Wrong default LDAP manager DN.", settingsService.getLdapManagerDn());
+        Assert.assertNull("Wrong default LDAP manager password.", settingsService.getLdapManagerPassword());
         assertEquals("Wrong default LDAP search filter.", "(sAMAccountName={0})",
                 settingsService.getLdapSearchFilter());
-        assertEquals("Wrong default LDAP auto-shadowing.", false, settingsService.isLdapAutoShadowing());
+        assertFalse("Wrong default LDAP auto-shadowing.", settingsService.isLdapAutoShadowing());
     }
 
     @Test
@@ -114,21 +115,22 @@ public class SettingsServiceTest extends AbstractAirsonicHomeTest {
         verifySettings(settingsService);
     }
 
+    @SuppressWarnings("PMD.UseAssertEqualsInsteadOfAssertTrue") // containsExactly
     private void verifySettings(SettingsService ss) {
         assertEquals("Wrong index string.", "indexString", ss.getIndexString());
         assertEquals("Wrong ignored articles.", "a the foo bar", ss.getIgnoredArticles());
         assertEquals("Wrong shortcuts.", "new incoming \"rock 'n' roll\"", ss.getShortcuts());
-        assertTrue("Wrong ignored articles array.",
-                Arrays.equals(new String[] { "a", "the", "foo", "bar" }, ss.getIgnoredArticlesAsArray()));
-        assertTrue("Wrong shortcut array.",
-                Arrays.equals(new String[] { "new", "incoming", "rock 'n' roll" }, ss.getShortcutsAsArray()));
+        assertArrayEquals("Wrong ignored articles array.", new String[] { "a", "the", "foo", "bar" },
+                ss.getIgnoredArticlesAsArray());
+        assertArrayEquals("Wrong shortcut array.", new String[] { "new", "incoming", "rock 'n' roll" },
+                ss.getShortcutsAsArray());
         assertEquals("Wrong playlist folder.", "playlistFolder", ss.getPlaylistFolder());
         assertEquals("Wrong music mask.", "mp3 ogg  aac", ss.getMusicFileTypes());
-        assertTrue("Wrong music mask array.",
-                Arrays.equals(new String[] { "mp3", "ogg", "aac" }, ss.getMusicFileTypesAsArray()));
+        assertArrayEquals("Wrong music mask array.", new String[] { "mp3", "ogg", "aac" },
+                ss.getMusicFileTypesAsArray());
         assertEquals("Wrong cover art mask.", "jpeg gif  png", ss.getCoverArtFileTypes());
-        assertTrue("Wrong cover art mask array.",
-                Arrays.equals(new String[] { "jpeg", "gif", "png" }, ss.getCoverArtFileTypesAsArray()));
+        assertArrayEquals("Wrong cover art mask array.", new String[] { "jpeg", "gif", "png" },
+                ss.getCoverArtFileTypesAsArray());
         assertEquals("Wrong welcome message.", "welcomeMessage", ss.getWelcomeMessage());
         assertEquals("Wrong login message.", "loginMessage", ss.getLoginMessage());
         assertEquals("Wrong locale.", Locale.CANADA_FRENCH, ss.getLocale());

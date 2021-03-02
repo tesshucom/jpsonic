@@ -44,19 +44,28 @@
         <dt><fmt:message key="help.server.title"/></dt>
         <dd>${model.serverInfo} (<sub:formatBytes bytes="${model.usedMemory}"/> / <sub:formatBytes bytes="${model.totalMemory}"/>)</dd>
         <dt><fmt:message key="help.license.title"/></dt>
-        <dd>
+        <dd style="display: flex;align-items: center;">
+            <div style="text-align: left;padding-right:10px;">
+                <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message><br>(C) 2009 Sindre Mehus, 2016 Airsonic Authors, 2018 tesshucom
+            </div>
             <a href="http://www.gnu.org/copyleft/gpl.html" target="_blank"><img alt="GPL 3.0" src="<c:url value='/icons/gpl.png'/>"></a>
-            <fmt:message key="help.license.text"><fmt:param value="${model.brand}"/></fmt:message>
-            <fmt:message key="personalsettings.avatar.courtesy"/>
-            <a href="https://last.fm/" target="_blank" rel="noopener noreferrer"><img alt="Lastfm icon" src="<c:url value='/icons/lastfm.gif'/>"></a><br>
-            <fmt:message key="changecoverart.courtesy"/>
         </dd>
         <dt><fmt:message key="help.homepage.title"/></dt>
-        <dd><a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a> / <a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a></dd>
-        <dt><fmt:message key="help.forum.title"/></dt>
-        <dd><a target="_blank" href="https://www.reddit.com/r/airsonic" rel="noopener nofererrer">Airsonic on Reddit</a></dd>
-        <dt><fmt:message key="help.contact.title"/></dt>
-        <dd><fmt:message key="help.contact.text"><fmt:param value="Airsonic"/></fmt:message></dd>
+        <dd><a target="_blank" href="https://tesshu.com/" rel="noopener nofererrer">Jpsonic website</a> / <a target="_blank" href="https://airsonic.github.io/" rel="noopener nofererrer">Airsonic website</a></dd>
+    </dl>
+</details>
+
+<details open>
+    <summary class="jpsonic"><fmt:message key="help.thanks.title"/></summary>
+    <dl>
+        <dt><fmt:message key="help.analyzer.title"/></dt>
+        <dd><fmt:message key="help.analyzer.text"/></dd>
+        <dt><fmt:message key="help.jpfont.title"/></dt>
+        <dd><fmt:message key="help.jpfont.text"/></dd>
+        <dt><fmt:message key="help.iconfont.title"/></dt>
+        <dd><fmt:message key="help.iconfont.text"/></dd>
+        <dt><fmt:message key="help.avatar.title"/></dt>
+        <dd><fmt:message key="help.avatar.text"/></dd>
     </dl>
 </details>
 
@@ -64,10 +73,10 @@
     <details>
         <summary class="legacy"><fmt:message key="help.log"/> (${model.lastModified} ${model.logFile})</summary>
         <div class="actions">
-	        <ul class="controls">
-	        	<li><a href="help.view?" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key='common.refresh'/></a></li>
-	        </ul>
-	    </div>
+            <ul class="controls">
+                <li><a href="help.view?" title="<fmt:message key='common.refresh'/>" class="control refresh"><fmt:message key='common.refresh'/></a></li>
+            </ul>
+        </div>
         <table class="tabular log">
             <tbody>
                 <c:forEach items="${model.logEntries}" var="entry">

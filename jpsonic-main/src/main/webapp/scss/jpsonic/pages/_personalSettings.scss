@@ -25,38 +25,42 @@
     @include dlInputWidth(6);
   }
   input#file {
-    cursor: pointer;
-    @include dlInputWidth(10);
     padding: 0 0 0 10px;
     border: none;
+    cursor: pointer;
+
+    @include dlInputWidth(10);
   }
 
   input#fontSizeSlider {
-    -webkit-appearance: none; /* 🚩これ無しだとスタイルがほぼ全く反映されないので注意 */
-    appearance: none;
-    cursor: pointer;
+    height: 10px;
     outline: none;
-    height: 10px; /* バーの高さ */
-    background: $jp-color-base1;
-    border-radius: 5px;
     border: solid 1px $jp-color-medium-gray;
+    border-radius: 5px;
+    background: $jp-color-base1;
+    cursor: pointer;
+
+    -webkit-appearance: none;
+            appearance: none;
   }
 
   input#fontSizeSlider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    background: $jp-color-base3;
     width: 16px;
     height: 16px;
     border-radius: 50%;
+    background: $jp-color-base3;
+
+    -webkit-appearance: none;
     @include dropShadow;
   }
   input#fontSizeSlider::-moz-range-thumb {
-    background: $jp-color-base3;
     width: 16px;
     height: 16px;
-    border-radius: 50%;
-    @include dropShadow;
     border: none;
+    border-radius: 50%;
+    background: $jp-color-base3;
+
+    @include dropShadow;
   }
   input#fontSizeSlider::-moz-focus-outer {
     border: 0;
@@ -106,12 +110,32 @@
   dl {
     dd.avatarContainer {
       display: flex;
-      flex-flow: row wrap;
       align-items: center;
+      flex-flow: row wrap;
       justify-content: start;
       .avatar {
         white-space: nowrap;
       }
+
+      .avatar {
+        margin: 4px 0 4px 4px;
+        img {
+          width: 80px;
+          height: 80px;
+
+          -webkit-backface-visibility: hidden;
+        }
+      }
     }
+  }
+  .lastfm {
+    display: inline-block;
+    width: 50px;
+    height: 18px;
+    margin-left: 4px;
+    background-image: url(../../icons/lastfm.gif);
+    background-size: contain;
+
+    -webkit-backface-visibility: hidden;
   }
 }

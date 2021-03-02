@@ -23,12 +23,11 @@ import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invok
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
-import com.ibm.icu.util.GregorianCalendar;
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
 import org.airsonic.player.domain.Album;
@@ -42,14 +41,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidDuplicateLiterals" })
+/*
+ * In the testing class, it may be less readable.
+ */
 public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirsonicHomeTest {
 
-    private static List<MusicFolder> musicFolders;
+    private static final List<MusicFolder> MUSIC_FOLDERS;
 
-    {
-        musicFolders = new ArrayList<>();
-        File musicDir = new File(resolveBaseMediaPath.apply("Sort/Cleansing/AlbumSort"));
-        musicFolders.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Cleansing/AlbumSort"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Duplicate", true, new Date()));
     }
 
     @Autowired
@@ -66,21 +69,25 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
 
     @Override
     public List<MusicFolder> getMusicFolders() {
-        return musicFolders;
+        return MUSIC_FOLDERS;
     }
 
     @Before
-    public void setup() throws Exception {
-        Date now = GregorianCalendar.getInstance().getTime();
+    public void setup() {
 
         mediaScannerService.setJpsonicCleansingProcess(false);
 
+        // Update the date of a particular file to cause a merge
+        String latestMediaFileTitle1 = "file1";
+        String latestMediaFileTitle2 = "file4";
+
         populateDatabaseOnlyOnce(null, () -> {
-            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+            List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
+            Date now = new Date();
             albums.forEach(a -> {
                 List<MediaFile> songs = mediaFileDao.getChildrenOf(0, Integer.MAX_VALUE, a.getPath(), false);
-                songs.stream().forEach(m -> {
-                    if ("file1".equals(m.getTitle()) || "file4".equals(m.getTitle())) {
+                songs.forEach(m -> {
+                    if (latestMediaFileTitle1.equals(m.getTitle()) || latestMediaFileTitle2.equals(m.getTitle())) {
                         m.setChanged(now);
                         mediaFileDao.createOrUpdateMediaFile(m);
                     }
@@ -92,13 +99,12 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
     }
 
     @Test
-    public void testUpdateSortOfAlbum() throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException, NoSuchMethodException, SecurityException {
+    public void testUpdateSortOfAlbum() throws ExecutionException {
 
-        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        List<MediaFile> albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
 
-        List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+        List<Album> albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
 
         // to be merge
@@ -114,10 +120,10 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
 
         invokeUtils(utils, "mergeSortOfAlbum");
 
-        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
 
-        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
 
         // merged
@@ -133,10 +139,10 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
 
         invokeUtils(utils, "copySortOfAlbum");
 
-        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
 
-        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
 
         // copied
@@ -152,10 +158,10 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
 
         invokeUtils(utils, "compensateSortOfAlbum");
 
-        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, musicFolders);
+        albums = mediaFileDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, MUSIC_FOLDERS);
         assertEquals(5, albums.size());
 
-        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, musicFolders);
+        albumId3s = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, false, MUSIC_FOLDERS);
         assertEquals(5, albumId3s.size());
 
         // compensated

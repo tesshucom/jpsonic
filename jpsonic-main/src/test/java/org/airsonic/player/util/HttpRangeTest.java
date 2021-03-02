@@ -35,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class HttpRangeTest {
 
     @Test

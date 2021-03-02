@@ -15,8 +15,8 @@
     <properties>
         <chameleon.version>1.2.1-RELEASE</chameleon.version>
         <tomcat.server.scope>provided</tomcat.server.scope>
-        <jpsonic.version>109.5.0-SNAPSHOT</jpsonic.version>
-        <lucene.version>8.8.0</lucene.version>
+        <jpsonic.version>109.5.0-RELEASE</jpsonic.version>
+        <lucene.version>8.8.1</lucene.version>
     </properties>
 
     <dependencies>
@@ -76,7 +76,7 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-            <version>2.4.2</version>
+            <version>2.4.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -297,7 +297,7 @@
         <dependency>
             <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
-            <version>1.5.2</version>
+            <version>1.5.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>junit</groupId>
@@ -634,7 +634,7 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.2.18</version>
+            <version>42.2.19</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
@@ -715,7 +715,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.4.2</version>
+                <version>2.4.3</version>
                 <configuration>
                     <mainClass>org.airsonic.player.Application</mainClass>
                     <layout>WAR</layout>

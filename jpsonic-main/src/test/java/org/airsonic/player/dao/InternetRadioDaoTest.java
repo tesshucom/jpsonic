@@ -35,10 +35,11 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author Sindre Mehus
  */
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class InternetRadioDaoTest extends DaoTestBase {
 
     @Autowired
-    InternetRadioDao internetRadioDao;
+    private InternetRadioDao internetRadioDao;
 
     @Before
     public void setUp() {
@@ -64,7 +65,7 @@ public class InternetRadioDaoTest extends DaoTestBase {
         radio.setStreamUrl("newStreamUrl");
         radio.setHomepageUrl("newHomePageUrl");
         radio.setEnabled(false);
-        radio.setChanged(new Date(234234L));
+        radio.setChanged(new Date(234_234L));
         internetRadioDao.updateInternetRadio(radio);
 
         InternetRadio newRadio = internetRadioDao.getAllInternetRadios().get(0);

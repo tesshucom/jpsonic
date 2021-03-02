@@ -36,15 +36,15 @@
 
   .deleteExpired {
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
+    flex-flow: row wrap;
     justify-content: flex-end;
     width: calc(100vw - 60px);
+    height: 30px;
     margin: 30px 20px 0 20px;
     @media screen and (min-width: $jp-supplement-width-threshold) {
       width: calc(50vw - 60px);
       margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
     }
-    height: 30px;
   }
 }

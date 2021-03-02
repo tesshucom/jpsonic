@@ -21,7 +21,7 @@
 .mejs__controls:not([style*="display: none"]) {
   background: transparent;
   background: -webkit-linear-gradient(transparent, transparent);
-  background: linear-gradient(transparent, transparent);
+  background:         linear-gradient(transparent, transparent);
 }
 
 .mejs__time {
@@ -29,24 +29,24 @@
 }
 
 .mejs__time-total {
-  @include primaryMaskedBg(0.5);
+  @include primaryMaskedBg(.5);
 }
 
 .mejs__time-buffering {
   background: linear-gradient(
-    -45deg,
-    rgba($jp-color-black, 0.15) 75%,
-    transparent 75%,
-    transparent 50%,
-    rgba($jp-color-black, 0.85) 50%,
-    rgba($jp-color-black, 0.85) 75%,
-    transparent 75%,
-    transparent
+  -45deg,
+  rgba($jp-color-black, .15) 75%,
+  transparent 75%,
+  transparent 50%,
+  rgba($jp-color-black, .85) 50%,
+  rgba($jp-color-black, .85) 75%,
+  transparent 75%,
+  transparent
   );
 }
 
 .mejs__time-loaded {
-  @include primaryMaskedBg(0.7);
+  @include primaryMaskedBg(.7);
 }
 
 .mejs__time-current,
@@ -55,15 +55,15 @@
 }
 
 .mejs__time-hovered {
-  background: rgba($jp-color-black, 0.4);
+  background: rgba($jp-color-black, .4);
 }
 
 .mejs__time-hovered.negative {
-  background: rgba($jp-color-white, 0.4);
+  background: rgba($jp-color-white, .4);
 }
 
 .mejs__volume-button > .mejs__volume-slider {
-  background: rgba(50, 50, 50, 0.3);
+  background: rgba(50, 50, 50, .3);
 }
 
 .mejs__volume-current {
@@ -75,7 +75,7 @@
 }
 
 .mejs__horizontal-volume-total {
-  @include primaryMaskedBg(0.5);
+  @include primaryMaskedBg(.5);
 }
 
 .mejs__horizontal-volume-current {
@@ -84,7 +84,7 @@
 
 .mejs__captions-button > .mejs__captions-selector,
 .mejs__chapters-button > .mejs__chapters-selector {
-  background: rgba(50, 50, 50, 0.3);
+  background: rgba(50, 50, 50, .3);
 }
 
 .mejs__captions-selector-list-item,
@@ -95,7 +95,7 @@
 .mejs__captions-selector-list-item:hover,
 .mejs__chapters-selector-list-item:hover {
   background-color: rgb(100, 100, 100) !important;
-  background-color: rgba(0, 0, 0, 0.6) !important;
+  background-color: rgba(0, 0, 0, .6) !important;
 }
 
 .mejs__captions-layer {
@@ -126,15 +126,15 @@ $buttons-top: 20px;
     display: none;
     &:checked ~ .jps-playqueue-drawer {
       visibility: visible;
-      transform: translateY(0);
       opacity: 1;
+      transform: translateY(0);
     }
     &:checked ~ .playerView {
       a {
         div.control.elasticity {
+          opacity: 1;
           //display: block;
           left: calc(100vw - #{$button-size} - 70px);
-          opacity: 1;
         }
         div.control.expand {
           display: none;
@@ -155,8 +155,8 @@ $buttons-top: 20px;
     .mejs__horizontal-volume-slider,
     .jp-volume,
     select[name="player"] {
-      opacity: 1;
       visibility: visible;
+      opacity: 1;
     }
   }
   > input#isQueueOpened:checked + input#isQueueExpand:checked .jps-playqueue-drawer {
@@ -169,24 +169,24 @@ $buttons-top: 20px;
     border-bottom: 1.4px solid $jp-color-base3;
 
     > h1 {
-      height: 30px;
       display: flex;
       align-items: center;
+      height: 30px;
       font-size: 1.43rem;
       white-space: nowrap;
     }
 
     dl.overview {
       position: absolute;
-      top: 0px;
+      top: 0;
       right: 60px;
       width: 180px;
-      background-color: transparent;
       border: none;
+      background-color: transparent;
       dt {
         display: flex;
-        flex-flow: row nowrap;
         align-items: center;
+        flex-flow: row nowrap;
         justify-content: center;
         width: 30px;
         height: 30px;
@@ -194,18 +194,18 @@ $buttons-top: 20px;
         background-color: transparent;
       }
       dd {
-        max-width: 60px;
         display: flex;
-        flex-flow: row nowrap;
+        overflow: hidden;
         align-items: center;
+        flex-flow: row nowrap;
         justify-content: start;
         width: 60px;
+        max-width: 60px;
         height: 30px;
         border: none;
         background-color: transparent;
-        overflow: hidden;
-        white-space: nowrap;
         text-overflow: ellipsis;
+        white-space: nowrap;
       }
     }
   }
@@ -232,24 +232,26 @@ $buttons-top: 20px;
 
   .queue-container {
     overflow: scroll;
+    overflow-x: hidden;
     width: calc(100vw - 60px);
     height: calc(100vh - 60px - 60px - 60px - 30px - 30px);
-    margin: 30px 30px 0px 30px;
-    overflow-x: hidden;
-    line-height: 0.86rem;
+    margin: 30px 30px 0 30px;
+    line-height: .86rem;
+
     line-height-step: 30px;
     .tabular.queue {
-      @include subSectionContent;
+      width: calc(100% - 30px);
       margin: 0;
+      padding: 0;
       thead {
         tr {
           th {
             position: -webkit-sticky;
-            position: sticky;
-            top: 0;
+            position:         sticky;
             z-index: $jp-layer-2;
-            color: $jp-color-white;
+            top: 0;
             background-color: $jp-color-base4;
+            color: $jp-color-white;
           }
         }
       }
@@ -273,10 +275,10 @@ $buttons-top: 20px;
             &.song,
             &.album,
             &.artist {
-              min-width: 8rem;
               overflow: hidden;
-              white-space: nowrap;
+              min-width: 8rem;
               text-overflow: ellipsis;
+              white-space: nowrap;
             }
             &.song {
               max-width: 20vw;
@@ -297,16 +299,16 @@ $buttons-top: 20px;
               }
             }
             &.composer {
-              min-width: 4rem;
               overflow: hidden;
-              white-space: nowrap;
+              min-width: 4rem;
               text-overflow: ellipsis;
+              white-space: nowrap;
             }
             &.genre {
-              min-width: 4rem;
               overflow: hidden;
-              white-space: nowrap;
+              min-width: 4rem;
               text-overflow: ellipsis;
+              white-space: nowrap;
             }
             &.year,
             &.format,
@@ -332,8 +334,8 @@ $buttons-top: 20px;
               width: 90px;
             }
             &.remove {
-              padding: 0 10px 0 0;
               width: 30px;
+              padding: 0 10px 0 0;
             }
           }
         }
@@ -346,8 +348,8 @@ $buttons-top: 20px;
   }
 
   > .playerView {
+    position: fixed;
     z-index: $jp-layer-3;
-    position: absolute;
     bottom: 0;
     width: 100%;
     height: 60px;
@@ -355,7 +357,10 @@ $buttons-top: 20px;
     max-height: 60px;
     padding: 0;
     background-color: $jp-color-base1;
+
     @include border(top);
+    // player >>
+    $player-baseline: -56px;
 
     .mejs__mediaelement,
     .mejs__time-total,
@@ -382,9 +387,10 @@ $buttons-top: 20px;
     }
 
     .mejs__button > button {
-      @include createButton;
-      color: transparent !important;
       position: absolute;
+      color: transparent !important;
+
+      @include createButton;
     }
 
     .mejs__play button,
@@ -395,26 +401,27 @@ $buttons-top: 20px;
     #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPause,
     #stop {
-      @include createButtonBase($play-button-size, "", "", "", "");
       position: absolute;
       top: $buttons-top;
       left: calc((100vw - #{$play-button-size}) / 2 - 3px);
+      background-position: -300px -300px;
+
+      @include createButtonBase($play-button-size, "", "", "", "");
       &:active {
         top: calc(#{$buttons-top} + #{$jp-shadow-pressed-offset});
         left: calc((100vw - #{$play-button-size}) / 2 + #{$jp-shadow-pressed-offset} - 3px);
       }
-      background-position: -300px -300px;
     }
     .mejs__play button,
     #javaJukeboxPlayerControlBar > button#startIcon,
     #castPlay {
-      @include createButton("\f357", 16px, -0.06em, 0.06em);
+      @include createButton("\f357", 16px, -.06em, .06em);
     }
     .mejs__pause button,
     .mejs__pause > button,
     #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPause {
-      @include createButton("\f478", 16px, -0.06em, -0.01em);
+      @include createButton("\f478", 16px, -.06em, -.01em);
     }
     #javaJukeboxPlayerControlBar > button#pauseIcon,
     #castPlayer,
@@ -426,26 +433,24 @@ $buttons-top: 20px;
       display: none;
     }
 
-    // player >>
-
-    $player-baseline: -56px;
-
     .mejs__unmute button {
+      visibility: hidden;
       top: $player-baseline;
       right: 60px;
-      @include createButton("\f3a1", 22px, calc(-0.07em), -0.1em);
-      visibility: hidden;
+
+      @include createButton("\f3a1", 22px, calc(-.07em), -.1em);
     }
     .mejs__mute button {
+      visibility: hidden;
       top: $player-baseline;
       right: 60px;
-      @include createButton("\f3a2", 22px, -0.05em);
-      visibility: hidden;
+
+      @include createButton("\f3a2", 22px, -.05em);
     }
 
     .mejs__horizontal-volume-slider {
-      top: calc(#{$player-baseline} + 2px);
       visibility: hidden;
+      top: calc(#{$player-baseline} + 2px);
       right: 60px;
     }
 
@@ -462,11 +467,11 @@ $buttons-top: 20px;
       }
     }
     select[name="player"] {
-      position: absolute;
       visibility: hidden;
+      opacity: 0;
+      position: absolute;
       top: calc(#{$player-baseline} + 1px);
       left: calc(100vw - 240px);
-      opacity: 0;
     }
 
     // player <<
@@ -492,9 +497,9 @@ $buttons-top: 20px;
     }
 
     div.control.elasticity {
+      opacity: 0;
       //display: none;
       left: calc(100vw - #{$button-size} - 30px);
-      opacity: 0;
     }
 
     div.control.expand {
@@ -546,24 +551,25 @@ $buttons-top: 20px;
 .jp-volume {
   // Not implemented in legacy
   display: none;
+  display: flex;
   visibility: hidden;
+  align-items: center;
+  flex-flow: row nowrap;
+  justify-content: center;
   position: absolute;
   top: -55px;
   right: 60px;
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
   #jukeboxVolume {
     width: 80px;
     height: 8px;
   }
   .ui-widget-content {
-    @include primaryMaskedBg(0.5);
+    @include primaryMaskedBg(.5);
   }
   .ui-widget-header {
-    @include border;
     font-weight: bold;
+
+    @include border;
     @include primaryMaskedBg(1);
   }
   .ui-slider {
@@ -574,15 +580,16 @@ $buttons-top: 20px;
     .ui-slider-handle {
       width: 12px;
       height: 12px;
-      cursor: pointer;
       border: none;
       background: transparent;
+      cursor: pointer;
       &:active,
       &:focus,
       &:hover {
-        @include border;
         border-radius: 50%;
         background: $jp-color-white;
+
+        @include border;
       }
     }
   }
@@ -592,9 +599,9 @@ $buttons-top: 20px;
   // Not implemented in legacy
   width: 80px;
   height: 4px;
-  margin-left: 10px;
-  margin-right: 10px;
   margin-top: 8px;
+  margin-right: 10px;
+  margin-left: 10px;
 }
 
 // ******************** playqueue-drawer / playQueue.jsp *****************
@@ -603,18 +610,19 @@ $jp-playqueue-drawer-hight: 100vh;
 
 .jps-playqueue-drawer {
   visibility: hidden;
-  z-index: $jp-layer-2;
+  opacity: .5;
   position: absolute;
+  z-index: $jp-layer-2;
   top: 0;
   left: 0;
   width: 100vw;
   height: calc(#{$jp-playqueue-drawer-hight} - 60px);
   margin: 0;
   padding: 0;
-  @include border(top);
   background: $jp-color-base1;
-  transition: all 0.3s ease-in;
-  transition: all 0.3s ease-out;
+  transition: all .3s ease-in;
+  transition: all .3s ease-out;
   transform: translateY(calc(#{$jp-playqueue-drawer-hight}));
-  opacity: 0.5;
+
+  @include border(top);
 }

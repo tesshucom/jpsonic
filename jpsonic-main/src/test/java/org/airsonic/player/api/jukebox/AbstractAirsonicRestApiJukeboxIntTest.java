@@ -21,12 +21,6 @@
 
 package org.airsonic.player.api.jukebox;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -35,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.TestCaseUtils;
@@ -55,14 +50,16 @@ import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestData;
+import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.airsonic.player.util.StringUtil;
+import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -81,35 +78,17 @@ import org.springframework.test.web.servlet.ResultMatcher;
 @SpringBootTest(classes = AbstractAirsonicRestApiJukeboxIntTest.Config.class)
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public abstract class AbstractAirsonicRestApiJukeboxIntTest {
 
     @ClassRule
-    public static final HomeRule classRule = new HomeRule(); // sets jpsonic.home to a temporary dir
-
-    @TestConfiguration
-    static class Config {
-        @Bean
-        public BeanPostProcessor convertToSpy() {
-            return new BeanPostProcessor() {
-                @Override
-                public Object postProcessAfterInitialization(final Object bean, String beanName) {
-                    if (bean instanceof PlayerDaoPlayQueueFactory) {
-                        PlayerDaoPlayQueueFactory temp = (PlayerDaoPlayQueueFactory) spy(bean);
-                        doReturn(spy(temp.createPlayQueue())).when(temp).createPlayQueue();
-                        return temp;
-                    }
-                    return bean;
-                }
-            };
-        }
-    }
-
-    static final String CLIENT_NAME = "jpsonic";
-    static final String JUKEBOX_PLAYER_NAME = CLIENT_NAME + "-jukebox";
+    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
     private static final String EXPECTED_FORMAT = "json";
-    private static String AIRSONIC_API_VERSION;
-
+    private static String apiVersion;
     private static boolean dataBasePopulated;
+
+    public static final String CLIENT_NAME = "jpsonic";
+    public static final String JUKEBOX_PLAYER_NAME = CLIENT_NAME + "-jukebox";
 
     @Autowired
     protected PlayerService playerService;
@@ -134,9 +113,27 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
 
     private Player testJukeboxPlayer;
 
+    @TestConfiguration
+    static class Config {
+        @Bean
+        public BeanPostProcessor convertToSpy() {
+            return new BeanPostProcessor() {
+                @Override
+                public Object postProcessAfterInitialization(final Object bean, String beanName) {
+                    if (bean instanceof PlayerDaoPlayQueueFactory) {
+                        PlayerDaoPlayQueueFactory temp = (PlayerDaoPlayQueueFactory) Mockito.spy(bean);
+                        Mockito.doReturn(Mockito.spy(temp.createPlayQueue())).when(temp).createPlayQueue();
+                        return temp;
+                    }
+                    return bean;
+                }
+            };
+        }
+    }
+
     @BeforeClass
     public static void setupClass() {
-        AIRSONIC_API_VERSION = TestCaseUtils.restApiVersion();
+        apiVersion = TestCaseUtils.restApiVersion();
         dataBasePopulated = false;
     }
 
@@ -152,32 +149,32 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     private void populateDatabase() {
         if (!dataBasePopulated) {
 
-            assertThat(musicFolderDao.getAllMusicFolders().size()).isEqualTo(1);
-            MusicFolderTestData.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
+            Assertions.assertThat(musicFolderDao.getAllMusicFolders().size()).isEqualTo(1);
+            MusicFolderTestDataUtils.getTestMusicFolders().forEach(musicFolderDao::createMusicFolder);
             settingsService.clearMusicFolderCache();
 
             TestCaseUtils.execScan(mediaScannerService);
 
-            assertThat(playerDao.getAllPlayers().size()).isEqualTo(0);
+            Assertions.assertThat(playerDao.getAllPlayers().size()).isEqualTo(0);
             createTestPlayer();
-            assertThat(playerDao.getAllPlayers().size()).isEqualTo(1);
+            Assertions.assertThat(playerDao.getAllPlayers().size()).isEqualTo(1);
 
             dataBasePopulated = true;
         }
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() throws ExecutionException {
         populateDatabase();
 
         testJukeboxPlayer = findTestJukeboxPlayer();
-        assertThat(testJukeboxPlayer).isNotNull();
-        reset(testJukeboxPlayer.getPlayQueue());
+        Assertions.assertThat(testJukeboxPlayer).isNotNull();
+        Mockito.reset(testJukeboxPlayer.getPlayQueue());
         testJukeboxPlayer.getPlayQueue().clear();
-        assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(0);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(0);
         testJukeboxPlayer.getPlayQueue().addFiles(true,
                 mediaFileDao.getSongsForAlbum("_DIR_ Ravel", "Complete Piano Works"));
-        assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(2);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(2);
     }
 
     @After
@@ -194,17 +191,18 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
     }
 
     private String convertDateToString(Date date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", settingsService.getLocale());
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         return formatter.format(date);
     }
 
+    @SuppressWarnings("PMD.UseLocaleWithCaseConversions") // MediaType literal comparison
     private ResultMatcher playListItem1isCorrect() {
         MediaFile mediaFile = testJukeboxPlayer.getPlayQueue().getFile(0);
         MediaFile parent = mediaFileDao.getMediaFile(mediaFile.getParentPath());
         Album album = albumDao.getAlbum(mediaFile.getArtist(), mediaFile.getAlbumName());
         Artist artist = artistDao.getArtist(mediaFile.getArtist());
-        assertThat(album).isNotNull();
+        Assertions.assertThat(album).isNotNull();
         return result -> {
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].id").value(mediaFile.getId()).match(result);
             jsonPath("$.subsonic-response.jukeboxPlaylist.entry[0].parent").value(parent.getId()).match(result);
@@ -237,77 +235,98 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
 
     @Test
     @WithMockUser(username = "admin")
-    public void jukeboxStartActionTest() throws Exception {
+    public void jukeboxStartActionTest() throws ExecutionException {
         // Given
 
         // When and Then
-        performStartAction();
-        performStatusAction("true");
-        performGetAction().andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.currentIndex").value("0"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.playing").value("true"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.gain").value("0.75"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.position").value("0"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry").isArray())
-                .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry.length()").value(2))
-                .andExpect(playListItem1isCorrect()).andDo(print());
+        try {
+            performStartAction();
+            performStatusAction("true");
+            performGetAction().andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.currentIndex").value("0"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.playing").value("true"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.gain").value("0.75"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.position").value("0"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry").isArray())
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxPlaylist.entry.length()").value(2))
+                    .andExpect(playListItem1isCorrect()).andDo(print());
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
 
-        verify(testJukeboxPlayer.getPlayQueue(), times(2)).setStatus(PlayQueue.Status.PLAYING);
-        assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
-        assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.PLAYING);
+        Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(2)).setStatus(PlayQueue.Status.PLAYING);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.PLAYING);
     }
 
     @Test
     @WithMockUser(username = "admin")
-    public void jukeboxStopActionTest() throws Exception {
+    public void jukeboxStopActionTest() throws ExecutionException {
         // Given
 
         // When and Then
-        performStartAction();
-        performStatusAction("true");
-        performStopAction();
-        performStatusAction("false");
+        try {
+            performStartAction();
+            performStatusAction("true");
+            performStopAction();
+            performStatusAction("false");
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
 
-        verify(testJukeboxPlayer.getPlayQueue(), times(2)).setStatus(PlayQueue.Status.PLAYING);
-        verify(testJukeboxPlayer.getPlayQueue(), times(1)).setStatus(PlayQueue.Status.STOPPED);
-        assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
-        assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.STOPPED);
+        Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(2)).setStatus(PlayQueue.Status.PLAYING);
+        Mockito.verify(testJukeboxPlayer.getPlayQueue(), Mockito.times(1)).setStatus(PlayQueue.Status.STOPPED);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getIndex()).isEqualTo(0);
+        Assertions.assertThat(testJukeboxPlayer.getPlayQueue().getStatus()).isEqualTo(PlayQueue.Status.STOPPED);
     }
 
-    private void performStatusAction(String expectedPlayingValue) throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "status")
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value(expectedPlayingValue))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+    private void performStatusAction(String expectedPlayingValue) throws ExecutionException {
+        try {
+            mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
+                    .param("f", EXPECTED_FORMAT).param("action", "status").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value(expectedPlayingValue))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
     }
 
-    private ResultActions performGetAction() throws Exception {
-        return mvc
-                .perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
-                        .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "get")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"));
+    private ResultActions performGetAction() throws ExecutionException {
+        try {
+            return mvc
+                    .perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion)
+                            .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "get")
+                            .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"));
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
     }
 
-    private void performStopAction() throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "stop")
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("false"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+    private void performStopAction() throws ExecutionException {
+        try {
+            mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
+                    .param("f", EXPECTED_FORMAT).param("action", "stop").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("false"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
     }
 
-    private void performStartAction() throws Exception {
-        mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", AIRSONIC_API_VERSION)
-                .param("c", CLIENT_NAME).param("f", EXPECTED_FORMAT).param("action", "start")
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.subsonic-response.status").value("ok"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("true"))
-                .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+    private void performStartAction() throws ExecutionException {
+        try {
+            mvc.perform(get("/rest/" + ViewName.JUKEBOX_CONTROL.value()).param("v", apiVersion).param("c", CLIENT_NAME)
+                    .param("f", EXPECTED_FORMAT).param("action", "start").contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.currentIndex").value("0"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.playing").value("true"))
+                    .andExpect(jsonPath("$.subsonic-response.jukeboxStatus.position").value("0"));
+        } catch (Exception e) {
+            throw new ExecutionException(e);
+        }
     }
 }

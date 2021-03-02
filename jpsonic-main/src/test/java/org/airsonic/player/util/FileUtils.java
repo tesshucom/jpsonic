@@ -31,10 +31,12 @@ import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.lang.StringUtils;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,7 @@ public final class FileUtils {
         return false;
     }
 
-    private static boolean copyFilesRecusively(final File toCopy, final File destDir) {
+    private static boolean copyFilesRecusively(@NonNull final File toCopy, final File destDir) {
         assert destDir.isDirectory();
 
         if (toCopy.isDirectory()) {
@@ -63,7 +65,7 @@ public final class FileUtils {
             if (!newDestDir.exists() && !newDestDir.mkdir()) {
                 return false;
             }
-            for (final File child : toCopy.listFiles()) {
+            for (final File child : Objects.requireNonNull(toCopy.listFiles())) {
                 if (!FileUtils.copyFilesRecusively(child, newDestDir)) {
                     return false;
                 }

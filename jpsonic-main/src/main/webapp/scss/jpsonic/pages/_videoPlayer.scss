@@ -2,29 +2,29 @@
   padding: 4px;
 
   #overlay {
-    width: 100%;
-    height: 120px;
+    display: none;
     position: absolute;
     z-index: 1;
+    width: 100%;
+    height: 120px;
     background-color: black;
-    display: none;
   }
 
   #overlay_text {
-    font-size: 1rem;
-    text-align: center;
+    display: none;
     margin-top: 10px;
     color: white;
-    display: none;
+    font-size: 1rem;
+    text-align: center;
   }
 
   .videoView {
+    display: flex;
+    align-items: start;
+    flex-flow: row wrap;
+    justify-content: center;
     width: 100%;
     height: calc(100% - 60px);
-    display: flex;
-    flex-flow: row wrap;
-    align-items: start;
-    justify-content: center;
     background-color: black;
     #videoPlayer {
       width: 100%;
@@ -76,9 +76,9 @@
 
   #media_control {
     display: flex;
+    align-items: center;
     flex-flow: row wrap;
     justify-content: space-between;
-    align-items: center;
     width: 100%;
     height: 60px;
     padding-bottom: 10px;
@@ -86,55 +86,57 @@
   }
 
   .progressBar {
-    background-color: $jp-color-base1;
-    width: 100%;
     display: flex;
+    align-items: center;
     flex-flow: row wrap;
     justify-content: space-around;
-    align-items: center;
+    width: 100%;
+    background-color: $jp-color-base1;
     #progress,
     #duration {
       display: flex;
+      align-items: center;
       flex-flow: row wrap;
       justify-content: center;
-      align-items: center;
       width: 50px;
-      font-size: 0.76rem;
-      font-weight: 600;
       color: $jp-color-dark-gray;
+      font-size: .76rem;
+      font-weight: 600;
     }
     #progress_slider {
-      @include primaryMaskedBg(0.4);
       width: calc(100% - 100px);
       height: 4px;
       border: none;
-      transition: 0.2s;
       cursor: pointer;
+      transition: .2s;
+
+      @include primaryMaskedBg(.4);
     }
     .ui-slider-handle.ui-corner-all.ui-state-default {
+      top: 1px;
+      width: 0;
+      height: 0;
+      margin-left: 0;
       outline: none;
-      width: 0px;
-      height: 0px;
-      background: none;
-      background-color: $jp-color-base4;
       border: none;
       border-radius: 6px;
-      top: 1px;
-      margin-left: 0;
-      transition: 0.2s;
+      background: none;
+      background-color: $jp-color-base4;
+      transition: .2s;
     }
     .ui-slider-range.ui-corner-all.ui-widget-header.ui-slider-range-min {
       background: none;
-      @include primaryMaskedBg(0.9);
+
+      @include primaryMaskedBg(.9);
     }
     &:hover {
       #progress_slider {
         height: 10px;
       }
       .ui-slider-handle.ui-corner-all.ui-state-default {
+        top: -1px;
         width: 12px;
         height: 12px;
-        top: -1px;
         margin-left: -6px;
       }
     }
@@ -144,55 +146,56 @@
   }
   .actions.primary {
     display: flex;
+    align-items: center;
     flex-flow: row wrap;
     justify-content: start;
-    align-items: center;
-    width: calc((100% - 90px) * 0.5);
+    width: calc((100% - 90px) * .5);
     height: 30px;
   }
   .actions.sub {
     display: flex;
+    align-items: center;
     flex-flow: row wrap;
     justify-content: flex-end;
-    align-items: center;
-    width: calc((100% - 90px) * 0.5);
+    width: calc((100% - 90px) * .5);
     height: 30px;
   }
   #bitrate_menu {
-    margin-left: 15px;
-    margin-right: 15px;
-    width: 90px;
-    font-size: 12px;
     display: block;
+    width: 90px;
+    margin-right: 15px;
+    margin-left: 15px;
+    font-size: 12px;
   }
 
   .volume {
-    height: 30px;
     display: flex;
+    align-items: center;
     flex-flow: row wrap;
     justify-content: space-around;
-    align-items: center;
+    height: 30px;
 
     #volume_slider {
-      @include primaryMaskedBg(0.4);
       width: 90px;
       height: 4px;
       border: none;
-      transition: 0.2s;
       cursor: pointer;
+      transition: .2s;
+
+      @include primaryMaskedBg(.4);
     }
 
     .ui-slider-handle.ui-corner-all.ui-state-default {
+      top: 1px;
+      width: 0;
+      height: 0;
+      margin-left: 0;
       outline: none;
-      width: 0px;
-      height: 0px;
-      background: none;
-      background-color: $jp-color-base4;
       border: none;
       border-radius: 6px;
-      top: 1px;
-      margin-left: 0;
-      transition: 0.2s;
+      background: none;
+      background-color: $jp-color-base4;
+      transition: .2s;
     }
     .ui-slider .ui-slider-handle {
       top: 0;
@@ -200,7 +203,8 @@
 
     .ui-slider-range.ui-corner-all.ui-widget-header.ui-slider-range-min {
       background: none;
-      @include primaryMaskedBg(0.9);
+
+      @include primaryMaskedBg(.9);
     }
     .ui-slider-handle:focus {
       outline: none;
@@ -210,9 +214,9 @@
         height: 10px;
       }
       .ui-slider .ui-slider-handle {
+        top: -1px;
         width: 12px;
         height: 12px;
-        top: -1px;
         margin-left: -6px;
       }
     }
@@ -223,4 +227,12 @@
   #pip {
     display: none;
   }
+
+  ::-webkit-scrollbar-track {
+    margin-bottom: 0;
+  }
+}
+
+.mainframe.videoPlayer:after {
+  height: 0;
 }

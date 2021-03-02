@@ -28,7 +28,7 @@ import static org.junit.Assert.assertNull;
 import java.io.File;
 import java.util.Date;
 
-import org.airsonic.player.dao.MusicFolderTestData;
+import org.airsonic.player.dao.MusicFolderTestDataUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
@@ -51,11 +51,12 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class DocumentFactoryTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -108,7 +109,7 @@ public class DocumentFactoryTest {
         artist.setName("name");
         artist.setSort("sort");
         artist.setFolderId(10);
-        File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
+        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(artist, musicFolder);
         assertEquals("fields.size", 8, document.getFields().size());
@@ -188,7 +189,7 @@ public class DocumentFactoryTest {
         assertEquals("FieldNamesConstants.TITLE_EX", "title", document.get(FieldNamesConstants.TITLE_EX));
         assertEquals("FieldNamesConstants.MEDIA_TYPE", "MUSIC", document.get(FieldNamesConstants.MEDIA_TYPE));
         assertEquals("FieldNamesConstants.GENRE", "genre", document.get(FieldNamesConstants.GENRE));
-        assertEquals("FieldNamesConstants.YEAR", null, document.get(FieldNamesConstants.YEAR));
+        assertNull("FieldNamesConstants.YEAR", document.get(FieldNamesConstants.YEAR));
         // assertEquals("FieldNamesConstants.YEAR", "2000", document.get(FieldNamesConstants.YEAR));
         assertEquals("FieldNamesConstants.FOLDER", "folder", document.get(FieldNamesConstants.FOLDER));
     }
@@ -221,7 +222,7 @@ public class DocumentFactoryTest {
 
     @Test
     public void testCreateNullArtist() {
-        File musicDir = new File(MusicFolderTestData.resolveMusicFolderPath());
+        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
         MusicFolder musicFolder = new MusicFolder(100, musicDir, "Music", true, new Date());
         Document document = documentFactory.createArtistId3Document(new Artist(), musicFolder);
         assertEquals("fields.size", 2, document.getFields().size());

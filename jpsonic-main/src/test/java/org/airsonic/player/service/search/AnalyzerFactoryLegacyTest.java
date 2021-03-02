@@ -31,6 +31,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.util.HomeRule;
 import org.apache.lucene.analysis.TokenStream;
@@ -52,11 +53,16 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  * upgrading Lucene.
  */
 @SpringBootTest
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
+/*
+ * [AvoidDuplicateLiterals] In the testing class, it may be less readable. [JUnitTestsShouldIncludeAssert] dalse
+ * positive
+ */
 public class AnalyzerFactoryLegacyTest {
 
     @ClassRule
-    public static final SpringClassRule classRule = new SpringClassRule() {
-        HomeRule homeRule = new HomeRule();
+    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
+        final HomeRule homeRule = new HomeRule();
 
         @Override
         public Statement apply(Statement base, Description description) {
@@ -72,14 +78,19 @@ public class AnalyzerFactoryLegacyTest {
     private AnalyzerFactory analyzerFactory;
 
     @Before
-    public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
-            IllegalArgumentException, InvocationTargetException {
-        Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
-                boolean.class);
-        setSearchMethodLegacy.setAccessible(true);
-        setSearchMethodLegacy.invoke(analyzerFactory, true);
+    public void setup() throws ExecutionException {
+        try {
+            Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",
+                    boolean.class);
+            setSearchMethodLegacy.setAccessible(true);
+            setSearchMethodLegacy.invoke(analyzerFactory, true);
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
+                | InvocationTargetException e) {
+            throw new ExecutionException(e);
+        }
     }
 
+    @Test
     public void testTokenCounts() {
 
         String queryEng = "The quick brown fox jumps over the lazy dog.";
@@ -221,6 +232,7 @@ public class AnalyzerFactoryLegacyTest {
 
             default:
                 assertEquals("removed : " + n, 0, terms.size());
+                break;
             }
         });
     }
@@ -973,13 +985,11 @@ public class AnalyzerFactoryLegacyTest {
 
     private List<String> toTermString(String field, String str) {
         List<String> result = new ArrayList<>();
-        try {
-            TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str));
+        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
-            stream.close();
         } catch (IOException e) {
             LoggerFactory.getLogger(AnalyzerFactoryLegacyTest.class).error("Error during Token processing.", e);
         }
@@ -989,13 +999,11 @@ public class AnalyzerFactoryLegacyTest {
     @SuppressWarnings("unused")
     private List<String> toQueryTermString(String field, String str) {
         List<String> result = new ArrayList<>();
-        try {
-            TokenStream stream = analyzerFactory.getQueryAnalyzer().tokenStream(field, new StringReader(str));
+        try (TokenStream stream = analyzerFactory.getAnalyzer().tokenStream(field, new StringReader(str))) {
             stream.reset();
             while (stream.incrementToken()) {
                 result.add(stream.getAttribute(CharTermAttribute.class).toString().replaceAll("^term\\=", ""));
             }
-            stream.close();
         } catch (IOException e) {
             LoggerFactory.getLogger(AnalyzerFactoryLegacyTest.class).error("Error during Token processing.", e);
         }

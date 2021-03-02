@@ -1,7 +1,7 @@
 $jp-main-settings-width: calc(100vw - 60px);
 
 .mainframe.settings > form {
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 input[type="text"],
@@ -12,12 +12,12 @@ input[type="email"],
 input[type="password"],
 input[type="number"],
 select {
-  padding-left: 5px;
   padding-right: 5px;
+  padding-left: 5px;
   &:focus,
   &:active {
-    padding-left: 4px;
     padding-right: 4px;
+    padding-left: 4px;
   }
 }
 
@@ -28,9 +28,9 @@ select {
   display: none;
   position: absolute;
   z-index: $jp-layer-5;
-  box-shadow: 0 5px 25px $jp-color-black;
   -webkit-box-shadow: 0 5px 25px $jp-color-black;
-  -moz-box-shadow: 0 5px 25px $jp-color-black;
+     -moz-box-shadow: 0 5px 25px $jp-color-black;
+          box-shadow: 0 5px 25px $jp-color-black;
 }
 
 #zoom_img {
@@ -38,18 +38,19 @@ select {
   width: 100%;
   margin: 0;
   padding: 0;
-  @include border(zero);
   cursor: pointer;
+
+  @include border(zero);
 }
 
 #zoom_close {
   display: none;
   position: absolute;
-  left: -15px;
   top: -15px;
+  left: -15px;
   width: 30px;
   height: 30px;
-  background: url(../script/closebox.png) no-repeat;
+  background: url(../../script/closebox.png) no-repeat;
   cursor: pointer;
 }
 
@@ -59,18 +60,19 @@ select {
   z-index: 525;
   width: 50px;
   height: 50px;
-  background: url(../script/spin.png) no-repeat;
+  background: url(../../script/spin.png) no-repeat;
 }
 
 // ******************** jquery-ui tooltip *********************************
 
 div.ui-tooltip {
-  box-shadow: none;
   max-width: 400px;
+  background-color: $jp-color-complementary2;
+  box-shadow: none;
+  font-size: .85rem;
+
   @include border;
   @include borderRadius;
-  background-color: $jp-color-complementary2;
-  font-size: 0.85rem;
   .ui-tooltip-content {
     color: $jp-color-black;
   }
@@ -81,14 +83,15 @@ div.ui-tooltip {
 // Used for simple enumeration of links
 ul.anchorList {
   display: flex;
-  flex-flow: row wrap;
   align-items: center;
+  flex-flow: row wrap;
   justify-content: center;
   min-height: 30px;
   a {
-    outline: none;
     top: -2px;
+    outline: none;
     background: $jp-color-base1;
+
     @include dropShadow;
   }
   .selected {
@@ -96,19 +99,21 @@ ul.anchorList {
     background: $jp-color-dark-gray;
     color: $jp-color-white;
     font-weight: 600;
+
     @include dropShadow(none);
   }
   a,
   .selected {
     position: relative;
     height: 20px;
-    margin: 5px 8px 5px 0px;
+    margin: 5px 8px 5px 0;
     padding: 0 4px 0 4px;
-    @include border;
     border-radius: 10px;
-    font-size: 0.93rem;
+    font-size: .93rem;
     font-weight: 600;
     vertical-align: middle;
+
+    @include border;
     &:active {
       top: -1px;
     }
@@ -129,14 +134,14 @@ ul.anchorList {
   background-color: $jp-color-white;
   > section {
     > ul.sibling-pages {
+      display: flex;
+      align-items: center;
+      flex-flow: row wrap;
+      justify-content: center;
+      width: 100%;
       // enumerating links in the same category (tab like)
       margin: -2px 0 0 0;
       padding: 0;
-      display: flex;
-      flex-flow: row wrap;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
       li {
         margin: 0 0 1px 0;
         padding: 0;
@@ -152,18 +157,19 @@ ul.anchorList {
       .selected {
         width: 100px;
         min-width: 100px;
-        outline: none;
-        white-space: nowrap;
         height: 30px;
         margin: 0 2px 0 2px;
         padding: 2px 10px 2px 10px;
-        @include borderRadius(upper);
+        outline: none;
         border-top: 1.4px solid $jp-color-base3;
         border-right: 1.4px solid $jp-color-base3;
         border-left: 1.4px solid $jp-color-base3;
-        font-size: 0.93rem;
+        font-size: .93rem;
         font-weight: 600;
         vertical-align: middle;
+        white-space: nowrap;
+
+        @include borderRadius(upper);
       }
       a {
         border-bottom: 1.4px solid $jp-color-base3;
@@ -175,32 +181,45 @@ ul.anchorList {
       }
     }
   }
+  &:after {
+    display: block;
+    width: 100%;
+    height: 60px;
+    content: "";
+  }
+}
+.win {
+  .mainframe {
+    &:after {
+      height: 0;
+    }
+  }
 }
 
 // ******************** breadcrumb/home.jsp, albumMain.jsp ****************
 
 ul.breadcrumb {
   display: flex;
-  flex-flow: row nowrap;
   align-items: center;
+  flex-flow: row nowrap;
   position: absolute;
   top: 0;
   color: $jp-color-dark-gray;
   li {
-    height: 30px;
     display: flex;
-    flex-flow: row nowrap;
     align-items: center;
+    flex-flow: row nowrap;
+    height: 30px;
     margin: 0 4px 0 0;
     a,
     &:before,
     &:after {
-      height: 30px;
-      line-height: 30px;
       display: flex;
-      flex-flow: row nowrap;
       align-items: center;
+      flex-flow: row nowrap;
+      height: 30px;
       margin: 0 4px 0 0;
+      line-height: 30px;
     }
     &:before {
       font-family: "ionic";
@@ -208,8 +227,8 @@ ul.breadcrumb {
       content: "\f2f4";
     }
     &:after {
-      content: "\0bb";
       margin: 0 6px 0 4px;
+      content: "\0bb";
     }
   }
 }
@@ -220,16 +239,16 @@ ul.breadcrumb {
 
 .titledSelector {
   display: flex;
-  flex-flow: row wrap;
   align-items: center;
+  flex-flow: row wrap;
   justify-content: space-evenly;
   height: 26px;
+  border: $jp-border-width solid $jp-color-base2;
   background-color: $jp-color-base4;
-  @include border;
-  @include borderRadius;
-  border-color: $jp-color-base2;
   color: $jp-color-white;
   font-weight: 600;
+
+  @include borderRadius;
   select {
     font-weight: 400;
   }
@@ -239,27 +258,27 @@ ul.breadcrumb {
 
 h2 {
   display: flex;
-  flex-flow: row nowrap;
   align-items: center;
+  flex-flow: row nowrap;
   height: 30px;
   margin: 0 0 0 #{$jp-subsection-indent};
-  font-size: 1.14rem;
-  color: $jp-color-dark-gray;
-  white-space: nowrap;
   border-bottom: 1.4px solid $jp-color-base3;
+  color: $jp-color-dark-gray;
+  font-size: 1.14rem;
+  white-space: nowrap;
 }
 .controls,
 .stars,
 .ratings {
   display: flex;
-  flex-flow: row nowrap;
   align-items: center;
+  flex-flow: row nowrap;
   justify-content: start;
   height: 30px;
   > li {
     display: flex;
-    flex-flow: row nowrap;
     align-items: center;
+    flex-flow: row nowrap;
     > a,
     span {
       margin: 4px 4px 0 0;
@@ -271,48 +290,50 @@ h2 {
         display: list-item;
         list-style-type: none;
         > a {
-          width: 250px;
           display: inline-block;
-          //position: absolute;
-          box-sizing: border-box;
+          width: 250px;
           //left: -2300px;
           height: 20px;
           padding: 0 5px;
+          //position: absolute;
+          box-sizing: border-box;
         }
       }
     }
     &:focus-within ul {
-      position: absolute;
       display: block;
+      position: absolute;
+      z-index: $jp-layer-4;
       top: 0;
       left: 0;
-      z-index: $jp-layer-4;
       padding: 5px;
-      @include border;
       border-radius: $jp-border-radius;
       background-color: $jp-color-base2;
-      pointer-events: auto;
-      user-select: auto;
-      -moz-user-select: auto;
       -webkit-user-select: auto;
-      -ms-user-select: auto;
+         -moz-user-select: auto;
+          -ms-user-select: auto;
+              user-select: auto;
+      pointer-events: auto;
+
+      @include border;
       > li {
         display: flex;
-        flex-flow: row nowrap;
         align-items: center;
+        flex-flow: row nowrap;
         a {
-          visibility: visible;
           display: block;
+          visibility: visible;
           position: relative;
-          left: 0px;
-          top: 0px;
+          top: 0;
+          left: 0;
           height: 30px;
           padding: 0 0 0 26px;
-          @include border;
           border-radius: $jp-border-radius;
-          @include blockLink($jp-color-white, $jp-color-base4);
           text-decoration: none;
           text-align: left;
+
+          @include border;
+          @include blockLink($jp-color-white, $jp-color-base4);
           &:link,
           &:active,
           &:visited,
@@ -323,8 +344,8 @@ h2 {
           }
           &:hover,
           &:hover * {
-            color: $jp-color-base4 !important;
             background-color: $jp-color-complementary3;
+            color: $jp-color-base4 !important;
           }
           &:focus {
             background-color: $jp-color-complementary3;
@@ -345,10 +366,10 @@ h2 {
 }
 
 .actions {
-  width: 90%;
   display: flex;
-  flex-flow: row wrap;
   align-items: center;
+  flex-flow: row wrap;
+  width: 90%;
   height: 30px;
   margin: 0 30px 0 0;
   > ul.anchorList {
@@ -357,8 +378,8 @@ h2 {
   }
   > div {
     margin: 3px 0 0 10px;
-    font-size: 0.86rem;
     color: $jp-color-dark-gray;
+    font-size: .86rem;
   }
 }
 
@@ -374,16 +395,16 @@ h2 + div.actions {
 
 .submits {
   display: flex;
-  flex-wrap: wrap;
   flex-direction: row;
+  flex-wrap: wrap;
   justify-content: flex-end;
   width: calc(100vw - 30px);
   margin: 30px 30px 0 0;
+  padding: .3rem 0 .3rem 10px;
   @media screen and (min-width: $jp-supplement-width-threshold) {
     width: calc(50vw - 30px);
     margin: 30px 30px 0 calc((100vw - (50vw - 30px)) / 2);
   }
-  padding: 0.3rem 0 0.3rem 10px;
 }
 
 // ******************** albumThumb/coverArt.jsp ->
@@ -393,12 +414,14 @@ h2 + div.actions {
 // ************************************************************************
 
 // The size depends on where it is used.
+
+$default-cover-art-width: 180px;
+$default-cover-art-height: 240px;
+
 .albumThumb {
-  $default-cover-art-width: 180px;
-  $default-cover-art-height: 240px;
   display: flex;
-  flex-flow: row wrap;
   align-items: start;
+  flex-flow: row wrap;
   justify-content: center;
   width: #{$default-cover-art-width};
   height: #{$default-cover-art-height};
@@ -416,7 +439,8 @@ div.albumThumb > div.coverart > div > a {
 // The component is a very diverse pattern. Narrow the width and arrange vertically for easy viewing for user.
 // The width that can be displayed on the iPad is recommended.
 
-.mainframe.settings {
+.mainframe.settings,
+.mainframe.help {
   details {
     width: calc(100vw - 60px);
     margin: 30px 20px 0 20px;
@@ -433,7 +457,7 @@ div.albumThumb > div.coverart > div > a {
 
   // fine adjustment of the position
   > form {
-    margin-top: 0px;
+    margin-top: 0;
   }
 
   //podcastSettings.jsp
@@ -464,11 +488,11 @@ div.albumThumb > div.coverart > div > a {
 .mainframe.settings.playerSettings details ul,
 .mainframe.settings.personalSettings details dl dd ul {
   li {
-    height: 30px;
     display: flex;
-    flex-flow: row wrap;
     align-items: center;
+    flex-flow: row wrap;
     justify-content: start;
+    height: 30px;
     input,
     label {
       margin-left: 3px;
@@ -482,15 +506,16 @@ div.albumThumb > div.coverart > div > a {
 .outlineHelp {
   width: calc(100vw - 60px);
   margin: 30px 20px 0 20px;
+  padding: 30px;
+  background-color: $jp-color-complementary2;
+  font-size: .86em;
+
+  @include border;
+  @include borderRadius;
   @media screen and (min-width: $jp-supplement-width-threshold) {
     width: calc(50vw - 60px);
     margin: 30px 20px 0 calc((100vw - (50vw - 60px)) / 2);
   }
-  padding: 30px;
-  @include border;
-  @include borderRadius;
-  background-color: $jp-color-complementary2;
-  font-size: 0.86em;
   dl {
     background-color: $jp-color-complementary2;
     dt {
@@ -516,5 +541,5 @@ details {
   width: 50rem;
   margin: 6px 0 -9px 0;
   padding: 3px 0 0 0;
-  font-size: 0.86rem;
+  font-size: .86rem;
 }
