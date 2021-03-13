@@ -1,21 +1,107 @@
-# Verification of the master referenced from the badge(name is referenced!)
+# Currently Windows only validates Java LTS version
+# Send the coverage of Java LTS version on Linux to Cadacy
 name: CI
 on:
   push:
-    branches:    
-      - master
   pull_request:
-    branches:    
-      - master
+    types:
+      - opened
+      - edited
+  schedule:
+    - cron: '16 11 * * 1'
 jobs:
-  build:
+  ##########################################################################
+  analyze:
+    name: Analyze with CodeQL
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: true
       matrix:
-        java: [ 11, 12, 13, 14, 15]
-    name: Java ${{ matrix.java }} 
+        language: [ 'java', 'javascript' ]
     steps:
-      - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: ${{ matrix.language }}
+    - name: Set up java
+      if: contains(matrix.language, 'java')
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11.0.10
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v1
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
+  ##########################################################################
+  verify-lts:
+    needs: analyze
+    name: Verify with JDK 11.0.10 on ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, ubuntu-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11.0.10
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2 
+      - name: Create coverage
+        id: create-coverage
+        if: contains(matrix.os, 'ubuntu-latest')
+        run: mvn -Prelease11 -Punit-test -Psend-coverage -DfailIfNoTests=false clean test jacoco:report
+      - name: Archive code coverage
+        if: "(steps.create-coverage.conclusion == 'success' && contains(matrix.os, 'ubuntu-latest')) && (github.ref == 'refs/heads/master' || contains(github.ref, 'snapshot'))"
+        uses: actions/upload-artifact@v2
+        with:
+          name: Code coverage report
+          path: jpsonic-main/target/site/jacoco
+          retention-days: 7
+      - name: Verify with Maven on Win
+        if: contains(matrix.os, 'windows-latest')
+        run: mvn clean verify -B -Prelease11 -Punit-test
+  ##########################################################################
+  send-coverage:
+    name: Send coverage to Codacy
+    needs: verify-lts
+    if: "(github.ref == 'refs/heads/master' || contains(github.ref, 'snapshot'))"
+    env:
+      CODACY_PROJECT_TOKEN: ${{ secrets.CODACY_PROJECT_TOKEN }}
+      GITHUB_SHA: ${{ github.sha }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11.0.10
+      - name: Download coverage
+        uses: actions/download-artifact@v2
+        with:
+          name: Code coverage report
+      - name: Send Jacoco report
+        run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
+  ##########################################################################
+  verify-experiment:
+    needs: analyze
+    name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 12, 13, 14, 15 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Set up java
         uses: actions/setup-java@v1
         with:
@@ -26,5 +112,48 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2 
-      - name: Build with Maven
+      - name: Verify with Maven
         run: mvn clean verify -B -Prelease${{ matrix.java }} -Punit-test
+  ##########################################################################
+  package:
+    if: github.ref == 'refs/heads/master'
+    needs: [ verify-lts, verify-experiment ]
+    name: Package with JDK ${{ matrix.java }} on ubuntu-latest
+    strategy:
+      matrix:
+        java: [ 11, 12, 13, 14, 15 ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up java
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ matrix.java }}
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Configure GPG Key
+        env:
+          GPG_SIGNING_KEY: ${{ secrets.GPG_SIGNING_KEY }}
+        run: |
+          mkdir -p ~/.gnupg/
+          chmod 700 ~/.gnupg
+          printf "$GPG_SIGNING_KEY" | base64 --decode > ~/.gnupg/private.key
+          chmod 600 ~/.gnupg/*
+          gpg --quiet --import ~/.gnupg/private.key
+      - name: Create jetty.war
+        run: |
+          mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease${{ matrix.java }}
+          gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
+      - name: Archive code coverage
+        uses: actions/upload-artifact@v2
+        with:
+          name: Jpsonic(jetty embedded) for Java ${{ matrix.java }}
+          path: |
+            jpsonic-main/target/jpsonic.war
+            jpsonic-main/target/artifacts-checksums.sha.asc
+          retention-days: 90

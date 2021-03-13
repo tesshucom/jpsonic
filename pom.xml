@@ -877,7 +877,7 @@
                         <configuration>
                             <apiToken>${env.CODACY_PROJECT_TOKEN}</apiToken>
                             <projectToken>${env.CODACY_PROJECT_TOKEN}</projectToken>
-                            <coverageReportFile>target/site/jacoco/jacoco.xml</coverageReportFile>
+                            <coverageReportFile>jacoco.xml</coverageReportFile>
                             <commit>${env.GITHUB_SHA}</commit>
                             <failOnMissingReportFile>false</failOnMissingReportFile>
                         </configuration>
