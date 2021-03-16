@@ -17,13 +17,13 @@
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cxf.version>3.4.2</cxf.version>
-        <jackson.version>2.12.1</jackson.version>
-        <tomcat.version>9.0.43</tomcat.version>
+        <jackson.version>2.12.2</jackson.version>
+        <tomcat.version>9.0.44</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
         <jetty.version>9.4.38.v20210224</jetty.version>
         <jetty-jsp.version>9.4.38.v20210224</jetty-jsp.version>
         <pmd.version>6.32.0</pmd.version>
-        <log4j.version>2.14.0</log4j.version>
+        <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
     </properties>
@@ -119,7 +119,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.11</version>
+                <version>3.12.0</version>
             </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
@@ -156,7 +156,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.10.0</version>
+                <version>3.11.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -210,7 +210,7 @@
             <dependency>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-runtime</artifactId>
-                <version>4.9.1</version>
+                <version>4.9.2</version>
             </dependency>
 
             <!-- Tomcat dependencies are normally managed by Spring Boot, but we handle
@@ -445,7 +445,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.40</version>
+                            <version>8.41</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -522,7 +522,7 @@
                         <dependency>
                             <groupId>com.github.spotbugs</groupId>
                             <artifactId>spotbugs</artifactId>
-                            <version>4.2.1</version>
+                            <version>4.2.2</version>
                         </dependency>
                     </dependencies>
                 </plugin>
