@@ -25,7 +25,8 @@
         <pmd.version>6.32.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
-        <compile.version>1.8</compile.version>
+        <maven.compiler.release>11</maven.compiler.release>
+        <compile.version>11</compile.version>
     </properties>
 
     <repositories>
