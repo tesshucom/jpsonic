@@ -844,9 +844,6 @@
     <profiles>
         <profile>
             <id>tomcat-embed</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <properties>
                 <boot.group.excludes>org.eclipse.jetty.toolchain,org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
                 <boot.artifact.excludes>spring-boot-starter-jetty,apache-jsp,jakarta.websocket-all</boot.artifact.excludes>
@@ -860,6 +857,9 @@
                 <boot.artifact.excludes>spring-boot-starter-tomcat</boot.artifact.excludes>
                 <helper.excludes>TomcatApplicationHelper.class</helper.excludes>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>ide-tomcat-embed</id>

@@ -13,6 +13,8 @@
     </organization>
 
     <properties>
+        <java.version>11</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.inceptionYear>2018</project.inceptionYear>
         <failOnDependencyWarning>true</failOnDependencyWarning>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -25,7 +27,6 @@
         <pmd.version>6.33.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
-        <compile.version>1.8</compile.version>
     </properties>
 
     <repositories>
@@ -686,9 +687,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>${compile.version}</source>
-                    <target>${compile.version}</target>
-                    <compilerVersion>${compile.version}</compilerVersion>
+                    <release>${java.version}</release>
                     <encoding>UTF-8</encoding>
                     <verbose>false</verbose>
                     <showWarnings>true</showWarnings>
@@ -799,36 +798,39 @@
         <profile>
             <id>release11</id>
             <properties>
-                <maven.compiler.release>11</maven.compiler.release>
-                <compile.version>11</compile.version>
+                <java.version>11</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
         </profile>
         <profile>
             <id>release12</id>
             <properties>
-                <maven.compiler.release>12</maven.compiler.release>
-                <compile.version>12</compile.version>
+                <java.version>12</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>
         <profile>
             <id>release13</id>
             <properties>
-                <maven.compiler.release>13</maven.compiler.release>
-                <compile.version>13</compile.version>
+                <java.version>13</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>
         <profile>
             <id>release14</id>
             <properties>
-                <maven.compiler.release>14</maven.compiler.release>
-                <compile.version>14</compile.version>
+                <java.version>14</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>
         <profile>
             <id>release15</id>
             <properties>
-                <maven.compiler.release>15</maven.compiler.release>
-                <compile.version>15</compile.version>
+                <java.version>15</java.version>
+                <maven.compiler.release>${java.version}</maven.compiler.release>
             </properties>
         </profile>
         <profile>
