@@ -149,10 +149,13 @@ jobs:
         run: |
           mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease${{ matrix.java }}
           gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
-      - name: Archive code coverage
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+      - name: Archive artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Jpsonic(jetty embedded) for Java ${{ matrix.java }}
+          name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.date }}
           path: |
             jpsonic-main/target/jpsonic.war
             jpsonic-main/target/artifacts-checksums.sha.asc
