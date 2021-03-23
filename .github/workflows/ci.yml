@@ -11,11 +11,14 @@ on:
     - cron: '16 11 * * 1'
 jobs:
   ##########################################################################
+  ## Although use for evaluation purposes, most checks are included in LGTM.
+  ## Run only on master to save time.
   analyze:
+    if: github.ref == 'refs/heads/master'
     name: Analyze with CodeQL
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         language: [ 'java', 'javascript' ]
     steps:
@@ -36,7 +39,6 @@ jobs:
       uses: github/codeql-action/analyze@v1
   ##########################################################################
   verify-lts:
-    needs: analyze
     name: Verify with JDK 11.0.10 on ${{ matrix.os }}
     strategy:
       matrix:
@@ -93,7 +95,6 @@ jobs:
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
   verify-experiment:
-    needs: analyze
     name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
