@@ -11,11 +11,14 @@ on:
     - cron: '16 11 * * 1'
 jobs:
   ##########################################################################
+  ## Although use for evaluation purposes, most checks are included in LGTM.
+  ## Run only on master to save time.
   analyze:
+    if: github.ref == 'refs/heads/master'
     name: Analyze with CodeQL
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         language: [ 'java', 'javascript' ]
     steps:
@@ -36,7 +39,6 @@ jobs:
       uses: github/codeql-action/analyze@v1
   ##########################################################################
   verify-lts:
-    needs: analyze
     name: Verify with JDK 11.0.10 on ${{ matrix.os }}
     strategy:
       matrix:
@@ -93,7 +95,6 @@ jobs:
         run: mvn -Psend-coverage com.gavinmogan:codacy-maven-plugin:coverage
   ##########################################################################
   verify-experiment:
-    needs: analyze
     name: Verify with JDK ${{ matrix.java }} on ubuntu-latest
     strategy:
       matrix:
@@ -149,11 +150,19 @@ jobs:
         run: |
           mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease${{ matrix.java }}
           gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
-      - name: Archive code coverage
+      - name: Copy README
+        # Due to the specifications of actions/upload-artifact@v2.
+        # When loading different hierarchies of artifacts, each directory is created.
+        run: cp install/keys/README.txt jpsonic-main/target
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y%m%d')"
+      - name: Archive artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Jpsonic(jetty embedded) for Java ${{ matrix.java }}
+          name: jpsonic-jetty-embedded-for-jdk${{ matrix.java }}-${{ steps.date.outputs.date }}
           path: |
             jpsonic-main/target/jpsonic.war
             jpsonic-main/target/artifacts-checksums.sha.asc
+            jpsonic-main/target/README.txt
           retention-days: 90
