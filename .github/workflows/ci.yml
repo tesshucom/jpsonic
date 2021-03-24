@@ -150,6 +150,10 @@ jobs:
         run: |
           mvn clean package -Dmaven.test.skip=true -Dpmd.skip=true -Pjetty-embed -Prelease${{ matrix.java }}
           gpg2 --clearsign jpsonic-main/target/artifacts-checksums.sha
+      - name: Copy README
+        # Due to the specifications of actions/upload-artifact@v2.
+        # When loading different hierarchies of artifacts, each directory is created.
+        run: cp install/keys/README.txt jpsonic-main/target
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y%m%d')"
@@ -160,5 +164,5 @@ jobs:
           path: |
             jpsonic-main/target/jpsonic.war
             jpsonic-main/target/artifacts-checksums.sha.asc
-            install/keys/README.txt
+            jpsonic-main/target/README.txt
           retention-days: 90
