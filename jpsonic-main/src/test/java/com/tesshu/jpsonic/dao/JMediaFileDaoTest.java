@@ -19,9 +19,9 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.lang.annotation.Documented;
@@ -33,19 +33,19 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.SortCandidate;
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFile.MediaType;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.MediaScannerService;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest {
+public class JMediaFileDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -121,7 +121,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // artist-sort is adopted instead of composer-sort
             assertEquals("artistA", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -137,7 +137,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // album-artist-sort is adopted instead of artist-sort
             assertEquals("artistD", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -153,7 +153,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // album-artist-sort is adopted instead of composer-sort
             assertEquals("artistE", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -169,7 +169,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // artist-sort is adopted instead of composer-sort
             assertEquals("artistH", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -185,7 +185,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // album-artist-sort is adopted instead of artist-sort
             assertEquals("artistJ", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -201,7 +201,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // album-artist-sort is adopted instead of composer-sort
             assertEquals("artistL", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -212,6 +212,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
     @ComparatorsDecisions.DataConditions.SetChangeDate
     @ComparatorsDecisions.Actions.GetDuplicateSort
     @Test
+    @EnabledOnOs(OS.WINDOWS)
     public void c07() {
         Optional<SortCandidate> candidate = candidates.stream().filter(s -> "case07".equals(s.getName())).findFirst();
         if (candidate.isPresent()) {
@@ -219,7 +220,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // but if change-date of the file is newer, artist-sort may come first
             assertEquals("artistM", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -237,7 +238,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // but if change-date of the file is newer, artist-sort may come first
             assertEquals("artistO", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -255,7 +256,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
             // but if change-date of the file is newer, artist-sort may come first
             assertEquals("artistQ", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -270,7 +271,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
         if (candidate.isPresent()) {
             assertEquals("artistT", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -286,7 +287,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
         if (candidate.isPresent()) {
             assertEquals("artistU", candidate.get().getSort());
         } else {
-            Assert.fail();
+            Assertions.fail();
         }
     }
 
@@ -295,7 +296,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         Date now = new Date();
 
@@ -320,6 +321,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
     }
 
     @Test
+    @EnabledOnOs(OS.WINDOWS)
     public void testGetDirtySorts() {
 
         assertEquals(11, candidates.size());
@@ -434,7 +436,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
                     break;
 
                 default:
-                    Assert.fail();
+                    Assertions.fail();
                     break;
                 }
 
@@ -443,6 +445,7 @@ public class JMediaFileDaoGuessPersonsSortsTest extends AbstractAirsonicHomeTest
     }
 
     @Test
+    @EnabledOnOs(OS.WINDOWS)
     public void testGetToBeFixedSort() {
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(null).size());
         assertEquals(0, mediaFileDao.getSortOfArtistToBeFixed(Collections.emptyList()).size());
