@@ -19,7 +19,7 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,21 +28,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@SpringBootTest
-public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
+public class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -60,7 +58,7 @@ public class JAlbumDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);
