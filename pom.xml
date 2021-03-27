@@ -553,9 +553,10 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.22.2</version>
-                        <configuration>
-                            <excludes>${test.excludes}</excludes>
-                        </configuration>
+                    <configuration>
+                        <excludes>${test.excludes}</excludes>
+                        <exclude>**/Abstract*Test.java</exclude>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>net.nicoulaj.maven.plugins</groupId>
