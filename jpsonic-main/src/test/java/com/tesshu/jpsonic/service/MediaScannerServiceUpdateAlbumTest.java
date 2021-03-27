@@ -19,8 +19,8 @@
 
 package com.tesshu.jpsonic.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,18 +28,22 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.MediaFileDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.ObjectUtils;
 
-public class MediaScannerServiceUpdateAlbumTest extends AbstractAirsonicHomeTest {
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+public class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -63,7 +67,7 @@ public class MediaScannerServiceUpdateAlbumTest extends AbstractAirsonicHomeTest
         return musicFolders;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         populateDatabaseOnlyOnce();
     }

@@ -21,53 +21,64 @@
 
 package org.airsonic.player.controller;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Dimension;
+import java.io.IOException;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
+import org.airsonic.player.TestCaseUtils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * @author Sindre Mehus
  */
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class StreamControllerTest extends AbstractAirsonicHomeTest {
+public class StreamControllerTest {
 
     @Autowired
     private StreamController controller;
+
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
+    }
 
     @Test
     public void testGetRequestedVideoSize() {
 
         // Valid spec.
-        assertEquals("Wrong size.", new Dimension(123, 456), controller.getRequestedVideoSize("123x456"));
-        assertEquals("Wrong size.", new Dimension(456, 123), controller.getRequestedVideoSize("456x123"));
-        assertEquals("Wrong size.", new Dimension(1, 1), controller.getRequestedVideoSize("1x1"));
+        assertEquals(new Dimension(123, 456), controller.getRequestedVideoSize("123x456"), "Wrong size.");
+        assertEquals(new Dimension(456, 123), controller.getRequestedVideoSize("456x123"), "Wrong size.");
+        assertEquals(new Dimension(1, 1), controller.getRequestedVideoSize("1x1"), "Wrong size.");
 
         // Missing spec.
-        assertNull("Wrong size.", controller.getRequestedVideoSize(null));
+        assertNull(controller.getRequestedVideoSize(null), "Wrong size.");
 
         // Invalid spec.
-        assertNull("Wrong size.", controller.getRequestedVideoSize("123"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("123x"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("x123"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("x"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("foo123x456bar"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("foo123x456"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("123x456bar"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("fooxbar"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("-1x1"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("1x-1"));
+        assertNull(controller.getRequestedVideoSize("123"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("123x"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("x123"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("x"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("foo123x456bar"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("foo123x456"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("123x456bar"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("fooxbar"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("-1x1"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("1x-1"), "Wrong size.");
 
         // Too large.
-        assertNull("Wrong size.", controller.getRequestedVideoSize("3000x100"));
-        assertNull("Wrong size.", controller.getRequestedVideoSize("100x3000"));
+        assertNull(controller.getRequestedVideoSize("3000x100"), "Wrong size.");
+        assertNull(controller.getRequestedVideoSize("100x3000"), "Wrong size.");
     }
 
     @Test
@@ -129,8 +140,8 @@ public class StreamControllerTest extends AbstractAirsonicHomeTest {
     private boolean doTestGetSuitableVideoSize(Integer existingWidth, Integer existingHeight, Integer maxBitRate,
             int expectedWidth, int expectedHeight) {
         Dimension dimension = controller.getSuitableVideoSize(existingWidth, existingHeight, maxBitRate);
-        assertEquals("Wrong width.", expectedWidth, dimension.width);
-        assertEquals("Wrong height.", expectedHeight, dimension.height);
+        assertEquals(expectedWidth, dimension.width, "Wrong width.");
+        assertEquals(expectedHeight, dimension.height, "Wrong height.");
         return true;
     }
 }

@@ -21,19 +21,30 @@
 
 package org.airsonic.player.service.metadata;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
+import org.airsonic.player.TestCaseUtils;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+@ExtendWith(SpringExtension.class)
+@SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
+public class JaudiotaggerParserTest {
 
     @Autowired
     private JaudiotaggerParser parser;
@@ -78,6 +89,12 @@ public class JaudiotaggerParserTest extends AbstractAirsonicHomeTest {
         assertEquals(Integer.valueOf(3), metaData.getDiscNumber());
         assertEquals(Integer.valueOf(0), metaData.getDurationSeconds());
         assertEquals(Integer.valueOf(320), metaData.getBitRate());
+    }
+
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 
     private File createFile(String resourcePath) throws URISyntaxException {

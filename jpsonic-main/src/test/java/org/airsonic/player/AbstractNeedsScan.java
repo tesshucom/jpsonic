@@ -45,6 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+// TODO Separate classes that require DirtiesContext from those that don't
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 /*
  * Abstract class for scanning MusicFolder.
