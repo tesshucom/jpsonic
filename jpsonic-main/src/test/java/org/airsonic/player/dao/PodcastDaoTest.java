@@ -21,10 +21,10 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.util.Date;
 import java.util.List;
@@ -32,8 +32,8 @@ import java.util.List;
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
 import org.airsonic.player.domain.PodcastStatus;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -47,7 +47,7 @@ public class PodcastDaoTest extends DaoTestBase {
     @Autowired
     private PodcastDao podcastDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         getJdbcTemplate().execute("delete from podcast_channel");
     }
@@ -58,7 +58,7 @@ public class PodcastDaoTest extends DaoTestBase {
         podcastDao.createChannel(channel);
 
         PodcastChannel newChannel = podcastDao.getAllChannels().get(0);
-        assertNotNull("Wrong ID.", newChannel.getId());
+        assertNotNull(newChannel.getId(), "Wrong ID.");
         assertChannelEquals(channel, newChannel);
     }
 
@@ -66,20 +66,20 @@ public class PodcastDaoTest extends DaoTestBase {
     public void testChannelId() {
         int channelId = podcastDao.createChannel(new PodcastChannel("http://foo"));
 
-        assertEquals("Error in createChannel.", channelId + 1,
-                podcastDao.createChannel(new PodcastChannel("http://foo")));
-        assertEquals("Error in createChannel.", channelId + 2,
-                podcastDao.createChannel(new PodcastChannel("http://foo")));
-        assertEquals("Error in createChannel.", channelId + 3,
-                podcastDao.createChannel(new PodcastChannel("http://foo")));
+        assertEquals(channelId + 1, podcastDao.createChannel(new PodcastChannel("http://foo")),
+                "Error in createChannel.");
+        assertEquals(channelId + 2, podcastDao.createChannel(new PodcastChannel("http://foo")),
+                "Error in createChannel.");
+        assertEquals(channelId + 3, podcastDao.createChannel(new PodcastChannel("http://foo")),
+                "Error in createChannel.");
 
         podcastDao.deleteChannel(channelId + 1);
-        assertEquals("Error in createChannel.", channelId + 4,
-                podcastDao.createChannel(new PodcastChannel("http://foo")));
+        assertEquals(channelId + 4, podcastDao.createChannel(new PodcastChannel("http://foo")),
+                "Error in createChannel.");
 
         podcastDao.deleteChannel(channelId + 4);
-        assertEquals("Error in createChannel.", channelId + 5,
-                podcastDao.createChannel(new PodcastChannel("http://foo")));
+        assertEquals(channelId + 5, podcastDao.createChannel(new PodcastChannel("http://foo")),
+                "Error in createChannel.");
     }
 
     @Test
@@ -98,26 +98,26 @@ public class PodcastDaoTest extends DaoTestBase {
         podcastDao.updateChannel(channel);
         PodcastChannel newChannel = podcastDao.getAllChannels().get(0);
 
-        assertEquals("Wrong ID.", channel.getId(), newChannel.getId());
+        assertEquals(channel.getId(), newChannel.getId(), "Wrong ID.");
         assertChannelEquals(channel, newChannel);
     }
 
     @Test
     public void testDeleteChannel() {
-        assertEquals("Wrong number of channels.", 0, podcastDao.getAllChannels().size());
+        assertEquals(0, podcastDao.getAllChannels().size(), "Wrong number of channels.");
 
         PodcastChannel channel = new PodcastChannel("http://foo");
         podcastDao.createChannel(channel);
-        assertEquals("Wrong number of channels.", 1, podcastDao.getAllChannels().size());
+        assertEquals(1, podcastDao.getAllChannels().size(), "Wrong number of channels.");
 
         podcastDao.createChannel(channel);
-        assertEquals("Wrong number of channels.", 2, podcastDao.getAllChannels().size());
+        assertEquals(2, podcastDao.getAllChannels().size(), "Wrong number of channels.");
 
         podcastDao.deleteChannel(podcastDao.getAllChannels().get(0).getId());
-        assertEquals("Wrong number of channels.", 1, podcastDao.getAllChannels().size());
+        assertEquals(1, podcastDao.getAllChannels().size(), "Wrong number of channels.");
 
         podcastDao.deleteChannel(podcastDao.getAllChannels().get(0).getId());
-        assertEquals("Wrong number of channels.", 0, podcastDao.getAllChannels().size());
+        assertEquals(0, podcastDao.getAllChannels().size(), "Wrong number of channels.");
     }
 
     @Test
@@ -128,13 +128,13 @@ public class PodcastDaoTest extends DaoTestBase {
         podcastDao.createEpisode(episode);
 
         PodcastEpisode newEpisode = podcastDao.getEpisodes(channelId).get(0);
-        assertNotNull("Wrong ID.", newEpisode.getId());
+        assertNotNull(newEpisode.getId(), "Wrong ID.");
         assertEpisodeEquals(episode, newEpisode);
     }
 
     @Test
     public void testGetEpisode() {
-        assertNull("Error in getEpisode()", podcastDao.getEpisode(23));
+        assertNull(podcastDao.getEpisode(23), "Error in getEpisode()");
 
         int channelId = createChannel();
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", "path", "title", "description",
@@ -163,7 +163,7 @@ public class PodcastDaoTest extends DaoTestBase {
         podcastDao.createEpisode(d);
 
         List<PodcastEpisode> episodes = podcastDao.getEpisodes(channelId);
-        assertEquals("Error in getEpisodes().", 4, episodes.size());
+        assertEquals(4, episodes.size(), "Error in getEpisodes().");
         assertEpisodeEquals(d, episodes.get(0));
         assertEpisodeEquals(a, episodes.get(1));
         assertEpisodeEquals(c, episodes.get(2));
@@ -191,7 +191,7 @@ public class PodcastDaoTest extends DaoTestBase {
 
         podcastDao.updateEpisode(episode);
         PodcastEpisode newEpisode = podcastDao.getEpisodes(channelId).get(0);
-        assertEquals("Wrong ID.", episode.getId(), newEpisode.getId());
+        assertEquals(episode.getId(), newEpisode.getId(), "Wrong ID.");
         assertEpisodeEquals(episode, newEpisode);
     }
 
@@ -199,22 +199,22 @@ public class PodcastDaoTest extends DaoTestBase {
     public void testDeleteEpisode() {
         int channelId = createChannel();
 
-        assertEquals("Wrong number of episodes.", 0, podcastDao.getEpisodes(channelId).size());
+        assertEquals(0, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
         PodcastEpisode episode = new PodcastEpisode(null, channelId, "http://bar", null, null, null, null, null, null,
                 null, PodcastStatus.NEW, null);
 
         podcastDao.createEpisode(episode);
-        assertEquals("Wrong number of episodes.", 1, podcastDao.getEpisodes(channelId).size());
+        assertEquals(1, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
         podcastDao.createEpisode(episode);
-        assertEquals("Wrong number of episodes.", 2, podcastDao.getEpisodes(channelId).size());
+        assertEquals(2, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
         podcastDao.deleteEpisode(podcastDao.getEpisodes(channelId).get(0).getId());
-        assertEquals("Wrong number of episodes.", 1, podcastDao.getEpisodes(channelId).size());
+        assertEquals(1, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
         podcastDao.deleteEpisode(podcastDao.getEpisodes(channelId).get(0).getId());
-        assertEquals("Wrong number of episodes.", 0, podcastDao.getEpisodes(channelId).size());
+        assertEquals(0, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
     }
 
     @Test
@@ -224,10 +224,10 @@ public class PodcastDaoTest extends DaoTestBase {
                 null, PodcastStatus.NEW, null);
         podcastDao.createEpisode(episode);
         podcastDao.createEpisode(episode);
-        assertEquals("Wrong number of episodes.", 2, podcastDao.getEpisodes(channelId).size());
+        assertEquals(2, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
 
         podcastDao.deleteChannel(channelId);
-        assertEquals("Wrong number of episodes.", 0, podcastDao.getEpisodes(channelId).size());
+        assertEquals(0, podcastDao.getEpisodes(channelId).size(), "Wrong number of episodes.");
     }
 
     private int createChannel() {
@@ -238,25 +238,25 @@ public class PodcastDaoTest extends DaoTestBase {
     }
 
     private void assertChannelEquals(PodcastChannel expected, PodcastChannel actual) {
-        assertEquals("Wrong URL.", expected.getUrl(), actual.getUrl());
-        assertEquals("Wrong title.", expected.getTitle(), actual.getTitle());
-        assertEquals("Wrong description.", expected.getDescription(), actual.getDescription());
-        assertEquals("Wrong image URL.", expected.getImageUrl(), actual.getImageUrl());
-        assertSame("Wrong status.", expected.getStatus(), actual.getStatus());
-        assertEquals("Wrong error message.", expected.getErrorMessage(), actual.getErrorMessage());
+        assertEquals(expected.getUrl(), actual.getUrl(), "Wrong URL.");
+        assertEquals(expected.getTitle(), actual.getTitle(), "Wrong title.");
+        assertEquals(expected.getDescription(), actual.getDescription(), "Wrong description.");
+        assertEquals(expected.getImageUrl(), actual.getImageUrl(), "Wrong image URL.");
+        assertSame(expected.getStatus(), actual.getStatus(), "Wrong status.");
+        assertEquals(expected.getErrorMessage(), actual.getErrorMessage(), "Wrong error message.");
     }
 
     private void assertEpisodeEquals(PodcastEpisode expected, PodcastEpisode actual) {
-        assertEquals("Wrong URL.", expected.getUrl(), actual.getUrl());
-        assertEquals("Wrong path.", expected.getPath(), actual.getPath());
-        assertEquals("Wrong title.", expected.getTitle(), actual.getTitle());
-        assertEquals("Wrong description.", expected.getDescription(), actual.getDescription());
-        assertEquals("Wrong date.", expected.getPublishDate(), actual.getPublishDate());
-        assertEquals("Wrong duration.", expected.getDuration(), actual.getDuration());
-        assertEquals("Wrong bytes total.", expected.getBytesTotal(), actual.getBytesTotal());
-        assertEquals("Wrong bytes downloaded.", expected.getBytesDownloaded(), actual.getBytesDownloaded());
-        assertSame("Wrong status.", expected.getStatus(), actual.getStatus());
-        assertEquals("Wrong error message.", expected.getErrorMessage(), actual.getErrorMessage());
+        assertEquals(expected.getUrl(), actual.getUrl(), "Wrong URL.");
+        assertEquals(expected.getPath(), actual.getPath(), "Wrong path.");
+        assertEquals(expected.getTitle(), actual.getTitle(), "Wrong title.");
+        assertEquals(expected.getDescription(), actual.getDescription(), "Wrong description.");
+        assertEquals(expected.getPublishDate(), actual.getPublishDate(), "Wrong date.");
+        assertEquals(expected.getDuration(), actual.getDuration(), "Wrong duration.");
+        assertEquals(expected.getBytesTotal(), actual.getBytesTotal(), "Wrong bytes total.");
+        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(), "Wrong bytes downloaded.");
+        assertSame(expected.getStatus(), actual.getStatus(), "Wrong status.");
+        assertEquals(expected.getErrorMessage(), actual.getErrorMessage(), "Wrong error message.");
     }
 
 }
