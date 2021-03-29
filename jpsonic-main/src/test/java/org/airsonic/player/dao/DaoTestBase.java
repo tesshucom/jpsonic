@@ -21,36 +21,25 @@
 
 package org.airsonic.player.dao;
 
-import org.airsonic.player.util.HomeRule;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import java.io.IOException;
+
+import org.airsonic.player.TestCaseUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 @SpringBootTest
 public class DaoTestBase {
-    @ClassRule
-    public static final SpringClassRule CLASSRULE = new SpringClassRule() {
-
-        final HomeRule airsonicRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement newBase = airsonicRule.apply(base, description);
-            return super.apply(newBase, description);
-        }
-    };
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private GenericDaoHelper daoHelper;
+
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
+    }
 
     protected JdbcTemplate getJdbcTemplate() {
         return daoHelper.getJdbcTemplate();
