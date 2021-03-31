@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.api.jukebox;
+package org.airsonic.player.service.jukebox;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -31,19 +31,18 @@ import java.util.concurrent.ExecutionException;
 
 import javax.sound.sampled.LineUnavailableException;
 
+import org.airsonic.player.Integration;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.service.TranscodingService;
-import org.airsonic.player.service.jukebox.AudioPlayer;
-import org.airsonic.player.service.jukebox.AudioPlayerFactory;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithMockUser;
 
-public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxIntTest {
+public class AudioPlayerFactoryTest extends AbstractPlayerFactoryTest {
 
     @SpyBean
     private TranscodingService transcodingService;
@@ -52,7 +51,7 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
 
     private AudioPlayer mockAudioPlayer;
 
-    @Before
+    @BeforeEach
     @Override
     public void setup() throws ExecutionException {
         super.setup();
@@ -76,6 +75,7 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
         playerService.createPlayer(jukeBoxPlayer);
     }
 
+    @Integration
     @Test
     @WithMockUser(username = "admin")
     @Override
@@ -84,6 +84,7 @@ public class AirsonicRestApiJukeboxLegacyIntTest extends AirsonicRestApiJukeboxI
         verify(mockAudioPlayer).play();
     }
 
+    @Integration
     @Test
     @WithMockUser(username = "admin")
     @Override

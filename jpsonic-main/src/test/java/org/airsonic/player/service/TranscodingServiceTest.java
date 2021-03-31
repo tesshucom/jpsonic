@@ -23,28 +23,32 @@ package org.airsonic.player.service;
 
 import static org.mockito.Mockito.verify;
 
+import java.io.IOException;
+
+import org.airsonic.player.Integration;
+import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.domain.Transcoding;
-import org.airsonic.player.util.HomeRule;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
-public class TranscodingServiceIntTest {
+public class TranscodingServiceTest {
 
     @Autowired
     private TranscodingService transcodingService;
     @SpyBean
     private PlayerService playerService;
 
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
+    }
 
+    @Integration
     @Test
     public void createTranscodingTest() {
         // Given

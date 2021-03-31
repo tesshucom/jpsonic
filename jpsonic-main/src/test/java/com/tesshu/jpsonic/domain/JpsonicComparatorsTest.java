@@ -19,20 +19,17 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
+import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
@@ -42,37 +39,20 @@ import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
 import org.airsonic.player.domain.Playlist;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.rules.MethodRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the
  * range not defined in the legacy test specification has been expanded.
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JpsonicComparatorsTest {
-
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule();
-
-    protected static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
-
-    @Rule
-    public ThreadRule r = new ThreadRule(100);
 
     @Autowired
     private JpsonicComparatorsTestUtils testUtils;
@@ -195,9 +175,10 @@ public class JpsonicComparatorsTest {
         }
     }
 
-    @AfterAll
-    public static void tearDown() {
-        EXECUTOR.shutdownNow();
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 
     @ComparatorsDecisions.Actions.artistOrderByAlpha
@@ -1164,38 +1145,5 @@ public class JpsonicComparatorsTest {
         Collections.shuffle(artists);
         Collections.sort(artists);
         assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString()); // Séb
-    }
-
-    private class ThreadRule implements MethodRule {
-
-        protected final int count;
-
-        public ThreadRule(int count) {
-            this.count = count;
-        }
-
-        @Override
-        public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    List<Future<?>> futures = new ArrayList<>(count);
-                    for (int i = 0; i < count; i++) {
-                        Callable<Boolean> task = () -> {
-                            try {
-                                base.evaluate();
-                            } catch (Throwable t) {
-                                throw new ExecutionException("Test replication or asynchronous execution failed", t);
-                            }
-                            return Boolean.TRUE;
-                        };
-                        futures.add(i, EXECUTOR.submit(task));
-                    }
-                    for (Future<?> f : futures) {
-                        f.get();
-                    }
-                }
-            };
-        }
     }
 }

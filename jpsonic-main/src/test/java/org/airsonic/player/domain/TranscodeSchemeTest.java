@@ -24,17 +24,15 @@ package org.airsonic.player.domain;
 import static org.airsonic.player.domain.TranscodeScheme.MAX_32;
 import static org.airsonic.player.domain.TranscodeScheme.MAX_64;
 import static org.airsonic.player.domain.TranscodeScheme.OFF;
-import static org.junit.Assert.assertSame;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test of {@link TranscodeScheme}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class TranscodeSchemeTest {
 
@@ -43,12 +41,12 @@ public class TranscodeSchemeTest {
      */
     @Test
     public void testStrictest() {
-        assertSame("Error in strictest().", OFF, OFF.strictest(null));
-        assertSame("Error in strictest().", OFF, OFF.strictest(OFF));
-        assertSame("Error in strictest().", MAX_32, OFF.strictest(MAX_32));
-        assertSame("Error in strictest().", MAX_32, MAX_32.strictest(null));
-        assertSame("Error in strictest().", MAX_32, MAX_32.strictest(OFF));
-        assertSame("Error in strictest().", MAX_32, MAX_32.strictest(MAX_64));
-        assertSame("Error in strictest().", MAX_32, MAX_64.strictest(MAX_32));
+        assertSame(OFF, OFF.strictest(null), "Error in strictest().");
+        assertSame(OFF, OFF.strictest(OFF), "Error in strictest().");
+        assertSame(MAX_32, OFF.strictest(MAX_32), "Error in strictest().");
+        assertSame(MAX_32, MAX_32.strictest(null), "Error in strictest().");
+        assertSame(MAX_32, MAX_32.strictest(OFF), "Error in strictest().");
+        assertSame(MAX_32, MAX_32.strictest(MAX_64), "Error in strictest().");
+        assertSame(MAX_32, MAX_64.strictest(MAX_32), "Error in strictest().");
     }
 }

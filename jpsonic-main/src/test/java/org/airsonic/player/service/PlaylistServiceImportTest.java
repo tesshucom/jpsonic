@@ -21,8 +21,8 @@
 
 package org.airsonic.player.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
@@ -30,6 +30,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,10 +46,9 @@ import org.airsonic.player.service.playlist.DefaultPlaylistImportHandler;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Captor;
@@ -79,16 +79,18 @@ public class PlaylistServiceImportTest {
     @Mock
     private SecurityService securityService;
 
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
-
     @Captor
     private ArgumentCaptor<Playlist> actual;
 
     @Captor
     private ArgumentCaptor<List<MediaFile>> medias;
 
-    @Before
+    @TempDir
+    public Path tempDirPath;
+
+    public File tempDir;
+
+    @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
         JMediaFileDao jMediaFileDao = new JMediaFileDao(daoHelper, mediaFileDao);
@@ -96,6 +98,12 @@ public class PlaylistServiceImportTest {
         DefaultPlaylistImportHandler importHandler = new DefaultPlaylistImportHandler(mediaFileService);
         playlistService = new PlaylistService(jMediaFileDao, jPlaylistDao, securityService, settingsService,
                 Collections.emptyList(), Lists.newArrayList(importHandler), null);
+        if (tempDir != null) {
+            tempDir = tempDirPath.toFile();
+            if (!tempDir.exists()) {
+                tempDir.mkdir();
+            }
+        }
     }
 
     @Test
@@ -104,11 +112,15 @@ public class PlaylistServiceImportTest {
         final String playlistName = "test-playlist";
         StringBuilder builder = new StringBuilder();
         builder.append("#EXTM3U\n");
-        File mf1 = folder.newFile();
+        File tempDir = tempDirPath.toFile();
+        if (!tempDir.exists()) {
+            tempDir.mkdir();
+        }
+        File mf1 = new File(tempDir, "EXTM3U-mf1");
         FileUtils.touch(mf1);
-        File mf2 = folder.newFile();
+        File mf2 = new File(tempDir, "EXTM3U-mf2");
         FileUtils.touch(mf2);
-        File mf3 = folder.newFile();
+        File mf3 = new File(tempDir, "EXTM3U-mf3");
         FileUtils.touch(mf3);
         builder.append(mf1.toURI().toString()).append('\n').append(mf2.toURI().toString()).append('\n')
                 .append(mf3.toURI().toString()).append('\n');
@@ -132,10 +144,9 @@ public class PlaylistServiceImportTest {
         expected.setShared(true);
         expected.setId(23);
 
-        assertTrue(
+        assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
                 "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                        + ToStringBuilder.reflectionToString(expected),
-                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+                        + ToStringBuilder.reflectionToString(expected));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }
@@ -144,11 +155,11 @@ public class PlaylistServiceImportTest {
     public void testImportFromPLS() throws Exception {
         final String username = "testUser";
         final String playlistName = "test-playlist";
-        File mf1 = folder.newFile();
+        File mf1 = new File(tempDir, "PLS-mf1");
         FileUtils.touch(mf1);
-        File mf2 = folder.newFile();
+        File mf2 = new File(tempDir, "PLS-mf2");
         FileUtils.touch(mf2);
-        File mf3 = folder.newFile();
+        File mf3 = new File(tempDir, "PLS-mf3");
         FileUtils.touch(mf3);
         StringBuilder builder = new StringBuilder(40);
         builder.append("[playlist]\nFile1=").append(mf1.toURI().toString()).append("\nFile2=")
@@ -173,10 +184,9 @@ public class PlaylistServiceImportTest {
         expected.setShared(true);
         expected.setId(23);
 
-        assertTrue(
+        assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
                 "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                        + ToStringBuilder.reflectionToString(expected),
-                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+                        + ToStringBuilder.reflectionToString(expected));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }
@@ -185,11 +195,11 @@ public class PlaylistServiceImportTest {
     public void testImportFromXSPF() throws Exception {
         final String username = "testUser";
         final String playlistName = "test-playlist";
-        File mf1 = folder.newFile();
+        File mf1 = new File(tempDir, "XSPF-mf1");
         FileUtils.touch(mf1);
-        File mf2 = folder.newFile();
+        File mf2 = new File(tempDir, "XSPF-mf2");
         FileUtils.touch(mf2);
-        File mf3 = folder.newFile();
+        File mf3 = new File(tempDir, "XSPF-mf3");
         FileUtils.touch(mf3);
         StringBuilder builder = new StringBuilder(300);
         builder.append(
@@ -216,10 +226,9 @@ public class PlaylistServiceImportTest {
         expected.setImportedFrom(path);
         expected.setShared(true);
         expected.setId(23);
-        assertTrue(
+        assertTrue(EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"),
                 "\n" + ToStringBuilder.reflectionToString(actual.getValue()) + "\n\n did not equal \n\n"
-                        + ToStringBuilder.reflectionToString(expected),
-                EqualsBuilder.reflectionEquals(actual.getValue(), expected, "created", "changed"));
+                        + ToStringBuilder.reflectionToString(expected));
         List<MediaFile> mediaFiles = medias.getValue();
         assertEquals(3, mediaFiles.size());
     }

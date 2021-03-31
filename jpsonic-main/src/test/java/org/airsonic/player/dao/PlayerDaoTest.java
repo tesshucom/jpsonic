@@ -21,10 +21,10 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
 import java.util.List;
@@ -33,9 +33,9 @@ import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.TranscodeScheme;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -49,7 +49,7 @@ public class PlayerDaoTest extends DaoTestBase {
     @Autowired
     private PlayerDao playerDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         getJdbcTemplate().execute("delete from player");
     }
@@ -81,9 +81,9 @@ public class PlayerDaoTest extends DaoTestBase {
         playerDao.createPlayer(new Player());
         Player player = playerDao.getAllPlayers().get(0);
 
-        assertTrue("Player should have dynamic IP by default.", player.isDynamicIp());
-        assertTrue("Player should be auto-controlled by default.", player.isAutoControlEnabled());
-        assertNull("Player client ID should be null by default.", player.getClientId());
+        assertTrue(player.isDynamicIp(), "Player should have dynamic IP by default.");
+        assertTrue(player.isAutoControlEnabled(), "Player should be auto-controlled by default.");
+        assertNull(player.getClientId(), "Player client ID should be null by default.");
     }
 
     @Test
@@ -91,38 +91,39 @@ public class PlayerDaoTest extends DaoTestBase {
         Player player = new Player();
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer) 1, player.getId());
-        assertEquals("Wrong number of players.", 1, playerDao.getAllPlayers().size());
+        assertEquals((Integer) 1, player.getId(), "Wrong ID");
+        assertEquals(1, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer) 2, player.getId());
-        assertEquals("Wrong number of players.", 2, playerDao.getAllPlayers().size());
+        assertEquals((Integer) 2, player.getId(), "Wrong ID");
+        assertEquals(2, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer) 3, player.getId());
-        assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
+        assertEquals((Integer) 3, player.getId(), "Wrong ID");
+        assertEquals(3, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.deletePlayer(3);
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer) 3, player.getId());
-        assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
+        assertEquals((Integer) 3, player.getId(), "Wrong ID");
+        assertEquals(3, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.deletePlayer(2);
         playerDao.createPlayer(player);
-        assertEquals("Wrong ID", (Integer) 4, player.getId());
-        assertEquals("Wrong number of players.", 3, playerDao.getAllPlayers().size());
+        assertEquals((Integer) 4, player.getId(), "Wrong ID");
+        assertEquals(3, playerDao.getAllPlayers().size(), "Wrong number of players.");
     }
 
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
     @Test
     public void testPlaylist() {
         Player player = new Player();
         playerDao.createPlayer(player);
         PlayQueue playQueue = player.getPlayQueue();
-        Assert.assertNotNull("Missing playlist.", playQueue);
+        Assertions.assertNotNull(playQueue, "Missing playlist.");
 
         playerDao.deletePlayer(player.getId());
         playerDao.createPlayer(player);
-        Assert.assertNotSame("Wrong playlist.", playQueue, player.getPlayQueue());
+        Assertions.assertNotSame(playQueue, player.getPlayQueue(), "Wrong playlist.");
     }
 
     @Test
@@ -133,18 +134,18 @@ public class PlayerDaoTest extends DaoTestBase {
         player = playerDao.getAllPlayers().get(0);
 
         List<Player> players = playerDao.getPlayersForUserAndClientId("sindre", null);
-        assertFalse("Error in getPlayersForUserAndClientId().", players.isEmpty());
+        assertFalse(players.isEmpty(), "Error in getPlayersForUserAndClientId().");
         assertPlayerEquals(player, players.get(0));
-        assertTrue("Error in getPlayersForUserAndClientId().",
-                playerDao.getPlayersForUserAndClientId("sindre", "foo").isEmpty());
+        assertTrue(playerDao.getPlayersForUserAndClientId("sindre", "foo").isEmpty(),
+                "Error in getPlayersForUserAndClientId().");
 
         player.setClientId("foo");
         playerDao.updatePlayer(player);
 
         players = playerDao.getPlayersForUserAndClientId("sindre", null);
-        assertTrue("Error in getPlayersForUserAndClientId().", players.isEmpty());
+        assertTrue(players.isEmpty(), "Error in getPlayersForUserAndClientId().");
         players = playerDao.getPlayersForUserAndClientId("sindre", "foo");
-        assertFalse("Error in getPlayersForUserAndClientId().", players.isEmpty());
+        assertFalse(players.isEmpty(), "Error in getPlayersForUserAndClientId().");
         assertPlayerEquals(player, players.get(0));
     }
 
@@ -172,32 +173,32 @@ public class PlayerDaoTest extends DaoTestBase {
 
     @Test
     public void testDeletePlayer() {
-        assertEquals("Wrong number of players.", 0, playerDao.getAllPlayers().size());
+        assertEquals(0, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.createPlayer(new Player());
-        assertEquals("Wrong number of players.", 1, playerDao.getAllPlayers().size());
+        assertEquals(1, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.createPlayer(new Player());
-        assertEquals("Wrong number of players.", 2, playerDao.getAllPlayers().size());
+        assertEquals(2, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.deletePlayer(1);
-        assertEquals("Wrong number of players.", 1, playerDao.getAllPlayers().size());
+        assertEquals(1, playerDao.getAllPlayers().size(), "Wrong number of players.");
 
         playerDao.deletePlayer(2);
-        assertEquals("Wrong number of players.", 0, playerDao.getAllPlayers().size());
+        assertEquals(0, playerDao.getAllPlayers().size(), "Wrong number of players.");
     }
 
     private void assertPlayerEquals(Player expected, Player actual) {
-        assertEquals("Wrong ID.", expected.getId(), actual.getId());
-        assertEquals("Wrong name.", expected.getName(), actual.getName());
-        assertEquals("Wrong technology.", expected.getTechnology(), actual.getTechnology());
-        assertEquals("Wrong client ID.", expected.getClientId(), actual.getClientId());
-        assertEquals("Wrong type.", expected.getType(), actual.getType());
-        assertEquals("Wrong username.", expected.getUsername(), actual.getUsername());
-        assertEquals("Wrong IP address.", expected.getIpAddress(), actual.getIpAddress());
-        assertEquals("Wrong dynamic IP.", expected.isDynamicIp(), actual.isDynamicIp());
-        assertEquals("Wrong auto control enabled.", expected.isAutoControlEnabled(), actual.isAutoControlEnabled());
-        assertEquals("Wrong last seen.", expected.getLastSeen(), actual.getLastSeen());
-        assertEquals("Wrong transcode scheme.", expected.getTranscodeScheme(), actual.getTranscodeScheme());
+        assertEquals(expected.getId(), actual.getId(), "Wrong ID.");
+        assertEquals(expected.getName(), actual.getName(), "Wrong name.");
+        assertEquals(expected.getTechnology(), actual.getTechnology(), "Wrong technology.");
+        assertEquals(expected.getClientId(), actual.getClientId(), "Wrong client ID.");
+        assertEquals(expected.getType(), actual.getType(), "Wrong type.");
+        assertEquals(expected.getUsername(), actual.getUsername(), "Wrong username.");
+        assertEquals(expected.getIpAddress(), actual.getIpAddress(), "Wrong IP address.");
+        assertEquals(expected.isDynamicIp(), actual.isDynamicIp(), "Wrong dynamic IP.");
+        assertEquals(expected.isAutoControlEnabled(), actual.isAutoControlEnabled(), "Wrong auto control enabled.");
+        assertEquals(expected.getLastSeen(), actual.getLastSeen(), "Wrong last seen.");
+        assertEquals(expected.getTranscodeScheme(), actual.getTranscodeScheme(), "Wrong transcode scheme.");
     }
 }

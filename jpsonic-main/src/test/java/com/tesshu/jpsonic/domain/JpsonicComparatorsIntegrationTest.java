@@ -21,8 +21,8 @@ package com.tesshu.jpsonic.domain;
 
 import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
 import static java.util.Collections.unmodifiableList;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +36,7 @@ import java.util.SortedMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.controller.MainController;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.MediaFile;
@@ -48,22 +49,19 @@ import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.MusicIndexService;
 import org.airsonic.player.service.PlaylistService;
 import org.airsonic.player.service.SearchService;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Integration test where JpsonicComparators are used. This is where legacy sorting behavior changes for some data.
  */
-@SpringBootTest
-public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest {
+public class JpsonicComparatorsIntegrationTest extends AbstractNeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsIntegrationTest.class);
 
@@ -125,7 +123,7 @@ public class JpsonicComparatorsIntegrationTest extends AbstractAirsonicHomeTest 
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         settingsService.setSortStrict(true);
         settingsService.setSortAlphanum(true);
