@@ -20,7 +20,7 @@
 package com.tesshu.jpsonic.service;
 
 import static com.tesshu.jpsonic.service.MediaScannerServiceUtilsTestUtils.invokeUtils;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,22 +30,20 @@ import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.dao.JAlbumDao;
 import com.tesshu.jpsonic.dao.JMediaFileDao;
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.MediaScannerService;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.AvoidDuplicateLiterals" })
 /*
  * In the testing class, it may be less readable.
  */
-public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirsonicHomeTest {
+public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -72,7 +70,7 @@ public class MediaScannerServiceUtilsUpdateSortOfAlbumTest extends AbstractAirso
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
 
         mediaScannerService.setJpsonicCleansingProcess(false);

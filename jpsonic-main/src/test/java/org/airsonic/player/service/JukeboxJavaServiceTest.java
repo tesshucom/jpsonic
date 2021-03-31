@@ -21,7 +21,7 @@
 
 package org.airsonic.player.service;
 
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -32,14 +32,16 @@ import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.service.jukebox.JavaPlayerFactory;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
-public class JukeboxJavaServiceUnitTest {
+@ExtendWith(MockitoExtension.class)
+public class JukeboxJavaServiceTest {
 
     private static final String USER_NAME = "admin";
 
@@ -65,17 +67,17 @@ public class JukeboxJavaServiceUnitTest {
     @Mock
     private MediaFile mediaFile;
 
-    @Before
+    @BeforeEach
     public void setup() {
         service = new JukeboxJavaService(audioScrobblerService, statusService, securityService, mediaFileService,
                 javaPlayerFactory);
-        when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.JAVA_JUKEBOX);
-        when(airsonicPlayer.getUsername()).thenReturn(USER_NAME);
-        when(javaPlayerFactory.createJavaPlayer()).thenReturn(player);
-        when(securityService.getUserByName(USER_NAME)).thenReturn(user);
-        when(user.isJukeboxRole()).thenReturn(true);
-        when(airsonicPlayer.getPlayQueue()).thenReturn(playQueue);
-        when(playQueue.getCurrentFile()).thenReturn(mediaFile);
+        lenient().when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.JAVA_JUKEBOX);
+        lenient().when(airsonicPlayer.getUsername()).thenReturn(USER_NAME);
+        lenient().when(javaPlayerFactory.createJavaPlayer()).thenReturn(player);
+        lenient().when(securityService.getUserByName(USER_NAME)).thenReturn(user);
+        lenient().when(user.isJukeboxRole()).thenReturn(true);
+        lenient().when(airsonicPlayer.getPlayQueue()).thenReturn(playQueue);
+        lenient().when(playQueue.getCurrentFile()).thenReturn(mediaFile);
     }
 
     @Test
@@ -121,15 +123,16 @@ public class JukeboxJavaServiceUnitTest {
         // CreateJavaPlayer should not be called if you do not have permission.
         // When
         service.play(airsonicPlayer);
-        verify(player, never()).play();
+        verify(player, Mockito.never()).play();
     }
 
-    @Test(expected = RuntimeException.class)
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Test
     public void playWithNonJukeboxPlayer() {
         // Given
         when(airsonicPlayer.getTechnology()).thenReturn(PlayerTechnology.WEB);
         // When
-        service.play(airsonicPlayer);
+        Assertions.assertThrows(RuntimeException.class, () -> service.play(airsonicPlayer));
     }
 
     @Test
@@ -140,14 +143,15 @@ public class JukeboxJavaServiceUnitTest {
         service.play(airsonicPlayer);
         // Then
         verify(javaPlayerFactory).createJavaPlayer();
-        verify(player, never()).play();
+        verify(player, Mockito.never()).play();
     }
 
-    @Test(expected = RuntimeException.class)
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Test
     public void playerInitProblem() {
         // Given
         when(javaPlayerFactory.createJavaPlayer()).thenReturn(null);
         // When
-        service.play(airsonicPlayer);
+        Assertions.assertThrows(RuntimeException.class, () -> service.play(airsonicPlayer));
     }
 }
