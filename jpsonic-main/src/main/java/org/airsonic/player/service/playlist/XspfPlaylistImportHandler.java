@@ -88,7 +88,9 @@ public class XspfPlaylistImportHandler implements PlaylistImportHandler {
                     errorMsg.append(track.getStringContainers().stream().map(StringContainer::getText)
                             .collect(Collectors.joining(",")));
                 } catch (Exception e) {
-                    LOG.error(errorMsg.toString(), e);
+                    if (LOG.isErrorEnabled()) {
+                        LOG.error(errorMsg.toString(), e);
+                    }
                 }
                 errors.add(errorMsg.toString());
             } else {

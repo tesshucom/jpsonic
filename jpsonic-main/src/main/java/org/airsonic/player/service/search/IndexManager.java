@@ -395,7 +395,9 @@ public class IndexManager {
                     SearcherManager manager = new SearcherManager(FSDirectory.open(indexDirectory.toPath()), null);
                     searchers.put(indexType, manager);
                 } else {
-                    LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
+                    if (LOG.isWarnEnabled()) {
+                        LOG.warn("{} does not exist. Please run a scan.", indexDirectory.getAbsolutePath());
+                    }
                 }
             } catch (IndexNotFoundException e) {
                 if (LOG.isDebugEnabled()) {
@@ -443,13 +445,20 @@ public class IndexManager {
      * and is not the current version, initialize the directory.
      */
     public void deleteOldIndexFiles() {
+        deleteLegacyFiles();
+        deleteOldFiles();
+        deleteOldMethodFiles();
+    }
 
+    private void deleteLegacyFiles() {
         // Delete legacy files unconditionally
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^lucene\\d+$").matcher(name).matches() || "index".contentEquals(name)))
                 .forEach(old -> {
                     if (FileUtil.exists(old)) {
-                        LOG.info("Found legacy index file. Try to delete : {}", old.getAbsolutePath());
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Found legacy index file. Try to delete : {}", old.getAbsolutePath());
+                        }
                         try {
                             if (old.isFile()) {
                                 FileUtils.deleteQuietly(old);
@@ -458,17 +467,23 @@ public class IndexManager {
                             }
                         } catch (IOException e) {
                             // Log only if failed
-                            LOG.warn("Failed to delete the legacy Index : ".concat(old.getAbsolutePath()), e);
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("Failed to delete the legacy Index : ".concat(old.getAbsolutePath()), e);
+                            }
                         }
                     }
                 });
+    }
 
+    private void deleteOldFiles() {
         // Delete if not old index version
         Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                 (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
                 .filter(dir -> !dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
                     if (FileUtil.exists(old)) {
-                        LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
+                        if (LOG.isInfoEnabled()) {
+                            LOG.info("Found old index file. Try to delete : {}", old.getAbsolutePath());
+                        }
                         try {
                             if (old.isFile()) {
                                 FileUtils.deleteQuietly(old);
@@ -477,17 +492,23 @@ public class IndexManager {
                             }
                         } catch (IOException e) {
                             // Log only if failed
-                            LOG.warn("Failed to delete the old Index : ".concat(old.getAbsolutePath()), e);
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("Failed to delete the old Index : ".concat(old.getAbsolutePath()), e);
+                            }
                         }
                     }
                 });
+    }
 
+    private void deleteOldMethodFiles() {
         if (settingsService.isSearchMethodChanged()) {
             Arrays.stream(SettingsService.getJpsonicHome().listFiles(
                     (file, name) -> Pattern.compile("^" + INDEX_ROOT_DIR_NAME + "\\d+$").matcher(name).matches()))
                     .filter(dir -> dir.getName().equals(ROOT_INDEX_DIRECTORY.get().getName())).forEach(old -> {
                         if (FileUtil.exists(old)) {
-                            LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
+                            if (LOG.isInfoEnabled()) {
+                                LOG.info("The search method has changed. Try to delete : {}", old.getAbsolutePath());
+                            }
                             try {
                                 if (old.isFile()) {
                                     FileUtils.deleteQuietly(old);
@@ -496,14 +517,15 @@ public class IndexManager {
                                 }
                             } catch (IOException e) {
                                 // Log only if failed
-                                LOG.warn("Failed to delete the Index : ".concat(old.getAbsolutePath()), e);
+                                if (LOG.isWarnEnabled()) {
+                                    LOG.warn("Failed to delete the Index : ".concat(old.getAbsolutePath()), e);
+                                }
                             }
                         }
                     });
             settingsService.setSearchMethodChanged(false);
             settingsService.save();
         }
-
     }
 
     /**
