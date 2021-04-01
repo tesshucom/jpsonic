@@ -21,6 +21,7 @@
 
 package org.airsonic.player.service.search;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
@@ -29,13 +30,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /*
@@ -45,7 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * In the process of hardening the Analyzer implementation,
  * this problem is solved side by side.
  */
-public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTest {
+public class SearchServiceStartWithStopwardsTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -68,7 +69,7 @@ public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTes
         return musicFolders;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         settingsService.setSearchMethodLegacy(false);
         populateDatabaseOnlyOnce();
@@ -85,35 +86,35 @@ public class SearchServiceStartWithStopwardsTest extends AbstractAirsonicHomeTes
         SearchResult result = searchService.search(criteria);
         // Will hit because Airsonic's stopword is defined(#1235) => This case does not hit because it is a phrase
         // search rather than a term prefix match.
-        Assert.assertEquals("Williams hit by \"will\" ", 0, result.getTotalHits());
+        assertEquals(0, result.getTotalHits(), "Williams hit by \"will\" ");
 
         // XXX legacy -> phrase
         criteria = director.construct("williams", offset, count, false, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
-        Assert.assertEquals("Williams hit by \"williams\" ", 1, result.getTotalHits());
+        assertEquals(1, result.getTotalHits(), "Williams hit by \"williams\" ");
 
         criteria = director.construct("the", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : The filter is properly applied to the input(Stopward)
-        Assert.assertEquals("Theater hit by \"the\" ", 0, result.getTotalHits());
+        assertEquals(0, result.getTotalHits(), "Theater hit by \"the\" ");
 
         criteria = director.construct("willi", offset, count, false, folders, IndexType.ARTIST_ID3);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching => This case does not hit because it is a phrase search rather than
         // a term prefix match.
-        Assert.assertEquals("Williams hit by \"Williams\" ", 0, result.getTotalHits());
+        assertEquals(0, result.getTotalHits(), "Williams hit by \"Williams\" ");
 
         criteria = director.construct("thea", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
         // XXX 3.x -> 8.x : Normal forward matching
-        Assert.assertEquals("Theater hit by \"thea\" ", 0, result.getTotalHits()); // => This case does not hit because
-                                                                                   // it is a phrase search rather than
-                                                                                   // a term prefix match.
+        assertEquals(0, result.getTotalHits(), "Theater hit by \"thea\" "); // => This case does not hit
+                                                                            // because
+        // it is a phrase search rather than
+        // a term prefix match.
 
         // XXX legacy -> phrase
         criteria = director.construct("theater", offset, count, false, folders, IndexType.SONG);
         result = searchService.search(criteria);
-        Assert.assertEquals("Theater hit by \"theater\" ", 1, result.getTotalHits());
-
+        assertEquals(1, result.getTotalHits(), "Theater hit by \"theater\" ");
     }
 }

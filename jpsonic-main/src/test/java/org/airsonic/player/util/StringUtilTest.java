@@ -21,115 +21,113 @@
 
 package org.airsonic.player.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Locale;
 
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test of {@link StringUtil}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class StringUtilTest {
 
     @Test
     public void testToHtml() {
         assertNull(StringEscapeUtils.escapeHtml(null));
-        assertEquals("", StringEscapeUtils.escapeHtml(""));
-        assertEquals(" ", StringEscapeUtils.escapeHtml(" "));
-        assertEquals("q &amp; a", StringEscapeUtils.escapeHtml("q & a"));
-        assertEquals("q &amp; a &lt;&gt; b", StringEscapeUtils.escapeHtml("q & a <> b"));
+        assertEquals(StringEscapeUtils.escapeHtml(""), "");
+        assertEquals(StringEscapeUtils.escapeHtml(" "), " ");
+        assertEquals(StringEscapeUtils.escapeHtml("q & a"), "q &amp; a");
+        assertEquals(StringEscapeUtils.escapeHtml("q & a <> b"), "q &amp; a &lt;&gt; b");
     }
 
     @Test
     public void testGetMimeType() {
-        assertEquals("Error in getMimeType().", "audio/mpeg", StringUtil.getMimeType("mp3"));
-        assertEquals("Error in getMimeType().", "audio/mpeg", StringUtil.getMimeType(".mp3"));
-        assertEquals("Error in getMimeType().", "audio/mpeg", StringUtil.getMimeType(".MP3"));
-        assertEquals("Error in getMimeType().", "application/octet-stream", StringUtil.getMimeType("koko"));
-        assertEquals("Error in getMimeType().", "application/octet-stream", StringUtil.getMimeType(""));
-        assertEquals("Error in getMimeType().", "application/octet-stream", StringUtil.getMimeType(null));
+        assertEquals("audio/mpeg", StringUtil.getMimeType("mp3"), "Error in getMimeType().");
+        assertEquals("audio/mpeg", StringUtil.getMimeType(".mp3"), "Error in getMimeType().");
+        assertEquals("audio/mpeg", StringUtil.getMimeType(".MP3"), "Error in getMimeType().");
+        assertEquals("application/octet-stream", StringUtil.getMimeType("koko"), "Error in getMimeType().");
+        assertEquals("application/octet-stream", StringUtil.getMimeType(""), "Error in getMimeType().");
+        assertEquals("application/octet-stream", StringUtil.getMimeType(null), "Error in getMimeType().");
     }
 
     @Test
     public void testFormatBytes() {
         Locale locale = Locale.ENGLISH;
-        assertEquals("Error in formatBytes().", "918 B", StringUtil.formatBytes(918, locale));
-        assertEquals("Error in formatBytes().", "1023 B", StringUtil.formatBytes(1_023, locale));
-        assertEquals("Error in formatBytes().", "1 KB", StringUtil.formatBytes(1_024, locale));
-        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98_765, locale));
-        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1_048_575, locale));
-        assertEquals("Error in formatBytes().", "1.2 MB", StringUtil.formatBytes(1_238_476, locale));
-        assertEquals("Error in formatBytes().", "3.50 GB", StringUtil.formatBytes(3_758_096_384L, locale));
-        assertEquals("Error in formatBytes().", "410.00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale));
-        assertEquals("Error in formatBytes().", "4413.43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale));
+        assertEquals("918 B", StringUtil.formatBytes(918, locale), "Error in formatBytes().");
+        assertEquals("1023 B", StringUtil.formatBytes(1_023, locale), "Error in formatBytes().");
+        assertEquals("1 KB", StringUtil.formatBytes(1_024, locale), "Error in formatBytes().");
+        assertEquals("96 KB", StringUtil.formatBytes(98_765, locale), "Error in formatBytes().");
+        assertEquals("1024 KB", StringUtil.formatBytes(1_048_575, locale), "Error in formatBytes().");
+        assertEquals("1.2 MB", StringUtil.formatBytes(1_238_476, locale), "Error in formatBytes().");
+        assertEquals("3.50 GB", StringUtil.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
+        assertEquals("410.00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
+        assertEquals("4413.43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale), "Error in formatBytes().");
 
         locale = new Locale("no", "", "");
-        assertEquals("Error in formatBytes().", "918 B", StringUtil.formatBytes(918, locale));
-        assertEquals("Error in formatBytes().", "1023 B", StringUtil.formatBytes(1023, locale));
-        assertEquals("Error in formatBytes().", "1 KB", StringUtil.formatBytes(1024, locale));
-        assertEquals("Error in formatBytes().", "96 KB", StringUtil.formatBytes(98_765, locale));
-        assertEquals("Error in formatBytes().", "1024 KB", StringUtil.formatBytes(1_048_575, locale));
-        assertEquals("Error in formatBytes().", "1,2 MB", StringUtil.formatBytes(1_238_476, locale));
-        assertEquals("Error in formatBytes().", "3,50 GB", StringUtil.formatBytes(3_758_096_384L, locale));
-        assertEquals("Error in formatBytes().", "410,00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale));
-        assertEquals("Error in formatBytes().", "4413,43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale));
+        assertEquals("918 B", StringUtil.formatBytes(918, locale), "Error in formatBytes().");
+        assertEquals("1023 B", StringUtil.formatBytes(1023, locale), "Error in formatBytes().");
+        assertEquals("1 KB", StringUtil.formatBytes(1024, locale), "Error in formatBytes().");
+        assertEquals("96 KB", StringUtil.formatBytes(98_765, locale), "Error in formatBytes().");
+        assertEquals("1024 KB", StringUtil.formatBytes(1_048_575, locale), "Error in formatBytes().");
+        assertEquals("1,2 MB", StringUtil.formatBytes(1_238_476, locale), "Error in formatBytes().");
+        assertEquals("3,50 GB", StringUtil.formatBytes(3_758_096_384L, locale), "Error in formatBytes().");
+        assertEquals("410,00 TB", StringUtil.formatBytes(450_799_767_388_160L, locale), "Error in formatBytes().");
+        assertEquals("4413,43 TB", StringUtil.formatBytes(4_852_617_603_375_432L, locale), "Error in formatBytes().");
     }
 
     @Test
     public void testFormatDurationMSS() {
-        assertEquals("Error in formatDurationMSS().", "0:00", StringUtil.formatDurationMSS(0));
-        assertEquals("Error in formatDurationMSS().", "0:05", StringUtil.formatDurationMSS(5));
-        assertEquals("Error in formatDurationMSS().", "0:10", StringUtil.formatDurationMSS(10));
-        assertEquals("Error in formatDurationMSS().", "0:59", StringUtil.formatDurationMSS(59));
-        assertEquals("Error in formatDurationMSS().", "1:00", StringUtil.formatDurationMSS(60));
-        assertEquals("Error in formatDurationMSS().", "1:01", StringUtil.formatDurationMSS(61));
-        assertEquals("Error in formatDurationMSS().", "1:10", StringUtil.formatDurationMSS(70));
-        assertEquals("Error in formatDurationMSS().", "10:00", StringUtil.formatDurationMSS(600));
-        assertEquals("Error in formatDurationMSS().", "45:50", StringUtil.formatDurationMSS(2750));
-        assertEquals("Error in formatDurationMSS().", "83:45", StringUtil.formatDurationMSS(5025));
-        assertEquals("Error in formatDurationMSS().", "121:40", StringUtil.formatDurationMSS(7300));
+        assertEquals("0:00", StringUtil.formatDurationMSS(0), "Error in formatDurationMSS().");
+        assertEquals("0:05", StringUtil.formatDurationMSS(5), "Error in formatDurationMSS().");
+        assertEquals("0:10", StringUtil.formatDurationMSS(10), "Error in formatDurationMSS().");
+        assertEquals("0:59", StringUtil.formatDurationMSS(59), "Error in formatDurationMSS().");
+        assertEquals("1:00", StringUtil.formatDurationMSS(60), "Error in formatDurationMSS().");
+        assertEquals("1:01", StringUtil.formatDurationMSS(61), "Error in formatDurationMSS().");
+        assertEquals("1:10", StringUtil.formatDurationMSS(70), "Error in formatDurationMSS().");
+        assertEquals("10:00", StringUtil.formatDurationMSS(600), "Error in formatDurationMSS().");
+        assertEquals("45:50", StringUtil.formatDurationMSS(2750), "Error in formatDurationMSS().");
+        assertEquals("83:45", StringUtil.formatDurationMSS(5025), "Error in formatDurationMSS().");
+        assertEquals("121:40", StringUtil.formatDurationMSS(7300), "Error in formatDurationMSS().");
     }
 
     @Test
     public void testFormatDurationHMMSS() {
-        assertEquals("Error in formatDurationHMMSS().", "0:00:00", StringUtil.formatDurationHMMSS(0));
-        assertEquals("Error in formatDurationHMMSS().", "0:00:05", StringUtil.formatDurationHMMSS(5));
-        assertEquals("Error in formatDurationHMMSS().", "0:00:10", StringUtil.formatDurationHMMSS(10));
-        assertEquals("Error in formatDurationHMMSS().", "0:00:59", StringUtil.formatDurationHMMSS(59));
-        assertEquals("Error in formatDurationHMMSS().", "0:01:00", StringUtil.formatDurationHMMSS(60));
-        assertEquals("Error in formatDurationHMMSS().", "0:01:01", StringUtil.formatDurationHMMSS(61));
-        assertEquals("Error in formatDurationHMMSS().", "0:01:10", StringUtil.formatDurationHMMSS(70));
-        assertEquals("Error in formatDurationHMMSS().", "0:10:00", StringUtil.formatDurationHMMSS(600));
-        assertEquals("Error in formatDurationHMMSS().", "0:45:50", StringUtil.formatDurationHMMSS(2750));
-        assertEquals("Error in formatDurationHMMSS().", "1:23:45", StringUtil.formatDurationHMMSS(5025));
-        assertEquals("Error in formatDurationHMMSS().", "2:01:40", StringUtil.formatDurationHMMSS(7300));
+        assertEquals("0:00:00", StringUtil.formatDurationHMMSS(0), "Error in formatDurationHMMSS().");
+        assertEquals("0:00:05", StringUtil.formatDurationHMMSS(5), "Error in formatDurationHMMSS().");
+        assertEquals("0:00:10", StringUtil.formatDurationHMMSS(10), "Error in formatDurationHMMSS().");
+        assertEquals("0:00:59", StringUtil.formatDurationHMMSS(59), "Error in formatDurationHMMSS().");
+        assertEquals("0:01:00", StringUtil.formatDurationHMMSS(60), "Error in formatDurationHMMSS().");
+        assertEquals("0:01:01", StringUtil.formatDurationHMMSS(61), "Error in formatDurationHMMSS().");
+        assertEquals("0:01:10", StringUtil.formatDurationHMMSS(70), "Error in formatDurationHMMSS().");
+        assertEquals("0:10:00", StringUtil.formatDurationHMMSS(600), "Error in formatDurationHMMSS().");
+        assertEquals("0:45:50", StringUtil.formatDurationHMMSS(2750), "Error in formatDurationHMMSS().");
+        assertEquals("1:23:45", StringUtil.formatDurationHMMSS(5025), "Error in formatDurationHMMSS().");
+        assertEquals("2:01:40", StringUtil.formatDurationHMMSS(7300), "Error in formatDurationHMMSS().");
     }
 
     @Test
     public void testFormatDuration() {
-        assertEquals("Error in formatDuration().", "0:00", StringUtil.formatDuration(0));
-        assertEquals("Error in formatDuration().", "0:05", StringUtil.formatDuration(5));
-        assertEquals("Error in formatDuration().", "0:10", StringUtil.formatDuration(10));
-        assertEquals("Error in formatDuration().", "0:59", StringUtil.formatDuration(59));
-        assertEquals("Error in formatDuration().", "1:00", StringUtil.formatDuration(60));
-        assertEquals("Error in formatDuration().", "1:01", StringUtil.formatDuration(61));
-        assertEquals("Error in formatDuration().", "1:10", StringUtil.formatDuration(70));
-        assertEquals("Error in formatDuration().", "10:00", StringUtil.formatDuration(600));
-        assertEquals("Error in formatDuration().", "45:50", StringUtil.formatDuration(2750));
-        assertEquals("Error in formatDuration().", "1:23:45", StringUtil.formatDuration(5025));
-        assertEquals("Error in formatDuration().", "2:01:40", StringUtil.formatDuration(7300));
+        assertEquals("0:00", StringUtil.formatDuration(0), "Error in formatDuration().");
+        assertEquals("0:05", StringUtil.formatDuration(5), "Error in formatDuration().");
+        assertEquals("0:10", StringUtil.formatDuration(10), "Error in formatDuration().");
+        assertEquals("0:59", StringUtil.formatDuration(59), "Error in formatDuration().");
+        assertEquals("1:00", StringUtil.formatDuration(60), "Error in formatDuration().");
+        assertEquals("1:01", StringUtil.formatDuration(61), "Error in formatDuration().");
+        assertEquals("1:10", StringUtil.formatDuration(70), "Error in formatDuration().");
+        assertEquals("10:00", StringUtil.formatDuration(600), "Error in formatDuration().");
+        assertEquals("45:50", StringUtil.formatDuration(2750), "Error in formatDuration().");
+        assertEquals("1:23:45", StringUtil.formatDuration(5025), "Error in formatDuration().");
+        assertEquals("2:01:40", StringUtil.formatDuration(7300), "Error in formatDuration().");
     }
 
     @Test
@@ -149,10 +147,9 @@ public class StringUtilTest {
 
     private void doTestSplit(String input, String... expected) {
         String[] actual = StringUtil.split(input);
-        assertEquals("Wrong number of elements.", expected.length, actual.length);
-
+        assertEquals(expected.length, actual.length, "Wrong number of elements.");
         for (int i = 0; i < expected.length; i++) {
-            assertEquals("Wrong criteria.", expected[i], actual[i]);
+            assertEquals(expected[i], actual[i], "Wrong criteria.");
         }
     }
 
@@ -162,24 +159,24 @@ public class StringUtilTest {
         doTestParseInts("1 2 3", 1, 2, 3);
         doTestParseInts("10  20 \t\n 30", 10, 20, 30);
 
-        assertSame("Error in parseInts().", StringUtil.parseInts(null).length, 0);
-        assertSame("Error in parseInts().", StringUtil.parseInts("").length, 0);
-        assertSame("Error in parseInts().", StringUtil.parseInts(" ").length, 0);
-        assertSame("Error in parseInts().", StringUtil.parseInts("  ").length, 0);
+        assertSame(StringUtil.parseInts(null).length, 0, "Error in parseInts().");
+        assertSame(StringUtil.parseInts("").length, 0, "Error in parseInts().");
+        assertSame(StringUtil.parseInts(" ").length, 0, "Error in parseInts().");
+        assertSame(StringUtil.parseInts("  ").length, 0, "Error in parseInts().");
     }
 
     private void doTestParseInts(String s, int... expected) {
-        assertEquals("Error in parseInts().", Arrays.toString(expected), Arrays.toString(StringUtil.parseInts(s)));
+        assertEquals(Arrays.toString(expected), Arrays.toString(StringUtil.parseInts(s)), "Error in parseInts().");
     }
 
     @Test
     public void testParseLocale() {
-        assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en"));
-        assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en_"));
-        assertEquals("Error in parseLocale().", new Locale("en"), StringUtil.parseLocale("en__"));
-        assertEquals("Error in parseLocale().", new Locale("en", "US"), StringUtil.parseLocale("en_US"));
-        assertEquals("Error in parseLocale().", new Locale("en", "US", "WIN"), StringUtil.parseLocale("en_US_WIN"));
-        assertEquals("Error in parseLocale().", new Locale("en", "", "WIN"), StringUtil.parseLocale("en__WIN"));
+        assertEquals(new Locale("en"), StringUtil.parseLocale("en"), "Error in parseLocale().");
+        assertEquals(new Locale("en"), StringUtil.parseLocale("en_"), "Error in parseLocale().");
+        assertEquals(new Locale("en"), StringUtil.parseLocale("en__"), "Error in parseLocale().");
+        assertEquals(new Locale("en", "US"), StringUtil.parseLocale("en_US"), "Error in parseLocale().");
+        assertEquals(new Locale("en", "US", "WIN"), StringUtil.parseLocale("en_US_WIN"), "Error in parseLocale().");
+        assertEquals(new Locale("en", "", "WIN"), StringUtil.parseLocale("en__WIN"), "Error in parseLocale().");
     }
 
     @Test
@@ -193,39 +190,39 @@ public class StringUtilTest {
     }
 
     private boolean doTestUtf8Hex(String s) throws DecoderException {
-        assertEquals("Error in utf8hex.", s, StringUtil.utf8HexDecode(StringUtil.utf8HexEncode(s)));
+        assertEquals(s, StringUtil.utf8HexDecode(StringUtil.utf8HexEncode(s)), "Error in utf8hex.");
         return true;
     }
 
     @Test
     public void testGetUrlFile() {
-        assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/foo.mp3"));
-        assertEquals("Error in getUrlFile().", "foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3"));
-        assertEquals("Error in getUrlFile().", "foo", StringUtil.getUrlFile("http://www.asdf.com/bar/foo"));
-        assertEquals("Error in getUrlFile().", "foo.mp3",
-                StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"));
-        assertNull("Error in getUrlFile().", StringUtil.getUrlFile("not a url"));
-        assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com"));
-        assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com/"));
-        assertNull("Error in getUrlFile().", StringUtil.getUrlFile("http://www.asdf.com/foo/"));
+        assertEquals("foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/foo.mp3"), "Error in getUrlFile().");
+        assertEquals("foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3"), "Error in getUrlFile().");
+        assertEquals("foo", StringUtil.getUrlFile("http://www.asdf.com/bar/foo"), "Error in getUrlFile().");
+        assertEquals("foo.mp3", StringUtil.getUrlFile("http://www.asdf.com/bar/foo.mp3?a=1&b=2"),
+                "Error in getUrlFile().");
+        assertNull(StringUtil.getUrlFile("not a url"), "Error in getUrlFile().");
+        assertNull(StringUtil.getUrlFile("http://www.asdf.com"), "Error in getUrlFile().");
+        assertNull(StringUtil.getUrlFile("http://www.asdf.com/"), "Error in getUrlFile().");
+        assertNull(StringUtil.getUrlFile("http://www.asdf.com/foo/"), "Error in getUrlFile().");
     }
 
     @Test
     public void testFileSystemSafe() {
-        assertEquals("Error in fileSystemSafe().", "foo", StringUtil.fileSystemSafe("foo"));
-        assertEquals("Error in fileSystemSafe().", "foo.mp3", StringUtil.fileSystemSafe("foo.mp3"));
-        assertEquals("Error in fileSystemSafe().", "foo-bar", StringUtil.fileSystemSafe("foo/bar"));
-        assertEquals("Error in fileSystemSafe().", "foo-bar", StringUtil.fileSystemSafe("foo\\bar"));
-        assertEquals("Error in fileSystemSafe().", "foo-bar", StringUtil.fileSystemSafe("foo:bar"));
+        assertEquals("foo", StringUtil.fileSystemSafe("foo"), "Error in fileSystemSafe().");
+        assertEquals("foo.mp3", StringUtil.fileSystemSafe("foo.mp3"), "Error in fileSystemSafe().");
+        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo/bar"), "Error in fileSystemSafe().");
+        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo\\bar"), "Error in fileSystemSafe().");
+        assertEquals("foo-bar", StringUtil.fileSystemSafe("foo:bar"), "Error in fileSystemSafe().");
     }
 
     @Test
     public void testRemoveMarkup() {
-        assertEquals("Error in removeMarkup()", "foo", StringUtil.removeMarkup("<b>foo</b>"));
-        assertEquals("Error in removeMarkup()", "foobar", StringUtil.removeMarkup("<b>foo</b>bar"));
-        assertEquals("Error in removeMarkup()", "foo", StringUtil.removeMarkup("foo"));
-        assertEquals("Error in removeMarkup()", "foo", StringUtil.removeMarkup("<b>foo"));
-        assertNull("Error in removeMarkup()", StringUtil.removeMarkup(null));
+        assertEquals("foo", StringUtil.removeMarkup("<b>foo</b>"), "Error in removeMarkup()");
+        assertEquals("foobar", StringUtil.removeMarkup("<b>foo</b>bar"), "Error in removeMarkup()");
+        assertEquals("foo", StringUtil.removeMarkup("foo"), "Error in removeMarkup()");
+        assertEquals("foo", StringUtil.removeMarkup("<b>foo"), "Error in removeMarkup()");
+        assertNull(StringUtil.removeMarkup(null), "Error in removeMarkup()");
     }
 
 }

@@ -21,8 +21,9 @@
 
 package org.airsonic.player.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,19 +36,14 @@ import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.domain.InternetRadio;
 import org.airsonic.player.domain.InternetRadioSource;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.Spy;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.context.annotation.ComponentScan;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class InternetRadioServiceTest {
 
     private static final String TEST_RADIO_NAME = "Test Radio";
@@ -77,7 +73,7 @@ public class InternetRadioServiceTest {
     @Spy
     private InternetRadioService internetRadioService;
 
-    @Before
+    @BeforeEach
     public void setup() throws ExecutionException {
 
         // Prepare a mock InternetRadio object
@@ -95,26 +91,27 @@ public class InternetRadioServiceTest {
         HttpURLConnection mockURLConnection1 = Mockito.mock(HttpURLConnection.class);
         InputStream mockURLInputStream1 = new ByteArrayInputStream(TEST_STREAM_PLAYLIST_CONTENTS_1.getBytes());
         try {
-            doReturn(mockURLInputStream1).when(mockURLConnection1).getInputStream();
-            doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnection1).getResponseCode();
+            lenient().doReturn(mockURLInputStream1).when(mockURLConnection1).getInputStream();
+            lenient().doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnection1).getResponseCode();
 
             // Prepare the mocked URL connection for the second simple playlist
             HttpURLConnection mockURLConnection2 = Mockito.mock(HttpURLConnection.class);
             InputStream mockURLInputStream2 = new ByteArrayInputStream(TEST_STREAM_PLAYLIST_CONTENTS_2.getBytes());
-            doReturn(mockURLInputStream2).when(mockURLConnection2).getInputStream();
-            doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnection2).getResponseCode();
+            lenient().doReturn(mockURLInputStream2).when(mockURLConnection2).getInputStream();
+            lenient().doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnection2).getResponseCode();
 
             // Prepare the mocked URL connection for the redirection to simple playlist
             HttpURLConnection mockURLConnectionMove = Mockito.mock(HttpURLConnection.class);
             // InputStream mockURLInputStreamMove = new ByteArrayInputStream("".getBytes());
-            doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMove).getResponseCode();
-            doReturn(TEST_PLAYLIST_URL_2).when(mockURLConnectionMove).getHeaderField(eq("Location"));
+            lenient().doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMove).getResponseCode();
+            lenient().doReturn(TEST_PLAYLIST_URL_2).when(mockURLConnectionMove).getHeaderField(eq("Location"));
 
             // Prepare the mocked URL connection for the redirection loop
             HttpURLConnection mockURLConnectionMoveLoop = Mockito.mock(HttpURLConnection.class);
             // InputStream mockURLInputStreamMoveLoop = new ByteArrayInputStream("".getBytes());
-            doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMoveLoop).getResponseCode();
-            doReturn(TEST_PLAYLIST_URL_MOVE_LOOP).when(mockURLConnectionMoveLoop).getHeaderField(eq("Location"));
+            lenient().doReturn(HttpURLConnection.HTTP_MOVED_PERM).when(mockURLConnectionMoveLoop).getResponseCode();
+            lenient().doReturn(TEST_PLAYLIST_URL_MOVE_LOOP).when(mockURLConnectionMoveLoop)
+                    .getHeaderField(eq("Location"));
 
             // Prepare the mocked URL connection for the 'content too large' test
             HttpURLConnection mockURLConnectionLarge = Mockito.mock(HttpURLConnection.class);
@@ -127,9 +124,9 @@ public class InternetRadioServiceTest {
                             .charAt((int) (pos++ % TEST_STREAM_PLAYLIST_CONTENTS_2.length()));
                 }
             }) {
-                doReturn(mockURLInputStreamLarge).when(mockURLConnectionLarge).getInputStream();
+                lenient().doReturn(mockURLInputStreamLarge).when(mockURLConnectionLarge).getInputStream();
             }
-            doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnectionLarge).getResponseCode();
+            lenient().doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnectionLarge).getResponseCode();
 
             // Prepare the mocked URL connection for the 'content too large' test
             // (return a single entry with 'aaaa...' running infinitely long).
@@ -142,71 +139,67 @@ public class InternetRadioServiceTest {
                     return 0x41;
                 }
             }) {
-                doReturn(mockURLInputStreamLarge2).when(mockURLConnectionLarge2).getInputStream();
+                lenient().doReturn(mockURLInputStreamLarge2).when(mockURLConnectionLarge2).getInputStream();
             }
-            doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnectionLarge2).getResponseCode();
+            lenient().doReturn(HttpURLConnection.HTTP_OK).when(mockURLConnectionLarge2).getResponseCode();
 
             // Prepare the mock 'connectToURL' method
-            doReturn(mockURLConnection1).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_1)));
-            doReturn(mockURLConnection2).when(internetRadioService).connectToURL(eq(new URL(TEST_PLAYLIST_URL_2)));
-            doReturn(mockURLConnectionMove).when(internetRadioService)
+            lenient().doReturn(mockURLConnection1).when(internetRadioService)
+                    .connectToURL(eq(new URL(TEST_PLAYLIST_URL_1)));
+            lenient().doReturn(mockURLConnection2).when(internetRadioService)
+                    .connectToURL(eq(new URL(TEST_PLAYLIST_URL_2)));
+            lenient().doReturn(mockURLConnectionMove).when(internetRadioService)
                     .connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE)));
-            doReturn(mockURLConnectionMoveLoop).when(internetRadioService)
+            lenient().doReturn(mockURLConnectionMoveLoop).when(internetRadioService)
                     .connectToURL(eq(new URL(TEST_PLAYLIST_URL_MOVE_LOOP)));
-            doReturn(mockURLConnectionLarge).when(internetRadioService)
+            lenient().doReturn(mockURLConnectionLarge).when(internetRadioService)
                     .connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE)));
-            doReturn(mockURLConnectionLarge2).when(internetRadioService)
+            lenient().doReturn(mockURLConnectionLarge2).when(internetRadioService)
                     .connectToURL(eq(new URL(TEST_PLAYLIST_URL_LARGE_2)));
         } catch (IOException e) {
             throw new ExecutionException(e);
         }
-
     }
 
     @Test
     public void testParseSimplePlaylist() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radio1);
-
-        Assert.assertEquals(2, radioSources.size());
-        Assert.assertEquals(TEST_STREAM_URL_1, radioSources.get(0).getStreamUrl());
-        Assert.assertEquals(TEST_STREAM_URL_2, radioSources.get(1).getStreamUrl());
+        assertEquals(2, radioSources.size());
+        assertEquals(TEST_STREAM_URL_1, radioSources.get(0).getStreamUrl());
+        assertEquals(TEST_STREAM_URL_2, radioSources.get(1).getStreamUrl());
     }
 
     @Test
     public void testRedirects() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioMove);
-
-        Assert.assertEquals(2, radioSources.size());
-        Assert.assertEquals(TEST_STREAM_URL_3, radioSources.get(0).getStreamUrl());
-        Assert.assertEquals(TEST_STREAM_URL_4, radioSources.get(1).getStreamUrl());
+        assertEquals(2, radioSources.size());
+        assertEquals(TEST_STREAM_URL_3, radioSources.get(0).getStreamUrl());
+        assertEquals(TEST_STREAM_URL_4, radioSources.get(1).getStreamUrl());
     }
 
     @Test
     public void testLargeInput() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioLarge);
-
         // A PlaylistTooLarge exception is thrown internally, and the
         // `getInternetRadioSources` method logs it and returns a
         // limited number of sources.
-        Assert.assertEquals(250, radioSources.size());
+        assertEquals(250, radioSources.size());
     }
 
     @Test
     public void testLargeInputURL() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioLarge2);
-
         // A PlaylistTooLarge exception is thrown internally, and the
         // `getInternetRadioSources` method logs it and returns a
         // limited number of bytes from the input.
-        Assert.assertEquals(1, radioSources.size());
+        assertEquals(1, radioSources.size());
     }
 
     @Test
     public void testRedirectLoop() {
         List<InternetRadioSource> radioSources = internetRadioService.getInternetRadioSources(radioMoveLoop);
-
         // A PlaylistHasTooManyRedirects exception is thrown internally,
         // and the `getInternetRadioSources` method logs it and returns 0 sources.
-        Assert.assertEquals(0, radioSources.size());
+        assertEquals(0, radioSources.size());
     }
 }

@@ -19,42 +19,37 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.service.search;
+package org.airsonic.player;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
+import org.airsonic.player.service.search.AirsonicHomeTest;
 import org.airsonic.player.util.MusicFolderTestDataUtils;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 @SpringBootTest
+// TODO Separate classes that require DirtiesContext from those that don't
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 /*
  * Abstract class for scanning MusicFolder.
  */
-public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
+public abstract class AbstractNeedsScan implements AirsonicHomeTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractAirsonicHomeTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);
 
     /*
      * Currently, Maven is executing test classes in series, so this class can hold the state. When executing in
@@ -77,28 +72,17 @@ public abstract class AbstractAirsonicHomeTest implements AirsonicHomeTest {
     @Autowired
     protected SettingsService settingsService;
 
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
-
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
+    }
 
     public interface BeforeScan extends Supplier<Boolean> {
     }
 
     public interface AfterScan extends Supplier<Boolean> {
     }
-
-    @ClassRule
-    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
-        final HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
 
     protected static final String resolveBaseMediaPath(String childPath) {
         return MusicFolderTestDataUtils.resolveBaseMediaPath().concat(childPath);

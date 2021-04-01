@@ -21,36 +21,26 @@
 
 package org.airsonic.player.service.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.annotation.Documented;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
-public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
+public class UPnPSearchCriteriaDirectorTest extends AbstractNeedsScan {
 
     @Documented
     private @interface DirectorDecisions {
@@ -243,20 +233,6 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
         }
     }
 
-    @ClassRule
-    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
-        final HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
-
     @Autowired
     private SettingsService settingsService;
 
@@ -269,7 +245,7 @@ public class UPnPSearchCriteriaDirectorTest extends AbstractAirsonicHomeTest {
     private String path = "";
     private String fid = "";
 
-    @Before
+    @BeforeEach
     public void setup() throws NoSuchMethodException, SecurityException, IllegalAccessException,
             IllegalArgumentException, InvocationTargetException {
         Method setSearchMethodLegacy = analyzerFactory.getClass().getDeclaredMethod("setSearchMethodLegacy",

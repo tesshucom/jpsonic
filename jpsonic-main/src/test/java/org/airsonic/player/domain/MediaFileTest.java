@@ -19,21 +19,18 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.service.metadata;
+package org.airsonic.player.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.airsonic.player.domain.MediaFile;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test of {@link MediaFile}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
 public class MediaFileTest {
 
     @Test
@@ -64,7 +61,7 @@ public class MediaFileTest {
     private boolean doTestGetDurationAsString(int seconds, String expected) {
         MediaFile mediaFile = new MediaFile();
         mediaFile.setDurationSeconds(seconds);
-        assertEquals("Error in getDurationString().", expected, mediaFile.getDurationString());
+        assertEquals(expected, mediaFile.getDurationString(), "Error in getDurationString().");
         return true;
     }
 }

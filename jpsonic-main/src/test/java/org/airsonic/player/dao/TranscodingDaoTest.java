@@ -21,14 +21,14 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Transcoding;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -45,7 +45,7 @@ public class TranscodingDaoTest extends DaoTestBase {
     @Autowired
     private PlayerDao playerDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         getJdbcTemplate().execute("delete from transcoding2");
     }
@@ -82,21 +82,21 @@ public class TranscodingDaoTest extends DaoTestBase {
 
     @Test
     public void testDeleteTranscoding() {
-        assertEquals("Wrong number of transcodings.", 0, transcodingDao.getAllTranscodings().size());
+        assertEquals(0, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
 
         transcodingDao.createTranscoding(
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
-        assertEquals("Wrong number of transcodings.", 1, transcodingDao.getAllTranscodings().size());
+        assertEquals(1, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
 
         transcodingDao.createTranscoding(
                 new Transcoding(null, "name", "sourceFormats", "targetFormat", "step1", "step2", "step3", true));
-        assertEquals("Wrong number of transcodings.", 2, transcodingDao.getAllTranscodings().size());
+        assertEquals(2, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcodingDao.getAllTranscodings().get(0).getId());
-        assertEquals("Wrong number of transcodings.", 1, transcodingDao.getAllTranscodings().size());
+        assertEquals(1, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcodingDao.getAllTranscodings().get(0).getId());
-        assertEquals("Wrong number of transcodings.", 0, transcodingDao.getAllTranscodings().size());
+        assertEquals(0, transcodingDao.getAllTranscodings().size(), "Wrong number of transcodings.");
     }
 
     @Test
@@ -115,23 +115,23 @@ public class TranscodingDaoTest extends DaoTestBase {
         final Transcoding transcodingC = transcodingDao.getAllTranscodings().get(2);
 
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 0, activeTranscodings.size());
+        assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcodingA.getId() });
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 1, activeTranscodings.size());
+        assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingA, activeTranscodings.get(0));
 
         transcodingDao.setTranscodingsForPlayer(player.getId(),
                 new int[] { transcodingB.getId(), transcodingC.getId() });
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 2, activeTranscodings.size());
+        assertEquals(2, activeTranscodings.size(), "Wrong number of transcodings.");
         assertTranscodingEquals(transcodingB, activeTranscodings.get(0));
         assertTranscodingEquals(transcodingC, activeTranscodings.get(1));
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), new int[0]);
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 0, activeTranscodings.size());
+        assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
     }
 
     @Test
@@ -145,11 +145,11 @@ public class TranscodingDaoTest extends DaoTestBase {
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcoding.getId() });
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 1, activeTranscodings.size());
+        assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 
         playerDao.deletePlayer(player.getId());
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 0, activeTranscodings.size());
+        assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
     }
 
     @Test
@@ -163,20 +163,20 @@ public class TranscodingDaoTest extends DaoTestBase {
 
         transcodingDao.setTranscodingsForPlayer(player.getId(), new int[] { transcoding.getId() });
         List<Transcoding> activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 1, activeTranscodings.size());
+        assertEquals(1, activeTranscodings.size(), "Wrong number of transcodings.");
 
         transcodingDao.deleteTranscoding(transcoding.getId());
         activeTranscodings = transcodingDao.getTranscodingsForPlayer(player.getId());
-        assertEquals("Wrong number of transcodings.", 0, activeTranscodings.size());
+        assertEquals(0, activeTranscodings.size(), "Wrong number of transcodings.");
     }
 
     private void assertTranscodingEquals(Transcoding expected, Transcoding actual) {
-        assertEquals("Wrong name.", expected.getName(), actual.getName());
-        assertEquals("Wrong source formats.", expected.getSourceFormats(), actual.getSourceFormats());
-        assertEquals("Wrong target format.", expected.getTargetFormat(), actual.getTargetFormat());
-        assertEquals("Wrong step 1.", expected.getStep1(), actual.getStep1());
-        assertEquals("Wrong step 2.", expected.getStep2(), actual.getStep2());
-        assertEquals("Wrong step 3.", expected.getStep3(), actual.getStep3());
-        assertEquals("Wrong default active.", expected.isDefaultActive(), actual.isDefaultActive());
+        assertEquals(expected.getName(), actual.getName(), "Wrong name.");
+        assertEquals(expected.getSourceFormats(), actual.getSourceFormats(), "Wrong source formats.");
+        assertEquals(expected.getTargetFormat(), actual.getTargetFormat(), "Wrong target format.");
+        assertEquals(expected.getStep1(), actual.getStep1(), "Wrong step 1.");
+        assertEquals(expected.getStep2(), actual.getStep2(), "Wrong step 2.");
+        assertEquals(expected.getStep3(), actual.getStep3(), "Wrong step 3.");
+        assertEquals(expected.isDefaultActive(), actual.isDefaultActive(), "Wrong default active.");
     }
 }

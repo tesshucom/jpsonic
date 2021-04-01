@@ -27,34 +27,21 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.File;
 import java.io.IOException;
 
+import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class MetaDataFactoryTest {
-
-    @ClassRule
-    public static TemporaryFolder temporaryFolder = new TemporaryFolder();
+public class MetaDataParserFactoryTest {
 
     private static File someMp3;
     private static File someFlv;
     private static File someJunk;
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     @Autowired
     private MetaDataParserFactory metaDataParserFactory;
@@ -62,22 +49,16 @@ public class MetaDataFactoryTest {
     @Autowired
     private SettingsService settingsService;
 
-    @ClassRule
-    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
-        final HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
-
-    @BeforeClass
-    public static void createTestFiles() throws IOException {
-        someMp3 = temporaryFolder.newFile("some.mp3");
-        someFlv = temporaryFolder.newFile("some.flv");
-        someJunk = temporaryFolder.newFile("some.junk");
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        String homePath = TestCaseUtils.jpsonicHomePathForTest();
+        System.setProperty("jpsonic.home", homePath);
+        someMp3 = new File(homePath, "some.mp3");
+        someFlv = new File(homePath, "some.flv");
+        someJunk = new File(homePath, "some.junk");
+        someMp3.createNewFile();
+        someFlv.createNewFile();
+        someJunk.createNewFile();
     }
 
     @Test
@@ -95,5 +76,4 @@ public class MetaDataFactoryTest {
         parser = metaDataParserFactory.getParser(someJunk);
         assertThat(parser, instanceOf(DefaultMetaDataParser.class));
     }
-
 }
