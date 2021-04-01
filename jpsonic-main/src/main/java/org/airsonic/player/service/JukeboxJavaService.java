@@ -115,7 +115,9 @@ public class JukeboxJavaService {
         com.github.biconou.AudioPlayer.api.Player audioPlayer;
 
         if (StringUtils.isNotBlank(player.getJavaJukeboxMixer())) {
-            LOG.info("use mixer : {}", player.getJavaJukeboxMixer());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("use mixer : {}", player.getJavaJukeboxMixer());
+            }
             audioPlayer = javaPlayerFactory.createJavaPlayer(player.getJavaJukeboxMixer());
         } else {
             LOG.info("use default mixer");
@@ -151,7 +153,9 @@ public class JukeboxJavaService {
                     // Nothing to do here
                 }
             });
-            LOG.info("New audio player {} has been initialized.", audioPlayer.toString());
+            if (LOG.isInfoEnabled()) {
+                LOG.info("New audio player {} has been initialized.", audioPlayer.toString());
+            }
         }
         return audioPlayer;
     }
@@ -192,8 +196,10 @@ public class JukeboxJavaService {
 
     protected final void onSongStart(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
-        LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(),
-                FileUtil.getShortPath(file.getFile()));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("[onSongStart] {} starting jukebox for \"{}\"", player.getUsername(),
+                    FileUtil.getShortPath(file.getFile()));
+        }
         if (status != null) {
             statusService.removeStreamStatus(status);
         }
@@ -207,8 +213,10 @@ public class JukeboxJavaService {
     @SuppressWarnings("PMD.NullAssignment") // (status) Intentional allocation to show there is no status
     protected final void onSongEnd(Player player) {
         MediaFile file = player.getPlayQueue().getCurrentFile();
-        LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(),
-                FileUtil.getShortPath(file.getFile()));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("[onSongEnd] {} stopping jukebox for \"{}\"", player.getUsername(),
+                    FileUtil.getShortPath(file.getFile()));
+        }
         if (status != null) {
             statusService.removeStreamStatus(status);
             status = null;
@@ -226,16 +234,18 @@ public class JukeboxJavaService {
      * Plays the playqueue of a jukebox player starting at the beginning.
      */
     public void play(Player airsonicPlayer) {
-        LOG.debug("begin play jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
-
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("begin play jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
+        }
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
-        if (!user.isJukeboxRole()) {
+        if (!user.isJukeboxRole() && LOG.isWarnEnabled()) {
             LOG.warn("{} is not authorized for jukebox playback.", user.getUsername());
             return;
         }
-
-        LOG.debug("Different file to play -> start a new play list");
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Different file to play -> start a new play list");
+        }
         com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
         if (airsonicPlayer.getPlayQueue().getCurrentFile() != null) {
             audioPlayer.setPlayList(new PlayList() {
@@ -289,26 +299,32 @@ public class JukeboxJavaService {
     }
 
     public void stop(Player airsonicPlayer) {
-        LOG.debug("begin stop jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("begin stop jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
+        }
 
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
-        if (!user.isJukeboxRole()) {
+        if (!user.isJukeboxRole() && LOG.isWarnEnabled()) {
             LOG.warn("{} is not authorized for jukebox playback.", user.getUsername());
             return;
         }
 
         com.github.biconou.AudioPlayer.api.Player audioPlayer = retrieveAudioPlayerForAirsonicPlayer(airsonicPlayer);
-        LOG.debug("PlayQueue.Status is {}", airsonicPlayer.getPlayQueue().getStatus());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("PlayQueue.Status is {}", airsonicPlayer.getPlayQueue().getStatus());
+        }
         audioPlayer.pause();
     }
 
     public void skip(Player airsonicPlayer, int index, int offset) {
-        LOG.debug("begin skip jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("begin skip jukebox : player = id:{};name:{}", airsonicPlayer.getId(), airsonicPlayer.getName());
+        }
 
         // Control user authorizations
         User user = securityService.getUserByName(airsonicPlayer.getUsername());
-        if (!user.isJukeboxRole()) {
+        if (!user.isJukeboxRole() && LOG.isWarnEnabled()) {
             LOG.warn("{} is not authorized for jukebox playback.", user.getUsername());
             return;
         }

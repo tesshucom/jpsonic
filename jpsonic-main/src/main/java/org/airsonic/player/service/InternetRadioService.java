@@ -168,7 +168,9 @@ public class InternetRadioService {
                     }
                 }
             } catch (Exception e) {
-                LOG.error("Failed to retrieve sources for internet radio {}.", radio.getStreamUrl(), e);
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Failed to retrieve sources for internet radio {}.", radio.getStreamUrl(), e);
+                }
                 sources = new ArrayList<>();
             }
             cachedSources.put(radio.getId(), sources);
@@ -225,7 +227,9 @@ public class InternetRadioService {
             inputPlaylist.toPlaylist().acceptDown(visitor);
         } catch (PlaylistTooLarge e) {
             // Ignore if playlist is too large, but truncate the rest and log a warning.
-            LOG.warn(e.getMessage());
+            if (LOG.isWarnEnabled()) {
+                LOG.warn(e.getMessage());
+            }
         }
 
         return entries;

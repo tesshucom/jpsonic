@@ -228,7 +228,9 @@ public class Application extends SpringBootServletInitializer
 
     @Override
     public void customize(ConfigurableServletWebServerFactory container) {
-        LOG.trace("Servlet container is {}", container.getClass().getCanonicalName());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Servlet container is {}", container.getClass().getCanonicalName());
+        }
         // Yes, there is a good reason we do this.
         // We cannot count on the tomcat classes being on the classpath which will
         // happen if the war is deployed to another app server like Jetty. So, we
