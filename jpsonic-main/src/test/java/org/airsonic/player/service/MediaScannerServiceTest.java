@@ -21,13 +21,15 @@
 
 package org.airsonic.player.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
@@ -48,22 +50,16 @@ import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.HomeRule;
 import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.apache.commons.io.IOUtils;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 /**
  * A unit test class to test the MediaScannerService.
@@ -83,20 +79,6 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
 public class MediaScannerServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerServiceTest.class);
-
-    @ClassRule
-    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
-        final HomeRule airsonicRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return airsonicRule.apply(spring, description);
-        }
-    };
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
 
     private final MetricRegistry metrics = new MetricRegistry();
 
@@ -124,8 +106,11 @@ public class MediaScannerServiceTest {
     @Autowired
     private SettingsService settingsService;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+        TestCaseUtils.cleanJpsonicHomeForTest();
+    }
 
     /**
      * Tests the MediaScannerService by scanning the test media library into an empty database.
@@ -220,7 +205,10 @@ public class MediaScannerServiceTest {
     }
 
     @Test
-    public void testSpecialCharactersInFilename() throws Exception {
+    public void testSpecialCharactersInFilename(@TempDir Path tempDirPath) throws Exception {
+
+        File tempDir = tempDirPath.toFile();
+        tempDir.mkdir();
 
         File musicFile;
         try (InputStream resource = Thread.currentThread().getContextClassLoader()
@@ -228,12 +216,15 @@ public class MediaScannerServiceTest {
             assert resource != null;
             String directoryName = "Muff1nman\u2019s \uFF0FMusic"; // Muff1nman’s ／Music
             String fileName = "Muff1nman\u2019s\uFF0FPiano.mp3"; // Muff1nman’s／Piano.mp3
-            File artistDir = temporaryFolder.newFolder(directoryName);
+
+            File artistDir = new File(tempDir, directoryName);
+            artistDir.mkdir();
+
             musicFile = artistDir.toPath().resolve(fileName).toFile();
             IOUtils.copy(resource, Files.newOutputStream(Paths.get(musicFile.toURI())));
         }
 
-        MusicFolder musicFolder = new MusicFolder(1, temporaryFolder.getRoot(), "Music", true, new Date());
+        MusicFolder musicFolder = new MusicFolder(1, tempDir, "Music", true, new Date());
         musicFolderDao.createMusicFolder(musicFolder);
         settingsService.clearMusicFolderCache();
         TestCaseUtils.execScan(mediaScannerService);

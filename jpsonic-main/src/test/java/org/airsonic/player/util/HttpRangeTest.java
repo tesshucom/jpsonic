@@ -21,20 +21,18 @@
 
 package org.airsonic.player.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test of {@link HttpRange}.
  *
  * @author Sindre Mehus
  */
-@SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class HttpRangeTest {
 
@@ -78,19 +76,19 @@ public class HttpRangeTest {
         doTestParseRange(500L, 999L, "bytes=500-999");
         doTestParseRange(9500L, null, "bytes=9500-");
 
-        assertNull("Error in parseRange().", HttpRange.valueOf(null));
-        assertNull("Error in parseRange().", HttpRange.valueOf(""));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes"));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes=a-b"));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes=-100-500"));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes=-500"));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes=500-600,601-999"));
-        assertNull("Error in parseRange().", HttpRange.valueOf("bytes=200-100"));
+        assertNull(HttpRange.valueOf(null), "Error in parseRange().");
+        assertNull(HttpRange.valueOf(""), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes"), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes=a-b"), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes=-100-500"), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes=-500"), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes=500-600,601-999"), "Error in parseRange().");
+        assertNull(HttpRange.valueOf("bytes=200-100"), "Error in parseRange().");
     }
 
     private void doTestParseRange(Long expectedFrom, Long expectedTo, String range) {
         HttpRange actual = HttpRange.valueOf(range);
-        assertEquals("Error in parseRange().", expectedFrom, actual.getFirstBytePos());
-        assertEquals("Error in parseRange().", expectedTo, actual.getLastBytePos());
+        assertEquals(expectedFrom, actual.getFirstBytePos(), "Error in parseRange().");
+        assertEquals(expectedTo, actual.getLastBytePos(), "Error in parseRange().");
     }
 }

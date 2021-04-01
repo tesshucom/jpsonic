@@ -35,16 +35,14 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.AirsonicHomeTest;
 import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
+// TODO Separate classes that require DirtiesContext from those that don't
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 /*
  * Abstract class for scanning MusicFolder.

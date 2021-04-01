@@ -21,8 +21,8 @@
 
 package org.airsonic.player.service.upnp.processor;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -31,14 +31,16 @@ import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
-public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
+@SpringBootTest
+public class MediaFileUpnpProcessorTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
@@ -56,7 +58,7 @@ public class MediaFileUpnpProcessorTest extends AbstractAirsonicHomeTest {
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         setSortStrict(true);
         setSortAlphanum(true);

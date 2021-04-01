@@ -19,54 +19,58 @@
 
 package com.tesshu.jpsonic.dao;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.tesshu.jpsonic.domain.JpsonicComparatorsTestUtils;
-import org.airsonic.player.domain.Artist;
+import org.airsonic.player.AbstractNeedsScan;
+import org.airsonic.player.dao.AlbumDao;
+import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.context.annotation.ComponentScan;
 
-@SpringBootTest
-public class JArtistDaoGetAlphabetialTest extends AbstractAirsonicHomeTest {
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+public class JAlbumDaoTest extends AbstractNeedsScan {
 
     private static final List<MusicFolder> MUSIC_FOLDERS;
 
     static {
         MUSIC_FOLDERS = new ArrayList<>();
         File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
-        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Artists", true, new Date()));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "Albums", true, new Date()));
     }
 
     @Autowired
-    private JArtistDao artistDao;
+    private AlbumDao albumDao;
 
     @Override
     public List<MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
-        setSortAlphanum(true);
         setSortStrict(true);
+        setSortAlphanum(true);
         populateDatabaseOnlyOnce();
     }
 
     @Test
-    public void testGetAlphabetialArtists() {
-        List<Artist> all = artistDao.getAlphabetialArtists(0, Integer.MAX_VALUE, Arrays.asList(MUSIC_FOLDERS.get(0)));
-        List<String> names = all.stream().map(Artist::getName).collect(Collectors.toList());
+    public void testGetAlphabeticalAlbums() {
+        List<Album> albums = albumDao.getAlphabeticalAlbums(0, Integer.MAX_VALUE, false, true, MUSIC_FOLDERS);
+        List<String> names = albums.stream().map(Album::getName).filter(name -> !"☆彡ALBUM".equals(name))
+                .collect(Collectors.toList());
         assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(names));
     }
+
 }

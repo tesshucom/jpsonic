@@ -19,10 +19,10 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -38,8 +38,8 @@ import java.util.function.Function;
 import org.airsonic.player.domain.RandomSearchCriteria;
 import org.assertj.core.util.Arrays;
 import org.checkerframework.checker.signedness.qual.Unsigned;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MediaFileDaoTest {
@@ -267,7 +267,7 @@ public class MediaFileDaoTest {
 
         criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), null, null, null, null, null, false,
                 false, null);
-        Assert.assertNotNull(criteria.getMinLastPlayedDate());
+        Assertions.assertNotNull(criteria.getMinLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMinLastPlayedDateCondition");
         assertEquals(condition, op.get());
@@ -289,8 +289,8 @@ public class MediaFileDaoTest {
 
         criteria = new RandomSearchCriteria(0, null, null, null, null, new Date(), new Date(), null, null, null, null,
                 false, false, null);
-        Assert.assertNotNull(criteria.getMinLastPlayedDate());
-        Assert.assertNotNull(criteria.getMaxLastPlayedDate());
+        Assertions.assertNotNull(criteria.getMinLastPlayedDate());
+        Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxLastPlayedDateCondition");
         assertEquals(condition1, op.get());
@@ -298,7 +298,7 @@ public class MediaFileDaoTest {
         criteria = new RandomSearchCriteria(0, null, null, null, null, null, new Date(), null, null, null, null, false,
                 false, null);
         assertNull(criteria.getMinLastPlayedDate());
-        Assert.assertNotNull(criteria.getMaxLastPlayedDate());
+        Assertions.assertNotNull(criteria.getMaxLastPlayedDate());
         builder = createRandomSongsQueryBuilder(criteria);
         op = invokeGetCondition(builder, "getMaxLastPlayedDateCondition");
         assertEquals(condition2, op.get());
