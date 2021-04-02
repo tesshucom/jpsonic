@@ -20,9 +20,9 @@
         <jackson.version>2.12.2</jackson.version>
         <tomcat.version>9.0.44</tomcat.version>
         <jetty.schema.version>3.1.2</jetty.schema.version>
-        <jetty.version>9.4.38.v20210224</jetty.version>
-        <jetty-jsp.version>9.4.38.v20210224</jetty-jsp.version>
-        <pmd.version>6.32.0</pmd.version>
+        <jetty.version>9.4.39.v20210325</jetty.version>
+        <jetty-jsp.version>9.4.39.v20210325</jetty-jsp.version>
+        <pmd.version>6.33.0</pmd.version>
         <log4j.version>2.14.1</log4j.version>
         <docker.container.repo>airsonic/airsonic</docker.container.repo>
         <compile.version>1.8</compile.version>
@@ -168,7 +168,7 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <scope>compile</scope>
-                <version>3.11.0</version>
+                <version>3.12.0</version>
             </dependency>
             <dependency>
                 <groupId>org.eclipse.jdt</groupId>
@@ -457,7 +457,7 @@
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
                             <artifactId>checkstyle</artifactId>
-                            <version>8.41</version>
+                            <version>8.41.1</version>
                         </dependency>
                     </dependencies>
                     <configuration>
@@ -541,7 +541,7 @@
                 <plugin>
                     <groupId>org.owasp</groupId>
                     <artifactId>dependency-check-maven</artifactId>
-                    <version>6.1.3</version>
+                    <version>6.1.4</version>
                     <inherited>true</inherited>
                     <configuration>
                         <failBuildOnAnyVulnerability>true</failBuildOnAnyVulnerability>
