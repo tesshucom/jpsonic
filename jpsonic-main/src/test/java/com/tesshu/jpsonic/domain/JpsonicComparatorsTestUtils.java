@@ -53,34 +53,14 @@ public class JpsonicComparatorsTestUtils {
 
     /*
      * Dictionary order that Japanese feel natural.
-     * 
-     * - Generally, it is divided into "Eng/Num" and Japanese. - In general, ligatures are read in English (unless
-     * ligatures are intentionally separated in a dictionary). - Frequently used symbols are read in Japanese. -
-     * "Eng/Num" is arranged based on the notation. However, Japanese is arranged based on the readings. - Popular
-     * English words are given Japanese readings and are treated in much the same way as Japanese. However, the japanese
-     * distinguish between alphabetic and Japanese notation.
-     * 
-     * If arranged in code order simply, it will be difficult for the Japanese people to identify the order. Especially
-     * in the case of UNICODE, chinese characters is managed using a common table in multiple countries. Therefore, in
-     * order to arrange correctly in Japanese, a function to convert to Japanese reading and support for sort tags are
-     * required.
      */
-    public static final List<String> JPSONIC_NATURAL_LIST = Collections.unmodifiableList(Arrays.asList("10", // Enter
-                                                                                                             // year in
-                                                                                                             // year
-                                                                                                             // field
-            "20", "50", "60", "70", "98", // Enter year in year field
-            "99", // Enter year in year field
-            "abcde", // Enter Japanese in the sort field
-            "abcいうえおあ", // Turn over by reading
-            "abc亜伊鵜絵尾", // Turn over by reading (Register by replacing "reading" intentionally)
-            "ＢＣＤＥＡ", // Enter Japanese in the sort field
-            "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ",
-            "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
+    public static final List<String> JPSONIC_NATURAL_LIST = Collections.unmodifiableList(
+            Arrays.asList("10", "20", "50", "60", "70", "98", "99", "abcde", "abcいうえおあ", "abc亜伊鵜絵尾", "ＢＣＤＥＡ", "ĆḊÉÁḂ",
+                    "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ", "ゥェォァィ",
+                    "ｴｵｱｲｳ", "ｪｫｧｨｩ", "ぉぁぃぅぇ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "♂くんつ"));
 
     /*
-     * Expected sequence number. Whether serial number processing has been performed can be determined by some elements
-     * included in jPSonicNaturalList. Use this list if need to do a full pattern test.
+     * Expected sequence number.
      */
     private static final List<String> ALPHA_NUM_LIST = Collections
             .unmodifiableList(Arrays.asList("09X Radonius", "10X Radonius", "20X Radonius", "20X Radonius Prime",
@@ -93,9 +73,7 @@ public class JpsonicComparatorsTestUtils {
                     "Xiph Xlater 300", "Xiph Xlater 500", "Xiph Xlater 2000", "Xiph Xlater 5000", "Xiph Xlater 10000"));
 
     private final Function<String, MediaFile> toMediaArtist = (name) -> {
-
         MediaFile file = new MediaFile();
-
         file.setArtist(name);
         file.setAlbumArtist(name);
         if ("abcde".equals(name)) {
@@ -111,13 +89,10 @@ public class JpsonicComparatorsTestUtils {
             file.setArtistSort("abcいうえおあ");
             file.setAlbumArtistSort("abcいうえおあ");
         }
-
         file.setTitle(name);
         file.setPath(name);
         file.setMediaType(MediaType.DIRECTORY);
-
         utils.analyze(file);
-
         return file;
     };
 
