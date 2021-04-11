@@ -159,7 +159,9 @@ public class MediaFileDao extends AbstractDao {
      */
     @Transactional
     public void createOrUpdateMediaFile(MediaFile file) {
-        LOG.trace("Creating/Updating new media file at {}", file.getPath());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Creating/Updating new media file at {}", file.getPath());
+        }
         String sql = "update media_file set " + "folder=?," + "type=?," + "format=?," + "title=?," + "album=?,"
                 + "artist=?," + "album_artist=?," + "disc_number=?," + "track_number=?," + "year=?," + "genre=?,"
                 + "bit_rate=?," + "variable_bit_rate=?," + "duration_seconds=?," + "file_size=?," + "width=?,"
@@ -172,8 +174,9 @@ public class MediaFileDao extends AbstractDao {
                 + "album_artist_reading=?, " + "artist_sort_raw=?, " + "album_sort_raw=?, "
                 + "album_artist_sort_raw=?, " + "composer_sort_raw=?, " + "media_file_order=? " // <<<< JP
                 + "where path=?";
-
-        LOG.trace("Updating media file {}", PlayerUtils.debugObject(file));
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Updating media file {}", PlayerUtils.debugObject(file));
+        }
 
         int n = update(sql, file.getFolder(), file.getMediaType().name(), file.getFormat(), file.getTitle(),
                 file.getAlbumName(), file.getArtist(), file.getAlbumArtist(), file.getDiscNumber(),

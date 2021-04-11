@@ -207,7 +207,9 @@ public class SonosService implements SonosSoap {
         String username = getUsername();
         HttpServletRequest request = getRequest();
 
-        LOG.debug("getMetadata: id={} index={} count={} recursive={}", id, index, count, parameters.isRecursive());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getMetadata: id={} index={} count={} recursive={}", id, index, count, parameters.isRecursive());
+        }
 
         List<? extends AbstractMedia> media = null;
         MediaList mediaList = null;
@@ -227,8 +229,10 @@ public class SonosService implements SonosSoap {
             mediaList = SonosHelper.createSubList(index, count, media);
         }
 
-        LOG.debug("getMetadata result: id={} index={} count={} total={}", id, mediaList.getIndex(),
-                mediaList.getCount(), mediaList.getTotal());
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("getMetadata result: id={} index={} count={} total={}", id, mediaList.getIndex(),
+                    mediaList.getCount(), mediaList.getTotal());
+        }
 
         GetMetadataResponse response = new GetMetadataResponse();
         response.setGetMetadataResult(mediaList);
