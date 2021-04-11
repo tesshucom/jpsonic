@@ -22,7 +22,7 @@ package com.tesshu.jpsonic.domain;
 import static java.util.Collections.reverse;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang.StringUtils.isEmpty;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -245,7 +245,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), albums.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), albums.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), albums.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -254,7 +254,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(ALPHA_NUM_LIST.size(), artists.size());
         for (int i = 0; i < ALPHA_NUM_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", ALPHA_NUM_LIST.get(i), artists.get(i).getName());
+                assertEquals(ALPHA_NUM_LIST.get(i), artists.get(i).getName(), "(" + i + ") -> ");
             }
         }
         return true;
@@ -264,7 +264,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), artists.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -273,7 +273,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), genres.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), genres.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), genres.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -282,7 +282,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), files.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), files.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), files.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -291,7 +291,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), playlists.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), playlists.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), playlists.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -300,7 +300,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), artists.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName());
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), artists.get(i).getName(), "(" + i + ") -> ");
             }
         }
     }
@@ -309,7 +309,7 @@ public class JpsonicComparatorsTestUtils {
         assertEquals(JPSONIC_NATURAL_LIST.size(), l.size());
         for (int i = 0; i < JPSONIC_NATURAL_LIST.size(); i++) {
             if (0 > Arrays.binarySearch(ignores, i)) {
-                assertEquals("(" + i + ") -> ", JPSONIC_NATURAL_LIST.get(i), l.get(i));
+                assertEquals(JPSONIC_NATURAL_LIST.get(i), l.get(i), "(" + i + ") -> ");
             }
         }
         return true;

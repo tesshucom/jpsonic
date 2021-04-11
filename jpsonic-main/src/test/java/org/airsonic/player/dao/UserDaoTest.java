@@ -21,10 +21,10 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -37,9 +37,9 @@ import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 
@@ -57,7 +57,7 @@ public class UserDaoTest extends DaoTestBase {
     @Autowired
     private SettingsService settingsService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         getJdbcTemplate().execute("delete from user_role");
         getJdbcTemplate().execute("delete from user");
@@ -99,7 +99,7 @@ public class UserDaoTest extends DaoTestBase {
         } catch (RuntimeException e) {
             caughtException = true;
         }
-        assertTrue("It was expected for createUser to throw an exception", caughtException);
+        assertTrue(caughtException, "It was expected for createUser to throw an exception");
         assertEquals(beforeSize, userDao.getAllUsers().size());
     }
 
@@ -138,9 +138,9 @@ public class UserDaoTest extends DaoTestBase {
 
         User newUser = userDao.getAllUsers().get(0);
         assertUserEquals(user, newUser);
-        assertEquals("Wrong bytes streamed.", 1, newUser.getBytesStreamed());
-        assertEquals("Wrong bytes downloaded.", 2, newUser.getBytesDownloaded());
-        assertEquals("Wrong bytes uploaded.", 3, newUser.getBytesUploaded());
+        assertEquals(1, newUser.getBytesStreamed(), "Wrong bytes streamed.");
+        assertEquals(2, newUser.getBytesDownloaded(), "Wrong bytes downloaded.");
+        assertEquals(3, newUser.getBytesUploaded(), "Wrong bytes uploaded.");
     }
 
     @Test
@@ -149,31 +149,31 @@ public class UserDaoTest extends DaoTestBase {
         userDao.createUser(user);
 
         User newUser = userDao.getUserByName("sindre", true);
-        Assert.assertNotNull("Error in getUserByName().", newUser);
+        Assertions.assertNotNull(newUser, "Error in getUserByName().");
         assertUserEquals(user, newUser);
 
-        assertNull("Error in getUserByName().", userDao.getUserByName("sindre2", true));
-        Assert.assertNotNull("Error in getUserByName().", userDao.getUserByName("sindre ", true));
-        assertNull("Error in getUserByName().", userDao.getUserByName("bente", true));
-        assertNull("Error in getUserByName().", userDao.getUserByName("", true));
-        assertNull("Error in getUserByName().", userDao.getUserByName(null, true));
+        assertNull(userDao.getUserByName("sindre2", true), "Error in getUserByName().");
+        Assertions.assertNotNull(userDao.getUserByName("sindre ", true), "Error in getUserByName().");
+        assertNull(userDao.getUserByName("bente", true), "Error in getUserByName().");
+        assertNull(userDao.getUserByName("", true), "Error in getUserByName().");
+        assertNull(userDao.getUserByName(null, true), "Error in getUserByName().");
     }
 
     @Test
     public void testDeleteUser() {
-        assertEquals("Wrong number of users.", 0, userDao.getAllUsers().size());
+        assertEquals(0, userDao.getAllUsers().size(), "Wrong number of users.");
 
         userDao.createUser(new User("sindre", "secret", null));
-        assertEquals("Wrong number of users.", 1, userDao.getAllUsers().size());
+        assertEquals(1, userDao.getAllUsers().size(), "Wrong number of users.");
 
         userDao.createUser(new User("bente", "secret", null));
-        assertEquals("Wrong number of users.", 2, userDao.getAllUsers().size());
+        assertEquals(2, userDao.getAllUsers().size(), "Wrong number of users.");
 
         userDao.deleteUser("sindre");
-        assertEquals("Wrong number of users.", 1, userDao.getAllUsers().size());
+        assertEquals(1, userDao.getAllUsers().size(), "Wrong number of users.");
 
         userDao.deleteUser("bente");
-        assertEquals("Wrong number of users.", 0, userDao.getAllUsers().size());
+        assertEquals(0, userDao.getAllUsers().size(), "Wrong number of users.");
     }
 
     @Test
@@ -187,24 +187,24 @@ public class UserDaoTest extends DaoTestBase {
         userDao.createUser(user);
 
         String[] roles = userDao.getRolesForUser("sindre");
-        assertEquals("Wrong number of roles.", 5, roles.length);
-        assertEquals("Wrong role.", "admin", roles[0]);
-        assertEquals("Wrong role.", "comment", roles[1]);
-        assertEquals("Wrong role.", "podcast", roles[2]);
-        assertEquals("Wrong role.", "stream", roles[3]);
-        assertEquals("Wrong role.", "settings", roles[4]);
+        assertEquals(5, roles.length, "Wrong number of roles.");
+        assertEquals("admin", roles[0], "Wrong role.");
+        assertEquals("comment", roles[1], "Wrong role.");
+        assertEquals("podcast", roles[2], "Wrong role.");
+        assertEquals("stream", roles[3], "Wrong role.");
+        assertEquals("settings", roles[4], "Wrong role.");
     }
 
-    @Test(expected = DataIntegrityViolationException.class) //
+    @Test
     public void testCreateDefaultUserSettingsWithNonExist() throws ExecutionException {
-        assertNull("Error in getUserSettings.", userDao.getUserSettings("sindre"));
+        assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         Method method;
         try {
             method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
             method.setAccessible(true);
-            userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre"));
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException
-                | InvocationTargetException e) {
+            Assertions.assertThrows(DataIntegrityViolationException.class,
+                    () -> userDao.updateUserSettings((UserSettings) method.invoke(settingsService, "sindre")));
+        } catch (NoSuchMethodException | SecurityException | IllegalArgumentException e) {
             throw new ExecutionException(e);
         }
     }
@@ -213,7 +213,7 @@ public class UserDaoTest extends DaoTestBase {
     public void testUserSettings() throws ExecutionException {
         userDao.createUser(new User("sindre", "secret", null));
 
-        assertNull("Error in getUserSettings.", userDao.getUserSettings("sindre"));
+        assertNull(userDao.getUserSettings("sindre"), "Error in getUserSettings.");
         Method method;
         try {
             method = settingsService.getClass().getDeclaredMethod("createDefaultUserSettings", String.class);
@@ -225,27 +225,27 @@ public class UserDaoTest extends DaoTestBase {
         }
 
         UserSettings userSettings = userDao.getUserSettings("sindre");
-        Assert.assertNotNull("Error in getUserSettings().", userSettings);
-        assertNull("Error in getUserSettings().", userSettings.getLocale());
-        assertNull("Error in getUserSettings().", userSettings.getThemeId());
-        assertTrue("Error in getUserSettings().", userSettings.isFinalVersionNotificationEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isBetaVersionNotificationEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isSongNotificationEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isCloseDrawer());
-        assertFalse("Error in getUserSettings().", userSettings.isLastFmEnabled());
-        assertNull("Error in getUserSettings().", userSettings.getLastFmUsername());
-        assertNull("Error in getUserSettings().", userSettings.getLastFmPassword());
-        assertFalse("Error in getUserSettings().", userSettings.isListenBrainzEnabled());
-        assertNull("Error in getUserSettings().", userSettings.getListenBrainzToken());
-        Assert.assertSame("Error in getUserSettings().", TranscodeScheme.OFF, userSettings.getTranscodeScheme());
-        assertFalse("Error in getUserSettings().", userSettings.isShowNowPlayingEnabled());
-        assertEquals("Error in getUserSettings().", -1, userSettings.getSelectedMusicFolderId());
-        assertFalse("Error in getUserSettings().", userSettings.isPartyModeEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isNowPlayingAllowed());
-        Assert.assertSame("Error in getUserSettings().", AvatarScheme.NONE, userSettings.getAvatarScheme());
-        assertEquals("Error in getUserSettings().", Integer.valueOf(101), userSettings.getSystemAvatarId());
-        assertTrue("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
-        assertEquals("Error in getUserSettings().", 40, userSettings.getPaginationSize());
+        Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
+        assertNull(userSettings.getLocale(), "Error in getUserSettings().");
+        assertNull(userSettings.getThemeId(), "Error in getUserSettings().");
+        assertTrue(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isCloseDrawer(), "Error in getUserSettings().");
+        assertFalse(userSettings.isLastFmEnabled(), "Error in getUserSettings().");
+        assertNull(userSettings.getLastFmUsername(), "Error in getUserSettings().");
+        assertNull(userSettings.getLastFmPassword(), "Error in getUserSettings().");
+        assertFalse(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
+        assertNull(userSettings.getListenBrainzToken(), "Error in getUserSettings().");
+        Assertions.assertSame(TranscodeScheme.OFF, userSettings.getTranscodeScheme(), "Error in getUserSettings().");
+        assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
+        assertEquals(-1, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
+        assertFalse(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
+        Assertions.assertSame(AvatarScheme.NONE, userSettings.getAvatarScheme(), "Error in getUserSettings().");
+        assertEquals(Integer.valueOf(101), userSettings.getSystemAvatarId(), "Error in getUserSettings().");
+        assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
+        assertEquals(40, userSettings.getPaginationSize(), "Error in getUserSettings().");
 
         UserSettings settings;
         try {
@@ -284,59 +284,60 @@ public class UserDaoTest extends DaoTestBase {
 
         userDao.updateUserSettings(settings);
         userSettings = userDao.getUserSettings("sindre");
-        Assert.assertNotNull("Error in getUserSettings().", userSettings);
-        assertEquals("Error in getUserSettings().", Locale.SIMPLIFIED_CHINESE, userSettings.getLocale());
-        assertTrue("Error in getUserSettings().", userSettings.isFinalVersionNotificationEnabled());
-        assertTrue("Error in getUserSettings().", userSettings.isBetaVersionNotificationEnabled());
-        assertFalse("Error in getUserSettings().", userSettings.isSongNotificationEnabled());
-        assertTrue("Error in getUserSettings().", userSettings.isCloseDrawer());
-        assertEquals("Error in getUserSettings().", "midnight", userSettings.getThemeId());
-        assertTrue("Error in getUserSettings().", userSettings.getMainVisibility().isBitRateVisible());
-        assertTrue("Error in getUserSettings().", userSettings.getPlaylistVisibility().isYearVisible());
+        Assertions.assertNotNull(userSettings, "Error in getUserSettings().");
+        assertEquals(Locale.SIMPLIFIED_CHINESE, userSettings.getLocale(), "Error in getUserSettings().");
+        assertTrue(userSettings.isFinalVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertTrue(userSettings.isBetaVersionNotificationEnabled(), "Error in getUserSettings().");
+        assertFalse(userSettings.isSongNotificationEnabled(), "Error in getUserSettings().");
+        assertTrue(userSettings.isCloseDrawer(), "Error in getUserSettings().");
+        assertEquals("midnight", userSettings.getThemeId(), "Error in getUserSettings().");
+        assertTrue(userSettings.getMainVisibility().isBitRateVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isYearVisible(), "Error in getUserSettings().");
 
-        assertTrue("Error in getUserSettings().", userSettings.getMainVisibility().isComposerVisible());
-        assertTrue("Error in getUserSettings().", userSettings.getMainVisibility().isGenreVisible());
-        assertTrue("Error in getUserSettings().", userSettings.getPlaylistVisibility().isComposerVisible());
-        assertTrue("Error in getUserSettings().", userSettings.getPlaylistVisibility().isGenreVisible());
+        assertTrue(userSettings.getMainVisibility().isComposerVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getMainVisibility().isGenreVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isComposerVisible(), "Error in getUserSettings().");
+        assertTrue(userSettings.getPlaylistVisibility().isGenreVisible(), "Error in getUserSettings().");
 
-        assertTrue("Error in getUserSettings().", userSettings.isLastFmEnabled());
-        assertEquals("Error in getUserSettings().", "last_user", userSettings.getLastFmUsername());
-        assertEquals("Error in getUserSettings().", "last_pass", userSettings.getLastFmPassword());
-        assertTrue("Error in getUserSettings().", userSettings.isListenBrainzEnabled());
-        assertEquals("Error in getUserSettings().", "01234567-89ab-cdef-0123-456789abcdef",
-                userSettings.getListenBrainzToken());
-        Assert.assertSame("Error in getUserSettings().", TranscodeScheme.MAX_192, userSettings.getTranscodeScheme());
-        assertFalse("Error in getUserSettings().", userSettings.isShowNowPlayingEnabled());
-        assertEquals("Error in getUserSettings().", 3, userSettings.getSelectedMusicFolderId());
-        assertTrue("Error in getUserSettings().", userSettings.isPartyModeEnabled());
-        assertTrue("Error in getUserSettings().", userSettings.isNowPlayingAllowed());
-        Assert.assertSame("Error in getUserSettings().", AvatarScheme.SYSTEM, userSettings.getAvatarScheme());
-        assertEquals("Error in getUserSettings().", 102, userSettings.getSystemAvatarId().intValue());
-        assertEquals("Error in getUserSettings().", new Date(9412L), userSettings.getChanged());
-        assertTrue("Error in getUserSettings().", userSettings.isKeyboardShortcutsEnabled());
-        assertEquals("Error in getUserSettings().", 120, userSettings.getPaginationSize());
+        assertTrue(userSettings.isLastFmEnabled(), "Error in getUserSettings().");
+        assertEquals("last_user", userSettings.getLastFmUsername(), "Error in getUserSettings().");
+        assertEquals("last_pass", userSettings.getLastFmPassword(), "Error in getUserSettings().");
+        assertTrue(userSettings.isListenBrainzEnabled(), "Error in getUserSettings().");
+        assertEquals("01234567-89ab-cdef-0123-456789abcdef", userSettings.getListenBrainzToken(),
+                "Error in getUserSettings().");
+        Assertions.assertSame(TranscodeScheme.MAX_192, userSettings.getTranscodeScheme(),
+                "Error in getUserSettings().");
+        assertFalse(userSettings.isShowNowPlayingEnabled(), "Error in getUserSettings().");
+        assertEquals(3, userSettings.getSelectedMusicFolderId(), "Error in getUserSettings().");
+        assertTrue(userSettings.isPartyModeEnabled(), "Error in getUserSettings().");
+        assertTrue(userSettings.isNowPlayingAllowed(), "Error in getUserSettings().");
+        Assertions.assertSame(AvatarScheme.SYSTEM, userSettings.getAvatarScheme(), "Error in getUserSettings().");
+        assertEquals(102, userSettings.getSystemAvatarId().intValue(), "Error in getUserSettings().");
+        assertEquals(new Date(9412L), userSettings.getChanged(), "Error in getUserSettings().");
+        assertTrue(userSettings.isKeyboardShortcutsEnabled(), "Error in getUserSettings().");
+        assertEquals(120, userSettings.getPaginationSize(), "Error in getUserSettings().");
 
         userDao.deleteUser("sindre");
-        assertNull("Error in cascading delete.", userDao.getUserSettings("sindre"));
+        assertNull(userDao.getUserSettings("sindre"), "Error in cascading delete.");
     }
 
     private void assertUserEquals(User expected, User actual) {
-        assertEquals("Wrong name.", expected.getUsername(), actual.getUsername());
-        assertEquals("Wrong password.", expected.getPassword(), actual.getPassword());
-        assertEquals("Wrong email.", expected.getEmail(), actual.getEmail());
-        assertEquals("Wrong LDAP auth.", expected.isLdapAuthenticated(), actual.isLdapAuthenticated());
-        assertEquals("Wrong bytes streamed.", expected.getBytesStreamed(), actual.getBytesStreamed());
-        assertEquals("Wrong bytes downloaded.", expected.getBytesDownloaded(), actual.getBytesDownloaded());
-        assertEquals("Wrong bytes uploaded.", expected.getBytesUploaded(), actual.getBytesUploaded());
-        assertEquals("Wrong admin role.", expected.isAdminRole(), actual.isAdminRole());
-        assertEquals("Wrong comment role.", expected.isCommentRole(), actual.isCommentRole());
-        assertEquals("Wrong cover art role.", expected.isCoverArtRole(), actual.isCoverArtRole());
-        assertEquals("Wrong download role.", expected.isDownloadRole(), actual.isDownloadRole());
-        assertEquals("Wrong playlist role.", expected.isPlaylistRole(), actual.isPlaylistRole());
-        assertEquals("Wrong upload role.", expected.isUploadRole(), actual.isUploadRole());
-        assertEquals("Wrong upload role.", expected.isUploadRole(), actual.isUploadRole());
-        assertEquals("Wrong stream role.", expected.isStreamRole(), actual.isStreamRole());
-        assertEquals("Wrong jukebox role.", expected.isJukeboxRole(), actual.isJukeboxRole());
-        assertEquals("Wrong settings role.", expected.isSettingsRole(), actual.isSettingsRole());
+        assertEquals(expected.getUsername(), actual.getUsername(), "Wrong name.");
+        assertEquals(expected.getPassword(), actual.getPassword(), "Wrong password.");
+        assertEquals(expected.getEmail(), actual.getEmail(), "Wrong email.");
+        assertEquals(expected.isLdapAuthenticated(), actual.isLdapAuthenticated(), "Wrong LDAP auth.");
+        assertEquals(expected.getBytesStreamed(), actual.getBytesStreamed(), "Wrong bytes streamed.");
+        assertEquals(expected.getBytesDownloaded(), actual.getBytesDownloaded(), "Wrong bytes downloaded.");
+        assertEquals(expected.getBytesUploaded(), actual.getBytesUploaded(), "Wrong bytes uploaded.");
+        assertEquals(expected.isAdminRole(), actual.isAdminRole(), "Wrong admin role.");
+        assertEquals(expected.isCommentRole(), actual.isCommentRole(), "Wrong comment role.");
+        assertEquals(expected.isCoverArtRole(), actual.isCoverArtRole(), "Wrong cover art role.");
+        assertEquals(expected.isDownloadRole(), actual.isDownloadRole(), "Wrong download role.");
+        assertEquals(expected.isPlaylistRole(), actual.isPlaylistRole(), "Wrong playlist role.");
+        assertEquals(expected.isUploadRole(), actual.isUploadRole(), "Wrong upload role.");
+        assertEquals(expected.isDownloadRole(), actual.isDownloadRole(), "Wrong download role.");
+        assertEquals(expected.isStreamRole(), actual.isStreamRole(), "Wrong stream role.");
+        assertEquals(expected.isJukeboxRole(), actual.isJukeboxRole(), "Wrong jukebox role.");
+        assertEquals(expected.isSettingsRole(), actual.isSettingsRole(), "Wrong settings role.");
     }
 }
