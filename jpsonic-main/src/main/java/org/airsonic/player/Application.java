@@ -21,6 +21,7 @@
 
 package org.airsonic.player;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.servlet.Filter;
@@ -36,6 +37,7 @@ import org.airsonic.player.filter.RequestEncodingFilter;
 import org.airsonic.player.filter.ResponseHeaderFilter;
 import org.airsonic.player.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.airsonic.player.util.LegacyHsqlUtil;
+import org.checkerframework.checker.nullness.qual.NonNull;
 import org.directwebremoting.servlet.DwrServlet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -226,49 +228,52 @@ public class Application extends SpringBootServletInitializer
         return doConfigure(application);
     }
 
+    private void invokeHelper(@NonNull Class<?> helperClass, @NonNull Class<?> factoryClass,
+            @NonNull Object factoryInstance) {
+        try {
+            Method configure = ReflectionUtils.findMethod(helperClass, "configure", factoryClass);
+            if (configure == null) {
+                throw new IllegalArgumentException(
+                        "Unreachable code: The configure method does not exist in the helper class.");
+            } else {
+                configure.invoke(null, factoryInstance);
+            }
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Failed to apply ApplicationHelper.", e);
+            }
+        }
+    }
+
     @Override
     public void customize(ConfigurableServletWebServerFactory container) {
-        LOG.trace("Servlet container is {}", container.getClass().getCanonicalName());
-        // Yes, there is a good reason we do this.
-        // We cannot count on the tomcat classes being on the classpath which will
-        // happen if the war is deployed to another app server like Jetty. So, we
-        // ensure this class does not have any direct dependencies on any Tomcat
-        // specific classes.
+
+        Class<?> factoryClass = null;
+        Class<?> helperClass = null;
         try {
-            Class<?> tomcatESCF = Class
-                    .forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
-            if (tomcatESCF.isInstance(container)) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Detected Tomcat web server");
-                }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Attempting to optimize tomcat");
-                }
-                Object tomcatESCFInstance = tomcatESCF.cast(container);
-                Class<?> tomcatApplicationClass = Class.forName("org.airsonic.player.TomcatApplicationHelper");
-                Method configure = ReflectionUtils.findMethod(tomcatApplicationClass, "configure", tomcatESCF);
-                if (configure == null) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Cannot find configure method.");
-                    }
-                } else {
-                    configure.invoke(null, tomcatESCFInstance);
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Tomcat optimizations complete");
-                    }
-                }
-            } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Skipping tomcat optimization as we are not running on tomcat");
-                }
-            }
+            factoryClass = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
+            helperClass = Class.forName("org.airsonic.player.TomcatApplicationHelper");
         } catch (NoClassDefFoundError | ClassNotFoundException e) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("No tomcat classes found");
             }
-        } catch (Exception e) {
-            LOG.warn("An error happened while trying to optimize tomcat", e);
         }
+        if (factoryClass == null) {
+            try {
+                factoryClass = Class
+                        .forName("org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory");
+                helperClass = Class.forName("org.airsonic.player.JettyApplicationHelper");
+            } catch (NoClassDefFoundError | ClassNotFoundException e) {
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("No jetty classes found");
+                }
+            }
+        }
+        if (factoryClass == null || helperClass == null) {
+            throw new IllegalArgumentException("Unreachable code: There should be a class according to the profile.");
+        }
+
+        invokeHelper(helperClass, factoryClass, factoryClass.cast(container));
 
     }
 
@@ -276,5 +281,4 @@ public class Application extends SpringBootServletInitializer
         SpringApplicationBuilder builder = new SpringApplicationBuilder();
         doConfigure(builder).run(args);
     }
-
 }

@@ -104,7 +104,7 @@ public class SearchServiceImpl implements SearchService {
                 util.addIfAnyMatch(result, criteria.getIndexType(), searcher.doc(topDocs.scoreDocs[i].doc));
             }
 
-            if (settingsService.isOutputSearchQuery()) {
+            if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
                 LOG.info("Web: Multi-field search : {} -> query:{}, offset:{}, count:{}", criteria.getIndexType(),
                         criteria.getQuery(), criteria.getOffset(), criteria.getCount());
             }
@@ -127,12 +127,8 @@ public class SearchServiceImpl implements SearchService {
         ParamSearchResult<T> result = new ParamSearchResult<>();
         result.setOffset(offset);
 
-        if (count <= 0) {
-            return result;
-        }
-
         IndexType indexType = searchableIndex(criteria);
-        if (isEmpty(indexType)) {
+        if (count <= 0 || isEmpty(indexType)) {
             return result;
         }
 
@@ -141,7 +137,7 @@ public class SearchServiceImpl implements SearchService {
             return result;
         }
 
-        if (settingsService.isOutputSearchQuery()) {
+        if (settingsService.isOutputSearchQuery() && LOG.isInfoEnabled()) {
             LOG.info("UpnP: UpnP-compliant field search : {} -> query:{}, offset:{}, count:{}", indexType,
                     criteria.getQuery(), criteria.getOffset(), criteria.getCount());
         }

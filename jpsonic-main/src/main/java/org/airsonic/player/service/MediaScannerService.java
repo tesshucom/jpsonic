@@ -295,9 +295,9 @@ public class MediaScannerService {
         scanCount++;
         if (LOG.isInfoEnabled() && scanCount % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
+        } else if (LOG.isTraceEnabled()) {
+            LOG.trace("Scanning file {}", file.getPath());
         }
-
-        LOG.trace("Scanning file {}", file.getPath());
 
         // Update the root folder if it has changed.
         if (!musicFolder.getPath().getPath().equals(file.getFolder())) {
