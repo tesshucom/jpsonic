@@ -761,6 +761,7 @@
                 <artifactId>maven-antrun-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>generate</id>
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
@@ -778,6 +779,21 @@
                                 <copy todir="${project.build.directory}/jpsonic/scss/">
                                     <fileset dir="${basedir}/src/main/webapp/scss" includes="**" />
                                 </copy>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <delete>
+                                    <!--This is because *ApplicationHelper may depend on a particular vendor class.　-->
+                                    <fileset dir="${project.build.directory}/classes/org/airsonic/player" includes="${helper.excludes}" />
+                                </delete>
                             </target>
                         </configuration>
                         <goals>
@@ -813,29 +829,6 @@
                 <groupId>net.nicoulaj.maven.plugins</groupId>
                 <artifactId>checksum-maven-plugin</artifactId>
             </plugin>
-            <!-- @see #367
-            <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-jspc-maven-plugin</artifactId>
-                <version>${jetty-jsp.version}</version>
-                <executions>
-                    <execution>
-                        <id>jspc</id>
-                        <goals>
-                            <goal>jspc</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            < Since we are using spring boot - we do not have a web.xml so there is no sense
-                            enabling merging. Furthermore, we output the webXmlFragment to the target/classes
-                            directory such that it will be on the classpath for use during runtime >
-                            <mergeFragment>false</mergeFragment>
-                            <webXmlFragment>${project.build.outputDirectory}/precompiled-jsp-web.xml</webXmlFragment>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            -->
         </plugins>
     </build>
     <reporting>
@@ -863,14 +856,15 @@
             <properties>
                 <boot.group.excludes>org.eclipse.jetty.toolchain,org.eclipse.jetty,org.eclipse.jetty.websocket,org.mortbay.jasper,org.eclipse.jetty.toolchain,org.ow2.asm,jakarta.websocket</boot.group.excludes>
                 <boot.artifact.excludes>spring-boot-starter-jetty,apache-jsp,jakarta.websocket-all</boot.artifact.excludes>
+                <helper.excludes>JettyApplicationHelper.class</helper.excludes>
             </properties>
         </profile>
         <profile>
             <id>jetty-embed</id>
             <properties>
                 <boot.group.excludes>org.apache.tomcat.embed</boot.group.excludes>
-                <!-- @see #367 -->
                 <boot.artifact.excludes>spring-boot-starter-tomcat</boot.artifact.excludes>
+                <helper.excludes>TomcatApplicationHelper.class</helper.excludes>
             </properties>
         </profile>
         <profile>
