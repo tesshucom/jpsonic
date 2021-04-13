@@ -32,7 +32,7 @@ import java.util.Map;
 import org.airsonic.player.domain.MediaLibraryStatistics;
 import org.junit.jupiter.api.Test;
 
-public class UtilTest {
+public class PlayerUtilsTest {
 
     @Test
     public void objectToStringMapNull() {
