@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
@@ -36,22 +37,29 @@ import org.airsonic.player.domain.TranscodeScheme;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link PlayerDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PlayerDaoTest extends DaoTestBase {
+public class PlayerDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private PlayerDao playerDao;
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from player");
+        daoHelper.getJdbcTemplate().execute("delete from player");
     }
 
     @Test

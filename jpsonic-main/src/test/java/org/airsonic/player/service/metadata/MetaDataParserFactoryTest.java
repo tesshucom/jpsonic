@@ -27,15 +27,17 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import java.io.File;
 import java.io.IOException;
 
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.service.SettingsService;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class MetaDataParserFactoryTest {
 
@@ -51,8 +53,11 @@ public class MetaDataParserFactoryTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
-        String homePath = TestCaseUtils.jpsonicHomePathForTest();
-        System.setProperty("jpsonic.home", homePath);
+        String homePath = System.getProperty("jpsonic.home");
+        File home = new File(homePath);
+        if (!home.exists()) {
+            home.mkdir();
+        }
         someMp3 = new File(homePath, "some.mp3");
         someFlv = new File(homePath, "some.flv");
         someJunk = new File(homePath, "some.junk");

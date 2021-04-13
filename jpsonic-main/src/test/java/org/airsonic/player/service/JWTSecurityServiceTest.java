@@ -23,7 +23,6 @@ package org.airsonic.player.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -32,18 +31,19 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.airsonic.player.TestCaseUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.airsonic.player.NeedsHome;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@SpringBootTest
+@ExtendWith(NeedsHome.class)
 public class JWTSecurityServiceTest {
 
     private static final String KAY = "someKey";
@@ -59,12 +59,6 @@ public class JWTSecurityServiceTest {
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] { { "http://localhost:8080/jpsonic/stream?id=4", "/jpsonic/stream?id=4" },
                 { "/jpsonic/stream?id=4", "/jpsonic/stream?id=4" }, });
-    }
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 
     @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert") // false positive

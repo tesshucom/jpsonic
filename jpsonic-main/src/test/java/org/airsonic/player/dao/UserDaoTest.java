@@ -32,6 +32,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.AvatarScheme;
 import org.airsonic.player.domain.TranscodeScheme;
 import org.airsonic.player.domain.User;
@@ -40,7 +41,9 @@ import org.airsonic.player.service.SettingsService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
@@ -48,8 +51,13 @@ import org.springframework.dao.DataIntegrityViolationException;
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class UserDaoTest extends DaoTestBase {
+public class UserDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private UserDao userDao;
@@ -59,8 +67,8 @@ public class UserDaoTest extends DaoTestBase {
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from user_role");
-        getJdbcTemplate().execute("delete from user");
+        daoHelper.getJdbcTemplate().execute("delete from user_role");
+        daoHelper.getJdbcTemplate().execute("delete from user");
     }
 
     @Test

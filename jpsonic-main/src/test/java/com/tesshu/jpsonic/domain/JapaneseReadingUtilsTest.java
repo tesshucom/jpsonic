@@ -24,26 +24,26 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiFunction;
 
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.MediaFile;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.signedness.qual.Unsigned;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
+@SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JapaneseReadingUtilsTest {
 
@@ -78,12 +78,6 @@ public class JapaneseReadingUtilsTest {
             throw new ExecutionException(e);
         }
         return result;
-    }
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 
     @Test

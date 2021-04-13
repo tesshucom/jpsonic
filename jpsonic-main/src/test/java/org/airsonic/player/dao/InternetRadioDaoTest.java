@@ -25,25 +25,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.InternetRadio;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link InternetRadioDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class InternetRadioDaoTest extends DaoTestBase {
+public class InternetRadioDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private InternetRadioDao internetRadioDao;
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from internet_radio");
+        daoHelper.getJdbcTemplate().execute("delete from internet_radio");
     }
 
     @Test

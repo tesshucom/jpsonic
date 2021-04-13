@@ -30,10 +30,12 @@ import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
 import org.airsonic.player.Integration;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.TestCaseUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,6 +43,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
 public class SubsonicRESTControllerTest {
@@ -57,8 +60,6 @@ public class SubsonicRESTControllerTest {
 
     @BeforeAll
     public static void setupClass() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
         apiVerion = TestCaseUtils.restApiVersion();
     }
 

@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.service.search;
+package org.airsonic.player;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import org.airsonic.player.util.MusicFolderTestDataUtils;
 /**
  * Test case interface for scanning MusicFolder.
  */
-public interface AirsonicHomeTest {
+public interface NeedsScan {
 
     /**
      * MusicFolder used by test class.

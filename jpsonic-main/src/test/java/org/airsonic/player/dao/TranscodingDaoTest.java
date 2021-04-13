@@ -25,19 +25,27 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.Transcoding;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link TranscodingDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class TranscodingDaoTest extends DaoTestBase {
+public class TranscodingDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private TranscodingDao transcodingDao;
@@ -47,7 +55,7 @@ public class TranscodingDaoTest extends DaoTestBase {
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from transcoding2");
+        daoHelper.getJdbcTemplate().execute("delete from transcoding2");
     }
 
     @Test

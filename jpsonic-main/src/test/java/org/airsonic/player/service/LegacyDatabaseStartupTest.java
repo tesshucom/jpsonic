@@ -26,15 +26,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.io.IOException;
 
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 public class LegacyDatabaseStartupTest {
 
     @Autowired
@@ -42,10 +44,8 @@ public class LegacyDatabaseStartupTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
-        String homeParent = TestCaseUtils.jpsonicHomePathForTest();
-        System.setProperty("jpsonic.home", homeParent);
-        TestCaseUtils.cleanJpsonicHomeForTest();
-        File dbDirectory = new File(homeParent, "/db");
+        String homePath = System.getProperty("jpsonic.home");
+        File dbDirectory = new File(homePath, "/db");
         FileUtils.forceMkdir(dbDirectory);
         org.airsonic.player.util.FileUtils.copyResourcesRecursively(
                 LegacyDatabaseStartupTest.class.getResource("/db/pre-liquibase/db"), dbDirectory);

@@ -26,25 +26,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.File;
 import java.util.Date;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link MusicFolderDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MusicFolderDaoTest extends DaoTestBase {
+public class MusicFolderDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private MusicFolderDao musicFolderDao;
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from music_folder");
+        daoHelper.getJdbcTemplate().execute("delete from music_folder");
     }
 
     @Test

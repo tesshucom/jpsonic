@@ -23,13 +23,12 @@ package org.airsonic.player.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.MusicIndex;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -39,17 +38,12 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class MusicIndexServiceTest {
 
     @Autowired
     private MusicIndexService musicIndexService;
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
 
     @Test
     public void testCreateIndexFromExpression() {

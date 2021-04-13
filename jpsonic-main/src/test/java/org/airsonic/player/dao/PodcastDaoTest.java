@@ -29,27 +29,35 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.PodcastChannel;
 import org.airsonic.player.domain.PodcastEpisode;
 import org.airsonic.player.domain.PodcastStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link PodcastDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PodcastDaoTest extends DaoTestBase {
+public class PodcastDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private PodcastDao podcastDao;
 
     @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from podcast_channel");
+        daoHelper.getJdbcTemplate().execute("delete from podcast_channel");
     }
 
     @Test

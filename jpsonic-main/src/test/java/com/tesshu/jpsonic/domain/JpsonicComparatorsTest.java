@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.Integration;
-import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.MainController;
 import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.Album;
@@ -61,22 +60,17 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.search.IndexType;
 import org.airsonic.player.service.search.SearchCriteria;
 import org.airsonic.player.service.search.SearchCriteriaDirector;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the
  * range not defined in the legacy test specification has been expanded.
  */
-@SpringBootTest
-@AutoConfigureMockMvc
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class JpsonicComparatorsTest extends AbstractNeedsScan {
 
@@ -237,12 +231,6 @@ public class JpsonicComparatorsTest extends AbstractNeedsScan {
     @Override
     public List<MusicFolder> getMusicFolders() {
         return MUSIC_FOLDERS;
-    }
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
     }
 
     @ComparatorsDecisions.Actions.artistOrderByAlpha

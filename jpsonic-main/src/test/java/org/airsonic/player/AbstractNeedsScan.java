@@ -23,7 +23,6 @@ package org.airsonic.player;
 
 import static org.springframework.util.ObjectUtils.isEmpty;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
@@ -32,22 +31,23 @@ import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.service.search.AirsonicHomeTest;
 import org.airsonic.player.util.MusicFolderTestDataUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-@SpringBootTest
-// TODO Separate classes that require DirtiesContext from those that don't
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 /*
  * Abstract class for scanning MusicFolder.
  */
-public abstract class AbstractNeedsScan implements AirsonicHomeTest {
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
+// TODO Separate classes that require DirtiesContext from those that don't
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@ExtendWith(NeedsHome.class)
+public abstract class AbstractNeedsScan implements NeedsScan {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractNeedsScan.class);
 
@@ -71,12 +71,6 @@ public abstract class AbstractNeedsScan implements AirsonicHomeTest {
 
     @Autowired
     protected SettingsService settingsService;
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
 
     public interface BeforeScan extends Supplier<Boolean> {
     }

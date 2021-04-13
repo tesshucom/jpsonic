@@ -33,6 +33,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.ViewName;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.SubsonicRESTController;
 import org.airsonic.player.dao.AlbumDao;
@@ -57,6 +58,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -72,6 +74,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
 @SpringBootTest(classes = AbstractPlayerFactoryTest.Config.class)
+@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
@@ -109,8 +112,6 @@ public abstract class AbstractPlayerFactoryTest {
 
     @BeforeAll
     public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
         apiVersion = TestCaseUtils.restApiVersion();
         dataBasePopulated = false;
     }

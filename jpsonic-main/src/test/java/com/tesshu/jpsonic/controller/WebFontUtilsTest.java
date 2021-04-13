@@ -21,7 +21,6 @@ package com.tesshu.jpsonic.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
@@ -29,23 +28,24 @@ import java.util.concurrent.ExecutionException;
 import javax.servlet.http.HttpServletRequest;
 
 import com.tesshu.jpsonic.domain.FontScheme;
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.command.PersonalSettingsCommand;
 import org.airsonic.player.domain.UserSettings;
 import org.airsonic.player.service.SettingsService;
 import org.apache.catalina.connector.Request;
 import org.checkerframework.checker.signedness.qual.Unsigned;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 
+@SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class WebFontUtilsTest {
 
@@ -57,12 +57,6 @@ public class WebFontUtilsTest {
 
     @Autowired
     private SettingsService settingsService;
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
 
     @Test
     @Order(1)

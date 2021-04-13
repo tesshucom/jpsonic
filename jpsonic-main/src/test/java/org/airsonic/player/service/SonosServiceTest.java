@@ -23,25 +23,18 @@ package org.airsonic.player.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.io.IOException;
-
-import org.airsonic.player.TestCaseUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.airsonic.player.NeedsHome;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 public class SonosServiceTest {
 
     @Autowired
     private SonosService sonosService;
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
 
     @Test
     public void testParsePlaylistIndices() {

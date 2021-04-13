@@ -27,14 +27,13 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.TestCaseUtils;
-import org.junit.jupiter.api.BeforeAll;
+import org.airsonic.player.NeedsHome;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,20 +44,15 @@ import org.springframework.context.annotation.ComponentScan;
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
 @SpringBootConfiguration
 @ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class PlayQueueTest {
 
     @Autowired
     private JpsonicComparators jpsonicComparators;
-
-    @BeforeAll
-    public static void beforeAll() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
 
     @Test
     public void testEmpty() {

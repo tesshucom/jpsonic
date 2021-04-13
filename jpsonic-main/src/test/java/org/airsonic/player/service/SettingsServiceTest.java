@@ -26,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
@@ -35,12 +34,12 @@ import java.util.concurrent.ExecutionException;
 import com.tesshu.jpsonic.controller.WebFontUtils;
 import com.tesshu.jpsonic.domain.FontScheme;
 import com.tesshu.jpsonic.domain.SpeechToTextLangScheme;
-import org.airsonic.player.TestCaseUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.AlbumListType;
 import org.airsonic.player.domain.UserSettings;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
@@ -52,6 +51,7 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @ComponentScan(basePackages = "org.airsonic.player")
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 public class SettingsServiceTest {
 
     @Autowired
@@ -59,16 +59,10 @@ public class SettingsServiceTest {
 
     private UserSettings settings;
 
-    @BeforeAll
-    public static void setUp() throws IOException {
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
-
     @Test
     public void testJpsonicHome() {
-        assertEquals(TestCaseUtils.jpsonicHomePathForTest(), SettingsService.getJpsonicHome().getAbsolutePath(),
-                "Wrong Jpsonic home.");
+        String homePath = System.getProperty("jpsonic.home");
+        assertEquals(homePath, SettingsService.getJpsonicHome().getAbsolutePath(), "Wrong Jpsonic home.");
     }
 
     @Test
