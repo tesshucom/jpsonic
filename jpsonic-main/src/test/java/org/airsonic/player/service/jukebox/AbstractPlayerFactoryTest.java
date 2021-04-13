@@ -33,6 +33,7 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.ViewName;
+import org.airsonic.player.MusicFolderTestDataUtils;
 import org.airsonic.player.NeedsHome;
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.SubsonicRESTController;
@@ -51,7 +52,6 @@ import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.airsonic.player.util.StringUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;

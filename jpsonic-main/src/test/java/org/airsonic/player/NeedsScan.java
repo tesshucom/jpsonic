@@ -24,7 +24,6 @@ package org.airsonic.player;
 import java.util.List;
 
 import org.airsonic.player.domain.MusicFolder;
-import org.airsonic.player.util.MusicFolderTestDataUtils;
 
 /**
  * Test case interface for scanning MusicFolder.

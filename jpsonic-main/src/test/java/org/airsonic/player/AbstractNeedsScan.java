@@ -31,7 +31,6 @@ import org.airsonic.player.dao.DaoHelper;
 import org.airsonic.player.dao.MusicFolderDao;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

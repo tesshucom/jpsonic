@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.util;
+package org.airsonic.player;
 
 import java.io.File;
 import java.util.ArrayList;
