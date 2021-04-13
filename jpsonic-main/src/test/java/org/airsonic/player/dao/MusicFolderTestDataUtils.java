@@ -21,13 +21,6 @@
 
 package org.airsonic.player.dao;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import org.airsonic.player.domain.MusicFolder;
-
 public final class MusicFolderTestDataUtils {
 
     private static final String BASE_RESOURCES = "/MEDIAS/";
@@ -35,7 +28,7 @@ public final class MusicFolderTestDataUtils {
     private MusicFolderTestDataUtils() {
     }
 
-    public static String resolveBaseMediaPath() {
+    private static String resolveBaseMediaPath() {
         return MusicFolderTestDataUtils.class.getResource(BASE_RESOURCES).toString().replace("file:", "");
     }
 
@@ -43,23 +36,4 @@ public final class MusicFolderTestDataUtils {
         return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music";
     }
 
-    public static String resolveMusic2FolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music2";
-    }
-
-    public static String resolveMusic3FolderPath() {
-        return MusicFolderTestDataUtils.resolveBaseMediaPath() + "Music3";
-    }
-
-    public static List<MusicFolder> getTestMusicFolders() {
-        List<MusicFolder> liste = new ArrayList<>();
-        File musicDir = new File(MusicFolderTestDataUtils.resolveMusicFolderPath());
-        MusicFolder musicFolder = new MusicFolder(1, musicDir, "Music", true, new Date());
-        liste.add(musicFolder);
-
-        File music2Dir = new File(MusicFolderTestDataUtils.resolveMusic2FolderPath());
-        MusicFolder musicFolder2 = new MusicFolder(2, music2Dir, "Music2", true, new Date());
-        liste.add(musicFolder2);
-        return liste;
-    }
 }

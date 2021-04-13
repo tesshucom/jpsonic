@@ -14,22 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  *
- * (C) 2009 Sindre Mehus
- * (C) 2016 Airsonic Authors
- * (C) 2018 tesshucom
+ * (C) 2021 tesshucom
  */
 
-package org.airsonic.player.util;
+package org.airsonic.player;
 
-import org.airsonic.player.TestCaseUtils;
-import org.junit.rules.ExternalResource;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class HomeRule extends ExternalResource {
-    @Override
-    protected void before() throws Throwable {
-        super.before();
-        System.setProperty("jpsonic.home", TestCaseUtils.jpsonicHomePathForTest());
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-        TestCaseUtils.cleanJpsonicHomeForTest();
-    }
+/*
+ * Tag representing integration.
+ * In the legacy test case, it was represented by the suffix of Int.
+ */
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Tag("integration")
+@Test
+public @interface Integration {
+
 }

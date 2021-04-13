@@ -21,15 +21,17 @@
 
 package org.airsonic.player.service;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
+import org.airsonic.player.NeedsHome;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class SonosServiceTest extends AbstractAirsonicHomeTest {
+@ExtendWith(NeedsHome.class)
+public class SonosServiceTest {
 
     @Autowired
     private SonosService sonosService;

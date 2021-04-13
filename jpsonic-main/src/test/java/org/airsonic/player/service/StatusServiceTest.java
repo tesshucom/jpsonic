@@ -21,33 +21,37 @@
 
 package org.airsonic.player.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.TransferStatus;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link StatusService}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class StatusServiceTest extends AbstractAirsonicHomeTest {
+public class StatusServiceTest {
 
     @Autowired
     private StatusService statusService;
     private Player player1;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         player1 = new Player();
         player1.setId(1);
@@ -56,16 +60,16 @@ public class StatusServiceTest extends AbstractAirsonicHomeTest {
     @Test
     public void testSimpleAddRemove() {
         TransferStatus status = statusService.createStreamStatus(player1);
-        assertTrue("Wrong status.", status.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status),
-                statusService.getStreamStatusesForPlayer(player1));
+        assertTrue(status.isActive(), "Wrong status.");
+        assertEquals(Arrays.asList(status), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
+        assertEquals(Arrays.asList(status), statusService.getStreamStatusesForPlayer(player1),
+                "Wrong list of statuses.");
 
         statusService.removeStreamStatus(status);
-        assertFalse("Wrong status.", status.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status), statusService.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(status),
-                statusService.getStreamStatusesForPlayer(player1));
+        assertFalse(status.isActive(), "Wrong status.");
+        assertEquals(Arrays.asList(status), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
+        assertEquals(Arrays.asList(status), statusService.getStreamStatusesForPlayer(player1),
+                "Wrong list of statuses.");
     }
 
     @Test
@@ -75,8 +79,8 @@ public class StatusServiceTest extends AbstractAirsonicHomeTest {
 
         // assertEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB),
         // statusService.getAllStreamStatuses()); // In the bad case? Right?
-        assertNotEquals("Wrong list of statuses.", Arrays.asList(statusA, statusB),
-                statusService.getAllStreamStatuses());
+        assertNotEquals(Arrays.asList(statusA, statusB), statusService.getAllStreamStatuses(),
+                "Wrong list of statuses.");
         assertEquals(Arrays.asList(statusA), statusService.getAllStreamStatuses());
         assertEquals(Arrays.asList(statusB), statusService.getAllStreamStatuses());
 
@@ -87,27 +91,27 @@ public class StatusServiceTest extends AbstractAirsonicHomeTest {
 
         // Stop stream A.
         statusService.removeStreamStatus(statusA);
-        assertFalse("Wrong status.", statusA.isActive());
+        assertFalse(statusA.isActive(), "Wrong status.");
 
         // assertTrue("Wrong status.", statusB.isActive()); // In the bad case? Right?
         assertFalse(statusB.isActive());
 
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB),
-                statusService.getStreamStatusesForPlayer(player1));
+        assertEquals(Arrays.asList(statusB), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
+        assertEquals(Arrays.asList(statusB), statusService.getStreamStatusesForPlayer(player1),
+                "Wrong list of statuses.");
 
         // Stop stream B.
         statusService.removeStreamStatus(statusB);
-        assertFalse("Wrong status.", statusB.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB), statusService.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusB),
-                statusService.getStreamStatusesForPlayer(player1));
+        assertFalse(statusB.isActive(), "Wrong status.");
+        assertEquals(Arrays.asList(statusB), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
+        assertEquals(Arrays.asList(statusB), statusService.getStreamStatusesForPlayer(player1),
+                "Wrong list of statuses.");
 
         // Start stream C.
         TransferStatus statusC = statusService.createStreamStatus(player1);
-        assertTrue("Wrong status.", statusC.isActive());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusC), statusService.getAllStreamStatuses());
-        assertEquals("Wrong list of statuses.", Arrays.asList(statusC),
-                statusService.getStreamStatusesForPlayer(player1));
+        assertTrue(statusC.isActive(), "Wrong status.");
+        assertEquals(Arrays.asList(statusC), statusService.getAllStreamStatuses(), "Wrong list of statuses.");
+        assertEquals(Arrays.asList(statusC), statusService.getStreamStatusesForPlayer(player1),
+                "Wrong list of statuses.");
     }
 }

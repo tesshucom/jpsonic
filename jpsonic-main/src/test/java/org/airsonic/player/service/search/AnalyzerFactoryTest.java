@@ -22,7 +22,7 @@
 package org.airsonic.player.service.search;
 
 import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -33,27 +33,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.Description;
-import org.junit.runners.model.Statement;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.rules.SpringClassRule;
-import org.springframework.test.context.junit4.rules.SpringMethodRule;
 
 /**
  * Test case for Analyzer. These cases have the purpose of observing the current situation and observing the impact of
  * upgrading Lucene.
  */
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.JUnitTestsShouldIncludeAssert" })
 /*
  * [AvoidDuplicateLiterals] In the testing class, it may be less readable. [JUnitTestsShouldIncludeAssert] dalse
@@ -61,27 +57,13 @@ import org.springframework.test.context.junit4.rules.SpringMethodRule;
  */
 public class AnalyzerFactoryTest {
 
-    @ClassRule
-    public static final SpringClassRule CLASS_RULE = new SpringClassRule() {
-        final HomeRule homeRule = new HomeRule();
-
-        @Override
-        public Statement apply(Statement base, Description description) {
-            Statement spring = super.apply(base, description);
-            return homeRule.apply(spring, description);
-        }
-    };
-
-    @Rule
-    public final SpringMethodRule springMethodRule = new SpringMethodRule();
-
     @Autowired
     private AnalyzerFactory analyzerFactory;
 
     @Autowired
     private SettingsService settingsService;
 
-    @Before
+    @BeforeEach
     public void setup() throws ExecutionException {
         Method setSearchMethodLegacy;
         try {
@@ -112,7 +94,7 @@ public class AnalyzerFactoryTest {
                 FieldNamesConstants.ALBUM, FieldNamesConstants.TITLE };
         Arrays.stream(multiTokenFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
-            assertEquals("multiToken : " + n, 7, terms.size());
+            assertEquals(7, terms.size(), "multiToken : " + n);
         });
 
         // 2
@@ -120,35 +102,35 @@ public class AnalyzerFactoryTest {
         String[] oneTokenHiraStopOnlyFields = { FieldNamesConstants.ALBUM_EX, FieldNamesConstants.TITLE_EX };
         Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
-            assertEquals("oneTokenHira(Eng) : " + n, 0, terms.size());
+            assertEquals(0, terms.size(), "oneTokenHira(Eng) : " + n);
         });
         Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryHira);
             // Because different from legacy, which is a prefix match of tokens, and bigram is used.
-            assertEquals("bigram(Hira) : " + n, 7, terms.size());
+            assertEquals(7, terms.size(), "bigram(Hira) : " + n);
         });
         String queryStopsOnly = "La La La";
         Arrays.stream(oneTokenHiraStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryStopsOnly);
             // Because the Stopward-only case is currently omitted as rare-case
-            assertEquals("Cut off : " + n, 0, terms.size());
+            assertEquals(0, terms.size(), "Cut off : " + n);
         });
 
         // 1
         String[] oneTokenStopOnlyFields = { FieldNamesConstants.ARTIST_EX };
         Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryEng);
-            assertEquals("oneTokenHira(Eng) : " + n, 0, terms.size());
+            assertEquals(0, terms.size(), "oneTokenHira(Eng) : " + n);
         });
         Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryHira);
             // Because different from legacy, which is a prefix match of tokens, and bigram is used.
-            assertEquals("bigram(Hira) : " + n, 7, terms.size());
+            assertEquals(7, terms.size(), "bigram(Hira) : " + n);
         });
         Arrays.stream(oneTokenStopOnlyFields).forEach(n -> {
             List<String> terms = toTermString(n, queryStopsOnly);
             // Because the Stopward-only case is currently omitted as rare-case
-            assertEquals("Cut off :" + n, 0, terms.size());
+            assertEquals(0, terms.size(), "Cut off :" + n);
         });
 
     }
@@ -172,9 +154,9 @@ public class AnalyzerFactoryTest {
              * In the legacy, these field divide input into 2. It is not necessary to delimit this field originally.
              */
             case FieldNamesConstants.MEDIA_TYPE:
-                assertEquals("tokenized : " + n, 2, terms.size());
-                assertEquals("tokenized : " + n, expected1, terms.get(0));
-                assertEquals("tokenized : " + n, expected2, terms.get(1));
+                assertEquals(2, terms.size(), "tokenized : " + n);
+                assertEquals(expected1, terms.get(0), "tokenized : " + n);
+                assertEquals(expected2, terms.get(1), "tokenized : " + n);
                 break;
 
             /*
@@ -184,35 +166,35 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
             case FieldNamesConstants.COMPOSER:
-                assertEquals("tokenized : " + n, 2, terms.size());
-                assertEquals("tokenized : " + n, expected1, terms.get(0));
-                assertEquals("tokenized : " + n, expected2, terms.get(1));
+                assertEquals(2, terms.size(), "tokenized : " + n);
+                assertEquals(expected1, terms.get(0), "tokenized : " + n);
+                assertEquals(expected2, terms.get(1), "tokenized : " + n);
                 break;
 
             case FieldNamesConstants.TITLE_EX:
             case FieldNamesConstants.ALBUM_EX:
             case FieldNamesConstants.ARTIST_EX:
-                assertEquals("tokenized : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "tokenized : " + n);
                 break;
 
             case FieldNamesConstants.ARTIST_READING:
             case FieldNamesConstants.COMPOSER_READING:
-                assertEquals("tokenized : " + n, 1, terms.size());
-                assertEquals("tokenized : " + n, expected3, terms.get(0));
+                assertEquals(1, terms.size(), "tokenized : " + n);
+                assertEquals(expected3, terms.get(0), "tokenized : " + n);
                 break;
 
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE:
             case FieldNamesConstants.GENRE_KEY:
-                assertEquals("tokenized : " + n, 1, terms.size());
-                assertEquals("tokenized : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "tokenized : " + n);
+                assertEquals(query, terms.get(0), "tokenized : " + n);
                 break;
 
             /*
              * ID, FOLDER_ID, YEAR This is not a problem because the input value does not contain a delimiter.
              */
             default:
-                assertEquals("tokenized : " + n, 2, terms.size());
+                assertEquals(2, terms.size(), "tokenized : " + n);
                 break;
             }
         });
@@ -232,16 +214,16 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.ARTIST:
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("removed : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "removed : " + n);
                 break;
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE:
             case FieldNamesConstants.GENRE_KEY:
-                assertEquals("remain : " + n, 1, terms.size());
+                assertEquals(1, terms.size(), "remain : " + n);
                 break;
 
             default:
-                assertEquals("removed : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "removed : " + n);
                 break;
             }
         });
@@ -294,49 +276,48 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.MEDIA_TYPE:
             case FieldNamesConstants.GENRE_KEY:
-                assertEquals("through : " + n, 1, articleTerms.size());
-                assertEquals("through : " + n, queryArticle, articleTerms.get(0));
-                assertEquals("through : " + n, 1, indexArticleTerms.size());
-                assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
-                assertEquals("through : " + n, 1, noStopTerms.size());
-                assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
-                assertEquals("through : " + n, 1, jpStopTerms.size());
-                assertEquals("through : " + n, queryJpStop, jpStopTerms.get(0));
+                assertEquals(1, articleTerms.size(), "through : " + n);
+                assertEquals(queryArticle, articleTerms.get(0), "through : " + n);
+                assertEquals(1, indexArticleTerms.size(), "through : " + n);
+                assertEquals(queryIndexArticle, indexArticleTerms.get(0), "through : " + n);
+                assertEquals(1, noStopTerms.size(), "through : " + n);
+                assertEquals(queryNoStop, noStopTerms.get(0), "through : " + n);
+                assertEquals(1, jpStopTerms.size(), "through : " + n);
+                assertEquals(queryJpStop, jpStopTerms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.GENRE:
-                assertEquals("through : " + n, 1, articleTerms.size());
-                assertEquals("through : " + n, queryArticle, articleTerms.get(0));
-                assertEquals("through : " + n, 1, indexArticleTerms.size());
-                assertEquals("through : " + n, queryIndexArticle, indexArticleTerms.get(0));
-                assertEquals("through : " + n, 1, noStopTerms.size());
-                assertEquals("through : " + n, queryNoStop, noStopTerms.get(0));
+                assertEquals(1, articleTerms.size(), "through : " + n);
+                assertEquals(queryArticle, articleTerms.get(0), "through : " + n);
+                assertEquals(1, indexArticleTerms.size(), "through : " + n);
+                assertEquals(queryIndexArticle, indexArticleTerms.get(0), "through : " + n);
+                assertEquals(1, noStopTerms.size(), "through : " + n);
+                assertEquals(queryNoStop, noStopTerms.get(0), "through : " + n);
                 // false positives?
-                assertEquals("??????? : " + n, 2, jpStopTerms.size());
-                assertEquals("??????? : " + n,
+                assertEquals(2, jpStopTerms.size(), "??????? : " + n);
+                assertEquals(
                         "の に は を た が で て と し れ さ ある いる も する から な こと として い や れる など なっ ない この ため その あっ よう また もの という あり まで られ なる へ か だ これ によって により おり より による ず なり られる において ば なかっ なく しかし について せ だっ その後 できる それ う ので なお のみ でき き つ における および いう さらに でも ら たり その他 に関する たち ます ん なら に対して 特に せる 及び これら",
-                        jpStopTerms.get(0));
-                assertEquals("??????? : " + n,
-                        " とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ",
-                        jpStopTerms.get(1));
+                        jpStopTerms.get(0), "??????? : " + n);
+                assertEquals(" とき では にて ほか ながら うち そして とともに ただし かつて それぞれ または お ほど ものの に対する ほとんど と共に といった です とも ところ ここ",
+                        jpStopTerms.get(1), "??????? : " + n);
                 break;
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("apply : " + n, 0, articleTerms.size());
-                assertEquals("apply : " + n, 0, indexArticleTerms.size());
-                assertEquals("through : " + n, 30, noStopTerms.size());
-                assertEquals("apply : " + n, 110, jpStopTerms.size()); // XXX Legacy(0) -> Phrase(110)
+                assertEquals(0, articleTerms.size(), "apply : " + n);
+                assertEquals(0, indexArticleTerms.size(), "apply : " + n);
+                assertEquals(30, noStopTerms.size(), "through : " + n);
+                assertEquals(110, jpStopTerms.size(), "apply : " + n); // XXX Legacy(0) -> Phrase(110)
                 break;
             case FieldNamesConstants.ARTIST:
-                assertEquals("apply : " + n, 0, articleTerms.size());
-                assertEquals("apply : " + n, 0, indexArticleTerms.size());
-                assertEquals("through : " + n, 29, noStopTerms.size()); // with is removed
-                assertEquals("apply : " + n, 110, jpStopTerms.size()); // XXX Legacy(53) -> Phrase(110)
+                assertEquals(0, articleTerms.size(), "apply : " + n);
+                assertEquals(0, indexArticleTerms.size(), "apply : " + n);
+                assertEquals(29, noStopTerms.size(), "through : " + n); // with is removed
+                assertEquals(110, jpStopTerms.size(), "apply : " + n); // XXX Legacy(53) -> Phrase(110)
                 break;
             case FieldNamesConstants.ARTIST_READING:
-                assertEquals("article : " + n, 0, articleTerms.size());
-                assertEquals("indexArticle : " + n, 0, indexArticleTerms.size());
-                assertEquals("noStop : " + n, 29, noStopTerms.size()); // with is removed
-                assertEquals("jpStop : " + n, 152, jpStopTerms.size()); // XXX Legacy(109) -> Phrase(152)
+                assertEquals(0, articleTerms.size(), "article : " + n);
+                assertEquals(0, indexArticleTerms.size(), "indexArticle : " + n);
+                assertEquals(29, noStopTerms.size(), "noStop : " + n); // with is removed
+                assertEquals(152, jpStopTerms.size(), "jpStop : " + n); // XXX Legacy(109) -> Phrase(152)
                 break;
 
             default:
@@ -442,31 +423,31 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.TITLE_EX:
             case FieldNamesConstants.ALBUM_EX:
             case FieldNamesConstants.ARTIST_EX:
-                assertEquals("no case : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "no case : " + n);
                 break;
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE_KEY:
             case FieldNamesConstants.MEDIA_TYPE:
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(query, terms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.ARTIST_READING:
-                assertEquals("apply : " + n, 4, terms.size());
-                assertEquals("apply : " + n, "caesar", terms.get(0));
-                assertEquals("apply : " + n, "しい", terms.get(1));
-                assertEquals("apply : " + n, "ーざ", terms.get(2));
-                assertEquals("apply : " + n, "ざあ", terms.get(3));
+                assertEquals(4, terms.size(), "apply : " + n);
+                assertEquals("caesar", terms.get(0), "apply : " + n);
+                assertEquals("しい", terms.get(1), "apply : " + n);
+                assertEquals("ーざ", terms.get(2), "apply : " + n);
+                assertEquals("ざあ", terms.get(3), "apply : " + n);
                 break;
             case FieldNamesConstants.GENRE:
-                assertEquals("apply : " + n, 1, terms.size());
-                assertEquals("apply : " + n, expected3, terms.get(0));
+                assertEquals(1, terms.size(), "apply : " + n);
+                assertEquals(expected3, terms.get(0), "apply : " + n);
                 break;
             case FieldNamesConstants.ARTIST:
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("apply : " + n, 2, terms.size());
-                assertEquals("apply : " + n, expected1a, terms.get(0));
-                assertEquals("apply : " + n, expected1b, terms.get(1));
+                assertEquals(2, terms.size(), "apply : " + n);
+                assertEquals(expected1a, terms.get(0), "apply : " + n);
+                assertEquals(expected1b, terms.get(1), "apply : " + n);
                 break;
             default:
                 break;
@@ -490,17 +471,17 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE_KEY:
             case FieldNamesConstants.MEDIA_TYPE:
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(query, terms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.GENRE:
                 // Some character strings are replaced within the range that does not affect display
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("apply : " + n, expected1, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(expected1, terms.get(0), "apply : " + n);
                 break;
             default:
                 // Strings not relevant to the search are removed
-                assertEquals("apply : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "apply : " + n);
                 break;
             }
         });
@@ -520,37 +501,37 @@ public class AnalyzerFactoryTest {
             List<String> terms = toTermString(n, query);
             switch (n) {
             case FieldNamesConstants.ARTIST_EX:
-                assertEquals("no case : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "no case : " + n);
                 break;
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.MEDIA_TYPE:
             case FieldNamesConstants.GENRE_KEY:
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(query, terms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.GENRE:
-                assertEquals("apply : " + n, 1, terms.size());
-                assertEquals("apply : " + n, apply1, terms.get(0));
+                assertEquals(1, terms.size(), "apply : " + n);
+                assertEquals(apply1, terms.get(0), "apply : " + n);
                 break;
             case FieldNamesConstants.TITLE_EX:
             case FieldNamesConstants.ALBUM_EX:
                 terms = toTermString(n, query2);
-                assertEquals("no case : " + n, 2, terms.size());
-                assertEquals("bigram : " + n, "ぁぃ", terms.get(0));
-                assertEquals("bigram : " + n, "ぃぅ", terms.get(1));
+                assertEquals(2, terms.size(), "no case : " + n);
+                assertEquals("ぁぃ", terms.get(0), "bigram : " + n);
+                assertEquals("ぃぅ", terms.get(1), "bigram : " + n);
                 break;
             case FieldNamesConstants.ARTIST_READING:
-                assertEquals("apply : " + n, 3, terms.size());
-                assertEquals("apply : " + n, apply1a, terms.get(0));
-                assertEquals("apply : " + n, "あい", terms.get(1));
-                assertEquals("apply : " + n, "いう", terms.get(2));
+                assertEquals(3, terms.size(), "apply : " + n);
+                assertEquals(apply1a, terms.get(0), "apply : " + n);
+                assertEquals("あい", terms.get(1), "apply : " + n);
+                assertEquals("いう", terms.get(2), "apply : " + n);
                 break;
             case FieldNamesConstants.ARTIST:
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("apply : " + n, 2, terms.size());
-                assertEquals("apply : " + n, apply1a, terms.get(0));
-                assertEquals("apply : " + n, apply1b, terms.get(1));
+                assertEquals(2, terms.size(), "apply : " + n);
+                assertEquals(apply1a, terms.get(0), "apply : " + n);
+                assertEquals(apply1b, terms.get(1), "apply : " + n);
                 break;
             default:
                 break;
@@ -575,25 +556,25 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.TITLE_EX:
             case FieldNamesConstants.ALBUM_EX:
             case FieldNamesConstants.ARTIST_EX:
-                assertEquals("no case : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "no case : " + n);
                 break;
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE:
             case FieldNamesConstants.MEDIA_TYPE:
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(query, terms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.ARTIST_READING:
-                assertEquals("apply : " + n, 2, terms.size());
-                assertEquals("apply : " + n, "abcdefg", terms.get(0));
-                assertEquals("apply : " + n, "ふ", terms.get(1));
+                assertEquals(2, terms.size(), "apply : " + n);
+                assertEquals("abcdefg", terms.get(0), "apply : " + n);
+                assertEquals("ふ", terms.get(1), "apply : " + n);
                 break;
             case FieldNamesConstants.ARTIST:
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("apply : " + n, 2, terms.size());
-                assertEquals("apply : " + n, expected1a, terms.get(0));
-                assertEquals("apply : " + n, expected1b, terms.get(1));
+                assertEquals(2, terms.size(), "apply : " + n);
+                assertEquals(expected1a, terms.get(0), "apply : " + n);
+                assertEquals(expected1b, terms.get(1), "apply : " + n);
                 break;
             default:
                 break;
@@ -616,21 +597,21 @@ public class AnalyzerFactoryTest {
             List<String> terms = toTermString(n, escapeRequires);
             // TODO These fields handle escape strings as they are.
             if (FieldNamesConstants.FOLDER.equals(n) || FieldNamesConstants.GENRE_KEY.equals(n)) {
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, escapeRequires, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(escapeRequires, terms.get(0), "through : " + n);
                 terms = toTermString(n, fileUsable);
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, fileUsable, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(fileUsable, terms.get(0), "through : " + n);
             } else if (FieldNamesConstants.GENRE.equals(n)) {
                 // XXX @see AnalyzerFactory#addTokenFilterForTokenToDomainValue
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, "+-&&||! { }[ ]^\"~*?:\\/", terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals("+-&&||! { }[ ]^\"~*?:\\/", terms.get(0), "through : " + n);
                 terms = toTermString(n, fileUsable);
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, "+-&&! { }[ ]^~", terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals("+-&&! { }[ ]^~", terms.get(0), "through : " + n);
             } else {
                 // Strings that require escape for most fields are removed during parsing.
-                assertEquals("trancate : " + n, 0, terms.size());
+                assertEquals(0, terms.size(), "trancate : " + n);
             }
         });
 
@@ -790,45 +771,45 @@ public class AnalyzerFactoryTest {
         String query = "This is Jpsonic's analysis.";
         List<String> terms = toTermString(query);
         assertEquals(4, terms.size());
-        assertEquals("this", terms.get(0));
-        assertEquals("is", terms.get(1));
-        assertEquals("jpsonic", terms.get(2));
+        assertEquals(terms.get(0), "this");
+        assertEquals(terms.get(1), "is");
+        assertEquals(terms.get(2), "jpsonic");
         // assertEquals("s", terms.get(3)); issues#290
-        assertEquals("analysis", terms.get(3));
+        assertEquals(terms.get(3), "analysis");
 
         query = "We’ve been here before.";
         terms = toTermString(query);
         assertEquals(5, terms.size());
-        assertEquals("we", terms.get(0));
-        assertEquals("ve", terms.get(1));
-        assertEquals("been", terms.get(2));
-        assertEquals("here", terms.get(3));
-        assertEquals("before", terms.get(4));
+        assertEquals(terms.get(0), "we");
+        assertEquals(terms.get(1), "ve");
+        assertEquals(terms.get(2), "been");
+        assertEquals(terms.get(3), "here");
+        assertEquals(terms.get(4), "before");
 
         query = "LʼHomme";
         terms = toTermString(query);
         assertEquals(2, terms.size());
-        assertEquals("l", terms.get(0));
-        assertEquals("homme", terms.get(1));
+        assertEquals(terms.get(0), "l");
+        assertEquals(terms.get(1), "homme");
 
         query = "L'Homme";
         terms = toTermString(query);
         assertEquals(2, terms.size());
-        assertEquals("l", terms.get(0));
-        assertEquals("homme", terms.get(1));
+        assertEquals(terms.get(0), "l");
+        assertEquals(terms.get(1), "homme");
 
         query = "aujourd'hui";
         terms = toTermString(query);
         assertEquals(2, terms.size());
-        assertEquals("aujourd", terms.get(0));
-        assertEquals("hui", terms.get(1));
+        assertEquals(terms.get(0), "aujourd");
+        assertEquals(terms.get(1), "hui");
 
         query = "fo'c'sle";
         terms = toTermString(query);
         assertEquals(3, terms.size());
-        assertEquals("fo", terms.get(0));
-        assertEquals("c", terms.get(1));
-        assertEquals("sle", terms.get(2));
+        assertEquals(terms.get(0), "fo");
+        assertEquals(terms.get(1), "c");
+        assertEquals(terms.get(2), "sle");
 
     }
 
@@ -844,17 +825,17 @@ public class AnalyzerFactoryTest {
         String query = "This is formed with a form of the verb \"have\" and a past participl.";
         List<String> terms = toTermString(query);
         assertEquals(11, terms.size());
-        assertEquals("this", terms.get(0)); // currently not stopward
-        assertEquals("is", terms.get(1)); // currently not stopward
-        assertEquals("formed", terms.get(2)); // leave passive / not "form"
-        assertEquals("with", terms.get(3)); // currently not stopward
-        assertEquals("form", terms.get(4));
-        assertEquals("of", terms.get(5)); // currently not stopward
-        assertEquals("verb", terms.get(6));
-        assertEquals("have", terms.get(7));
-        assertEquals("and", terms.get(8)); // currently not stopward
-        assertEquals("past", terms.get(9));
-        assertEquals("participl", terms.get(10));
+        assertEquals(terms.get(0), "this"); // currently not stopward
+        assertEquals(terms.get(1), "is"); // currently not stopward
+        assertEquals(terms.get(2), "formed"); // leave passive / not "form"
+        assertEquals(terms.get(3), "with"); // currently not stopward
+        assertEquals(terms.get(4), "form");
+        assertEquals(terms.get(5), "of"); // currently not stopward
+        assertEquals(terms.get(6), "verb");
+        assertEquals(terms.get(7), "have");
+        assertEquals(terms.get(8), "and"); // currently not stopward
+        assertEquals(terms.get(9), "past");
+        assertEquals(terms.get(10), "participl");
 
     }
 
@@ -871,12 +852,12 @@ public class AnalyzerFactoryTest {
         String query = "books boxes cities leaves men glasses";
         List<String> terms = toTermString(query);
         assertEquals(6, terms.size());
-        assertEquals("books", terms.get(0)); // leave numeral / not singular
-        assertEquals("boxes", terms.get(1));
-        assertEquals("cities", terms.get(2));
-        assertEquals("leaves", terms.get(3));
-        assertEquals("men", terms.get(4));
-        assertEquals("glasses", terms.get(5));
+        assertEquals(terms.get(0), "books"); // leave numeral / not singular
+        assertEquals(terms.get(1), "boxes");
+        assertEquals(terms.get(2), "cities");
+        assertEquals(terms.get(3), "leaves");
+        assertEquals(terms.get(4), "men");
+        assertEquals(terms.get(5), "glasses");
     }
 
     /*
@@ -889,31 +870,31 @@ public class AnalyzerFactoryTest {
         String n = FieldNamesConstants.ARTIST_READING;
 
         List<String> terms = toTermString(n, "THE BLUE HEARTS");
-        assertEquals("all Alpha : " + n, 2, terms.size());
-        assertEquals("all Alpha : " + n, "blue", terms.get(0));
-        assertEquals("all Alpha : " + n, "hearts", terms.get(1));
+        assertEquals(2, terms.size(), "all Alpha : " + n);
+        assertEquals("blue", terms.get(0), "all Alpha : " + n);
+        assertEquals("hearts", terms.get(1), "all Alpha : " + n);
 
         terms = toTermString(n, "ABC123");
-        assertEquals("AlphaNum : " + n, 1, terms.size());
+        assertEquals(1, terms.size(), "AlphaNum : " + n);
 
         String passable1 = "ABC123あいう";
         terms = toTermString(n, passable1);
-        assertEquals("ABC123あいう : " + n, 3, terms.size());
-        assertEquals("ABC123あいう : " + n, "abc123", terms.get(0));
-        assertEquals("ABC123あいう : " + n, "あい", terms.get(1));
-        assertEquals("ABC123あいう : " + n, "いう", terms.get(2));
+        assertEquals(3, terms.size(), "ABC123あいう : " + n);
+        assertEquals("abc123", terms.get(0), "ABC123あいう : " + n);
+        assertEquals("あい", terms.get(1), "ABC123あいう : " + n);
+        assertEquals("いう", terms.get(2), "ABC123あいう : " + n);
 
         terms = toTermString(n, "abc123あいう");
-        assertEquals("abc123あいう : " + n, 3, terms.size());
-        assertEquals("abc123あいう : " + n, "abc123", terms.get(0));
-        assertEquals("abc123あいう : " + n, "あい", terms.get(1));
-        assertEquals("abc123あいう : " + n, "いう", terms.get(2));
+        assertEquals(3, terms.size(), "abc123あいう : " + n);
+        assertEquals("abc123", terms.get(0), "abc123あいう : " + n);
+        assertEquals("あい", terms.get(1), "abc123あいう : " + n);
+        assertEquals("いう", terms.get(2), "abc123あいう : " + n);
 
         terms = toTermString(n, "ABC123アイウ");
-        assertEquals("ABC123アイウ : " + n, 3, terms.size());
-        assertEquals("abc123アイウ : " + n, "abc123", terms.get(0));
-        assertEquals("abc123アイウ: " + n, "あい", terms.get(1));
-        assertEquals("abc123アイウ : " + n, "いう", terms.get(2));
+        assertEquals(3, terms.size(), "ABC123アイウ : " + n);
+        assertEquals("abc123", terms.get(0), "abc123アイウ : " + n);
+        assertEquals("あい", terms.get(1), "abc123アイウ: " + n);
+        assertEquals("いう", terms.get(2), "abc123アイウ : " + n);
 
     }
 
@@ -945,19 +926,19 @@ public class AnalyzerFactoryTest {
             case FieldNamesConstants.FOLDER:
             case FieldNamesConstants.GENRE:
             case FieldNamesConstants.MEDIA_TYPE:
-                assertEquals("through : " + n, 1, terms.size());
-                assertEquals("through : " + n, query, terms.get(0));
+                assertEquals(1, terms.size(), "through : " + n);
+                assertEquals(query, terms.get(0), "through : " + n);
                 break;
             case FieldNamesConstants.ARTIST_READING:
-                assertEquals("token through filtered : " + n, 1, terms.size());
-                assertEquals("token through filtered : " + n, expected2, terms.get(0));
+                assertEquals(1, terms.size(), "token through filtered : " + n);
+                assertEquals(expected2, terms.get(0), "token through filtered : " + n);
                 break;
             case FieldNamesConstants.ARTIST:
             case FieldNamesConstants.ALBUM:
             case FieldNamesConstants.TITLE:
-                assertEquals("tokend : " + n, 2, terms.size());
-                assertEquals("tokend : " + n, expected2a, terms.get(0));
-                assertEquals("tokend : " + n, expected2b, terms.get(1));
+                assertEquals(2, terms.size(), "tokend : " + n);
+                assertEquals(expected2a, terms.get(0), "tokend : " + n);
+                assertEquals(expected2b, terms.get(1), "tokend : " + n);
                 break;
             case FieldNamesConstants.TITLE_EX:
             case FieldNamesConstants.ALBUM_EX:

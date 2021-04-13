@@ -19,69 +19,98 @@
 
 package com.tesshu.jpsonic.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static com.tesshu.jpsonic.domain.JpsonicComparators.OrderBy.ARTIST;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.SortedMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.airsonic.player.AbstractNeedsScan;
+import org.airsonic.player.Integration;
+import org.airsonic.player.controller.MainController;
+import org.airsonic.player.dao.PlaylistDao;
 import org.airsonic.player.domain.Album;
 import org.airsonic.player.domain.Artist;
 import org.airsonic.player.domain.Genre;
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.MediaFileComparator;
+import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.MusicIndex;
 import org.airsonic.player.domain.MusicIndex.SortableArtist;
+import org.airsonic.player.domain.PlayQueue;
 import org.airsonic.player.domain.Playlist;
+import org.airsonic.player.domain.SearchResult;
+import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.MusicIndexService;
+import org.airsonic.player.service.PlaylistService;
+import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.rules.MethodRule;
-import org.junit.runner.RunWith;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
+import org.airsonic.player.service.search.IndexType;
+import org.airsonic.player.service.search.SearchCriteria;
+import org.airsonic.player.service.search.SearchCriteriaDirector;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 /**
  * JpsonicComparators unit test. Jpsonic does not change the behavior of legacy test specifications. This is because the
  * range not defined in the legacy test specification has been expanded.
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureMockMvc
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class JpsonicComparatorsTest {
+public class JpsonicComparatorsTest extends AbstractNeedsScan {
 
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule();
+    protected static final Logger LOG = LoggerFactory.getLogger(JpsonicComparatorsTest.class);
 
-    protected static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+    protected static final List<MusicFolder> MUSIC_FOLDERS;
 
-    @Rule
-    public ThreadRule r = new ThreadRule(100);
+    static {
+        MUSIC_FOLDERS = new ArrayList<>();
+        File musicDir = new File(resolveBaseMediaPath("Sort/Compare"));
+        MUSIC_FOLDERS.add(new MusicFolder(1, musicDir, "test date for sorting", true, new Date()));
+    }
+
+    protected static final List<String> INDEX_LIST = Collections.unmodifiableList(Arrays.asList("abcde", "abcいうえおあ", // Turn
+                                                                                                                     // over
+                                                                                                                     // by
+            // reading
+            "abc亜伊鵜絵尾", // Turn over by reading
+            "ＢＣＤＥＡ", "ĆḊÉÁḂ", "DEABC", "the eabcd", "episode 1", "episode 2", "episode 19", "亜伊鵜絵尾", "αβγ", "いうえおあ",
+            "ｴｵｱｲｳ", "オアイウエ", "春夏秋冬", "貼られる", "パラレル", "馬力", "張り切る", "はるなつあきふゆ", "10", // # Num
+            "20", // # Num
+            "50", // # Num
+            "60", // # Num
+            "70", // # Num
+            "98", // # Num
+            "99", // # Num
+            "ゥェォァィ", // # SmallKana (Not used at the beginning of a word/Generally prohibited characters in index)
+            "ｪｫｧｨｩ", // # SmallKana
+            "ぉぁぃぅぇ", // # SmallKana
+            "♂くんつ") // # Symbol
+    );
 
     @Autowired
     private JpsonicComparatorsTestUtils testUtils;
 
     @Autowired
-    private JpsonicComparators comparators;
+    protected JpsonicComparators comparators;
 
     @Autowired
-    private SettingsService settingsService;
+    protected SettingsService settingsService;
 
     @SuppressWarnings("PMD.ClassNamingConventions")
     @Documented
@@ -195,9 +224,13 @@ public class JpsonicComparatorsTest {
         }
     }
 
-    @AfterAll
-    public static void tearDown() {
-        EXECUTOR.shutdownNow();
+    protected static boolean validateIndexList(List<String> l) {
+        return INDEX_LIST.equals(l);
+    }
+
+    @Override
+    public List<MusicFolder> getMusicFolders() {
+        return MUSIC_FOLDERS;
     }
 
     @ComparatorsDecisions.Actions.artistOrderByAlpha
@@ -1166,36 +1199,148 @@ public class JpsonicComparatorsTest {
         assertEquals("[Sea, Seb, SEB, S\u00e9b, Sed, See]", artists.toString()); // Séb
     }
 
-    private class ThreadRule implements MethodRule {
+    @Nested
+    public class JpsonicComparatorsIntegrationTest {
 
-        protected final int count;
+        @Autowired
+        private MainController mainController;
 
-        public ThreadRule(int count) {
-            this.count = count;
-        }
+        @Autowired
+        private MusicIndexService musicIndexService;
 
-        @Override
-        public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    List<Future<?>> futures = new ArrayList<>(count);
-                    for (int i = 0; i < count; i++) {
-                        Callable<Boolean> task = () -> {
-                            try {
-                                base.evaluate();
-                            } catch (Throwable t) {
-                                throw new ExecutionException("Test replication or asynchronous execution failed", t);
-                            }
-                            return Boolean.TRUE;
-                        };
-                        futures.add(i, EXECUTOR.submit(task));
-                    }
-                    for (Future<?> f : futures) {
-                        f.get();
-                    }
+        @Autowired
+        private SearchService searchService;
+
+        @Autowired
+        private MediaFileService mediaFileService;
+
+        @Autowired
+        private PlaylistDao playlistDao;
+
+        @Autowired
+        private PlaylistService playlistService;
+
+        @Autowired
+        private SearchCriteriaDirector director;
+
+        @BeforeEach
+        public void setup() {
+            settingsService.setSortStrict(true);
+            settingsService.setSortAlphanum(true);
+            settingsService.setSortAlbumsByYear(false);
+            settingsService.setProhibitSortVarious(false);
+
+            Function<String, Playlist> toPlaylist = (title) -> {
+                Date now = new Date();
+                Playlist playlist = new Playlist();
+                playlist.setName(title);
+                playlist.setUsername("admin");
+                playlist.setCreated(now);
+                playlist.setChanged(now);
+                playlist.setShared(false);
+                try {
+                    Thread.sleep(200);
+                    // Creating a large number of playlists in an instant can be inconsistent with
+                    // consistency ...
+                } catch (InterruptedException e) {
+                    LOG.error("It is possible that the playlist could not be initialized due to high load.", e);
                 }
+                return playlist;
             };
+
+            populateDatabaseOnlyOnce(() -> {
+                if (0 == playlistDao.getAllPlaylists().size()) {
+                    List<String> shallow = new ArrayList<>(JpsonicComparatorsTestUtils.JPSONIC_NATURAL_LIST);
+                    Collections.shuffle(shallow);
+                    shallow.stream().map(toPlaylist).forEach(p -> playlistDao.createPlaylist(p));
+                }
+                return true;
+            });
+
+            /*
+             * Should be more than 30 elements.
+             */
+            assertEquals(32, INDEX_LIST.size());
+            assertEquals(32, JpsonicComparatorsTestUtils.JPSONIC_NATURAL_LIST.size());
         }
+
+        /**
+         * {@link MainController#getMultiFolderChildren}
+         */
+        @Integration
+        @Test
+        public void testGetMultiFolderChildren() throws IOException {
+            SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+                    IndexType.ARTIST);
+            SearchResult result = searchService.search(criteria);
+            List<MediaFile> artists = mainController.getMultiFolderChildren(result.getMediaFiles());
+            List<String> artistNames = artists.stream().map(MediaFile::getName).collect(Collectors.toList());
+            assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(artistNames));
+        }
+
+        /**
+         * {@link PlaylistService#getAllPlaylists()}
+         */
+        @Integration
+        @Test
+        public void testGetAllPlaylists() {
+            List<Playlist> all = playlistService.getAllPlaylists();
+            List<String> names = all.stream().map(Playlist::getName).collect(Collectors.toList());
+            JpsonicComparatorsTestUtils.validateNaturalList(names, 8, 9);
+            /*
+             * Since the reading of playlist name cannot be registered, it is sorted according to the reading analysis
+             * of the server.
+             */
+            assertEquals("abc亜伊鵜絵尾", names.get(8));
+            assertEquals("abcいうえおあ", names.get(9));
+        }
+
+        /**
+         * {@link MediaFileService#getChildrenOf(MediaFile, boolean, boolean, boolean, boolean)}
+         */
+        @Integration
+        @Test
+        public void testGetChildrenOf() throws IOException {
+            SearchCriteria criteria = director.construct("10", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+                    IndexType.ARTIST);
+            SearchResult result = searchService.search(criteria);
+            List<MediaFile> files = mediaFileService.getChildrenOf(result.getMediaFiles().get(0), true, true, true);
+            List<String> albums = files.stream().map(MediaFile::getName).collect(Collectors.toList());
+            assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(albums));
+        }
+
+        /**
+         * {@link MusicIndexService#getIndexedArtists(List, boolean)}
+         */
+        @Integration
+        @Test
+        public void testGetIndexedArtists() {
+            List<MusicFolder> musicFoldersToUse = Arrays.asList(MUSIC_FOLDERS.get(0));
+            SortedMap<MusicIndex, List<MusicIndex.SortableArtistWithMediaFiles>> m = musicIndexService
+                    .getIndexedArtists(musicFoldersToUse, true);
+            List<String> artists = m.values().stream().flatMap(Collection::stream)
+                    .flatMap(files -> files.getMediaFiles().stream()).map(MediaFile::getName)
+                    .collect(Collectors.toList());
+            assertTrue(validateIndexList(artists));
+        }
+
+        /**
+         * {@link PlayQueue#sort(java.util.Comparator)}
+         */
+        @Integration
+        @Test
+        public void testPlayQueueSort() throws IOException {
+            SearchCriteria criteria = director.construct("empty", 0, Integer.MAX_VALUE, false, MUSIC_FOLDERS,
+                    IndexType.SONG);
+            SearchResult result = searchService.search(criteria);
+            PlayQueue playQueue = new PlayQueue();
+            playQueue.addFiles(true, result.getMediaFiles());
+            playQueue.shuffle();
+            playQueue.sort(comparators.mediaFileOrderBy(ARTIST));
+            List<String> artists = playQueue.getFiles().stream().map(MediaFile::getArtist).collect(Collectors.toList());
+            assertTrue(JpsonicComparatorsTestUtils.validateNaturalList(artists));
+        }
+
     }
+
 }

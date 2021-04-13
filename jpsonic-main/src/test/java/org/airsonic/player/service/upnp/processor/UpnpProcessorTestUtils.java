@@ -25,9 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.tesshu.jpsonic.domain.JpsonicComparatorsIntegrationTest;
-import com.tesshu.jpsonic.domain.JpsonicComparatorsTest;
-
 /**
  * Class that defines the sort order corresponding to test data for Upnp service.
  * 

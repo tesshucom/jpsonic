@@ -19,19 +19,22 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.api.jukebox;
+package org.airsonic.player.service.jukebox;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import com.tesshu.jpsonic.controller.ViewName;
+import org.airsonic.player.MusicFolderTestDataUtils;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.TestCaseUtils;
 import org.airsonic.player.controller.SubsonicRESTController;
 import org.airsonic.player.dao.AlbumDao;
@@ -49,16 +52,13 @@ import org.airsonic.player.domain.Player;
 import org.airsonic.player.service.MediaScannerService;
 import org.airsonic.player.service.PlayerService;
 import org.airsonic.player.service.SettingsService;
-import org.airsonic.player.util.HomeRule;
-import org.airsonic.player.util.MusicFolderTestDataUtils;
 import org.airsonic.player.util.StringUtil;
 import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -69,20 +69,17 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(classes = AbstractAirsonicRestApiJukeboxIntTest.Config.class)
+@SpringBootTest(classes = AbstractPlayerFactoryTest.Config.class)
+@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public abstract class AbstractAirsonicRestApiJukeboxIntTest {
+public abstract class AbstractPlayerFactoryTest {
 
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
     private static final String EXPECTED_FORMAT = "json";
     private static String apiVersion;
     private static boolean dataBasePopulated;
@@ -113,6 +110,12 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
 
     private Player testJukeboxPlayer;
 
+    @BeforeAll
+    public static void beforeAll() throws IOException {
+        apiVersion = TestCaseUtils.restApiVersion();
+        dataBasePopulated = false;
+    }
+
     @TestConfiguration
     static class Config {
         @Bean
@@ -129,12 +132,6 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
                 }
             };
         }
-    }
-
-    @BeforeClass
-    public static void setupClass() {
-        apiVersion = TestCaseUtils.restApiVersion();
-        dataBasePopulated = false;
     }
 
     /**
@@ -163,7 +160,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setup() throws ExecutionException {
         populateDatabase();
 
@@ -177,7 +174,7 @@ public abstract class AbstractAirsonicRestApiJukeboxIntTest {
         Assertions.assertThat(testJukeboxPlayer.getPlayQueue().size()).isEqualTo(2);
     }
 
-    @After
+    @AfterEach
     public void cleanDataBase() {
         daoHelper.getJdbcTemplate().execute("DROP SCHEMA PUBLIC CASCADE");
         dataBasePopulated = false;

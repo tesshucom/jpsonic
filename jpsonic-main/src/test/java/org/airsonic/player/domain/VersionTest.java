@@ -21,14 +21,12 @@
 
 package org.airsonic.player.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
-@SpringBootTest
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
 public class VersionTest {
 
@@ -59,16 +57,16 @@ public class VersionTest {
     @Test
     public void testIsPreview() {
         Version version = new Version("1.6.0-SNAPSHOT");
-        assertTrue("Version should be snapshot", version.isPreview());
+        assertTrue(version.isPreview(), "Version should be snapshot");
 
         version = new Version("1.6.0-beta2");
-        assertTrue("Version should be snapshot", version.isPreview());
+        assertTrue(version.isPreview(), "Version should be snapshot");
 
         version = new Version("1.6.0");
-        assertFalse("Version should not be snapshot", version.isPreview());
+        assertFalse(version.isPreview(), "Version should not be snapshot");
 
         version = new Version("1.6.0-RELEASE");
-        assertFalse("Version should not be snapshot", version.isPreview());
+        assertFalse(version.isPreview(), "Version should not be snapshot");
     }
 
     /**
@@ -83,15 +81,15 @@ public class VersionTest {
         Version ver1 = new Version(v1);
         Version ver2 = new Version(v2);
 
-        assertEquals("Error in toString().", v1, ver1.toString());
-        assertEquals("Error in toString().", v2, ver2.toString());
+        assertEquals(v1, ver1.toString(), "Error in toString().");
+        assertEquals(v2, ver2.toString(), "Error in toString().");
 
-        assertEquals("Error in equals().", ver1, ver1);
+        assertEquals(ver1, ver1, "Error in equals().");
 
-        assertEquals("Error in compareTo().", 0, ver1.compareTo(ver1));
-        assertEquals("Error in compareTo().", 0, ver2.compareTo(ver2));
-        assertTrue("Error in compareTo().", ver1.compareTo(ver2) < 0);
-        assertTrue("Error in compareTo().", ver2.compareTo(ver1) > 0);
+        assertEquals(0, ver1.compareTo(ver1), "Error in compareTo().");
+        assertEquals(0, ver2.compareTo(ver2), "Error in compareTo().");
+        assertTrue(ver1.compareTo(ver2) < 0, "Error in compareTo().");
+        assertTrue(ver2.compareTo(ver1) > 0, "Error in compareTo().");
         return true;
     }
 }
