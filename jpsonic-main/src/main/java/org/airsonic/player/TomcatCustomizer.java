@@ -25,16 +25,18 @@ import org.apache.catalina.Container;
 import org.apache.catalina.Wrapper;
 import org.apache.catalina.webresources.StandardRoot;
 import org.apache.tomcat.util.scan.StandardJarScanFilter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.stereotype.Component;
 
-public final class TomcatApplicationHelper {
+@Component
+@Qualifier("tomcatCustomizer")
+public final class TomcatCustomizer implements WebServerFactoryCustomizer<TomcatServletWebServerFactory> {
 
-    private TomcatApplicationHelper() {
-    }
-
-    public static void configure(TomcatServletWebServerFactory tomcatFactory) {
-
-        tomcatFactory.addContextCustomizers(context -> {
+    @Override
+    public void customize(TomcatServletWebServerFactory factory) {
+        factory.addContextCustomizers(context -> {
 
             StandardJarScanFilter standardJarScanFilter = new StandardJarScanFilter();
             standardJarScanFilter.setTldScan(

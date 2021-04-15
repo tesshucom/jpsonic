@@ -25,14 +25,17 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 import org.eclipse.jetty.http.HttpCompliance;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.ServerConnector;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory;
+import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.stereotype.Component;
 
-public final class JettyApplicationHelper {
+@Component
+@Qualifier("jettyCustomizer")
+public class JettyCustomizer implements WebServerFactoryCustomizer<JettyServletWebServerFactory> {
 
-    private JettyApplicationHelper() {
-    }
-
-    public static void configure(JettyServletWebServerFactory factory) {
+    @Override
+    public void customize(JettyServletWebServerFactory factory) {
         factory.addServerCustomizers(server -> {
             Arrays.stream(server.getConnectors()).filter(c -> c instanceof ServerConnector).forEach(c -> {
                 @Nullable

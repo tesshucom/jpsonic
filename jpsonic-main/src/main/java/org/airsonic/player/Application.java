@@ -21,9 +21,6 @@
 
 package org.airsonic.player;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import javax.servlet.Filter;
 import javax.servlet.Servlet;
 
@@ -37,10 +34,7 @@ import org.airsonic.player.filter.RequestEncodingFilter;
 import org.airsonic.player.filter.ResponseHeaderFilter;
 import org.airsonic.player.spring.DatabaseConfiguration.ProfileNameConstants;
 import org.airsonic.player.util.LegacyHsqlUtil;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.directwebremoting.servlet.DwrServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -51,24 +45,18 @@ import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfigurati
 import org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.event.ApplicationPreparedEvent;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
-import org.springframework.boot.web.servlet.server.ConfigurableServletWebServerFactory;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Profiles;
-import org.springframework.util.ReflectionUtils;
 
 @SpringBootApplication(exclude = { JmxAutoConfiguration.class, JdbcTemplateAutoConfiguration.class,
         DataSourceAutoConfiguration.class, DataSourceTransactionManagerAutoConfiguration.class,
         MultipartAutoConfiguration.class, // TODO: update to use spring boot builtin multipart support
         LiquibaseAutoConfiguration.class }, scanBasePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
-public class Application extends SpringBootServletInitializer
-        implements WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
+public class Application extends SpringBootServletInitializer {
 
     /**
      * Registers the DWR servlet.
@@ -226,55 +214,6 @@ public class Application extends SpringBootServletInitializer
     @Override
     protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
         return doConfigure(application);
-    }
-
-    private void invokeHelper(@NonNull Class<?> helperClass, @NonNull Class<?> factoryClass,
-            @NonNull Object factoryInstance) {
-        try {
-            Method configure = ReflectionUtils.findMethod(helperClass, "configure", factoryClass);
-            if (configure == null) {
-                throw new IllegalArgumentException(
-                        "Unreachable code: The configure method does not exist in the helper class.");
-            } else {
-                configure.invoke(null, factoryInstance);
-            }
-        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Failed to apply ApplicationHelper.", e);
-            }
-        }
-    }
-
-    @Override
-    public void customize(ConfigurableServletWebServerFactory container) {
-
-        Class<?> factoryClass = null;
-        Class<?> helperClass = null;
-        try {
-            factoryClass = Class.forName("org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory");
-            helperClass = Class.forName("org.airsonic.player.TomcatApplicationHelper");
-        } catch (NoClassDefFoundError | ClassNotFoundException e) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No tomcat classes found");
-            }
-        }
-        if (factoryClass == null) {
-            try {
-                factoryClass = Class
-                        .forName("org.springframework.boot.web.embedded.jetty.JettyServletWebServerFactory");
-                helperClass = Class.forName("org.airsonic.player.JettyApplicationHelper");
-            } catch (NoClassDefFoundError | ClassNotFoundException e) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("No jetty classes found");
-                }
-            }
-        }
-        if (factoryClass == null || helperClass == null) {
-            throw new IllegalArgumentException("Unreachable code: There should be a class according to the profile.");
-        }
-
-        invokeHelper(helperClass, factoryClass, factoryClass.cast(container));
-
     }
 
     public static void main(String[] args) {
