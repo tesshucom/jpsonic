@@ -21,8 +21,8 @@
 
 package org.airsonic.player.io;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -31,13 +31,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import org.airsonic.player.util.HttpRange;
-import org.junit.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author Sindre Mehus
  */
-@SpringBootTest
 public class RangeOutputStreamTest {
 
     @Test

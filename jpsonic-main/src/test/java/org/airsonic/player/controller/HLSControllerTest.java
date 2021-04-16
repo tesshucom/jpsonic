@@ -21,14 +21,16 @@
 
 package org.airsonic.player.controller;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.awt.Dimension;
 
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
+import org.airsonic.player.NeedsHome;
 import org.apache.commons.lang3.tuple.Pair;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -36,7 +38,8 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
-public class HLSControllerTest extends AbstractAirsonicHomeTest {
+@ExtendWith(NeedsHome.class)
+public class HLSControllerTest {
 
     @Autowired
     private HLSController controller;
@@ -52,18 +55,21 @@ public class HLSControllerTest extends AbstractAirsonicHomeTest {
         assertEquals(300, pair.getRight().height);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Test
     public void testParseBitRateParseError1() {
-        controller.parseBitRate("asdfl");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("asdfl"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Test
     public void testParseBitRateParseError2() {
-        controller.parseBitRate("1000@300");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("1000@300"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+    @Test
     public void testParseBitRateParseError3() {
-        controller.parseBitRate("1000@300x400ZZ");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> controller.parseBitRate("1000@300x400ZZ"));
     }
 }

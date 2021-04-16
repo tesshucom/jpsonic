@@ -21,63 +21,38 @@
 
 package org.airsonic.player.domain;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import com.tesshu.jpsonic.domain.JpsonicComparators;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.FrameworkMethod;
-import org.junit.runners.model.Statement;
+import org.airsonic.player.NeedsHome;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringBootConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.ComponentScan;
 
 /**
  * Unit test of {@link PlayQueue}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@SpringBootConfiguration
+@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class PlayQueueTest extends AbstractAirsonicHomeTest {
-
-    private static final PlayQueue COMMON = new PlayQueue();
-    private static final Object LOCK = new Object();
-    protected static final ExecutorService EXECUTOR = Executors.newCachedThreadPool();
+public class PlayQueueTest {
 
     @Autowired
     private JpsonicComparators jpsonicComparators;
-
-    @Rule
-    public ThreadRule r = new ThreadRule(100);
-
-    @AfterAll
-    public static void tearDown() {
-        EXECUTOR.shutdownNow();
-    }
-
-    @Test
-    public void testName() {
-        synchronized (LOCK) {
-            String name = Thread.currentThread().toString();
-            COMMON.setName(name);
-            assertEquals(name, COMMON.getName());
-        }
-    }
 
     @Test
     public void testEmpty() {
@@ -266,31 +241,31 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
         playQueue.addFiles(true, new TestMediaFile(3, "Artist B", "Album A"));
         playQueue.addFiles(true, new TestMediaFile(null, "Artist D", "Album D"));
         playQueue.setIndex(2);
-        assertEquals("Error in sort.", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by track.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.TRACK));
-        assertNull("Error in sort().", playQueue.getFile(0).getTrackNumber());
-        assertEquals("Error in sort().", Integer.valueOf(1), playQueue.getFile(1).getTrackNumber());
-        assertEquals("Error in sort().", Integer.valueOf(2), playQueue.getFile(2).getTrackNumber());
-        assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getFile(3).getTrackNumber());
-        assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertNull(playQueue.getFile(0).getTrackNumber(), "Error in sort().");
+        assertEquals(Integer.valueOf(1), playQueue.getFile(1).getTrackNumber(), "Error in sort.");
+        assertEquals(Integer.valueOf(2), playQueue.getFile(2).getTrackNumber(), "Error in sort.");
+        assertEquals(Integer.valueOf(3), playQueue.getFile(3).getTrackNumber(), "Error in sort.");
+        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
 
         // Order by artist.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ARTIST));
-        assertEquals("Error in sort().", "Artist A", playQueue.getFile(0).getArtist());
-        assertEquals("Error in sort().", "Artist B", playQueue.getFile(1).getArtist());
-        assertEquals("Error in sort().", "Artist C", playQueue.getFile(2).getArtist());
-        assertEquals("Error in sort().", "Artist D", playQueue.getFile(3).getArtist());
-        assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertEquals("Artist A", playQueue.getFile(0).getArtist(), "Error in sort.");
+        assertEquals("Artist B", playQueue.getFile(1).getArtist(), "Error in sort.");
+        assertEquals("Artist C", playQueue.getFile(2).getArtist(), "Error in sort.");
+        assertEquals("Artist D", playQueue.getFile(3).getArtist(), "Error in sort.");
+        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
 
         // Order by album.
         playQueue.sort(jpsonicComparators.mediaFileOrderBy(JpsonicComparators.OrderBy.ALBUM));
-        assertEquals("Error in sort().", "Album A", playQueue.getFile(0).getAlbumName());
-        assertEquals("Error in sort().", "Album B", playQueue.getFile(1).getAlbumName());
-        assertEquals("Error in sort().", "Album C", playQueue.getFile(2).getAlbumName());
-        assertEquals("Error in sort().", "Album D", playQueue.getFile(3).getAlbumName());
-        assertEquals("Error in sort().", Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber());
+        assertEquals("Album A", playQueue.getFile(0).getAlbumName(), "Error in sort.");
+        assertEquals("Album B", playQueue.getFile(1).getAlbumName(), "Error in sort.");
+        assertEquals("Album C", playQueue.getFile(2).getAlbumName(), "Error in sort.");
+        assertEquals("Album D", playQueue.getFile(3).getAlbumName(), "Error in sort.");
+        assertEquals(Integer.valueOf(3), playQueue.getCurrentFile().getTrackNumber(), "Error in sort.");
     }
 
     private void assertPlaylistEquals(PlayQueue playQueue, int index, String... songs) {
@@ -399,38 +374,4 @@ public class PlayQueueTest extends AbstractAirsonicHomeTest {
             return Objects.hash(name, track, album, artist);
         }
     }
-
-    public static class ThreadRule implements MethodRule {
-
-        protected final int count;
-
-        public ThreadRule(int count) {
-            this.count = count;
-        }
-
-        @Override
-        public Statement apply(final Statement base, FrameworkMethod method, Object target) {
-            return new Statement() {
-                @Override
-                public void evaluate() throws Throwable {
-                    List<Future<?>> futures = new ArrayList<>(count);
-                    for (int i = 0; i < count; i++) {
-                        Callable<Boolean> task = () -> {
-                            try {
-                                base.evaluate();
-                            } catch (Throwable t) {
-                                throw new ExecutionException("Test replication or asynchronous execution failed", t);
-                            }
-                            return Boolean.TRUE;
-                        };
-                        futures.add(i, EXECUTOR.submit(task));
-                    }
-                    for (Future<?> f : futures) {
-                        f.get();
-                    }
-                }
-            };
-        }
-    }
-
 }

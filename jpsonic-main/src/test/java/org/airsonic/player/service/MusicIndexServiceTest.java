@@ -25,9 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.MusicIndex;
-import org.airsonic.player.service.search.AbstractAirsonicHomeTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -37,8 +38,9 @@ import org.springframework.boot.test.context.SpringBootTest;
  * @author Sindre Mehus
  */
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class MusicIndexServiceTest extends AbstractAirsonicHomeTest {
+public class MusicIndexServiceTest {
 
     @Autowired
     private MusicIndexService musicIndexService;

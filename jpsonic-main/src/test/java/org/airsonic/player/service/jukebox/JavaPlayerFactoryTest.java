@@ -19,7 +19,7 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.api.jukebox;
+package org.airsonic.player.service.jukebox;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -29,16 +29,15 @@ import java.util.concurrent.ExecutionException;
 import com.github.biconou.AudioPlayer.JavaPlayer;
 import org.airsonic.player.domain.Player;
 import org.airsonic.player.domain.PlayerTechnology;
-import org.airsonic.player.service.jukebox.JavaPlayerFactory;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-public class AirsonicRestApiJukeboxIntTest extends AbstractAirsonicRestApiJukeboxIntTest {
+public class JavaPlayerFactoryTest extends AbstractPlayerFactoryTest {
 
     @MockBean
     protected JavaPlayerFactory javaPlayerFactory;
 
-    @Before
+    @BeforeEach
     @Override
     public void setup() throws ExecutionException {
         super.setup();

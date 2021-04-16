@@ -21,17 +21,18 @@
 
 package org.airsonic.player.util;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Date;
 import java.util.Map;
 
 import org.airsonic.player.domain.MediaLibraryStatistics;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UtilTest {
+public class PlayerUtilsTest {
 
     @Test
     public void objectToStringMapNull() {
@@ -93,11 +94,10 @@ public class UtilTest {
         assertNotNull(statistics);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void stringMapToValidObjectWithNoData() {
-        @SuppressWarnings("unused")
-        MediaLibraryStatistics statistics = PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class,
-                LegacyMap.of());
+        assertThrows(IllegalArgumentException.class,
+                () -> PlayerUtils.stringMapToValidObject(MediaLibraryStatistics.class, LegacyMap.of()));
     }
 
 }

@@ -19,33 +19,34 @@
  * (C) 2018 tesshucom
  */
 
-package org.airsonic.player.api;
+package org.airsonic.player.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
+import org.airsonic.player.Integration;
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.TestCaseUtils;
-import org.airsonic.player.util.HomeRule;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest
+@ExtendWith(NeedsHome.class)
 @AutoConfigureMockMvc
-public class AirsonicRestApiIntTest {
+@SuppressWarnings("PMD.JUnitTestsShouldIncludeAssert")
+public class SubsonicRESTControllerTest {
 
     private static final String CLIENT_NAME = "jpsonic";
     private static final String AIRSONIC_USER = "admin";
@@ -57,14 +58,12 @@ public class AirsonicRestApiIntTest {
     @Autowired
     private MockMvc mvc;
 
-    @ClassRule
-    public static final HomeRule CLASS_RULE = new HomeRule(); // sets jpsonic.home to a temporary dir
-
-    @BeforeClass
-    public static void setupClass() {
+    @BeforeAll
+    public static void setupClass() throws IOException {
         apiVerion = TestCaseUtils.restApiVersion();
     }
 
+    @Integration
     @Test
     public void pingTest() throws ExecutionException {
         try {
@@ -73,7 +72,7 @@ public class AirsonicRestApiIntTest {
                     .andExpect(status().isOk()).andExpect(jsonPath("$.subsonic-response.status").value("ok"))
                     .andExpect(jsonPath("$.subsonic-response.version").value(apiVerion)).andDo(print());
         } catch (Exception e) {
-            Assert.fail();
+            Assertions.fail();
             throw new ExecutionException(e);
         }
     }

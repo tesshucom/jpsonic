@@ -21,29 +21,37 @@
 
 package org.airsonic.player.dao;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.Date;
 
+import org.airsonic.player.NeedsHome;
 import org.airsonic.player.domain.InternetRadio;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * Unit test of {@link InternetRadioDao}.
  *
  * @author Sindre Mehus
  */
+@SpringBootTest
+@ExtendWith(NeedsHome.class)
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class InternetRadioDaoTest extends DaoTestBase {
+public class InternetRadioDaoTest {
+
+    @Autowired
+    private GenericDaoHelper daoHelper;
 
     @Autowired
     private InternetRadioDao internetRadioDao;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        getJdbcTemplate().execute("delete from internet_radio");
+        daoHelper.getJdbcTemplate().execute("delete from internet_radio");
     }
 
     @Test
@@ -74,27 +82,22 @@ public class InternetRadioDaoTest extends DaoTestBase {
 
     @Test
     public void testDeleteInternetRadio() {
-        assertEquals("Wrong number of radios.", 0, internetRadioDao.getAllInternetRadios().size());
-
+        assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
-        assertEquals("Wrong number of radios.", 1, internetRadioDao.getAllInternetRadios().size());
-
+        assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.createInternetRadio(new InternetRadio("name", "streamUrl", "homePageUrl", true, new Date()));
-        assertEquals("Wrong number of radios.", 2, internetRadioDao.getAllInternetRadios().size());
-
+        assertEquals(2, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
-        assertEquals("Wrong number of radios.", 1, internetRadioDao.getAllInternetRadios().size());
-
+        assertEquals(1, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
         internetRadioDao.deleteInternetRadio(internetRadioDao.getAllInternetRadios().get(0).getId());
-        assertEquals("Wrong number of radios.", 0, internetRadioDao.getAllInternetRadios().size());
+        assertEquals(0, internetRadioDao.getAllInternetRadios().size(), "Wrong number of radios.");
     }
 
     private void assertInternetRadioEquals(InternetRadio expected, InternetRadio actual) {
-        assertEquals("Wrong name.", expected.getName(), actual.getName());
-        assertEquals("Wrong stream url.", expected.getStreamUrl(), actual.getStreamUrl());
-        assertEquals("Wrong home page url.", expected.getHomepageUrl(), actual.getHomepageUrl());
-        assertEquals("Wrong enabled state.", expected.isEnabled(), actual.isEnabled());
-        assertEquals("Wrong changed date.", expected.getChanged(), actual.getChanged());
+        assertEquals(expected.getName(), actual.getName(), "Wrong name.");
+        assertEquals(expected.getStreamUrl(), actual.getStreamUrl(), "Wrong stream url.");
+        assertEquals(expected.getHomepageUrl(), actual.getHomepageUrl(), "Wrong home page url.");
+        assertEquals(expected.isEnabled(), actual.isEnabled(), "Wrong enabled state.");
+        assertEquals(expected.getChanged(), actual.getChanged(), "Wrong changed date.");
     }
-
 }

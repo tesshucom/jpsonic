@@ -21,8 +21,8 @@
 
 package org.airsonic.player.service.search;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.util.ObjectUtils.isEmpty;
 
 import java.io.File;
@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.airsonic.player.AbstractNeedsScan;
 import org.airsonic.player.dao.AlbumDao;
 import org.airsonic.player.dao.ArtistDao;
 import org.airsonic.player.dao.MediaFileDao;
@@ -38,14 +39,12 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.SearchService;
 import org.airsonic.player.service.SettingsService;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals") // In the testing class, it may be less readable.
-public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
+public class IndexManagerLegacyTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
 
@@ -70,9 +69,6 @@ public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
     @Autowired
     private SettingsService settingsService;
 
-    @Rule
-    public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
     @Override
     public List<MusicFolder> getMusicFolders() {
         if (isEmpty(musicFolders)) {
@@ -83,7 +79,7 @@ public class IndexManagerLegacyTest extends AbstractAirsonicHomeTest {
         return musicFolders;
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         settingsService.setSearchMethodLegacy(true);
         populateDatabaseOnlyOnce();
