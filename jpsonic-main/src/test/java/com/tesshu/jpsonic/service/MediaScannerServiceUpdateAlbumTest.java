@@ -37,12 +37,8 @@ import org.airsonic.player.domain.MusicFolder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.util.ObjectUtils;
 
-@SpringBootConfiguration
-@ComponentScan(basePackages = { "org.airsonic.player", "com.tesshu.jpsonic" })
 public class MediaScannerServiceUpdateAlbumTest extends AbstractNeedsScan {
 
     private List<MusicFolder> musicFolders;
