@@ -31,6 +31,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 import org.airsonic.player.controller.VideoPlayerController;
 import org.airsonic.player.dao.TranscodingDao;
@@ -69,13 +70,15 @@ public class TranscodingService {
     private final TranscodingDao transcodingDao;
     private final SettingsService settingsService;
     private final PlayerService playerService;
+    private final Executor shortExecutor;
 
     public TranscodingService(TranscodingDao transcodingDao, SettingsService settingsService,
-            @Lazy PlayerService playerService) {
+            @Lazy PlayerService playerService, Executor shortExecutor) {
         super();
         this.transcodingDao = transcodingDao;
         this.settingsService = settingsService;
         this.playerService = playerService;
+        this.shortExecutor = shortExecutor;
     }
 
     /**
@@ -450,7 +453,7 @@ public class TranscodingService {
 
             result.set(i, cmd);
         }
-        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile);
+        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor);
     }
 
     private String replaceIfcontains(String line, String target, String value) {

@@ -38,16 +38,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sindre Mehus
  */
-public class InputStreamReaderThread extends Thread {
+public class InputStreamReaderTask implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InputStreamReaderThread.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InputStreamReaderTask.class);
 
     private final InputStream input;
     private final String name;
     private final boolean log;
 
-    public InputStreamReaderThread(InputStream input, String name, boolean log) {
-        super(name + " InputStreamLogger");
+    public InputStreamReaderTask(InputStream input, String name, boolean log) {
         this.input = input;
         this.name = name;
         this.log = log;

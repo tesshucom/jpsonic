@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.Executor;
 
 import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.IOUtils;
@@ -60,7 +61,8 @@ public final class TranscodeInputStream extends InputStream {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile) throws IOException {
+    public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile, Executor executor)
+            throws IOException {
         super();
 
         this.tmpFile = tmpFile;
@@ -79,11 +81,11 @@ public final class TranscodeInputStream extends InputStream {
 
         // Must read stderr from the process, otherwise it may block.
         final String name = processBuilder.command().get(0);
-        new InputStreamReaderThread(process.getErrorStream(), name, true).start();
+        executor.execute(new InputStreamReaderTask(process.getErrorStream(), name, true));
 
         // Copy data in a separate thread
         if (in != null) {
-            new TranscodedInputStreamThread(name, in, processOutputStream).start();
+            executor.execute(new TranscodedInputStreamTask(in, processOutputStream));
         }
     }
 
@@ -91,12 +93,11 @@ public final class TranscodeInputStream extends InputStream {
     /*
      * [UseTryWithResources] False positive. pmd/pmd/issues/2882 [EmptyCatchBlock] Triage in #824
      */
-    private static class TranscodedInputStreamThread extends Thread {
+    private static class TranscodedInputStreamTask implements Runnable {
         private final InputStream in;
         private final OutputStream out;
 
-        public TranscodedInputStreamThread(String name, InputStream in, OutputStream out) {
-            super(name + " TranscodedInputStream copy thread");
+        public TranscodedInputStreamTask(InputStream in, OutputStream out) {
             this.in = in;
             this.out = out;
         }

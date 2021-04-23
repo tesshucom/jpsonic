@@ -28,6 +28,7 @@ import static org.airsonic.player.service.jukebox.AudioPlayer.State.PLAYING;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.sound.sampled.AudioFormat;
@@ -59,7 +60,7 @@ public class AudioPlayer {
     private final AtomicReference<State> state;
     private FloatControl gainControl;
 
-    public AudioPlayer(InputStream in, Listener listener) throws LineUnavailableException {
+    public AudioPlayer(InputStream in, Listener listener, Executor executor) throws LineUnavailableException {
         this.in = in;
         this.listener = listener;
         state = new AtomicReference<>(PAUSED);
@@ -75,7 +76,7 @@ public class AudioPlayer {
             gainControl = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
             setGain(DEFAULT_GAIN);
         }
-        new AudioDataWriter();
+        executor.execute(new AudioDataWriteTask());
     }
 
     /**
@@ -182,11 +183,7 @@ public class AudioPlayer {
     /*
      * It is problematic and needs to be redesigned. At Jpsonic, the jukebox is one of the suppressed legacy features.
      */
-    private class AudioDataWriter implements Runnable {
-
-        public AudioDataWriter() {
-            new Thread(this).start();
-        }
+    private class AudioDataWriteTask implements Runnable {
 
         @Override
         public void run() {
