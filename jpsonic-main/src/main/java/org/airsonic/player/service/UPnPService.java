@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import org.airsonic.player.service.upnp.ApacheUpnpServiceConfiguration;
 import org.airsonic.player.service.upnp.CustomContentDirectory;
@@ -94,7 +95,6 @@ public class UPnPService {
                 setMediaServerEnabled(true);
             }
         }
-        Runtime.getRuntime().addShutdownHook(new Thread(this::ensureServiceStopped));
     }
 
     public void ensureServiceStarted() {
@@ -108,6 +108,7 @@ public class UPnPService {
         });
     }
 
+    @PreDestroy()
     public void ensureServiceStopped() {
         running.getAndUpdate(bo -> {
             if (bo) {
