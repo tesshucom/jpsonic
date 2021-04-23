@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.tesshu.jpsonic.SuppressFBWarnings;
@@ -66,7 +67,7 @@ public class LastFMScrobbler {
 
     private final LinkedBlockingQueue<RegistrationData> queue;
 
-    private RegistrationThread thread;
+    private RegistrationTask task;
 
     public LastFMScrobbler() {
         queue = new LinkedBlockingQueue<>();
@@ -87,13 +88,14 @@ public class LastFMScrobbler {
      * @param time
      *            Event time, or {@code null} to use current time.
      */
-    public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time) {
+    public void register(MediaFile mediaFile, String username, String password, boolean submission, Date time,
+            Executor executor) {
 
         synchronized (REGISTRATION_LOCK) {
 
-            if (thread == null) {
-                thread = new RegistrationThread(queue);
-                thread.start();
+            if (task == null) {
+                task = new RegistrationTask(queue);
+                executor.execute(task);
             }
 
             if (queue.size() >= MAX_PENDING_REGISTRATION) {
@@ -271,14 +273,13 @@ public class LastFMScrobbler {
     /*
      * httpClient can be reused #833
      */
-    private static class RegistrationThread extends Thread {
+    private static class RegistrationTask implements Runnable {
 
         private final LinkedBlockingQueue<RegistrationData> queue;
 
-        private static final Logger LOG = LoggerFactory.getLogger(RegistrationThread.class);
+        private static final Logger LOG = LoggerFactory.getLogger(RegistrationTask.class);
 
-        RegistrationThread(LinkedBlockingQueue<RegistrationData> queue) {
-            super("LastFMScrobbler Registration");
+        RegistrationTask(LinkedBlockingQueue<RegistrationData> queue) {
             this.queue = queue;
         }
 
@@ -314,7 +315,7 @@ public class LastFMScrobbler {
                 }
             }
             try {
-                sleep(60L * 1000L); // Wait 60 seconds.
+                Thread.sleep(60L * 1000L); // Wait 60 seconds.
             } catch (InterruptedException x) {
                 if (LOG.isErrorEnabled()) {
                     LOG.error("Failed to sleep after Last.fm registration failure for '" + registrationData.getTitle()
