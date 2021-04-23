@@ -37,12 +37,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -75,6 +69,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -94,7 +89,6 @@ public class PodcastService {
             Namespace.getNamespace("http://www.itunes.com/dtds/podcast-1.0.dtd") };
     private static final Object EPISODES_LOCK = new Object();
     private static final Object FILE_LOCK = new Object();
-    private static final Object SCHEDULE_LOCK = new Object();
     private static final long DURATION_FORMAT_THRESHOLD = 3600;
 
     private final PodcastDao podcastDao;
@@ -102,87 +96,34 @@ public class PodcastService {
     private final SecurityService securityService;
     private final MediaFileService mediaFileService;
     private final MetaDataParserFactory metaDataParserFactory;
-    private final ExecutorService refreshExecutor;
-    private final ExecutorService downloadExecutor;
-    private final ScheduledExecutorService scheduledExecutor;
-
-    private ScheduledFuture<?> scheduledRefresh;
+    private final ThreadPoolTaskExecutor podcastDownloadExecutor;
+    private final ThreadPoolTaskExecutor podcastRefreshExecutor;
 
     public PodcastService(PodcastDao podcastDao, SettingsService settingsService, SecurityService securityService,
-            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory) {
+            MediaFileService mediaFileService, MetaDataParserFactory metaDataParserFactory,
+            ThreadPoolTaskExecutor podcastDownloadExecutor, ThreadPoolTaskExecutor podcastRefreshExecutor) {
         this.podcastDao = podcastDao;
         this.settingsService = settingsService;
         this.securityService = securityService;
         this.mediaFileService = mediaFileService;
         this.metaDataParserFactory = metaDataParserFactory;
-        ThreadFactory threadFactory = r -> {
-            Thread t = Executors.defaultThreadFactory().newThread(r);
-            t.setDaemon(true);
-            return t;
-        };
-        refreshExecutor = Executors.newFixedThreadPool(5, threadFactory);
-        downloadExecutor = Executors.newFixedThreadPool(3, threadFactory);
-        scheduledExecutor = Executors.newSingleThreadScheduledExecutor(threadFactory);
+        this.podcastDownloadExecutor = podcastDownloadExecutor;
+        this.podcastRefreshExecutor = podcastRefreshExecutor;
     }
 
     @PostConstruct
     public void init() {
+        // Clean up partial downloads.
         synchronized (EPISODES_LOCK) {
-            try {
-                // Clean up partial downloads.
-                for (PodcastChannel channel : getAllChannels()) {
-                    for (PodcastEpisode episode : getEpisodes(channel.getId())) {
-                        if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
-                            deleteEpisode(episode.getId(), false);
-                            if (LOG.isInfoEnabled()) {
-                                LOG.info("Deleted Podcast episode '" + episode.getTitle()
-                                        + "' since download was interrupted.");
-                            }
-                        }
+            getAllChannels().forEach(channel -> getEpisodes(channel.getId()).forEach(episode -> {
+                if (episode.getStatus() == PodcastStatus.DOWNLOADING) {
+                    deleteEpisode(episode.getId(), false);
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info(
+                                "Deleted Podcast episode '" + episode.getTitle() + "' since download was interrupted.");
                     }
                 }
-                schedule();
-            } catch (Throwable x) {
-                if (LOG.isErrorEnabled()) {
-                    LOG.error("Failed to initialize PodcastService: " + x, x);
-                }
-            }
-        }
-    }
-
-    public void schedule() {
-        synchronized (SCHEDULE_LOCK) {
-
-            if (scheduledRefresh != null) {
-                scheduledRefresh.cancel(true);
-            }
-
-            int hoursBetween = settingsService.getPodcastUpdateInterval();
-            if (hoursBetween == -1) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Automatic Podcast update disabled.");
-                }
-                return;
-            }
-
-            Runnable task = () -> {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Starting scheduled Podcast refresh.");
-                }
-                refreshAllChannels(true);
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Completed scheduled Podcast refresh.");
-                }
-            };
-            long periodMillis = hoursBetween * 60L * 60L * 1000L;
-            long initialDelayMillis = 5L * 60L * 1000L;
-            scheduledRefresh = scheduledExecutor.scheduleAtFixedRate(task, initialDelayMillis, periodMillis,
-                    TimeUnit.MILLISECONDS);
-            Date firstTime = new Date(System.currentTimeMillis() + initialDelayMillis);
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at "
-                        + firstTime);
-            }
+            }));
         }
     }
 
@@ -336,8 +277,7 @@ public class PodcastService {
 
     private void refreshChannels(final List<PodcastChannel> channels, final boolean downloadEpisodes) {
         for (final PodcastChannel channel : channels) {
-            Runnable task = () -> doRefreshChannel(channel, downloadEpisodes);
-            refreshExecutor.submit(task);
+            podcastRefreshExecutor.execute(() -> doRefreshChannel(channel, downloadEpisodes));
         }
     }
 
@@ -456,8 +396,7 @@ public class PodcastService {
     }
 
     public void downloadEpisode(final PodcastEpisode episode) {
-        Runnable task = () -> doDownloadEpisode(episode);
-        downloadExecutor.submit(task);
+        podcastDownloadExecutor.execute(() -> doDownloadEpisode(episode));
     }
 
     @SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops") // (PodcastEpisode) Not reusable
