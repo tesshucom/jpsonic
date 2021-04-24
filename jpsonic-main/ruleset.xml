@@ -138,11 +138,7 @@
     </rule>
 
     <!-- Java Rules:Multithreading -->
-    <rule ref="category/java/multithreading.xml">
-
-        <!-- ****************************** Should be triaged (#586, v109.6.0 or later) ****************************** -->
-        <exclude name="DoNotUseThreads" />
-    </rule>
+    <rule ref="category/java/multithreading.xml" />
 
     <!-- Java Rules:Performance -->
     <rule ref="category/java/performance.xml">
