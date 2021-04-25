@@ -60,6 +60,7 @@ import org.airsonic.player.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -93,10 +94,13 @@ public class StreamController {
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
 
+    // Used to perform transcoding in subthreads (Priority changes)
+    private final ThreadPoolTaskExecutor shortExecutor;
+
     public StreamController(StatusService statusService, PlayerService playerService, PlaylistService playlistService,
             SecurityService securityService, SettingsService settingsService, TranscodingService transcodingService,
-            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService,
-            SearchService searchService) {
+            AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService, SearchService searchService,
+            ThreadPoolTaskExecutor shortExecutor) {
         super();
         this.statusService = statusService;
         this.playerService = playerService;
@@ -107,6 +111,7 @@ public class StreamController {
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
+        this.shortExecutor = shortExecutor;
     }
 
     @SuppressWarnings("PMD.NullAssignment") // (maxBitRate)Intentional allocation to register null
@@ -171,7 +176,7 @@ public class StreamController {
             VideoTranscodingSettings videoTranscodingSettings = result.getVideoTranscodingSettings();
             try (PlayQueueInputStream in = new PlayQueueInputStream(player, status, maxBitRate, preferredTargetFormat,
                     videoTranscodingSettings, transcodingService, audioScrobblerService, mediaFileService,
-                    searchService);
+                    searchService, shortExecutor);
                     OutputStream out = makeOutputStream(request, response, range, isSingleFile, player,
                             settingsService)) {
                 writeStream(player, in, out, fileLengthExpected, status, isPodcast, isSingleFile);
