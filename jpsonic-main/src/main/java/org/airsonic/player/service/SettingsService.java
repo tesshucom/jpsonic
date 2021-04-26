@@ -129,6 +129,7 @@ public class SettingsService {
     private static final String KEY_PODCAST_EPISODE_DOWNLOAD_COUNT = "PodcastEpisodeDownloadCount";
     private static final String KEY_DOWNLOAD_BITRATE_LIMIT = "DownloadBitrateLimit";
     private static final String KEY_UPLOAD_BITRATE_LIMIT = "UploadBitrateLimit";
+    private static final String KEY_BUFFER_SIZE = "BufferSize";
     private static final String KEY_HLS_COMMAND = "HlsCommand3";
     private static final String KEY_JUKEBOX_COMMAND = "JukeboxCommand2";
     private static final String KEY_VIDEO_IMAGE_COMMAND = "VideoImageCommand";
@@ -272,6 +273,7 @@ public class SettingsService {
     private static final int DEFAULT_PODCAST_EPISODE_DOWNLOAD_COUNT = 1;
     private static final long DEFAULT_DOWNLOAD_BITRATE_LIMIT = 0;
     private static final long DEFAULT_UPLOAD_BITRATE_LIMIT = 0;
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
     private static final String DEFAULT_HLS_COMMAND = "ffmpeg -ss %o -t %d -i %s -async 1 -b:v %bk -s %wx%h -ar 44100 -ac 2 -v 0 -f mpegts -c:v libx264 -preset superfast -c:a libmp3lame -threads 0 -";
     private static final String DEFAULT_JUKEBOX_COMMAND = "ffmpeg -ss %o -i %s -map 0:0 -v 0 -ar 44100 -ac 2 -f s16be -";
     private static final String DEFAULT_VIDEO_IMAGE_COMMAND = "ffmpeg -r 1 -ss %o -t 1 -i %s -s %wx%h -v 0 -f mjpeg -";
@@ -842,6 +844,14 @@ public class SettingsService {
      */
     public void setUploadBitrateLimit(long limit) {
         setLong(KEY_UPLOAD_BITRATE_LIMIT, limit);
+    }
+
+    public int getBufferSize() {
+        return getInt(KEY_BUFFER_SIZE, DEFAULT_BUFFER_SIZE);
+    }
+
+    public void setBufferSize(int bufferSize) {
+        setInt(KEY_BUFFER_SIZE, bufferSize);
     }
 
     public String getHlsCommand() {

@@ -32,6 +32,8 @@ public class AdvancedSettingsCommand {
 
     private String downloadLimit;
     private String uploadLimit;
+    private String bufferSize;
+
     private boolean ldapEnabled;
     private String ldapUrl;
     private String ldapSearchFilter;
@@ -70,6 +72,14 @@ public class AdvancedSettingsCommand {
 
     public void setUploadLimit(String uploadLimit) {
         this.uploadLimit = uploadLimit;
+    }
+
+    public String getBufferSize() {
+        return bufferSize;
+    }
+
+    public void setBufferSize(String bufferSize) {
+        this.bufferSize = bufferSize;
     }
 
     public boolean isLdapEnabled() {

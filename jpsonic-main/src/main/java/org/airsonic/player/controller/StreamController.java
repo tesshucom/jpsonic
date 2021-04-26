@@ -82,7 +82,6 @@ public class StreamController {
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL1 = 400;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL2 = 600;
     private static final int MAXBITRATE_THRESHOLD_FOR_VIDEO_SIZE_LEVEL3 = 1800;
-    private static final int BUFFER_SIZE = 2048;
 
     private final StatusService statusService;
     private final PlayerService playerService;
@@ -365,7 +364,7 @@ public class StreamController {
 
     private void writeStream(Player player, PlayQueueInputStream in, OutputStream out, Long fileLengthExpected,
             TransferStatus status, boolean isPodcast, boolean isSingleFile) throws IOException {
-        byte[] buf = new byte[BUFFER_SIZE];
+        byte[] buf = new byte[settingsService.getBufferSize()];
         long bytesWritten = 0;
 
         while (!status.isTerminated()) {

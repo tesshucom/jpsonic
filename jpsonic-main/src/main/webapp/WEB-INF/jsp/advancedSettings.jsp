@@ -2,9 +2,18 @@
 <%--@elvariable id="command" type="org.airsonic.player.command.AdvancedSettingsCommand"--%>
 
 <html><head>
-    <%@ include file="head.jsp" %>
-    <%@ include file="jquery.jsp" %>
-    <script src="<c:url value='/script/utils.js'/>"></script>
+<%@ include file="head.jsp" %>
+<%@ include file="jquery.jsp" %>
+<script src="<c:url value='/script/utils.js'/>"></script>
+<script>
+
+function resetBandwidth() {
+    $('[name="downloadLimit"]').val(0);
+    $('[name="uploadLimit"]').val(0);
+    $('[name="bufferSize"]').prop("selectedIndex", 1);
+}
+
+</script>
 </head>
 
 <body class="mainframe settings advancedSettings">
@@ -21,7 +30,14 @@
 
     <c:set var="isOpen" value='${command.openDetailSetting ? "open" : ""}' />
     <details ${isOpen}>
-        <summary><fmt:message key="advancedsettings.bandwidth"/></summary>
+
+        <div class="actions">
+            <ul class="controls">
+                <li><a href="javascript:resetBandwidth()" title="<fmt:message key='common.reset'/>" class="control reset"><fmt:message key="common.reset"/></a></li>
+            </ul>
+        </div>
+
+        <summary class="jpsonic"><fmt:message key="advancedsettings.bandwidth"/></summary>
         <dl>
             <dt><fmt:message key="advancedsettings.downloadlimit"/></dt>
             <dd>
@@ -32,6 +48,14 @@
             <dd>
                 <form:input path="uploadLimit"/>
                 <c:import url="helpToolTip.jsp"><c:param name="topic" value="uploadlimit"/></c:import>
+            </dd>
+            <dt><fmt:message key="advancedsettings.buffersize"/></dt>
+            <dd>
+	            <form:select path="bufferSize">
+	                <c:forEach begin="1" end="16" var="base">
+	                    <form:option value="${base * 2048}" />
+	                </c:forEach>
+	            </form:select>
             </dd>
         </dl>
     </details>

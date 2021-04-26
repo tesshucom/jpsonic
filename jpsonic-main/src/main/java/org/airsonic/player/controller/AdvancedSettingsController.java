@@ -72,6 +72,8 @@ public class AdvancedSettingsController {
         AdvancedSettingsCommand command = new AdvancedSettingsCommand();
         command.setDownloadLimit(String.valueOf(settingsService.getDownloadBitrateLimit()));
         command.setUploadLimit(String.valueOf(settingsService.getUploadBitrateLimit()));
+        command.setBufferSize(String.valueOf(settingsService.getBufferSize()));
+
         command.setLdapEnabled(settingsService.isLdapEnabled());
         command.setLdapUrl(settingsService.getLdapUrl());
         command.setLdapSearchFilter(settingsService.getLdapSearchFilter());
@@ -106,21 +108,13 @@ public class AdvancedSettingsController {
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), false);
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
-        try { // Should be rewritten if necessary
+        try {
             settingsService.setDownloadBitrateLimit(Long.parseLong(command.getDownloadLimit()));
-        } catch (NumberFormatException e) {
-            if (LOG.isErrorEnabled()) {
-                //
-                LOG.error("Error in parse of downloadBitrateLimit.",
-                        new AssertionError("Error expected to be unreachable.", e));
-            }
-        }
-        try { // Should be rewritten if necessary
             settingsService.setUploadBitrateLimit(Long.parseLong(command.getUploadLimit()));
+            settingsService.setBufferSize(Integer.parseInt(command.getBufferSize()));
         } catch (NumberFormatException e) {
             if (LOG.isErrorEnabled()) {
-                LOG.error("Error in parse of uploadBitrateLimit.",
-                        new AssertionError("Error expected to be unreachable.", e));
+                LOG.error("Error in parse of bitrateLimit or bufferSize.", e);
             }
         }
         settingsService.setLdapEnabled(command.isLdapEnabled());
