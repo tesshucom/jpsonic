@@ -233,8 +233,6 @@ public class MusicFolderSettingsController {
 
         redirectAttributes.addFlashAttribute(Attributes.Redirect.RELOAD_FLAG.value(), true);
 
-        mediaScannerService.schedule();
-
         return new ModelAndView(new RedirectView(ViewName.MUSIC_FOLDER_SETTINGS.value()));
     }
 

@@ -24,15 +24,10 @@ package org.airsonic.player.service;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 
 import java.io.File;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
@@ -53,6 +48,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 /**
@@ -65,7 +61,6 @@ public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);
     private static final AtomicBoolean IS_SCANNING = new AtomicBoolean();
-    private static final Object SCHEDULE_LOCK = new Object();
     private static final Object SCAN_LOCK = new Object();
 
     private final SettingsService settingsService;
@@ -77,14 +72,15 @@ public class MediaScannerService {
     private final AlbumDao albumDao;
     private final Ehcache indexCache;
     private final MediaScannerServiceUtils utils;
+    private final ThreadPoolTaskExecutor scanExecutor;
 
     private boolean jpsonicCleansingProcess = true; // for debug
     private int scanCount;
-    private ScheduledExecutorService scheduler;
 
     public MediaScannerService(SettingsService settingsService, IndexManager indexManager,
             PlaylistService playlistService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
-            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils) {
+            ArtistDao artistDao, AlbumDao albumDao, Ehcache indexCache, MediaScannerServiceUtils utils,
+            ThreadPoolTaskExecutor scanExecutor) {
         super();
         this.settingsService = settingsService;
         this.indexManager = indexManager;
@@ -95,60 +91,17 @@ public class MediaScannerService {
         this.albumDao = albumDao;
         this.indexCache = indexCache;
         this.utils = utils;
+        this.scanExecutor = scanExecutor;
     }
 
     @PostConstruct
     public void init() {
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
-        schedule();
     }
 
     public void initNoSchedule() {
         indexManager.deleteOldIndexFiles();
-    }
-
-    /**
-     * Schedule background execution of media library scanning.
-     */
-    public void schedule() {
-
-        synchronized (SCHEDULE_LOCK) {
-
-            if (scheduler != null) {
-                scheduler.shutdown();
-            }
-
-            long daysBetween = settingsService.getIndexCreationInterval();
-            if (daysBetween == -1) {
-                writeInfo("Automatic media scanning disabled.");
-                return;
-            }
-
-            int hour = settingsService.getIndexCreationHour();
-            LocalDateTime now = LocalDateTime.now();
-            LocalDateTime nextRun = now.withHour(hour).withMinute(0).withSecond(0);
-            if (now.compareTo(nextRun) > 0) {
-                nextRun = nextRun.plusDays(1);
-            }
-
-            long initialDelay = ChronoUnit.MILLIS.between(now, nextRun);
-
-            scheduler = Executors.newSingleThreadScheduledExecutor();
-            scheduler.scheduleAtFixedRate(this::scanLibrary, initialDelay, TimeUnit.DAYS.toMillis(daysBetween),
-                    TimeUnit.MILLISECONDS);
-
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}",
-                        daysBetween, nextRun);
-            }
-
-            // In addition, create index immediately if it doesn't exist on disk.
-            if (SettingsService.isScanOnBoot() && neverScanned()) {
-                writeInfo("Media library never scanned. Doing it now.");
-                scanLibrary();
-            }
-        }
     }
 
     public boolean neverScanned() {
@@ -174,31 +127,17 @@ public class MediaScannerService {
      */
     @SuppressWarnings("PMD.AccessorMethodGeneration") // Triaged in #833 or #834
     public void scanLibrary() {
-
         if (isScanning()) {
             return;
         }
-
         synchronized (SCAN_LOCK) {
-
             IS_SCANNING.set(true);
-
-            Thread thread = new Thread("MediaLibraryScanner") {
-                @Override
-                public void run() {
-                    doScanLibrary();
-                    playlistService.importPlaylists();
-                    mediaFileDao.checkpoint();
-                }
-            };
-
-            thread.setPriority(Thread.MIN_PRIORITY);
-            thread.start();
+            scanExecutor.execute(this::doScanLibrary);
         }
     }
 
     private void doScanLibrary() {
-        writeInfo("Starting to scan media library.");
+        writeInfo("Starting to scan media library: " + Thread.currentThread().getName());
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
@@ -282,6 +221,10 @@ public class MediaScannerService {
             IS_SCANNING.set(false);
             utils.clearMemoryCache();
         }
+
+        playlistService.importPlaylists();
+        mediaFileDao.checkpoint();
+
     }
 
     private void writeInfo(String msg) {

@@ -24,7 +24,6 @@ package org.airsonic.player.controller;
 import com.tesshu.jpsonic.controller.Attributes;
 import com.tesshu.jpsonic.controller.ViewName;
 import org.airsonic.player.command.PodcastSettingsCommand;
-import org.airsonic.player.service.PodcastService;
 import org.airsonic.player.service.SettingsService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,12 +45,10 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PodcastSettingsController {
 
     private final SettingsService settingsService;
-    private final PodcastService podcastService;
 
-    public PodcastSettingsController(SettingsService settingsService, PodcastService podcastService) {
+    public PodcastSettingsController(SettingsService settingsService) {
         super();
         this.settingsService = settingsService;
-        this.podcastService = podcastService;
     }
 
     @GetMapping
@@ -76,7 +73,6 @@ public class PodcastSettingsController {
         settingsService.setPodcastFolder(command.getFolder());
         settingsService.save();
 
-        podcastService.schedule();
         redirectAttributes.addFlashAttribute(Attributes.Redirect.TOAST_FLAG.value(), true);
 
         return new ModelAndView(new RedirectView(ViewName.PODCAST_SETTINGS.value()));
