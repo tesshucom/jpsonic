@@ -176,6 +176,9 @@ public class PlayerService {
         // If no player was found, create it.
         if (player == null) {
             player = new Player();
+            // This case is probably anonymous new so we need Address and name
+            player.setIpAddress(request.getRemoteAddr());
+            player.setUsername(username);
             createPlayer(player);
         }
         return player;
