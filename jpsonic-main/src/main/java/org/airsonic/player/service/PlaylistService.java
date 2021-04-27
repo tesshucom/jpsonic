@@ -259,11 +259,11 @@ public class PlaylistService {
 
     public void importPlaylists() {
         try {
-            if (LOG.isInfoEnabled()) {
+            if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
                 LOG.info("Starting playlist import.");
             }
             doImportPlaylists();
-            if (LOG.isInfoEnabled()) {
+            if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
                 LOG.info("Completed playlist import.");
             }
         } catch (Throwable x) {

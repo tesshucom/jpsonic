@@ -137,7 +137,9 @@ public class MediaScannerService {
     }
 
     private void doScanLibrary() {
-        writeInfo("Starting to scan media library: " + Thread.currentThread().getName());
+
+        LOG.info("Starting to scan media library.");
+
         MediaLibraryStatistics statistics = new MediaLibraryStatistics(DateUtils.truncate(new Date(), Calendar.SECOND));
         if (LOG.isDebugEnabled()) {
             LOG.debug("New last scan date is " + statistics.getScanDate());
@@ -211,7 +213,7 @@ public class MediaScannerService {
 
             }
 
-            writeInfo("Completed media library scan.");
+            LOG.info("Completed media library scan.");
 
         } catch (Throwable x) {
             LOG.error("Failed to scan media library.", x);
@@ -228,7 +230,7 @@ public class MediaScannerService {
     }
 
     private void writeInfo(String msg) {
-        if (LOG.isInfoEnabled()) {
+        if (settingsService.isVerboseLogScanning() && LOG.isInfoEnabled()) {
             LOG.info(msg);
         }
     }
