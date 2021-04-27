@@ -78,6 +78,8 @@ public class VersionService {
      */
     private static final long LAST_VERSION_FETCH_INTERVAL = 7L * 24L * 3600L * 1000L; // One week
 
+    private final SettingsService settingsService;
+
     private Version latestFinalVersion;
     private Version latestBetaVersion;
     private Version localVersion;
@@ -89,6 +91,11 @@ public class VersionService {
      */
     private long lastVersionFetched;
 
+    public VersionService(SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
+
     /**
      * Returns the version number for the locally installed Jpsonic version.
      *
@@ -99,7 +106,7 @@ public class VersionService {
             if (localVersion == null) {
                 try {
                     localVersion = new Version(readLineFromResource("/version.txt"));
-                    if (LOG.isInfoEnabled()) {
+                    if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                         LOG.info("Resolved local Jpsonic version to: " + localVersion);
                     }
                 } catch (Exception x) {

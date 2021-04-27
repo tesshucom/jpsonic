@@ -80,7 +80,7 @@ public class PodcastScheduleConfiguration implements SchedulingConfigurer {
             long periodMillis = hoursBetween * 60L * 60L * 1000L;
             Optional<Date> lastCompletionTime = Optional.ofNullable(context.lastCompletionTime());
             Instant nextExecutionTime = lastCompletionTime.orElseGet(firstTime).toInstant().plusMillis(periodMillis);
-            if (LOG.isInfoEnabled()) {
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                 LOG.info("Automatic Podcast update scheduled to run every " + hoursBetween + " hour(s), starting at "
                         + firstTime.get());
             }

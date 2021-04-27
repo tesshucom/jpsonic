@@ -135,16 +135,16 @@ public class UPnPService {
 
     private void startService() {
         try {
-            if (LOG.isInfoEnabled()) {
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                 LOG.info("Starting UPnP service...");
             }
             createService();
             if (0 < SettingsService.getDefaultUPnPPort()) {
-                if (LOG.isInfoEnabled()) {
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Successfully started UPnP service on port {}!", SettingsService.getDefaultUPnPPort());
                 }
             } else {
-                if (LOG.isInfoEnabled()) {
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Starting UPnP service - Done!");
                 }
             }
@@ -171,7 +171,7 @@ public class UPnPService {
             ensureServiceStarted();
             try {
                 deligate.getRegistry().addDevice(createMediaServerDevice());
-                if (LOG.isInfoEnabled()) {
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                     LOG.info("Enabling UPnP/DLNA media server");
                 }
             } catch (Exception x) {
