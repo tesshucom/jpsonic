@@ -453,7 +453,8 @@ public class TranscodingService {
 
             result.set(i, cmd);
         }
-        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor);
+        return new TranscodeInputStream(new ProcessBuilder(result), in, tmpFile, shortExecutor,
+                settingsService.isVerboseLogPlaying());
     }
 
     private String replaceIfcontains(String line, String target, String value) {

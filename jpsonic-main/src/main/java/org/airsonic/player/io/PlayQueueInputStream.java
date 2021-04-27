@@ -38,6 +38,7 @@ import org.airsonic.player.domain.VideoTranscodingSettings;
 import org.airsonic.player.service.AudioScrobblerService;
 import org.airsonic.player.service.MediaFileService;
 import org.airsonic.player.service.SearchService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.sonos.SonosHelper;
 import org.slf4j.Logger;
@@ -62,6 +63,7 @@ public class PlayQueueInputStream extends InputStream {
     private final AudioScrobblerService audioScrobblerService;
     private final MediaFileService mediaFileService;
     private final SearchService searchService;
+    private final SettingsService settingsService;
     private final AsyncTaskExecutor executor;
 
     private MediaFile currentFile;
@@ -70,7 +72,7 @@ public class PlayQueueInputStream extends InputStream {
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
             AudioScrobblerService audioScrobblerService, MediaFileService mediaFileService, SearchService searchService,
-            AsyncTaskExecutor executor) {
+            SettingsService settingsService, AsyncTaskExecutor executor) {
         super();
         this.player = player;
         this.status = status;
@@ -81,6 +83,7 @@ public class PlayQueueInputStream extends InputStream {
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
+        this.settingsService = settingsService;
         this.executor = executor;
     }
 
@@ -155,13 +158,7 @@ public class PlayQueueInputStream extends InputStream {
                 }
                 mediaFileService.incrementPlayCount(file);
 
-                if (LOG.isTraceEnabled()) {
-                    String address = player.getIpAddress();
-                    String user = player.getUsername();
-                    String title = file.getTitle();
-                    String thread = Thread.currentThread().getName();
-                    LOG.trace("{}({}): Transcoding {} in {}", address, user, title, thread);
-                }
+                writeLog(file);
 
                 // **** Transcoding ****
                 TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
@@ -178,6 +175,16 @@ public class PlayQueueInputStream extends InputStream {
                 }
             }
             return false;
+        }
+    }
+
+    private void writeLog(MediaFile file) {
+        if (settingsService.isVerboseLogPlaying() && LOG.isInfoEnabled()) {
+            String address = player.getIpAddress();
+            String user = player.getUsername();
+            String title = file.getTitle();
+            String thread = Thread.currentThread().getName();
+            LOG.info("{}({}): Transcoding {} in {}", address, user, title, thread);
         }
     }
 
