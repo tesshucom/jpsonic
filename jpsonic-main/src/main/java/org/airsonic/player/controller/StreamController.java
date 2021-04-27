@@ -54,6 +54,7 @@ import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.service.StatusService;
 import org.airsonic.player.service.TranscodingService;
 import org.airsonic.player.service.sonos.SonosHelper;
+import org.airsonic.player.spring.LoggingExceptionResolver;
 import org.airsonic.player.util.HttpRange;
 import org.airsonic.player.util.PlayerUtils;
 import org.airsonic.player.util.StringUtil;
@@ -181,16 +182,10 @@ public class StreamController {
                 writeStream(player, in, out, fileLengthExpected, status, isPodcast, isSingleFile);
             }
         } catch (IOException e) {
-            // This happens often and outside of the control of the server, so
-            // we catch Tomcat/Jetty "connection aborted by client" exceptions
-            // and display a short error message.
-            boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e,
-                    "org.apache.catalina.connector.ClientAbortException");
-            if (shouldCatch) {
+            if (LoggingExceptionResolver.isSuppressedException(e)) {
                 writeLog(e, request);
                 return;
             }
-            // Rethrow the exception in all other cases
             throw e;
         } finally {
             removeStreamStatus(user, status);
@@ -212,9 +207,11 @@ public class StreamController {
     }
 
     private void writeLog(IOException e, HttpServletRequest request) {
-        if (LOG.isInfoEnabled()) {
-            LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(),
-                    PlayerUtils.getAnonymizedURLForRequest(request), e.getCause().toString());
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(
+                    request.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
+                            + request.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(request) + ")",
+                    e);
         }
     }
 

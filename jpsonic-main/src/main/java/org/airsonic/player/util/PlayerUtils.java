@@ -191,18 +191,6 @@ public final class PlayerUtils {
         return builder.build().toUriString();
     }
 
-    /**
-     * Return true if the given object is an instance of the class name in argument. If the class doesn't exist, returns
-     * false.
-     */
-    public static boolean isInstanceOfClassName(Object o, String className) {
-        try {
-            return Class.forName(className).isInstance(o);
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     public static Map<String, String> objectToStringMap(Object object) {
         TypeReference<HashMap<String, String>> typeReference = new TypeReference<HashMap<String, String>>() {
         };

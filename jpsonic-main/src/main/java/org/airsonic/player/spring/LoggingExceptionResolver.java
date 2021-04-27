@@ -21,6 +21,9 @@
 
 package org.airsonic.player.spring;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -37,26 +40,42 @@ public class LoggingExceptionResolver implements HandlerExceptionResolver, Order
 
     private static final Logger LOG = LoggerFactory.getLogger(LoggingExceptionResolver.class);
 
+    /**
+     * A list of frequently exceptions that occur outside the control of the server. It is managed by a string to store
+     * vendor-specific exceptions. (Depending on packaging, these classes may not exist in the classpath)
+     */
+    private static final List<String> TO_BE_SUPPRESSED_CLASS_NAME = Arrays
+            .asList("org.apache.catalina.connector.ClientAbortException", "org.eclipse.jetty.io.EofException");
+
+    private static boolean isInstanceOfClassName(Object o, String className) {
+        try {
+            return Class.forName(className).isInstance(o);
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean isSuppressedException(Exception e) {
+        return TO_BE_SUPPRESSED_CLASS_NAME.stream().anyMatch(name -> isInstanceOfClassName(e, name));
+    }
+
     @Override
     public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object o,
             Exception e) {
-        // This happens often and outside of the control of the server, so
-        // we catch Tomcat/Jetty "connection aborted by client" exceptions
-        // and display a short error message.
-        boolean shouldCatch = PlayerUtils.isInstanceOfClassName(e,
-                "org.apache.catalina.connector.ClientAbortException");
-        if (shouldCatch) {
-            if (LOG.isInfoEnabled()) {
-                LOG.info("{}: Client unexpectedly closed connection while loading {} ({})", request.getRemoteAddr(),
-                        PlayerUtils.getAnonymizedURLForRequest(request), e.getCause().toString());
+
+        // Trace specific exceptions.
+        if (isSuppressedException(e)) {
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(request.getRemoteAddr() + ": Client unexpectedly closed connection while loading "
+                        + request.getRemoteAddr() + " (" + PlayerUtils.getAnonymizedURLForRequest(request) + ")", e);
             }
             return null;
         }
 
-        // Display a full stack trace in all other cases
+        // Display a full stack trace in all other cases.
         if (LOG.isErrorEnabled()) {
-            LOG.error("{}: An exception occurred while loading {}", request.getRemoteAddr(),
-                    PlayerUtils.getAnonymizedURLForRequest(request), e);
+            LOG.error(request.getRemoteAddr() + ": An exception occurred while loading "
+                    + PlayerUtils.getAnonymizedURLForRequest(request), e);
         }
         return null;
     }
