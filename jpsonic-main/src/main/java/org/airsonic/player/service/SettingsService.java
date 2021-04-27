@@ -102,6 +102,11 @@ public class SettingsService {
 
     private static final boolean DEFAULT_SCAN_ON_BOOT = false;
 
+    private static final String KEY_VERBOSE_LOG_START = "VerboseLogStart";
+    private static final String KEY_VERBOSE_LOG_SCANNING = "VerboseLogScanning";
+    private static final String KEY_VERBOSE_LOG_PLAYING = "VerboseLogPlaying";
+    private static final String KEY_VERBOSE_LOG_SHUTDOWN = "VerboseLogShutdown";
+
     // Global settings.
     private static final String KEY_INDEX_STRING = "IndexString";
     private static final String KEY_IGNORED_ARTICLES = "IgnoredArticles";
@@ -218,6 +223,11 @@ public class SettingsService {
 
     // Default values.
     private static final String DEFAULT_JWT_KEY = null;
+
+    private static final boolean DEFAULT_VERBOSE_LOG_START = true;
+    private static final boolean DEFAULT_VERBOSE_LOG_SCANNING = true;
+    private static final boolean DEFAULT_VERBOSE_LOG_PLAYING = true;
+    private static final boolean DEFAULT_VERBOSE_LOG_SHUTDOWN = true;
 
     /*
      * It's EN and JP(syllabary)
@@ -338,7 +348,7 @@ public class SettingsService {
     private static final String DEFAULT_SMTP_PORT = "25";
     private static final String DEFAULT_SMTP_USER = null;
     private static final String DEFAULT_SMTP_PASSWORD = null;
-    private static final String DEFAULT_SMTP_FROM = "airsonic@airsonic.org";
+    private static final String DEFAULT_SMTP_FROM = "jpsonic@tesshu.com";
 
     private static final boolean DEFAULT_CAPTCHA_ENABLED = false;
     private static final String DEFAULT_RECAPTCHA_SITE_KEY = "6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI";
@@ -557,6 +567,38 @@ public class SettingsService {
 
     private void setString(String key, String value) {
         setProperty(key, value);
+    }
+
+    public boolean isVerboseLogStart() {
+        return getBoolean(KEY_VERBOSE_LOG_START, DEFAULT_VERBOSE_LOG_START);
+    }
+
+    public void setVerboseLogStart(boolean b) {
+        setBoolean(KEY_VERBOSE_LOG_START, b);
+    }
+
+    public boolean isVerboseLogScanning() {
+        return getBoolean(KEY_VERBOSE_LOG_SCANNING, DEFAULT_VERBOSE_LOG_SCANNING);
+    }
+
+    public void setVerboseLogScanning(boolean b) {
+        setBoolean(KEY_VERBOSE_LOG_SCANNING, b);
+    }
+
+    public boolean isVerboseLogPlaying() {
+        return getBoolean(KEY_VERBOSE_LOG_PLAYING, DEFAULT_VERBOSE_LOG_PLAYING);
+    }
+
+    public void setVerboseLogPlaying(boolean b) {
+        setBoolean(KEY_VERBOSE_LOG_PLAYING, b);
+    }
+
+    public boolean isVerboseLogShutdown() {
+        return getBoolean(KEY_VERBOSE_LOG_SHUTDOWN, DEFAULT_VERBOSE_LOG_SHUTDOWN);
+    }
+
+    public void setVerboseLogShutdown(boolean b) {
+        setBoolean(KEY_VERBOSE_LOG_SHUTDOWN, b);
     }
 
     public String getDefaultIndexString() {
