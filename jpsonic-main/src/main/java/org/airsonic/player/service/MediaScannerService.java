@@ -48,6 +48,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,7 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service
+@DependsOn("scanExecutor")
 public class MediaScannerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(MediaScannerService.class);

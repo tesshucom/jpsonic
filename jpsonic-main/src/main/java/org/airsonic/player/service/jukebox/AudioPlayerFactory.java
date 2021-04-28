@@ -27,9 +27,11 @@ import java.util.concurrent.Executor;
 import javax.sound.sampled.LineUnavailableException;
 
 import org.airsonic.player.service.JukeboxLegacySubsonicService;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 @Component
+@DependsOn("jukeExecutor")
 public class AudioPlayerFactory {
 
     private final Executor jukeExecutor;

@@ -61,12 +61,14 @@ import org.fourthline.cling.support.model.dlna.DLNAProtocolInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
 /**
  * @author Sindre Mehus
  */
 @Service
+@DependsOn("shutdownHook")
 public class UPnPService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UPnPService.class);
@@ -113,15 +115,15 @@ public class UPnPService {
         running.getAndUpdate(bo -> {
             if (bo) {
                 if (deligate != null) {
-                    if (LOG.isInfoEnabled()) {
+                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
                         LOG.info("Disabling UPnP/DLNA media server");
                     }
                     deligate.getRegistry().removeAllLocalDevices();
-                    if (LOG.isInfoEnabled()) {
+                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
                         LOG.info("Shutting down UPnP service...");
                     }
                     deligate.shutdown();
-                    if (LOG.isInfoEnabled()) {
+                    if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
                         LOG.info("Shutting down UPnP service - Done!");
                     }
                 }

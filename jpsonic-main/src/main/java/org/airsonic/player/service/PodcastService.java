@@ -69,6 +69,7 @@ import org.jdom2.JDOMException;
 import org.jdom2.Namespace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -78,6 +79,7 @@ import org.springframework.stereotype.Service;
  * @author Sindre Mehus
  */
 @Service
+@DependsOn({ "podcastDownloadExecutor", "podcastRefreshExecutor" })
 public class PodcastService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodcastService.class);

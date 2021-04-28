@@ -21,20 +21,61 @@
 
 package org.airsonic.player.spring;
 
-import javax.servlet.ServletContextListener;
+import java.util.List;
 
+import javax.annotation.PreDestroy;
+
+import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.constructs.web.ShutdownListener;
 import org.airsonic.player.cache.CacheFactory;
+import org.airsonic.player.service.SettingsService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
 public class EhcacheConfiguration {
 
+    private final SettingsService settingsService;
+
+    public EhcacheConfiguration(@Lazy SettingsService settingsService) {
+        super();
+        this.settingsService = settingsService;
+    }
+
     @Bean
-    public ServletContextListener ehCacheShutdownListener() {
-        return new ShutdownListener();
+    public CacheDisposer cacheDisposer() {
+        return new CacheDisposer(settingsService);
+    }
+
+    /*
+     * Shutdown priority is equal to database.
+     * 
+     * @see net.sf.ehcache.constructs.web.ShutdownListener
+     */
+    public static class CacheDisposer {
+
+        private static final Logger LOG = LoggerFactory.getLogger(CacheDisposer.class);
+
+        private final SettingsService settingsService;
+
+        public CacheDisposer(SettingsService settingsService) {
+            super();
+            this.settingsService = settingsService;
+        }
+
+        @PreDestroy
+        public void preDestroy() {
+            List<CacheManager> knownCacheManagers = CacheManager.ALL_CACHE_MANAGERS;
+            if (settingsService.isVerboseLogShutdown() && LOG.isInfoEnabled()) {
+                LOG.info("Shutting down " + knownCacheManagers.size() + " CacheManagers.");
+            }
+            while (!knownCacheManagers.isEmpty()) {
+                ((CacheManager) CacheManager.ALL_CACHE_MANAGERS.get(0)).shutdown();
+            }
+        }
     }
 
     @Bean

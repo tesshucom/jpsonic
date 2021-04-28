@@ -40,6 +40,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.lookup.JndiDataSourceLookup;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -47,6 +49,8 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @Configuration
 @EnableTransactionManagement
 public class DatabaseConfiguration {
+
+    private final Environment environment;
 
     public static class ProfileNameConstants {
 
@@ -58,16 +62,20 @@ public class DatabaseConfiguration {
         }
     }
 
+    public DatabaseConfiguration(Environment environment) {
+        this.environment = environment;
+    }
+
     @Bean
     public DataSourceTransactionManager transactionManager(DataSource dataSource) {
         return new DataSourceTransactionManager(dataSource);
     }
 
     @Bean
-    @Profile(ProfileNameConstants.LEGACY)
     @DependsOn("liquibase")
     public DaoHelper legacyDaoHelper(DataSource dataSource) {
-        return new LegacyHsqlDaoHelper(dataSource);
+        return environment.acceptsProfiles(Profiles.of(ProfileNameConstants.LEGACY))
+                ? new LegacyHsqlDaoHelper(dataSource) : new GenericDaoHelper(dataSource);
     }
 
     @Bean

@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.DefaultManagedAwareThreadFactory;
@@ -41,9 +42,11 @@ public class ExecutorConfiguration {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecutorConfiguration.class);
 
-    protected static final int JUKE_AWAIT_TERMINATION = 10_000;
-    protected static final int PODCAST_AWAIT_TERMINATION = 20_000;
-    protected static final int SCAN_AWAIT_TERMINATION = 20_000;
+    protected static final int SHORT_AWAIT_TERMINATION = 20_000;
+    protected static final int JUKE_AWAIT_TERMINATION = 2_000;
+    protected static final int PODCAST_DOWNLOAD_AWAIT_TERMINATION = 30_000;
+    protected static final int PODCAST_REFRESH_AWAIT_TERMINATION = 30_000;
+    protected static final int SCAN_AWAIT_TERMINATION = 30_000;
 
     private final ShortTaskPoolConfiguration poolConf;
 
@@ -77,10 +80,13 @@ public class ExecutorConfiguration {
      * individual task).
      */
     @Bean
+    @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
     public ThreadPoolTaskExecutor shortExecutor() {
+
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setWaitForTasksToCompleteOnShutdown(false);
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle Stream
+        executor.setAwaitTerminationMillis(SHORT_AWAIT_TERMINATION);
         executor.setQueueCapacity(poolConf.getQueueCapacity());
         executor.setCorePoolSize(poolConf.getCorePoolSize());
         executor.setMaxPoolSize(poolConf.getMaxPoolSize());
@@ -100,13 +106,15 @@ public class ExecutorConfiguration {
      * Executor for Jukebox. Shutdown involves closing the stream.
      */
     @Bean
+    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "shortExecutor" })
     public ThreadPoolTaskExecutor jukeExecutor() {
+
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setWaitForTasksToCompleteOnShutdown(true); // TODO #829
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle SourceDataLine
         executor.setAwaitTerminationMillis(JUKE_AWAIT_TERMINATION);
-        executor.setCorePoolSize(3);
-        executor.setMaxPoolSize(3);
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
         suppressIfLargePool(executor);
 
         String threadGroupName = "juke-task";
@@ -121,11 +129,13 @@ public class ExecutorConfiguration {
      * Podcast download executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
+    @DependsOn({ "legacyDaoHelper", "cacheDisposer" })
     public ThreadPoolTaskExecutor podcastDownloadExecutor() {
+
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setWaitForTasksToCompleteOnShutdown(true); // TODO #829
-        executor.setAwaitTerminationMillis(PODCAST_AWAIT_TERMINATION);
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
+        executor.setAwaitTerminationMillis(PODCAST_DOWNLOAD_AWAIT_TERMINATION);
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(3);
         suppressIfLargePool(executor);
@@ -142,11 +152,13 @@ public class ExecutorConfiguration {
      * Podcast refresh executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
+    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastDownloadExecutor" })
     public ThreadPoolTaskExecutor podcastRefreshExecutor() {
+
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setWaitForTasksToCompleteOnShutdown(true); // TODO #829
-        executor.setAwaitTerminationMillis(PODCAST_AWAIT_TERMINATION);
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To call download
+        executor.setAwaitTerminationMillis(PODCAST_REFRESH_AWAIT_TERMINATION);
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(5);
         suppressIfLargePool(executor);
@@ -163,10 +175,12 @@ public class ExecutorConfiguration {
      * Scan thread executor. All tasks must be successfully canceled at shutdown.
      */
     @Bean
+    @DependsOn({ "legacyDaoHelper", "cacheDisposer", "podcastRefreshExecutor" })
     public ThreadPoolTaskExecutor scanExecutor() {
+
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-        executor.setWaitForTasksToCompleteOnShutdown(true); // TODO #829
+        executor.setWaitForTasksToCompleteOnShutdown(true); // To handle IO
         executor.setAwaitTerminationMillis(SCAN_AWAIT_TERMINATION);
         // In v110.0.0, run in single thread
         executor.setCorePoolSize(1);
@@ -181,7 +195,9 @@ public class ExecutorConfiguration {
     }
 
     @Bean
+    @DependsOn("legacyDaoHelper")
     public TaskScheduler taskScheduler() {
+
         ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
 
         scheduler.setWaitForTasksToCompleteOnShutdown(false);
@@ -239,4 +255,5 @@ public class ExecutorConfiguration {
             return thread;
         }
     }
+
 }

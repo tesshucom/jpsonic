@@ -35,7 +35,7 @@ import org.springframework.stereotype.Service;
  * Provides services for "audioscrobbling", which is the process of registering what songs are played at website.
  */
 @Service
-@DependsOn("settingsService")
+@DependsOn({ "settingsService", "shortExecutor" })
 public class AudioScrobblerService {
 
     private static final Object FM_LOCK = new Object();
