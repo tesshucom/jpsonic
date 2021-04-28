@@ -535,7 +535,9 @@ public class IndexManager {
         // Check if Index is current version
         if (ROOT_INDEX_DIRECTORY.get().exists()) {
             // Index of current version already exists
-            LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("Index was found (index version {}). ", INDEX_VERSION);
+            }
         } else {
             if (ROOT_INDEX_DIRECTORY.get().mkdir()) {
                 LOG.info("Index directory was created (index version {}). ", INDEX_VERSION);

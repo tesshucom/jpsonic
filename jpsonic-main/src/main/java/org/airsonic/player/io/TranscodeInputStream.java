@@ -61,17 +61,16 @@ public final class TranscodeInputStream extends InputStream {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile, Executor executor)
-            throws IOException {
+    public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile, Executor executor,
+            boolean isVerboseLogPlaying) throws IOException {
         super();
-
         this.tmpFile = tmpFile;
 
         StringBuilder buf = new StringBuilder("Starting transcoder: ");
         for (String s : processBuilder.command()) {
             buf.append('[').append(s).append("] ");
         }
-        if (LOG.isInfoEnabled()) {
+        if (isVerboseLogPlaying && LOG.isInfoEnabled()) {
             LOG.info(buf.toString());
         }
 

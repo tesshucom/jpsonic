@@ -22,6 +22,9 @@ package com.tesshu.jpsonic.util.concurrent;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import javax.naming.NamingException;
+
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,15 +39,17 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableAsync
 public class ExecutorConfiguration {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExecutorConfiguration.class);
+
     protected static final int JUKE_AWAIT_TERMINATION = 10_000;
     protected static final int PODCAST_AWAIT_TERMINATION = 20_000;
     protected static final int SCAN_AWAIT_TERMINATION = 20_000;
 
     private final ShortTaskPoolConfiguration poolConf;
 
-    public ExecutorConfiguration(ShortTaskPoolConfiguration poolingConfiguration) {
+    public ExecutorConfiguration(ShortTaskPoolConfiguration poolConf) {
         super();
-        this.poolConf = poolingConfiguration;
+        this.poolConf = poolConf;
     }
 
     public ThreadPoolTaskExecutor suppressIfLargePool(ThreadPoolTaskExecutor executor) {
@@ -199,6 +204,16 @@ public class ExecutorConfiguration {
         th.setThreadGroupName(threadGroupName);
         th.setThreadNamePrefix(createThreadNamePrefix(threadGroupName));
         th.setThreadPriority(threadPriority);
+
+        try {
+            // Currently, beans are not registered, so call manually
+            th.afterPropertiesSet();
+        } catch (NamingException e) {
+            if (LOG.isInfoEnabled()) {
+                LOG.info(threadGroupName + ": java:comp/DefaultManagedThreadFactory cannot look up.", e);
+            }
+        }
+
         return th;
     }
 

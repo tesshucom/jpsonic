@@ -32,6 +32,8 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.function.Function;
 
+import javax.annotation.PostConstruct;
+
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.airsonic.player.dao.AlbumDao;
@@ -43,6 +45,7 @@ import org.airsonic.player.domain.MusicFolder;
 import org.airsonic.player.domain.ParamSearchResult;
 import org.airsonic.player.domain.SearchResult;
 import org.airsonic.player.service.MediaFileService;
+import org.airsonic.player.service.SettingsService;
 import org.airsonic.player.spring.EhcacheConfiguration.RandomCacheKey;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.lucene.document.Document;
@@ -67,21 +70,6 @@ public class SearchServiceUtilities {
 
     private static Random random;
 
-    static {
-        try {
-            random = SecureRandom.getInstance("NativePRNG");
-            LOG.info("NativePRNG is used to create a random list of songs.");
-        } catch (NoSuchAlgorithmException e) {
-            try {
-                random = SecureRandom.getInstance("SHA1PRNG");
-                LOG.info("SHA1PRNG is used to create a random list of songs.");
-            } catch (NoSuchAlgorithmException e1) {
-                random = new Random(System.currentTimeMillis());
-                LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
-            }
-        }
-    }
-
     /* Search by id only. */
     private final ArtistDao artistDao;
 
@@ -97,6 +85,7 @@ public class SearchServiceUtilities {
      * is used instead of Dao until you are sure you need to use mediaFileDao.
      */
     private final MediaFileService mediaFileService;
+    private final SettingsService settingsService;
 
     public Function<Integer, Integer> nextInt = (range) -> random.nextInt(range);
 
@@ -131,13 +120,36 @@ public class SearchServiceUtilities {
     };
 
     public SearchServiceUtilities(ArtistDao artistDao, AlbumDao albumDao, Ehcache searchCache, Ehcache randomCache,
-            MediaFileService mediaFileService) {
+            MediaFileService mediaFileService, SettingsService settingsService) {
         super();
         this.artistDao = artistDao;
         this.albumDao = albumDao;
         this.searchCache = searchCache;
         this.randomCache = randomCache;
         this.mediaFileService = mediaFileService;
+        this.settingsService = settingsService;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        try {
+            random = SecureRandom.getInstance("NativePRNG");
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                LOG.info("NativePRNG is used to create a random list of songs.");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            try {
+                random = SecureRandom.getInstance("SHA1PRNG");
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                    LOG.info("SHA1PRNG is used to create a random list of songs.");
+                }
+            } catch (NoSuchAlgorithmException e1) {
+                random = new Random(System.currentTimeMillis());
+                if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
+                    LOG.info("NativePRNG and SHA1PRNG cannot be used on this platform.");
+                }
+            }
+        }
     }
 
     public final void addMediaFileIfAnyMatch(List<MediaFile> dist, Integer id) {

@@ -502,7 +502,7 @@ public class SettingsService {
     }
 
     private void logServerInfo() {
-        if (LOG.isInfoEnabled()) {
+        if (isVerboseLogStart() && LOG.isInfoEnabled()) {
             LOG.info("Java: " + System.getProperty("java.version") + ", OS: " + System.getProperty("os.name"));
         }
     }

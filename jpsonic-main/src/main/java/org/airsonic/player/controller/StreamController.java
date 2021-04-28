@@ -176,7 +176,7 @@ public class StreamController {
             VideoTranscodingSettings videoTranscodingSettings = result.getVideoTranscodingSettings();
             try (PlayQueueInputStream in = new PlayQueueInputStream(player, status, maxBitRate, preferredTargetFormat,
                     videoTranscodingSettings, transcodingService, audioScrobblerService, mediaFileService,
-                    searchService, shortExecutor);
+                    searchService, settingsService, shortExecutor);
                     OutputStream out = makeOutputStream(request, response, range, isSingleFile, player,
                             settingsService)) {
                 writeStream(player, in, out, fileLengthExpected, status, isPodcast, isSingleFile);
@@ -216,7 +216,7 @@ public class StreamController {
     }
 
     private void writeLog(HttpServletResponse response, MediaFile file, Long fileLengthExpected) {
-        if (LOG.isInfoEnabled() && fileLengthExpected != null) {
+        if (settingsService.isVerboseLogPlaying() && LOG.isInfoEnabled() && fileLengthExpected != null) {
             LOG.info("Streaming request for [{}] with range [{}]", file.getPath(), response.getHeader("Content-Range"));
         }
     }

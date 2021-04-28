@@ -91,7 +91,7 @@ public class MediaScannerScheduleConfiguration implements SchedulingConfigurer {
             long periodMillis = TimeUnit.DAYS.toMillis(daysBetween);
             Optional<Date> lastCompletionTime = Optional.ofNullable(context.lastCompletionTime());
             Instant nextExecutionTime = lastCompletionTime.orElseGet(firstTime).toInstant().plusMillis(periodMillis);
-            if (LOG.isInfoEnabled()) {
+            if (settingsService.isVerboseLogStart() && LOG.isInfoEnabled()) {
                 LOG.info("Automatic media library scanning scheduled to run every {} day(s), starting at {}",
                         daysBetween, firstTime.get());
             }
