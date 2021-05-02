@@ -28,9 +28,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 
 import com.tesshu.jpsonic.service.MediaScannerServiceUtils;
 import net.sf.ehcache.Ehcache;
@@ -76,8 +79,9 @@ public class MediaScannerService {
     private final MediaScannerServiceUtils utils;
     private final ThreadPoolTaskExecutor scanExecutor;
 
-    private boolean jpsonicCleansingProcess = true; // for debug
-    private int scanCount;
+    private AtomicBoolean cleansingProcess = new AtomicBoolean();
+    private AtomicInteger scanCount = new AtomicInteger();
+    private AtomicBoolean destroy = new AtomicBoolean();
 
     public MediaScannerService(SettingsService settingsService, IndexManager indexManager,
             PlaylistService playlistService, MediaFileService mediaFileService, MediaFileDao mediaFileDao,
@@ -98,8 +102,15 @@ public class MediaScannerService {
 
     @PostConstruct
     public void init() {
+        cleansingProcess.set(true);
+        destroy.set(false);
         indexManager.deleteOldIndexFiles();
         indexManager.initializeIndexDirectory();
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        destroy.set(true);
     }
 
     public void initNoSchedule() {
@@ -121,7 +132,7 @@ public class MediaScannerService {
      * Returns the number of files scanned so far.
      */
     public int getScanCount() {
-        return scanCount;
+        return scanCount.get();
     }
 
     /**
@@ -149,42 +160,35 @@ public class MediaScannerService {
 
         try {
 
-            // Maps from artist name to album count.
+            // init
             Map<String, Integer> albumCount = new ConcurrentHashMap<>();
             Genres genres = new Genres();
-
-            scanCount = 0;
-
+            scanCount.set(0);
             utils.clearOrder();
             indexCache.removeAll();
-
             mediaFileService.setMemoryCacheEnabled(false);
             indexManager.startIndexing();
-
             mediaFileService.clearMemoryCache();
 
             // Recurse through all files on disk.
             for (MusicFolder musicFolder : settingsService.getAllMusicFolders()) {
                 MediaFile root = mediaFileService.getMediaFile(musicFolder.getPath(), false);
-                scanFile(root, musicFolder, statistics, albumCount, genres, false);
+                scanFile(root, musicFolder, statistics, albumCount, genres, false, destroy.get());
             }
 
             // Scan podcast folder.
             File podcastFolder = new File(settingsService.getPodcastFolder());
-            if (podcastFolder.exists()) {
+            if (!destroy.get() && podcastFolder.exists()) {
                 scanFile(mediaFileService.getMediaFile(podcastFolder), new MusicFolder(podcastFolder, null, true, null),
-                        statistics, albumCount, genres, true);
+                        statistics, albumCount, genres, true, destroy.get());
             }
 
             writeInfo("Scanned media library with " + scanCount + " entries.");
             writeInfo("Marking non-present files.");
-
             mediaFileDao.markNonPresent(statistics.getScanDate());
             writeInfo("Marking non-present artists.");
-
             artistDao.markNonPresent(statistics.getScanDate());
             writeInfo("Marking non-present albums.");
-
             albumDao.markNonPresent(statistics.getScanDate());
 
             // Update statistics
@@ -196,29 +200,18 @@ public class MediaScannerService {
             // Update genres
             mediaFileDao.updateGenres(genres.getGenres());
 
-            if (jpsonicCleansingProcess) {
-
-                writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
-                utils.updateSortOfArtist();
-                utils.updateSortOfAlbum();
-                writeInfo("[1/2] Done.");
-
-                if (settingsService.isSortStrict()) {
-                    writeInfo(
-                            "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
-                    utils.updateOrderOfAll();
-                } else {
-                    writeInfo(
-                            "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
-                }
-                writeInfo("[2/2] Done.");
-
-            }
+            docleansingProcess(destroy.get());
 
             LOG.info("Completed media library scan.");
 
-        } catch (Throwable x) {
-            LOG.error("Failed to scan media library.", x);
+        } catch (ExecutionException e) {
+            if (destroy.get()) {
+                writeInfo("Interrupted to scan media library.");
+            } else if (LOG.isDebugEnabled()) {
+                LOG.debug("Failed to scan media library.", e);
+            }
+        } catch (Throwable t) {
+            LOG.error("Failed to scan media library.", t);
         } finally {
             mediaFileService.setMemoryCacheEnabled(true);
             indexManager.stopIndexing(statistics);
@@ -226,9 +219,28 @@ public class MediaScannerService {
             utils.clearMemoryCache();
         }
 
-        playlistService.importPlaylists();
-        mediaFileDao.checkpoint();
+        if (!destroy.get()) {
+            playlistService.importPlaylists();
+            mediaFileDao.checkpoint();
+        }
+    }
 
+    private void docleansingProcess(boolean isDestroy) {
+        if (!isDestroy && cleansingProcess.get()) {
+            writeInfo("[1/2] Additional processing after scanning by Jpsonic. Supplementing sort/read data.");
+            utils.updateSortOfArtist();
+            utils.updateSortOfAlbum();
+            writeInfo("[1/2] Done.");
+            if (settingsService.isSortStrict()) {
+                writeInfo(
+                        "[2/2] Additional processing after scanning by Jpsonic. Create dictionary sort index in database.");
+                utils.updateOrderOfAll();
+            } else {
+                writeInfo(
+                        "[2/2] A dictionary sort index is not created in the database. See Settings > General > Sort settings.");
+            }
+            writeInfo("[2/2] Done.");
+        }
     }
 
     private void writeInfo(String msg) {
@@ -237,10 +249,20 @@ public class MediaScannerService {
         }
     }
 
+    private void interruptIfdestroyed(boolean isDestroy) throws ExecutionException {
+        if (isDestroy) {
+            throw new ExecutionException(new InterruptedException("The scan was stopped due to the shutdown."));
+        }
+    }
+
     private void scanFile(MediaFile file, MusicFolder musicFolder, MediaLibraryStatistics statistics,
-            Map<String, Integer> albumCount, Genres genres, boolean isPodcast) {
-        scanCount++;
-        if (LOG.isInfoEnabled() && scanCount % 250 == 0) {
+            Map<String, Integer> albumCount, Genres genres, boolean isPodcast, boolean isDestroy)
+            throws ExecutionException {
+
+        interruptIfdestroyed(isDestroy);
+
+        scanCount.incrementAndGet();
+        if (LOG.isInfoEnabled() && scanCount.get() % 250 == 0) {
             writeInfo("Scanned media library with " + scanCount + " entries.");
         } else if (LOG.isTraceEnabled()) {
             LOG.trace("Scanning file {}", file.getPath());
@@ -256,10 +278,10 @@ public class MediaScannerService {
 
         if (file.isDirectory()) {
             for (MediaFile child : mediaFileService.getChildrenOf(file, true, false, false, false)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast, isDestroy);
             }
             for (MediaFile child : mediaFileService.getChildrenOf(file, false, true, false, false)) {
-                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast);
+                scanFile(child, musicFolder, statistics, albumCount, genres, isPodcast, isDestroy);
             }
         } else {
             if (!isPodcast) {
@@ -427,10 +449,10 @@ public class MediaScannerService {
     }
 
     public boolean isJpsonicCleansingProcess() {
-        return jpsonicCleansingProcess;
+        return cleansingProcess.get();
     }
 
-    public void setJpsonicCleansingProcess(boolean isJpsonicCleansingProcess) {
-        this.jpsonicCleansingProcess = isJpsonicCleansingProcess;
+    public void setJpsonicCleansingProcess(boolean b) {
+        this.cleansingProcess.set(b);
     }
 }

@@ -21,6 +21,8 @@
 
 package org.airsonic.player.service;
 
+import static org.springframework.web.bind.ServletRequestUtils.getIntParameter;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -41,10 +43,11 @@ import org.airsonic.player.util.StringUtil;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.ServletRequestBindingException;
-import org.springframework.web.bind.ServletRequestUtils;
 
 /**
  * Provides services for maintaining the set of players.
@@ -56,6 +59,8 @@ import org.springframework.web.bind.ServletRequestUtils;
 @Service
 @DependsOn("liquibase")
 public class PlayerService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PlayerService.class);
 
     private static final Object LOCK = new Object();
     private static final String COOKIE_NAME = "player";
@@ -84,8 +89,7 @@ public class PlayerService {
     /**
      * Equivalent to <code>getPlayer(request, response, true)</code> .
      */
-    public Player getPlayer(HttpServletRequest request, HttpServletResponse response)
-            throws ServletRequestBindingException {
+    public Player getPlayer(HttpServletRequest request, HttpServletResponse response) {
         return getPlayer(request, response, true, false);
     }
 
@@ -104,7 +108,7 @@ public class PlayerService {
      * @return The player associated with the given HTTP request.
      */
     public Player getPlayer(HttpServletRequest request, HttpServletResponse response, boolean remoteControlEnabled,
-            boolean isStreamRequest) throws ServletRequestBindingException {
+            boolean isStreamRequest) {
 
         synchronized (LOCK) {
 
@@ -144,29 +148,9 @@ public class PlayerService {
         }
     }
 
-    @SuppressWarnings("PMD.NullAssignment") // (player) Intentional assignment to eliminate user spoofing
-    private Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled)
-            throws ServletRequestBindingException {
-
-        // Find by 'player' request parameter.
-        Player player = getPlayerById(ServletRequestUtils.getIntParameter(request, Attributes.Request.PLAYER.value()));
-
-        // Find in session context.
-        if (player == null && remoteControlEnabled) {
-            player = findPlayerInSession(request);
-        }
-
-        // Find by cookie.
+    private Player findOrCreatePlayer(HttpServletRequest request, boolean remoteControlEnabled) {
         String username = securityService.getCurrentUsername(request);
-        if (player == null && remoteControlEnabled) {
-            player = getPlayerById(getPlayerIdFromCookie(request, username));
-        }
-
-        // Make sure we're not hijacking the player of another user.
-        if (player != null && player.getUsername() != null && username != null
-                && !player.getUsername().equals(username)) {
-            player = null;
-        }
+        Player player = findPlayer(request, remoteControlEnabled, username);
 
         // Look for player with same IP address and user name.
         if (player == null) {
@@ -182,6 +166,39 @@ public class PlayerService {
             createPlayer(player);
         }
         return player;
+    }
+
+    private @Nullable Player findPlayer(HttpServletRequest request, boolean remoteControlEnabled, String username) {
+        // Find by 'player' request parameter.
+        Player player = null;
+        try {
+            player = getPlayerById(getIntParameter(request, Attributes.Request.PLAYER.value()));
+        } catch (ServletRequestBindingException e) {
+            warn("An unrecoverable error occurred while searching for the player.", e);
+        }
+
+        // Find in session context.
+        if (player == null && remoteControlEnabled) {
+            player = findPlayerInSession(request);
+        }
+
+        // Find by cookie.
+        if (player == null && remoteControlEnabled) {
+            player = getPlayerById(getPlayerIdFromCookie(request, username));
+        }
+
+        // Make sure we're not hijacking the player of another user.
+        if (player != null && player.getUsername() != null && username != null
+                && !player.getUsername().equals(username)) {
+            return null;
+        }
+        return player;
+    }
+
+    private void warn(String m, Throwable t) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn(m, t);
+        }
     }
 
     @SuppressFBWarnings(value = "UC_USELESS_CONDITION", justification = "False positive. The value of isStreamRequest is not always false.")
@@ -205,7 +222,7 @@ public class PlayerService {
         return false;
     }
 
-    private @Nullable Player findPlayerInSession(HttpServletRequest request) throws ServletRequestBindingException {
+    private @Nullable Player findPlayerInSession(HttpServletRequest request) {
         Integer playerId = (Integer) request.getSession().getAttribute(ATTRIBUTE_SESSION_KEY);
         if (playerId != null) {
             return getPlayerById(playerId);

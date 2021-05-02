@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.airsonic.player.domain.MediaFile;
 import org.airsonic.player.domain.PlayQueue;
@@ -56,9 +57,7 @@ public class PlayQueueInputStream extends InputStream {
 
     private final Player player;
     private final TransferStatus status;
-    private final Integer maxBitRate;
-    private final String preferredTargetFormat;
-    private final VideoTranscodingSettings videoTranscodingSettings;
+    private final TranscodingService.Parameters transParam;
     private final TranscodingService transcodingService;
     private final AudioScrobblerService audioScrobblerService;
     private final MediaFileService mediaFileService;
@@ -66,8 +65,8 @@ public class PlayQueueInputStream extends InputStream {
     private final SettingsService settingsService;
     private final AsyncTaskExecutor executor;
 
-    private MediaFile currentFile;
-    private InputStream delegate;
+    private AtomicReference<MediaFile> currentFile;
+    private AtomicReference<InputStream> delegate;
 
     public PlayQueueInputStream(Player player, TransferStatus status, Integer maxBitRate, String preferredTargetFormat,
             VideoTranscodingSettings videoTranscodingSettings, TranscodingService transcodingService,
@@ -76,15 +75,14 @@ public class PlayQueueInputStream extends InputStream {
         super();
         this.player = player;
         this.status = status;
-        this.maxBitRate = maxBitRate;
-        this.preferredTargetFormat = preferredTargetFormat;
-        this.videoTranscodingSettings = videoTranscodingSettings;
         this.transcodingService = transcodingService;
         this.audioScrobblerService = audioScrobblerService;
         this.mediaFileService = mediaFileService;
         this.searchService = searchService;
         this.settingsService = settingsService;
         this.executor = executor;
+        transParam = transcodingService.getParameters(player.getPlayQueue().getCurrentFile(), player, maxBitRate,
+                preferredTargetFormat, videoTranscodingSettings);
     }
 
     @Override
@@ -102,7 +100,7 @@ public class PlayQueueInputStream extends InputStream {
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
 
-        if (currentFile == null) {
+        if (isEmpty(currentFile)) {
             // Prepare currentInputStream.
             Future<Boolean> prepare = executor.submit(new Prepare());
             try {
@@ -120,7 +118,7 @@ public class PlayQueueInputStream extends InputStream {
         }
 
         // If end of song reached, skip to next song and call read() again.
-        int n = delegate.read(b, off, len);
+        int n = delegate.get().read(b, off, len);
         if (n == -1) {
             player.getPlayQueue().next();
             internalClose();
@@ -148,26 +146,18 @@ public class PlayQueueInputStream extends InputStream {
                 return false;
             }
 
-            if (!file.equals(currentFile)) {
+            if (isEmpty(currentFile) || !file.equals(currentFile.get())) {
 
                 internalClose();
-
-                // Don't scrobble REST players (except Sonos)
-                if (isEmpty(player.getClientId()) || player.getClientId().equals(SonosHelper.JPSONIC_CLIENT_ID)) {
-                    audioScrobblerService.register(file, player.getUsername(), false, null);
-                }
+                scrobble();
                 mediaFileService.incrementPlayCount(file);
-
                 writeLog(file);
 
-                // **** Transcoding ****
-                TranscodingService.Parameters parameters = transcodingService.getParameters(file, player, maxBitRate,
-                        preferredTargetFormat, videoTranscodingSettings);
                 try {
-                    delegate = transcodingService.getTranscodedInputStream(parameters);
+                    delegate = new AtomicReference<>(transcodingService.getTranscodedInputStream(transParam));
                     if (!isEmpty(delegate) || player.getPlayQueue().getStatus() != PlayQueue.Status.STOPPED) {
-                        currentFile = file;
-                        status.setFile(currentFile.getFile());
+                        currentFile = new AtomicReference<>(file);
+                        status.setFile(currentFile.get().getFile());
                         return true;
                     }
                 } catch (IOException e) {
@@ -200,7 +190,7 @@ public class PlayQueueInputStream extends InputStream {
     public void close() throws IOException {
         try {
             if (!isEmpty(delegate)) {
-                delegate.close();
+                delegate.get().close();
             }
         } finally {
             closeAfter();
@@ -214,7 +204,7 @@ public class PlayQueueInputStream extends InputStream {
     private void internalClose() {
         try {
             if (!isEmpty(delegate)) {
-                delegate.close();
+                delegate.get().close();
             }
         } catch (IOException e) {
             LOG.error("Unable to close stream currently in use.", e);
@@ -225,12 +215,16 @@ public class PlayQueueInputStream extends InputStream {
 
     @SuppressWarnings("PMD.NullAssignment")
     public void closeAfter() {
+        scrobble();
+        delegate = null;
+        currentFile = null;
+    }
+
+    private void scrobble() {
         // Don't scrobble REST players (except Sonos)
         if (!isEmpty(currentFile)
                 && (isEmpty(player.getClientId()) || player.getClientId().equals(SonosHelper.JPSONIC_CLIENT_ID))) {
-            audioScrobblerService.register(currentFile, player.getUsername(), true, null);
+            audioScrobblerService.register(currentFile.get(), player.getUsername(), true, null);
         }
-        delegate = null;
-        currentFile = null;
     }
 }
