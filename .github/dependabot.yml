@@ -1,0 +1,230 @@
+version: 2
+updates:
+- package-ecosystem: maven
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "20:00"
+  open-pull-requests-limit: 10
+  target-branch: hotfix
+  labels:
+  - "type: dependency-upgrade"
+  ignore:
+  - dependency-name: com.auth0:java-jwt
+    versions:
+    - ">= 3.14.a, < 3.15"
+  - dependency-name: com.auth0:java-jwt
+    versions:
+    - ">= 3.15.a, < 3.16"
+  - dependency-name: jakarta.annotation:jakarta.annotation-api
+    versions:
+    - "> 2.0.0, < 2.1"
+  - dependency-name: jakarta.jws:jakarta.jws-api
+    versions:
+    - ">= 3.a, < 4"
+  - dependency-name: jakarta.xml.bind:jakarta.xml.bind-api
+    versions:
+    - ">= 3.0.a, < 3.1"
+  - dependency-name: jakarta.xml.soap:jakarta.xml.soap-api
+    versions:
+    - ">= 2.a, < 3"
+  - dependency-name: jakarta.xml.ws:jakarta.xml.ws-api
+    versions:
+    - ">= 3.0.a, < 3.1"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-core
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-el
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-jasper
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat.embed:tomcat-embed-websocket
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat:tomcat-annotations-api
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat:tomcat-jdbc
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.apache.tomcat:tomcat-juli
+    versions:
+    - ">= 10.0.a, < 10.1"
+  - dependency-name: org.eclipse.jetty:apache-jsp
+    versions:
+    - ">= 10.a, < 11"
+  - dependency-name: org.eclipse.jetty:apache-jsp
+    versions:
+    - ">= 11.0.a, < 11.1"
+  - dependency-name: org.eclipse.jetty.toolchain:jetty-schemas
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: org.eclipse.jetty.toolchain:jetty-schemas
+    versions:
+    - ">= 5.a, < 6"
+  - dependency-name: org.eclipse.persistence:org.eclipse.persistence.moxy
+    versions:
+    - ">= 3.0.a, < 3.1"
+  - dependency-name: org.glassfish.jaxb:jaxb-runtime
+    versions:
+    - ">= 3.0.a, < 3.1"
+  - dependency-name: org.jvnet.staxex:stax-ex
+    versions:
+    - "> 2.0.0, < 2.1"
+  - dependency-name: org.jvnet.staxex:stax-ex
+    versions:
+    - ">= 2.0.a, < 2.1"
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - ">= 4.1.a, < 4.2"
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - ">= 4.2.a, < 4.3"
+  - dependency-name: org.liquibase:liquibase-core
+    versions:
+    - ">= 4.a, < 5"
+  - dependency-name: org.springframework.boot:spring-boot-dependencies
+    versions:
+    - "> 2.3.5.RELEASE, < 2.4"
+  - dependency-name: org.springframework.boot:spring-boot-maven-plugin
+    versions:
+    - "> 2.3.5.RELEASE, < 2.4"
+  - dependency-name: org.springframework.boot:spring-boot-starter-validation
+    versions:
+    - "> 2.3.5.RELEASE, < 2.4"
+  - dependency-name: org.apache.maven.plugins:maven-jxr-plugin
+    versions:
+    - 3.1.1
+  - dependency-name: org.apache.ant:ant
+    versions:
+    - 1.10.10
+  - dependency-name: org.hsqldb:hsqldb
+    versions:
+    - 2.6.0
+  - dependency-name: org.eclipse.jetty:jetty-io
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:javax-websocket-client-impl
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-jndi
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-plus
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-annotations
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-util-ajax
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-util
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:javax-websocket-server-impl
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:websocket-servlet
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-client
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:websocket-client
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:websocket-api
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:websocket-common
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty.websocket:websocket-server
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-server
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-security
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-servlet
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-xml
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-webapp
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-http
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-continuation
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:jetty-servlets
+    versions:
+    - 9.4.37.v20210219
+    - 9.4.38.v20210224
+    - 9.4.39.v20210325
+  - dependency-name: org.eclipse.jetty:apache-jsp
+    versions:
+    - 9.4.39.v20210325
+  - dependency-name: com.puppycrawl.tools:checkstyle
+    versions:
+    - 8.41.1
+  - dependency-name: org.owasp:dependency-check-maven
+    versions:
+    - 6.1.5
+  - dependency-name: com.mycila:license-maven-plugin
+    versions:
+    - "4.0"
+  - dependency-name: net.revelc.code.formatter:formatter-maven-plugin
+    versions:
+    - 2.14.0
