@@ -21,14 +21,20 @@
 
 package org.airsonic.player.io;
 
+import static org.springframework.util.ObjectUtils.isEmpty;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
-import org.airsonic.player.util.FileUtil;
 import org.apache.commons.io.IOUtils;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,10 +48,12 @@ public final class TranscodeInputStream extends InputStream {
 
     private static final Logger LOG = LoggerFactory.getLogger(TranscodeInputStream.class);
 
-    private final InputStream processInputStream;
-    private final OutputStream processOutputStream;
+    private final Executor executor;
+
     private final Process process;
-    private final File tmpFile;
+    private final AtomicReference<InputStream> processInputStream;
+    private final AtomicReference<OutputStream> processOutputStream;
+    private @Nullable AtomicReference<File> tmpFile;
 
     /**
      * Creates a transcoded input stream by executing an external process. If <code>in</code> is not null, data from it
@@ -61,10 +69,13 @@ public final class TranscodeInputStream extends InputStream {
      * @throws IOException
      *             If an I/O error occurs.
      */
-    public TranscodeInputStream(ProcessBuilder processBuilder, final InputStream in, File tmpFile, Executor executor,
-            boolean isVerboseLogPlaying) throws IOException {
+    public TranscodeInputStream(ProcessBuilder processBuilder, @Nullable final InputStream in, @Nullable File tmpFile,
+            Executor executor, boolean isVerboseLogPlaying) throws IOException {
         super();
-        this.tmpFile = tmpFile;
+        this.executor = executor;
+        if (!isEmpty(tmpFile)) {
+            this.tmpFile = new AtomicReference<>(tmpFile);
+        }
 
         StringBuilder buf = new StringBuilder("Starting transcoder: ");
         for (String s : processBuilder.command()) {
@@ -75,28 +86,65 @@ public final class TranscodeInputStream extends InputStream {
         }
 
         process = processBuilder.start();
-        processOutputStream = process.getOutputStream();
-        processInputStream = process.getInputStream();
+        processOutputStream = new AtomicReference<>(process.getOutputStream());
+        processInputStream = new AtomicReference<>(process.getInputStream());
 
         // Must read stderr from the process, otherwise it may block.
         final String name = processBuilder.command().get(0);
-        executor.execute(new InputStreamReaderTask(process.getErrorStream(), name, true));
+        executor.execute(new TranscodedErrorStreamTask(process.getErrorStream(), name, true));
 
         // Copy data in a separate thread
-        if (in != null) {
-            executor.execute(new TranscodedInputStreamTask(in, processOutputStream));
+        if (!isEmpty(in)) {
+            executor.execute(new TranscodedOutputStreamTask(in, processOutputStream.get()));
         }
     }
 
-    @SuppressWarnings({ "PMD.UseTryWithResources", "PMD.EmptyCatchBlock" })
-    /*
-     * [UseTryWithResources] False positive. pmd/pmd/issues/2882 [EmptyCatchBlock] Triage in #824
-     */
-    private static class TranscodedInputStreamTask implements Runnable {
+    public static class TranscodedErrorStreamTask implements Runnable {
+
+        private static final Logger LOG = LoggerFactory.getLogger(TranscodedErrorStreamTask.class);
+
+        private final InputStream errorStream;
+        private final String name;
+        private final boolean log;
+
+        public TranscodedErrorStreamTask(InputStream input, String name, boolean log) {
+            this.errorStream = input;
+            this.name = name;
+            this.log = log;
+        }
+
+        @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
+        @Override
+        public void run() {
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(errorStream, StandardCharsets.UTF_8))) {
+                for (String line = reader.readLine(); line != null; line = reader.readLine()) {
+                    if (log && LOG.isInfoEnabled()) {
+                        LOG.info('(' + name + ") " + line);
+                    }
+                }
+            } catch (IOException e) {
+                if (LOG.isErrorEnabled()) {
+                    LOG.error("Error in reading process out.", e);
+                }
+            } finally {
+                try {
+                    errorStream.close();
+                } catch (IOException e) {
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Error in reading process out.", e);
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("PMD.UseTryWithResources") // False positive. pmd/pmd/issues/2882
+    private static class TranscodedOutputStreamTask implements Runnable {
         private final InputStream in;
         private final OutputStream out;
 
-        public TranscodedInputStreamTask(InputStream in, OutputStream out) {
+        public TranscodedOutputStreamTask(InputStream in, OutputStream out) {
             this.in = in;
             this.out = out;
         }
@@ -105,53 +153,78 @@ public final class TranscodeInputStream extends InputStream {
         public void run() {
             try {
                 IOUtils.copy(in, out);
-            } catch (IOException x) {
-                // Intentionally ignored. Will happen if the remote player closes the stream.
+            } catch (IOException e) {
+                trace("Ignored. Will happen if the remote player closes the stream.", e);
             } finally {
-                FileUtil.closeQuietly(in);
-                FileUtil.closeQuietly(out);
+                try {
+                    in.close();
+                    out.close();
+                } catch (IOException e) {
+                    trace("Error in TranscodedInputStream#close().", e);
+                }
             }
         }
     }
 
-    /**
-     * @see InputStream#read()
-     */
+    private static void trace(String s, Exception e) {
+        if (LOG.isTraceEnabled()) {
+            LOG.trace(s, e);
+        }
+    }
+
     @Override
     public int read() throws IOException {
-        return processInputStream.read();
+        return processInputStream.get().read();
     }
 
-    /**
-     * @see InputStream#read(byte[])
-     */
     @Override
     public int read(byte[] b) throws IOException {
-        return processInputStream.read(b);
+        return processInputStream.get().read(b);
     }
 
-    /**
-     * @see InputStream#read(byte[], int, int)
-     */
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        return processInputStream.read(b, off, len);
+        return processInputStream.get().read(b, off, len);
     }
 
-    /**
-     * @see InputStream#close()
-     */
     @Override
     public void close() {
-        FileUtil.closeQuietly(processInputStream);
-        FileUtil.closeQuietly(processOutputStream);
-
-        if (process != null) {
-            process.destroy();
+        try {
+            processInputStream.get().close();
+            processOutputStream.get().close();
+        } catch (IOException e) {
+            trace("Error in Stream#close() of ProcessBuilder.", e);
+        } finally {
+            if (!isEmpty(process)) {
+                process.destroy();
+            }
         }
 
-        if (tmpFile != null && !tmpFile.delete() && LOG.isWarnEnabled()) {
-            LOG.warn("Failed to delete tmp file: " + tmpFile);
+        if (!isEmpty(tmpFile)) {
+            /*
+             * If it fails, will be removed when the VM is shut down, but once started, this product will not shut down
+             * for a very long time. Therefore, it will retry up to 3 times and delete it as soon as possible.
+             */
+            executor.execute(() -> {
+                boolean isDelete = false;
+                for (int i = 0; i < 3; i++) {
+                    isDelete = isEmpty(tmpFile) || tmpFile.get().delete();
+                    if (isDelete) {
+                        break;
+                    } else {
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException e) {
+                            if (LOG.isWarnEnabled()) {
+                                LOG.warn("The deleting tmp file has been interrupted.: " + tmpFile.get(), e);
+                            }
+                        }
+                    }
+                }
+                if (!isDelete && LOG.isWarnEnabled()) {
+                    LOG.warn("Failed to delete tmp file: " + tmpFile.get());
+                }
+            });
         }
     }
 }
