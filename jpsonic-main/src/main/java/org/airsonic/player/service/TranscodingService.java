@@ -441,7 +441,7 @@ public class TranscodingService {
                 // Create temporary file, and feed this to the transcoder.
                 String path = mediaFile.getFile().getAbsolutePath();
                 if (PlayerUtils.isWindows() && !mediaFile.isVideo() && !StringUtils.isAsciiPrintable(path)) {
-                    tmpFile = File.createTempFile("airsonic", "." + FilenameUtils.getExtension(path));
+                    tmpFile = File.createTempFile("jpsonic", "." + FilenameUtils.getExtension(path));
                     tmpFile.deleteOnExit();
                     FileUtils.copyFile(new File(path), tmpFile);
                     if (LOG.isDebugEnabled()) {
